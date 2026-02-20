@@ -32,7 +32,7 @@ on fish caught:
             add loop-value to {_B::*}
         else if loop-value contains "|A":
             add loop-value to {_A::*}
-        else if loop-value contains "|S":
+        else if loop-value contains "|S|":
             add loop-value to {_S::*}
         else if loop-value contains "|S+":
             add loop-value to {_S+::*}
@@ -212,7 +212,7 @@ on fish caught:
         add 5 to {_도망확률감소}
     if {낚시레벨::%player%} >= 70:
         add 1 to {_크리티컬데미지}
-    if {낚세레벨::%player%} >= 75:
+    if {낚시레벨::%player%} >= 75:
         add 5 to {_도망확률감소}
     if {낚시레벨::%player%} >= 80:
         add 1 to {_크리티컬데미지}
@@ -439,7 +439,7 @@ command /낚시대회 [<text>] [<integer>] [<integer>]:
         else if arg-1 is "강제종료":
             if player is op:
                 delete {낚시대회::*}
-                delete {낙시대회물고기::*}
+                delete {낚시대회물고기::*}
                 broadcast "관리자 &e%player's name%&f님이 낚시대회를 강제종료하였습니다!"
         else if arg-1 is "순위":
             if {낚시대회물고기::*} is not set:
