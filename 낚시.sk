@@ -1,0 +1,490 @@
+# 기본 E
+# E D C B A S S+ M L G
+#
+#
+#
+on fish caught:
+    set {_fishes::*} to get_fish({area::%player%})
+    #broadcast "getfish : %{_fishes::*}%"
+    cancel event
+    kill fishing hook
+    loop {_fishes::*}:
+        if {낚시레벨::%player%} < 20:
+            if loop-value contains "|S+":
+                delete {_fishes::%loop-index%}
+        if {낚시레벨::%player%} < 30:
+            if loop-value contains "|M":
+                delete {_fishes::%loop-index%}
+        if {낚시레벨::%player%} < 40:
+            if loop-value contains "|L":
+                delete {_fishes::%loop-index%}
+        if {낚시레벨::%player%} < 50:
+            if loop-value contains "|G":
+                delete {_fishes::%loop-index%}
+    loop {_fishes::*}:
+        if loop-value contains "|E":
+            add loop-value to {_E::*}
+        else if loop-value contains "|D":
+            add loop-value to {_D::*}
+        else if loop-value contains "|C":
+            add loop-value to {_C::*}
+        else if loop-value contains "|B":
+            add loop-value to {_B::*}
+        else if loop-value contains "|A":
+            add loop-value to {_A::*}
+        else if loop-value contains "|S":
+            add loop-value to {_S::*}
+        else if loop-value contains "|S+":
+            add loop-value to {_S+::*}
+        else if loop-value contains "|M":
+            add loop-value to {_M::*}
+        else if loop-value contains "|L":
+            add loop-value to {_L::*}
+        else if loop-value contains "|G":
+            add loop-value to {_G::*}
+    set {_등급} to "E"
+    chance of 40.9903%:
+        set {_등급} to "D"
+    chance of 22.7877%:
+        set {_등급} to "C"
+    chance of 11.2372%:
+        set {_등급} to "B"
+    chance of 6.31645%:
+        set {_등급} to "A"
+    chance of 3.06154%:
+        set {_등급} to "S"
+    chance of 1.60659%:
+        set {_등급} to "S+"
+    chance of 0.30033%:
+        set {_등급} to "M"
+    chance of 0.10001%:
+        set {_등급} to "L"
+    chance of 0.01%:
+        set {_등급} to "G"
+    
+    if {_%{_등급}%::*} is not set:
+        set {_등급} to "E"
+
+    if {_등급} is "E":
+        if {_E::*} is not set:
+            if {_D::*} is set:
+                set {_등급} to "D"
+            else if {_C::*} is set:
+                set {_등급} to "C"
+            else if {_B::*} is set:
+                set {_등급} to "B"
+            else if {_A::*} is set:
+                set {_등급} to "A"
+            else if {_S::*} is set:
+                set {_등급} to "S"
+            else if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "D":
+        if {_D::*} is not set:
+            if {_C::*} is set:
+                set {_등급} to "C"
+            else if {_B::*} is set:
+                set {_등급} to "B"
+            else if {_A::*} is set:
+                set {_등급} to "A"
+            else if {_S::*} is set:
+                set {_등급} to "S"
+            else if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "C":
+        if {_C::*} is not set:
+            if {_B::*} is set:
+                set {_등급} to "B"
+            else if {_A::*} is set:
+                set {_등급} to "A"
+            else if {_S::*} is set:
+                set {_등급} to "S"
+            else if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "B":
+        if {_B::*} is not set:
+            if {_A::*} is set:
+                set {_등급} to "A"
+            else if {_S::*} is set:
+                set {_등급} to "S"
+            else if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "A":
+        if {_A::*} is not set:
+            if {_S::*} is set:
+                set {_등급} to "S"
+            else if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "S":
+        if {_S::*} is not set:
+            if {_S+::*} is set:
+                set {_등급} to "S+"
+            else if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "S+":
+        if {_S+::*} is not set:
+            if {_M::*} is set:
+                set {_등급} to "M"
+            else if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "M":
+        if {_M::*} is not set:
+            if {_L::*} is set:
+                set {_등급} to "L"
+            else if {_G::*} is set:
+                set {_등급} to "G"
+    else if {_등급} is "L":
+        if {_L::*} is not set:
+            if {_G::*} is set:
+                set {_등급} to "G"
+    else:
+        message "&f이곳엔 물고기가 존재하지 않습니다." to player
+        stop
+    set {_크리티컬확률} to 0
+    set {_크리티컬데미지} to 10
+    set {_최대등급} to "S"
+    set {_도망확률감소} to 0
+    if {낚시레벨::%player%} >= 5:
+        add 5 to {_크리티컬확률}#크확 +5
+    if {낚시레벨::%player%} >= 10:
+        add 1 to {_크리티컬데미지}#크뎀 +1
+    if {낚시레벨::%player%} >= 15:
+        add 1 to {_크리티컬확률}#크확 +1
+    if {낚시레벨::%player%} >= 20:
+        set {_최대등급} to "S+"
+        add 1 to {_크리티컬데미지}#크뎀 +1
+    if {낚시레벨::%player%} >= 25:
+        add 1 to {_크리티컬확률}#크확 +1
+    if {낚시레벨::%player%} >= 30:
+        set {_최대등급} to "M"
+        add 1 to {_크리티컬데미지}#크뎀+1
+    if {낚시레벨::%player%} >= 35:
+        add 1 to {_크리티컬확률}#크확+1
+    if {낚시레벨::%player%} >= 40:
+        set {_최대등급} to "L"
+        add 1 to {_크리티컬데미지}#크뎀 +1
+    if {낚시레벨::%player%} >= 45:
+        add 1 to {_크리티컬확률}#크확 +1
+    if {낚시레벨::%player%} >= 50:
+        set {_최대등급} to "G"
+        add 1 to {_크리티컬데미지}
+    if {낚시레벨::%player%} >= 55:
+        add 1 to {_크리티컬확률}
+    if {낚시레벨::%player%} >= 60:
+        add 1 to {_크리티컬데미지}
+    if {낚시레벨::%player%} >= 65:
+        add 5 to {_도망확률감소}
+    if {낚시레벨::%player%} >= 70:
+        add 1 to {_크리티컬데미지}
+    if {낚세레벨::%player%} >= 75:
+        add 5 to {_도망확률감소}
+    if {낚시레벨::%player%} >= 80:
+        add 1 to {_크리티컬데미지}
+    if {낚시레벨::%player%} >= 85:
+        add 10 to {_도망확률감소}
+    if {낚시레벨::%player%} >= 90:
+        add 1 to {_크리티컬데미지}
+    if {낚시레벨::%player%} >= 95:
+        add 10 to {_도망확률감소}
+    if {낚시레벨::%player%} >= 100:
+        add 1 to {_크리티컬데미지}
+    #message "등급 : %{_등급}%" to player
+    #message "%{_%{_등급}%::*}%" to player
+    if {용암낚시::%player%} is 1:
+        if player's tool's name is not "&f용암 낚싯대":
+            message "&c이 낚싯대로는 용암에서 낚시할 수 없습니다." to player
+            stop
+        
+
+    set {_count} to 0
+    loop {_%{_등급}%::*}:
+        add 1 to {_count}
+    set {_d} to random integer between 1 and {_count}
+    set {_f::*} to split {_%{_등급}%::%{_d}%} at "|"
+    open chest inventory with 1 rows named "&0낚시" to player
+    set {_size} to random number between ({_f::2} parsed as number) and ({_f::3} parsed as number)
+    if {_f::1} is not set:
+        message "&f이곳엔 물고기가 존재하지 않습니다." to player
+        stop
+    chance of {_크리티컬확률}%:
+        set {_size} to {_size} * ({_크리티컬데미지}*0.01+1)
+        message "&a크리티컬!" to player
+    set slot 0 of player's current inventory to cod named "&f%{_f::1}%" with lore "&7등급 &e: &f%{_등급}%" and "&7크기 &e: &f%{_size}%cm" and "&f%now%"
+
+    set {_도주} to {_f::5} parsed as integer
+    if {_도망확률감소} > 0:
+        subtract {_도망확률감소} from {_도주}
+    chance of {_도주}%:
+        set slot 0 of player's current inventory to air
+        message "&c물고기가 도망갔습니다!" to player
+        stop
+    set {_expsize} to {_size}
+    if {_expsize} > 1000:
+        set {_expsize} to 1000
+    set {_exprank} to rankchange({_등급})
+    add (3+sqrt({_expsize}/10))*(1+{_exprank}/10) to {낚시레벨현재경험치::%player%}
+    message "&a낚시 경험치 +%(3+sqrt({_expsize}/10))*(1+{_exprank}/10)%exp" to player
+    loop 10 times:
+        if {낚시레벨현재경험치::%player%} > {낚시레벨필요경험치::%player%}:
+            set {_remain} to {낚시레벨현재경험치::%player%} - {낚시레벨필요경험치::%player%}
+            set {낚시레벨현재경험치::%player%} to 0
+            if {낚시레벨::%player%} < 50:
+                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.1
+            else:
+                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.05
+            add 1 to {낚시레벨::%player%}
+            add {_remain} to {낚시레벨현재경험치::%player%}
+            message "&a낚시레벨이 %{낚시레벨::%player%}%LV가 되었습니다!" to player
+        else:
+            stop loop
+
+
+    if {낚시대회::시간} is set:
+        fishrank(player, {_f::1}, {_등급}, "%{_size}%")
+    if {도감최대::%{_f::1}%::%player%} is not set:
+        message "&a처음보는 물고기입니다!" to player
+        set {도감최대::%{_f::1}%::%player%} to {_size}
+        set {처음낚은날짜::%{_f::1}%::%player%} to now
+        set {최대낚은날짜::%{_f::1}%::%player%} to now
+    else:
+        if {도감최대::%{_f::1}%::%player%} < {_size}:
+            message "&a도감을 갱신했습니다!" to player
+            set {도감최대::%{_f::1}%::%player%} to {_size}
+            set {최대낚은날짜::%{_f::1}%::%player%} to now
+function fishrank(p: player, fishname: text, rank: text, size: text):
+    if {_fishname} is not set:
+        stop
+    set {_fish} to "%{_p}'s name%|%{_fishname}%|%{_rank}%|%{_size}%"
+    add {_fish} to {낚시대회물고기::*}
+        # ---- 방금 잡은 기록이 TOP10 안에 몇 등인지 즉시 계산 ----
+    set {_pool::*} to {낚시대회물고기::*}
+    set {_total} to size of {_pool::*}
+
+    set {_limit} to 10
+    if {_total} < {_limit}:
+        set {_limit} to {_total}
+
+    set {_myRank} to 0
+
+    loop {_limit} times:
+        set {_best} to {_pool::1}
+        loop {_pool::*}:
+            if isBetter(loop-value-2, {_best}):
+                set {_best} to loop-value-2
+
+        # 이번에 뽑힌 best가 방금 잡은 그 기록이면 등수 확정
+        if {_best} is {_fish}:
+            set {_myRank} to loop-number
+            stop loop
+
+        remove {_best} from {_pool::*}
+
+    if {_myRank} is 0:
+        send "&7[낚시대회] 기록 등록! (TOP10 밖) &7%{_fishname}% / %{_rank}% / %{_size}%" to {_p}
+    else:
+        send "&6[낚시대회] &e%{_myRank}%등&6 기록! &7%{_fishname}% / %{_rank}% / %{_size}%" to {_p}
+function isBetter(a: text, b: text) :: boolean:
+    # 포맷: 플레이어|물고기|등급|크기
+    set {_A::*} to split {_a} at "|"
+    set {_B::*} to split {_b} at "|"
+
+    set {_ra} to rankchange({_A::3})
+    set {_rb} to rankchange({_B::3})
+
+    if {_ra} > {_rb}:
+        return true
+    if {_ra} < {_rb}:
+        return false
+
+    # 등급이 같으면 크기 비교 (여기서 {_size}는 숫자/소수점만 있다고 했으니 바로 파싱)
+    set {_sa} to {_A::4} parsed as number
+    set {_sb} to {_B::4} parsed as number
+    if {_sa} is not set:
+        set {_sa} to 0
+    if {_sb} is not set:
+        set {_sb} to 0
+
+    if {_sa} > {_sb}:
+        return true
+function fishtimer(time: integer):
+    # time = "분"
+    set {낚시대회::총초} to {_time} * 60
+    set {낚시대회::남은초} to {_time} * 60
+
+    # 기존 바 있으면 정리
+    delete bossbar named "fishingContest"
+
+    # 보스바 생성 (name 과 title 분리)
+    set {낚시대회::bar} to bossbar named "fishingContest" with title "&b낚시대회 진행중" with color blue with style segmented 20 with progress 100
+    # ★ 중요: 보여줄 플레이어 지정(이거 안 하면 안 보임)
+    set bossbar players of {낚시대회::bar} to all players
+every 1 second:
+    if {낚시대회::bar} is set:
+        subtract 1 from {낚시대회::남은초}
+
+        # 남은시간 mm:ss
+        set {_m} to floor({낚시대회::남은초} / 60)
+        set {_s} to {낚시대회::남은초} mod 60
+
+        # progress (0~100)
+        set {_prog} to ({낚시대회::남은초} / {낚시대회::총초}) * 100
+        if {_prog} < 0:
+            set {_prog} to 0
+        set bossbar progress of {낚시대회::bar} to {_prog}
+
+        set bossbar title of {낚시대회::bar} to "&b낚시대회 진행중 | 상금 %{낚시대회::상금}% | 남은시간 %{_m}%:%{_s}%"
+
+        if {낚시대회::남은초} <= 0:
+            delete bossbar named "fishingContest"
+            broadcast "&e낚시대회가 종료되었습니다! &7(/낚시대회 순위)"
+            if {낚시대회물고기::*} is not set:
+                broadcast "&7낚시대회의 기록이 없어 상금을 지급하지 못했습니다."
+                stop
+
+            set {_pool::*} to {낚시대회물고기::*}
+            set {_total} to size of {_pool::*}
+
+            set {_limit} to 10
+            if {_total} < {_limit}:
+                set {_limit} to {_total}
+
+
+            loop {_limit} times:
+                set {_best} to {_pool::1}
+                loop {_pool::*}:
+                    if isBetter(loop-value-2, {_best}):
+                        set {_best} to loop-value-2
+
+                set {_P::*} to split {_best} at "|"
+                
+                if loop-number is 1:
+                    set {_name} to {_P::1} parsed as player
+                    add {낚시대회::상금} to {돈::%{_name}%}
+                    message "&a낚시대회 상금으로 %{낚시대회::상금}%원을 받았습니다!" to {_name}
+                else if loop-number is 2:
+                    set {_name} to {_P::1} parsed as player
+                    add {낚시대회::상금}*0.5 to {돈::%{_name}%}
+                    message "&a낚시대회 상금으로 %{낚시대회::상금}*0.5%원을 받았습니다!" to {_name}
+                else if loop-number is 3:
+                    set {_name} to {_P::1} parsed as player
+                    add {낚시대회::상금}*0.25 to {돈::%{_name}%}
+                    message "&a낚시대회 상금으로 %{낚시대회::상금}*0.25%원을 받았습니다!" to {_name}
+                broadcast "&e%loop-number%등 &f%{_P::1}% &7- %{_P::2}% &8(%{_P::3}% / %{_P::4}%)"
+
+                remove {_best} from {_pool::*}
+            delete {낚시대회::bar}
+            delete {낚시대회::*}
+            delete {낚시대회물고기::*}
+            stop
+            
+on join:
+    if {낚시대회::bar} is set:
+        add player to bossbar players of {낚시대회::bar}
+command /낚시대회 [<text>] [<integer>] [<integer>]:
+    trigger:
+        if arg-1 is not set:
+            message "/낚시대회 시작 시간 상금" to player
+        else if arg-1 is "시작":
+            if arg-2 or arg-3 is not set:
+                message "/낚시대회 시작 시간 상금" to player
+            else:
+                if arg-2 > 30:
+                    message "&c30분 이상의 시간은 관리자에게 문의해주세요." to player
+                    stop
+                if {낚시대회::시간} is set:
+                    message "&c낚시대회가 이미 진행중입니다." to player
+                    stop
+                broadcast "&e낚시대회&f가 시작되었습니다! (제한시간 &e%arg-2%&f분, 상금 &e%arg-3%&f원)"
+                
+                set {낚시대회::시간} to arg-2
+                set {낚시대회::상금} to arg-3
+                delete {낚시대회물고기::*}
+                fishtimer(arg-2)
+        else if arg-1 is "강제종료":
+            if player is op:
+                delete {낚시대회::*}
+                delete {낙시대회물고기::*}
+                broadcast "관리자 &e%player's name%&f님이 낚시대회를 강제종료하였습니다!"
+        else if arg-1 is "순위":
+            if {낚시대회물고기::*} is not set:
+                send "&7[낚시대회] 아직 기록이 없어."
+                stop
+
+            set {_pool::*} to {낚시대회물고기::*}
+            set {_total} to size of {_pool::*}
+
+            set {_limit} to 10
+            if {_total} < {_limit}:
+                set {_limit} to {_total}
+
+            send "&6==== 낚시대회 순위 TOP %{_limit}% &7(총 %{_total}%개 기록) &6===="
+
+            loop {_limit} times:
+                set {_best} to {_pool::1}
+                loop {_pool::*}:
+                    if isBetter(loop-value-2, {_best}):
+                        set {_best} to loop-value-2
+
+                set {_P::*} to split {_best} at "|"
+                send "&e%loop-number%등 &f%{_P::1}% &7- %{_P::2}% &8(%{_P::3}% / %{_P::4}%)"
+
+                remove {_best} from {_pool::*}
+            stop
+
+function rankchange(t: text) :: number:
+    if {_t} is "E":
+        return 1
+    else if {_t} is "D":
+        return 2
+    else if {_t} is "C":
+        return 3
+    else if {_t} is "B":
+        return 4
+    else if {_t} is "A":
+        return 5
+    else if {_t} is "S":
+        return 6
+    else if {_t} is "S+":
+        return 7
+    else if {_t} is "M":
+        return 8
+    else if {_t} is "L":
+        return 9
+    else if {_t} is "G":
+        return 10

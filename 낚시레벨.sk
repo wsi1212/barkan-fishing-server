@@ -1,0 +1,141 @@
+on join:
+    if {낚시레벨::%player%} is not set:
+        set {낚시레벨::%player%} to 1
+        set {낚시레벨필요경험치::%player%} to 10
+        set {낚시레벨현재경험치::%player%} to 0
+command /fix:
+    trigger:
+        set {낚시레벨::%player%} to 1
+        set {낚시레벨필요경험치::%player%} to 10
+        set {낚시레벨현재경험치::%player%} to 0
+
+command /낚시레벨:
+    trigger:
+        message "%player's name%님의 낚시레벨 : %{낚시레벨::%player%}%" to player
+        message "다음 레벨까지 필요 경험치 : %{낚시레벨필요경험치::%player%}-{낚시레벨현재경험치::%player%}%" to player
+
+command /낚시레벨보너스:
+    trigger:
+        message "&f========== 낚시레벨보너스 ==========" to player
+        set {_크리티컬확률} to 0
+        set {_크리티컬데미지} to 10
+        set {_최대등급} to "S"
+        set {_도망확률감소} to 0
+        if {낚시레벨::%player%} >= 5:
+            add 5 to {_크리티컬확률}#크확 +5
+        if {낚시레벨::%player%} >= 10:
+            add 1 to {_크리티컬데미지}#크뎀 +1
+        if {낚시레벨::%player%} >= 15:
+            add 1 to {_크리티컬확률}#크확 +1
+        if {낚시레벨::%player%} >= 20:
+            set {_최대등급} to "S+"
+            add 1 to {_크리티컬데미지}#크뎀 +1
+        if {낚시레벨::%player%} >= 25:
+            add 1 to {_크리티컬확률}#크확 +1
+        if {낚시레벨::%player%} >= 30:
+            set {_최대등급} to "M"
+            add 1 to {_크리티컬데미지}#크뎀+1
+        if {낚시레벨::%player%} >= 35:
+            add 1 to {_크리티컬확률}#크확+1
+        if {낚시레벨::%player%} >= 40:
+            set {_최대등급} to "L"
+            add 1 to {_크리티컬데미지}#크뎀 +1
+        if {낚시레벨::%player%} >= 45:
+            add 1 to {_크리티컬확률}#크확 +1
+        if {낚시레벨::%player%} >= 50:
+            set {_최대등급} to "G"
+            add 1 to {_크리티컬데미지}
+        if {낚시레벨::%player%} >= 55:
+            add 1 to {_크리티컬확률}
+        if {낚시레벨::%player%} >= 60:
+            add 1 to {_크리티컬데미지}
+        if {낚시레벨::%player%} >= 65:
+            add 5 to {_도망확률감소}
+        if {낚시레벨::%player%} >= 70:
+            add 1 to {_크리티컬데미지}
+        if {낚세레벨::%player%} >= 75:
+            add 5 to {_도망확률감소}
+        if {낚시레벨::%player%} >= 80:
+            add 1 to {_크리티컬데미지}
+        if {낚시레벨::%player%} >= 85:
+            add 10 to {_도망확률감소}
+        if {낚시레벨::%player%} >= 90:
+            add 1 to {_크리티컬데미지}
+        if {낚시레벨::%player%} >= 95:
+            add 10 to {_도망확률감소}
+        if {낚시레벨::%player%} >= 100:
+            add 1 to {_크리티컬데미지}
+        set {_크리티컬데미지} to {_크리티컬데미지} * 100
+        message "등장하는 물고기의 최대 등급 : %{_최대등급}%" to player
+        message "물고기 크기 보너스 확률 : %{_크리티컬확률}%%%" to player
+        message "물고기 크기 보너스 비율 : +%{_크리티컬데미지}/100%%%" to player
+        if {_도망확률감소} is set:
+            message "물고기 도주 확률 감소 : %{_도망확률감소}%" to player
+function _fishLv(id: text) :: number:
+    set {_lv} to {낚시레벨::%{_id}%}
+    if {_lv} is not set:
+        set {_lv} to 0
+    return {_lv}
+function _fishExp(id: text) :: number:
+    set {_e} to {낚시레벨현재경험치::%{_id}%}
+    if {_e} is not set:
+        set {_e} to 0
+    return {_e}
+function _isHigher(a: text, b: text) :: boolean:
+    if _fishLv({_a}) > _fishLv({_b}):
+        return true
+    if _fishLv({_a}) < _fishLv({_b}):
+        return false
+    if _fishExp({_a}) > _fishExp({_b}):
+        return true
+    return false
+function _nameOf(id: text) :: text:
+    set {_n} to {낚시이름::%{_id}%}
+    if {_n} is set:
+        return {_n}
+    return "UUID-%substring of {_id} from 1 to 8%"
+on join:
+    set {낚시이름::%player%} to player's name
+
+command /낚시레벨랭킹 [<integer>]:
+    trigger:
+        if {낚시레벨::*} is not set:
+            send "&7[낚시] 랭킹 데이터가 없습니다." to player
+            stop
+
+        # 저장된 낚시레벨의 '키(=UUID)'만 모아서 풀 구성
+        delete {_pool::*}
+        loop {낚시레벨::*}:
+            add loop-index to {_pool::*}
+
+        set {_total} to size of {_pool::*}
+        if {_total} <= 0:
+            send "&7[낚시] 랭킹 데이터가 없습니다." to player
+            stop
+
+        set {_limit} to 10
+        if arg-1 is set:
+            set {_tmp} to arg-1
+            if {_tmp} is set:
+                if {_tmp} > 0:
+                    set {_limit} to {_tmp}
+        if {_limit} > {_total}:
+            set {_limit} to {_total}
+
+        send "&6==== &e낚시레벨 랭킹 TOP %{_limit}% &7(총 %{_total}%명) &6====" to player
+
+        loop {_limit} times:
+            set {_best} to {_pool::1}
+            loop {_pool::*}:
+                if _isHigher(loop-value-2, {_best}):
+                    set {_best} to loop-value-2
+
+            set {_lv} to _fishLv({_best})
+            set {_cur} to _fishExp({_best})
+            set {_need} to {낚시레벨필요경험치::%{_best}%}
+            if {_need} is not set:
+                set {_need} to 0
+            
+            send "&e%loop-number%등 &f%_nameOf({_best})% &7- &bLv.%{_lv}% &8| &f%{_cur}%&7/&f%{_need}%"
+
+            remove {_best} from {_pool::*}

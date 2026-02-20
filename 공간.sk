@@ -1,0 +1,30 @@
+function enterlava(p: player):
+    set {용암낚시::%{_p}%} to 1
+
+function exitlava(p: player):
+    set {용암낚시::%{_p}%} to 0
+
+on rightclick:
+    if clicked block is warped sign:
+        if player's tool is fishing rod:
+            cancel event
+enter area at "바르칸물길":
+    message "바르칸 물길에 입장하였습니다." to player
+    set {area::%player%} to "바르칸물길"
+exit area at "바르칸물길":
+    message "바르칸 물길에서 퇴장하였습니다." to player
+    set {area::%player%} to "0"
+enter area at "바르칸동굴":
+    message "바르칸 동굴에 입장하였습니다." to player
+    set {area::%player%} to "바르칸동굴"
+exit area at "바르칸동굴":
+    message "바르칸 동굴에서 퇴장하였습니다." to player
+    set {area::%player%} to "0"
+enter area at "lavatest":
+    message "lavatest에 입장하였습니다." to player
+    set {area::%player%} to "lavatest"
+    enterlava(player)
+exit area at "lavatest":
+    message "lavatest에서 퇴장하였습니다." to player
+    set {area::%player%} to "0"
+    exitlava(player)

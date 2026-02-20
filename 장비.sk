@@ -1,0 +1,20 @@
+on rightclick:
+    if player's tool's name is "&f장비 상자":
+        cancel event
+    else if player's tool's name is "&f초음파 탐지기":
+        cancel event
+        set {_fishes::*} to get_fish({area::%player%})
+        set {_c} to 0
+        loop {_fishes::*}:
+            add 1 to {_c}
+        set {_c2} to {_c}
+        set {_c} to {_c} / 9
+        set {_c} to ceil({_c})
+        open chest inventory with {_c} rows named "&0이 장소에 존재하는 물고기" to player
+        loop {_fishes::*}:
+            set {_f} to loop-value
+            set {_a::*} to split {_fishes::%loop-iteration%} at "|"
+            set slot (loop-iteration)-1 of player's current inventory to cod named "&f%{_a::1}%" with lore "&f등급 : %{_a::4}%"
+on inventory click:
+    if player's current inventory's name is "&0이 장소에 존재하는 물고기":
+        cancel event

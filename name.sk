@@ -1,0 +1,3 @@
+command /name [<text>]:
+    trigger:
+        set player's tool's name to colored arg-1

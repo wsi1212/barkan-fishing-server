@@ -1,0 +1,2 @@
+on first join:
+    set {돈::%player%} to 0

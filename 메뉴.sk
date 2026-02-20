@@ -1,0 +1,66 @@
+on load:
+    delete {지역리스트::*}
+    add "바르칸물길" to {지역리스트::*}
+    add "바르칸동굴" to {지역리스트::*}
+    add "lavatest" to {지역리스트::*}
+
+
+
+    delete {regionguiblock::*}
+    add grass block to {regionguiblock::*}
+    add stone to {regionguiblock::*}
+    add basalt to {regionguiblock::*}
+function regiondictionary(p: player, r: text):
+    set {_fishes::*} to get_fish({_r})
+    set {_c} to 0
+    loop {_fishes::*}:
+        add 1 to {_c}
+    set {_c2} to {_c}
+    set {_c} to {_c} / 9
+    set {_c} to ceil({_c})
+    add 1 to {_c}
+    open chest inventory with {_c} rows named "&0지역별 물고기도감" to {_p}
+    loop {_c2} times:
+        set {_fish::%loop-iteration%::*} to split {_fishes::%loop-iteration%} at "|"
+        set slot 8+loop-iteration of {_p}'s current inventory to cod named "&f%{_fish::%loop-iteration%::1}%" with lore "&7등급 &e: &f%{_fish::%loop-iteration%::4}%" and "&7최대크기 &e: &f%{도감최대::%{_fish::%loop-iteration%::1}%::%{_p}%}%cm" and "&7처음낚은날짜 &e: &f%{처음낚은날짜::%{_fish::%loop-iteration%::1}%::%{_p}%}%"
+        if {도감최대::%{_fish::%loop-iteration%::1}%::%{_p}%} is not set:
+            set slot 8+loop-iteration of {_p}'s current inventory to coal block named "&c미확인 물고기"
+
+function regiondictionarygui(p: player):
+    set slot 8 of {_p}'s current inventory to compass named "&a&l지역 검색"
+    set slot 0 of {_p}'s current inventory to black stained glass pane named "&e이전 페이지"
+    set slot 7 of {_p}'s current inventory to black stained glass pane named "&e다음 페이지"
+    loop {지역리스트::*}:
+        set slot loop-iteration of {_p}'s current inventory to {regionguiblock::%loop-iteration%} named "%{지역리스트::%loop-index%}%"
+on inventory click:
+    if player's current inventory's name is "&0지역별 물고기도감":
+        if clicked slot >= 0:
+            if clicked slot <= 8:
+                set {_slot} to clicked slot's index
+                add {도감페이지::%player%} * 8 to {_slot}
+                regiondictionary(player, {지역리스트::%{_slot}%})
+                regiondictionarygui(player)
+on inventory close:
+    if player's current inventory's name is "&0지역별 물고기도감":
+        delete {도감페이지::%player%}
+on inventory click:
+    if player's current inventory's name contains "메뉴":
+        if player's current inventory's name does not contain "gui":
+            cancel event
+            if clicked slot is 14:
+                open chest inventory with 2 rows named "&0지역별 물고기도감" to player
+                regiondictionary(player, {지역리스트::1})
+                regiondictionarygui(player)
+                set {도감페이지::%player%} to 0
+    else if player's current inventory's name contains "&0지역별":
+        cancel event
+command /메뉴:
+    trigger:
+        open chest inventory with 3 rows named "&0메뉴" to player
+        loop 27 times:
+            set {_slot} to (loop-iteration)-1
+            set slot {_slot} of player's current inventory to {gui::메뉴::%{_slot}%}
+command /check:
+    trigger:
+        loop {지역리스트::*}:
+            message "%loop-value%, %loop-index%" to player

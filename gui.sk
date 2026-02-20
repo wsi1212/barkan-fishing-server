@@ -1,0 +1,29 @@
+command gui [<text>] [<text>] [<integer>]:
+    trigger:
+        if arg-1 or arg-2 is not set:
+            message "&c잘못된 방식입니다." to player
+        else if arg-1 is "생성":
+            if arg-3 is not set:
+                message "&crows가 설정되지 않았습니다." to player
+            else:
+                set {gui::%arg-2%} to 0
+                set {gui::%arg-2%::rows} to arg-3
+        else if arg-1 is "수정":
+            if {gui::%arg-2%} is set:
+                open chest inventory with {gui::%arg-2%::rows} rows named "%arg-2% - gui" to player
+                loop 9 * {gui::%arg-2%::rows} times:
+                    set {_slot} to (loop-iteration)-1
+                    set slot {_slot} of player's current inventory to {gui::%arg-2%::%{_slot}%}
+            else:
+                message "&c존재하지 않는 gui입니다." to player
+        else if arg-1 is "삭제":
+            delete {gui::%arg-2%::*}
+            delete {gui::%arg-2%}
+            message "&c%arg-2% gui를 삭제했습니다." to player
+on inventory close:
+    if player's current inventory's name contains "gui":
+        set {_name} to player's current inventory's name
+        replace all " - gui" with "" in {_name}
+        loop 9 * {gui::%{_name}%::rows} times:
+            set {_slot} to (loop-iteration)-1
+            set {gui::%{_name}%::%{_slot}%} to slot {_slot} of player's current inventory
