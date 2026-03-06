@@ -1,3 +1,4 @@
 command /아이템확인:
+    aliases: /dkdlxpaghkrdls
     trigger:
         message "%player's tool%" to player

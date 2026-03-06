@@ -224,8 +224,33 @@ on fish caught:
         add 10 to {_도망확률감소}
     if {낚시레벨::%player%} >= 100:
         add 1 to {_크리티컬데미지}
-    #message "등급 : %{_등급}%" to player
-    #message "%{_%{_등급}%::*}%" to player
+    # ===== 장비 보너스 스탯 =====
+    set {_등급시프트} to 0
+    set {_경험치보너스} to 0
+    set {_크기보너스} to 0
+    if {낚싯대부품::릴::%player%} is set:
+        set {_reelData::*} to split {부품::릴::%{낚싯대부품::릴::%player%}%} at "|"
+        add ({_reelData::5} parsed as number) to {_도망확률감소}
+    if {낚싯대부품::줄::%player%} is set:
+        set {_lineData::*} to split {부품::줄::%{낚싯대부품::줄::%player%}%} at "|"
+        add ({_lineData::5} parsed as number) to {_크리티컬데미지}
+    if {낚싯대부품::바늘::%player%} is set:
+        set {_hookData::*} to split {부품::바늘::%{낚싯대부품::바늘::%player%}%} at "|"
+        set {_등급시프트} to {_hookData::5} parsed as number
+    if {낚싯대부품::미끼::%player%} is set:
+        set {_baitData::*} to split {부품::미끼::%{낚싯대부품::미끼::%player%}%} at "|"
+        set {_경험치보너스} to {_baitData::5} parsed as number
+    if {낚싯대부품::찌::%player%} is set:
+        set {_floatData::*} to split {부품::찌::%{낚싯대부품::찌::%player%}%} at "|"
+        set {_크기보너스} to {_floatData::5} parsed as number
+    # ===== 등급 재굴림 (바늘) =====
+    loop {_등급시프트} times:
+        set {_nextGrade} to next_grade({_등급})
+        if {_nextGrade} is not "":
+            if {_%{_nextGrade}%::*} is set:
+                chance of 30%:
+                    set {_등급} to {_nextGrade}
+
     if {용암낚시::%player%} is 1:
         if player's tool's name is not "&f용암 낚싯대":
             message "&c이 낚싯대로는 용암에서 낚시할 수 없습니다." to player
@@ -245,6 +270,9 @@ on fish caught:
     chance of {_크리티컬확률}%:
         set {_size} to {_size} * ({_크리티컬데미지}*0.01+1)
         message "&a크리티컬!" to player
+    # 찌 크기 보너스 적용
+    if {_크기보너스} > 0:
+        add {_size} * {_크기보너스} / 100 to {_size}
     set slot 0 of player's current inventory to cod named "&f%{_f::1}%" with lore "&7등급 &e: &f%{_등급}%" and "&7크기 &e: &f%{_size}%cm" and "&f%now%"
 
     set {_도주} to {_f::5} parsed as integer
@@ -254,12 +282,17 @@ on fish caught:
         set slot 0 of player's current inventory to air
         message "&c물고기가 도망갔습니다!" to player
         stop
+    # 장비 내구도 감소 (장착된 부품만)
+    reduceDurability(player)
     set {_expsize} to {_size}
     if {_expsize} > 1000:
         set {_expsize} to 1000
     set {_exprank} to rankchange({_등급})
-    add (3+sqrt({_expsize}/10))*(1+{_exprank}/10) to {낚시레벨현재경험치::%player%}
-    message "&a낚시 경험치 +%(3+sqrt({_expsize}/10))*(1+{_exprank}/10)%exp" to player
+    set {_baseExp} to (3+sqrt({_expsize}/10))*(1+{_exprank}/10)
+    if {_경험치보너스} > 0:
+        add {_baseExp} * {_경험치보너스} / 100 to {_baseExp}
+    add {_baseExp} to {낚시레벨현재경험치::%player%}
+    message "&a낚시 경험치 +%{_baseExp}%exp" to player
     loop 10 times:
         if {낚시레벨현재경험치::%player%} > {낚시레벨필요경험치::%player%}:
             set {_remain} to {낚시레벨현재경험치::%player%} - {낚시레벨필요경험치::%player%}
@@ -287,6 +320,15 @@ on fish caught:
             message "&a도감을 갱신했습니다!" to player
             set {도감최대::%{_f::1}%::%player%} to {_size}
             set {최대낚은날짜::%{_f::1}%::%player%} to now
+
+on inventory close:
+    if player's current inventory's name is "&0낚시":
+        loop 9 times:
+            set {_slot} to (loop-iteration) - 1
+            set {_item} to slot {_slot} of player's current inventory
+            if {_item} is not air:
+                give {_item} to player
+                set slot {_slot} of player's current inventory to air
 function fishrank(p: player, fishname: text, rank: text, size: text):
     if {_fishname} is not set:
         stop
@@ -417,6 +459,7 @@ on join:
     if {낚시대회::bar} is set:
         add player to bossbar players of {낚시대회::bar}
 command /낚시대회 [<text>] [<integer>] [<integer>]:
+    aliases: /skrtleoghl
     trigger:
         if arg-1 is not set:
             message "/낚시대회 시작 시간 상금" to player

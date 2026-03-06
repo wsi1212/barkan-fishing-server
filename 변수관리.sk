@@ -1,2 +1,26 @@
 on first join:
     set {돈::%player%} to 0
+    # ===== 스타터 장비 키트 (E등급) =====
+    # 낚싯대: 나뭇가지 (물리 아이템 지급)
+    give player 1 of fishing rod named "&7나뭇가지" with lore "&7등급 &e: &7E"
+    # 릴: 녹슨 릴
+    add "녹슨 릴" to {부품인벤::릴::%player%::*}
+    set {낚싯대부품::릴::%player%} to "녹슨 릴"
+    set {부품내구도::릴::%player%} to 40
+    # 줄: 삼베줄
+    add "삼베줄" to {부품인벤::줄::%player%::*}
+    set {낚싯대부품::줄::%player%} to "삼베줄"
+    set {부품내구도::줄::%player%} to 20
+    # 바늘: 구부러진 바늘
+    add "구부러진 바늘" to {부품인벤::바늘::%player%::*}
+    set {낚싯대부품::바늘::%player%} to "구부러진 바늘"
+    set {부품내구도::바늘::%player%} to 15
+    # 미끼: 지렁이 30개
+    set {부품인벤::미끼::%player%::지렁이} to 30
+    set {낚싯대부품::미끼::%player%} to "지렁이"
+    set {부품내구도::미끼::%player%} to 1
+    # 찌: 나무 찌
+    add "나무 찌" to {부품인벤::찌::%player%::*}
+    set {낚싯대부품::찌::%player%} to "나무 찌"
+    set {부품내구도::찌::%player%} to 30
+    message "&8[&6 장비 &8] &aE등급 스타터 장비 세트를 지급받았습니다!" to player

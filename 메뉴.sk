@@ -48,18 +48,33 @@ on inventory click:
         if player's current inventory's name does not contain "gui":
             cancel event
             if clicked slot is 14:
+                wait 1 tick
                 open chest inventory with 2 rows named "&0지역별 물고기도감" to player
                 regiondictionary(player, {지역리스트::1})
                 regiondictionarygui(player)
                 set {도감페이지::%player%} to 0
+            else if clicked slot is 10:
+                wait 1 tick
+                openWorkbench(player)
+            else if clicked slot is 12:
+                wait 1 tick
+                opensellgui(player)
+            else if clicked slot is 16:
+                wait 1 tick
+                openPartShop(player, "낚싯대")
     else if player's current inventory's name contains "&0지역별":
         cancel event
+
 command /메뉴:
+    aliases: /apsb
     trigger:
         open chest inventory with 3 rows named "&0메뉴" to player
         loop 27 times:
             set {_slot} to (loop-iteration)-1
             set slot {_slot} of player's current inventory to {gui::메뉴::%{_slot}%}
+        set slot 10 of player's current inventory to anvil named "&e&l장비 작업대" with lore "&7낚시 장비를 조립합니다." and "&7클릭하여 작업대 열기"
+        set slot 12 of player's current inventory to gold ingot named "&e&l물고기 상점" with lore "&7잡은 물고기를 판매합니다." and "&7클릭하여 상점 열기"
+        set slot 16 of player's current inventory to emerald named "&e&l부품 상점" with lore "&7낚시 부품을 구매합니다." and "&7클릭하여 상점 열기"
 command /check:
     trigger:
         loop {지역리스트::*}:

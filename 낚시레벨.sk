@@ -10,11 +10,13 @@ command /fix:
         set {낚시레벨현재경험치::%player%} to 0
 
 command /낚시레벨:
+    aliases: /skrtlfpqpf
     trigger:
         message "%player's name%님의 낚시레벨 : %{낚시레벨::%player%}%" to player
         message "다음 레벨까지 필요 경험치 : %{낚시레벨필요경험치::%player%}-{낚시레벨현재경험치::%player%}%" to player
 
 command /낚시레벨보너스:
+    aliases: /skrtlfpqpfqhsjtm
     trigger:
         message "&f========== 낚시레벨보너스 ==========" to player
         set {_크리티컬확률} to 0
@@ -53,7 +55,7 @@ command /낚시레벨보너스:
             add 5 to {_도망확률감소}
         if {낚시레벨::%player%} >= 70:
             add 1 to {_크리티컬데미지}
-        if {낚세레벨::%player%} >= 75:
+        if {낚시레벨::%player%} >= 75:
             add 5 to {_도망확률감소}
         if {낚시레벨::%player%} >= 80:
             add 1 to {_크리티컬데미지}
@@ -98,6 +100,7 @@ on join:
     set {낚시이름::%player%} to player's name
 
 command /낚시레벨랭킹 [<integer>]:
+    aliases: /skrtlfpqpffodzld
     trigger:
         if {낚시레벨::*} is not set:
             send "&7[낚시] 랭킹 데이터가 없습니다." to player

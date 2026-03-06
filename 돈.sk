@@ -7,6 +7,7 @@ options:
     bank_color_emph: &e
 
 command /돈 [<text>] [<text>] [<text>]:
+    aliases: /ehs
     trigger:
         # 기본값 보정 (none 방지)
         if {돈::%player%} is not set:
