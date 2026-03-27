@@ -1,0 +1,368 @@
+# =========================================
+# 아이스박스.sk
+# 물고기 보관 시스템 (신선도 보존)
+# 9단계 티어 순차 업그레이드
+# =========================================
+
+options:
+    ice_prefix: &8[&b 아이스박스 &8]
+
+# ===== 아이스박스 티어 데이터 (9단계) =====
+# GUI: 6줄 (슬롯 0~8 UI, 슬롯 9~53 보관 = 최대 45칸)
+#  1. 나무 아이스박스       3칸  1.5배     500원
+#  2. 돌 아이스박스         6칸  2배     2,000원
+#  3. 철 아이스박스         9칸  2.5배   5,000원
+#  4. 금 아이스박스        15칸  3배    15,000원
+#  5. 다이아 아이스박스    21칸  4배    40,000원
+#  6. 에메랄드 아이스박스  27칸  5배    80,000원
+#  7. 흑요석 아이스박스    33칸  7배   150,000원
+#  8. 네더라이트 아이스박스 39칸 9배   300,000원
+#  9. 전설의 아이스박스    45칸 12배   500,000원
+
+function iceboxName(id: number) :: text:
+    if {_id} is 1:
+        return "나무 아이스박스"
+    else if {_id} is 2:
+        return "돌 아이스박스"
+    else if {_id} is 3:
+        return "철 아이스박스"
+    else if {_id} is 4:
+        return "금 아이스박스"
+    else if {_id} is 5:
+        return "다이아몬드 아이스박스"
+    else if {_id} is 6:
+        return "에메랄드 아이스박스"
+    else if {_id} is 7:
+        return "흑요석 아이스박스"
+    else if {_id} is 8:
+        return "네더라이트 아이스박스"
+    else if {_id} is 9:
+        return "전설의 아이스박스"
+    return "아이스박스"
+
+function iceboxSlots(id: number) :: number:
+    if {_id} is 1:
+        return 3
+    else if {_id} is 2:
+        return 6
+    else if {_id} is 3:
+        return 9
+    else if {_id} is 4:
+        return 15
+    else if {_id} is 5:
+        return 21
+    else if {_id} is 6:
+        return 27
+    else if {_id} is 7:
+        return 33
+    else if {_id} is 8:
+        return 39
+    else if {_id} is 9:
+        return 45
+    return 0
+
+function iceboxRate(id: number) :: number:
+    if {_id} is 1:
+        return 1.5
+    else if {_id} is 2:
+        return 2
+    else if {_id} is 3:
+        return 2.5
+    else if {_id} is 4:
+        return 3
+    else if {_id} is 5:
+        return 4
+    else if {_id} is 6:
+        return 5
+    else if {_id} is 7:
+        return 7
+    else if {_id} is 8:
+        return 9
+    else if {_id} is 9:
+        return 12
+    return 1
+
+function iceboxPrice(id: number) :: number:
+    if {_id} is 1:
+        return 500
+    else if {_id} is 2:
+        return 2000
+    else if {_id} is 3:
+        return 5000
+    else if {_id} is 4:
+        return 15000
+    else if {_id} is 5:
+        return 40000
+    else if {_id} is 6:
+        return 80000
+    else if {_id} is 7:
+        return 150000
+    else if {_id} is 8:
+        return 300000
+    else if {_id} is 9:
+        return 500000
+    return 0
+
+function iceboxIcon(id: number) :: item:
+    if {_id} is 1:
+        return oak planks
+    else if {_id} is 2:
+        return cobblestone
+    else if {_id} is 3:
+        return iron block
+    else if {_id} is 4:
+        return gold block
+    else if {_id} is 5:
+        return diamond block
+    else if {_id} is 6:
+        return emerald block
+    else if {_id} is 7:
+        return obsidian
+    else if {_id} is 8:
+        return netherite block
+    else if {_id} is 9:
+        return beacon
+    return packed ice
+
+function iceboxColor(id: number) :: text:
+    if {_id} is 1:
+        return "&e"
+    else if {_id} is 2:
+        return "&7"
+    else if {_id} is 3:
+        return "&f"
+    else if {_id} is 4:
+        return "&6"
+    else if {_id} is 5:
+        return "&b"
+    else if {_id} is 6:
+        return "&a"
+    else if {_id} is 7:
+        return "&8"
+    else if {_id} is 8:
+        return "&c"
+    else if {_id} is 9:
+        return "&d"
+    return "&7"
+
+# ===== 아이스박스 보존 처리 =====
+function applyIceboxPreserve(item: item, entryUnix: number, rate: number) :: item:
+    set {_nowUnix} to unix timestamp of now
+    set {_realSecs} to {_nowUnix} - {_entryUnix}
+    if {_realSecs} < 0:
+        set {_realSecs} to 0
+    set {_savedMins} to floor({_realSecs} * (1 - 1 / {_rate}) / 60)
+    if {_savedMins} < 0:
+        set {_savedMins} to 0
+    set {_newLore::*} to lore of {_item}
+    set {_idx} to 0
+    loop {_newLore::*}:
+        add 1 to {_idx}
+        set {_raw} to uncolored loop-value
+        if {_raw} starts with "f:":
+            replace "f:" with "" in {_raw}
+            set {_parts::*} to split {_raw} at ":"
+            set {_catchUnix} to {_parts::1}
+            set {_oldPreserve} to {_parts::2} parsed as number
+            if {_oldPreserve} is not set:
+                set {_oldPreserve} to 0
+            set {_newPreserve} to {_oldPreserve} + {_savedMins}
+            set {_newLore::%{_idx}%} to "&8f:%{_catchUnix}%:%{_newPreserve}%"
+    set lore of {_item} to {_newLore::*}
+    set {_item} to updateFreshnessLore({_item})
+    return {_item}
+
+# ===== 아이스박스 아이템 생성 =====
+function createIceboxItem(id: number) :: item:
+    set {_icon} to iceboxIcon({_id})
+    set {_color} to iceboxColor({_id})
+    set {_name} to iceboxName({_id})
+    set {_slots} to iceboxSlots({_id})
+    set {_rate} to iceboxRate({_id})
+    set {_item} to {_icon} named "%{_color}%%{_name}%"
+    set lore of {_item} to "&7티어 &e: &f%{_id}%단계", "&7보관 &e: &f%{_slots}%칸", "&7보존 &e: &a%{_rate}%배", "", "&e우클릭으로 열기"
+    return {_item}
+
+# ===== 아이스박스 열기 =====
+function openIcebox(p: player):
+    set {_id} to {아이스박스등급::%{_p}%}
+    if {_id} is not set:
+        message "{@ice_prefix} &c아이스박스를 보유하고 있지 않습니다. &7/아이스박스상점 &c에서 구매하세요." to {_p}
+        stop
+    set {_maxSlots} to iceboxSlots({_id})
+    set {_color} to iceboxColor({_id})
+    set {_name} to iceboxName({_id})
+    set {_rate} to iceboxRate({_id})
+    open chest inventory with 6 rows named "&0아이스박스" to {_p}
+    # 1행: UI 바
+    set slot 0 of {_p}'s current inventory to packed ice named "%{_color}%%{_name}%" with lore "&7티어 &e: &f%{_id}%단계" and "&7보관 &e: &f%{_maxSlots}%칸" and "&7보존 &e: &a%{_rate}%배"
+    loop integers from 1 to 6:
+        set slot loop-integer of {_p}'s current inventory to light blue stained glass pane named "&e!" with lore "&7아이스박스에 보관하면 신선도가" and "&7천천히 감소합니다." and "" and "&c주의: 서버에 접속하지 않아도" and "&c신선도는 계속 감소합니다."
+    set slot 7 of {_p}'s current inventory to anvil named "&e&l업그레이드" with lore "&7클릭하여 아이스박스 상점 열기"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 2~6행: 보관 칸 (슬롯 9~53)
+    loop integers from 9 to 53:
+        set {_storageIdx} to loop-integer - 9
+        if {_storageIdx} < {_maxSlots}:
+            if {아이스박스::%{_p}%::%{_storageIdx}%} is set:
+                set {_fish} to {아이스박스::%{_p}%::%{_storageIdx}%}
+                set {_entryTime} to {아이스박스시간::%{_p}%::%{_storageIdx}%}
+                if {_entryTime} is set:
+                    set {_fish} to applyIceboxPreserve({_fish}, {_entryTime}, {_rate})
+                    set {아이스박스::%{_p}%::%{_storageIdx}%} to {_fish}
+                    set {아이스박스시간::%{_p}%::%{_storageIdx}%} to unix timestamp of now
+                set slot loop-integer of {_p}'s current inventory to {_fish}
+            else:
+                set slot loop-integer of {_p}'s current inventory to air
+        else:
+            set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&c잠김" with lore "&7업그레이드가 필요합니다."
+
+# ===== 아이스박스 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0아이스박스":
+        set {_id} to {아이스박스등급::%player%}
+        if {_id} is not set:
+            cancel event
+            stop
+        set {_maxSlots} to iceboxSlots({_id})
+        if clicked inventory is player's inventory:
+            stop
+        if clicked slot < 9:
+            cancel event
+            if event-item is barrier:
+                close player's inventory
+            else if event-item is anvil:
+                wait 1 tick
+                openIceboxShop(player)
+            stop
+        set {_cs} to clicked slot
+        set {_idx} to {_cs} - 9
+        if {_idx} >= {_maxSlots}:
+            cancel event
+            stop
+
+# ===== 아이스박스 GUI 닫기 → 저장 =====
+on inventory close:
+    if player's current inventory's name is "&0아이스박스":
+        set {_id} to {아이스박스등급::%player%}
+        if {_id} is not set:
+            stop
+        set {_maxSlots} to iceboxSlots({_id})
+        set {_rate} to iceboxRate({_id})
+        set {_savedCount} to 0
+        set {_returnCount} to 0
+        loop integers from 0 to 44:
+            set {_slot} to loop-integer + 9
+            set {_item} to slot {_slot} of player's current inventory
+            if loop-integer < {_maxSlots}:
+                if {_item} is not air:
+                    if isfish({_item}):
+                        set {아이스박스::%player%::%loop-integer%} to {_item}
+                        set {아이스박스시간::%player%::%loop-integer%} to unix timestamp of now
+                        add 1 to {_savedCount}
+                        set slot {_slot} of player's current inventory to air
+                    else:
+                        give {_item} to player
+                        add 1 to {_returnCount}
+                        set slot {_slot} of player's current inventory to air
+                else:
+                    delete {아이스박스::%player%::%loop-integer%}
+                    delete {아이스박스시간::%player%::%loop-integer%}
+        if {_returnCount} > 0:
+            message "{@ice_prefix} &7물고기가 아닌 아이템 %{_returnCount}%개를 돌려드렸습니다." to player
+        if {_savedCount} > 0:
+            message "{@ice_prefix} &a물고기 %{_savedCount}%마리가 보관되었습니다. &7(보존 %{_rate}%배)" to player
+
+# ===== /아이스박스 명령어 =====
+command /아이스박스:
+    aliases: /dkdltmqkrtm
+    trigger:
+        openIcebox(player)
+
+# ===== 아이스박스 상점 =====
+command /아이스박스상점:
+    aliases: /dkdltmqkrtmtkdwja
+    trigger:
+        openIceboxShop(player)
+
+function openIceboxShop(p: player):
+    open chest inventory with 2 rows named "&0아이스박스 상점" to {_p}
+    set {_currentTier} to {아이스박스등급::%{_p}%}
+    if {_currentTier} is not set:
+        set {_currentTier} to 0
+    # 9티어 표시 (슬롯 0~8)
+    loop integers from 1 to 9:
+        set {_id} to loop-integer
+        set {_slot} to {_id} - 1
+        set {_icon} to iceboxIcon({_id})
+        set {_color} to iceboxColor({_id})
+        set {_name} to iceboxName({_id})
+        set {_slots} to iceboxSlots({_id})
+        set {_rate} to iceboxRate({_id})
+        set {_price} to iceboxPrice({_id})
+        delete {_lore::*}
+        add "&7티어 &e: &f%{_id}%단계" to {_lore::*}
+        add "&7보관 &e: &f%{_slots}%칸" to {_lore::*}
+        add "&7보존 &e: &a%{_rate}%배" to {_lore::*}
+        add "&7가격 &e: &f%{_price}%원" to {_lore::*}
+        add "" to {_lore::*}
+        if {_id} is {_currentTier}:
+            add "&a현재 사용중" to {_lore::*}
+        else if {_id} < {_currentTier}:
+            add "&7이미 보유" to {_lore::*}
+        else if {_id} is {_currentTier} + 1:
+            add "&e클릭하여 업그레이드" to {_lore::*}
+        else:
+            add "&c이전 단계를 먼저 구매하세요" to {_lore::*}
+        set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore {_lore::*}
+    # 하단
+    loop integers from 9 to 16:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    if {돈::%{_p}%} is not set:
+        set {돈::%{_p}%} to 0
+    set slot 13 of {_p}'s current inventory to gold ingot named "&e내 잔액: &f%{돈::%{_p}%}%원"
+    set slot 17 of {_p}'s current inventory to barrier named "&c&l닫기"
+
+# ===== 아이스박스 상점 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0아이스박스 상점":
+        cancel event
+        set {_ci} to index of clicked slot
+        if event-item is barrier:
+            close player's inventory
+        else if event-item is black stained glass pane:
+            stop
+        else if event-item is gold ingot:
+            stop
+        else:
+            # 구매 처리 (슬롯 0~8)
+            if {_ci} >= 0:
+                if {_ci} <= 8:
+                    set {_id} to {_ci} + 1
+                    set {_currentTier} to {아이스박스등급::%player%}
+                    if {_currentTier} is not set:
+                        set {_currentTier} to 0
+                    # 이미 보유한 티어
+                    if {_id} <= {_currentTier}:
+                        message "{@ice_prefix} &c이미 보유한 아이스박스입니다." to player
+                        stop
+                    # 순차 구매 체크
+                    if {_id} > {_currentTier} + 1:
+                        message "{@ice_prefix} &c이전 단계를 먼저 구매해야 합니다." to player
+                        stop
+                    # 잔액 확인
+                    set {_price} to iceboxPrice({_id})
+                    if {돈::%player%} is not set:
+                        set {돈::%player%} to 0
+                    if {돈::%player%} < {_price}:
+                        message "{@ice_prefix} &c잔액이 부족합니다. &7(필요: %{_price}%원, 잔액: %{돈::%player%}%원)" to player
+                        stop
+                    # 구매
+                    subtract {_price} from {돈::%player%}
+                    set {아이스박스등급::%player%} to {_id}
+                    set {_color} to iceboxColor({_id})
+                    set {_name} to iceboxName({_id})
+                    message "{@ice_prefix} %{_color}%%{_name}%&a을(를) 구매했습니다! &7(-%{_price}%원 | 잔액: %{돈::%player%}%원)" to player
+                    message "{@ice_prefix} &7/아이스박스 &f명령어로 열 수 있습니다." to player
+                    wait 1 tick
+                    openIceboxShop(player)

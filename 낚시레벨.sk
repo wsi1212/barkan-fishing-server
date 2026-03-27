@@ -1,78 +1,146 @@
 on join:
     if {낚시레벨::%player%} is not set:
         set {낚시레벨::%player%} to 1
-        set {낚시레벨필요경험치::%player%} to 10
+        set {낚시레벨필요경험치::%player%} to 50
         set {낚시레벨현재경험치::%player%} to 0
 command /fix:
     trigger:
         set {낚시레벨::%player%} to 1
-        set {낚시레벨필요경험치::%player%} to 10
+        set {낚시레벨필요경험치::%player%} to 50
         set {낚시레벨현재경험치::%player%} to 0
+command /레벨초기화 [<player>]:
+    trigger:
+        if arg-1 is set:
+            set {_t} to arg-1
+        else:
+            set {_t} to player
+        set {_t}'s level to 0
+        set {_t}'s level progress to 0
+        set {낚시레벨::%{_t}%} to 1
+        set {낚시레벨필요경험치::%{_t}%} to 50
+        set {낚시레벨현재경험치::%{_t}%} to 0
+        message "&a%{_t}%의 레벨이 초기화되었습니다. (낚시레벨 1, 바닐라 0)" to player
 
 command /낚시레벨:
     aliases: /skrtlfpqpf
     trigger:
-        message "%player's name%님의 낚시레벨 : %{낚시레벨::%player%}%" to player
-        message "다음 레벨까지 필요 경험치 : %{낚시레벨필요경험치::%player%}-{낚시레벨현재경험치::%player%}%" to player
-
-command /낚시레벨보너스:
-    aliases: /skrtlfpqpfqhsjtm
-    trigger:
-        message "&f========== 낚시레벨보너스 ==========" to player
+        set {_lv} to {낚시레벨::%player%}
+        set {_cur} to {낚시레벨현재경험치::%player%}
+        set {_need} to {낚시레벨필요경험치::%player%}
+        if {_lv} is not set:
+            set {_lv} to 1
+        if {_cur} is not set:
+            set {_cur} to 0
+        if {_need} is not set:
+            set {_need} to 50
+        set {_remain} to {_need} - {_cur}
+        if {_remain} < 0:
+            set {_remain} to 0
+        # 경험치 바 생성 (20칸)
+        if {_need} > 0:
+            set {_filled} to floor({_cur} * 20 / {_need})
+        else:
+            set {_filled} to 0
+        if {_filled} > 20:
+            set {_filled} to 20
+        set {_bar} to ""
+        set {_i} to 0
+        loop 20 times:
+            add 1 to {_i}
+            if {_i} <= {_filled}:
+                set {_bar} to "%{_bar}%&a■"
+            else:
+                set {_bar} to "%{_bar}%&8■"
+        # 퍼센트 계산
+        if {_need} > 0:
+            set {_pct} to floor({_cur} * 100 / {_need})
+        else:
+            set {_pct} to 0
+        # ===== 레벨 보너스 계산 =====
         set {_크리티컬확률} to 0
         set {_크리티컬데미지} to 10
         set {_최대등급} to "S"
         set {_도망확률감소} to 0
-        if {낚시레벨::%player%} >= 5:
-            add 5 to {_크리티컬확률}#크확 +5
-        if {낚시레벨::%player%} >= 10:
-            add 1 to {_크리티컬데미지}#크뎀 +1
-        if {낚시레벨::%player%} >= 15:
-            add 1 to {_크리티컬확률}#크확 +1
-        if {낚시레벨::%player%} >= 20:
+        if {_lv} >= 5:
+            add 5 to {_크리티컬확률}
+        if {_lv} >= 10:
+            add 1 to {_크리티컬데미지}
+        if {_lv} >= 15:
+            add 1 to {_크리티컬확률}
+        if {_lv} >= 20:
             set {_최대등급} to "S+"
-            add 1 to {_크리티컬데미지}#크뎀 +1
-        if {낚시레벨::%player%} >= 25:
-            add 1 to {_크리티컬확률}#크확 +1
-        if {낚시레벨::%player%} >= 30:
+            add 1 to {_크리티컬데미지}
+        if {_lv} >= 25:
+            add 1 to {_크리티컬확률}
+        if {_lv} >= 30:
             set {_최대등급} to "M"
-            add 1 to {_크리티컬데미지}#크뎀+1
-        if {낚시레벨::%player%} >= 35:
-            add 1 to {_크리티컬확률}#크확+1
-        if {낚시레벨::%player%} >= 40:
+            add 1 to {_크리티컬데미지}
+        if {_lv} >= 35:
+            add 1 to {_크리티컬확률}
+        if {_lv} >= 40:
             set {_최대등급} to "L"
-            add 1 to {_크리티컬데미지}#크뎀 +1
-        if {낚시레벨::%player%} >= 45:
-            add 1 to {_크리티컬확률}#크확 +1
-        if {낚시레벨::%player%} >= 50:
+            add 1 to {_크리티컬데미지}
+        if {_lv} >= 45:
+            add 1 to {_크리티컬확률}
+        if {_lv} >= 50:
             set {_최대등급} to "G"
             add 1 to {_크리티컬데미지}
-        if {낚시레벨::%player%} >= 55:
+        if {_lv} >= 55:
             add 1 to {_크리티컬확률}
-        if {낚시레벨::%player%} >= 60:
+        if {_lv} >= 60:
             add 1 to {_크리티컬데미지}
-        if {낚시레벨::%player%} >= 65:
+        if {_lv} >= 65:
             add 5 to {_도망확률감소}
-        if {낚시레벨::%player%} >= 70:
+        if {_lv} >= 70:
             add 1 to {_크리티컬데미지}
-        if {낚시레벨::%player%} >= 75:
+        if {_lv} >= 75:
             add 5 to {_도망확률감소}
-        if {낚시레벨::%player%} >= 80:
+        if {_lv} >= 80:
             add 1 to {_크리티컬데미지}
-        if {낚시레벨::%player%} >= 85:
+        if {_lv} >= 85:
             add 10 to {_도망확률감소}
-        if {낚시레벨::%player%} >= 90:
+        if {_lv} >= 90:
             add 1 to {_크리티컬데미지}
-        if {낚시레벨::%player%} >= 95:
+        if {_lv} >= 95:
             add 10 to {_도망확률감소}
-        if {낚시레벨::%player%} >= 100:
+        if {_lv} >= 100:
             add 1 to {_크리티컬데미지}
-        set {_크리티컬데미지} to {_크리티컬데미지} * 100
-        message "등장하는 물고기의 최대 등급 : %{_최대등급}%" to player
-        message "물고기 크기 보너스 확률 : %{_크리티컬확률}%%%" to player
-        message "물고기 크기 보너스 비율 : +%{_크리티컬데미지}/100%%%" to player
-        if {_도망확률감소} is set:
-            message "물고기 도주 확률 감소 : %{_도망확률감소}%" to player
+        set {_퍼펙트보너스} to floor({_크리티컬확률} / 5)
+        if {_퍼펙트보너스} > 3:
+            set {_퍼펙트보너스} to 3
+        set {_존보너스} to floor({_도망확률감소} / 10)
+        if {_존보너스} > 4:
+            set {_존보너스} to 4
+        # ===== 등급 색상 =====
+        set {_등급색} to "&f"
+        if {_최대등급} is "S+":
+            set {_등급색} to "&e"
+        else if {_최대등급} is "M":
+            set {_등급색} to "&b"
+        else if {_최대등급} is "L":
+            set {_등급색} to "&d"
+        else if {_최대등급} is "G":
+            set {_등급색} to "&6"
+        # ===== 출력 =====
+        message "" to player
+        message "&8&l  ┌─────────────────────────────" to player
+        message "&8&l  │  &6&l🎣 낚시 레벨 정보" to player
+        message "&8&l  ├─────────────────────────────" to player
+        message "&8&l  │  &7낚시꾼  &f: &e%player's name%" to player
+        message "&8&l  │  &7레  벨  &f: &b&lLv.%{_lv}%" to player
+        message "&8&l  │" to player
+        message "&8&l  │  &7경험치  &f: &a%{_cur}% &7/ &f%{_need}%  &8(&e%{_pct}%%%&8)" to player
+        message "&8&l  │  &8[%{_bar}%&8]" to player
+        message "&8&l  │  &7다음 레벨까지 &e%{_remain}% &7경험치 필요" to player
+        message "&8&l  ├─────────────────────────────" to player
+        message "&8&l  │  &e&l📊 레벨 보너스" to player
+        message "&8&l  │" to player
+        message "&8&l  │  &7🐟 최대 등급      &f: %{_등급색}%&l%{_최대등급}%" to player
+        message "&8&l  │  &7🎯 퍼펙트 존      &f: &a+%{_퍼펙트보너스}%칸" to player
+        message "&8&l  │  &7💎 스윗스팟       &f: &a+%{_존보너스}%칸" to player
+        message "&8&l  │  &7💥 크리티컬 배율  &f: &c+%{_크리티컬데미지}%%%" to player
+        message "&8&l  └─────────────────────────────" to player
+        message "" to player
 function _fishLv(id: text) :: number:
     set {_lv} to {낚시레벨::%{_id}%}
     if {_lv} is not set:

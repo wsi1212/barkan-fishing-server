@@ -51,9 +51,28 @@ function openPartShop(p: player, category: text):
         set {_color} to part_grade_color({_grade})
         set {_price} to get_part_price({_category}, {_name})
         set {_dur} to get_part_durability({_category}, {_name})
-        set {_stat} to get_part_stat({_category}, {_name})
-        set {_statdesc} to part_stat_desc({_category})
         set {_icon} to part_icon_item({_category})
+        if {_category} is "낚싯대":
+            set {_icon} to unbreakable {_icon}
+            enchant {_icon} with lure 2
+
+        # 동적 lore 생성
+        delete {_lore::*}
+        add "&7등급 &e: %{_color}%%{_grade}%" to {_lore::*}
+        # 스탯 파싱
+        set {_statsRaw} to get_part_stats_raw({_category}, {_name})
+        set {_pairs::*} to split {_statsRaw} at ","
+        loop {_pairs::*}:
+            set {_kv::*} to split loop-value-2 at ":"
+            set {_desc} to stat_type_desc({_kv::1})
+            set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+            add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+        # 내구도 / 가격
+        if {_category} is "미끼":
+            add "&7가격 &e: &f%{_price}%원/개" to {_lore::*}
+        else:
+            add "&7내구도 &e: &f%{_dur}%" to {_lore::*}
+            add "&7가격 &e: &f%{_price}%원" to {_lore::*}
 
         # 보유 상태 확인
         set {_owned} to ""
@@ -61,21 +80,26 @@ function openPartShop(p: player, category: text):
             set {_count} to {부품인벤::미끼::%{_p}%::%{_name}%}
             if {_count} is set:
                 if {_count} > 0:
-                    set {_owned} to "&a보유: %{_count}%개"
+                    set {_owned} to "&a보유: %{_count}%/99개"
         else:
             loop {부품인벤::%{_category}%::%{_p}%::*}:
                 if loop-value-2 is {_name}:
                     set {_owned} to "&a보유중"
             if {낚싯대부품::%{_category}%::%{_p}%} is {_name}:
                 set {_owned} to "&b장착중"
-
-        set {상점부품슬롯::%{_p}%::%{_slot}%} to {_name}
+        add "%{_owned}%" to {_lore::*}
+        add "" to {_lore::*}
+        # 구매 안내
         if {_category} is "미끼":
             set {_price10} to {_price} * 10
             set {_price50} to {_price} * 50
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%%%" and "&7내구도(개당) &e: &f%{_dur}%회" and "&7가격 &e: &f%{_price}%원/개" and "%{_owned}%" and "" and "&e좌클릭: 10개 구매 (%{_price10}%원)" and "&e우클릭: 50개 구매 (%{_price50}%원)"
+            add "&e좌클릭: 10개 구매 (%{_price10}%원)" to {_lore::*}
+            add "&e우클릭: 50개 구매 (%{_price50}%원)" to {_lore::*}
         else:
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%" and "&7내구도 &e: &f%{_dur}%" and "&7가격 &e: &f%{_price}%원" and "%{_owned}%" and "" and "&e클릭하여 구매"
+            add "&e클릭하여 구매" to {_lore::*}
+
+        set {상점부품슬롯::%{_p}%::%{_slot}%} to {_name}
+        set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore {_lore::*}
         add 1 to {_slot}
 
     # 6행: 정보 바 (slot 45~53)
@@ -95,119 +119,84 @@ function buyPart(p: player, type: text, name: text):
     set {_grade} to get_part_grade({_type}, {_name})
     set {_color} to part_grade_color({_grade})
     if {_type} is "낚싯대":
-        give {_p} 1 of fishing rod named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%"
+        # 낚싯대는 물리 아이템 지급 (동적 lore)
+        delete {_rodLore::*}
+        add "&7등급 &e: %{_color}%%{_grade}%" to {_rodLore::*}
+        set {_rodRaw} to get_part_stats_raw("낚싯대", {_name})
+        set {_rodPairs::*} to split {_rodRaw} at ","
+        loop {_rodPairs::*}:
+            set {_rkv::*} to split loop-value at ":"
+            set {_rdesc} to stat_type_desc({_rkv::1})
+            set {_rvt} to stat_value_text({_rkv::1}, {_rkv::2} parsed as number)
+            add "&7%{_rdesc}% &e: &f%{_rvt}%" to {_rodLore::*}
+        set {_rod} to 1 of fishing rod named "%{_color}%%{_name}%" with lore {_rodLore::*}
+        set {_rod} to unbreakable {_rod}
+        enchant {_rod} with lure 2
+        give {_p} {_rod}
     else:
         add {_name} to {부품인벤::%{_type}%::%{_p}%::*}
     message "{@shop_prefix} %{_color}%%{_name}%&a을(를) 구매했습니다! &7(-%{_price}%원 | 잔액: %{돈::%{_p}%}%원)" to {_p}
 
 # ===== 미끼 구매 =====
 function buyBait(p: player, name: text, count: integer):
+    if {부품인벤::미끼::%{_p}%::%{_name}%} is not set:
+        set {부품인벤::미끼::%{_p}%::%{_name}%} to 0
+    # 99개 상한 체크
+    set {_current} to {부품인벤::미끼::%{_p}%::%{_name}%}
+    if {_current} >= 99:
+        message "{@shop_prefix} &c이미 99개를 보유하고 있습니다." to {_p}
+        stop
+    set {_buyCount} to {_count}
+    if {_current} + {_buyCount} > 99:
+        set {_buyCount} to 99 - {_current}
     set {_unitPrice} to get_part_price("미끼", {_name})
-    set {_total} to {_unitPrice} * {_count}
+    set {_total} to {_unitPrice} * {_buyCount}
     if {돈::%{_p}%} < {_total}:
         message "{@shop_prefix} &c잔액이 부족합니다. (필요: %{_total}%원, 잔액: %{돈::%{_p}%}%원)" to {_p}
         stop
     subtract {_total} from {돈::%{_p}%}
-    if {부품인벤::미끼::%{_p}%::%{_name}%} is not set:
-        set {부품인벤::미끼::%{_p}%::%{_name}%} to 0
-    add {_count} to {부품인벤::미끼::%{_p}%::%{_name}%}
+    add {_buyCount} to {부품인벤::미끼::%{_p}%::%{_name}%}
     set {_grade} to get_part_grade("미끼", {_name})
     set {_color} to part_grade_color({_grade})
-    message "{@shop_prefix} %{_color}%%{_name}% &fx%{_count}%&a 구매! &7(-%{_total}%원 | 잔액: %{돈::%{_p}%}%원)" to {_p}
+    message "{@shop_prefix} %{_color}%%{_name}% &fx%{_buyCount}%&a 구매! &7(-%{_total}%원 | 잔액: %{돈::%{_p}%}%원 | 보유: %{부품인벤::미끼::%{_p}%::%{_name}%}%개)" to {_p}
 
 # ===== 상점 GUI 클릭 =====
 on inventory click:
     if player's current inventory's name is "&0부품 상점":
         cancel event
+        set {_ci} to index of clicked slot
         # 닫기 버튼
         if event-item is barrier:
             close player's inventory
             stop
-        # 카테고리 탭 (slot 0~5)
-        set {_ci} to index of clicked slot
+        # 카테고리 탭 (slot 0~5) 또는 부품 클릭
         if {_ci} is 0:
-            set {상점클릭카테고리::%player%} to "낚싯대"
+            wait 1 tick
+            openPartShop(player, "낚싯대")
         else if {_ci} is 1:
-            set {상점클릭카테고리::%player%} to "릴"
+            wait 1 tick
+            openPartShop(player, "릴")
         else if {_ci} is 2:
-            set {상점클릭카테고리::%player%} to "줄"
+            wait 1 tick
+            openPartShop(player, "줄")
         else if {_ci} is 3:
-            set {상점클릭카테고리::%player%} to "바늘"
+            wait 1 tick
+            openPartShop(player, "바늘")
         else if {_ci} is 4:
-            set {상점클릭카테고리::%player%} to "미끼"
+            wait 1 tick
+            openPartShop(player, "미끼")
         else if {_ci} is 5:
-            set {상점클릭카테고리::%player%} to "찌"
-        if {상점클릭카테고리::%player%} is set:
-            set {_cat} to {상점클릭카테고리::%player%}
-            delete {상점클릭카테고리::%player%}
-            set {상점카테고리::%player%} to {_cat}
-            # 카테고리 탭 갱신
-            set {_cats::1} to "낚싯대"
-            set {_cats::2} to "릴"
-            set {_cats::3} to "줄"
-            set {_cats::4} to "바늘"
-            set {_cats::5} to "미끼"
-            set {_cats::6} to "찌"
-            loop 6 times:
-                set {_tabCat} to {_cats::%loop-iteration%}
-                set {_tabIcon} to part_icon_item({_tabCat})
-                set {_tabSlot} to loop-iteration
-                subtract 1 from {_tabSlot}
-                if {_tabCat} is {_cat}:
-                    set slot {_tabSlot} of player's current inventory to {_tabIcon} named "&e&l%{_tabCat}%" with lore "&a현재 선택됨"
-                else:
-                    set slot {_tabSlot} of player's current inventory to {_tabIcon} named "&7%{_tabCat}%" with lore "&7클릭하여 카테고리 변경"
-            # 아이템 슬롯 갱신
-            delete {상점부품슬롯::%player%::*}
-            loop integers from 9 to 44:
-                set slot loop-integer of player's current inventory to air
-            set {_slot} to 9
-            loop {부품목록::%{_cat}%::*}:
-                set {_name} to loop-value
-                set {_grade} to get_part_grade({_cat}, {_name})
-                set {_color} to part_grade_color({_grade})
-                set {_price} to get_part_price({_cat}, {_name})
-                set {_dur} to get_part_durability({_cat}, {_name})
-                set {_stat} to get_part_stat({_cat}, {_name})
-                set {_statdesc} to part_stat_desc({_cat})
-                set {_icon} to part_icon_item({_cat})
-                set {_owned} to ""
-                if {_cat} is "미끼":
-                    set {_count} to {부품인벤::미끼::%player%::%{_name}%}
-                    if {_count} is set:
-                        if {_count} > 0:
-                            set {_owned} to "&a보유: %{_count}%개"
-                else:
-                    loop {부품인벤::%{_cat}%::%player%::*}:
-                        if loop-value-2 is {_name}:
-                            set {_owned} to "&a보유중"
-                    if {낚싯대부품::%{_cat}%::%player%} is {_name}:
-                        set {_owned} to "&b장착중"
-                set {상점부품슬롯::%player%::%{_slot}%} to {_name}
-                if {_cat} is "미끼":
-                    set {_price10} to {_price} * 10
-                    set {_price50} to {_price} * 50
-                    set slot {_slot} of player's current inventory to {_icon} named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%%%" and "&7내구도(개당) &e: &f%{_dur}%회" and "&7가격 &e: &f%{_price}%원/개" and "%{_owned}%" and "" and "&e좌클릭: 10개 구매 (%{_price10}%원)" and "&e우클릭: 50개 구매 (%{_price50}%원)"
-                else:
-                    set slot {_slot} of player's current inventory to {_icon} named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%" and "&7내구도 &e: &f%{_dur}%" and "&7가격 &e: &f%{_price}%원" and "%{_owned}%" and "" and "&e클릭하여 구매"
-                add 1 to {_slot}
-            # 잔액 갱신
-            if {돈::%player%} is not set:
-                set {돈::%player%} to 0
-            set slot 49 of player's current inventory to gold ingot named "&e내 잔액: &f%{돈::%player%}%원"
-            stop
-        # 부품 아이템 클릭 (슬롯 매핑 기반)
-        set {_itemName} to {상점부품슬롯::%player%::%{_ci}%}
-        if {_itemName} is set:
+            wait 1 tick
+            openPartShop(player, "찌")
+        else:
+            # 부품 아이템 클릭 (slot 9~44)
             set {_cat} to {상점카테고리::%player%}
-            if {_cat} is not set:
-                stop
-            if {_cat} is "미끼":
-                if click type is left mouse button:
-                    buyBait(player, {_itemName}, 10)
-                else:
-                    buyBait(player, {_itemName}, 50)
-            else:
-                buyPart(player, {_cat}, {_itemName})
-            # 잔액 갱신
-            set slot 49 of player's current inventory to gold ingot named "&e내 잔액: &f%{돈::%player%}%원"
+            if {_cat} is set:
+                set {_itemName} to {상점부품슬롯::%player%::%{_ci}%}
+                if {_itemName} is set:
+                    if {_cat} is "미끼":
+                        buyBait(player, {_itemName}, 10)
+                    else:
+                        buyPart(player, {_cat}, {_itemName})
+                    wait 1 tick
+                    openPartShop(player, {_cat})

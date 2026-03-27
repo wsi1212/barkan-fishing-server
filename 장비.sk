@@ -4,6 +4,17 @@ on rightclick:
     else if player's tool's name is "&f초음파 탐지기":
         cancel event
         set {_fishes::*} to get_fish({area::%player%})
+        # 현재 환경 물고기 추가
+        set {_시간대} to 현재시간대(player)
+        set {_날씨} to 현재날씨(player)
+        if {_시간대} is "새벽":
+            add get_dawn_fish({area::%player%}) to {_fishes::*}
+        else if {_시간대} is "밤":
+            add get_night_fish({area::%player%}) to {_fishes::*}
+        if {_날씨} is "비" or "뇌우":
+            add get_rain_fish({area::%player%}) to {_fishes::*}
+        if {_날씨} is "뇌우":
+            add get_thunder_fish({area::%player%}) to {_fishes::*}
         set {_c} to 0
         loop {_fishes::*}:
             add 1 to {_c}

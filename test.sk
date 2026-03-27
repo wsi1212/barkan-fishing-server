@@ -1,0 +1,81 @@
+# ===== 구문 테스트 =====
+# sk reload test 후 /test <번호> 로 테스트
+# 에러 나는 번호 = 문제 구문
+
+command /test <integer>:
+    trigger:
+        if arg-1 is 1:
+            # now formatted as
+            set {_today} to now formatted as "yyyy-MM-dd"
+            message "&aTest1 OK: %{_today}%" to player
+
+        else if arg-1 is 2:
+            # send title with subtitle (함수 밖에서)
+            send title "" with subtitle "&aTest2 타이틀" to player for 3 seconds
+            message "&aTest2 OK" to player
+
+        else if arg-1 is 3:
+            # play sound - 원본 (to)
+            play sound "entity.villager.yes" with volume 0.5 to player
+            message "&aTest3 OK: play sound ... to player" to player
+
+        else if arg-1 is 4:
+            # play sound - at + for
+            play sound "entity.villager.yes" with volume 0.5 at player for player
+            message "&aTest4 OK: play sound ... at player for player" to player
+
+        else if arg-1 is 5:
+            # play sound - with volume + pitch + to
+            play sound "entity.villager.yes" with volume 0.5 with pitch 1 to player
+            message "&aTest5 OK: play sound with volume + pitch" to player
+
+        else if arg-1 is 6:
+            # play sound - 가장 단순
+            play sound "entity.villager.yes" at player
+            message "&aTest6 OK: play sound ... at player" to player
+
+        else if arg-1 is 7:
+            # open chest + slot + inventory name
+            open chest inventory with 4 rows named "&0테스트" to player
+            wait 1 tick
+            set slot 0 of player's current inventory to barrier named "&c닫기"
+            message "&aTest7 OK: GUI" to player
+
+        else if arg-1 is 8:
+            # random element
+            delete {_pool::*}
+            add "a" to {_pool::*}
+            add "b" to {_pool::*}
+            set {_pick} to random element of {_pool::*}
+            message "&aTest8 OK: %{_pick}%" to player
+
+        else if arg-1 is 9:
+            # index of clicked slot (단독 테스트)
+            message "&aTest9: GUI 열어서 아무거나 클릭하세요" to player
+            open chest inventory with 2 rows named "&0슬롯테스트" to player
+            wait 1 tick
+            set slot 0 of player's current inventory to diamond named "&fTest"
+
+        else if arg-1 is 10:
+            message "&aTest10: on fish 이벤트 테스트 - 낚싯대 던져보세요" to player
+
+        else:
+            message "&c없는 테스트 번호입니다. 1~10" to player
+
+
+# 슬롯 테스트 GUI 클릭
+on inventory click:
+    if player's current inventory's name is "&0슬롯테스트":
+        cancel event
+        set {_ci} to index of clicked slot
+        message "&aclicked slot index: %{_ci}%" to player
+
+# 인벤 클릭 + clicked inventory + event-item
+on inventory click:
+    if player's current inventory's name is "&0테스트":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        if event-item is barrier:
+            close player's inventory
+            message "&abarrier 클릭 OK" to player

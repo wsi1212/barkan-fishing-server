@@ -1,0 +1,857 @@
+# ===== NPC + 대화 시스템 =====
+# NPC 등록, 클릭 이벤트, 텍스트 디스플레이 말풍선 + GUI 선택지
+
+# =========================================
+#   텍스트 디스플레이 헬퍼
+# =========================================
+
+function npc텍스트생성(p: player):
+    # 기존 텍스트 제거
+    npc텍스트제거({_p})
+    # NPC 엔티티 위치 체크
+    set {_entity} to {대화엔티티::%{_p}%}
+    if {_entity} is not set:
+        stop
+    if {_entity} is not valid:
+        stop
+    # 텍스트 카운터 초기화
+    set {대화텍스트카운터::%{_p}%} to 0
+
+function npc텍스트업데이트(p: player, npcName: text, line: text):
+    set {_entity} to {대화엔티티::%{_p}%}
+    if {_entity} is not set:
+        stop
+    if {_entity} is not valid:
+        stop
+    # 카운터 증가 & 줄 저장
+    add 1 to {대화텍스트카운터::%{_p}%}
+    set {_cnt} to {대화텍스트카운터::%{_p}%}
+    set {대화텍스트줄::%{_p}%::%{_cnt}%} to {_line}
+    set {대화텍스트줄NPC::%{_p}%::%{_cnt}%} to {_npcName}
+    # 기존 디스플레이 전부 제거
+    loop integers from 1 to 5:
+        if {대화텍스트::%{_p}%::%loop-integer%} is set:
+            if {대화텍스트::%{_p}%::%loop-integer%} is valid:
+                kill {대화텍스트::%{_p}%::%loop-integer%}
+            delete {대화텍스트::%{_p}%::%loop-integer%}
+    # 표시할 줄 범위 (최근 5개)
+    set {_start} to {_cnt} - 4
+    if {_start} < 1:
+        set {_start} to 1
+    set {_total} to {_cnt} - {_start} + 1
+    # 새로 스폰 (위=오래된 줄, 아래=최신 줄)
+    set {_slot} to 1
+    loop integers from {_start} to {_cnt}:
+        set {_loc} to location of {_entity}
+        set {_yOffset} to 2.3 + (({_total} - {_slot}) * 0.35)
+        add {_yOffset} to y-coordinate of {_loc}
+        spawn a text display at {_loc}
+        set {_display} to last spawned entity
+        set {_npc} to {대화텍스트줄NPC::%{_p}%::%loop-integer%}
+        set {_text} to {대화텍스트줄::%{_p}%::%loop-integer%}
+        # 제일 위: NPC이름 포함 / 나머지: 대사만 / 전부 페이드 적용
+        set {_age} to {_cnt} - loop-integer
+        if {_slot} is 1:
+            if {_age} >= 3:
+                set text of {_display} to "&8&l%{_npc}%%nl%&8%{_text}%"
+            else if {_age} >= 1:
+                set text of {_display} to "&7&l%{_npc}%%nl%&7%{_text}%"
+            else:
+                set text of {_display} to "&e&l%{_npc}%%nl%&f%{_text}%"
+        else:
+            if {_age} >= 3:
+                set text of {_display} to "&8%{_text}%"
+            else if {_age} >= 1:
+                set text of {_display} to "&7%{_text}%"
+            else:
+                set text of {_display} to "&f%{_text}%"
+        set billboard of {_display} to center
+        loop all players:
+            if loop-player is not {_p}:
+                hide {_display} from loop-player
+        set {대화텍스트::%{_p}%::%{_slot}%} to {_display}
+        add 1 to {_slot}
+
+function npc텍스트제거(p: player):
+    # 멀티라인 텍스트 디스플레이 제거
+    loop integers from 1 to 5:
+        if {대화텍스트::%{_p}%::%loop-integer%} is set:
+            if {대화텍스트::%{_p}%::%loop-integer%} is valid:
+                kill {대화텍스트::%{_p}%::%loop-integer%}
+            delete {대화텍스트::%{_p}%::%loop-integer%}
+    delete {대화텍스트카운터::%{_p}%}
+    delete {대화텍스트줄::%{_p}%::*}
+    delete {대화텍스트줄NPC::%{_p}%::*}
+
+function npc대화정리(p: player):
+    npc텍스트제거({_p})
+    delete {대화진행::%{_p}%}
+    delete {대화NPC::%{_p}%}
+    delete {대화키::%{_p}%}
+    delete {대화기록타입::%{_p}%::*}
+    delete {대화기록내용::%{_p}%::*}
+    delete {대화선택지슬롯::%{_p}%::*}
+    delete {대화엔티티::%{_p}%}
+    delete {대화퀘스트::%{_p}%}
+    delete {대화GUI전환::%{_p}%}
+    delete {대화진행퀘스트::%{_p}%}
+
+# =========================================
+#   NPC 클릭 이벤트
+# =========================================
+
+on right click on entity:
+    if name of clicked entity is set:
+        set {_clickedName} to uncolored name of clicked entity
+        if {NPC목록::*} is not set:
+            stop
+        loop {NPC목록::*}:
+            set {_npcName} to {NPC::%loop-value%::이름}
+            if {_npcName} is not set:
+                continue
+            set {_npcName} to uncolored {_npcName}
+            if {_clickedName} is {_npcName}:
+                cancel event
+                if {NPC::%loop-value%::페리} is true:
+                    페리탑승GUI(player)
+                    stop
+                set {대화엔티티::%player%} to clicked entity
+                npc대화시작(player, loop-value)
+                stop
+
+# =========================================
+#   대화 시작
+# =========================================
+
+function npc대화시작(p: player, npcId: text):
+    # 이미 대화 중이면 정리
+    if {대화진행::%{_p}%} is true:
+        npc대화정리({_p})
+    set {대화진행::%{_p}%} to true
+    set {대화NPC::%{_p}%} to {_npcId}
+    add 1 to {대화세션::%{_p}%}
+    if {대화세션::%{_p}%} is not set:
+        set {대화세션::%{_p}%} to 1
+    # 대화 기록 초기화
+    delete {대화기록타입::%{_p}%::*}
+    delete {대화기록내용::%{_p}%::*}
+    delete {대화진행퀘스트::%{_p}%}
+    # 텍스트 디스플레이 생성
+    npc텍스트생성({_p})
+    # 일일/주간 퀘스트 체크
+    일일퀘스트리셋({_p})
+    주간퀘스트체크({_p})
+    # 퀘스트 상태 확인
+    set {_hasComplete} to false
+    set {_hasActive} to false
+    set {_activeQid} to "x"
+    set {_completeQid} to "x"
+    if {NPC::%{_npcId}%::퀘스트::*} is set:
+        loop {NPC::%{_npcId}%::퀘스트::*}:
+            if {퀘스트상태::%loop-value%::%{_p}%} is "완료대기":
+                set {_hasComplete} to true
+                set {_completeQid} to loop-value
+                stop loop
+            if {퀘스트상태::%loop-value%::%{_p}%} is "진행":
+                set {_hasActive} to true
+                set {_activeQid} to loop-value
+    # 시작 대화 키 결정
+    if {_hasComplete} is true:
+        set {대화퀘스트::%{_p}%} to {_completeQid}
+        npc대화표시({_p}, {_npcId}, "퀘스트완료")
+    else if {_hasActive} is true:
+        set {대화진행퀘스트::%{_p}%} to {_activeQid}
+        npc진행중대화({_p}, {_npcId}, {_activeQid})
+    else:
+        npc대화표시({_p}, {_npcId}, "인사")
+
+# =========================================
+#   진행 중 퀘스트 대화
+# =========================================
+
+function npc진행중대화(p: player, npcId: text, questId: text):
+    set {_npcName} to {NPC::%{_npcId}%::이름}
+    if {_npcName} is not set:
+        set {_npcName} to {_npcId}
+    set {_session} to {대화세션::%{_p}%}
+    # 퀘스트별 → NPC기본 → 하드코딩 순으로 대사 표시
+    set {_said} to false
+    if {대화::%{_npcId}%::진행중::%{_questId}%::대사::*} is set:
+        loop {대화::%{_npcId}%::진행중::%{_questId}%::대사::*}:
+            if {대화세션::%{_p}%} is not {_session}:
+                stop
+            npc텍스트업데이트({_p}, {_npcName}, loop-value)
+            add "npc" to {대화기록타입::%{_p}%::*}
+            add loop-value to {대화기록내용::%{_p}%::*}
+            wait 30 ticks
+        set {_said} to true
+    if {_said} is false:
+        if {대화::%{_npcId}%::진행중::대사::*} is set:
+            loop {대화::%{_npcId}%::진행중::대사::*}:
+                if {대화세션::%{_p}%} is not {_session}:
+                    stop
+                npc텍스트업데이트({_p}, {_npcName}, loop-value)
+                add "npc" to {대화기록타입::%{_p}%::*}
+                add loop-value to {대화기록내용::%{_p}%::*}
+                wait 30 ticks
+        else:
+            set {_fallback} to "아직 할 일이 남았을 텐데?"
+            npc텍스트업데이트({_p}, {_npcName}, {_fallback})
+            add "npc" to {대화기록타입::%{_p}%::*}
+            add {_fallback} to {대화기록내용::%{_p}%::*}
+            wait 30 ticks
+    if {대화세션::%{_p}%} is not {_session}:
+        stop
+    # 선택지 데이터 세팅 (동적)
+    set {대화::%{_npcId}%::진행중::선택지::*} to "c1" and "c2"
+    set {대화::%{_npcId}%::진행중::선택지텍스트::c1} to "퀘스트 포기"
+    set {대화::%{_npcId}%::진행중::선택지액션::c1} to "포기"
+    set {대화::%{_npcId}%::진행중::선택지이동::c1} to {_questId}
+    set {대화::%{_npcId}%::진행중::선택지텍스트::c2} to "다음에 올게요"
+    set {대화::%{_npcId}%::진행중::선택지액션::c2} to "닫기"
+    set {대화::%{_npcId}%::진행중::선택지이동::c2} to "x"
+    # GUI 열기
+    npc선택지GUI({_p}, {_npcId}, "진행중")
+
+# =========================================
+#   대화 출력
+# =========================================
+
+function npc대화표시(p: player, npcId: text, key: text):
+    set {_npcName} to {NPC::%{_npcId}%::이름}
+    if {_npcName} is not set:
+        set {_npcName} to {_npcId}
+    set {_session} to {대화세션::%{_p}%}
+    # 대사 출력 (퀘스트별 → 일반 → 기본)
+    set {_qid} to {대화퀘스트::%{_p}%}
+    set {_said} to false
+    if {_qid} is set:
+        if {대화::%{_npcId}%::%{_key}%::%{_qid}%::대사::*} is set:
+            loop {대화::%{_npcId}%::%{_key}%::%{_qid}%::대사::*}:
+                if {대화세션::%{_p}%} is not {_session}:
+                    stop
+                npc텍스트업데이트({_p}, {_npcName}, loop-value)
+                add "npc" to {대화기록타입::%{_p}%::*}
+                add loop-value to {대화기록내용::%{_p}%::*}
+                wait 30 ticks
+            set {_said} to true
+    if {_said} is false:
+        if {대화::%{_npcId}%::%{_key}%::대사::*} is set:
+            loop {대화::%{_npcId}%::%{_key}%::대사::*}:
+                if {대화세션::%{_p}%} is not {_session}:
+                    stop
+                npc텍스트업데이트({_p}, {_npcName}, loop-value)
+                add "npc" to {대화기록타입::%{_p}%::*}
+                add loop-value to {대화기록내용::%{_p}%::*}
+                wait 30 ticks
+        else:
+            npc텍스트업데이트({_p}, {_npcName}, "...")
+            add "npc" to {대화기록타입::%{_p}%::*}
+            add "..." to {대화기록내용::%{_p}%::*}
+    # 세션 체크
+    if {대화세션::%{_p}%} is not {_session}:
+        stop
+    # 선택지가 있으면 GUI, 없으면 대화 종료
+    if {대화::%{_npcId}%::%{_key}%::선택지::*} is set:
+        npc선택지GUI({_p}, {_npcId}, {_key})
+    else:
+        npc대화정리({_p})
+
+# =========================================
+#   선택지 GUI (대화 히스토리 + 선택 버튼)
+# =========================================
+
+function npc선택지GUI(p: player, npcId: text, key: text):
+    set {대화키::%{_p}%} to {_key}
+    delete {대화선택지슬롯::%{_p}%::*}
+    set {_npcName} to {NPC::%{_npcId}%::이름}
+    if {_npcName} is not set:
+        set {_npcName} to {_npcId}
+    # GUI 열기 (4줄)
+    open chest inventory with 4 rows named "&0대화" to {_p}
+    wait 1 tick
+    # --- Row 1-2 (0-17): 대화 기록 ---
+    set {_histSize} to size of {대화기록타입::%{_p}%::*}
+    if {_histSize} is not set:
+        set {_histSize} to 0
+    set {_startIdx} to 1
+    if {_histSize} > 18:
+        set {_startIdx} to {_histSize} - 17
+    set {_slot} to 0
+    if {_histSize} > 0:
+        loop integers from {_startIdx} to {_histSize}:
+            if {_slot} > 17:
+                stop loop
+            set {_type} to {대화기록타입::%{_p}%::%loop-integer%}
+            set {_text} to {대화기록내용::%{_p}%::%loop-integer%}
+            if {_type} is "npc":
+                set slot {_slot} of {_p}'s current inventory to paper named "&e%{_npcName}% &8> &f%{_text}%"
+            else:
+                set slot {_slot} of {_p}'s current inventory to book named "&b나 &8> &7%{_text}%"
+            add 1 to {_slot}
+    # 빈 슬롯 채우기
+    loop integers from {_slot} to 17:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    # --- Row 3 (18-26): 구분선 ---
+    loop integers from 18 to 26:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 진행중 퀘스트 정보 (중앙)
+    if {대화진행퀘스트::%{_p}%} is set:
+        set {_qid} to {대화진행퀘스트::%{_p}%}
+        set {_qName} to {퀘스트::%{_qid}%::이름}
+        set {_progress} to 퀘스트목표텍스트({_qid}, {_p})
+        delete {_qlore::*}
+        add "&7%{_progress}%" to {_qlore::*}
+        set slot 22 of {_p}'s current inventory to filled map named "&e%{_qName}%" with lore {_qlore::*}
+    # --- Row 4 (27-35): 선택지 ---
+    loop integers from 27 to 35:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    # 남은 퀘스트 여부 체크
+    set {_hasQuest} to false
+    if {NPC::%{_npcId}%::퀘스트::*} is set:
+        loop {NPC::%{_npcId}%::퀘스트::*}:
+            if {퀘스트상태::%loop-value%::%{_p}%} is not "완료":
+                set {_hasQuest} to true
+                stop loop
+    # 선택지 수집
+    delete {_choices::*}
+    if {대화::%{_npcId}%::%{_key}%::선택지::*} is set:
+        loop {대화::%{_npcId}%::%{_key}%::선택지::*}:
+            set {_cid} to loop-value
+            set {_action} to {대화::%{_npcId}%::%{_key}%::선택지액션::%{_cid}%}
+            set {_showChoice} to true
+            if {_action} is "퀘스트목록":
+                if {_hasQuest} is false:
+                    set {_showChoice} to false
+            if {_showChoice} is true:
+                add {_cid} to {_choices::*}
+    # 가운데 정렬 배치
+    set {_count} to size of {_choices::*}
+    if {_count} is not set:
+        set {_count} to 0
+    if {_count} <= 0:
+        stop
+    # 중앙 슬롯 계산 (Row 4 = 27-35, 중앙 = 31)
+    if {_count} is 1:
+        set {_slots::1} to 31
+    else if {_count} is 2:
+        set {_slots::1} to 30
+        set {_slots::2} to 32
+    else if {_count} is 3:
+        set {_slots::1} to 29
+        set {_slots::2} to 31
+        set {_slots::3} to 33
+    else:
+        set {_slots::1} to 29
+        set {_slots::2} to 30
+        set {_slots::3} to 32
+        set {_slots::4} to 33
+    set {_i} to 1
+    loop {_choices::*}:
+        set {_cid} to loop-value
+        set {_choiceSlot} to {_slots::%{_i}%}
+        set {_text} to {대화::%{_npcId}%::%{_key}%::선택지텍스트::%{_cid}%}
+        set {_action} to {대화::%{_npcId}%::%{_key}%::선택지액션::%{_cid}%}
+        # 아이콘 결정
+        if {_action} is "포기":
+            set slot {_choiceSlot} of {_p}'s current inventory to red wool named "&c%{_text}%"
+        else if {_action} is "닫기":
+            set slot {_choiceSlot} of {_p}'s current inventory to gray wool named "&7%{_text}%"
+        else:
+            set slot {_choiceSlot} of {_p}'s current inventory to lime wool named "&a%{_text}%"
+        set {대화선택지슬롯::%{_p}%::%{_choiceSlot}%} to {_cid}
+        add 1 to {_i}
+
+# =========================================
+#   대화 GUI 클릭 처리
+# =========================================
+
+on inventory click:
+    if player's current inventory's name is "&0대화":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        set {_ci} to index of clicked slot
+        set {_cid} to {대화선택지슬롯::%player%::%{_ci}%}
+        if {_cid} is not set:
+            stop
+        set {_npcId} to {대화NPC::%player%}
+        set {_key} to {대화키::%player%}
+        if {_npcId} is not set:
+            stop
+        set {_action} to {대화::%{_npcId}%::%{_key}%::선택지액션::%{_cid}%}
+        set {_target} to {대화::%{_npcId}%::%{_key}%::선택지이동::%{_cid}%}
+        # 선택한 내용을 기록에 추가
+        set {_choiceText} to {대화::%{_npcId}%::%{_key}%::선택지텍스트::%{_cid}%}
+        add "player" to {대화기록타입::%player%::*}
+        add {_choiceText} to {대화기록내용::%player%::*}
+        if {_action} is "대화":
+            set {대화GUI전환::%player%} to true
+            close player's inventory
+            wait 2 ticks
+            npc대화표시(player, {_npcId}, {_target})
+        else if {_action} is "퀘스트목록":
+            set {대화GUI전환::%player%} to true
+            close player's inventory
+            wait 1 tick
+            npc대화정리(player)
+            npc퀘스트목록GUI(player, {_npcId})
+        else if {_action} is "포기":
+            set {대화GUI전환::%player%} to true
+            close player's inventory
+            wait 1 tick
+            퀘스트포기(player, {_target})
+            npc대화정리(player)
+        else if {_action} is "닫기":
+            set {대화GUI전환::%player%} to true
+            close player's inventory
+            wait 1 tick
+            npc대화정리(player)
+
+# =========================================
+#   대화 GUI 닫힘 감지
+# =========================================
+
+on inventory close:
+    if player's current inventory's name is "&0대화":
+        if {대화GUI전환::%player%} is true:
+            delete {대화GUI전환::%player%}
+            stop
+        # ESC로 닫은 경우 → 대화 정리
+        npc대화정리(player)
+
+# =========================================
+#   이벤트: 퇴장 / 접속
+# =========================================
+
+on quit:
+    npc대화정리(player)
+    delete {퀘스트GUI_NPC::%player%}
+    delete {퀘스트GUI슬롯::%player%::*}
+    delete {퀘스트저널슬롯::%player%::*}
+
+on join:
+    # 현재 대화 중인 플레이어들의 텍스트 디스플레이를 새 접속자에게 숨김
+    wait 2 ticks
+    loop all players:
+        loop integers from 1 to 5:
+            if {대화텍스트::%loop-player%::%loop-integer%} is set:
+                if {대화텍스트::%loop-player%::%loop-integer%} is valid:
+                    hide {대화텍스트::%loop-player%::%loop-integer%} from player
+
+# ===== NPC 관리 명령어 =====
+
+command /npc등록 <text> <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        set {_cid} to arg-2
+        if {NPC::%{_id}%::citizensId} is set:
+            message "&8[&d NPC &8] &c이미 등록된 NPC입니다: %{_id}%" to player
+            stop
+        set {NPC::%{_id}%::citizensId} to {_cid}
+        set {NPC::%{_id}%::이름} to {_id}
+        add {_id} to {NPC목록::*}
+        message "&8[&d NPC &8] &aNPC &e%{_id}% &a등록 완료! (Citizens ID: %{_cid}%)" to player
+        message "&8[&d NPC &8] &7이름 변경: /npc이름 %{_id}% <이름>" to player
+
+command /npc이름 <text> <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        set {NPC::%{_id}%::이름} to arg-2
+        message "&8[&d NPC &8] &a%{_id}%의 이름을 &e%arg-2% &a로 변경했습니다." to player
+
+command /npc해제 <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        delete {NPC::%{_id}%::citizensId}
+        delete {NPC::%{_id}%::이름}
+        delete {NPC::%{_id}%::퀘스트::*}
+        remove {_id} from {NPC목록::*}
+        message "&8[&d NPC &8] &a%{_id}% 등록 해제 완료." to player
+
+command /npc퀘스트추가 <text> <text>:
+    permission: op
+    trigger:
+        set {_npcId} to arg-1
+        set {_qid} to arg-2
+        if {NPC::%{_npcId}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_npcId}%" to player
+            stop
+        if {퀘스트::%{_qid}%::이름} is not set:
+            message "&8[&d NPC &8] &c존재하지 않는 퀘스트: %{_qid}%" to player
+            stop
+        if {NPC::%{_npcId}%::퀘스트::*} contains {_qid}:
+            message "&8[&d NPC &8] &c이미 연결된 퀘스트입니다." to player
+            stop
+        add {_qid} to {NPC::%{_npcId}%::퀘스트::*}
+        message "&8[&d NPC &8] &a%{_npcId}%에 퀘스트 &e%{_qid}% &a연결 완료." to player
+
+command /npc퀘스트제거 <text> <text>:
+    permission: op
+    trigger:
+        set {_npcId} to arg-1
+        set {_qid} to arg-2
+        if {NPC::%{_npcId}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_npcId}%" to player
+            stop
+        if {NPC::%{_npcId}%::퀘스트::*} does not contain {_qid}:
+            message "&8[&d NPC &8] &c%{_npcId}%에 연결되지 않은 퀘스트: %{_qid}%" to player
+            message "&7현재 연결된 퀘스트: %{NPC::%{_npcId}%::퀘스트::*}%" to player
+            stop
+        remove {_qid} from {NPC::%{_npcId}%::퀘스트::*}
+        message "&8[&d NPC &8] &a%{_npcId}%에서 퀘스트 &e%{_qid}% &a제거 완료." to player
+
+command /npc목록:
+    permission: op
+    trigger:
+        message "&8[&d NPC &8] &e등록된 NPC 목록:" to player
+        if {NPC목록::*} is not set:
+            message "&7  없음" to player
+            stop
+        loop {NPC목록::*}:
+            set {_id} to loop-value
+            set {_name} to {NPC::%{_id}%::이름}
+            set {_cid} to {NPC::%{_id}%::citizensId}
+            set {_qCount} to size of {NPC::%{_id}%::퀘스트::*}
+            if {_qCount} is not set:
+                set {_qCount} to 0
+            set {_ferryTag} to ""
+            if {NPC::%{_id}%::페리} is true:
+                set {_ferryTag} to " &9[페리]"
+            message "&7  - &f%{_id}% &7(%{_name}%&7) CID:%{_cid}% 퀘스트:%{_qCount}%개%{_ferryTag}%" to player
+
+# ===== 디버그 =====
+command /npc디버그 <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        message "&8[&d NPC디버그 &8] &e--- %{_id}% ---" to player
+        message "&7citizensId: &f%{NPC::%{_id}%::citizensId}%" to player
+        message "&7이름: &f%{NPC::%{_id}%::이름}%" to player
+        if {대화::%{_id}%::인사::대사::*} is set:
+            message "&a대화 인사 데이터: 있음 (%size of {대화::%{_id}%::인사::대사::*}%줄)" to player
+        else:
+            message "&c대화 인사 데이터: 없음!" to player
+        if {대화::%{_id}%::인사::선택지::*} is set:
+            message "&a선택지 데이터: 있음 (%size of {대화::%{_id}%::인사::선택지::*}%개)" to player
+        else:
+            message "&c선택지 데이터: 없음!" to player
+
+# ===== 탭 완성 =====
+on tab complete of "/npc등록":
+    set tab completions for position 1 to "NPC아이디"
+    set tab completions for position 2 to "CitizensID번호"
+
+on tab complete of "/npc해제":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+
+on tab complete of "/npc이름":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+    set tab completions for position 2 to "표시이름"
+
+on tab complete of "/npc퀘스트추가":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+    if {퀘스트목록::*} is set:
+        set tab completions for position 2 to {퀘스트목록::*}
+
+on tab complete of "/npc퀘스트제거":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+    set {_nid} to tab arg-1
+    if {NPC::%{_nid}%::퀘스트::*} is set:
+        set tab completions for position 2 to {NPC::%{_nid}%::퀘스트::*}
+
+on tab complete of "/npc디버그":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+
+command /npc페리 <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        if {NPC::%{_id}%::페리} is true:
+            delete {NPC::%{_id}%::페리}
+            message "&8[&d NPC &8] &e%{_id}%&7의 페리 NPC 설정을 &c해제&7했습니다." to player
+        else:
+            set {NPC::%{_id}%::페리} to true
+            message "&8[&d NPC &8] &e%{_id}%&7를 &a페리 NPC&7로 설정했습니다." to player
+
+on tab complete of "/npc페리":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+
+# =========================================
+#   대화 데이터 (on load)
+# =========================================
+on load:
+    # ===== 낚시꾼할아버지 =====
+
+    # 인사
+    delete {대화::낚시꾼할아버지::인사::대사::*}
+    delete {대화::낚시꾼할아버지::인사::선택지::*}
+    add "오, 자네가 새로 온 낚시꾼인가?" to {대화::낚시꾼할아버지::인사::대사::*}
+    add "이 바르칸 물길에는 다양한 물고기가 산다네." to {대화::낚시꾼할아버지::인사::대사::*}
+    add "내가 도와줄 일이 있나?" to {대화::낚시꾼할아버지::인사::대사::*}
+    add "c1" to {대화::낚시꾼할아버지::인사::선택지::*}
+    add "c2" to {대화::낚시꾼할아버지::인사::선택지::*}
+    add "c3" to {대화::낚시꾼할아버지::인사::선택지::*}
+    set {대화::낚시꾼할아버지::인사::선택지텍스트::c1} to "퀘스트를 보고 싶어요"
+    set {대화::낚시꾼할아버지::인사::선택지액션::c1} to "퀘스트목록"
+    set {대화::낚시꾼할아버지::인사::선택지이동::c1} to "x"
+    set {대화::낚시꾼할아버지::인사::선택지텍스트::c2} to "이 근처에 대해 알려주세요"
+    set {대화::낚시꾼할아버지::인사::선택지액션::c2} to "대화"
+    set {대화::낚시꾼할아버지::인사::선택지이동::c2} to "근처소개"
+    set {대화::낚시꾼할아버지::인사::선택지텍스트::c3} to "아뇨, 괜찮습니다"
+    set {대화::낚시꾼할아버지::인사::선택지액션::c3} to "닫기"
+    set {대화::낚시꾼할아버지::인사::선택지이동::c3} to "x"
+
+    # 진행중
+    delete {대화::낚시꾼할아버지::진행중::대사::*}
+    add "아직 끝나지 않은 모양이군." to {대화::낚시꾼할아버지::진행중::대사::*}
+    add "서두르지 말고 차근차근 해보게." to {대화::낚시꾼할아버지::진행중::대사::*}
+
+    # 근처소개
+    delete {대화::낚시꾼할아버지::근처소개::대사::*}
+    delete {대화::낚시꾼할아버지::근처소개::선택지::*}
+    add "바르칸 물길은 민물 낚시의 성지지." to {대화::낚시꾼할아버지::근처소개::대사::*}
+    add "붕어, 잉어, 메기... 다양한 물고기가 있다네." to {대화::낚시꾼할아버지::근처소개::대사::*}
+    add "동쪽으로 가면 동굴도 있는데, 거긴 좀 더 특별한 녀석들이 있지." to {대화::낚시꾼할아버지::근처소개::대사::*}
+    add "c1" to {대화::낚시꾼할아버지::근처소개::선택지::*}
+    add "c2" to {대화::낚시꾼할아버지::근처소개::선택지::*}
+    set {대화::낚시꾼할아버지::근처소개::선택지텍스트::c1} to "퀘스트를 보고 싶어요"
+    set {대화::낚시꾼할아버지::근처소개::선택지액션::c1} to "퀘스트목록"
+    set {대화::낚시꾼할아버지::근처소개::선택지이동::c1} to "x"
+    set {대화::낚시꾼할아버지::근처소개::선택지텍스트::c2} to "감사합니다"
+    set {대화::낚시꾼할아버지::근처소개::선택지액션::c2} to "닫기"
+    set {대화::낚시꾼할아버지::근처소개::선택지이동::c2} to "x"
+
+    # 퀘스트완료
+    delete {대화::낚시꾼할아버지::퀘스트완료::대사::*}
+    delete {대화::낚시꾼할아버지::퀘스트완료::선택지::*}
+    add "오! 해냈구먼!" to {대화::낚시꾼할아버지::퀘스트완료::대사::*}
+    add "역시 자네라면 할 줄 알았어." to {대화::낚시꾼할아버지::퀘스트완료::대사::*}
+    add "보상을 가져가게." to {대화::낚시꾼할아버지::퀘스트완료::대사::*}
+    add "c1" to {대화::낚시꾼할아버지::퀘스트완료::선택지::*}
+    set {대화::낚시꾼할아버지::퀘스트완료::선택지텍스트::c1} to "보상 받기"
+    set {대화::낚시꾼할아버지::퀘스트완료::선택지액션::c1} to "퀘스트목록"
+    set {대화::낚시꾼할아버지::퀘스트완료::선택지이동::c1} to "x"
+
+    # ===== 동굴탐험가 =====
+
+    # 인사
+    delete {대화::동굴탐험가::인사::대사::*}
+    delete {대화::동굴탐험가::인사::선택지::*}
+    add "... 누구야? 여긴 아무나 오는 곳이 아닌데." to {대화::동굴탐험가::인사::대사::*}
+    add "흠, 낚시꾼인가. 이 동굴에는 특이한 물고기들이 있지." to {대화::동굴탐험가::인사::대사::*}
+    add "c1" to {대화::동굴탐험가::인사::선택지::*}
+    add "c2" to {대화::동굴탐험가::인사::선택지::*}
+    set {대화::동굴탐험가::인사::선택지텍스트::c1} to "퀘스트가 있나요?"
+    set {대화::동굴탐험가::인사::선택지액션::c1} to "퀘스트목록"
+    set {대화::동굴탐험가::인사::선택지이동::c1} to "x"
+    set {대화::동굴탐험가::인사::선택지텍스트::c2} to "그냥 지나가는 길입니다"
+    set {대화::동굴탐험가::인사::선택지액션::c2} to "닫기"
+    set {대화::동굴탐험가::인사::선택지이동::c2} to "x"
+
+    # 진행중
+    delete {대화::동굴탐험가::진행중::대사::*}
+    add "... 아직인가." to {대화::동굴탐험가::진행중::대사::*}
+    add "끝나면 다시 와." to {대화::동굴탐험가::진행중::대사::*}
+
+    # 퀘스트완료
+    delete {대화::동굴탐험가::퀘스트완료::대사::*}
+    delete {대화::동굴탐험가::퀘스트완료::선택지::*}
+    add "... 대단하군. 해냈어." to {대화::동굴탐험가::퀘스트완료::대사::*}
+    add "이 보상을 가져가." to {대화::동굴탐험가::퀘스트완료::대사::*}
+    add "c1" to {대화::동굴탐험가::퀘스트완료::선택지::*}
+    set {대화::동굴탐험가::퀘스트완료::선택지텍스트::c1} to "보상 받기"
+    set {대화::동굴탐험가::퀘스트완료::선택지액션::c1} to "퀘스트목록"
+    set {대화::동굴탐험가::퀘스트완료::선택지이동::c1} to "x"
+
+    # =============================================
+    #   할아버지 (튜토리얼 NPC — 갈매기 바위)
+    # =============================================
+
+    # --- 인사 ---
+    delete {대화::할아버지::인사::대사::*}
+    delete {대화::할아버지::인사::선택지::*}
+    add "왔구나." to {대화::할아버지::인사::대사::*}
+    add "어부가 되고 싶다고? ...좋아, 내가 가르쳐주지." to {대화::할아버지::인사::대사::*}
+    add "c1" to {대화::할아버지::인사::선택지::*}
+    add "c2" to {대화::할아버지::인사::선택지::*}
+    set {대화::할아버지::인사::선택지텍스트::c1} to "가르쳐주세요!"
+    set {대화::할아버지::인사::선택지액션::c1} to "퀘스트목록"
+    set {대화::할아버지::인사::선택지이동::c1} to "x"
+    set {대화::할아버지::인사::선택지텍스트::c2} to "잠시만요"
+    set {대화::할아버지::인사::선택지액션::c2} to "닫기"
+    set {대화::할아버지::인사::선택지이동::c2} to "x"
+
+    # --- 진행중 (기본) ---
+    delete {대화::할아버지::진행중::대사::*}
+    add "아직 끝나지 않았구나." to {대화::할아버지::진행중::대사::*}
+    add "서두르지 말고 해보거라." to {대화::할아버지::진행중::대사::*}
+
+    # --- 퀘스트완료 (기본) ---
+    delete {대화::할아버지::퀘스트완료::대사::*}
+    delete {대화::할아버지::퀘스트완료::선택지::*}
+    add "해냈구나. 잘했어." to {대화::할아버지::퀘스트완료::대사::*}
+    add "c1" to {대화::할아버지::퀘스트완료::선택지::*}
+    set {대화::할아버지::퀘스트완료::선택지텍스트::c1} to "보상 받기"
+    set {대화::할아버지::퀘스트완료::선택지액션::c1} to "퀘스트목록"
+    set {대화::할아버지::퀘스트완료::선택지이동::c1} to "x"
+
+    # ===== 퀘스트별 진행중 대사 =====
+
+    # 튜토01: 낚싯대를 잡아라
+    delete {대화::할아버지::진행중::튜토01::대사::*}
+    add "물가에 서서 낚싯대를 던져보거라." to {대화::할아버지::진행중::튜토01::대사::*}
+    add "뭐든 좋아. 3마리면 된단다." to {대화::할아버지::진행중::튜토01::대사::*}
+
+    # 튜토02: 등급의 차이
+    delete {대화::할아버지::진행중::튜토02::대사::*}
+    add "물고기에는 등급이 있단다. E가 흔하고, D, C... 위로 갈수록 귀하지." to {대화::할아버지::진행중::튜토02::대사::*}
+    add "타이밍을 잘 맞추면 좋은 등급이 나올 거야. D등급 이상을 잡아보렴." to {대화::할아버지::진행중::튜토02::대사::*}
+
+    # 튜토03: 연습이 필요해
+    delete {대화::할아버지::진행중::튜토03::대사::*}
+    add "어부란 꾸준함이 중요하지." to {대화::할아버지::진행중::튜토03::대사::*}
+    add "아무거나 5마리. 많이 잡다 보면 실력이 늘 거야." to {대화::할아버지::진행중::튜토03::대사::*}
+
+    # 튜토04: 물고기를 팔아보자
+    delete {대화::할아버지::진행중::튜토04::대사::*}
+    add "잡은 물고기는 팔 줄도 알아야지." to {대화::할아버지::진행중::튜토04::대사::*}
+    add "&f/판매&7로 손에 든 물고기를, &f/상점&7으로 한꺼번에 팔 수 있단다." to {대화::할아버지::진행중::튜토04::대사::*}
+
+    # 튜토05: 큰 놈이 비싸다
+    delete {대화::할아버지::진행중::튜토05::대사::*}
+    add "같은 물고기라도 크기가 크면 더 비싸단다." to {대화::할아버지::진행중::튜토05::대사::*}
+    add "타이밍을 정확히 맞춰서 25cm 이상 큰 놈을 잡아보렴." to {대화::할아버지::진행중::튜토05::대사::*}
+
+    # 튜토06: 돈 관리
+    delete {대화::할아버지::진행중::튜토06::대사::*}
+    add "어부에게 돈은 중요하지." to {대화::할아버지::진행중::튜토06::대사::*}
+    add "&f/돈&7으로 잔액을 확인할 수 있어. 2,000원을 모아보거라." to {대화::할아버지::진행중::튜토06::대사::*}
+
+    # 튜토07: 성장의 길
+    delete {대화::할아버지::진행중::튜토07::대사::*}
+    add "많이 잡으면 경험치가 쌓인단다." to {대화::할아버지::진행중::튜토07::대사::*}
+    add "&f/낚시레벨&7로 확인할 수 있어. 레벨 2까지 올려보거라." to {대화::할아버지::진행중::튜토07::대사::*}
+
+    # 튜토08: 세상 구경
+    delete {대화::할아버지::진행중::튜토08::대사::*}
+    add "&f/메뉴&7를 열어보거라. 도감도 있고, 여러 정보를 볼 수 있지." to {대화::할아버지::진행중::튜토08::대사::*}
+    add "5마리 잡으면서 도감도 채워보렴." to {대화::할아버지::진행중::튜토08::대사::*}
+
+    # 튜토09: 일일의 보람
+    delete {대화::할아버지::진행중::튜토09::대사::*}
+    add "매일 새로운 일일 퀘스트가 나온단다. &f/q&7로 확인해봐." to {대화::할아버지::진행중::튜토09::대사::*}
+    add "물고기를 5마리 팔아보거라." to {대화::할아버지::진행중::튜토09::대사::*}
+
+    # 튜토10: 장비를 갖춰라
+    delete {대화::할아버지::진행중::튜토10::대사::*}
+    add "좋은 장비가 좋은 물고기를 부른단다." to {대화::할아버지::진행중::튜토10::대사::*}
+    add "&f/장비&7로 작업대를, &f/부품상점&7에서 부품을 살 수 있어." to {대화::할아버지::진행중::튜토10::대사::*}
+    add "10마리를 팔아서 자금을 마련해보거라." to {대화::할아버지::진행중::튜토10::대사::*}
+
+    # 튜토11: 장비의 힘
+    delete {대화::할아버지::진행중::튜토11::대사::*}
+    add "부품을 장착했으면 차이를 느껴볼 차례야." to {대화::할아버지::진행중::튜토11::대사::*}
+    add "C등급 물고기에 도전해보거라. 장비의 힘을 느낄 수 있을 거야." to {대화::할아버지::진행중::튜토11::대사::*}
+
+    # 튜토12: 아이스박스
+    delete {대화::할아버지::진행중::튜토12::대사::*}
+    add "물고기를 바로 못 팔 때가 있지." to {대화::할아버지::진행중::튜토12::대사::*}
+    add "아이스박스에 넣으면 신선도가 유지된단다. 8마리를 잡아봐." to {대화::할아버지::진행중::튜토12::대사::*}
+
+    # 튜토13: 시간과 날씨
+    delete {대화::할아버지::진행중::튜토13::대사::*}
+    add "시간대와 날씨에 따라 낚시가 달라진단다." to {대화::할아버지::진행중::튜토13::대사::*}
+    add "초음파 탐지기를 쓰면 지금 잡히는 물고기를 볼 수 있어." to {대화::할아버지::진행중::튜토13::대사::*}
+    add "D등급 이상 3마리를 잡아보렴." to {대화::할아버지::진행중::튜토13::대사::*}
+
+    # 튜토14: 졸업 시험
+    delete {대화::할아버지::진행중::튜토14::대사::*}
+    add "마지막 시험이야." to {대화::할아버지::진행중::튜토14::대사::*}
+    add "배운 걸 다 활용해서 레벨 3까지 올려보거라." to {대화::할아버지::진행중::튜토14::대사::*}
+    add "...할 수 있겠지?" to {대화::할아버지::진행중::튜토14::대사::*}
+
+    # 튜토15: 바르칸으로
+    delete {대화::할아버지::진행중::튜토15::대사::*}
+    add "...충분히 배웠구나." to {대화::할아버지::진행중::튜토15::대사::*}
+    add "넌 이제 바르칸에 갈 준비가 됐어. &f/보트&7로 보트를 소환하거라." to {대화::할아버지::진행중::튜토15::대사::*}
+    add "바르칸 본섬에 낚시사 길드가 있어. 거기서 네 길을 찾아라." to {대화::할아버지::진행중::튜토15::대사::*}
+    add "...그리고 기억해라. 좋은 어부란, 물고기를 많이 잡는 사람이 아니야." to {대화::할아버지::진행중::튜토15::대사::*}
+    add "물을 읽는 사람이지. ...가봐." to {대화::할아버지::진행중::튜토15::대사::*}
+
+    # ===== 퀘스트별 완료 대사 =====
+
+    # 튜토01 완료
+    delete {대화::할아버지::퀘스트완료::튜토01::대사::*}
+    add "오, 벌써 3마리나. 감이 좋구나." to {대화::할아버지::퀘스트완료::튜토01::대사::*}
+
+    # 튜토02 완료
+    delete {대화::할아버지::퀘스트완료::튜토02::대사::*}
+    add "D등급을 잡았구나! 역시 재능이 있어." to {대화::할아버지::퀘스트완료::튜토02::대사::*}
+
+    # 튜토03 완료
+    delete {대화::할아버지::퀘스트완료::튜토03::대사::*}
+    add "좋아, 실력이 붙고 있구나." to {대화::할아버지::퀘스트완료::튜토03::대사::*}
+
+    # 튜토04 완료
+    delete {대화::할아버지::퀘스트완료::튜토04::대사::*}
+    add "잘했어. 이제 돈 버는 법을 알겠지?" to {대화::할아버지::퀘스트완료::튜토04::대사::*}
+
+    # 튜토05 완료
+    delete {대화::할아버지::퀘스트완료::튜토05::대사::*}
+    add "큰 놈을 잡았구나! 이런 게 돈이 되는 거지." to {대화::할아버지::퀘스트완료::튜토05::대사::*}
+
+    # 튜토06 완료
+    delete {대화::할아버지::퀘스트완료::튜토06::대사::*}
+    add "좋아, 이제 돈 관리도 할 줄 아는구나." to {대화::할아버지::퀘스트완료::튜토06::대사::*}
+
+    # 튜토07 완료
+    delete {대화::할아버지::퀘스트완료::튜토07::대사::*}
+    add "레벨이 올랐구나! 성장이 느껴지지?" to {대화::할아버지::퀘스트완료::튜토07::대사::*}
+
+    # 튜토08 완료
+    delete {대화::할아버지::퀘스트완료::튜토08::대사::*}
+    add "도감이 점점 채워지고 있구나. 잘하고 있어." to {대화::할아버지::퀘스트완료::튜토08::대사::*}
+
+    # 튜토09 완료
+    delete {대화::할아버지::퀘스트완료::튜토09::대사::*}
+    add "좋아. 일퀘도 꼬박꼬박 하거라." to {대화::할아버지::퀘스트완료::튜토09::대사::*}
+
+    # 튜토10 완료
+    delete {대화::할아버지::퀘스트완료::튜토10::대사::*}
+    add "좋아, 이제 장비도 다룰 줄 알겠구나." to {대화::할아버지::퀘스트완료::튜토10::대사::*}
+
+    # 튜토11 완료
+    delete {대화::할아버지::퀘스트완료::튜토11::대사::*}
+    add "C등급이라니! 장비의 차이를 느꼈겠지." to {대화::할아버지::퀘스트완료::튜토11::대사::*}
+
+    # 튜토12 완료
+    delete {대화::할아버지::퀘스트완료::튜토12::대사::*}
+    add "아이스박스도 잘 쓰고 있구나." to {대화::할아버지::퀘스트완료::튜토12::대사::*}
+
+    # 튜토13 완료
+    delete {대화::할아버지::퀘스트완료::튜토13::대사::*}
+    add "시간과 날씨를 읽는 법도 배웠구나. 대단해." to {대화::할아버지::퀘스트완료::튜토13::대사::*}
+
+    # 튜토14 완료
+    delete {대화::할아버지::퀘스트완료::튜토14::대사::*}
+    add "...해냈구나." to {대화::할아버지::퀘스트완료::튜토14::대사::*}
+    add "대단하다. 이제 진짜 어부야." to {대화::할아버지::퀘스트완료::튜토14::대사::*}

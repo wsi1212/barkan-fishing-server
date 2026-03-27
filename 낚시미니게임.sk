@@ -1,0 +1,126 @@
+# =========================================
+# 낚시미니게임.sk
+# 낚시 타이밍 미니게임 (클릭 핸들러, 게이지 함수, 접속종료 정리)
+# =========================================
+
+# ===== 등급별 미니게임 파라미터 =====
+# 반환: "존폭|퍼펙트폭|속도(틱)|도주기본확률|도주증가량"
+function 미니게임파라미터(grade: text) :: text:
+    if {_grade} is "E":
+        return "10|2|4|30|5"
+    else if {_grade} is "D":
+        return "8|2|3|40|6"
+    else if {_grade} is "C":
+        return "7|2|3|50|8"
+    else if {_grade} is "B":
+        return "6|2|2|60|10"
+    else if {_grade} is "A":
+        return "5|2|2|70|13"
+    else if {_grade} is "S":
+        return "4|2|2|80|16"
+    else if {_grade} is "S+":
+        return "3|1|2|85|20"
+    else if {_grade} is "M":
+        return "2|1|2|90|25"
+    else if {_grade} is "L":
+        return "2|1|2|95|30"
+    else if {_grade} is "G":
+        return "1|1|2|98|35"
+    return "10|2|4|15|5"
+
+# ===== 물고기 등급별 난이도 =====
+function 물고기난이도(grade: text) :: number:
+    if {_grade} is "E":
+        return 0
+    else if {_grade} is "D":
+        return 1
+    else if {_grade} is "C":
+        return 2
+    else if {_grade} is "B":
+        return 4
+    else if {_grade} is "A":
+        return 6
+    else if {_grade} is "S":
+        return 8
+    else if {_grade} is "S+":
+        return 10
+    else if {_grade} is "M":
+        return 12
+    else if {_grade} is "L":
+        return 14
+    else if {_grade} is "G":
+        return 16
+    return 0
+
+# ===== 게이지 문자열 생성 (가변 폭) =====
+# 우선순위: 커서 > 퍼펙트존 > 스윗스팟 > 빈칸
+function 미니게임게이지(cursor: integer, zoneStart: integer, zoneEnd: integer, perfectStart: integer, perfectEnd: integer, barWidth: integer) :: text:
+    set {_bar} to ""
+    loop {_barWidth} times:
+        set {_i} to loop-iteration - 1
+        set {_ch} to "&7░"
+        if {_i} >= {_zoneStart}:
+            if {_i} <= {_zoneEnd}:
+                set {_ch} to "&a▓"
+        if {_i} >= {_perfectStart}:
+            if {_i} <= {_perfectEnd}:
+                set {_ch} to "&6▓"
+        if {_i} is {_cursor}:
+            set {_ch} to "&e█"
+        set {_bar} to "%{_bar}%%{_ch}%"
+    return "&f[ %{_bar}% &f]"
+
+# ===== 미니게임 변수 정리 =====
+function 미니게임정리(p: player):
+    delete {미니게임::%{_p}%}
+    delete {미니게임커서::%{_p}%}
+    delete {미니게임결과::%{_p}%}
+    delete {미니게임존시작::%{_p}%}
+    delete {미니게임존끝::%{_p}%}
+    delete {미니게임퍼펙트시작::%{_p}%}
+    delete {미니게임퍼펙트끝::%{_p}%}
+    delete {미니게임크리티컬확률::%{_p}%}
+    delete {미니게임도주확률::%{_p}%}
+    delete {미니게임도주증가::%{_p}%}
+    send action bar "" to {_p}
+    delete bossbar named "fishTimer_%{_p}'s uuid%"
+
+# ===== 미니게임 중 낚싯대 재사용 방지 =====
+on right click with fishing rod:
+    if {미니게임::%player%} is 1:
+        cancel event
+
+# ===== 좌클릭 핸들러 (미니게임) =====
+on left click:
+    if {미니게임::%player%} is 1:
+        cancel event
+        set {_cursor} to {미니게임커서::%player%}
+        # 퍼펙트 존 판정
+        if {_cursor} >= {미니게임퍼펙트시작::%player%}:
+            if {_cursor} <= {미니게임퍼펙트끝::%player%}:
+                set {미니게임결과::%player%} to "크리티컬"
+                stop
+        # 스윗스팟 존 판정 (확률 크리티컬)
+        if {_cursor} >= {미니게임존시작::%player%}:
+            if {_cursor} <= {미니게임존끝::%player%}:
+                set {_critChance} to {미니게임크리티컬확률::%player%}
+                if {_critChance} is set:
+                    chance of {_critChance}%:
+                        set {미니게임결과::%player%} to "크리티컬"
+                        stop
+                set {미니게임결과::%player%} to "성공"
+                stop
+        # 미스 - 도주 확률 판정
+        set {_escapeChance} to {미니게임도주확률::%player%}
+        if {_escapeChance} is set:
+            chance of {_escapeChance}%:
+                set {미니게임결과::%player%} to "도주"
+                stop
+        # 도주 실패 → 다음 미스 때 확률 증가
+        add {미니게임도주증가::%player%} to {미니게임도주확률::%player%}
+        send "&c놓쳤다! &8(&7도주 확률: &c%{미니게임도주확률::%player%}%%%&8)" to player
+
+# ===== 접속 종료 시 정리 =====
+on quit:
+    if {미니게임::%player%} is 1:
+        미니게임정리(player)

@@ -1,0 +1,113 @@
+# ===== 주기적 팁 표시 시스템 =====
+
+on load:
+    # 팁 목록 초기화
+    delete {팁목록::*}
+    set {_i} to 0
+
+    # --- 조작 관련 ---
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &fShift + F&7로 &a메뉴&7를 열 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/q&7로 &d퀘스트 창&7을 열 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/판매 전부&7로 인벤의 물고기를 한번에 판매할 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/상점&7으로 물고기 판매 상점을 열 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/돈&7으로 현재 소지금을 확인할 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/낚시레벨&7로 현재 낚시 레벨과 경험치를 확인할 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &f/낚시레벨랭킹&7으로 레벨 랭킹을 볼 수 있습니다."
+
+    # --- 낚시 관련 ---
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7낚시 레벨이 높을수록 &a더 좋은 등급&7의 물고기가 잡힙니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7물고기 등급은 &fE < D < C < B < A < S < S+ < M < L < G &7순입니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7가장 희귀한 &4G등급&7 물고기를 낚을 확률은 고작 &c0.01%%&7입니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7전설의 &4G등급 &7물고기는 지역마다 존재합니다. 찾아보세요!"
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7크리티컬 낚시에 성공하면 &e판매 가격&7이 증가합니다!"
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &6S+&7 이상 물고기는 &c도주&7할 수 있으니 조심하세요!"
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7같은 물고기라도 &e크기&7가 클수록 &e판매 가격&7이 높습니다."
+
+    # --- 지역 관련 ---
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7지역마다 잡히는 물고기가 다릅니다. 여러 곳을 탐험해보세요!"
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &c용암 낚시&7에서는 특별한 물고기를 잡을 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7초음파 탐지기로 현재 지역의 물고기 목록을 볼 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7한번 방문한 지역은 &b페리&7를 통해 쉽고 빠르게 이동할 수 있습니다."
+
+    # --- 퀘스트 관련 ---
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &d일일 퀘스트&7는 매일 새로 갱신됩니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &d주간 퀘스트&7는 매주 월요일에 갱신됩니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7NPC에게 말을 걸면 &d퀘스트&7를 받을 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7퀘스트를 완료하면 &e돈&7과 &a경험치&7를 보상으로 받습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7메인 퀘스트를 클리어하면 다음 퀘스트가 &e자동 해금&7됩니다."
+
+    # --- 도감 관련 ---
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7메뉴에서 &f물고기 도감&7을 확인할 수 있습니다."
+    add 1 to {_i}
+    set {팁목록::%{_i}%} to "&b[TIP] &7도감에 최대 크기 기록이 저장됩니다. &e신기록&7에 도전해보세요!"
+
+    set {팁총수} to {_i}
+
+    # 팁 타이머 시작 (3분마다)
+    set {팁타이머작동} to true
+
+every 3 minutes:
+    if {팁타이머작동} is not true:
+        stop
+    set {_max} to {팁총수}
+    if {_max} is not set:
+        stop
+    if {_max} <= 0:
+        stop
+    set {_rand} to a random integer between 1 and {_max}
+    set {_msg} to {팁목록::%{_rand}%}
+    if {_msg} is set:
+        loop all players:
+            message "&8%{_msg}%" to loop-player
+
+command /팁 [<text>]:
+    permission: op
+    trigger:
+        set {_max} to {팁총수}
+        if {_max} is not set:
+            message "&8[&b 팁 &8] &c팁 데이터가 없습니다."
+            stop
+        set {_rand} to a random integer between 1 and {_max}
+        set {_msg} to {팁목록::%{_rand}%}
+        if {_msg} is set:
+            loop all players:
+                message "&8%{_msg}%" to loop-player
+            message "&8[&b 팁 &8] &a팁을 전송했습니다."
+
+command /팁목록:
+    permission: op
+    trigger:
+        set {_max} to {팁총수}
+        if {_max} is not set:
+            message "&8[&b 팁 &8] &c팁 데이터가 없습니다."
+            stop
+        message "&8========== &b팁 목록 &8(%{_max}%개) =========="
+        loop integers from 1 to {_max}:
+            set {_msg} to {팁목록::%loop-integer%}
+            if {_msg} is set:
+                message "&8#%loop-integer% %{_msg}%"
+        message "&8======================================"

@@ -1,0 +1,7 @@
+# 스폰 명령어
+
+command /spawn:
+    aliases: /넴주, /tmvhs, /spawn
+    trigger:
+        teleport player to spawn point of world "flatroom"
+        send "&a스폰으로 이동했습니다." to player

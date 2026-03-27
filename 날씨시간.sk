@@ -1,0 +1,188 @@
+# =========================================
+# 날씨시간.sk
+# 날씨/시간 기반 낚시 보너스 + 특수 물고기 시스템
+# =========================================
+
+# ===== 현재 시간대 반환 =====
+# Skript 시간: 0:00=MC 6AM, 6:00=MC noon, 12:00=MC 6PM, 18:00=MC midnight
+function 현재시간대(p: player) :: text:
+    set {_t} to time in {_p}'s world
+    if {_t} is between 15:00 and 22:59:
+        return "밤"
+    else if {_t} is between 11:00 and 14:59:
+        return "저녁"
+    else if {_t} is between 3:00 and 10:59:
+        return "낮"
+    else:
+        return "새벽"
+
+# ===== 현재 날씨 반환 =====
+function 현재날씨(p: player) :: text:
+    if weather in {_p}'s world is thunder:
+        return "뇌우"
+    else if weather in {_p}'s world is rain:
+        return "비"
+    return "맑음"
+
+# ===== 시간 보너스 (exp%|size%|gradeshift%) =====
+# 낮: 경험치 특화 / 저녁: 크기 특화 / 밤: 밸런스 / 새벽: 등급업 특화
+function 시간보너스(time: text) :: text:
+    if {_time} is "낮":
+        return "20|0|0"
+    else if {_time} is "저녁":
+        return "0|15|0"
+    else if {_time} is "밤":
+        return "10|10|1"
+    else if {_time} is "새벽":
+        return "0|0|5"
+    return "0|0|0"
+
+# ===== 날씨 보너스 (exp%|size%|gradeshift%) =====
+# 맑음: 경험치 / 비: 크기 특화 / 뇌우: 등급업 특화
+function 날씨보너스(weather: text) :: text:
+    if {_weather} is "맑음":
+        return "10|0|0"
+    else if {_weather} is "비":
+        return "0|15|1"
+    else if {_weather} is "뇌우":
+        return "0|0|5"
+    return "0|0|0"
+
+# ===== 시간대 색상 =====
+function 시간대색상(time: text) :: text:
+    if {_time} is "새벽":
+        return "&d"
+    else if {_time} is "낮":
+        return "&e"
+    else if {_time} is "저녁":
+        return "&6"
+    else if {_time} is "밤":
+        return "&9"
+    return "&f"
+
+# ===== 날씨 색상 =====
+function 날씨색상(weather: text) :: text:
+    if {_weather} is "맑음":
+        return "&e"
+    else if {_weather} is "비":
+        return "&b"
+    else if {_weather} is "뇌우":
+        return "&c"
+    return "&f"
+
+# ===== 새벽 전용 물고기 =====
+function get_dawn_fish(region: text) :: texts:
+    if {_region} is "바르칸물길":
+        add {물고기::여명잉어} to {_list::*}
+        add {물고기::아침이슬복어} to {_list::*}
+    else if {_region} is "바르칸동굴":
+        add {물고기::새벽동굴장어} to {_list::*}
+    return {_list::*}
+
+# ===== 밤 전용 물고기 =====
+function get_night_fish(region: text) :: texts:
+    if {_region} is "바르칸물길":
+        add {물고기::달빛쏘가리} to {_list::*}
+        add {물고기::야광붕어} to {_list::*}
+        add {물고기::반딧불송사리} to {_list::*}
+    else if {_region} is "바르칸동굴":
+        add {물고기::어둠동굴메기} to {_list::*}
+        add {물고기::심야박쥐고기} to {_list::*}
+        add {물고기::맹인비늘고기} to {_list::*}
+    return {_list::*}
+
+# ===== 비 전용 물고기 (뇌우에도 출현) =====
+function get_rain_fish(region: text) :: texts:
+    if {_region} is "바르칸물길":
+        add {물고기::빗방울잉어} to {_list::*}
+        add {물고기::우천미꾸라지} to {_list::*}
+    else if {_region} is "바르칸동굴":
+        add {물고기::수몰전갱이} to {_list::*}
+        add {물고기::침수가재} to {_list::*}
+    return {_list::*}
+
+# ===== 뇌우 전용 물고기 (전 지역) =====
+function get_thunder_fish(region: text) :: texts:
+    add {물고기::번개물고기} to {_list::*}
+    add {물고기::뇌전가오리} to {_list::*}
+    return {_list::*}
+
+# ===== 환경 보너스 알림 (지역 입장 시) =====
+function 환경보너스알림(p: player):
+    set {_시간대} to 현재시간대({_p})
+    set {_날씨} to 현재날씨({_p})
+    set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
+    set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
+    set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
+    set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
+    set {_gradeShift} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
+    set {_tColor} to 시간대색상({_시간대})
+    set {_wColor} to 날씨색상({_날씨})
+    send "%{_tColor}%%{_시간대}% %{_wColor}%%{_날씨}%" to {_p}
+    if {_expTotal} > 0:
+        if {_gradeShift} > 0:
+            send "&a  [환경 보너스] &fEXP +%{_expTotal}%%%  크기 +%{_sizeTotal}%%%  등급업 %{_gradeShift}%%%" to {_p}
+        else:
+            send "&a  [환경 보너스] &fEXP +%{_expTotal}%%%  크기 +%{_sizeTotal}%%%" to {_p}
+    else if {_gradeShift} > 0:
+        send "&a  [환경 보너스] &f등급업 %{_gradeShift}%%%" to {_p}
+
+# ===== /날씨 명령어 =====
+command /날씨:
+    aliases: /skftl
+    trigger:
+        set {_시간대} to 현재시간대(player)
+        set {_날씨} to 현재날씨(player)
+        set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
+        set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
+        set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
+        set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
+        set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
+        set {_tColor} to 시간대색상({_시간대})
+        set {_wColor} to 날씨색상({_날씨})
+        message "&f========== 날씨/시간 정보 ==========" to player
+        message "&7시간대 &e: %{_tColor}%%{_시간대}%" to player
+        message "&7날씨 &e: %{_wColor}%%{_날씨}%" to player
+        message "" to player
+        if {_expTotal} > 0:
+            message "&a경험치 보너스 &e: &f+%{_expTotal}%%%" to player
+        else:
+            message "&7경험치 보너스 &e: &f없음" to player
+        if {_sizeTotal} > 0:
+            message "&b크기 보너스 &e: &f+%{_sizeTotal}%%%" to player
+        else:
+            message "&7크기 보너스 &e: &f없음" to player
+        if {_gradeTotal} > 0:
+            message "&6등급 시프트 확률 &e: &f+%{_gradeTotal}%%%" to player
+        else:
+            message "&7등급 시프트 확률 &e: &f없음" to player
+        # 특수 물고기 안내
+        set {_area} to {area::%player%}
+        if {_area} is not "0":
+            if {_area} is set:
+                message "" to player
+                message "&7현재 특수 물고기:" to player
+                if {_시간대} is "새벽":
+                    set {_special::*} to get_dawn_fish({_area})
+                    if {_special::*} is set:
+                        loop {_special::*}:
+                            set {_d::*} to split loop-value at "|"
+                            message "&d  [새벽] &f%{_d::1}% &7(%{_d::4}%등급)" to player
+                else if {_시간대} is "밤":
+                    set {_special::*} to get_night_fish({_area})
+                    if {_special::*} is set:
+                        loop {_special::*}:
+                            set {_d::*} to split loop-value at "|"
+                            message "&9  [밤] &f%{_d::1}% &7(%{_d::4}%등급)" to player
+                if {_날씨} is "비" or "뇌우":
+                    set {_special2::*} to get_rain_fish({_area})
+                    if {_special2::*} is set:
+                        loop {_special2::*}:
+                            set {_d::*} to split loop-value at "|"
+                            message "&b  [비] &f%{_d::1}% &7(%{_d::4}%등급)" to player
+                if {_날씨} is "뇌우":
+                    set {_special3::*} to get_thunder_fish({_area})
+                    if {_special3::*} is set:
+                        loop {_special3::*}:
+                            set {_d::*} to split loop-value at "|"
+                            message "&c  [뇌우] &f%{_d::1}% &7(%{_d::4}%등급)" to player

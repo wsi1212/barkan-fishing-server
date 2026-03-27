@@ -3,17 +3,11 @@
 # 낚싯대 조립/확인/장착/해제
 # =========================================
 
-# ===== /장비작업대 명령어 =====
-command /장비작업대:
-    aliases: /wkdqlwkrurdxo
+# ===== /장비 명령어 =====
+command /장비:
+    aliases: /wkdql
     trigger:
         openWorkbench(player)
-
-# ===== /장비확인 명령어 =====
-command /장비확인:
-    aliases: /wkdqlghkrdls
-    trigger:
-        openInspect(player)
 
 # ===== 조립대 GUI 열기 =====
 function openWorkbench(p: player):
@@ -21,9 +15,60 @@ function openWorkbench(p: player):
     # 1행: 타이틀 바
     loop 9 times:
         set slot (loop-iteration - 1) of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 4 of {_p}'s current inventory to crafting table named "&e&l낚싯대 조립대"
+    # === 현재 스탯 요약 ===
+    # 낚싯대 본체 (손에 든 낚싯대 기준)
+    set {_rodInfo} to "&c없음"
+    set {_rodStat} to "&7  낚시 난이도 &e: &f-0"
+    if {_p}'s tool is fishing rod:
+        set {_toolName} to name of {_p}'s tool
+        loop {부품목록::낚싯대::*}:
+            if {_toolName} contains loop-value:
+                set {_rn} to loop-value
+                set {_rg} to get_part_grade("낚싯대", {_rn})
+                set {_rc} to part_grade_color({_rg})
+                set {_rodInfo} to "%{_rc}%%{_rn}%"
+                set {_rodInfo} to "%{_rodInfo}% &7(%{_rc}%%{_rg}%&7)"
+                # 스탯 파싱
+                set {_rawS} to get_part_stats_raw("낚싯대", {_rn})
+                set {_ps::*} to split {_rawS} at ","
+                set {_rodStat} to ""
+                loop {_ps::*}:
+                    set {_kv::*} to split loop-value-2 at ":"
+                    set {_desc} to stat_type_desc({_kv::1})
+                    set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+                    set {_rodStat} to "%{_rodStat}%&7  %{_desc}% &e: &f%{_vt}% "
+    # 5슬롯 요약 (릴~찌)
+    set {_slotNames::1} to "릴"
+    set {_slotNames::2} to "줄"
+    set {_slotNames::3} to "바늘"
+    set {_slotNames::4} to "미끼"
+    set {_slotNames::5} to "찌"
+    loop 5 times:
+        set {_sn} to {_slotNames::%loop-iteration%}
+        set {_sumInfo::%loop-iteration%} to "&c없음"
+        set {_sumStat::%loop-iteration%} to "&7  %part_stat_desc({_sn})% &e: &f+0"
+        if {낚싯대부품::%{_sn}%::%{_p}%} is set:
+            set {_rn} to {낚싯대부품::%{_sn}%::%{_p}%}
+            set {_rg} to get_part_grade({_sn}, {_rn})
+            set {_rc} to part_grade_color({_rg})
+            set {_sumInfo::%loop-iteration%} to "%{_rc}%%{_rn}%"
+            set {_sumInfo::%loop-iteration%} to "%{_sumInfo::%loop-iteration%}% &7(%{_rc}%%{_rg}%&7)"
+            if {_sn} is "미끼":
+                set {_baitCnt} to {부품인벤::미끼::%{_p}%::%{_rn}%}
+                if {_baitCnt} is not set:
+                    set {_baitCnt} to 0
+                set {_sumInfo::%loop-iteration%} to "%{_sumInfo::%loop-iteration%}% &8x%{_baitCnt}%"
+            set {_rawS} to get_part_stats_raw({_sn}, {_rn})
+            set {_ps::*} to split {_rawS} at ","
+            set {_sumStat::%loop-iteration%} to ""
+            loop {_ps::*}:
+                set {_kv::*} to split loop-value-2 at ":"
+                set {_desc} to stat_type_desc({_kv::1})
+                set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+                set {_sumStat::%loop-iteration-1%} to "%{_sumStat::%loop-iteration-1%}%&7  %{_desc}% &e: &f%{_vt}% "
+    set slot 4 of {_p}'s current inventory to crafting table named "&e&l낚싯대 조립대" with lore "&e&l━━━ 현재 장비 스탯 ━━━" and "" and "&7▸ 낚싯대 &e: %{_rodInfo}%" and "%{_rodStat}%" and "&7▸ 릴 &e: %{_sumInfo::1}%" and "%{_sumStat::1}%" and "&7▸ 줄 &e: %{_sumInfo::2}%" and "%{_sumStat::2}%" and "&7▸ 바늘 &e: %{_sumInfo::3}%" and "%{_sumStat::3}%" and "&7▸ 미끼 &e: %{_sumInfo::4}%" and "%{_sumStat::4}%" and "&7▸ 찌 &e: %{_sumInfo::5}%" and "%{_sumStat::5}%"
 
-    # 2행: 현재 장착 부품 표시 (slot 9~13)
+    # 2행: 현재 장착 부품 표시 (slot 9~13) — 동적 lore
     set {_types::1} to "릴"
     set {_types::2} to "줄"
     set {_types::3} to "바늘"
@@ -38,12 +83,31 @@ function openWorkbench(p: player):
             set {_color} to part_grade_color({_grade})
             set {_dur} to {부품내구도::%{_type}%::%{_p}%}
             set {_maxdur} to get_part_durability({_type}, {_equipped})
-            set {_stat} to get_part_stat({_type}, {_equipped})
-            set {_statdesc} to part_stat_desc({_type})
             set {_icon} to part_icon_item({_type})
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_equipped}%" with lore "&7유형 &e: &f%{_type}%" and "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%" and "&7내구도 &e: &f%{_dur}%/%{_maxdur}%"
+            # 동적 lore 생성
+            delete {_lore::*}
+            add "&7유형 &e: &f%{_type}%" to {_lore::*}
+            add "&7등급 &e: %{_color}%%{_grade}%" to {_lore::*}
+            set {_rawStats} to get_part_stats_raw({_type}, {_equipped})
+            set {_pairs::*} to split {_rawStats} at ","
+            loop {_pairs::*}:
+                set {_kv::*} to split loop-value-2 at ":"
+                set {_desc} to stat_type_desc({_kv::1})
+                set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+                add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+            if {_type} is "미끼":
+                set {_baitCnt} to {부품인벤::미끼::%{_p}%::%{_equipped}%}
+                if {_baitCnt} is not set:
+                    set {_baitCnt} to 0
+                if {_baitCnt} < 1:
+                    set {_baitCnt} to 1
+                add "&7보유 &e: &f%{_baitCnt}%개" to {_lore::*}
+                set max stack size of {_icon} to 99
+                set slot {_slot} of {_p}'s current inventory to {_baitCnt} of {_icon} named "%{_color}%%{_equipped}%" with lore {_lore::*}
+            else:
+                add "&7내구도 &e: &f%{_dur}%/%{_maxdur}%" to {_lore::*}
+                set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_equipped}%" with lore {_lore::*}
         else:
-            set {_icon} to part_icon_item({_type})
             set slot {_slot} of {_p}'s current inventory to gray stained glass pane named "&c%{_type}% (없음)" with lore "&7장착된 %{_type}%이(가) 없습니다."
     # 2행 나머지 (14~17)
     set slot 14 of {_p}'s current inventory to black stained glass pane named "&f"
@@ -65,45 +129,79 @@ function openWorkbench(p: player):
     loop integers from 27 to 44:
         set slot loop-integer of {_p}'s current inventory to air
 
-# ===== 작업대 부품 목록 표시 =====
+# ===== 작업대 부품 목록 표시 (페이지네이션) =====
 function showPartList(p: player, type: text):
-    # 4~5행 초기화
+    # 4~5행 초기화 (slots 27-44)
     loop integers from 27 to 44:
         set slot loop-integer of {_p}'s current inventory to air
     delete {작업대부품슬롯::%{_p}%::*}
-    set {_slot} to 27
-    # 해제 버튼 (현재 장착 중인 경우)
-    if {낚싯대부품::%{_type}%::%{_p}%} is set:
-        set slot {_slot} of {_p}'s current inventory to barrier named "&c%{_type}% 해제" with lore "&7현재 장착된 %{_type}%을(를) 해제합니다."
-        add 1 to {_slot}
-    # 보유 부품 표시
+    # 보유 부품 수집
     if {_type} is "미끼":
         loop {부품목록::미끼::*}:
             set {_name} to loop-value
             set {_count} to {부품인벤::미끼::%{_p}%::%{_name}%}
             if {_count} is set:
                 if {_count} > 0:
-                    set {_grade} to get_part_grade("미끼", {_name})
-                    set {_color} to part_grade_color({_grade})
-                    set {_stat} to get_part_stat("미끼", {_name})
-                    set {_dur} to get_part_durability("미끼", {_name})
-                    set {작업대부품슬롯::%{_p}%::%{_slot}%} to {_name}
-                    set slot {_slot} of {_p}'s current inventory to slime ball named "%{_color}%%{_name}% &7x%{_count}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7경험치 보너스 &e: &f+%{_stat}%%%" and "&7내구도(개당) &e: &f%{_dur}%회" and "&e클릭하여 장착"
-                    add 1 to {_slot}
+                    add {_name} to {_items::*}
     else:
         loop {부품인벤::%{_type}%::%{_p}%::*}:
-            set {_name} to loop-value
-            if {_slot} > 44:
-                stop
-            set {_grade} to get_part_grade({_type}, {_name})
-            set {_color} to part_grade_color({_grade})
-            set {_stat} to get_part_stat({_type}, {_name})
+            add loop-value to {_items::*}
+    # 페이지 계산
+    set {_page} to {작업대페이지::%{_p}%}
+    if {_page} is not set:
+        set {_page} to 0
+    set {_slot} to 27
+    # 해제 버튼 (현재 장착 중인 경우)
+    if {낚싯대부품::%{_type}%::%{_p}%} is set:
+        set slot {_slot} of {_p}'s current inventory to barrier named "&c%{_type}% 해제" with lore "&7현재 장착된 %{_type}%을(를) 해제합니다."
+        add 1 to {_slot}
+    # 아이템 슬롯: {_slot} ~ 42 (43,44는 네비용)
+    set {_perPage} to 43 - {_slot}
+    set {_total} to size of {_items::*}
+    set {_offset} to {_page} * {_perPage}
+    # 아이템 표시 — 동적 lore
+    set {_idx} to {_offset}
+    loop {_perPage} times:
+        add 1 to {_idx}
+        if {_idx} > {_total}:
+            stop loop
+        set {_name} to {_items::%{_idx}%}
+        set {_grade} to get_part_grade({_type}, {_name})
+        set {_color} to part_grade_color({_grade})
+        set {_icon} to part_icon_item({_type})
+        set {작업대부품슬롯::%{_p}%::%{_slot}%} to {_name}
+        # lore 빌드
+        delete {_lore::*}
+        add "&7등급 &e: %{_color}%%{_grade}%" to {_lore::*}
+        set {_rawStats} to get_part_stats_raw({_type}, {_name})
+        set {_pairs::*} to split {_rawStats} at ","
+        loop {_pairs::*}:
+            set {_kv::*} to split loop-value-2 at ":"
+            set {_desc} to stat_type_desc({_kv::1})
+            set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+            add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+        if {_type} is "미끼":
+            set {_baitCount} to {부품인벤::미끼::%{_p}%::%{_name}%}
+            if {_baitCount} is not set:
+                set {_baitCount} to 0
+            add "&7보유 &e: &f%{_baitCount}%/99개" to {_lore::*}
+            add "&e클릭하여 장착" to {_lore::*}
+            if {_baitCount} < 1:
+                set {_baitCount} to 1
+            set max stack size of {_icon} to 99
+            set slot {_slot} of {_p}'s current inventory to {_baitCount} of {_icon} named "%{_color}%%{_name}%" with lore {_lore::*}
+        else:
             set {_maxdur} to get_part_durability({_type}, {_name})
-            set {_statdesc} to part_stat_desc({_type})
-            set {_icon} to part_icon_item({_type})
-            set {작업대부품슬롯::%{_p}%::%{_slot}%} to {_name}
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%" and "&7내구도 &e: &f%{_maxdur}%" and "&e클릭하여 장착"
-            add 1 to {_slot}
+            add "&7내구도 &e: &f%{_maxdur}%" to {_lore::*}
+            add "&e클릭하여 장착" to {_lore::*}
+            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_name}%" with lore {_lore::*}
+        add 1 to {_slot}
+    # 페이지 네비게이션 (slot 43: 이전, slot 44: 다음)
+    if {_page} > 0:
+        set slot 43 of {_p}'s current inventory to red stained glass pane named "&c◀ 이전 페이지"
+    set {_lastIdx} to {_offset} + {_perPage}
+    if {_lastIdx} < {_total}:
+        set slot 44 of {_p}'s current inventory to lime stained glass pane named "&a다음 페이지 ▶"
 
 # ===== 부품 장착 =====
 function equipPart(p: player, type: text, name: text):
@@ -137,45 +235,6 @@ function unequipPart(p: player, type: text):
     delete {부품내구도::%{_type}%::%{_p}%}
     message "&8[&e 장비 &8] &c%{_old}%을(를) 해제했습니다." to {_p}
 
-# ===== 확인 GUI 열기 =====
-function openInspect(p: player):
-    open chest inventory with 3 rows named "&0장비 확인" to {_p}
-    # 1행: 타이틀
-    loop 9 times:
-        set slot (loop-iteration - 1) of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 4 of {_p}'s current inventory to fishing rod named "&e&l내 낚싯대 정보"
-
-    # 2행: 장착 부품 (slot 9~13)
-    set {_types::1} to "릴"
-    set {_types::2} to "줄"
-    set {_types::3} to "바늘"
-    set {_types::4} to "미끼"
-    set {_types::5} to "찌"
-    loop 5 times:
-        set {_type} to {_types::%loop-iteration%}
-        set {_slot} to 8 + loop-iteration
-        set {_equipped} to {낚싯대부품::%{_type}%::%{_p}%}
-        if {_equipped} is set:
-            set {_grade} to get_part_grade({_type}, {_equipped})
-            set {_color} to part_grade_color({_grade})
-            set {_dur} to {부품내구도::%{_type}%::%{_p}%}
-            set {_maxdur} to get_part_durability({_type}, {_equipped})
-            set {_stat} to get_part_stat({_type}, {_equipped})
-            set {_statdesc} to part_stat_desc({_type})
-            set {_icon} to part_icon_item({_type})
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_equipped}%" with lore "&7유형 &e: &f%{_type}%" and "&7등급 &e: %{_color}%%{_grade}%" and "&7%{_statdesc}% &e: &f+%{_stat}%" and "&7내구도 &e: &f%{_dur}%/%{_maxdur}%"
-        else:
-            set slot {_slot} of {_p}'s current inventory to gray stained glass pane named "&c%{_type}% (없음)"
-    set slot 14 of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 15 of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 16 of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 17 of {_p}'s current inventory to black stained glass pane named "&f"
-
-    # 3행: 닫기
-    loop integers from 18 to 26:
-        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 22 of {_p}'s current inventory to barrier named "&c&l닫기"
-
 # ===== 작업대 GUI 클릭 =====
 on inventory click:
     if player's current inventory's name is "&0장비 작업대":
@@ -184,24 +243,45 @@ on inventory click:
         # 변경 버튼 클릭 (3행: slot 18~22)
         if {_ci} is 18:
             set {작업대선택유형::%player%} to "릴"
+            set {작업대페이지::%player%} to 0
             showPartList(player, "릴")
             stop
         else if {_ci} is 19:
             set {작업대선택유형::%player%} to "줄"
+            set {작업대페이지::%player%} to 0
             showPartList(player, "줄")
             stop
         else if {_ci} is 20:
             set {작업대선택유형::%player%} to "바늘"
+            set {작업대페이지::%player%} to 0
             showPartList(player, "바늘")
             stop
         else if {_ci} is 21:
             set {작업대선택유형::%player%} to "미끼"
+            set {작업대페이지::%player%} to 0
             showPartList(player, "미끼")
             stop
         else if {_ci} is 22:
             set {작업대선택유형::%player%} to "찌"
+            set {작업대페이지::%player%} to 0
             showPartList(player, "찌")
             stop
+        # 페이지 네비게이션 클릭
+        if event-item is red stained glass pane:
+            subtract 1 from {작업대페이지::%player%}
+            if {작업대페이지::%player%} < 0:
+                set {작업대페이지::%player%} to 0
+            set {_type} to {작업대선택유형::%player%}
+            if {_type} is set:
+                showPartList(player, {_type})
+            stop
+        if event-item is lime stained glass pane:
+            if name of event-item contains "다음 페이지":
+                add 1 to {작업대페이지::%player%}
+                set {_type} to {작업대선택유형::%player%}
+                if {_type} is set:
+                    showPartList(player, {_type})
+                stop
         # 4~5행 부품 클릭 (슬롯 매핑 기반)
         if event-item is not air:
             # 해제 버튼 클릭
@@ -222,22 +302,33 @@ on inventory click:
                         wait 1 tick
                         openWorkbench(player)
 
-# ===== 확인 GUI 클릭 =====
-on inventory click:
-    if player's current inventory's name is "&0장비 확인":
-        cancel event
-        if event-item is barrier:
-            close player's inventory
-
 # ===== 부품 파괴 처리 (낚시 후 호출) =====
 function reduceDurability(p: player):
-    set {_types::1} to "릴"
-    set {_types::2} to "줄"
-    set {_types::3} to "바늘"
-    set {_types::4} to "미끼"
-    set {_types::5} to "찌"
+    # 내구보존 스탯 합산
+    set {_내구보존} to 0
+    set {_dtypes::1} to "릴"
+    set {_dtypes::2} to "줄"
+    set {_dtypes::3} to "바늘"
+    set {_dtypes::4} to "미끼"
+    set {_dtypes::5} to "찌"
     loop 5 times:
-        set {_type} to {_types::%loop-iteration%}
+        set {_dt} to {_dtypes::%loop-iteration%}
+        set {_dn} to {낚싯대부품::%{_dt}%::%{_p}%}
+        if {_dn} is set:
+            set {_dRaw} to get_part_stats_raw({_dt}, {_dn})
+            set {_dPairs::*} to split {_dRaw} at ","
+            loop {_dPairs::*}:
+                set {_dKV::*} to split loop-value-2 at ":"
+                if {_dKV::1} is "내구보존":
+                    add ({_dKV::2} parsed as number) to {_내구보존}
+    # 내구보존 확률로 내구 감소 스킵
+    if {_내구보존} > 0:
+        chance of {_내구보존}%:
+            message "&8[&e 장비 &8] &b내구도가 보존되었습니다!" to {_p}
+            stop
+    # 각 슬롯 내구도 감소
+    loop 5 times:
+        set {_type} to {_dtypes::%loop-iteration%}
         set {_name} to {낚싯대부품::%{_type}%::%{_p}%}
         if {_name} is set:
             subtract 1 from {부품내구도::%{_type}%::%{_p}%}
@@ -288,4 +379,4 @@ function missingPartMessage(p: player):
     if {낚싯대부품::찌::%{_p}%} is not set:
         set {_msg} to "%{_msg}%찌 "
     message "&8[&e 장비 &8] &c다음 부품이 없습니다: &f%{_msg}%" to {_p}
-    message "&8[&e 장비 &8] &7/장비작업대 에서 부품을 장착하세요." to {_p}
+    message "&8[&e 장비 &8] &7/장비 에서 부품을 장착하세요." to {_p}

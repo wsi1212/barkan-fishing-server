@@ -1,0 +1,1085 @@
+# ===== 퀘스트 시스템 =====
+# 퀘스트 수락, 진행 체크, 완료, 보상, GUI, 일일/주간 시스템
+
+# ===== 퀘스트 수락 =====
+function 퀘스트수락(p: player, questId: text):
+    # 메인 퀘스트는 한번에 하나만 (일일/주간 제외)
+    set {_isSpecialQuest} to false
+    if {퀘스트::%{_questId}%::카테고리} is "일일":
+        set {_isSpecialQuest} to true
+    if {퀘스트::%{_questId}%::카테고리} is "주간":
+        set {_isSpecialQuest} to true
+    if {_isSpecialQuest} is false:
+        set {_hasMainQuest} to false
+        if {활성퀘스트::%{_p}%::*} is set:
+            loop {활성퀘스트::%{_p}%::*}:
+                set {_loopSpecial} to false
+                if {퀘스트::%loop-value%::카테고리} is "일일":
+                    set {_loopSpecial} to true
+                if {퀘스트::%loop-value%::카테고리} is "주간":
+                    set {_loopSpecial} to true
+                if {_loopSpecial} is false:
+                    set {_hasMainQuest} to true
+        if {_hasMainQuest} is true:
+            message "&8[&d 퀘스트 &8] &c이미 진행 중인 퀘스트가 있습니다. 먼저 완료하거나 포기해주세요." to {_p}
+            stop
+    # 이미 진행 중?
+    if {퀘스트상태::%{_questId}%::%{_p}%} is "진행":
+        message "&8[&d 퀘스트 &8] &c이미 진행 중인 퀘스트입니다." to {_p}
+        stop
+    if {퀘스트상태::%{_questId}%::%{_p}%} is "완료대기":
+        message "&8[&d 퀘스트 &8] &c보상을 먼저 수령해주세요." to {_p}
+        stop
+    # 이미 완료? (일일/주간/반복은 재수락 가능)
+    if {퀘스트상태::%{_questId}%::%{_p}%} is "완료":
+        set {_canReaccept} to false
+        if {퀘스트::%{_questId}%::카테고리} is "일일":
+            set {_canReaccept} to true
+        if {퀘스트::%{_questId}%::카테고리} is "주간":
+            set {_canReaccept} to true
+        if {퀘스트::%{_questId}%::카테고리} is "반복":
+            set {_canReaccept} to true
+        if {_canReaccept} is false:
+            message "&8[&d 퀘스트 &8] &c이미 완료한 퀘스트입니다." to {_p}
+            stop
+    # 선행 퀘스트 체크
+    if {퀘스트::%{_questId}%::선행퀘스트} is set:
+        set {_prereq} to {퀘스트::%{_questId}%::선행퀘스트}
+        if {퀘스트상태::%{_prereq}%::%{_p}%} is not "완료":
+            message "&8[&d 퀘스트 &8] &c선행 퀘스트를 먼저 완료해야 합니다." to {_p}
+            stop
+    # 레벨 체크
+    set {_reqLv} to {퀘스트::%{_questId}%::필요레벨}
+    if {_reqLv} is not set:
+        set {_reqLv} to 1
+    if {낚시레벨::%{_p}%} is not set:
+        set {낚시레벨::%{_p}%} to 1
+    if {낚시레벨::%{_p}%} < {_reqLv}:
+        message "&8[&d 퀘스트 &8] &c낚시 레벨 &e%{_reqLv}% &c이상이 필요합니다." to {_p}
+        stop
+    # 수락 처리
+    set {퀘스트상태::%{_questId}%::%{_p}%} to "진행"
+    if {활성퀘스트::%{_p}%::*} contains {_questId}:
+        stop
+    add {_questId} to {활성퀘스트::%{_p}%::*}
+    # 목표 카운터 초기화
+    set {_objIdx} to 0
+    loop {퀘스트::%{_questId}%::목표::*}:
+        add 1 to {_objIdx}
+        set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to 0
+    message "&8[&d 퀘스트 &8] &a%{퀘스트::%{_questId}%::이름}% &f퀘스트를 수락했습니다!" to {_p}
+    play sound "entity.villager.yes" with volume 0.5 to {_p}
+    # 즉시 완료 가능한 조건 체크 (레벨, 지역 등)
+    퀘스트즉시체크({_p}, {_questId})
+
+# ===== 즉시 완료 체크 (수락 직후) =====
+function 퀘스트즉시체크(p: player, questId: text):
+    set {_objIdx} to 0
+    loop {퀘스트::%{_questId}%::목표::*}:
+        add 1 to {_objIdx}
+        set {_obj::*} to split loop-value at "|"
+        if {_obj::1} is "level":
+            set {_target} to {_obj::2} parsed as number
+            if {낚시레벨::%{_p}%} is not set:
+                set {낚시레벨::%{_p}%} to 1
+            if {낚시레벨::%{_p}%} >= {_target}:
+                set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to {낚시레벨::%{_p}%}
+        else if {_obj::1} is "area":
+            if {area::%{_p}%} is set:
+                if {area::%{_p}%} is {_obj::2}:
+                    set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to 1
+        else if {_obj::1} is "money":
+            set {_target} to {_obj::2} parsed as number
+            if {돈::%{_p}%} is set:
+                set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to {돈::%{_p}%}
+        else if {_obj::1} is "login":
+            set {_loginDays} to {주간접속일수::%{_p}%}
+            if {_loginDays} is not set:
+                set {_loginDays} to 0
+            set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to {_loginDays}
+        else if {_obj::1} is "quest_daily":
+            set {_doneCount} to {주간일퀘완료수::%{_p}%}
+            if {_doneCount} is not set:
+                set {_doneCount} to 0
+            set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to {_doneCount}
+    퀘스트진행체크({_p}, {_questId})
+
+# ===== 진행 완료 체크 =====
+function 퀘스트진행체크(p: player, questId: text):
+    if {퀘스트상태::%{_questId}%::%{_p}%} is not "진행":
+        stop
+    set {_allDone} to true
+    set {_objIdx} to 0
+    loop {퀘스트::%{_questId}%::목표::*}:
+        add 1 to {_objIdx}
+        set {_obj::*} to split loop-value at "|"
+        set {_cur} to {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%}
+        if {_cur} is not set:
+            set {_cur} to 0
+        if {_obj::1} is "fish":
+            set {_target} to {_obj::4} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "sell":
+            set {_target} to {_obj::2} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "level":
+            set {_target} to {_obj::2} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "area":
+            if {_cur} < 1:
+                set {_allDone} to false
+        else if {_obj::1} is "money":
+            set {_target} to {_obj::2} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "login":
+            set {_target} to {_obj::2} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "quest_daily":
+            set {_target} to {_obj::2} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+    if {_allDone} is true:
+        set {퀘스트상태::%{_questId}%::%{_p}%} to "완료대기"
+        set {_cat} to {퀘스트::%{_questId}%::카테고리}
+        if {_cat} is "주간":
+            stop
+        if {_cat} is "일일":
+            send title "" with subtitle "&a&l일일 퀘스트 완료! &f/q에서 보상 받기" to {_p} for 3 seconds
+        else:
+            send title "" with subtitle "&a&l퀘스트 완료! &fNPC에게 돌아가세요" to {_p} for 3 seconds
+        play sound "entity.player.levelup" with volume 0.7 to {_p}
+        message "&8[&d 퀘스트 &8] &a%{퀘스트::%{_questId}%::이름}% &f목표를 달성했습니다!" to {_p}
+
+# ===== 보상 지급 =====
+function 퀘스트보상(p: player, questId: text):
+    if {퀘스트상태::%{_questId}%::%{_p}%} is not "완료대기":
+        message "&8[&d 퀘스트 &8] &c아직 완료하지 않은 퀘스트입니다." to {_p}
+        stop
+    # 돈 보상
+    set {_money} to {퀘스트::%{_questId}%::보상돈}
+    if {_money} is set:
+        if {_money} > 0:
+            if {돈::%{_p}%} is not set:
+                set {돈::%{_p}%} to 0
+            add {_money} to {돈::%{_p}%}
+            message "&8[&d 퀘스트 &8] &e+%{_money}%원" to {_p}
+    # 경험치 보상
+    set {_exp} to {퀘스트::%{_questId}%::보상경험치}
+    if {_exp} is set:
+        if {_exp} > 0:
+            if {낚시레벨현재경험치::%{_p}%} is not set:
+                set {낚시레벨현재경험치::%{_p}%} to 0
+            add {_exp} to {낚시레벨현재경험치::%{_p}%}
+            message "&8[&d 퀘스트 &8] &a낚시 경험치 +%{_exp}%exp" to {_p}
+    # 완료 처리
+    set {퀘스트상태::%{_questId}%::%{_p}%} to "완료"
+    remove {_questId} from {활성퀘스트::%{_p}%::*}
+    set {_cat} to {퀘스트::%{_questId}%::카테고리}
+    set {_bigSound} to false
+    if {_cat} is "일일":
+        message "&8[&d 퀘스트 &8] &a오늘의 퀘스트를 완료했습니다!" to {_p}
+        # 주간 일퀘완료 카운터 증가
+        if {주간일퀘완료수::%{_p}%} is not set:
+            set {주간일퀘완료수::%{_p}%} to 0
+        add 1 to {주간일퀘완료수::%{_p}%}
+        퀘스트_일퀘완료({_p})
+        # 일퀘 올클 체크
+        set {_allDaily} to true
+        loop {일일퀘스트::%{_p}%::*}:
+            if {퀘스트상태::%loop-value%::%{_p}%} is not "완료":
+                set {_allDaily} to false
+        if {_allDaily} is true:
+            set {_bigSound} to true
+            send title "&6&l올클리어!" with subtitle "&e오늘의 일일 퀘스트를 모두 완료!" to {_p} for 3 seconds
+    else if {_cat} is "주간":
+        message "&8[&d 퀘스트 &8] &a이번주 퀘스트를 완료했습니다!" to {_p}
+        # 주퀘 올클 체크
+        set {_allWeekly} to true
+        loop {주간퀘스트::%{_p}%::*}:
+            if {퀘스트상태::%loop-value%::%{_p}%} is not "완료":
+                set {_allWeekly} to false
+        if {_allWeekly} is true:
+            set {_bigSound} to true
+            send title "&6&l올클리어!" with subtitle "&e이번주 주간 퀘스트를 모두 완료!" to {_p} for 3 seconds
+    else:
+        message "&8[&d 퀘스트 &8] &a%{퀘스트::%{_questId}%::이름}% &f퀘스트를 완료했습니다!" to {_p}
+        # 어려운 메인 미션 (필요레벨 20 이상)
+        set {_reqLv} to {퀘스트::%{_questId}%::필요레벨}
+        if {_reqLv} is set:
+            if {_reqLv} >= 20:
+                set {_bigSound} to true
+    if {_bigSound} is true:
+        play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
+    else:
+        play sound "entity.player.levelup" with volume 0.5 to {_p}
+    # 다음 퀘스트 해금
+    if {퀘스트::%{_questId}%::다음퀘스트} is set:
+        set {_next} to {퀘스트::%{_questId}%::다음퀘스트}
+        set {퀘스트상태::%{_next}%::%{_p}%} to "대기"
+        message "&8[&d 퀘스트 &8] &e새로운 퀘스트가 해금되었습니다!" to {_p}
+
+# ===== 퀘스트 포기 =====
+function 퀘스트포기(p: player, questId: text):
+    # 일일/주간 퀘스트는 포기 불가
+    if {퀘스트::%{_questId}%::카테고리} is "일일":
+        message "&8[&d 퀘스트 &8] &c일일 퀘스트는 포기할 수 없습니다." to {_p}
+        stop
+    if {퀘스트::%{_questId}%::카테고리} is "주간":
+        message "&8[&d 퀘스트 &8] &c주간 퀘스트는 포기할 수 없습니다." to {_p}
+        stop
+    set {_status} to {퀘스트상태::%{_questId}%::%{_p}%}
+    if {_status} is not "진행":
+        if {_status} is not "완료대기":
+            message "&8[&d 퀘스트 &8] &c포기할 수 없는 퀘스트입니다." to {_p}
+            stop
+    # 진행도 초기화
+    set {_idx} to 0
+    loop {퀘스트::%{_questId}%::목표::*}:
+        add 1 to {_idx}
+        delete {퀘스트진행::%{_questId}%::%{_p}%::%{_idx}%}
+    # 상태 초기화
+    remove {_questId} from {활성퀘스트::%{_p}%::*}
+    set {퀘스트상태::%{_questId}%::%{_p}%} to "대기"
+    message "&8[&d 퀘스트 &8] &e%{퀘스트::%{_questId}%::이름}% &f퀘스트를 포기했습니다." to {_p}
+    play sound "entity.villager.no" with volume 0.5 to {_p}
+
+# ===== 일일 퀘스트 리셋 =====
+function 일일퀘스트리셋(p: player):
+    set {_today} to now formatted as "yyyy-MM-dd"
+    if {일일퀘스트날짜::%{_p}%} is {_today}:
+        stop
+    # 새 시스템 단일 일일퀘스트 정리
+    if {일일퀘스트::%{_p}%} is set:
+        set {_old} to {일일퀘스트::%{_p}%}
+        delete {퀘스트상태::%{_old}%::%{_p}%}
+        remove {_old} from {활성퀘스트::%{_p}%::*}
+        set {_idx} to 0
+        loop {퀘스트::%{_old}%::목표::*}:
+            add 1 to {_idx}
+            delete {퀘스트진행::%{_old}%::%{_p}%::%{_idx}%}
+        delete {일일퀘스트::%{_p}%}
+    # 구 시스템 리스트 정리 (호환)
+    if {일일퀘스트::%{_p}%::*} is set:
+        loop {일일퀘스트::%{_p}%::*}:
+            delete {퀘스트상태::%loop-value%::%{_p}%}
+            remove loop-value from {활성퀘스트::%{_p}%::*}
+            set {_idx} to 0
+            loop {퀘스트::%loop-value-1%::목표::*}:
+                add 1 to {_idx}
+                delete {퀘스트진행::%loop-value-1%::%{_p}%::%{_idx}%}
+        delete {일일퀘스트::%{_p}%::*}
+    delete {일일퀘스트난이도::%{_p}%}
+    set {일일퀘스트날짜::%{_p}%} to {_today}
+
+# ===== 일일 퀘스트 수락 (난이도 선택 후 — 풀 전체 할당) =====
+function 일일퀘스트수락(p: player, difficulty: text):
+    if {일일퀘스트::%{_p}%::*} is set:
+        message "&8[&d 퀘스트 &8] &c이미 오늘의 퀘스트가 있습니다." to {_p}
+        stop
+    # 레벨 체크
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    if {_lv} < {일일난이도레벨::%{_difficulty}%}:
+        message "&8[&d 퀘스트 &8] &c레벨이 부족합니다." to {_p}
+        stop
+    # 난이도별 풀 가져오기
+    delete {_pool::*}
+    if {_difficulty} is "쉬움":
+        add {퀘스트일일쉬움::*} to {_pool::*}
+    else if {_difficulty} is "보통":
+        add {퀘스트일일보통::*} to {_pool::*}
+    else if {_difficulty} is "어려움":
+        add {퀘스트일일어려움::*} to {_pool::*}
+    else if {_difficulty} is "전문":
+        add {퀘스트일일전문::*} to {_pool::*}
+    if {_pool::*} is not set:
+        message "&8[&d 퀘스트 &8] &c해당 난이도의 퀘스트가 없습니다." to {_p}
+        stop
+    set {일일퀘스트난이도::%{_p}%} to {_difficulty}
+    # 풀 전체를 할당
+    loop {_pool::*}:
+        set {_qid} to loop-value
+        add {_qid} to {일일퀘스트::%{_p}%::*}
+        set {퀘스트상태::%{_qid}%::%{_p}%} to "진행"
+        if {활성퀘스트::%{_p}%::*} does not contain {_qid}:
+            add {_qid} to {활성퀘스트::%{_p}%::*}
+        set {_objIdx} to 0
+        loop {퀘스트::%{_qid}%::목표::*}:
+            add 1 to {_objIdx}
+            set {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%} to 0
+        # 즉시 체크 (레벨, 지역, 소지금 등)
+        퀘스트즉시체크({_p}, {_qid})
+    set {_cnt} to size of {_pool::*}
+    message "&8[&d 퀘스트 &8] &e일일 퀘스트 (%{_difficulty}%) &a%{_cnt}%개 &f시작!" to {_p}
+    play sound "entity.villager.yes" with volume 0.5 to {_p}
+
+# ===== 주간 퀘스트 체크 (고정 — 매주 진행도 리셋, 레벨 맞으면 항상 할당) =====
+function 주간퀘스트체크(p: player):
+    set {_week} to now formatted as "yyyy-w"
+    set {_isNewWeek} to false
+    if {주간퀘스트주차::%{_p}%} is not {_week}:
+        set {_isNewWeek} to true
+    # 새 주차면 기존 진행도 리셋
+    if {_isNewWeek} is true:
+        # 단일 호환 정리
+        if {주간퀘스트::%{_p}%} is set:
+            set {_old} to {주간퀘스트::%{_p}%}
+            delete {퀘스트상태::%{_old}%::%{_p}%}
+            remove {_old} from {활성퀘스트::%{_p}%::*}
+            set {_idx} to 0
+            loop {퀘스트::%{_old}%::목표::*}:
+                add 1 to {_idx}
+                delete {퀘스트진행::%{_old}%::%{_p}%::%{_idx}%}
+            delete {주간퀘스트::%{_p}%}
+        # 리스트 정리
+        if {주간퀘스트::%{_p}%::*} is set:
+            loop {주간퀘스트::%{_p}%::*}:
+                delete {퀘스트상태::%loop-value%::%{_p}%}
+                remove loop-value from {활성퀘스트::%{_p}%::*}
+                set {_idx} to 0
+                loop {퀘스트::%loop-value-1%::목표::*}:
+                    add 1 to {_idx}
+                    delete {퀘스트진행::%loop-value-1%::%{_p}%::%{_idx}%}
+            delete {주간퀘스트::%{_p}%::*}
+        # 주간 카운터 리셋
+        set {주간접속일수::%{_p}%} to 0
+        delete {주간접속날짜::%{_p}%}
+        set {주간일퀘완료수::%{_p}%} to 0
+        set {주간퀘스트주차::%{_p}%} to {_week}
+    # 접속일수 트래킹 (하루에 1번만)
+    set {_today} to now formatted as "yyyy-MM-dd"
+    if {주간접속날짜::%{_p}%} is not {_today}:
+        set {주간접속날짜::%{_p}%} to {_today}
+        if {주간접속일수::%{_p}%} is not set:
+            set {주간접속일수::%{_p}%} to 0
+        add 1 to {주간접속일수::%{_p}%}
+        # 접속 관련 퀘스트 진행 업데이트
+        퀘스트_접속({_p})
+    # 레벨에 맞는 퀘스트 중 미할당 건 추가 (항상 실행)
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_newCnt} to 0
+    loop {퀘스트주간목록::*}:
+        set {_reqLv} to {퀘스트::%loop-value%::필요레벨}
+        if {_reqLv} is not set:
+            set {_reqLv} to 1
+        if {_lv} >= {_reqLv}:
+            set {_qid} to loop-value
+            # 이미 할당된 건 스킵
+            set {_already} to false
+            if {주간퀘스트::%{_p}%::*} contains {_qid}:
+                set {_already} to true
+            if {_already} is false:
+                add {_qid} to {주간퀘스트::%{_p}%::*}
+                set {퀘스트상태::%{_qid}%::%{_p}%} to "진행"
+                if {활성퀘스트::%{_p}%::*} does not contain {_qid}:
+                    add {_qid} to {활성퀘스트::%{_p}%::*}
+                set {_objIdx} to 0
+                loop {퀘스트::%{_qid}%::목표::*}:
+                    add 1 to {_objIdx}
+                    set {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%} to 0
+                퀘스트즉시체크({_p}, {_qid})
+                add 1 to {_newCnt}
+    if {_isNewWeek} is true:
+        if {주간퀘스트::%{_p}%::*} is set:
+            set {_total} to size of {주간퀘스트::%{_p}%::*}
+            message "&8[&d 퀘스트 &8] &e이번주 주간 퀘스트 &a%{_total}%개 &f시작!" to {_p}
+            play sound "entity.villager.yes" with volume 0.5 to {_p}
+    else if {_newCnt} > 0:
+        message "&8[&d 퀘스트 &8] &e새 주간 퀘스트 &a%{_newCnt}%개 &f추가!" to {_p}
+
+# ===== 목표 텍스트 생성 =====
+function 퀘스트목표텍스트(questId: text, p: player) :: text:
+    set {_result} to ""
+    set {_objIdx} to 0
+    loop {퀘스트::%{_questId}%::목표::*}:
+        add 1 to {_objIdx}
+        set {_obj::*} to split loop-value at "|"
+        set {_cur} to {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%}
+        if {_cur} is not set:
+            set {_cur} to 0
+        if {_obj::1} is "fish":
+            set {_target} to {_obj::4} parsed as number
+            set {_fishName} to {_obj::2}
+            set {_gradeName} to {_obj::3}
+            if {_fishName} is "아무":
+                set {_fishName} to "아무 물고기"
+            if {_gradeName} is not "아무":
+                set {_fishName} to "%{_gradeName}%등급+ %{_fishName}%"
+            set {_result} to "&7%{_fishName}% 잡기: &f%{_cur}%/%{_target}%"
+        else if {_obj::1} is "level":
+            set {_target} to {_obj::2} parsed as number
+            set {_result} to "&7낚시 레벨 달성: &fLv.%{_cur}%/Lv.%{_target}%"
+        else if {_obj::1} is "area":
+            set {_result} to "&7지역 방문: &f%{_obj::2}%"
+            if {_cur} >= 1:
+                set {_result} to "&7지역 방문: &a완료"
+        else if {_obj::1} is "sell":
+            set {_target} to {_obj::2} parsed as number
+            set {_result} to "&7물고기 판매: &f%{_cur}%/%{_target}%마리"
+        else if {_obj::1} is "money":
+            set {_target} to {_obj::2} parsed as number
+            set {_result} to "&7소지금: &f%{_cur}%/%{_target}%원"
+        else if {_obj::1} is "login":
+            set {_target} to {_obj::2} parsed as number
+            set {_result} to "&7접속 일수: &f%{_cur}%/%{_target}%일"
+        else if {_obj::1} is "quest_daily":
+            set {_target} to {_obj::2} parsed as number
+            set {_result} to "&7일일 퀘스트 완료: &f%{_cur}%/%{_target}%개"
+    return {_result}
+
+# ===== NPC 퀘스트 목록 GUI =====
+function npc퀘스트목록GUI(p: player, npcId: text):
+    # 대화 상태 정리
+    delete {대화진행::%{_p}%}
+    delete {대화NPC::%{_p}%}
+    set {퀘스트GUI_NPC::%{_p}%} to {_npcId}
+    set {_npcName} to {NPC::%{_npcId}%::이름}
+    if {_npcName} is not set:
+        set {_npcName} to {_npcId}
+    open chest inventory with 2 rows named "&0퀘스트" to {_p}
+    wait 1 tick
+    # 상단 장식
+    loop integers from 0 to 8:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to book named "&e&l%{_npcName}%의 퀘스트"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 다른 NPC 메인 퀘스트 진행 중인지 체크 (일일/주간 제외)
+    set {_hasOtherMain} to false
+    if {활성퀘스트::%{_p}%::*} is set:
+        loop {활성퀘스트::%{_p}%::*}:
+            set {_isSpecial} to false
+            if {퀘스트::%loop-value%::카테고리} is "일일":
+                set {_isSpecial} to true
+            if {퀘스트::%loop-value%::카테고리} is "주간":
+                set {_isSpecial} to true
+            if {_isSpecial} is false:
+                set {_hasOtherMain} to true
+    # 현재 진행 가능한 퀘스트 찾기 (순차: 첫 번째 미완료만)
+    delete {퀘스트GUI슬롯::%{_p}%::*}
+    delete {_showList::*}
+    loop {NPC::%{_npcId}%::퀘스트::*}:
+        set {_qid} to loop-value
+        set {_status} to {퀘스트상태::%{_qid}%::%{_p}%}
+        set {_canShow} to true
+        # 완료된 퀘스트는 스킵
+        if {_status} is "완료":
+            set {_canShow} to false
+        # 선행 퀘스트 미완이면 스킵
+        if {_canShow} is true:
+            if {퀘스트::%{_qid}%::선행퀘스트} is set:
+                set {_prereq} to {퀘스트::%{_qid}%::선행퀘스트}
+                if {퀘스트상태::%{_prereq}%::%{_p}%} is not "완료":
+                    set {_canShow} to false
+        # 현재 할 퀘스트 발견 → 1개만 표시
+        if {_canShow} is true:
+            add {_qid} to {_showList::*}
+            stop loop
+    # 가운데 배치 (1개만 표시하므로 슬롯 13 = 중앙)
+    set {_count} to size of {_showList::*}
+    if {_count} <= 0:
+        set slot 13 of {_p}'s current inventory to gray stained glass pane named "&7현재 가능한 퀘스트가 없습니다"
+    else:
+        set {_slot} to 13
+        loop {_showList::*}:
+            set {_qStatus} to {퀘스트상태::%loop-value%::%{_p}%}
+            # 다른 메인퀘 진행중 + 이 퀘스트는 아직 미수락 → 잠금 표시
+            if {_hasOtherMain} is true:
+                if {_qStatus} is not "진행":
+                    if {_qStatus} is not "완료대기":
+                        set slot {_slot} of {_p}'s current inventory to gray stained glass pane named "&c다른 퀘스트를 먼저 완료해주세요"
+                        add 1 to {_slot}
+                        stop loop
+            퀘스트GUI아이콘({_p}, loop-value, {_slot})
+            add 1 to {_slot}
+
+# ===== GUI 아이콘 세팅 =====
+function 퀘스트GUI아이콘(p: player, questId: text, slot: integer):
+    set {_status} to {퀘스트상태::%{_questId}%::%{_p}%}
+    # 완료 + 비반복이면 스킵
+    if {_status} is "완료":
+        set {_skipDone} to true
+        if {퀘스트::%{_questId}%::카테고리} is "일일":
+            set {_skipDone} to false
+        if {퀘스트::%{_questId}%::카테고리} is "주간":
+            set {_skipDone} to false
+        if {퀘스트::%{_questId}%::카테고리} is "반복":
+            set {_skipDone} to false
+        if {_skipDone} is true:
+            stop
+    # 선행 퀘스트 미완이면 스킵
+    if {퀘스트::%{_questId}%::선행퀘스트} is set:
+        set {_prereq} to {퀘스트::%{_questId}%::선행퀘스트}
+        if {퀘스트상태::%{_prereq}%::%{_p}%} is not "완료":
+            stop
+    # 아이콘 결정
+    set {_name} to {퀘스트::%{_questId}%::이름}
+    delete {_lore::*}
+    # 설명
+    loop {퀘스트::%{_questId}%::설명::*}:
+        add loop-value to {_lore::*}
+    add "" to {_lore::*}
+    # 상태별 아이콘
+    if {_status} is "진행":
+        set {_icon} to filled map
+        add "&e● 진행 중" to {_lore::*}
+        set {_progress} to 퀘스트목표텍스트({_questId}, {_p})
+        add {_progress} to {_lore::*}
+    else if {_status} is "완료대기":
+        set {_icon} to golden apple
+        add "&a★ 완료! 클릭하여 보상 받기" to {_lore::*}
+    else:
+        set {_icon} to paper
+        add "&7클릭하여 수락" to {_lore::*}
+    # 보상 미리보기
+    add "" to {_lore::*}
+    add "&e&l보상:" to {_lore::*}
+    if {퀘스트::%{_questId}%::보상돈} is set:
+        add "&7  돈: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
+    if {퀘스트::%{_questId}%::보상경험치} is set:
+        add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+    # 슬롯 매핑 저장
+    set {퀘스트GUI슬롯::%{_p}%::%{_slot}%} to {_questId}
+    set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_name}%" with lore {_lore::*}
+
+# ===== NPC 퀘스트 GUI 클릭 처리 =====
+on inventory click:
+    if player's current inventory's name is "&0퀘스트":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        # 닫기 버튼
+        if event-item is barrier:
+            close player's inventory
+            stop
+        # 퀘스트 슬롯 확인
+        set {_ci} to index of clicked slot
+        set {_qid} to {퀘스트GUI슬롯::%player%::%{_ci}%}
+        if {_qid} is not set:
+            stop
+        set {_status} to {퀘스트상태::%{_qid}%::%player%}
+        if {_status} is "완료대기":
+            # 보상 수령
+            퀘스트보상(player, {_qid})
+            wait 2 ticks
+            # GUI 새로고침
+            set {_npcId} to {퀘스트GUI_NPC::%player%}
+            if {_npcId} is set:
+                npc퀘스트목록GUI(player, {_npcId})
+        else if {_status} is not "진행":
+            # 수락
+            퀘스트수락(player, {_qid})
+            wait 2 ticks
+            set {_npcId} to {퀘스트GUI_NPC::%player%}
+            if {_npcId} is set:
+                npc퀘스트목록GUI(player, {_npcId})
+
+# ===== 퀘스트 저널 GUI (/q) =====
+function 퀘스트저널GUI(p: player):
+    open chest inventory with 2 rows named "&0퀘스트 목록" to {_p}
+    wait 1 tick
+    loop integers from 0 to 17:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to book named "&e&l퀘스트 목록"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+
+    # ===== 메인 퀘스트 (slot 11) — 직접 표시 =====
+    set {_mainQid} to ""
+    if {활성퀘스트::%{_p}%::*} is set:
+        loop {활성퀘스트::%{_p}%::*}:
+            set {_isSpecial} to false
+            if {퀘스트::%loop-value%::카테고리} is "일일":
+                set {_isSpecial} to true
+            if {퀘스트::%loop-value%::카테고리} is "주간":
+                set {_isSpecial} to true
+            if {_isSpecial} is false:
+                set {_mainQid} to loop-value
+    if {_mainQid} is "":
+        set slot 11 of {_p}'s current inventory to gray stained glass pane named "&7메인 퀘스트" with lore "&7진행 중인 메인 퀘스트가 없습니다"
+    else:
+        set {_mStatus} to {퀘스트상태::%{_mainQid}%::%{_p}%}
+        set {_mName} to {퀘스트::%{_mainQid}%::이름}
+        delete {_mLore::*}
+        loop {퀘스트::%{_mainQid}%::설명::*}:
+            add loop-value to {_mLore::*}
+        add "" to {_mLore::*}
+        if {_mStatus} is "완료대기":
+            add "&a★ NPC에게 보상을 받으세요!" to {_mLore::*}
+            add "" to {_mLore::*}
+            add "&8쉬프트 클릭으로 포기" to {_mLore::*}
+            set slot 11 of {_p}'s current inventory to golden apple named "%{_mName}%" with lore {_mLore::*}
+        else:
+            set {_progress} to 퀘스트목표텍스트({_mainQid}, {_p})
+            add "&e● 진행 중" to {_mLore::*}
+            add {_progress} to {_mLore::*}
+            add "" to {_mLore::*}
+            add "&8쉬프트 클릭으로 포기" to {_mLore::*}
+            set slot 11 of {_p}'s current inventory to filled map named "%{_mName}%" with lore {_mLore::*}
+
+    # ===== 일일 퀘스트 (slot 13) — 책과깃펜 → 상세 =====
+    delete {_dLore::*}
+    if {일일퀘스트::%{_p}%::*} is not set:
+        add "&7난이도를 선택하면 퀘스트가 시작됩니다" to {_dLore::*}
+        add "" to {_dLore::*}
+        add "&a클릭하여 난이도 선택" to {_dLore::*}
+    else:
+        set {_dDiff} to {일일퀘스트난이도::%{_p}%}
+        set {_dTotal} to size of {일일퀘스트::%{_p}%::*}
+        set {_dDone} to 0
+        loop {일일퀘스트::%{_p}%::*}:
+            set {_ds} to {퀘스트상태::%loop-value%::%{_p}%}
+            if {_ds} is "완료":
+                add 1 to {_dDone}
+        add "&8난이도: &f%{_dDiff}%" to {_dLore::*}
+        add "&7진행: &f%{_dDone}%&7/&f%{_dTotal}% &7완료" to {_dLore::*}
+        add "" to {_dLore::*}
+        add "&a클릭하여 상세 보기" to {_dLore::*}
+    set slot 13 of {_p}'s current inventory to writable book named "&e&l일일 퀘스트" with lore {_dLore::*}
+
+    # ===== 주간 퀘스트 (slot 15) — 책과깃펜 → 상세 =====
+    delete {_wLore::*}
+    if {주간퀘스트::%{_p}%::*} is not set:
+        add "&7이번주 퀘스트가 아직 할당되지 않았습니다" to {_wLore::*}
+    else:
+        set {_wTotal} to size of {주간퀘스트::%{_p}%::*}
+        set {_wDone} to 0
+        loop {주간퀘스트::%{_p}%::*}:
+            set {_ws} to {퀘스트상태::%loop-value%::%{_p}%}
+            if {_ws} is "완료":
+                add 1 to {_wDone}
+        add "&7진행: &f%{_wDone}%&7/&f%{_wTotal}% &7완료" to {_wLore::*}
+        add "" to {_wLore::*}
+        add "&a클릭하여 상세 보기" to {_wLore::*}
+    set slot 15 of {_p}'s current inventory to writable book named "&d&l주간 퀘스트" with lore {_wLore::*}
+
+# ===== 일일 난이도 선택 GUI =====
+function 일일난이도GUI(p: player):
+    open chest inventory with 2 rows named "&0일일 난이도" to {_p}
+    wait 1 tick
+    # 상단 장식
+    loop integers from 0 to 8:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to sunflower named "&e&l난이도 선택"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l뒤로"
+    # 하단 기본 채우기
+    loop integers from 9 to 17:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    # 플레이어 레벨
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    # 쉬움 (slot 10)
+    if {_lv} >= {일일난이도레벨::쉬움}:
+        set slot 10 of {_p}'s current inventory to lime concrete named "&a&l쉬움" with lore "&7필요 레벨: &fLv.%{일일난이도레벨::쉬움}%" and "" and "&a클릭하여 선택"
+    else:
+        set slot 10 of {_p}'s current inventory to gray concrete named "&8쉬움" with lore "&c필요 레벨: &fLv.%{일일난이도레벨::쉬움}%" and "&c레벨이 부족합니다"
+    # 보통 (slot 12)
+    if {_lv} >= {일일난이도레벨::보통}:
+        set slot 12 of {_p}'s current inventory to yellow concrete named "&e&l보통" with lore "&7필요 레벨: &fLv.%{일일난이도레벨::보통}%" and "" and "&a클릭하여 선택"
+    else:
+        set slot 12 of {_p}'s current inventory to gray concrete named "&8보통" with lore "&c필요 레벨: &fLv.%{일일난이도레벨::보통}%" and "&c레벨이 부족합니다"
+    # 어려움 (slot 14)
+    if {_lv} >= {일일난이도레벨::어려움}:
+        set slot 14 of {_p}'s current inventory to orange concrete named "&6&l어려움" with lore "&7필요 레벨: &fLv.%{일일난이도레벨::어려움}%" and "" and "&a클릭하여 선택"
+    else:
+        set slot 14 of {_p}'s current inventory to gray concrete named "&8어려움" with lore "&c필요 레벨: &fLv.%{일일난이도레벨::어려움}%" and "&c레벨이 부족합니다"
+    # Expert (slot 16)
+    if {_lv} >= {일일난이도레벨::전문}:
+        set slot 16 of {_p}'s current inventory to red concrete named "&c&lExpert" with lore "&7필요 레벨: &fLv.%{일일난이도레벨::전문}%" and "" and "&a클릭하여 선택"
+    else:
+        set slot 16 of {_p}'s current inventory to gray concrete named "&8Expert" with lore "&c필요 레벨: &fLv.%{일일난이도레벨::전문}%" and "&c레벨이 부족합니다"
+
+# ===== 일일 퀘스트 상세 GUI (난이도 선택 or 퀘스트 목록) =====
+function 일일퀘스트상세GUI(p: player):
+    # 난이도 미선택 → 난이도 선택 화면
+    if {일일퀘스트::%{_p}%::*} is not set:
+        일일난이도GUI({_p})
+        stop
+    # 난이도 선택됨 → 퀘스트 목록 표시
+    open chest inventory with 2 rows named "&0일일 퀘스트" to {_p}
+    wait 1 tick
+    loop integers from 0 to 17:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set {_dDiff} to {일일퀘스트난이도::%{_p}%}
+    set slot 4 of {_p}'s current inventory to clock named "&e&l일일 퀘스트 &7(%{_dDiff}%)"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l뒤로"
+    # 퀘스트 배치: slots 10, 12, 14, 16
+    set {_slots::1} to 10
+    set {_slots::2} to 12
+    set {_slots::3} to 14
+    set {_slots::4} to 16
+    set {_si} to 0
+    loop {일일퀘스트::%{_p}%::*}:
+        add 1 to {_si}
+        if {_si} > 4:
+            stop
+        set {_qid} to loop-value
+        set {_sl} to {_slots::%{_si}%}
+        set {_st} to {퀘스트상태::%{_qid}%::%{_p}%}
+        set {_nm} to {퀘스트::%{_qid}%::이름}
+        delete {_lore::*}
+        loop {퀘스트::%{_qid}%::설명::*}:
+            add loop-value-2 to {_lore::*}
+        add "" to {_lore::*}
+        if {_st} is "완료":
+            add "&a★ 완료!" to {_lore::*}
+            set slot {_sl} of {_p}'s current inventory to lime stained glass pane named "&a%{_nm}%" with lore {_lore::*}
+        else if {_st} is "완료대기":
+            add "&a★ 클릭하여 보상 받기" to {_lore::*}
+            add "" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상돈} is set:
+                add "&7  보상: &f%{퀘스트::%{_qid}%::보상돈}%원" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상경험치} is set:
+                add "&7  경험치: &f%{퀘스트::%{_qid}%::보상경험치}%exp" to {_lore::*}
+            set slot {_sl} of {_p}'s current inventory to golden apple named "%{_nm}%" with lore {_lore::*}
+        else:
+            set {_progress} to 퀘스트목표텍스트({_qid}, {_p})
+            add "&e● 진행 중" to {_lore::*}
+            add {_progress} to {_lore::*}
+            add "" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상돈} is set:
+                add "&7  보상: &f%{퀘스트::%{_qid}%::보상돈}%원" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상경험치} is set:
+                add "&7  경험치: &f%{퀘스트::%{_qid}%::보상경험치}%exp" to {_lore::*}
+            set slot {_sl} of {_p}'s current inventory to filled map named "%{_nm}%" with lore {_lore::*}
+        # 슬롯-퀘스트 매핑
+        set {일일GUI슬롯::%{_p}%::%{_sl}%} to {_qid}
+
+# ===== 주간 GUI 아이콘 렌더링 =====
+function 주간GUI아이콘(p: player, questId: text, slot: integer):
+    set {_st} to {퀘스트상태::%{_questId}%::%{_p}%}
+    set {_nm} to {퀘스트::%{_questId}%::이름}
+    delete {_lore::*}
+    loop {퀘스트::%{_questId}%::설명::*}:
+        add loop-value to {_lore::*}
+    add "" to {_lore::*}
+    if {_st} is "완료":
+        add "&a★ 완료!" to {_lore::*}
+        set slot {_slot} of {_p}'s current inventory to lime stained glass pane named "&a%{_nm}%" with lore {_lore::*}
+    else if {_st} is "완료대기":
+        add "&a★ 클릭하여 보상 받기" to {_lore::*}
+        add "" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상돈} is set:
+            add "&7  보상: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상경험치} is set:
+            add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+        set slot {_slot} of {_p}'s current inventory to golden apple named "%{_nm}%" with lore {_lore::*}
+    else:
+        set {_progress} to 퀘스트목표텍스트({_questId}, {_p})
+        add "&e● 진행 중" to {_lore::*}
+        add {_progress} to {_lore::*}
+        add "" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상돈} is set:
+            add "&7  보상: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상경험치} is set:
+            add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+        set slot {_slot} of {_p}'s current inventory to filled map named "%{_nm}%" with lore {_lore::*}
+    set {주간GUI슬롯::%{_p}%::%{_slot}%} to {_questId}
+
+# ===== 주간 퀘스트 상세 GUI (페이지네이션) =====
+function 주간퀘스트상세GUI(p: player):
+    set {_page} to {주간GUI페이지::%{_p}%}
+    if {_page} is not set:
+        set {_page} to 1
+    open chest inventory with 6 rows named "&0주간 퀘스트" to {_p}
+    wait 1 tick
+    # 전체 유리 채우기
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to bookshelf named "&d&l주간 퀘스트"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l뒤로"
+    if {주간퀘스트::%{_p}%::*} is not set:
+        set slot 22 of {_p}'s current inventory to gray stained glass pane named "&7이번주 퀘스트가 없습니다"
+        stop
+    # 페이지당 28개 (row 2-5, 각 7개: 슬롯 10-16, 19-25, 28-34, 37-43)
+    set {_total} to size of {주간퀘스트::%{_p}%::*}
+    set {_maxPage} to ceil({_total} / 28)
+    if {_page} > {_maxPage}:
+        set {_page} to {_maxPage}
+    set {주간GUI페이지::%{_p}%} to {_page}
+    set {_start} to ({_page} - 1) * 28
+    # 슬롯 배열
+    delete {_qSlots::*}
+    add 10 to {_qSlots::*}
+    add 11 to {_qSlots::*}
+    add 12 to {_qSlots::*}
+    add 13 to {_qSlots::*}
+    add 14 to {_qSlots::*}
+    add 15 to {_qSlots::*}
+    add 16 to {_qSlots::*}
+    add 19 to {_qSlots::*}
+    add 20 to {_qSlots::*}
+    add 21 to {_qSlots::*}
+    add 22 to {_qSlots::*}
+    add 23 to {_qSlots::*}
+    add 24 to {_qSlots::*}
+    add 25 to {_qSlots::*}
+    add 28 to {_qSlots::*}
+    add 29 to {_qSlots::*}
+    add 30 to {_qSlots::*}
+    add 31 to {_qSlots::*}
+    add 32 to {_qSlots::*}
+    add 33 to {_qSlots::*}
+    add 34 to {_qSlots::*}
+    add 37 to {_qSlots::*}
+    add 38 to {_qSlots::*}
+    add 39 to {_qSlots::*}
+    add 40 to {_qSlots::*}
+    add 41 to {_qSlots::*}
+    add 42 to {_qSlots::*}
+    add 43 to {_qSlots::*}
+    # 퀘스트 배치 — 페이지 범위 추출 후 렌더링
+    delete {주간GUI슬롯::%{_p}%::*}
+    delete {_pageQuests::*}
+    set {_qi} to 0
+    loop {주간퀘스트::%{_p}%::*}:
+        add 1 to {_qi}
+        if {_qi} > {_start}:
+            if size of {_pageQuests::*} < 28:
+                add loop-value to {_pageQuests::*}
+    set {_si} to 0
+    loop {_pageQuests::*}:
+        add 1 to {_si}
+        set {_sl} to {_qSlots::%{_si}%}
+        주간GUI아이콘({_p}, loop-value, {_sl})
+    # 네비게이션 (row 6)
+    set slot 49 of {_p}'s current inventory to paper named "&7페이지 %{_page}%/%{_maxPage}%"
+    if {_page} > 1:
+        set slot 48 of {_p}'s current inventory to arrow named "&e← 이전 페이지"
+    if {_page} < {_maxPage}:
+        set slot 50 of {_p}'s current inventory to arrow named "&e다음 페이지 →"
+
+# ===== 일일 퀘스트 상세 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0일일 퀘스트":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        if clicked slot is 8:
+            wait 1 tick
+            퀘스트저널GUI(player)
+            stop
+        # 슬롯 매핑으로 퀘스트 찾기 (10, 12, 14, 16)
+        set {_ci} to index of clicked slot
+        set {_qid} to {일일GUI슬롯::%player%::%{_ci}%}
+        if {_qid} is set:
+            if {퀘스트상태::%{_qid}%::%player%} is "완료대기":
+                퀘스트보상(player, {_qid})
+                wait 2 ticks
+                일일퀘스트상세GUI(player)
+        stop
+
+# ===== 주간 퀘스트 상세 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0주간 퀘스트":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        if clicked slot is 8:
+            wait 1 tick
+            퀘스트저널GUI(player)
+            stop
+        # 페이지 이동
+        if clicked slot is 48:
+            if {주간GUI페이지::%player%} > 1:
+                remove 1 from {주간GUI페이지::%player%}
+                wait 1 tick
+                주간퀘스트상세GUI(player)
+            stop
+        if clicked slot is 50:
+            add 1 to {주간GUI페이지::%player%}
+            wait 1 tick
+            주간퀘스트상세GUI(player)
+            stop
+        # 슬롯 매핑으로 퀘스트 찾기
+        set {_ci} to index of clicked slot
+        set {_qid} to {주간GUI슬롯::%player%::%{_ci}%}
+        if {_qid} is set:
+            if {퀘스트상태::%{_qid}%::%player%} is "완료대기":
+                퀘스트보상(player, {_qid})
+                wait 2 ticks
+                주간퀘스트상세GUI(player)
+        stop
+
+# ===== 퀘스트 저널 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0퀘스트 목록":
+        cancel event
+        # 닫기
+        if clicked slot is 8:
+            close player's inventory
+            stop
+        # 메인 퀘스트 (slot 11) — 쉬프트 클릭으로 포기
+        if clicked slot is 11:
+            if click type is left mouse button with shift:
+                set {_mainQid} to ""
+                if {활성퀘스트::%player%::*} is set:
+                    loop {활성퀘스트::%player%::*}:
+                        set {_isSpecial} to false
+                        if {퀘스트::%loop-value%::카테고리} is "일일":
+                            set {_isSpecial} to true
+                        if {퀘스트::%loop-value%::카테고리} is "주간":
+                            set {_isSpecial} to true
+                        if {_isSpecial} is false:
+                            set {_mainQid} to loop-value
+                if {_mainQid} is not "":
+                    퀘스트포기(player, {_mainQid})
+                    wait 2 ticks
+                    퀘스트저널GUI(player)
+            stop
+        # 일일 퀘스트 (slot 13) → 상세 페이지
+        if clicked slot is 13:
+            wait 1 tick
+            일일퀘스트상세GUI(player)
+            stop
+        # 주간 퀘스트 (slot 15) → 상세 페이지
+        if clicked slot is 15:
+            if {주간퀘스트::%player%::*} is not set:
+                message "&8[&d 퀘스트 &8] &c이번주 퀘스트가 아직 할당되지 않았습니다." to player
+                stop
+            set {주간GUI페이지::%player%} to 1
+            wait 1 tick
+            주간퀘스트상세GUI(player)
+            stop
+
+# ===== 난이도 선택 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0일일 난이도":
+        cancel event
+        # 뒤로가기
+        if clicked slot is 8:
+            wait 1 tick
+            퀘스트저널GUI(player)
+            stop
+        set {_diff} to ""
+        if clicked slot is 10:
+            set {_diff} to "쉬움"
+        else if clicked slot is 12:
+            set {_diff} to "보통"
+        else if clicked slot is 14:
+            set {_diff} to "어려움"
+        else if clicked slot is 16:
+            set {_diff} to "전문"
+        if {_diff} is "":
+            stop
+        # 레벨 체크
+        set {_lv} to {낚시레벨::%player%}
+        if {_lv} is not set:
+            set {_lv} to 1
+        if {_lv} < {일일난이도레벨::%{_diff}%}:
+            message "&8[&d 퀘스트 &8] &c레벨이 부족합니다. (필요: Lv.%{일일난이도레벨::%{_diff}%}%)" to player
+            stop
+        일일퀘스트수락(player, {_diff})
+        wait 2 ticks
+        일일퀘스트상세GUI(player)
+
+# ===== 접속 시 일일/주간 퀘스트 체크 =====
+on join:
+    wait 10 ticks
+    일일퀘스트리셋(player)
+    주간퀘스트체크(player)
+
+# ===== 플레이어 명령어 =====
+command /퀘스트:
+    aliases: /quest, /q
+    trigger:
+        일일퀘스트리셋(player)
+        주간퀘스트체크(player)
+        퀘스트저널GUI(player)
+
+# ===== 관리자 명령어 =====
+command /퀘스트리로드:
+    permission: op
+    trigger:
+        execute console command "sk reload 퀘스트데이터"
+        message "&8[&d 퀘스트 &8] &a퀘스트 데이터를 리로드했습니다." to player
+
+command /퀘스트강제완료 <text> <text>:
+    permission: op
+    trigger:
+        set {_target} to arg-1 parsed as offline player
+        set {_qid} to arg-2
+        if {퀘스트::%{_qid}%::이름} is not set:
+            message "&8[&d 퀘스트 &8] &c존재하지 않는 퀘스트입니다: %{_qid}%" to player
+            stop
+        set {퀘스트상태::%{_qid}%::%{_target}%} to "완료"
+        remove {_qid} from {활성퀘스트::%{_target}%::*}
+        # 다음 퀘스트 해금
+        if {퀘스트::%{_qid}%::다음퀘스트} is set:
+            set {_next} to {퀘스트::%{_qid}%::다음퀘스트}
+            set {퀘스트상태::%{_next}%::%{_target}%} to "대기"
+        message "&8[&d 퀘스트 &8] &a%{_target}%의 퀘스트 &e%{_qid}% &a를 강제 완료했습니다." to player
+
+command /퀘스트초기화 <text> [<text>]:
+    permission: op
+    trigger:
+        set {_target} to arg-1 parsed as offline player
+        if arg-2 is set:
+            # 특정 퀘스트만 초기화
+            set {_qid} to arg-2
+            delete {퀘스트상태::%{_qid}%::%{_target}%}
+            remove {_qid} from {활성퀘스트::%{_target}%::*}
+            set {_idx} to 0
+            loop {퀘스트::%{_qid}%::목표::*}:
+                add 1 to {_idx}
+                delete {퀘스트진행::%{_qid}%::%{_target}%::%{_idx}%}
+            message "&8[&d 퀘스트 &8] &a%{_target}%의 퀘스트 &e%{_qid}% &a를 초기화했습니다." to player
+        else:
+            # 전체 초기화
+            loop {퀘스트목록::*}:
+                delete {퀘스트상태::%loop-value%::%{_target}%}
+                set {_idx} to 0
+                loop {퀘스트::%loop-value-1%::목표::*}:
+                    add 1 to {_idx}
+                    delete {퀘스트진행::%loop-value-1%::%{_target}%::%{_idx}%}
+            delete {활성퀘스트::%{_target}%::*}
+            delete {일일퀘스트::%{_target}%}
+            delete {일일퀘스트::%{_target}%::*}
+            delete {일일퀘스트날짜::%{_target}%}
+            delete {일일퀘스트난이도::%{_target}%}
+            delete {주간퀘스트::%{_target}%}
+            delete {주간퀘스트::%{_target}%::*}
+            delete {주간퀘스트주차::%{_target}%}
+            delete {주간GUI페이지::%{_target}%}
+            # 첫 퀘스트 해금
+            set {퀘스트상태::튜토01::%{_target}%} to "대기"
+            message "&8[&d 퀘스트 &8] &a%{_target}%의 모든 퀘스트를 초기화했습니다." to player
+
+command /퀘스트상태 <text>:
+    permission: op
+    trigger:
+        set {_target} to arg-1 parsed as offline player
+        message "&8[&d 퀘스트 &8] &e%{_target}% 퀘스트 현황:" to player
+        if {활성퀘스트::%{_target}%::*} is set:
+            message "&a진행 중:" to player
+            loop {활성퀘스트::%{_target}%::*}:
+                set {_status} to {퀘스트상태::%loop-value%::%{_target}%}
+                message "&7  - %loop-value% &8(%{_status}%)" to player
+        else:
+            message "&7  진행 중인 퀘스트 없음" to player
+        # 일일/주간
+        if {일일퀘스트::%{_target}%::*} is set:
+            set {_dCnt} to size of {일일퀘스트::%{_target}%::*}
+            message "&b일일: &f%{_dCnt}%개 &8(%{일일퀘스트난이도::%{_target}%}%)" to player
+        if {주간퀘스트::%{_target}%::*} is set:
+            set {_wCnt} to size of {주간퀘스트::%{_target}%::*}
+            message "&d주간: &f%{_wCnt}%개" to player
+        # 완료된 퀘스트
+        set {_completedCount} to 0
+        loop {퀘스트목록::*}:
+            if {퀘스트상태::%loop-value%::%{_target}%} is "완료":
+                add 1 to {_completedCount}
+        message "&a완료: &f%{_completedCount}%개" to player
+
+on tab complete of "/퀘스트강제완료":
+    set tab completions for position 2 to {퀘스트목록::*}
+
+on tab complete of "/퀘스트초기화":
+    set tab completions for position 2 to {퀘스트목록::*}

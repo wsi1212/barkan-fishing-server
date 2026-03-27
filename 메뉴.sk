@@ -1,5 +1,6 @@
 on load:
     delete {지역리스트::*}
+    add "갈매기바위" to {지역리스트::*}
     add "바르칸물길" to {지역리스트::*}
     add "바르칸동굴" to {지역리스트::*}
     add "lavatest" to {지역리스트::*}
@@ -11,7 +12,49 @@ on load:
     add stone to {regionguiblock::*}
     add basalt to {regionguiblock::*}
 function regiondictionary(p: player, r: text):
-    set {_fishes::*} to get_fish({_r})
+    set {_raw::*} to get_fish({_r})
+    # 도감에 환경 물고기도 표시
+    add get_dawn_fish({_r}) to {_raw::*}
+    add get_night_fish({_r}) to {_raw::*}
+    add get_rain_fish({_r}) to {_raw::*}
+    add get_thunder_fish({_r}) to {_raw::*}
+    # ===== 등급별 정렬 (E→G, 범위일 경우 최소등급 기준) =====
+    loop {_raw::*}:
+        set {_fp::*} to split loop-value at "|"
+        set {_sortGrade} to {_fp::4}
+        if {_sortGrade} contains "~":
+            set {_sgr::*} to split {_sortGrade} at "~"
+            set {_sortGrade} to {_sgr::1}
+        if {_sortGrade} is "E":
+            add loop-value to {_gE::*}
+        else if {_sortGrade} is "D":
+            add loop-value to {_gD::*}
+        else if {_sortGrade} is "C":
+            add loop-value to {_gC::*}
+        else if {_sortGrade} is "B":
+            add loop-value to {_gB::*}
+        else if {_sortGrade} is "A":
+            add loop-value to {_gA::*}
+        else if {_sortGrade} is "S":
+            add loop-value to {_gS::*}
+        else if {_sortGrade} is "S+":
+            add loop-value to {_gSP::*}
+        else if {_sortGrade} is "M":
+            add loop-value to {_gM::*}
+        else if {_sortGrade} is "L":
+            add loop-value to {_gL::*}
+        else if {_sortGrade} is "G":
+            add loop-value to {_gG::*}
+    add {_gE::*} to {_fishes::*}
+    add {_gD::*} to {_fishes::*}
+    add {_gC::*} to {_fishes::*}
+    add {_gB::*} to {_fishes::*}
+    add {_gA::*} to {_fishes::*}
+    add {_gS::*} to {_fishes::*}
+    add {_gSP::*} to {_fishes::*}
+    add {_gM::*} to {_fishes::*}
+    add {_gL::*} to {_fishes::*}
+    add {_gG::*} to {_fishes::*}
     set {_c} to 0
     loop {_fishes::*}:
         add 1 to {_c}
@@ -31,7 +74,11 @@ function regiondictionarygui(p: player):
     set slot 0 of {_p}'s current inventory to black stained glass pane named "&e이전 페이지"
     set slot 7 of {_p}'s current inventory to black stained glass pane named "&e다음 페이지"
     loop {지역리스트::*}:
-        set slot loop-iteration of {_p}'s current inventory to {regionguiblock::%loop-iteration%} named "%{지역리스트::%loop-index%}%"
+        set {_reqLv} to regionRequiredLevel({지역리스트::%loop-index%})
+        if {_reqLv} > 0:
+            set slot loop-iteration of {_p}'s current inventory to {regionguiblock::%loop-iteration%} named "%{지역리스트::%loop-index%}%" with lore "&7필요 레벨 &e: &fLv.%{_reqLv}%"
+        else:
+            set slot loop-iteration of {_p}'s current inventory to {regionguiblock::%loop-iteration%} named "%{지역리스트::%loop-index%}%"
 on inventory click:
     if player's current inventory's name is "&0지역별 물고기도감":
         if clicked slot >= 0:
@@ -62,6 +109,12 @@ on inventory click:
             else if clicked slot is 16:
                 wait 1 tick
                 openPartShop(player, "낚싯대")
+            else if clicked slot is 20:
+                wait 1 tick
+                퀘스트저널GUI(player)
+            else if clicked slot is 22:
+                wait 1 tick
+                openIcebox(player)
     else if player's current inventory's name contains "&0지역별":
         cancel event
 
@@ -72,9 +125,18 @@ command /메뉴:
         loop 27 times:
             set {_slot} to (loop-iteration)-1
             set slot {_slot} of player's current inventory to {gui::메뉴::%{_slot}%}
-        set slot 10 of player's current inventory to anvil named "&e&l장비 작업대" with lore "&7낚시 장비를 조립합니다." and "&7클릭하여 작업대 열기"
+        set slot 10 of player's current inventory to anvil named "&e&l장비 작업대" with lore "&7낚시 장비를 장착합니다." and "&7클릭하여 작업대 열기"
         set slot 12 of player's current inventory to gold ingot named "&e&l물고기 상점" with lore "&7잡은 물고기를 판매합니다." and "&7클릭하여 상점 열기"
         set slot 16 of player's current inventory to emerald named "&e&l부품 상점" with lore "&7낚시 부품을 구매합니다." and "&7클릭하여 상점 열기"
+        set slot 20 of player's current inventory to book named "&d&l퀘스트 목록" with lore "&7현재 진행 중인 퀘스트를 확인합니다." and "&7클릭하여 퀘스트 목록 열기"
+        set slot 22 of player's current inventory to packed ice named "&b&l아이스박스" with lore "&7물고기를 신선하게 보관합니다." and "&7클릭하여 아이스박스 열기"
+
+# ===== Shift+F = 메뉴 열기 (양손들기 대신) =====
+on swap hand items:
+    if player is sneaking:
+        cancel event
+        execute player command "/메뉴"
+
 command /check:
     trigger:
         loop {지역리스트::*}:

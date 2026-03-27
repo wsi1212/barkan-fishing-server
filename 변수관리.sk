@@ -1,8 +1,23 @@
 on first join:
     set {돈::%player%} to 0
+    set {퀘스트상태::메인01::%player%} to "대기"
     # ===== 스타터 장비 키트 (E등급) =====
-    # 낚싯대: 나뭇가지 (물리 아이템 지급)
-    give player 1 of fishing rod named "&7나뭇가지" with lore "&7등급 &e: &7E"
+    # 낚싯대: 나뭇가지 (물리 아이템 지급 — 동적 lore)
+    set {_grade} to get_part_grade("낚싯대", "나뭇가지")
+    set {_color} to part_grade_color({_grade})
+    delete {_rodLore::*}
+    add "&7등급 &e: %{_color}%%{_grade}%" to {_rodLore::*}
+    set {_rodRaw} to get_part_stats_raw("낚싯대", "나뭇가지")
+    set {_rodPairs::*} to split {_rodRaw} at ","
+    loop {_rodPairs::*}:
+        set {_rkv::*} to split loop-value at ":"
+        set {_rdesc} to stat_type_desc({_rkv::1})
+        set {_rvt} to stat_value_text({_rkv::1}, {_rkv::2} parsed as number)
+        add "&7%{_rdesc}% &e: &f%{_rvt}%" to {_rodLore::*}
+    set {_rod} to 1 of fishing rod named "%{_color}%나뭇가지" with lore {_rodLore::*}
+    set {_rod} to unbreakable {_rod}
+    enchant {_rod} with lure 2
+    give player {_rod}
     # 릴: 녹슨 릴
     add "녹슨 릴" to {부품인벤::릴::%player%::*}
     set {낚싯대부품::릴::%player%} to "녹슨 릴"

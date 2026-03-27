@@ -4,44 +4,80 @@
 #
 #
 on fish caught:
+    if {미니게임::%player%} is 1:
+        cancel event
+        stop
+    # 지역 레벨 제한 체크
+    set {_reqLv} to regionRequiredLevel({area::%player%})
+    if {_reqLv} > 0:
+        if {낚시레벨::%player%} is not set:
+            set {낚시레벨::%player%} to 1
+        if {낚시레벨::%player%} < {_reqLv}:
+            cancel event
+            kill fishing hook
+            message "&8[&b 낚시 &8] &c이 지역에서 낚시하려면 낚시 레벨 &e%{_reqLv}% &c이상이 필요합니다. &7(현재: Lv.%{낚시레벨::%player%}%)" to player
+            stop
     set {_fishes::*} to get_fish({area::%player%})
     #broadcast "getfish : %{_fishes::*}%"
     cancel event
     kill fishing hook
+    set player's level to 0
+    set player's level progress to 0
+    # ===== 환경 감지 & 특수 물고기 추가 =====
+    set {_시간대} to 현재시간대(player)
+    set {_날씨} to 현재날씨(player)
+    if {_시간대} is "새벽":
+        set {_dawn::*} to get_dawn_fish({area::%player%})
+        add {_dawn::*} to {_fishes::*}
+    else if {_시간대} is "밤":
+        set {_night::*} to get_night_fish({area::%player%})
+        add {_night::*} to {_fishes::*}
+    if {_날씨} is "비" or "뇌우":
+        set {_rain::*} to get_rain_fish({area::%player%})
+        add {_rain::*} to {_fishes::*}
+    if {_날씨} is "뇌우":
+        set {_thunder::*} to get_thunder_fish({area::%player%})
+        add {_thunder::*} to {_fishes::*}
+    # 환경 보너스 계산
+    set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
+    set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
+    set {_환경경험치보너스} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
+    set {_환경크기보너스} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
+    set {_환경등급시프트} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
+    # 환경 등급업 출처 추적 (이름 + 기여값)
+    if ({_tBonus::3} parsed as number) > 0:
+        add {_시간대} to {_등급업출처::*}
+        add ({_tBonus::3} parsed as number) to {_등급업출처값::*}
+    if ({_wBonus::3} parsed as number) > 0:
+        add {_날씨} to {_등급업출처::*}
+        add ({_wBonus::3} parsed as number) to {_등급업출처값::*}
+    # ===== 레벨 기반 최대 등급 캡 =====
+    set {_maxGradeNum} to 6
+    if {낚시레벨::%player%} >= 20:
+        set {_maxGradeNum} to 7
+    if {낚시레벨::%player%} >= 30:
+        set {_maxGradeNum} to 8
+    if {낚시레벨::%player%} >= 40:
+        set {_maxGradeNum} to 9
+    if {낚시레벨::%player%} >= 50:
+        set {_maxGradeNum} to 10
+    # ===== 등급 범위 파싱 → 등급풀 분류 =====
     loop {_fishes::*}:
-        if {낚시레벨::%player%} < 20:
-            if loop-value contains "|S+":
-                delete {_fishes::%loop-index%}
-        if {낚시레벨::%player%} < 30:
-            if loop-value contains "|M":
-                delete {_fishes::%loop-index%}
-        if {낚시레벨::%player%} < 40:
-            if loop-value contains "|L":
-                delete {_fishes::%loop-index%}
-        if {낚시레벨::%player%} < 50:
-            if loop-value contains "|G":
-                delete {_fishes::%loop-index%}
-    loop {_fishes::*}:
-        if loop-value contains "|E":
-            add loop-value to {_E::*}
-        else if loop-value contains "|D":
-            add loop-value to {_D::*}
-        else if loop-value contains "|C":
-            add loop-value to {_C::*}
-        else if loop-value contains "|B":
-            add loop-value to {_B::*}
-        else if loop-value contains "|A":
-            add loop-value to {_A::*}
-        else if loop-value contains "|S|":
-            add loop-value to {_S::*}
-        else if loop-value contains "|S+":
-            add loop-value to {_S+::*}
-        else if loop-value contains "|M":
-            add loop-value to {_M::*}
-        else if loop-value contains "|L":
-            add loop-value to {_L::*}
-        else if loop-value contains "|G":
-            add loop-value to {_G::*}
+        set {_fp::*} to split loop-value-1 at "|"
+        set {_gradeField} to {_fp::4}
+        if {_gradeField} contains "~":
+            set {_gr::*} to split {_gradeField} at "~"
+            set {_gMin} to rankchange({_gr::1})
+            set {_gMax} to rankchange({_gr::2})
+        else:
+            set {_gMin} to rankchange({_gradeField})
+            set {_gMax} to {_gMin}
+        if {_gMax} > {_maxGradeNum}:
+            set {_gMax} to {_maxGradeNum}
+        if {_gMin} <= {_gMax}:
+            loop integers from {_gMin} to {_gMax}:
+                set {_gName} to num_to_grade(loop-value-2)
+                add loop-value-1 to {_%{_gName}%::*}
     set {_등급} to "E"
     chance of 40.9903%:
         set {_등급} to "D"
@@ -61,7 +97,12 @@ on fish caught:
         set {_등급} to "L"
     chance of 0.01%:
         set {_등급} to "G"
-    
+    # 테스트 등급 강제 적용
+    if {테스트등급::%player%} is set:
+        set {_등급} to {테스트등급::%player%}
+        delete {테스트등급::%player%}
+        message "&8[&e 테스트 &8] &a등급 강제 적용: &f%{_등급}%" to player
+
     if {_%{_등급}%::*} is not set:
         set {_등급} to "E"
 
@@ -177,7 +218,7 @@ on fish caught:
         message "&f이곳엔 물고기가 존재하지 않습니다." to player
         stop
     set {_크리티컬확률} to 0
-    set {_크리티컬데미지} to 10
+    set {_크리티컬데미지} to 1
     set {_최대등급} to "S"
     set {_도망확률감소} to 0
     if {낚시레벨::%player%} >= 5:
@@ -224,32 +265,95 @@ on fish caught:
         add 10 to {_도망확률감소}
     if {낚시레벨::%player%} >= 100:
         add 1 to {_크리티컬데미지}
-    # ===== 장비 보너스 스탯 =====
+    # ===== 장비 보너스 스탯 (동적 파싱) =====
     set {_등급시프트} to 0
     set {_경험치보너스} to 0
     set {_크기보너스} to 0
-    if {낚싯대부품::릴::%player%} is set:
-        set {_reelData::*} to split {부품::릴::%{낚싯대부품::릴::%player%}%} at "|"
-        add ({_reelData::5} parsed as number) to {_도망확률감소}
-    if {낚싯대부품::줄::%player%} is set:
-        set {_lineData::*} to split {부품::줄::%{낚싯대부품::줄::%player%}%} at "|"
-        add ({_lineData::5} parsed as number) to {_크리티컬데미지}
-    if {낚싯대부품::바늘::%player%} is set:
-        set {_hookData::*} to split {부품::바늘::%{낚싯대부품::바늘::%player%}%} at "|"
-        set {_등급시프트} to {_hookData::5} parsed as number
-    if {낚싯대부품::미끼::%player%} is set:
-        set {_baitData::*} to split {부품::미끼::%{낚싯대부품::미끼::%player%}%} at "|"
-        set {_경험치보너스} to {_baitData::5} parsed as number
-    if {낚싯대부품::찌::%player%} is set:
-        set {_floatData::*} to split {부품::찌::%{낚싯대부품::찌::%player%}%} at "|"
-        set {_크기보너스} to {_floatData::5} parsed as number
-    # ===== 등급 재굴림 (바늘) =====
-    loop {_등급시프트} times:
-        set {_nextGrade} to next_grade({_등급})
-        if {_nextGrade} is not "":
-            if {_%{_nextGrade}%::*} is set:
-                chance of 30%:
+    set {_낚싯대보너스} to 0
+    set {_더블찬스} to 0
+    set {_판매보너스} to 0
+    set {_내구보존} to 0
+    set {_eqSlots::1} to "릴"
+    set {_eqSlots::2} to "줄"
+    set {_eqSlots::3} to "바늘"
+    set {_eqSlots::4} to "미끼"
+    set {_eqSlots::5} to "찌"
+    loop 5 times:
+        set {_eqSlot} to {_eqSlots::%loop-iteration%}
+        set {_eqName} to {낚싯대부품::%{_eqSlot}%::%player%}
+        if {_eqName} is set:
+            set {_eqRaw} to get_part_stats_raw({_eqSlot}, {_eqName})
+            set {_eqPairs::*} to split {_eqRaw} at ","
+            loop {_eqPairs::*}:
+                set {_eqKV::*} to split loop-value-2 at ":"
+                set {_eqST} to {_eqKV::1}
+                set {_eqSV} to {_eqKV::2} parsed as number
+                if {_eqST} is "도망감소":
+                    add {_eqSV} to {_도망확률감소}
+                else if {_eqST} is "크리배율":
+                    add {_eqSV} to {_크리티컬데미지}
+                else if {_eqST} is "등급업":
+                    add {_eqSV} to {_등급시프트}
+                    add {_eqSlot} to {_등급업출처::*}
+                    add {_eqSV} to {_등급업출처값::*}
+                else if {_eqST} is "경험치":
+                    add {_eqSV} to {_경험치보너스}
+                else if {_eqST} is "크기":
+                    add {_eqSV} to {_크기보너스}
+                else if {_eqST} is "크리확률":
+                    add {_eqSV} to {_크리티컬확률}
+                else if {_eqST} is "난이도":
+                    add {_eqSV} to {_낚싯대보너스}
+                else if {_eqST} is "더블찬스":
+                    add {_eqSV} to {_더블찬스}
+                else if {_eqST} is "판매보너스":
+                    add {_eqSV} to {_판매보너스}
+                else if {_eqST} is "내구보존":
+                    add {_eqSV} to {_내구보존}
+    # 낚싯대 본체 스탯 — 손에 든 낚싯대 이름으로 판별 (복합 스탯 대응)
+    set {_toolName} to name of player's tool
+    loop {부품목록::낚싯대::*}:
+        if {_toolName} contains loop-value:
+            set {_rodRaw} to get_part_stats_raw("낚싯대", loop-value)
+            set {_rodPairs::*} to split {_rodRaw} at ","
+            loop {_rodPairs::*}:
+                set {_rodKV::*} to split loop-value-2 at ":"
+                set {_rodST} to {_rodKV::1}
+                set {_rodSV} to {_rodKV::2} parsed as number
+                if {_rodST} is "난이도":
+                    add {_rodSV} to {_낚싯대보너스}
+                else if {_rodST} is "도망감소":
+                    add {_rodSV} to {_도망확률감소}
+                else if {_rodST} is "크리배율":
+                    add {_rodSV} to {_크리티컬데미지}
+                else if {_rodST} is "등급업":
+                    add {_rodSV} to {_등급시프트}
+                    add "낚싯대" to {_등급업출처::*}
+                    add {_rodSV} to {_등급업출처값::*}
+                else if {_rodST} is "경험치":
+                    add {_rodSV} to {_경험치보너스}
+                else if {_rodST} is "크기":
+                    add {_rodSV} to {_크기보너스}
+                else if {_rodST} is "크리확률":
+                    add {_rodSV} to {_크리티컬확률}
+                else if {_rodST} is "더블찬스":
+                    add {_rodSV} to {_더블찬스}
+                else if {_rodST} is "판매보너스":
+                    add {_rodSV} to {_판매보너스}
+                else if {_rodST} is "내구보존":
+                    add {_rodSV} to {_내구보존}
+            stop loop
+    # ===== 등급 업 (장비 + 환경 합산) =====
+    set {_totalShift} to {_등급시프트} + {_환경등급시프트}
+    if {_totalShift} > 0:
+        chance of {_totalShift}%:
+            set {_nextGrade} to next_grade({_등급})
+            if {_nextGrade} is not "":
+                if {_%{_nextGrade}%::*} is set:
+                    set {_oldGrade} to {_등급}
                     set {_등급} to {_nextGrade}
+                    set {_gradeUpOld} to {_oldGrade}
+                    set {_gradeUpNew} to {_nextGrade}
 
     if {용암낚시::%player%} is 1:
         if player's tool's name is not "&f용암 낚싯대":
@@ -262,48 +366,332 @@ on fish caught:
         add 1 to {_count}
     set {_d} to random integer between 1 and {_count}
     set {_f::*} to split {_%{_등급}%::%{_d}%} at "|"
-    open chest inventory with 1 rows named "&0낚시" to player
     set {_size} to random number between ({_f::2} parsed as number) and ({_f::3} parsed as number)
     if {_f::1} is not set:
         message "&f이곳엔 물고기가 존재하지 않습니다." to player
         stop
-    chance of {_크리티컬확률}%:
-        set {_size} to {_size} * ({_크리티컬데미지}*0.01+1)
-        message "&a크리티컬!" to player
+    # ========== 미니게임 시작 ==========
+    set {_params::*} to split 미니게임파라미터({_등급}) at "|"
+    set {_perfectWidth} to {_params::2} parsed as integer
+    set {_speed} to {_params::3} parsed as integer
+    # 난이도 계산: 물고기 난이도(+) vs 낚싯대 보너스(-)
+    set {_fishDiff} to 물고기난이도({_등급})
+    set {_net} to {_낚싯대보너스} - {_fishDiff}
+    # 커서 속도: net 반영 (난이도 높으면 빨라짐, 낚싯대 좋으면 느려짐)
+    add floor({_net} / 4) to {_speed}
+    if {_speed} < 1:
+        set {_speed} to 1
+    if {_speed} > 8:
+        set {_speed} to 8
+    # 바 폭: 난이도 낮으면 줄어듦 (성공존 유지, 실패 영역 감소) [12~30]
+    set {_barWidth} to 14 - {_net}
+    if {_barWidth} < 12:
+        set {_barWidth} to 12
+    if {_barWidth} > 30:
+        set {_barWidth} to 30
+    # 존 폭 = 5 + net (난이도 높으면 좁아짐) [1~10]
+    set {_zoneWidth} to 5 + {_net}
+    # 레벨 보너스: 릴 도망확률감소 -> 존 폭 추가 (10%당 +1, 최대 +3)
+    set {_zoneBonus} to floor({_도망확률감소} / 10)
+    if {_zoneBonus} > 3:
+        set {_zoneBonus} to 3
+    add {_zoneBonus} to {_zoneWidth}
+    # 초과 난이도: 존 폭이 1 미만으로 내려가야 할 만큼 난이도가 높으면 성공영역 랜덤 이동
+    if {_zoneWidth} < 1:
+        set {_overflowDiff} to 1 - {_zoneWidth}
+        set {_zoneWidth} to 1
+    else:
+        set {_overflowDiff} to 0
+    if {_zoneWidth} > 10:
+        set {_zoneWidth} to 10
+    # 바 폭이 존 폭+2보다 작지 않도록 보정
+    if {_barWidth} < {_zoneWidth} + 2:
+        set {_barWidth} to {_zoneWidth} + 2
+    # 레벨 보너스: 크리티컬확률 -> 퍼펙트 존 폭 증가 (10%당 +1, 최대 +2)
+    set {_perfectBonus} to floor({_크리티컬확률} / 10)
+    if {_perfectBonus} > 2:
+        set {_perfectBonus} to 2
+    add {_perfectBonus} to {_perfectWidth}
+    # 퍼펙트 존 크기 제한: 1칸이면 전부 크리티컬, 아니면 최대 존의 1/3
+    if {_zoneWidth} <= 1:
+        set {_perfectWidth} to {_zoneWidth}
+    else:
+        set {_maxPerfect} to floor({_zoneWidth} / 3)
+        if {_maxPerfect} < 1:
+            set {_maxPerfect} to 1
+        if {_perfectWidth} > {_maxPerfect}:
+            set {_perfectWidth} to {_maxPerfect}
+    # 존 위치 계산 (랜덤 위치)
+    set {_maxStart} to {_barWidth} - {_zoneWidth}
+    if {_maxStart} < 0:
+        set {_maxStart} to 0
+    set {_zoneStart} to random integer between 0 and {_maxStart}
+    set {_zoneEnd} to {_zoneStart} + {_zoneWidth} - 1
+    # 퍼펙트 존 (존 내부 랜덤 위치)
+    set {_perfectMaxStart} to {_zoneEnd} - {_perfectWidth} + 1
+    if {_perfectMaxStart} < {_zoneStart}:
+        set {_perfectMaxStart} to {_zoneStart}
+    set {_perfectStart} to random integer between {_zoneStart} and {_perfectMaxStart}
+    set {_perfectEnd} to {_perfectStart} + {_perfectWidth} - 1
+    if {_perfectEnd} > {_zoneEnd}:
+        set {_perfectEnd} to {_zoneEnd}
+    # 글로벌 변수 세팅 (클릭 핸들러용)
+    set {미니게임::%player%} to 1
+    set {미니게임커서::%player%} to 0
+    set {미니게임결과::%player%} to "대기"
+    set {미니게임존시작::%player%} to {_zoneStart}
+    set {미니게임존끝::%player%} to {_zoneEnd}
+    set {미니게임퍼펙트시작::%player%} to {_perfectStart}
+    set {미니게임퍼펙트끝::%player%} to {_perfectEnd}
+    # 스윗스팟 크리티컬 확률 (기본 10% + 레벨 크리티컬확률 + 낚싯대보너스*3)
+    set {미니게임크리티컬확률::%player%} to 10 + {_크리티컬확률} + ({_낚싯대보너스} * 3)
+    # 도주 확률 (등급 기본 - 도망확률감소/2, 최소 1%)
+    set {_escapeBase} to ({_params::4} parsed as integer) - floor({_도망확률감소} / 2)
+    if {_escapeBase} < 1:
+        set {_escapeBase} to 1
+    set {미니게임도주확률::%player%} to {_escapeBase}
+    set {미니게임도주증가::%player%} to {_params::5} parsed as integer
+    # 타임아웃: 10초 = 200틱, 항상 1틱(0.05초) 간격으로 루프
+    set {_totalTicks} to 200
+    set {_maxSteps} to 200
+    set {_step} to 0
+    set {_tickCount} to 0
+    set {_direction} to 1
+    set {_cursor} to 0
+    set {_zoneMoveCount} to 0
+    # 초과 난이도 기반 존 이동 주기 (높을수록 자주 이동, 최소 3스텝마다)
+    if {_overflowDiff} > 0:
+        set {_zoneMoveInterval} to 8 - {_overflowDiff}
+        if {_zoneMoveInterval} < 3:
+            set {_zoneMoveInterval} to 3
+    send title "" with subtitle "&e물고기가 물었다! &f좌클릭!" to player for 1.5 seconds
+    # ===== 타임아웃 보스바 =====
+    delete bossbar named "fishTimer_%player's uuid%"
+    set {_timerBar} to bossbar named "fishTimer_%player's uuid%" with title "&a남은 시간" with color green with style segmented 10 with progress 100
+    set bossbar players of {_timerBar} to player
+    # ===== 미니게임 루프 =====
+    while {_step} < {_maxSteps}:
+        if {미니게임::%player%} is not 1:
+            stop
+        if {미니게임결과::%player%} is "성공":
+            stop loop
+        if {미니게임결과::%player%} is "크리티컬":
+            stop loop
+        if {미니게임결과::%player%} is "도주":
+            stop loop
+        # 커서 이동 (등급별 속도에 맞춰)
+        add 1 to {_tickCount}
+        if {_tickCount} >= {_speed}:
+            set {_tickCount} to 0
+            set {_maxCursor} to {_barWidth} - 1
+            add {_direction} to {_cursor}
+            if {_cursor} >= {_maxCursor}:
+                set {_cursor} to {_maxCursor}
+                set {_direction} to -1
+            if {_cursor} <= 0:
+                set {_cursor} to 0
+                set {_direction} to 1
+            set {미니게임커서::%player%} to {_cursor}
+            # 초과 난이도: 성공영역 랜덤 이동
+            if {_overflowDiff} > 0:
+                add 1 to {_zoneMoveCount}
+                if {_zoneMoveCount} >= {_zoneMoveInterval}:
+                    set {_zoneMoveCount} to 0
+                    set {_newMaxStart} to {_barWidth} - {_zoneWidth}
+                    if {_newMaxStart} < 0:
+                        set {_newMaxStart} to 0
+                    set {_zoneStart} to random integer between 0 and {_newMaxStart}
+                    set {_zoneEnd} to {_zoneStart} + {_zoneWidth} - 1
+                    set {_perfectMaxS} to {_zoneEnd} - {_perfectWidth} + 1
+                    if {_perfectMaxS} < {_zoneStart}:
+                        set {_perfectMaxS} to {_zoneStart}
+                    set {_perfectStart} to random integer between {_zoneStart} and {_perfectMaxS}
+                    set {_perfectEnd} to {_perfectStart} + {_perfectWidth} - 1
+                    if {_perfectEnd} > {_zoneEnd}:
+                        set {_perfectEnd} to {_zoneEnd}
+                    set {미니게임존시작::%player%} to {_zoneStart}
+                    set {미니게임존끝::%player%} to {_zoneEnd}
+                    set {미니게임퍼펙트시작::%player%} to {_perfectStart}
+                    set {미니게임퍼펙트끝::%player%} to {_perfectEnd}
+            # 게이지 표시 (가변 바 폭)
+            send action bar 미니게임게이지({_cursor}, {_zoneStart}, {_zoneEnd}, {_perfectStart}, {_perfectEnd}, {_barWidth}) to player
+        add 1 to {_step}
+        # 보스바 진행률 업데이트 (항상 0.05초마다)
+        set {_prog} to (({_maxSteps} - {_step}) / {_maxSteps}) * 100
+        if {_prog} < 0:
+            set {_prog} to 0
+        set {_sec} to floor(({_maxSteps} - {_step}) / 20)
+        set {_decimal} to floor(mod({_maxSteps} - {_step}, 20) / 2)
+        set bossbar progress of {_timerBar} to {_prog}
+        if {_prog} <= 30:
+            set bossbar color of {_timerBar} to red
+            set bossbar title of {_timerBar} to "&c남은 시간 %{_sec}%.%{_decimal}%초"
+        else if {_prog} <= 60:
+            set bossbar color of {_timerBar} to yellow
+            set bossbar title of {_timerBar} to "&e남은 시간 %{_sec}%.%{_decimal}%초"
+        else:
+            set bossbar color of {_timerBar} to green
+            set bossbar title of {_timerBar} to "&a남은 시간 %{_sec}%.%{_decimal}%초"
+        wait 1 tick
+    # ===== 보스바 정리 =====
+    delete bossbar named "fishTimer_%player's uuid%"
+    # ===== 미니게임 결과 처리 =====
+    set {_result} to {미니게임결과::%player%}
+    미니게임정리(player)
+    # 타임아웃
+    if {_result} is "대기":
+        message "&c시간 초과! 물고기가 도망갔습니다!" to player
+        reduceDurability(player)
+        stop
+    # 도주
+    if {_result} is "도주":
+        message "&c물고기가 도망갔습니다!" to player
+        reduceDurability(player)
+        stop
+    # 크리티컬 -> 보너스
+    set {_isCritical} to false
+    if {_result} is "크리티컬":
+        set {_isCritical} to true
+        # 크리티컬 배율 계산 (판매가에 적용)
+        set {_critMult} to {_크리티컬데미지} * 0.1 + 1
+        # 경험치 보너스 플래그
+        set {_critExpBonus} to true
+        set {_critExpMult} to {_critMult}
+        message "&6★ 크리티컬! &e판매가 %{_critMult}%배!" to player
+        # 슈퍼 크리티컬 — 등급업 찬스 (5%)
+        chance of 5%:
+            set {_critNextGrade} to next_grade({_등급})
+            if {_critNextGrade} is not "":
+                if {_%{_critNextGrade}%::*} is set:
+                    set {_critOldGrade} to {_등급}
+                    set {_등급} to {_critNextGrade}
+                    # 등급 올랐으니 물고기 재선택
+                    set {_count2} to 0
+                    loop {_%{_등급}%::*}:
+                        add 1 to {_count2}
+                    set {_d2} to random integer between 1 and {_count2}
+                    set {_f::*} to split {_%{_등급}%::%{_d2}%} at "|"
+                    set {_size} to random number between ({_f::2} parsed as number) and ({_f::3} parsed as number)
+                    set {_critGradeOldColor} to part_grade_color({_critOldGrade})
+                    set {_critGradeNewColor} to part_grade_color({_등급})
+                    message "&d&l★★ 퍼펙트! 크리티컬! &r%{_critGradeOldColor}%%{_critOldGrade}% &7→ %{_critGradeNewColor}%%{_등급}% &d&l★★" to player
+    else:
+        message "&a성공! 물고기를 잡았다!" to player
+    # 등급 업 메시지 (미니게임 성공 후에만, 가중 랜덤으로 출처 1개 표시)
+    if {_gradeUpNew} is set:
+        set {_oldColor} to part_grade_color({_gradeUpOld})
+        set {_newColor} to part_grade_color({_gradeUpNew})
+        # 기여도 기반 가중 랜덤 출처 선택
+        set {_srcTotal} to 0
+        loop {_등급업출처값::*}:
+            add loop-value to {_srcTotal}
+        set {_srcPick} to random integer from 1 to {_srcTotal}
+        set {_srcAcc} to 0
+        set {_srcIdx} to 0
+        set {_pickedSrc} to {_등급업출처::1}
+        loop {_등급업출처값::*}:
+            add 1 to {_srcIdx}
+            add loop-value to {_srcAcc}
+            if {_srcAcc} >= {_srcPick}:
+                set {_pickedSrc} to {_등급업출처::%{_srcIdx}%}
+                stop loop
+        message "&8[&e %{_pickedSrc}% &8] &a등급 업 성공! %{_oldColor}%%{_gradeUpOld}% &7→ %{_newColor}%%{_gradeUpNew}%" to player
+    # ===== 품질 계산 (크기 보너스 적용 전) =====
+    set {_minSize} to {_f::2} parsed as number
+    set {_maxSize} to {_f::3} parsed as number
+    set {_sizeRange} to {_maxSize} - {_minSize}
+    if {_sizeRange} > 0:
+        set {_quality} to floor(({_size} - {_minSize}) / {_sizeRange} * 100)
+    else:
+        set {_quality} to 50
+    if {_quality} < 0:
+        set {_quality} to 0
+    if {_quality} > 100:
+        set {_quality} to 100
     # 찌 크기 보너스 적용
     if {_크기보너스} > 0:
         add {_size} * {_크기보너스} / 100 to {_size}
-    set slot 0 of player's current inventory to cod named "&f%{_f::1}%" with lore "&7등급 &e: &f%{_등급}%" and "&7크기 &e: &f%{_size}%cm" and "&f%now%"
-
-    set {_도주} to {_f::5} parsed as integer
-    if {_도망확률감소} > 0:
-        subtract {_도망확률감소} from {_도주}
-    chance of {_도주}%:
-        set slot 0 of player's current inventory to air
-        message "&c물고기가 도망갔습니다!" to player
-        stop
+    # ===== 환경 크기 보너스 =====
+    if {_환경크기보너스} > 0:
+        add {_size} * {_환경크기보너스} / 100 to {_size}
+    # 물고기 아이템 생성
+    open chest inventory with 1 rows named "&0낚시" to player
+    set {_fishItem} to cod named "&f%{_f::1}%"
+    delete {_fishLore::*}
+    add "&7등급 &e: &f%{_등급}%" to {_fishLore::*}
+    add "&7크기 &e: &f%{_size}%cm" to {_fishLore::*}
+    if {_isCritical} is true:
+        add "&6★ 크리티컬 &e%{_critMult}%배" to {_fishLore::*}
+    if {_판매보너스} > 0:
+        add "&e$ 판매보너스 &f+%{_판매보너스}%%%" to {_fishLore::*}
+    add "&7신선도 &e: &a100%%" to {_fishLore::*}
+    add "&f%now%" to {_fishLore::*}
+    add "&8f:%unix timestamp of now%:0:%{_quality}%" to {_fishLore::*}
+    set lore of {_fishItem} to {_fishLore::*}
+    set slot 0 of player's current inventory to {_fishItem}
+    # ===== 더블 낚시 =====
+    if {_더블찬스} > 0:
+        chance of {_더블찬스}%:
+            set {_fishItem2} to cod named "&f%{_f::1}%"
+            set lore of {_fishItem2} to {_fishLore::*}
+            set slot 1 of player's current inventory to {_fishItem2}
+            message "&b&l★ 더블 낚시! &e같은 물고기를 한 마리 더 잡았다!" to player
+    # ===== S+ 이상 서버 공지 =====
+    if rankchange({_등급}) >= 7:
+        set {_gc} to part_grade_color({_등급})
+        set {_t} to text component from "&6&l[!] &7%player's name%&f님이 &e&l%{_f::1}% &f을(를) 낚았습니다! &8(%{_gc}%%{_등급}%&8)"
+        set hover event of {_t} to a new hover event showing "&7이름 &e: &f%{_f::1}%%nl%&7등급 &e: %{_gc}%%{_등급}%%nl%&7크기 &e: &f%{_size}%cm%nl%&7주인 &e: &f%player's name%"
+        send component {_t} to all players
+    # ========== 미니게임 끝 ==========
     # 장비 내구도 감소 (장착된 부품만)
     reduceDurability(player)
-    set {_expsize} to {_size}
-    if {_expsize} > 1000:
-        set {_expsize} to 1000
-    set {_exprank} to rankchange({_등급})
-    set {_baseExp} to (3+sqrt({_expsize}/10))*(1+{_exprank}/10)
+    # ===== 경험치 = 등급기본EXP × (0.5 + 품질/100) =====
+    set {_기본EXP} to 5
+    if {_등급} is "D":
+        set {_기본EXP} to 6
+    else if {_등급} is "C":
+        set {_기본EXP} to 7
+    else if {_등급} is "B":
+        set {_기본EXP} to 7
+    else if {_등급} is "A":
+        set {_기본EXP} to 8
+    else if {_등급} is "S":
+        set {_기본EXP} to 9
+    else if {_등급} is "S+":
+        set {_기본EXP} to 11
+    else if {_등급} is "M":
+        set {_기본EXP} to 12
+    else if {_등급} is "L":
+        set {_기본EXP} to 14
+    else if {_등급} is "G":
+        set {_기본EXP} to 16
+    set {_baseExp} to {_기본EXP} * (0.5 + {_quality} / 100)
     if {_경험치보너스} > 0:
         add {_baseExp} * {_경험치보너스} / 100 to {_baseExp}
+    # ===== 환경 경험치 보너스 =====
+    if {_환경경험치보너스} > 0:
+        add {_baseExp} * {_환경경험치보너스} / 100 to {_baseExp}
+    # ===== 크리티컬 경험치 보너스 (배율 적용) =====
+    if {_critExpBonus} is true:
+        set {_origExp} to {_baseExp}
+        set {_baseExp} to {_baseExp} * {_critExpMult}
     add {_baseExp} to {낚시레벨현재경험치::%player%}
-    message "&a낚시 경험치 +%{_baseExp}%exp" to player
+    if {_critExpBonus} is true:
+        message "&6낚시 경험치 +%{_baseExp}%exp &8(%{_origExp}% → %{_baseExp}%exp)" to player
+    else:
+        message "&a낚시 경험치 +%{_baseExp}%exp" to player
     loop 10 times:
         if {낚시레벨현재경험치::%player%} > {낚시레벨필요경험치::%player%}:
             set {_remain} to {낚시레벨현재경험치::%player%} - {낚시레벨필요경험치::%player%}
             set {낚시레벨현재경험치::%player%} to 0
             if {낚시레벨::%player%} < 50:
-                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.1
+                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.15
             else:
-                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.05
+                set {낚시레벨필요경험치::%player%} to {낚시레벨필요경험치::%player%} * 1.08
             add 1 to {낚시레벨::%player%}
             add {_remain} to {낚시레벨현재경험치::%player%}
             message "&a낚시레벨이 %{낚시레벨::%player%}%LV가 되었습니다!" to player
+            퀘스트_레벨업(player, {낚시레벨::%player%})
         else:
             stop loop
 
@@ -320,6 +708,8 @@ on fish caught:
             message "&a도감을 갱신했습니다!" to player
             set {도감최대::%{_f::1}%::%player%} to {_size}
             set {최대낚은날짜::%{_f::1}%::%player%} to now
+    # 퀘스트 훅: 물고기 잡기
+    퀘스트_물고기(player, {_f::1}, {_등급}, {_size})
 
 on inventory close:
     if player's current inventory's name is "&0낚시":
@@ -327,7 +717,26 @@ on inventory close:
             set {_slot} to (loop-iteration) - 1
             set {_item} to slot {_slot} of player's current inventory
             if {_item} is not air:
-                give {_item} to player
+                if player can hold {_item}:
+                    give {_item} to player
+                else:
+                    # 인벤 꽉 참 - 물고기면 자동 판매
+                    set {_autoSold} to false
+                    if isfish({_item}) is true:
+                        set {_amount} to item amount of {_item}
+                        set {_unitPrice} to calcFishPrice({_item})
+                        if {_unitPrice} > 0:
+                            set {_price} to {_unitPrice} * {_amount}
+                            if {돈::%player%} is not set:
+                                set {돈::%player%} to 0
+                            add {_price} to {돈::%player%}
+                            퀘스트_판매(player, {_amount}, {_price})
+                            set {_autoSold} to true
+                            set {_등급} to parsegrade({_item})
+                            set {_크기} to parsesize({_item})
+                            message "&8[&6 상점 &8] &e인벤 가득! 자동 판매: &f%name of {_item}% &7(%{_등급}% / %{_크기}%cm) &e%{_price}%원 &7| 잔액: &f%{돈::%player%}%원" to player
+                    if {_autoSold} is false:
+                        give {_item} to player
                 set slot {_slot} of player's current inventory to air
 function fishrank(p: player, fishname: text, rank: text, size: text):
     if {_fishname} is not set:
@@ -510,6 +919,30 @@ command /낚시대회 [<text>] [<integer>] [<integer>]:
                 remove {_best} from {_pool::*}
             stop
 
+on tab complete of "/낚시테스트":
+    set tab completions for position 1 to "E", "D", "C", "B", "A", "S", "S+", "M", "L", "G" and "해제"
+
+command /낚시테스트 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            message "&8[&e 테스트 &8] &7사용법: &f/낚시테스트 <등급>" to player
+            message "&8[&e 테스트 &8] &7등급: &fE, D, C, B, A, S, S+, M, L, G" to player
+            message "&8[&e 테스트 &8] &7해제: &f/낚시테스트 해제" to player
+            if {테스트등급::%player%} is set:
+                message "&8[&e 테스트 &8] &7현재 설정: &e%{테스트등급::%player%}%" to player
+            stop
+        if arg-1 is "해제":
+            delete {테스트등급::%player%}
+            message "&8[&e 테스트 &8] &a테스트 등급이 해제되었습니다." to player
+            stop
+        set {_valid::*} to "E", "D", "C", "B", "A", "S", "S+", "M", "L" and "G"
+        if {_valid::*} contains arg-1:
+            set {테스트등급::%player%} to arg-1
+            message "&8[&e 테스트 &8] &a다음 낚시에서 &e%arg-1% &a등급이 나옵니다." to player
+        else:
+            message "&8[&e 테스트 &8] &c올바른 등급을 입력하세요: &fE, D, C, B, A, S, S+, M, L, G" to player
+
 function rankchange(t: text) :: number:
     if {_t} is "E":
         return 1
@@ -531,3 +964,25 @@ function rankchange(t: text) :: number:
         return 9
     else if {_t} is "G":
         return 10
+function num_to_grade(n: integer) :: text:
+    if {_n} is 1:
+        return "E"
+    else if {_n} is 2:
+        return "D"
+    else if {_n} is 3:
+        return "C"
+    else if {_n} is 4:
+        return "B"
+    else if {_n} is 5:
+        return "A"
+    else if {_n} is 6:
+        return "S"
+    else if {_n} is 7:
+        return "S+"
+    else if {_n} is 8:
+        return "M"
+    else if {_n} is 9:
+        return "L"
+    else if {_n} is 10:
+        return "G"
+    return "E"

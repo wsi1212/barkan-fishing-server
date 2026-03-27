@@ -12,30 +12,35 @@ options:
     sell_info: &f
 
 # ===== 가격 계산 함수 =====
-# 가격 = 등급 배율 × 크기(cm), 소수점 버림
-function fishprice(grade: text, size: number) :: number:
-    set {_배율} to 0
+# 가격 = 등급 기본가 × (0.5 + 품질/100), 품질 0~100 → 배율 0.5~1.5
+function fishprice(grade: text, quality: number) :: number:
+    set {_기본가} to 0
     if {_grade} is "E":
-        set {_배율} to 5
+        set {_기본가} to 100
     else if {_grade} is "D":
-        set {_배율} to 15
+        set {_기본가} to 650
     else if {_grade} is "C":
-        set {_배율} to 40
+        set {_기본가} to 1800
     else if {_grade} is "B":
-        set {_배율} to 80
+        set {_기본가} to 3500
     else if {_grade} is "A":
-        set {_배율} to 150
+        set {_기본가} to 8000
     else if {_grade} is "S":
-        set {_배율} to 300
+        set {_기본가} to 19000
     else if {_grade} is "S+":
-        set {_배율} to 500
+        set {_기본가} to 60000
     else if {_grade} is "M":
-        set {_배율} to 1000
+        set {_기본가} to 135000
     else if {_grade} is "L":
-        set {_배율} to 2000
+        set {_기본가} to 350000
     else if {_grade} is "G":
-        set {_배율} to 5000
-    set {_price} to floor({_배율} * {_size})
+        set {_기본가} to 1300000
+    if {_quality} < 0:
+        set {_quality} to 0
+    if {_quality} > 100:
+        set {_quality} to 100
+    set {_mult} to 0.5 + {_quality} / 100
+    set {_price} to floor({_기본가} * {_mult})
     return {_price}
 
 # ===== 물고기 아이템에서 등급 파싱 =====
@@ -60,6 +65,147 @@ function parsesize(item: item) :: number:
         return 0
     return {_s}
 
+# ===== 크리티컬 물고기인지 확인 =====
+function iscritfish(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "크리티컬":
+            return true
+    return false
+
+# ===== 크리티컬 배율 파싱 (없으면 1 반환) =====
+function parsecrit(item: item) :: number:
+    loop lore of {_item}:
+        if loop-value contains "크리티컬":
+            set {_line} to loop-value
+            replace all "&6★ 크리티컬 &e" with "" in {_line}
+            replace all "배" with "" in {_line}
+            set {_mult} to {_line} parsed as number
+            if {_mult} is set:
+                return {_mult}
+    return 1
+
+# ===== 판매보너스 파싱 (없으면 0 반환) =====
+function parsesellbonus(item: item) :: number:
+    loop lore of {_item}:
+        if loop-value contains "판매보너스":
+            set {_line} to loop-value
+            replace all "&e$ 판매보너스 &f+" with "" in {_line}
+            replace all "%%" with "" in {_line}
+            set {_val} to {_line} parsed as number
+            if {_val} is set:
+                return {_val}
+    return 0
+
+# ===== 품질 파싱 (f:unix:preserve:quality) =====
+# 기존 물고기(quality 필드 없음)는 50 반환 (기본가 × 1.0)
+function parsequality(item: item) :: number:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return 50
+    set {_parts::*} to split {_data} at ":"
+    set {_q} to {_parts::3} parsed as number
+    if {_q} is not set:
+        return 50
+    if {_q} < 0:
+        return 0
+    if {_q} > 100:
+        return 100
+    return {_q}
+
+# ===== 신선도 기계데이터 파싱 (f:unix:preserve:quality) =====
+function parseFishData(item: item) :: text:
+    loop lore of {_item}:
+        set {_raw} to uncolored loop-value
+        if {_raw} starts with "f:":
+            replace "f:" with "" in {_raw}
+            return {_raw}
+    return ""
+
+# ===== 신선도 배율 반환 (0.2 ~ 1.0) =====
+function freshnessMult(item: item) :: number:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return 1.0
+    set {_parts::*} to split {_data} at ":"
+    set {_catchUnix} to {_parts::1} parsed as number
+    if {_catchUnix} is not set:
+        return 1.0
+    set {_preserveMins} to {_parts::2} parsed as number
+    if {_preserveMins} is not set:
+        set {_preserveMins} to 0
+    set {_nowUnix} to unix timestamp of now
+    set {_ageSecs} to {_nowUnix} - {_catchUnix}
+    set {_ageMins} to floor({_ageSecs} / 60) - {_preserveMins}
+    if {_ageMins} < 0:
+        set {_ageMins} to 0
+    if {_ageMins} <= 15:
+        return 1.0
+    else if {_ageMins} <= 40:
+        return 0.85
+    else if {_ageMins} <= 90:
+        return 0.65
+    else if {_ageMins} <= 180:
+        return 0.40
+    return 0.20
+
+# ===== 신선도 라벨 (색상+%+이름) =====
+function freshnessLabel(item: item) :: text:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return "&a신선함"
+    set {_parts::*} to split {_data} at ":"
+    set {_catchUnix} to {_parts::1} parsed as number
+    if {_catchUnix} is not set:
+        return "&a신선함"
+    set {_preserveMins} to {_parts::2} parsed as number
+    if {_preserveMins} is not set:
+        set {_preserveMins} to 0
+    set {_nowUnix} to unix timestamp of now
+    set {_ageSecs} to {_nowUnix} - {_catchUnix}
+    set {_ageMins} to floor({_ageSecs} / 60) - {_preserveMins}
+    if {_ageMins} < 0:
+        set {_ageMins} to 0
+    if {_ageMins} <= 15:
+        set {_pct} to 100 - {_ageMins}
+        return "&a%{_pct}%%%"
+    else if {_ageMins} <= 40:
+        set {_pct} to 85 - floor(({_ageMins} - 15) * 20 / 25)
+        return "&e%{_pct}%%%"
+    else if {_ageMins} <= 90:
+        set {_pct} to 65 - floor(({_ageMins} - 40) * 25 / 50)
+        return "&6%{_pct}%%%"
+    else if {_ageMins} <= 180:
+        set {_pct} to 40 - floor(({_ageMins} - 90) * 20 / 90)
+        return "&c%{_pct}%%%"
+    return "&420%%"
+
+# ===== 신선도 lore 업데이트 함수 =====
+function updateFreshnessLore(item: item) :: item:
+    set {_label} to freshnessLabel({_item})
+    set {_newLore::*} to lore of {_item}
+    set {_idx} to 0
+    loop {_newLore::*}:
+        add 1 to {_idx}
+        if loop-value contains "신선도":
+            set {_newLore::%{_idx}%} to "&7신선도 &e: %{_label}%"
+    set lore of {_item} to {_newLore::*}
+    return {_item}
+
+# ===== 최종 판매가 계산 (기본가×품질 × 크리 × 판매보너스 × 신선도) =====
+function calcFishPrice(item: item) :: number:
+    set {_등급} to parsegrade({_item})
+    if {_등급} is "":
+        return 0
+    set {_품질} to parsequality({_item})
+    set {_critMult} to parsecrit({_item})
+    set {_sellBonus} to parsesellbonus({_item})
+    set {_base} to floor(fishprice({_등급}, {_품질}) * {_critMult})
+    if {_sellBonus} > 0:
+        set {_base} to floor({_base} * (100 + {_sellBonus}) / 100)
+    set {_freshMult} to freshnessMult({_item})
+    set {_base} to floor({_base} * {_freshMult})
+    return {_base}
+
 # ===== 물고기인지 확인 =====
 function isfish(item: item) :: boolean:
     if {_item} is cod:
@@ -68,6 +214,9 @@ function isfish(item: item) :: boolean:
     return false
 
 # ===== /판매 명령어 =====
+on tab complete of "/판매":
+    set tab completions for position 1 to "전부"
+
 command /판매 [<text>]:
     aliases: /vksao
     trigger:
@@ -82,20 +231,20 @@ command /판매 [<text>]:
                 set {_slot} to (loop-iteration) - 1
                 set {_item} to slot {_slot} of player's inventory
                 if isfish({_item}):
-                    set {_등급} to parsegrade({_item})
-                    set {_크기} to parsesize({_item})
-                    if {_등급} is not "":
-                        if {_크기} > 0:
-                            set {_price} to fishprice({_등급}, {_크기})
-                            add {_price} to {_총액}
-                            add 1 to {_count}
-                            set slot {_slot} of player's inventory to air
+                    set {_amount} to item amount of {_item}
+                    set {_unitPrice} to calcFishPrice({_item})
+                    if {_unitPrice} > 0:
+                        set {_price} to {_unitPrice} * {_amount}
+                        add {_price} to {_총액}
+                        add {_amount} to {_count}
+                        set slot {_slot} of player's inventory to air
 
             if {_count} is 0:
                 message "{@sell_prefix} {@sell_bad}인벤토리에 판매 가능한 물고기가 없습니다." to player
                 stop
 
             add {_총액} to {돈::%player%}
+            퀘스트_판매(player, {_count}, {_총액})
             message "{@sell_prefix} {@sell_good}일괄 판매 완료! {@sell_hint}%{_count}%마리 {@sell_emph}%{_총액}%원 {@sell_hint}| 잔액: {@sell_info}%{돈::%player%}%원" to player
             stop
 
@@ -105,19 +254,30 @@ command /판매 [<text>]:
                 message "{@sell_prefix} {@sell_bad}물고기를 손에 들고 사용해 주세요. {@sell_hint}(/판매 전부: 일괄 판매)" to player
                 stop
 
-            set {_등급} to parsegrade(player's tool)
-            set {_크기} to parsesize(player's tool)
-
-            if {_등급} is "" or {_크기} <= 0:
+            set {_price} to calcFishPrice(player's tool)
+            if {_price} <= 0:
                 message "{@sell_prefix} {@sell_bad}이 물고기의 정보를 읽을 수 없습니다." to player
                 stop
 
-            set {_price} to fishprice({_등급}, {_크기})
+            set {_등급} to parsegrade(player's tool)
+            set {_크기} to parsesize(player's tool)
+            set {_critMult} to parsecrit(player's tool)
+            set {_sellBonus} to parsesellbonus(player's tool)
+            set {_freshLabel} to freshnessLabel(player's tool)
+            set {_freshMult} to freshnessMult(player's tool)
             set {_name} to player's tool's name
             remove 1 of player's tool from player
 
             add {_price} to {돈::%player%}
-            message "{@sell_prefix} {@sell_good}판매 완료! {@sell_info}%{_name}% {@sell_hint}(%{_등급}% / %{_크기}%cm) {@sell_emph}%{_price}%원 {@sell_hint}| 잔액: {@sell_info}%{돈::%player%}%원" to player
+            퀘스트_판매(player, 1, {_price})
+            set {_extra} to ""
+            if {_critMult} > 1:
+                set {_extra} to "%{_extra}% &6★%{_critMult}%배"
+            if {_sellBonus} > 0:
+                set {_extra} to "%{_extra}% &a+%{_sellBonus}%%%"
+            if {_freshMult} < 1:
+                set {_extra} to "%{_extra}% %{_freshLabel}%"
+            message "{@sell_prefix} {@sell_good}판매 완료! {@sell_info}%{_name}% {@sell_hint}(%{_등급}% / %{_크기}%cm)%{_extra}% {@sell_emph}%{_price}%원 {@sell_hint}| 잔액: {@sell_info}%{돈::%player%}%원" to player
             stop
 
         # /판매 도움말
@@ -166,14 +326,13 @@ on inventory click:
                 loop integers from 9 to 26:
                     set {_item} to slot loop-integer of player's current inventory
                     if isfish({_item}):
-                        set {_등급} to parsegrade({_item})
-                        set {_크기} to parsesize({_item})
-                        if {_등급} is not "":
-                            if {_크기} > 0:
-                                set {_price} to fishprice({_등급}, {_크기})
-                                add {_price} to {_총액}
-                                add 1 to {_count}
-                                set slot loop-integer of player's current inventory to air
+                        set {_amount} to item amount of {_item}
+                        set {_unitPrice} to calcFishPrice({_item})
+                        if {_unitPrice} > 0:
+                            set {_price} to {_unitPrice} * {_amount}
+                            add {_price} to {_총액}
+                            add {_amount} to {_count}
+                            set slot loop-integer of player's current inventory to air
 
                 if {_count} is 0:
                     message "&8[&6 상점 &8] &c판매할 물고기가 없습니다. 아래 칸에 물고기를 넣어주세요." to player
@@ -182,6 +341,7 @@ on inventory click:
                 if {돈::%player%} is not set:
                     set {돈::%player%} to 0
                 add {_총액} to {돈::%player%}
+                퀘스트_판매(player, {_count}, {_총액})
                 message "&8[&6 상점 &8] &a판매 완료! &7%{_count}%마리 &e%{_총액}%원 &7| 잔액: &f%{돈::%player%}%원" to player
                 stop
 
@@ -200,20 +360,16 @@ on inventory close:
             if {_item} is not air:
                 if isfish({_item}):
                     # 물고기는 자동 판매
-                    set {_등급} to parsegrade({_item})
-                    set {_크기} to parsesize({_item})
-                    if {_등급} is not "":
-                        if {_크기} > 0:
-                            set {_price} to fishprice({_등급}, {_크기})
-                            if {돈::%player%} is not set:
-                                set {돈::%player%} to 0
-                            add {_price} to {돈::%player%}
-                            add {_price} to {_닫기총액}
-                            add 1 to {_닫기수}
-                            set slot loop-integer of player's current inventory to air
-                        else:
-                            give {_item} to player
-                            set slot loop-integer of player's current inventory to air
+                    set {_amount} to item amount of {_item}
+                    set {_unitPrice} to calcFishPrice({_item})
+                    if {_unitPrice} > 0:
+                        set {_price} to {_unitPrice} * {_amount}
+                        if {돈::%player%} is not set:
+                            set {돈::%player%} to 0
+                        add {_price} to {돈::%player%}
+                        add {_price} to {_닫기총액}
+                        add {_amount} to {_닫기수}
+                        set slot loop-integer of player's current inventory to air
                     else:
                         give {_item} to player
                         set slot loop-integer of player's current inventory to air
@@ -223,4 +379,17 @@ on inventory close:
                     set slot loop-integer of player's current inventory to air
 
         if {_닫기수} > 0:
+            퀘스트_판매(player, {_닫기수}, {_닫기총액})
             message "&8[&6 상점 &8] &a자동 판매! &7%{_닫기수}%마리 &e%{_닫기총액}%원 &7| 잔액: &f%{돈::%player%}%원" to player
+
+# ===== 2분마다 인벤토리 물고기 신선도 lore 자동 갱신 =====
+every 2 minutes:
+    loop all players:
+        loop integers from 0 to 35:
+            set {_item} to slot loop-integer of loop-player's inventory
+            if {_item} is not air:
+                if isfish({_item}):
+                    set {_data} to parseFishData({_item})
+                    if {_data} is not "":
+                        set {_updated} to updateFreshnessLore({_item})
+                        set slot loop-integer of loop-player's inventory to {_updated}
