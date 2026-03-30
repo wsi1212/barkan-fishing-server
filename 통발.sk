@@ -1,0 +1,268 @@
+# =========================================
+# 통발.sk
+# 통발 시스템 — 설치 후 방치하면 자동으로 물고기 낚임
+# 설치: 물 근처에서 통발 아이템 우클릭 (sneak + right click)
+# 회수: 설치된 통발 우클릭
+# 등급: 일반(목재)/고급(철)/최고급(금) — 대기시간/낚이는 물고기 수 차이
+# =========================================
+
+# ===== 통발 아이템 생성 함수 =====
+function 통발아이템(grade: text) :: item:
+    if {_grade} is "고급":
+        set {_item} to iron ingot named "&b고급 통발"
+        set lore of {_item} to "&7고급 그물로 만든 통발" and "&7대기: &e7분" and "&7수량: &f1~2마리" and "&7등급: &fE~C" and "" and "&8trap:%{_grade}%:NEW" and "&a설치: 물 근처에서 [SHIFT+우클릭]"
+    else if {_grade} is "최고급":
+        set {_item} to gold ingot named "&6최고급 통발"
+        set lore of {_item} to "&7황금 그물로 만든 최고급 통발" and "&7대기: &e5분" and "&7수량: &f2~3마리" and "&7등급: &fD~B" and "" and "&8trap:%{_grade}%:NEW" and "&a설치: 물 근처에서 [SHIFT+우클릭]"
+    else:
+        set {_item} to stick named "&f일반 통발"
+        set lore of {_item} to "&7나무로 엮은 기본 통발" and "&7대기: &e10분" and "&7수량: &f1마리" and "&7등급: &fE~D" and "" and "&8trap:일반:NEW" and "&a설치: 물 근처에서 [SHIFT+우클릭]"
+    return {_item}
+
+# ===== 통발 여부 확인 =====
+function 통발아이템여부(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "&8trap:":
+            return true
+    return false
+
+function 통발등급(item: item) :: text:
+    loop lore of {_item}:
+        if loop-value contains "&8trap:":
+            set {_parts::*} to split loop-value at ":"
+            return {_parts::2}
+    return ""
+
+# ===== 위치 키 생성 =====
+function 통발위치키(loc: location) :: text:
+    return "%x-coordinate of {_loc}%,%y-coordinate of {_loc}%,%z-coordinate of {_loc}%,%world of {_loc}%"
+
+# ===== 통발 설치: SHIFT+우클릭 =====
+on right click:
+    if player is sneaking:
+        if player's tool is not air:
+            if 통발아이템여부(player's tool) is true:
+                # 물 근처 체크 (3x3 범위)
+                set {_nearWater} to false
+                loop blocks in radius 2 of player:
+                    if loop-block is water:
+                        set {_nearWater} to true
+                        stop loop
+                if {_nearWater} is false:
+                    message "&c물 근처에서만 통발을 설치할 수 있습니다!" to player
+                    stop
+                # 이미 통발 설치된 지역 여부 확인
+                set {_grade} to 통발등급(player's tool)
+                set {_loc} to player's location
+                set {_locKey} to 통발위치키({_loc})
+                # 설치
+                set {통발::%{_locKey}%::설치자} to player
+                set {통발::%{_locKey}%::등급} to {_grade}
+                set {통발::%{_locKey}%::설치시간} to unix timestamp of now
+                set {통발::%{_locKey}%::지역} to {area::%player%}
+                set {통발::%{_locKey}%::완료} to false
+                # 아이템에서 1개 제거
+                if amount of player's tool is 1:
+                    set player's tool to air
+                else:
+                    subtract 1 from amount of player's tool
+                # 시각적 표시: 설치 위치에 파티클 + 메시지
+                message "&8[&6 통발 &8] &a통발을 설치했습니다! &7(%{_grade}%) &e대기 중..." to player
+                play sound "block.barrel.open" with volume 1 with pitch 1 to player
+                cancel event
+
+# ===== 통발 체크 루프 (30초마다) =====
+every 30 seconds:
+    loop {통발::*::설치자}:
+        set {_key} to loop-value-1
+        if {_key} contains "설치자":
+            # 키에서 locKey 추출
+            set {_locKey::*} to split {_key} at "::"
+            set {_lk} to {_locKey::2}
+            if {통발::%{_lk}%::완료} is false:
+                set {_grade} to {통발::%{_lk}%::등급}
+                set {_설치시간} to {통발::%{_lk}%::설치시간}
+                set {_elapsed} to unix timestamp of now - {_설치시간}
+                # 등급별 대기시간 (초)
+                set {_waitTime} to 600
+                if {_grade} is "고급":
+                    set {_waitTime} to 420
+                else if {_grade} is "최고급":
+                    set {_waitTime} to 300
+                if {_elapsed} >= {_waitTime}:
+                    # 물고기 생성
+                    set {_area} to {통발::%{_lk}%::지역}
+                    통발물고기생성({_lk}, {_grade}, {_area})
+                    set {통발::%{_lk}%::완료} to true
+                    set {_owner} to {통발::%{_lk}%::설치자}
+                    if {_owner} is set:
+                        if {_owner} is online:
+                            message "&8[&6 통발 &8] &a통발에 물고기가 걸렸습니다! 우클릭으로 회수하세요." to {_owner}
+                            play sound "entity.fishing_bobber.splash" with volume 1 with pitch 1 to {_owner}
+
+# ===== 통발 물고기 생성 =====
+function 통발물고기생성(locKey: text, grade: text, area: text):
+    delete {통발물고기::%{_locKey}%::*}
+    # 등급별 수량 및 등급 범위
+    set {_count} to 1
+    if {_grade} is "고급":
+        set {_count} to random integer between 1 and 2
+    else if {_grade} is "최고급":
+        set {_count} to random integer between 2 and 3
+    loop {_count} times:
+        # 통발 등급별 물고기 등급 결정 (낮은 등급만)
+        set {_fishGrade} to "E"
+        if {_grade} is "일반":
+            chance of 25%:
+                set {_fishGrade} to "D"
+        else if {_grade} is "고급":
+            chance of 35%:
+                set {_fishGrade} to "C"
+            else:
+                chance of 30%:
+                    set {_fishGrade} to "D"
+        else if {_grade} is "최고급":
+            chance of 10%:
+                set {_fishGrade} to "B"
+            else:
+                chance of 35%:
+                    set {_fishGrade} to "C"
+                else:
+                    chance of 30%:
+                        set {_fishGrade} to "D"
+        # 해당 지역+등급의 물고기 목록
+        set {_fishes::*} to get_fish({_area})
+        set {_pool::*} to ""
+        delete {_pool::*}
+        loop {_fishes::*}:
+            set {_fp::*} to split loop-value at "|"
+            set {_gf} to {_fp::4}
+            if {_gf} contains "~":
+                set {_gr::*} to split {_gf} at "~"
+                if {_gr::1} is {_fishGrade} or {_gr::2} is {_fishGrade}:
+                    add loop-value to {_pool::*}
+            else:
+                if {_gf} is {_fishGrade}:
+                    add loop-value to {_pool::*}
+        set {_poolSize} to size of {_pool::*}
+        if {_poolSize} > 0:
+            set {_pick} to random integer between 1 and {_poolSize}
+            set {_chosen::*} to split {_pool::%{_pick}%} at "|"
+            set {_fishName} to {_chosen::1}
+            set {_minSz} to {_chosen::2} parsed as number
+            set {_maxSz} to {_chosen::3} parsed as number
+            set {_sz} to random number between {_minSz} and {_maxSz}
+            set {_quality} to random integer between 10 and 60
+            # 물고기 아이템 생성
+            set {_fishItem} to cod named "&f%{_fishName}%"
+            set lore of {_fishItem} to "&7등급 &e: &f%{_fishGrade}%" and "&7크기 &e: &f%{_sz}%cm" and "&7신선도 &e: &a100%%" and "&f%now%" and "&8f:%unix timestamp of now%:0:%{_quality}%"
+            add {_fishItem} to {통발물고기::%{_locKey}%::*}
+        else:
+            # 폴백: 기본 물고기
+            set {_fishItem} to cod named "&f잡어"
+            set lore of {_fishItem} to "&7등급 &e: &fE" and "&7크기 &e: &f10cm" and "&7신선도 &e: &a100%%" and "&f%now%" and "&8f:%unix timestamp of now%:0:20"
+            add {_fishItem} to {통발물고기::%{_locKey}%::*}
+
+# ===== 통발 회수: 우클릭 (sneak 없이) =====
+on right click:
+    if player is not sneaking:
+        set {_loc} to location of player
+        # 근처 통발 체크
+        loop {통발::*::설치자}:
+            set {_key} to loop-value-1
+            if {_key} contains "설치자":
+                set {_locKey::*} to split {_key} at "::"
+                set {_lk} to {_locKey::2}
+                set {_owner} to {통발::%{_lk}%::설치자}
+                if {_owner} is player:
+                    # 위치 파싱 (x,y,z,world 형식)
+                    set {_coords::*} to split {_lk} at ","
+                    if size of {_coords::*} >= 4:
+                        set {_tx} to {_coords::1} parsed as number
+                        set {_ty} to {_coords::2} parsed as number
+                        set {_tz} to {_coords::3} parsed as number
+                        set {_dist} to distance between player and location({_tx}, {_ty}, {_tz}, world {_coords::4})
+                        if {_dist} < 4:
+                            # 완료 여부 확인
+                            if {통발::%{_lk}%::완료} is false:
+                                set {_elapsed} to unix timestamp of now - {통발::%{_lk}%::설치시간}
+                                set {_grade} to {통발::%{_lk}%::등급}
+                                set {_waitTime} to 600
+                                if {_grade} is "고급":
+                                    set {_waitTime} to 420
+                                else if {_grade} is "최고급":
+                                    set {_waitTime} to 300
+                                set {_remaining} to {_waitTime} - {_elapsed}
+                                set {_remMin} to floor({_remaining} / 60)
+                                set {_remSec} to mod({_remaining}, 60)
+                                message "&8[&6 통발 &8] &e아직 대기 중입니다. &7(남은시간: &e%{_remMin}%분 %{_remSec}%초&7)" to player
+                                stop
+                            # 회수 GUI 열기
+                            통발회수GUI열기(player, {_lk})
+                            stop
+
+# ===== 통발 회수 GUI =====
+function 통발회수GUI열기(p: player, locKey: text):
+    set {_grade} to {통발::%{_locKey}%::등급}
+    open chest inventory with 2 rows named "&0통발 회수 &7(%{_grade}%)" to {_p}
+    loop 9 times:
+        set slot (loop-iteration - 1) of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to cod named "&6&l통발 회수" with lore "&7낚인 물고기를 회수합니다." and "&7클릭 시 물고기 + 통발 반환"
+    # 물고기 슬롯 (9번~)
+    set {_fishSlot} to 9
+    loop {통발물고기::%{_locKey}%::*}:
+        set slot {_fishSlot} of {_p}'s current inventory to loop-value
+        add 1 to {_fishSlot}
+    # 통발 아이템 슬롯 (17번)
+    set slot 17 of {_p}'s current inventory to 통발아이템({_grade})
+    set {통발회수중::%{_p}%} to {_locKey}
+
+# ===== 통발 회수 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name contains "&0통발 회수":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 4:
+            set {_lk} to {통발회수중::%player%}
+            if {_lk} is not set:
+                close player's inventory
+                stop
+            # 물고기 + 통발 지급
+            set {_given} to 0
+            loop {통발물고기::%{_lk}%::*}:
+                if player can hold loop-value:
+                    give loop-value to player
+                    add 1 to {_given}
+                else:
+                    drop loop-value at player's location
+                    add 1 to {_given}
+            # 통발 아이템 반환
+            set {_grade} to {통발::%{_lk}%::등급}
+            set {_trapItem} to 통발아이템({_grade})
+            if player can hold {_trapItem}:
+                give {_trapItem} to player
+            else:
+                drop {_trapItem} at player's location
+            # 통발 데이터 삭제
+            delete {통발::%{_lk}%::*}
+            delete {통발물고기::%{_lk}%::*}
+            delete {통발회수중::%player%}
+            message "&8[&6 통발 &8] &a물고기 %{_given}%마리 + 통발 1개 회수 완료!" to player
+            play sound "entity.fishing_bobber.retrieve" with volume 1 with pitch 1 to player
+            close player's inventory
+
+on inventory close:
+    if player's current inventory's name contains "&0통발 회수":
+        delete {통발회수중::%player%}
+
+# ===== 접속 시 통발 상태 알림 =====
+on join:
+    wait 3 seconds
+    loop {통발::*::설치자}:
+        set {_key} to loop-value-1
+        if {_key} contains "설치자":
+            if loop-value is player:
+                set {_locKey::*} to split {_key} at "::"
+                set {_lk} to {_locKey::2}
+                if {통발::%{_lk}%::완료} is true:
+                    message "&8[&6 통발 &8] &a회수 가능한 통발이 있습니다! 설치 위치로 이동하세요." to player

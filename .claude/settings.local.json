@@ -37,7 +37,21 @@
       "Bash(curl -sL \"https://api.github.com/repos/TheBlackEntity/PlugManX/releases\")",
       "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(a[''''browser_download_url'''']\\) for r in data[:3] for a in r.get\\(''''assets'''',[]\\)]\")",
       "Bash(curl -sL \"https://github.com/Test-Account666/PlugManX/releases/download/v3.0.3/PlugManX-3.0.3.jar\" -o \"/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/PlugManX.jar\")",
-      "Bash(cat /Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/ships/*.json)"
+      "Bash(cat /Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/ships/*.json)",
+      "Bash(/tmp/detailed_trace.txt:*)",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(gh api:*)",
+      "Bash(gh auth:*)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:builtbybit.com)",
+      "Bash(grep -rn \"team\\\\|Team\\\\|scoreboard.*team\\\\|setPrefix\\\\|setSuffix\\\\|nametag\\\\|tab\" '/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/' --include=*.yml --include=*.yaml --include=*.properties -l)",
+      "Bash(grep -rn \"text.display\\\\|textdisplay\\\\|text_display\\\\|TextDisplay\" '/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/SkBee/' --include=*.yml -l)",
+      "Bash(jar tf:*)",
+      "Bash(grep -v '\\\\$')",
+      "Bash(python3:*)",
+      "WebFetch(domain:skdocs.org)",
+      "WebFetch(domain:shanebeee.github.io)"
     ]
   }
 }

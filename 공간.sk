@@ -75,6 +75,10 @@ function areaEnter(p: player, area: text):
     # 방문 지역 기록 (페리 이용 조건)
     if {방문지역::%{_p}%::*} does not contain {_area}:
         add {_area} to {방문지역::%{_p}%::*}
+        set {_firstDisp} to regionDisplayName({_area})
+        wait 1 tick
+        send title "&6✦ 새로운 지역 발견!" with subtitle "&f%{_firstDisp}%" to {_p}
+        play sound "ui.toast.challenge_complete" with volume 0.8 with pitch 1 to {_p}
     set {_display} to regionDisplayName({_area})
     message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
     if {_area} is "lavatest":

@@ -4,29 +4,46 @@
 # =========================================
 
 # ===== 등급별 미니게임 파라미터 =====
-# 반환: "존폭|퍼펙트폭|속도(틱)|도주기본확률|도주증가량"
+# 반환: "존폭|퍼펙트폭|속도(틱)|도주기본확률|도주증가량|좌우속도|변속패턴|스팟이동속도|연속횟수"
+# 좌우속도: 커서 이동 속도 배율 (100=기본, 높을수록 빠름)
+# 변속패턴: 0=없음, 1=느린사인파, 2=빠른사인파, 3=계단식, 4=급변
+# 스팟이동속도: 초록/노란 스팟이 일정 방향으로 이동하는 속도 (0=고정, 1~5)
+# 연속횟수: 미니게임 연속 횟수 (1=기본)
 function 미니게임파라미터(grade: text) :: text:
     if {_grade} is "E":
-        return "10|2|4|30|5"
+        return "10|2|4|30|5|80|0|0|1"
     else if {_grade} is "D":
-        return "8|2|3|40|6"
+        return "8|2|3|40|6|90|0|0|1"
     else if {_grade} is "C":
-        return "7|2|3|50|8"
+        return "7|2|3|50|8|100|1|0|1"
     else if {_grade} is "B":
-        return "6|2|2|60|10"
+        return "6|2|2|60|10|110|1|1|1"
     else if {_grade} is "A":
-        return "5|2|2|70|13"
+        return "5|2|2|70|13|120|2|1|1"
     else if {_grade} is "S":
-        return "4|2|2|80|16"
+        return "4|2|2|80|16|140|2|2|1"
     else if {_grade} is "S+":
-        return "3|1|2|85|20"
+        return "3|1|2|85|20|170|3|2|2"
     else if {_grade} is "M":
-        return "2|1|2|90|25"
+        return "2|1|2|90|25|200|3|3|2"
     else if {_grade} is "L":
-        return "2|1|2|95|30"
+        return "2|1|2|95|30|250|4|3|3"
     else if {_grade} is "G":
-        return "1|1|2|98|35"
-    return "10|2|4|15|5"
+        return "1|1|2|98|35|300|4|4|3"
+    return "10|2|4|15|5|80|0|0|1"
+
+# ===== 등급별 세부 난이도 보정 =====
+# 같은 등급이라도 물고기마다 다른 난이도를 줌 (물고기 이름 해시 기반)
+# 반환: -2 ~ +2 (존폭 보정), -1 ~ +1 (속도 보정)
+function 물고기개별난이도(fishName: text, grade: text) :: text:
+    # 물고기 이름 길이 기반 해시 (간단한 변동)
+    set {_len} to length of {_fishName}
+    set {_hash} to mod({_len}, 5)
+    # 존폭 보정: -2, -1, 0, +1, +2
+    set {_zoneMod} to {_hash} - 2
+    # 속도 보정: 이름 길이의 다른 해시
+    set {_speedMod} to mod({_len}, 3) - 1
+    return "%{_zoneMod}%|%{_speedMod}%"
 
 # ===== 물고기 등급별 난이도 =====
 function 물고기난이도(grade: text) :: number:
@@ -51,6 +68,63 @@ function 물고기난이도(grade: text) :: number:
     else if {_grade} is "G":
         return 16
     return 0
+
+# ===== 변속 패턴 속도 배율 계산 =====
+# 패턴별로 일관된 속도 변화를 줌 (렉과 구분 가능하도록)
+# step: 현재 틱 카운트, pattern: 변속패턴 번호
+# 반환: 속도 배율 (50~200, 100이 기본)
+function 변속배율(step: integer, pattern: integer) :: integer:
+    if {_pattern} is 0:
+        return 100
+    # 패턴 1: 느린 사인파 (20틱 주기, 80~120)
+    if {_pattern} is 1:
+        set {_phase} to mod({_step}, 20)
+        if {_phase} < 5:
+            return 90
+        else if {_phase} < 10:
+            return 110
+        else if {_phase} < 15:
+            return 120
+        else:
+            return 80
+    # 패턴 2: 빠른 사인파 (12틱 주기, 70~140)
+    if {_pattern} is 2:
+        set {_phase} to mod({_step}, 12)
+        if {_phase} < 3:
+            return 80
+        else if {_phase} < 6:
+            return 130
+        else if {_phase} < 9:
+            return 70
+        else:
+            return 140
+    # 패턴 3: 계단식 (4단계, 각 8틱, 60~160)
+    if {_pattern} is 3:
+        set {_phase} to mod({_step}, 32)
+        if {_phase} < 8:
+            return 70
+        else if {_phase} < 16:
+            return 130
+        else if {_phase} < 24:
+            return 60
+        else:
+            return 160
+    # 패턴 4: 급변 (6단계, 각 5틱, 50~200)
+    if {_pattern} is 4:
+        set {_phase} to mod({_step}, 30)
+        if {_phase} < 5:
+            return 60
+        else if {_phase} < 10:
+            return 180
+        else if {_phase} < 15:
+            return 50
+        else if {_phase} < 20:
+            return 200
+        else if {_phase} < 25:
+            return 80
+        else:
+            return 150
+    return 100
 
 # ===== 게이지 문자열 생성 (가변 폭) =====
 # 우선순위: 커서 > 퍼펙트존 > 스윗스팟 > 빈칸
@@ -82,6 +156,8 @@ function 미니게임정리(p: player):
     delete {미니게임크리티컬확률::%{_p}%}
     delete {미니게임도주확률::%{_p}%}
     delete {미니게임도주증가::%{_p}%}
+    delete {미니게임연속현재::%{_p}%}
+    delete {미니게임연속총::%{_p}%}
     send action bar "" to {_p}
     delete bossbar named "fishTimer_%{_p}'s uuid%"
 
@@ -95,12 +171,19 @@ on left click:
     if {미니게임::%player%} is 1:
         cancel event
         set {_cursor} to {미니게임커서::%player%}
-        # 퍼펙트 존 판정
+        # 퍼펙트 존 판정 (크리확률 +30% 보너스)
         if {_cursor} >= {미니게임퍼펙트시작::%player%}:
             if {_cursor} <= {미니게임퍼펙트끝::%player%}:
-                set {미니게임결과::%player%} to "크리티컬"
+                set {_critChance} to {미니게임크리티컬확률::%player%}
+                if {_critChance} is not set:
+                    set {_critChance} to 0
+                add 30 to {_critChance}
+                chance of {_critChance}%:
+                    set {미니게임결과::%player%} to "크리티컬"
+                    stop
+                set {미니게임결과::%player%} to "성공"
                 stop
-        # 스윗스팟 존 판정 (확률 크리티컬)
+        # 스윗스팟 존 판정 (기본 크리확률)
         if {_cursor} >= {미니게임존시작::%player%}:
             if {_cursor} <= {미니게임존끝::%player%}:
                 set {_critChance} to {미니게임크리티컬확률::%player%}

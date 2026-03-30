@@ -1,0 +1,647 @@
+# =========================================
+# 낚싯대강화.sk
+# 축복 (계정 귀속, 모든 낚싯대) + 강화 (낚싯대별 개별)
+# /축복 = 계정 귀속 축복 GUI
+# /강화 = 손에 든 낚싯대 전용 강화 GUI
+# =========================================
+
+# ===== 데이터 초기화 =====
+on load:
+    # === 축복 데이터 (계정 귀속, 모든 낚싯대에 적용) ===
+    delete {축복목록::*}
+    set {축복::행운낚시} to "행운 낚시|3|3000|낚시 시 추가 보상 확률 +Lv×5%%"
+    set {축복::집중} to "집중|3|4000|미니게임 타임아웃 +Lv×1초"
+    set {축복::축복} to "축복|3|5000|경험치 +Lv×40%% 추가"
+    set {축복::보존} to "보존|3|3000|장비 내구보존 +Lv×8%%"
+    add "행운낚시" to {축복목록::*}
+    add "집중" to {축복목록::*}
+    add "축복" to {축복목록::*}
+    add "보존" to {축복목록::*}
+
+    # === 강화 비용/확률 (낚싯대별 적용) ===
+    delete {강화비용::*}
+    set {강화비용::1} to 1000
+    set {강화비용::2} to 2500
+    set {강화비용::3} to 5000
+    set {강화비용::4} to 10000
+    set {강화비용::5} to 20000
+    set {강화비용::6} to 40000
+    set {강화비용::7} to 75000
+    set {강화비용::8} to 130000
+    set {강화비용::9} to 200000
+    set {강화비용::10} to 350000
+    delete {강화확률::*}
+    set {강화확률::1} to 100
+    set {강화확률::2} to 95
+    set {강화확률::3} to 90
+    set {강화확률::4} to 80
+    set {강화확률::5} to 70
+    set {강화확률::6} to 55
+    set {강화확률::7} to 40
+    set {강화확률::8} to 30
+    set {강화확률::9} to 20
+    set {강화확률::10} to 10
+    # 하락 확률 (+1~+4: 없음, +5부터 점진적으로)
+    delete {강화하락::*}
+    set {강화하락::1} to 0
+    set {강화하락::2} to 0
+    set {강화하락::3} to 0
+    set {강화하락::4} to 0
+    set {강화하락::5} to 5
+    set {강화하락::6} to 10
+    set {강화하락::7} to 15
+    set {강화하락::8} to 20
+    set {강화하락::9} to 25
+    set {강화하락::10} to 30
+
+    # === 낚싯대별 강화 테이블 ===
+    # 형식: {강화테이블::낚싯대이름::최대} = 최대강화레벨
+    #       {강화테이블::낚싯대이름::N}   = "스탯:값,스탯:값" (N강에서 획득)
+    delete {강화테이블::*}
+    # --- E등급 ---
+    set {강화테이블::나뭇가지::최대} to 2
+    set {강화테이블::나뭇가지::1} to "경험치:10"
+    set {강화테이블::나뭇가지::2} to "난이도:1"
+    # --- D등급 ---
+    set {강화테이블::대나무 막대기::최대} to 3
+    set {강화테이블::대나무 막대기::1} to "경험치:10"
+    set {강화테이블::대나무 막대기::2} to "크기:4"
+    set {강화테이블::대나무 막대기::3} to "난이도:1"
+    set {강화테이블::행운의 낚싯대::최대} to 3
+    set {강화테이블::행운의 낚싯대::1} to "등급업:2"
+    set {강화테이블::행운의 낚싯대::2} to "경험치:10"
+    set {강화테이블::행운의 낚싯대::3} to "등급업:3"
+    # --- C등급 ---
+    set {강화테이블::참나무 낚싯대::최대} to 4
+    set {강화테이블::참나무 낚싯대::1} to "경험치:12"
+    set {강화테이블::참나무 낚싯대::2} to "난이도:1"
+    set {강화테이블::참나무 낚싯대::3} to "크기:5"
+    set {강화테이블::참나무 낚싯대::4} to "크리확률:2"
+    set {강화테이블::경험의 낚싯대::최대} to 4
+    set {강화테이블::경험의 낚싯대::1} to "경험치:20"
+    set {강화테이블::경험의 낚싯대::2} to "경험치:20"
+    set {강화테이블::경험의 낚싯대::3} to "난이도:1"
+    set {강화테이블::경험의 낚싯대::4} to "경험치:30"
+    set {강화테이블::낚시꾼의 낚싯대::최대} to 4
+    set {강화테이블::낚시꾼의 낚싯대::1} to "크리확률:3"
+    set {강화테이블::낚시꾼의 낚싯대::2} to "크리확률:3"
+    set {강화테이블::낚시꾼의 낚싯대::3} to "난이도:1"
+    set {강화테이블::낚시꾼의 낚싯대::4} to "크리배율:1"
+    set {강화테이블::대물 낚싯대::최대} to 4
+    set {강화테이블::대물 낚싯대::1} to "크기:6"
+    set {강화테이블::대물 낚싯대::2} to "크기:6"
+    set {강화테이블::대물 낚싯대::3} to "난이도:1"
+    set {강화테이블::대물 낚싯대::4} to "크기:10"
+    # --- B등급 ---
+    set {강화테이블::강화목 낚싯대::최대} to 5
+    set {강화테이블::강화목 낚싯대::1} to "난이도:1"
+    set {강화테이블::강화목 낚싯대::2} to "크기:5"
+    set {강화테이블::강화목 낚싯대::3} to "등급업:2"
+    set {강화테이블::강화목 낚싯대::4} to "난이도:1"
+    set {강화테이블::강화목 낚싯대::5} to "크리확률:3"
+    set {강화테이블::쌍둥이 낚싯대::최대} to 5
+    set {강화테이블::쌍둥이 낚싯대::1} to "더블찬스:3"
+    set {강화테이블::쌍둥이 낚싯대::2} to "더블찬스:4"
+    set {강화테이블::쌍둥이 낚싯대::3} to "트리플찬스:2"
+    set {강화테이블::쌍둥이 낚싯대::4} to "더블찬스:5"
+    set {강화테이블::쌍둥이 낚싯대::5} to "트리플찬스:3"
+    set {강화테이블::황금 낚싯대::최대} to 5
+    set {강화테이블::황금 낚싯대::1} to "판매보너스:5"
+    set {강화테이블::황금 낚싯대::2} to "판매보너스:6"
+    set {강화테이블::황금 낚싯대::3} to "경험치:10"
+    set {강화테이블::황금 낚싯대::4} to "판매보너스:8"
+    set {강화테이블::황금 낚싯대::5} to "등급업:2"
+    set {강화테이블::견고한 낚싯대::최대} to 5
+    set {강화테이블::견고한 낚싯대::1} to "내구보존:10"
+    set {강화테이블::견고한 낚싯대::2} to "난이도:1"
+    set {강화테이블::견고한 낚싯대::3} to "내구보존:12"
+    set {강화테이블::견고한 낚싯대::4} to "크기:6"
+    set {강화테이블::견고한 낚싯대::5} to "내구보존:15"
+    set {강화테이블::전문가 낚싯대::최대} to 5
+    set {강화테이블::전문가 낚싯대::1} to "크리확률:3"
+    set {강화테이블::전문가 낚싯대::2} to "난이도:1"
+    set {강화테이블::전문가 낚싯대::3} to "크리확률:4"
+    set {강화테이블::전문가 낚싯대::4} to "크리배율:1"
+    set {강화테이블::전문가 낚싯대::5} to "크리확률:5"
+    set {강화테이블::행운꾼의 낚싯대::최대} to 5
+    set {강화테이블::행운꾼의 낚싯대::1} to "등급업:2"
+    set {강화테이블::행운꾼의 낚싯대::2} to "크리확률:2"
+    set {강화테이블::행운꾼의 낚싯대::3} to "등급업:3"
+    set {강화테이블::행운꾼의 낚싯대::4} to "크리확률:3"
+    set {강화테이블::행운꾼의 낚싯대::5} to "등급업:4"
+    # --- A등급 ---
+    set {강화테이블::흑단목 낚싯대::최대} to 6
+    set {강화테이블::흑단목 낚싯대::1} to "난이도:1"
+    set {강화테이블::흑단목 낚싯대::2} to "크기:6"
+    set {강화테이블::흑단목 낚싯대::3} to "등급업:2"
+    set {강화테이블::흑단목 낚싯대::4} to "난이도:1"
+    set {강화테이블::흑단목 낚싯대::5} to "크리확률:4"
+    set {강화테이블::흑단목 낚싯대::6} to "크기:10"
+    set {강화테이블::명인의 낚싯대::최대} to 6
+    set {강화테이블::명인의 낚싯대::1} to "등급업:3"
+    set {강화테이블::명인의 낚싯대::2} to "경험치:15"
+    set {강화테이블::명인의 낚싯대::3} to "등급업:3"
+    set {강화테이블::명인의 낚싯대::4} to "난이도:1"
+    set {강화테이블::명인의 낚싯대::5} to "등급업:4"
+    set {강화테이블::명인의 낚싯대::6} to "크리확률:4"
+    set {강화테이블::대어꾼의 낚싯대::최대} to 6
+    set {강화테이블::대어꾼의 낚싯대::1} to "크기:7"
+    set {강화테이블::대어꾼의 낚싯대::2} to "크기:8"
+    set {강화테이블::대어꾼의 낚싯대::3} to "난이도:1"
+    set {강화테이블::대어꾼의 낚싯대::4} to "크기:10"
+    set {강화테이블::대어꾼의 낚싯대::5} to "크리확률:3"
+    set {강화테이블::대어꾼의 낚싯대::6} to "크기:14"
+    set {강화테이블::상인의 낚싯대::최대} to 6
+    set {강화테이블::상인의 낚싯대::1} to "판매보너스:6"
+    set {강화테이블::상인의 낚싯대::2} to "판매보너스:7"
+    set {강화테이블::상인의 낚싯대::3} to "경험치:12"
+    set {강화테이블::상인의 낚싯대::4} to "판매보너스:9"
+    set {강화테이블::상인의 낚싯대::5} to "등급업:2"
+    set {강화테이블::상인의 낚싯대::6} to "판매보너스:12"
+    set {강화테이블::학자의 낚싯대::최대} to 6
+    set {강화테이블::학자의 낚싯대::1} to "경험치:25"
+    set {강화테이블::학자의 낚싯대::2} to "경험치:28"
+    set {강화테이블::학자의 낚싯대::3} to "난이도:1"
+    set {강화테이블::학자의 낚싯대::4} to "경험치:32"
+    set {강화테이블::학자의 낚싯대::5} to "크리확률:3"
+    set {강화테이블::학자의 낚싯대::6} to "경험치:40"
+    # --- S등급 (엔드컨텐츠) ---
+    set {강화테이블::용왕의 낚싯대::최대} to 8
+    set {강화테이블::용왕의 낚싯대::1} to "등급업:3"
+    set {강화테이블::용왕의 낚싯대::2} to "난이도:1"
+    set {강화테이블::용왕의 낚싯대::3} to "등급업:4"
+    set {강화테이블::용왕의 낚싯대::4} to "크리확률:3"
+    set {강화테이블::용왕의 낚싯대::5} to "등급업:5"
+    set {강화테이블::용왕의 낚싯대::6} to "난이도:1"
+    set {강화테이블::용왕의 낚싯대::7} to "등급업:6"
+    set {강화테이블::용왕의 낚싯대::8} to "크리확률:5"
+    set {강화테이블::심해 낚싯대::최대} to 8
+    set {강화테이블::심해 낚싯대::1} to "크리확률:4"
+    set {강화테이블::심해 낚싯대::2} to "크리배율:1"
+    set {강화테이블::심해 낚싯대::3} to "크리확률:5"
+    set {강화테이블::심해 낚싯대::4} to "난이도:1"
+    set {강화테이블::심해 낚싯대::5} to "크리확률:6"
+    set {강화테이블::심해 낚싯대::6} to "크리배율:1"
+    set {강화테이블::심해 낚싯대::7} to "난이도:1"
+    set {강화테이블::심해 낚싯대::8} to "크리확률:8"
+    set {강화테이블::바르칸 낚싯대::최대} to 8
+    set {강화테이블::바르칸 낚싯대::1} to "더블찬스:4"
+    set {강화테이블::바르칸 낚싯대::2} to "트리플찬스:2"
+    set {강화테이블::바르칸 낚싯대::3} to "더블찬스:5"
+    set {강화테이블::바르칸 낚싯대::4} to "난이도:1"
+    set {강화테이블::바르칸 낚싯대::5} to "트리플찬스:3"
+    set {강화테이블::바르칸 낚싯대::6} to "더블찬스:7"
+    set {강화테이블::바르칸 낚싯대::7} to "크리확률:4"
+    set {강화테이블::바르칸 낚싯대::8} to "트리플찬스:5"
+
+# ===== 축복 헬퍼 =====
+function 축복이름(id: text) :: text:
+    set {_data::*} to split {축복::%{_id}%} at "|"
+    return {_data::1}
+function 축복최대레벨(id: text) :: integer:
+    set {_data::*} to split {축복::%{_id}%} at "|"
+    return {_data::2} parsed as integer
+function 축복가격(id: text, level: integer) :: integer:
+    set {_data::*} to split {축복::%{_id}%} at "|"
+    return ({_data::3} parsed as integer) * {_level}
+function 축복설명(id: text) :: text:
+    set {_data::*} to split {축복::%{_id}%} at "|"
+    return {_data::4}
+
+# ===== 낚싯대 이름 추출 (부품목록에서 매칭) =====
+function 현재낚싯대이름(p: player) :: text:
+    set {_toolName} to name of {_p}'s tool
+    loop {부품목록::낚싯대::*}:
+        if {_toolName} contains loop-value:
+            return loop-value
+    return ""
+
+# ===== 아이템별 고유 ID 관리 (로어에 숨긴 RID 태그) =====
+# 새 낚싯대: 로어 마지막에 §0RID:NNNN 추가 (검정 텍스트 = 사실상 안보임)
+# 기존 낚싯대: 이미 있으면 그 값 반환
+function 낚싯대아이디(p: player) :: text:
+    set {_rn} to 현재낚싯대이름({_p})
+    if {_rn} is "":
+        return ""
+    loop lore of {_p}'s tool:
+        if loop-value contains "RID:":
+            set {_sp::*} to split loop-value at "RID:"
+            return {_sp::2}
+    # 새 ID 생성 (랜덤 10자리)
+    set {_id} to "%random integer between 1000000000 and 9999999999%"
+    set {_lore::*} to lore of {_p}'s tool
+    add "&0RID:%{_id}%" to {_lore::*}
+    set lore of {_p}'s tool to {_lore::*}
+    return {_id}
+
+# ===== 강화 후 아이템 이름·로어 업데이트 =====
+function 강화아이템업데이트(p: player, rodName: text, lv: integer):
+    # 현재 RID 먼저 저장
+    set {_rid} to ""
+    loop lore of {_p}'s tool:
+        if loop-value contains "RID:":
+            set {_sp::*} to split loop-value at "RID:"
+            set {_rid} to {_sp::2}
+    # 아이템 이름 업데이트
+    if {_lv} > 0:
+        set name of {_p}'s tool to "&f%{_rodName}% &b+%{_lv}%"
+    else:
+        set name of {_p}'s tool to "&f%{_rodName}%"
+    # 기본 로어 수집 (▐ 강화 / RID 섹션 이전)
+    delete {_base::*}
+    set {_cut} to false
+    loop lore of {_p}'s tool:
+        if loop-value contains "RID:":
+            set {_cut} to true
+        if loop-value contains "▐ 강화":
+            set {_cut} to true
+        if {_cut} is false:
+            add loop-value to {_base::*}
+    # 강화 스탯 섹션 (중첩변수 금지 → 로컬변수로 먼저 추출)
+    delete {_enh::*}
+    if {_lv} > 0:
+        set {_ev난이도} to {낚싯대강화난이도::%{_p}%}
+        set {_ev크기} to {낚싯대강화크기::%{_p}%}
+        set {_ev등급업} to {낚싯대강화등급업::%{_p}%}
+        set {_ev크리확률} to {낚싯대강화크리확률::%{_p}%}
+        set {_ev크리배율} to {낚싯대강화크리배율::%{_p}%}
+        set {_ev경험치} to {낚싯대강화경험치::%{_p}%}
+        set {_ev더블} to {낚싯대강화더블::%{_p}%}
+        set {_ev트리플} to {낚싯대강화트리플::%{_p}%}
+        set {_ev판매} to {낚싯대강화판매::%{_p}%}
+        set {_ev내구} to {낚싯대강화내구::%{_p}%}
+        add "" to {_enh::*}
+        add "&8▐ &b강화 &b+%{_lv}%" to {_enh::*}
+        if {_ev난이도} > 0:
+            add "&8  &7낚시 난이도 &c-%{_ev난이도}%" to {_enh::*}
+        if {_ev크기} > 0:
+            add "&8  &7크기 보너스 &a+%{_ev크기}%%%" to {_enh::*}
+        if {_ev등급업} > 0:
+            add "&8  &7등급 업 확률 &a+%{_ev등급업}%%%" to {_enh::*}
+        if {_ev크리확률} > 0:
+            add "&8  &7크리티컬 확률 &a+%{_ev크리확률}%%%" to {_enh::*}
+        if {_ev크리배율} > 0:
+            add "&8  &7크리티컬 배율 &a+%{_ev크리배율}%" to {_enh::*}
+        if {_ev경험치} > 0:
+            add "&8  &7경험치 보너스 &a+%{_ev경험치}%%%" to {_enh::*}
+        if {_ev더블} > 0:
+            add "&8  &7더블 낚시 &a+%{_ev더블}%%%" to {_enh::*}
+        if {_ev트리플} > 0:
+            add "&8  &7트리플 낚시 &a+%{_ev트리플}%%%" to {_enh::*}
+        if {_ev판매} > 0:
+            add "&8  &7판매가 보너스 &a+%{_ev판매}%%%" to {_enh::*}
+        if {_ev내구} > 0:
+            add "&8  &7내구도 보존 &a+%{_ev내구}%%%" to {_enh::*}
+    # 최종 로어 = 기본 + 강화섹션 + RID
+    delete {_final::*}
+    loop {_base::*}:
+        add loop-value to {_final::*}
+    loop {_enh::*}:
+        add loop-value to {_final::*}
+    if {_rid} is not "":
+        add "&0RID:%{_rid}%" to {_final::*}
+    set lore of {_p}'s tool to {_final::*}
+
+# ===== 축복 효과 캐시 적용 (계정 귀속) =====
+function 축복효과적용(p: player):
+    set {_보존lv} to {플레이어축복::보존::%{_p}%}
+    if {_보존lv} is not set:
+        set {_보존lv} to 0
+    set {낚싯대인챈트내구보존::%{_p}%} to {_보존lv} * 8
+    set {_축복lv} to {플레이어축복::축복::%{_p}%}
+    if {_축복lv} is not set:
+        set {_축복lv} to 0
+    set {낚싯대인챈트경험치::%{_p}%} to {_축복lv} * 40
+    set {_집중lv} to {플레이어축복::집중::%{_p}%}
+    if {_집중lv} is not set:
+        set {_집중lv} to 0
+    set {낚싯대인챈트타임아웃::%{_p}%} to {_집중lv} * 20
+    set {_행운lv} to {플레이어축복::행운낚시::%{_p}%}
+    if {_행운lv} is not set:
+        set {_행운lv} to 0
+    set {낚싯대인챈트행운::%{_p}%} to {_행운lv} * 5
+
+# ===== 강화 스탯 캐시 적용 (낚싯대별, 테이블 기반) =====
+function 강화스탯적용(p: player):
+    # 전체 초기화
+    set {낚싯대강화난이도::%{_p}%} to 0
+    set {낚싯대강화크기::%{_p}%} to 0
+    set {낚싯대강화등급업::%{_p}%} to 0
+    set {낚싯대강화크리확률::%{_p}%} to 0
+    set {낚싯대강화크리배율::%{_p}%} to 0
+    set {낚싯대강화경험치::%{_p}%} to 0
+    set {낚싯대강화더블::%{_p}%} to 0
+    set {낚싯대강화트리플::%{_p}%} to 0
+    set {낚싯대강화판매::%{_p}%} to 0
+    set {낚싯대강화내구::%{_p}%} to 0
+    set {_rod} to 현재낚싯대이름({_p})
+    if {_rod} is "":
+        stop
+    set {_rodId} to 낚싯대아이디({_p})
+    if {_rodId} is "":
+        stop
+    set {_lv} to {낚싯대강화::%{_rodId}%}
+    if {_lv} is not set:
+        stop
+    if {_lv} <= 0:
+        stop
+    # 레벨 1~현재까지 누적 합산
+    loop {_lv} times:
+        set {_step} to loop-number
+        set {_data} to {강화테이블::%{_rod}%::%{_step}%}
+        if {_data} is set:
+            set {_pairs::*} to split {_data} at ","
+            loop {_pairs::*}:
+                set {_kv::*} to split loop-value-2 at ":"
+                set {_sk} to {_kv::1}
+                set {_sv} to {_kv::2} parsed as number
+                if {_sk} is "난이도":
+                    add {_sv} to {낚싯대강화난이도::%{_p}%}
+                else if {_sk} is "크기":
+                    add {_sv} to {낚싯대강화크기::%{_p}%}
+                else if {_sk} is "등급업":
+                    add {_sv} to {낚싯대강화등급업::%{_p}%}
+                else if {_sk} is "크리확률":
+                    add {_sv} to {낚싯대강화크리확률::%{_p}%}
+                else if {_sk} is "크리배율":
+                    add {_sv} to {낚싯대강화크리배율::%{_p}%}
+                else if {_sk} is "경험치":
+                    add {_sv} to {낚싯대강화경험치::%{_p}%}
+                else if {_sk} is "더블찬스":
+                    add {_sv} to {낚싯대강화더블::%{_p}%}
+                else if {_sk} is "트리플찬스":
+                    add {_sv} to {낚싯대강화트리플::%{_p}%}
+                else if {_sk} is "판매보너스":
+                    add {_sv} to {낚싯대강화판매::%{_p}%}
+                else if {_sk} is "내구보존":
+                    add {_sv} to {낚싯대강화내구::%{_p}%}
+
+# ===== 기존 데이터 마이그레이션 (1회성) =====
+# 기존 {플레이어인챈트::ID::%player%} → {플레이어축복::ID::%player%}
+# 기존 {낚싯대강화::%player%} → 현재 들고있는 낚싯대에 적용
+function 데이터마이그레이션(p: player):
+    if {마이그레이션완료::%{_p}%} is true:
+        stop
+    # 인챈트 → 축복 마이그레이션
+    loop {축복목록::*}:
+        set {_old} to {플레이어인챈트::%loop-value%::%{_p}%}
+        if {_old} is set:
+            set {플레이어축복::%loop-value%::%{_p}%} to {_old}
+    # 강화 마이그레이션 (현재 들고있는 낚싯대에 적용)
+    set {_oldLv} to {낚싯대강화::%{_p}%}
+    if {_oldLv} is set:
+        if {_oldLv} > 0:
+            set {_rod} to 현재낚싯대이름({_p})
+            if {_rod} is not "":
+                set {낚싯대강화::%{_rod}%::%{_p}%} to {_oldLv}
+    set {마이그레이션완료::%{_p}%} to true
+
+# ===== /축복 GUI (계정 귀속) =====
+command /축복:
+    aliases: /cnrqhr
+    trigger:
+        데이터마이그레이션(player)
+        축복효과적용(player)
+        open chest inventory with 2 rows named "&0축복 (계정 귀속)" to player
+        loop 9 times:
+            set slot (loop-iteration - 1) of player's current inventory to black stained glass pane named "&f"
+        set slot 4 of player's current inventory to nether star named "&d&l축복" with lore "&7모든 낚싯대에 적용되는 영구 축복" and "&7소지금: &e%{돈::%player%}%원"
+        set {_slot} to 9
+        loop {축복목록::*}:
+            set {_id} to loop-value
+            set {_name} to 축복이름({_id})
+            set {_maxLv} to 축복최대레벨({_id})
+            set {_curLv} to {플레이어축복::%{_id}%::%player%}
+            if {_curLv} is not set:
+                set {_curLv} to 0
+            set {_desc} to 축복설명({_id})
+            if {_curLv} >= {_maxLv}:
+                set {_icon} to enchanted book named "&a%{_name}% &eLv.%{_curLv}% &a(MAX)" with lore "&7%{_desc}%" and "" and "&a최대 레벨"
+            else:
+                set {_nextLv} to {_curLv} + 1
+                set {_cost} to 축복가격({_id}, {_nextLv})
+                set {_icon} to book named "&e%{_name}% &7Lv.%{_curLv}%" with lore "&7%{_desc}%" and "" and "&7현재: &eLv.%{_curLv}%&7/%{_maxLv}%" and "&7비용: &e%{_cost}%원" and "&a클릭하여 축복"
+            set slot {_slot} of player's current inventory to {_icon}
+            add 1 to {_slot}
+
+# ===== /강화 GUI (낚싯대별) =====
+command /강화:
+    aliases: /rkdghk
+    trigger:
+        데이터마이그레이션(player)
+        set {_rod} to 현재낚싯대이름(player)
+        if {_rod} is "":
+            message "&c낚싯대를 손에 들어야 합니다!" to player
+            stop
+        강화스탯적용(player)
+        set {_rodId} to 낚싯대아이디(player)
+        set {_lv} to {낚싯대강화::%{_rodId}%}
+        if {_lv} is not set:
+            set {_lv} to 0
+        open chest inventory with 2 rows named "&0강화: %{_rod}%" to player
+        loop 9 times:
+            set slot (loop-iteration - 1) of player's current inventory to black stained glass pane named "&f"
+        set slot 4 of player's current inventory to anvil named "&b&l%{_rod}% 강화" with lore "&7이 낚싯대의 기본 스탯을 강화합니다." and "&7소지금: &e%{돈::%player%}%원"
+        set {_maxLv} to {강화테이블::%{_rod}%::최대}
+        if {_maxLv} is not set:
+            set {_maxLv} to 3
+        # 현재 누적 강화 효과 표시용 lore 빌드
+        # 중첩변수 파싱 오류 방지 → 로컬변수 추출
+        set {_cv난이도} to {낚싯대강화난이도::%player%}
+        set {_cv크기} to {낚싯대강화크기::%player%}
+        set {_cv등급업} to {낚싯대강화등급업::%player%}
+        set {_cv크리확률} to {낚싯대강화크리확률::%player%}
+        set {_cv크리배율} to {낚싯대강화크리배율::%player%}
+        set {_cv경험치} to {낚싯대강화경험치::%player%}
+        set {_cv더블} to {낚싯대강화더블::%player%}
+        set {_cv트리플} to {낚싯대강화트리플::%player%}
+        set {_cv판매} to {낚싯대강화판매::%player%}
+        set {_cv내구} to {낚싯대강화내구::%player%}
+        delete {_curLore::*}
+        if {_cv난이도} > 0:
+            add "&7낚시 난이도: &f-%{_cv난이도}%" to {_curLore::*}
+        if {_cv크기} > 0:
+            add "&7크기 보너스: &f+%{_cv크기}%%%" to {_curLore::*}
+        if {_cv등급업} > 0:
+            add "&7등급 업 확률: &f+%{_cv등급업}%%%" to {_curLore::*}
+        if {_cv크리확률} > 0:
+            add "&7크리티컬 확률: &f+%{_cv크리확률}%%%" to {_curLore::*}
+        if {_cv크리배율} > 0:
+            add "&7크리티컬 배율: &f+%{_cv크리배율}%" to {_curLore::*}
+        if {_cv경험치} > 0:
+            add "&7경험치 보너스: &f+%{_cv경험치}%%%" to {_curLore::*}
+        if {_cv더블} > 0:
+            add "&7더블 낚시: &f+%{_cv더블}%%%" to {_curLore::*}
+        if {_cv트리플} > 0:
+            add "&7트리플 낚시: &f+%{_cv트리플}%%%" to {_curLore::*}
+        if {_cv판매} > 0:
+            add "&7판매가 보너스: &f+%{_cv판매}%%%" to {_curLore::*}
+        if {_cv내구} > 0:
+            add "&7내구도 보존: &f+%{_cv내구}%%%" to {_curLore::*}
+        if {_lv} >= {_maxLv}:
+            delete {_lore::*}
+            add "&7현재: &b+%{_lv}%&7/%{_maxLv}% &a(MAX)" to {_lore::*}
+            if size of {_curLore::*} > 0:
+                add "" to {_lore::*}
+                add "&b현재 강화 효과:" to {_lore::*}
+                loop {_curLore::*}:
+                    add loop-value to {_lore::*}
+            add "" to {_lore::*}
+            add "&a이미 최대 강화입니다" to {_lore::*}
+            set slot 13 of player's current inventory to anvil named "&b&l+%{_lv}% 강화 &a(MAX)" with lore {_lore::*}
+        else:
+            set {_nextLv} to {_lv} + 1
+            set {_성공} to {강화확률::%{_nextLv}%}
+            set {_하락} to {강화하락::%{_nextLv}%}
+            if {_성공} is not set:
+                set {_성공} to 10
+            if {_하락} is not set:
+                set {_하락} to 30
+            set {_실패} to 100 - {_성공} - {_하락}
+            set {_하락색} to "&7"
+            if {_하락} > 0:
+                set {_하락색} to "&c"
+            # 다음 레벨 획득 스탯 파싱
+            delete {_gainLore::*}
+            set {_nextData} to {강화테이블::%{_rod}%::%{_nextLv}%}
+            if {_nextData} is set:
+                set {_np::*} to split {_nextData} at ","
+                loop {_np::*}:
+                    set {_nkv::*} to split loop-value at ":"
+                    set {_nk} to {_nkv::1}
+                    set {_nv} to {_nkv::2} parsed as number
+                    if {_nk} is "난이도":
+                        add "&7낚시 난이도: &f-%{_nv}%" to {_gainLore::*}
+                    else if {_nk} is "크기":
+                        add "&7크기 보너스: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "등급업":
+                        add "&7등급 업 확률: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "크리확률":
+                        add "&7크리티컬 확률: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "크리배율":
+                        add "&7크리티컬 배율: &f+%{_nv}%" to {_gainLore::*}
+                    else if {_nk} is "경험치":
+                        add "&7경험치 보너스: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "더블찬스":
+                        add "&7더블 낚시: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "트리플찬스":
+                        add "&7트리플 낚시: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "판매보너스":
+                        add "&7판매가 보너스: &f+%{_nv}%%%" to {_gainLore::*}
+                    else if {_nk} is "내구보존":
+                        add "&7내구도 보존: &f+%{_nv}%%%" to {_gainLore::*}
+            delete {_lore::*}
+            add "&7현재: &b+%{_lv}%&7/%{_maxLv}%" to {_lore::*}
+            if size of {_curLore::*} > 0:
+                add "" to {_lore::*}
+                add "&b현재 강화 효과:" to {_lore::*}
+                loop {_curLore::*}:
+                    add loop-value to {_lore::*}
+            add "" to {_lore::*}
+            add "&e+%{_nextLv}% 강화 시 획득:" to {_lore::*}
+            loop {_gainLore::*}:
+                add loop-value to {_lore::*}
+            add "" to {_lore::*}
+            add "&7비용: &e%{강화비용::%{_nextLv}%}%원" to {_lore::*}
+            add "&a성공: %{_성공}%%%" to {_lore::*}
+            add "&7실패: %{_실패}%%%" to {_lore::*}
+            add "%{_하락색}%하락: %{_하락}%%%" to {_lore::*}
+            add "&a클릭하여 강화" to {_lore::*}
+            set slot 13 of player's current inventory to anvil named "&b&l+%{_lv}% → +%{_nextLv}% 강화" with lore {_lore::*}
+
+# ===== 축복 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0축복 (계정 귀속)":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} >= 9:
+            if {_ci} <= 14:
+                set {_idx} to {_ci} - 8
+                set {_id} to {축복목록::%{_idx}%}
+                if {_id} is set:
+                    set {_curLv} to {플레이어축복::%{_id}%::%player%}
+                    if {_curLv} is not set:
+                        set {_curLv} to 0
+                    set {_maxLv} to 축복최대레벨({_id})
+                    if {_curLv} >= {_maxLv}:
+                        message "&c이미 최대 레벨입니다!" to player
+                        stop
+                    set {_nextLv} to {_curLv} + 1
+                    set {_cost} to 축복가격({_id}, {_nextLv})
+                    if {돈::%player%} < {_cost}:
+                        message "&c돈이 부족합니다! &7(필요: %{_cost}%원, 소지: %{돈::%player%}%원)" to player
+                        stop
+                    subtract {_cost} from {돈::%player%}
+                    set {플레이어축복::%{_id}%::%player%} to {_nextLv}
+                    축복효과적용(player)
+                    set {_name} to 축복이름({_id})
+                    message "&8[&d 축복 &8] &a%{_name}%&a Lv.%{_nextLv}% 축복 완료! &7(-%{_cost}%원)" to player
+                    play sound "block.enchantment_table.use" with volume 1 with pitch 1.2 to player
+                    wait 1 tick
+                    make player execute command "/축복"
+
+# ===== 강화 GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name contains "&0강화:":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 13:
+            set {_rod} to 현재낚싯대이름(player)
+            if {_rod} is "":
+                message "&c낚싯대를 손에 들어야 합니다!" to player
+                stop
+            set {_rodId} to 낚싯대아이디(player)
+            if {_rodId} is "":
+                message "&c낚싯대를 손에 들어야 합니다!" to player
+                stop
+            set {_lv} to {낚싯대강화::%{_rodId}%}
+            if {_lv} is not set:
+                set {_lv} to 0
+            set {_maxLv} to {강화테이블::%{_rod}%::최대}
+            if {_maxLv} is not set:
+                set {_maxLv} to 3
+            if {_lv} >= {_maxLv}:
+                message "&c이미 최대 강화입니다!" to player
+                stop
+            set {_nextLv} to {_lv} + 1
+            set {_cost} to {강화비용::%{_nextLv}%}
+            if {돈::%player%} < {_cost}:
+                message "&c돈이 부족합니다! &7(필요: %{_cost}%원, 소지: %{돈::%player%}%원)" to player
+                stop
+            subtract {_cost} from {돈::%player%}
+            set {_성공률} to {강화확률::%{_nextLv}%}
+            set {_하락률} to {강화하락::%{_nextLv}%}
+            set {_roll} to random integer between 1 and 100
+            if {_roll} <= {_성공률}:
+                set {낚싯대강화::%{_rodId}%} to {_nextLv}
+                강화스탯적용(player)
+                강화아이템업데이트(player, {_rod}, {_nextLv})
+                message "&8[&b 강화 &8] &a&l성공! &b%{_rod}% +%{_nextLv}% &7(-%{_cost}%원)" to player
+                play sound "block.anvil.use" with volume 1 with pitch 1.5 to player
+                wait 1 tick
+                make player execute command "/강화"
+                stop
+            set {_하락임계} to {_성공률} + {_하락률}
+            if {_roll} <= {_하락임계}:
+                if {_lv} > 0:
+                    set {_newLv} to {_lv} - 1
+                    set {낚싯대강화::%{_rodId}%} to {_newLv}
+                    강화스탯적용(player)
+                    강화아이템업데이트(player, {_rod}, {_newLv})
+                    message "&8[&b 강화 &8] &c&l하락! &7%{_rod}% &b+%{_lv}% &7→ &c+%{_newLv}% &7(-%{_cost}%원)" to player
+                else:
+                    message "&8[&b 강화 &8] &c&l하락! &7(이미 +0, 유지) &7(-%{_cost}%원)" to player
+                play sound "block.anvil.land" with volume 1 with pitch 0.3 to player
+                wait 1 tick
+                make player execute command "/강화"
+                stop
+            message "&8[&b 강화 &8] &e실패. &7레벨 유지 &b+%{_lv}% &7(-%{_cost}%원)" to player
+            play sound "block.anvil.land" with volume 1 with pitch 0.7 to player
+            wait 1 tick
+            make player execute command "/강화"
+
+# ===== 접속 시 효과 적용 + 마이그레이션 =====
+on join:
+    데이터마이그레이션(player)
+    축복효과적용(player)
+    강화스탯적용(player)

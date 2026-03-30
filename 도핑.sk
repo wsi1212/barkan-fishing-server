@@ -1,0 +1,197 @@
+# =========================================
+# 도핑.sk
+# 음식/포션으로 일시적 낚시 버프 시스템
+# 1종만 활성 (중첩 불가), 새 도핑 사용 시 기존 덮어쓰기
+# =========================================
+
+# ===== 도핑 데이터 초기화 =====
+# 형식: "표시명|지속초|경험치|크기|등급업|도망감소|크리확률|더블찬스|판매보너스"
+on load:
+    delete {도핑목록::*}
+    set {도핑데이터::어부의빵} to "어부의 빵|600|10|0|0|0|0|0|0"
+    set {도핑데이터::해산물스튜} to "해산물 스튜|600|5|5|0|0|0|0|0"
+    set {도핑데이터::행운물약} to "행운의 물약|300|0|0|5|0|0|0|0"
+    set {도핑데이터::집중물약} to "집중의 물약|300|0|0|0|5|3|0|0"
+    set {도핑데이터::황금미역국} to "황금 미역국|600|0|0|0|0|0|3|0"
+    set {도핑데이터::전설의만찬} to "전설의 만찬|900|10|0|5|0|3|0|0"
+    add "어부의빵" to {도핑목록::*}
+    add "해산물스튜" to {도핑목록::*}
+    add "행운물약" to {도핑목록::*}
+    add "집중물약" to {도핑목록::*}
+    add "황금미역국" to {도핑목록::*}
+    add "전설의만찬" to {도핑목록::*}
+
+# ===== 도핑 헬퍼 =====
+function 도핑이름(id: text) :: text:
+    set {_d::*} to split {도핑데이터::%{_id}%} at "|"
+    return {_d::1}
+function 도핑지속(id: text) :: integer:
+    set {_d::*} to split {도핑데이터::%{_id}%} at "|"
+    return {_d::2} parsed as integer
+
+# ===== 도핑 적용 =====
+function 도핑적용(p: player, id: text):
+    set {_d::*} to split {도핑데이터::%{_id}%} at "|"
+    set {_name} to {_d::1}
+    set {_duration} to {_d::2} parsed as integer
+    # 기존 도핑 덮어쓰기
+    set {도핑::%{_p}%::타입} to {_id}
+    set {도핑::%{_p}%::만료} to unix timestamp of now + {_duration}
+    # 스탯 캐시 (낚시.sk에서 참조)
+    set {도핑::%{_p}%::경험치} to {_d::3} parsed as number
+    set {도핑::%{_p}%::크기} to {_d::4} parsed as number
+    set {도핑::%{_p}%::등급업} to {_d::5} parsed as number
+    set {도핑::%{_p}%::도망감소} to {_d::6} parsed as number
+    set {도핑::%{_p}%::크리확률} to {_d::7} parsed as number
+    set {도핑::%{_p}%::더블찬스} to {_d::8} parsed as number
+    set {도핑::%{_p}%::판매보너스} to {_d::9} parsed as number
+    set {_min} to floor({_duration} / 60)
+    set {_sec} to mod({_duration}, 60)
+    message "&8[&a 도핑 &8] &e%{_name}%&a 사용! &7(%{_min}%분 %{_sec}%초)" to {_p}
+    play sound "entity.player.burp" with volume 1 with pitch 1.2 to {_p}
+
+# ===== 도핑 만료 체크 (낚시 시 호출) =====
+function 도핑체크(p: player):
+    if {도핑::%{_p}%::타입} is not set:
+        stop
+    set {_now} to unix timestamp of now
+    if {_now} >= {도핑::%{_p}%::만료}:
+        set {_name} to 도핑이름({도핑::%{_p}%::타입})
+        message "&8[&a 도핑 &8] &c%{_name}%&c 효과가 만료되었습니다." to {_p}
+        도핑제거({_p})
+
+function 도핑제거(p: player):
+    delete {도핑::%{_p}%::타입}
+    delete {도핑::%{_p}%::만료}
+    delete {도핑::%{_p}%::경험치}
+    delete {도핑::%{_p}%::크기}
+    delete {도핑::%{_p}%::등급업}
+    delete {도핑::%{_p}%::도망감소}
+    delete {도핑::%{_p}%::크리확률}
+    delete {도핑::%{_p}%::더블찬스}
+    delete {도핑::%{_p}%::판매보너스}
+
+# ===== 도핑 보너스 조회 (낚시.sk에서 호출) =====
+function 도핑경험치(p: player) :: number:
+    if {도핑::%{_p}%::경험치} is set:
+        return {도핑::%{_p}%::경험치}
+    return 0
+function 도핑크기(p: player) :: number:
+    if {도핑::%{_p}%::크기} is set:
+        return {도핑::%{_p}%::크기}
+    return 0
+function 도핑등급업(p: player) :: number:
+    if {도핑::%{_p}%::등급업} is set:
+        return {도핑::%{_p}%::등급업}
+    return 0
+function 도핑도망감소(p: player) :: number:
+    if {도핑::%{_p}%::도망감소} is set:
+        return {도핑::%{_p}%::도망감소}
+    return 0
+function 도핑크리확률(p: player) :: number:
+    if {도핑::%{_p}%::크리확률} is set:
+        return {도핑::%{_p}%::크리확률}
+    return 0
+function 도핑더블찬스(p: player) :: number:
+    if {도핑::%{_p}%::더블찬스} is set:
+        return {도핑::%{_p}%::더블찬스}
+    return 0
+function 도핑판매보너스(p: player) :: number:
+    if {도핑::%{_p}%::판매보너스} is set:
+        return {도핑::%{_p}%::판매보너스}
+    return 0
+
+# ===== /도핑상점 GUI =====
+command /도핑상점:
+    aliases: /ehdlddtkdwja
+    trigger:
+        open chest inventory with 2 rows named "&0도핑 상점" to player
+        loop 9 times:
+            set slot (loop-iteration - 1) of player's current inventory to black stained glass pane named "&f"
+        # 현재 활성 도핑 표시
+        if {도핑::%player%::타입} is set:
+            set {_remain} to {도핑::%player%::만료} - unix timestamp of now
+            if {_remain} < 0:
+                set {_remain} to 0
+            set {_min} to floor({_remain} / 60)
+            set {_name} to 도핑이름({도핑::%player%::타입})
+            set slot 4 of player's current inventory to potion named "&a&l활성 도핑: %{_name}%" with lore "&7남은 시간: &e%{_min}%분" and "&7새 도핑 사용 시 덮어쓰기"
+        else:
+            set slot 4 of player's current inventory to glass bottle named "&7활성 도핑 없음" with lore "&7아래에서 도핑을 구매하세요."
+        # 도핑 목록
+        set {_slot} to 9
+        set {_prices::1} to 500
+        set {_prices::2} to 1000
+        set {_prices::3} to 3000
+        set {_prices::4} to 2500
+        set {_prices::5} to 5000
+        set {_prices::6} to 0
+        loop {도핑목록::*}:
+            set {_id} to loop-value
+            set {_d::*} to split {도핑데이터::%{_id}%} at "|"
+            set {_name} to {_d::1}
+            set {_dur} to {_d::2} parsed as integer
+            set {_min} to floor({_dur} / 60)
+            set {_price} to {_prices::%loop-iteration%}
+            # 스탯 설명 빌드
+            delete {_lore::*}
+            add "&7지속시간: &e%{_min}%분" to {_lore::*}
+            if ({_d::3} parsed as number) > 0:
+                add "&7경험치 +%{_d::3}%%%" to {_lore::*}
+            if ({_d::4} parsed as number) > 0:
+                add "&7크기 +%{_d::4}%%%" to {_lore::*}
+            if ({_d::5} parsed as number) > 0:
+                add "&7등급업 +%{_d::5}%%%" to {_lore::*}
+            if ({_d::6} parsed as number) > 0:
+                add "&7도망감소 +%{_d::6}%" to {_lore::*}
+            if ({_d::7} parsed as number) > 0:
+                add "&7크리티컬 확률 +%{_d::7}%%%" to {_lore::*}
+            if ({_d::8} parsed as number) > 0:
+                add "&7더블 낚시 +%{_d::8}%%%" to {_lore::*}
+            if ({_d::9} parsed as number) > 0:
+                add "&7판매가 보너스 +%{_d::9}%%%" to {_lore::*}
+            add "" to {_lore::*}
+            if {_price} > 0:
+                add "&e가격: %{_price}%원" to {_lore::*}
+                add "&a클릭하여 구매" to {_lore::*}
+            else:
+                add "&d퀘스트/이벤트 전용" to {_lore::*}
+            set slot {_slot} of player's current inventory to cookie named "&e%{_name}%" with lore {_lore::*}
+            set {도핑상점슬롯::%player%::%{_slot}%} to {_id}
+            set {도핑상점가격::%player%::%{_slot}%} to {_price}
+            add 1 to {_slot}
+
+# ===== 도핑 상점 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0도핑 상점":
+        cancel event
+        set {_ci} to index of clicked slot
+        set {_id} to {도핑상점슬롯::%player%::%{_ci}%}
+        if {_id} is set:
+            set {_price} to {도핑상점가격::%player%::%{_ci}%}
+            if {_price} is 0:
+                message "&c이 도핑은 상점에서 구매할 수 없습니다." to player
+                stop
+            if {돈::%player%} < {_price}:
+                message "&c돈이 부족합니다! &7(필요: %{_price}%원)" to player
+                stop
+            subtract {_price} from {돈::%player%}
+            도핑적용(player, {_id})
+            close player's inventory
+
+# ===== 도핑 상태 확인 명령어 =====
+command /도핑:
+    aliases: /ehdldd
+    trigger:
+        if {도핑::%player%::타입} is not set:
+            message "&8[&a 도핑 &8] &7활성 도핑이 없습니다. /도핑상점 에서 구매하세요."
+            stop
+        set {_name} to 도핑이름({도핑::%player%::타입})
+        set {_remain} to {도핑::%player%::만료} - unix timestamp of now
+        if {_remain} < 0:
+            도핑제거(player)
+            message "&8[&a 도핑 &8] &c도핑 효과가 만료되었습니다."
+            stop
+        set {_min} to floor({_remain} / 60)
+        set {_sec} to mod({_remain}, 60)
+        message "&8[&a 도핑 &8] &e%{_name}% &7남은 시간: &e%{_min}%분 %{_sec}%초"

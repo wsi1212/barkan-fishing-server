@@ -1,0 +1,316 @@
+# =========================================
+# 조합대.sk
+# 낚싯대 조합대 시스템
+# /조합대 — 조합대 GUI 열기
+# =========================================
+
+options:
+    prefix: &8[&6 조합대 &8]
+    good: &a
+    bad: &c
+    hint: &7
+    emph: &e
+    info: &f
+    gui_name: &6낚싯대 조합대
+
+# ===== 조합법 초기화 =====
+on load:
+    delete {조합법::*}
+    delete {조합법카운터}
+    set {조합법카운터} to 0
+
+    # --- 조합법 1: 낡은 낚싯대 ---
+    add 1 to {조합법카운터}
+    set {_id1} to "CRAFT%{조합법카운터}%"
+    add {_id1} to {조합법::*}
+    set {조합법::%{_id1}%::이름} to "낡은 낚싯대"
+    set {조합법::%{_id1}%::설명} to "녹슨 부품으로 만든 허름한 낚싯대. 기본 성능."
+    set {조합법::%{_id1}%::재료수} to 2
+    set {조합법::%{_id1}%::재료::1::ID} to "낡은갈고리"
+    set {조합법::%{_id1}%::재료::1::수량} to 3
+    set {조합법::%{_id1}%::재료::2::ID} to "물고기비늘"
+    set {조합법::%{_id1}%::재료::2::수량} to 5
+    # 결과 낚싯대 아이템 생성
+    set {_rod1} to fishing_rod named "&7낡은 낚싯대"
+    set lore of {_rod1} to "&7등급 &e: &f조합" and "&7낡고 오래된 낚싯대." and "" and "&a경험치 보너스: &f+5%%" and "&a판매 보너스: &f+0%%" and "" and "&8[낚싯대]" and "&8craft:낡은낚싯대"
+    set {조합법::%{_id1}%::결과} to {_rod1}
+
+    # --- 조합법 2: 심해 낚싯대 ---
+    add 1 to {조합법카운터}
+    set {_id2} to "CRAFT%{조합법카운터}%"
+    add {_id2} to {조합법::*}
+    set {조합법::%{_id2}%::이름} to "심해 낚싯대"
+    set {조합법::%{_id2}%::설명} to "심해 수정으로 만든 특수 낚싯대. 심해 물고기 확률 증가."
+    set {조합법::%{_id2}%::재료수} to 3
+    set {조합법::%{_id2}%::재료::1::ID} to "심해수정"
+    set {조합법::%{_id2}%::재료::1::수량} to 3
+    set {조합법::%{_id2}%::재료::2::ID} to "강화실"
+    set {조합법::%{_id2}%::재료::2::수량} to 5
+    set {조합법::%{_id2}%::재료::3::ID} to "고대비늘"
+    set {조합법::%{_id2}%::재료::3::수량} to 2
+    set {_rod2} to fishing_rod named "&9심해 낚싯대"
+    set lore of {_rod2} to "&7등급 &e: &f조합" and "&9심해에서 빛나는 특수 낚싯대." and "" and "&a경험치 보너스: &f+25%%" and "&a판매 보너스: &f+15%%" and "&a심해 등급업률: &f+10%%" and "" and "&8[낚싯대]" and "&8craft:심해낚싯대"
+    set {조합법::%{_id2}%::결과} to {_rod2}
+
+    # --- 조합법 3: 용암 낚싯대 ---
+    add 1 to {조합법카운터}
+    set {_id3} to "CRAFT%{조합법카운터}%"
+    add {_id3} to {조합법::*}
+    set {조합법::%{_id3}%::이름} to "용암 낚싯대"
+    set {조합법::%{_id3}%::설명} to "용암 지대의 재료로 만든 강력한 낚싯대."
+    set {조합법::%{_id3}%::재료수} to 3
+    set {조합법::%{_id3}%::재료::1::ID} to "용암수지"
+    set {조합법::%{_id3}%::재료::1::수량} to 5
+    set {조합법::%{_id3}%::재료::2::ID} to "녹슨부품"
+    set {조합법::%{_id3}%::재료::2::수량} to 3
+    set {조합법::%{_id3}%::재료::3::ID} to "바르칸조각"
+    set {조합법::%{_id3}%::재료::3::수량} to 2
+    set {_rod3} to fishing_rod named "&c용암 낚싯대"
+    set lore of {_rod3} to "&7등급 &e: &f조합" and "&c불꽃처럼 달아오른 낚싯대." and "" and "&a경험치 보너스: &f+40%%" and "&a판매 보너스: &f+30%%" and "&a크리티컬 배율 캡: &f+1" and "&a용암 등급업률: &f+15%%" and "" and "&8[낚싯대]" and "&8craft:용암낚싯대"
+    set {조합법::%{_id3}%::결과} to {_rod3}
+
+# ===== 재료 보유 수량 계산 =====
+function 재료보유수(p: player, matId: text) :: number:
+    set {_count} to 0
+    loop items in {_p}'s inventory:
+        if loop-item is not air:
+            loop lore of loop-item:
+                if loop-value contains "mat:%{_matId}%":
+                    add amount of loop-item to {_count}
+    return {_count}
+
+# ===== 조합 가능 여부 체크 =====
+function 조합가능여부(p: player, craftId: text) :: boolean:
+    set {_matCnt} to {조합법::%{_craftId}%::재료수}
+    if {_matCnt} is not set:
+        return false
+    loop integers from 1 to {_matCnt}:
+        set {_matId} to {조합법::%{_craftId}%::재료::%loop-integer%::ID}
+        set {_needed} to {조합법::%{_craftId}%::재료::%loop-integer%::수량}
+        set {_have} to 재료보유수({_p}, {_matId})
+        if {_have} < {_needed}:
+            return false
+    return true
+
+# ===== 인벤에서 재료 제거 =====
+function 재료제거(p: player, matId: text, amount: number):
+    set {_toRemove} to {_amount}
+    loop items in {_p}'s inventory:
+        if {_toRemove} <= 0:
+            stop
+        if loop-item is not air:
+            set {_skip} to false
+            loop lore of loop-item:
+                if loop-value contains "mat:%{_matId}%":
+                    set {_skip} to true
+            if {_skip} is true:
+                set {_stackAmt} to amount of loop-item
+                if {_stackAmt} <= {_toRemove}:
+                    subtract {_stackAmt} from {_toRemove}
+                    remove loop-item from {_p}'s inventory
+                else:
+                    remove {_toRemove} of loop-item from {_p}'s inventory
+                    set {_toRemove} to 0
+
+# ===== 조합대 GUI 열기 =====
+function 조합대GUI열기(p: player, selectedId: text):
+    open chest with 6 rows named "{@gui_name}" to {_p}
+    set {조합대선택::%{_p}%} to {_selectedId}
+
+    # 왼쪽: 조합법 목록 (슬롯 0-17, 2열)
+    set {_recipeSlot} to 0
+    if {조합법::*} is set:
+        loop {조합법::*}:
+            set {_cid} to loop-value
+            set {_cname} to {조합법::%{_cid}%::이름}
+            set {_resultRod} to {조합법::%{_cid}%::결과}
+            set {_canCraft} to 조합가능여부({_p}, {_cid})
+
+            if {_resultRod} is set:
+                set {_listItem} to {_resultRod}
+            else:
+                set {_listItem} to paper named "&f%{_cname}%"
+
+            # lore 설정
+            set {_lore::*} to lore of {_listItem}
+            add "" to {_lore::*}
+            if {_canCraft} is true:
+                add "&a제작 가능!" to {_lore::*}
+            else:
+                add "&c재료 부족" to {_lore::*}
+            add "&7클릭하여 자세히 보기" to {_lore::*}
+            set lore of {_listItem} to {_lore::*}
+
+            # 선택된 레시피는 강조
+            if {_cid} is {_selectedId}:
+                set name of {_listItem} to "&e&l%{_cname}%"
+
+            set slot {_recipeSlot} of {_p}'s current inventory to {_listItem}
+            set {조합대레시피슬롯::%{_p}%::%{_recipeSlot}%} to {_cid}
+            add 1 to {_recipeSlot}
+            # 최대 18슬롯 (0-17)
+            if {_recipeSlot} >= 18:
+                stop
+
+    # 나머지 레시피 슬롯 채우기
+    loop integers from {_recipeSlot} to 17:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&8(빈 슬롯)"
+
+    # 세로 구분선 (슬롯 18, 27, 36, 45 → 안 씀, 대신 슬롯 위치 사용)
+    # 중앙: 슬롯 22 — 선택된 조합법 정보
+    if {_selectedId} is not "":
+        set {_cname} to {조합법::%{_selectedId}%::이름}
+        set {_cdesc} to {조합법::%{_selectedId}%::설명}
+        set {_resultRod} to {조합법::%{_selectedId}%::결과}
+        set {_canCraft} to 조합가능여부({_p}, {_selectedId})
+
+        # 슬롯 22: 결과 아이템 미리보기
+        if {_resultRod} is set:
+            set {_previewItem} to {_resultRod}
+            set {_prevLore::*} to lore of {_previewItem}
+            add "" to {_prevLore::*}
+            if {_canCraft} is true:
+                add "&a★ 제작 가능!" to {_prevLore::*}
+            else:
+                add "&c✗ 재료 부족" to {_prevLore::*}
+            set lore of {_previewItem} to {_prevLore::*}
+            set slot 22 of {_p}'s current inventory to {_previewItem}
+        else:
+            set slot 22 of {_p}'s current inventory to paper named "&f%{_cname}%" with lore "%{_cdesc}%"
+
+        # 슬롯 27~35: 필요 재료 표시
+        set {_matCnt} to {조합법::%{_selectedId}%::재료수}
+        loop integers from 27 to 35:
+            set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+
+        if {_matCnt} is set:
+            loop integers from 1 to {_matCnt}:
+                set {_matId} to {조합법::%{_selectedId}%::재료::%loop-integer%::ID}
+                set {_needed} to {조합법::%{_selectedId}%::재료::%loop-integer%::수량}
+                set {_have} to 재료보유수({_p}, {_matId})
+
+                set {_matData::*} to split {조합재료::%{_matId}%} at "|"
+                set {_matName} to {_matData::1}
+                set {_matMc} to {_matData::2}
+                if {_matMc} is not set:
+                    set {_matMc} to "paper"
+                set {_matItemType} to {_matMc} parsed as item type
+                if {_matItemType} is set:
+                    set {_matItem} to 1 of {_matItemType}
+                else:
+                    set {_matItem} to paper
+                set name of {_matItem} to "&e%{_matName}%"
+                if {_have} >= {_needed}:
+                    set lore of {_matItem} to "&a보유: %{_have}% / 필요: %{_needed}%" and "&a충족"
+                else:
+                    set lore of {_matItem} to "&c보유: %{_have}% / 필요: %{_needed}%" and "&c부족: %({_needed} - {_have})%개"
+
+                set {_matSlot} to 27 + (loop-integer - 1)
+                if {_matSlot} <= 35:
+                    set slot {_matSlot} of {_p}'s current inventory to {_matItem}
+
+        # 슬롯 40: 제작 버튼
+        if {_canCraft} is true:
+            set {_craftBtn} to lime_concrete named "&a&l제작하기!" with lore "&7클릭하여 낚싯대를 제작합니다."
+        else:
+            set {_craftBtn} to red_concrete named "&c&l재료 부족" with lore "&7필요한 재료가 부족합니다."
+        set slot 40 of {_p}'s current inventory to {_craftBtn}
+
+    else:
+        # 선택된 조합법 없음
+        set slot 22 of {_p}'s current inventory to paper named "&7조합법을 선택하세요" with lore "&7왼쪽에서 조합법을 클릭하세요."
+        loop integers from 27 to 35:
+            set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+        set slot 40 of {_p}'s current inventory to gray stained glass pane named "&8제작 불가"
+
+    # 나머지 장식
+    loop integers from 18 to 21:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    loop integers from 23 to 26:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    loop integers from 36 to 39:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    loop integers from 41 to 44:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+
+    # 하단 바
+    loop integers from 45 to 53:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    set slot 49 of {_p}'s current inventory to barrier named "&c&l닫기"
+    set slot 45 of {_p}'s current inventory to book named "&f조합대 안내" with lore "&7물고기 낚시 중 조합 재료를 획득할 수 있습니다." and "&7재료를 모아 특별한 낚싯대를 제작하세요!" and "" and "&7필요 재료는 각 조합법을 클릭하여 확인하세요."
+
+# ===== /조합대 명령어 =====
+command /조합대:
+    aliases: /whqkqteo
+    trigger:
+        조합대GUI열기(player, "")
+
+# ===== 조합대 GUI 클릭 처리 =====
+on inventory click:
+    if name of player's current inventory is "{@gui_name}":
+        cancel event
+        set {_slot} to index of clicked slot
+
+        # 슬롯 49: 닫기
+        if {_slot} is 49:
+            close player's inventory
+            stop
+
+        # 슬롯 40: 제작 버튼
+        if {_slot} is 40:
+            set {_selectedId} to {조합대선택::%player%}
+            if {_selectedId} is not set:
+                message "{@prefix} {@bad}먼저 조합법을 선택하세요." to player
+                stop
+            if {_selectedId} is "":
+                message "{@prefix} {@bad}먼저 조합법을 선택하세요." to player
+                stop
+
+            set {_canCraft} to 조합가능여부(player, {_selectedId})
+            if {_canCraft} is false:
+                message "{@prefix} {@bad}재료가 부족합니다." to player
+                stop
+
+            # 재료 제거
+            set {_matCnt} to {조합법::%{_selectedId}%::재료수}
+            loop integers from 1 to {_matCnt}:
+                set {_matId} to {조합법::%{_selectedId}%::재료::%loop-integer%::ID}
+                set {_needed} to {조합법::%{_selectedId}%::재료::%loop-integer%::수량}
+                재료제거(player, {_matId}, {_needed})
+
+            # 결과 아이템 지급
+            set {_result} to {조합법::%{_selectedId}%::결과}
+            if {_result} is set:
+                if player can hold {_result}:
+                    give {_result} to player
+                else:
+                    drop {_result} at player's location
+                    message "{@prefix} {@hint}인벤토리가 가득 차 바닥에 떨어졌습니다!" to player
+
+            set {_cname} to {조합법::%{_selectedId}%::이름}
+            message "{@prefix} {@good}%{_cname}%&a 제작 완료!" to player
+
+            # GUI 갱신
+            조합대GUI열기(player, {_selectedId})
+            stop
+
+        # 슬롯 22: 미리보기 클릭 무시
+        if {_slot} is 22:
+            stop
+
+        # 슬롯 45: 안내 무시
+        if {_slot} is 45:
+            stop
+
+        # 슬롯 0~17: 조합법 선택
+        if {_slot} >= 0:
+            if {_slot} <= 17:
+                set {_cid} to {조합대레시피슬롯::%player%::%{_slot}%}
+                if {_cid} is set:
+                    조합대GUI열기(player, {_cid})
+                stop
+
+# ===== 조합대 블록 우클릭 (철 블록을 조합대로 사용) =====
+# 필요시 특정 블록 좌표에서 우클릭으로 열기
+# on right click on iron block:
+#     조합대GUI열기(player, "")

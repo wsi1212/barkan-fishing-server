@@ -1,12 +1,86 @@
+# ===== 공용 경험치 추가 함수 (레벨업 체크 포함) =====
+# 모든 경험치 획득 경로에서 이 함수를 사용할 것!
+function 낚시경험치추가(p: player, amount: number):
+    if {낚시레벨현재경험치::%{_p}%} is not set:
+        set {낚시레벨현재경험치::%{_p}%} to 0
+    if {낚시레벨::%{_p}%} is not set:
+        set {낚시레벨::%{_p}%} to 1
+    if {낚시레벨필요경험치::%{_p}%} is not set:
+        set {낚시레벨필요경험치::%{_p}%} to 200
+    add {_amount} to {낚시레벨현재경험치::%{_p}%}
+    # 레벨업 체크 (연속 레벨업 대응, 최대 10회)
+    loop 50 times:
+        if {낚시레벨현재경험치::%{_p}%} > {낚시레벨필요경험치::%{_p}%}:
+            set {_remain} to {낚시레벨현재경험치::%{_p}%} - {낚시레벨필요경험치::%{_p}%}
+            set {낚시레벨현재경험치::%{_p}%} to 0
+            # 구간별 경험치 승수 (벽 구간 포함)
+            # 1~14: ×1.04 (튜토리얼), 15~24: ×1.08 (첫 벽)
+            # 25~39: ×1.05 (중반), 40~49: ×1.09 (두번째 벽)
+            # 50~59: ×1.06 (후반), 60~69: ×1.10 (세번째 벽)
+            # 70~100: ×1.10 (하드코어)
+            set {_lvNow} to {낚시레벨::%{_p}%}
+            if {_lvNow} < 15:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.04
+            else if {_lvNow} < 25:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.08
+            else if {_lvNow} < 40:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.05
+            else if {_lvNow} < 50:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.09
+            else if {_lvNow} < 60:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.06
+            else:
+                set {낚시레벨필요경험치::%{_p}%} to {낚시레벨필요경험치::%{_p}%} * 1.10
+            add 1 to {낚시레벨::%{_p}%}
+            add {_remain} to {낚시레벨현재경험치::%{_p}%}
+            send title "&6&l레벨 업!" with subtitle "&eLv.%{낚시레벨::%{_p}%}% &7달성!" to {_p} for 2 seconds
+            message "&a낚시레벨이 %{낚시레벨::%{_p}%}%LV가 되었습니다!" to {_p}
+            play sound "entity.firework_rocket.blast" with volume 1 with pitch 1 to {_p}
+            play sound "entity.firework_rocket.twinkle" with volume 1 with pitch 1.2 to {_p}
+            play sound "entity.player.levelup" with volume 0.8 with pitch 1.5 to {_p}
+            퀘스트_레벨업({_p}, {낚시레벨::%{_p}%})
+        else:
+            stop loop
+    # 경험치바 동기화 + 칭호 체크
+    경험치바동기화({_p})
+    칭호자동체크({_p})
+
+# ===== 낚시레벨 → 마크 경험치바 동기화 =====
+function 경험치바동기화(p: player):
+    set {_lv} to {낚시레벨::%{_p}%}
+    set {_cur} to {낚시레벨현재경험치::%{_p}%}
+    set {_need} to {낚시레벨필요경험치::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    if {_cur} is not set:
+        set {_cur} to 0
+    if {_need} is not set:
+        set {_need} to 50
+    # 레벨 숫자 = 낚시레벨
+    set {_p}'s level to {_lv}
+    # 경험치바 진행도 = 현재경험치/필요경험치
+    if {_need} > 0:
+        set {_progress} to {_cur} / {_need}
+    else:
+        set {_progress} to 0
+    if {_progress} > 0.99:
+        set {_progress} to 0.99
+    if {_progress} < 0:
+        set {_progress} to 0
+    set {_p}'s level progress to {_progress}
+
 on join:
     if {낚시레벨::%player%} is not set:
         set {낚시레벨::%player%} to 1
-        set {낚시레벨필요경험치::%player%} to 50
+        set {낚시레벨필요경험치::%player%} to 200
         set {낚시레벨현재경험치::%player%} to 0
+    # 접속 시 밀린 레벨업 처리 (버그로 경험치가 넘쳐있을 수 있음)
+    낚시경험치추가(player, 0)
+    경험치바동기화(player)
 command /fix:
     trigger:
         set {낚시레벨::%player%} to 1
-        set {낚시레벨필요경험치::%player%} to 50
+        set {낚시레벨필요경험치::%player%} to 200
         set {낚시레벨현재경험치::%player%} to 0
 command /레벨초기화 [<player>]:
     trigger:
@@ -17,130 +91,275 @@ command /레벨초기화 [<player>]:
         set {_t}'s level to 0
         set {_t}'s level progress to 0
         set {낚시레벨::%{_t}%} to 1
-        set {낚시레벨필요경험치::%{_t}%} to 50
+        set {낚시레벨필요경험치::%{_t}%} to 200
         set {낚시레벨현재경험치::%{_t}%} to 0
         message "&a%{_t}%의 레벨이 초기화되었습니다. (낚시레벨 1, 바닐라 0)" to player
 
 command /낚시레벨:
-    aliases: /skrtlfpqpf
+    aliases: /skrtlfpqpf, /레벨, /fpqpf
     trigger:
-        set {_lv} to {낚시레벨::%player%}
-        set {_cur} to {낚시레벨현재경험치::%player%}
-        set {_need} to {낚시레벨필요경험치::%player%}
-        if {_lv} is not set:
-            set {_lv} to 1
-        if {_cur} is not set:
-            set {_cur} to 0
-        if {_need} is not set:
-            set {_need} to 50
-        set {_remain} to {_need} - {_cur}
-        if {_remain} < 0:
-            set {_remain} to 0
-        # 경험치 바 생성 (20칸)
-        if {_need} > 0:
-            set {_filled} to floor({_cur} * 20 / {_need})
+        레벨로드맵GUI(player, 1)
+
+# ===== 레벨 로드맵 GUI =====
+function 레벨로드맵GUI(p: player, page: integer):
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_cur} to {낚시레벨현재경험치::%{_p}%}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_need} to {낚시레벨필요경험치::%{_p}%}
+    if {_need} is not set:
+        set {_need} to 50
+    set {_remain} to {_need} - {_cur}
+    if {_remain} < 0:
+        set {_remain} to 0
+    if {_need} > 0:
+        set {_pct} to floor({_cur} * 100 / {_need})
+    else:
+        set {_pct} to 0
+    # 페이지당 29레벨 (3줄 + 꺾임 2칸)
+    set {_perPage} to 29
+    set {_startLv} to ({_page} - 1) * {_perPage} + 1
+    set {_endLv} to {_page} * {_perPage}
+    if {_endLv} > 100:
+        set {_endLv} to 100
+    open chest inventory with 6 rows named "&0레벨 로드맵 (Lv.%{_startLv}%~%{_endLv}%)" to {_p}
+    set {레벨GUI페이지::%{_p}%} to {_page}
+    # ㄹ자 경로 — 꺾이는 칸도 레벨에 포함
+    # 행2: Lv.1~9 → (slot 9~17)
+    # 행3: slot 26 = Lv.10 (꺾임 ↓)
+    # 행4: Lv.11~19 ← (slot 35~27)
+    # 행5: slot 36 = Lv.20 (꺾임 ↓)
+    # 행6: Lv.21~29 → (slot 45~53)
+    # = 페이지당 29레벨
+    delete {_path::*}
+    # 행2: → (slot 9~17) = Lv.1~9
+    loop integers from 0 to 8:
+        set {_path::%loop-integer + 1%} to 9 + loop-integer
+    # 꺾임 slot 26 = Lv.10
+    set {_path::10} to 26
+    # 행4: ← (slot 35~27) = Lv.11~19
+    loop integers from 0 to 8:
+        set {_path::%11 + loop-integer%} to 35 - loop-integer
+    # 꺾임 slot 36 = Lv.20
+    set {_path::20} to 36
+    # 행6: → (slot 45~53) = Lv.21~29
+    loop integers from 0 to 8:
+        set {_path::%21 + loop-integer%} to 45 + loop-integer
+    # 배경
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    # 구분선 행 — 꺾임 칸(slot 26, 36)은 레벨이 들어감, 나머지는 배경
+    # 행3 (slot 18~25): 빈 배경 (구분 역할)
+    # 행5 (slot 37~44): 빈 배경 (구분 역할)
+    # 1행: 정보바 (slot 0~8)
+    set {_head} to skull of {_p}
+    # 경험치 게이지 바 (10칸)
+    set {_filled} to 0
+    if {_need} > 0:
+        set {_filled} to floor({_cur} * 50 / {_need})
+    if {_filled} > 50:
+        set {_filled} to 50
+    set {_bar} to ""
+    loop 50 times:
+        if loop-iteration <= {_filled}:
+            set {_bar} to "%{_bar}%&a|"
         else:
-            set {_filled} to 0
-        if {_filled} > 20:
-            set {_filled} to 20
-        set {_bar} to ""
-        set {_i} to 0
-        loop 20 times:
-            add 1 to {_i}
-            if {_i} <= {_filled}:
-                set {_bar} to "%{_bar}%&a■"
+            set {_bar} to "%{_bar}%&8|"
+    set slot 4 of {_p}'s current inventory to {_head} named "&b&lLv.%{_lv}% %{_p}'s name%" with lore "&7경험치: &a%{_cur}%&7/&f%{_need}%" and "&8[%{_bar}%&8] &e%{_pct}%%%" and "&7남은 경험치: &e%{_remain}%"
+    if {_page} > 1:
+        set {_prevStart} to ({_page} - 2) * {_perPage} + 1
+        set {_prevEnd} to ({_page} - 1) * {_perPage}
+        set slot 0 of {_p}'s current inventory to arrow named "&c◀ 이전 페이지" with lore "&7Lv.%{_prevStart}%~%{_prevEnd}%"
+    if {_endLv} < 100:
+        set {_nextStart} to {_page} * {_perPage} + 1
+        set {_nextEnd} to ({_page} + 1) * {_perPage}
+        if {_nextEnd} > 100:
+            set {_nextEnd} to 100
+        set slot 8 of {_p}'s current inventory to arrow named "&a다음 페이지 ▶" with lore "&7Lv.%{_nextStart}%~%{_nextEnd}%"
+    # 보상 데이터 (레벨 → 보상텍스트, 아이콘타입)
+    # 일반=glass, 마일스톤5단위=gold_nugget, 등급해금=nether_star
+    # 보상상자=chest, 후반특별=ender_chest/shulker_box
+    # 각 레벨 배치
+    loop integers from 1 to 29:
+        set {_idx} to loop-integer
+        set {_lvNum} to {_startLv} + {_idx} - 1
+        if {_lvNum} > 100:
+            stop loop
+        set {_slot} to {_path::%{_idx}%}
+        if {_slot} is not set:
+            stop loop
+        # 보상 결정
+        set {_reward} to ""
+        set {_iconType} to "normal"
+        if mod({_lvNum}, 5) is 0:
+            set {_iconType} to "milestone"
+        # === 등급 해금 (최우선) — 70Lv에 모든 등급 해금 ===
+        if {_lvNum} is 15:
+            set {_reward} to "&d&lS+ 등급 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 30:
+            set {_reward} to "&b&lM 등급 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 45:
+            set {_reward} to "&d&lL 등급 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 60:
+            set {_reward} to "&6&lG 등급 해금! + S등급 장비 해금!"
+            set {_iconType} to "unlock"
+        # === 스탯 보상 ===
+        else if {_lvNum} is 5:
+            set {_reward} to "&a크리확률 +5%%"
+        else if {_lvNum} is 10:
+            set {_reward} to "&e크리배율 +1"
+        else if {_lvNum} is 15:
+            set {_reward} to "&a크리확률 +1%%"
+        else if {_lvNum} is 25:
+            set {_reward} to "&a크리확률 +1%%"
+        else if {_lvNum} is 35:
+            set {_reward} to "&a크리확률 +1%%"
+        else if {_lvNum} is 45:
+            set {_reward} to "&a크리확률 +1%%"
+        else if {_lvNum} is 55:
+            set {_reward} to "&a크리확률 +1%%"
+        else if {_lvNum} is 60:
+            set {_reward} to "&e크리배율 +1"
+        else if {_lvNum} is 65:
+            set {_reward} to "&b도망감소 +5%%"
+        else if {_lvNum} is 70:
+            set {_reward} to "&e크리배율 +1 (캡 도달)"
+        else if {_lvNum} is 75:
+            set {_reward} to "&b도망감소 +5%%"
+        else if {_lvNum} is 80:
+            set {_reward} to "&a크리확률 +2%%"
+            set {_iconType} to "special"
+        else if {_lvNum} is 85:
+            set {_reward} to "&b도망감소 +10%%"
+            set {_iconType} to "special"
+        else if {_lvNum} is 90:
+            set {_reward} to "&a크리확률 +2%%"
+            set {_iconType} to "special"
+        else if {_lvNum} is 95:
+            set {_reward} to "&b도망감소 +10%%"
+            set {_iconType} to "special"
+        else if {_lvNum} is 100:
+            set {_reward} to "&6&l만렙! 크리확률 +3%%"
+            set {_iconType} to "max"
+        # === 일회성 보상 상자 (비 마일스톤 레벨) ===
+        else if {_lvNum} is 3:
+            set {_reward} to "&f보상: 500원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 7:
+            set {_reward} to "&f보상: 1,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 12:
+            set {_reward} to "&f보상: 2,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 17:
+            set {_reward} to "&f보상: 3,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 22:
+            set {_reward} to "&f보상: 5,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 27:
+            set {_reward} to "&f보상: 8,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 32:
+            set {_reward} to "&e보상: 12,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 37:
+            set {_reward} to "&e보상: 18,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 42:
+            set {_reward} to "&e보상: 25,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 47:
+            set {_reward} to "&e보상: 35,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 52:
+            set {_reward} to "&6보상: 50,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 57:
+            set {_reward} to "&6보상: 70,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 62:
+            set {_reward} to "&6보상: 100,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 67:
+            set {_reward} to "&d보상: 150,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 72:
+            set {_reward} to "&d보상: 200,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 77:
+            set {_reward} to "&d보상: 300,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 82:
+            set {_reward} to "&c보상: 500,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 87:
+            set {_reward} to "&c보상: 750,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 92:
+            set {_reward} to "&4보상: 1,000,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 97:
+            set {_reward} to "&4보상: 2,000,000원"
+            set {_iconType} to "shulker"
+        # 아이콘 결정
+        if {_lvNum} is {_lv}:
+            # 현재 레벨 = 경험치병 (머리는 상단에)
+            set {_icon} to experience bottle named "&b&l◆ Lv.%{_lvNum}% &7(현재)" with lore "&7경험치: &a%{_cur}%&7/&f%{_need}%" and "&8[%{_bar}%&8] &e%{_pct}%%%" and "&7남은 경험치: &e%{_remain}%"
+        else if {_lvNum} < {_lv}:
+            # 지나온 레벨 (달성)
+            if {_iconType} is "unlock":
+                set {_icon} to nether star named "&a✓ Lv.%{_lvNum}%" with lore "&a달성 완료" and "%{_reward}%"
+            else if {_iconType} is "chest" or "echest" or "shulker":
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%" with lore "&a수령 완료" and "%{_reward}%"
+            else if {_reward} is not "":
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%" with lore "&a달성 완료" and "%{_reward}%"
             else:
-                set {_bar} to "%{_bar}%&8■"
-        # 퍼센트 계산
-        if {_need} > 0:
-            set {_pct} to floor({_cur} * 100 / {_need})
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%"
         else:
-            set {_pct} to 0
-        # ===== 레벨 보너스 계산 =====
-        set {_크리티컬확률} to 0
-        set {_크리티컬데미지} to 10
-        set {_최대등급} to "S"
-        set {_도망확률감소} to 0
-        if {_lv} >= 5:
-            add 5 to {_크리티컬확률}
-        if {_lv} >= 10:
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 15:
-            add 1 to {_크리티컬확률}
-        if {_lv} >= 20:
-            set {_최대등급} to "S+"
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 25:
-            add 1 to {_크리티컬확률}
-        if {_lv} >= 30:
-            set {_최대등급} to "M"
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 35:
-            add 1 to {_크리티컬확률}
-        if {_lv} >= 40:
-            set {_최대등급} to "L"
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 45:
-            add 1 to {_크리티컬확률}
-        if {_lv} >= 50:
-            set {_최대등급} to "G"
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 55:
-            add 1 to {_크리티컬확률}
-        if {_lv} >= 60:
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 65:
-            add 5 to {_도망확률감소}
-        if {_lv} >= 70:
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 75:
-            add 5 to {_도망확률감소}
-        if {_lv} >= 80:
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 85:
-            add 10 to {_도망확률감소}
-        if {_lv} >= 90:
-            add 1 to {_크리티컬데미지}
-        if {_lv} >= 95:
-            add 10 to {_도망확률감소}
-        if {_lv} >= 100:
-            add 1 to {_크리티컬데미지}
-        set {_퍼펙트보너스} to floor({_크리티컬확률} / 5)
-        if {_퍼펙트보너스} > 3:
-            set {_퍼펙트보너스} to 3
-        set {_존보너스} to floor({_도망확률감소} / 10)
-        if {_존보너스} > 4:
-            set {_존보너스} to 4
-        # ===== 등급 색상 =====
-        set {_등급색} to "&f"
-        if {_최대등급} is "S+":
-            set {_등급색} to "&e"
-        else if {_최대등급} is "M":
-            set {_등급색} to "&b"
-        else if {_최대등급} is "L":
-            set {_등급색} to "&d"
-        else if {_최대등급} is "G":
-            set {_등급색} to "&6"
-        # ===== 출력 =====
-        message "" to player
-        message "&8&l  ┌─────────────────────────────" to player
-        message "&8&l  │  &6&l🎣 낚시 레벨 정보" to player
-        message "&8&l  ├─────────────────────────────" to player
-        message "&8&l  │  &7낚시꾼  &f: &e%player's name%" to player
-        message "&8&l  │  &7레  벨  &f: &b&lLv.%{_lv}%" to player
-        message "&8&l  │" to player
-        message "&8&l  │  &7경험치  &f: &a%{_cur}% &7/ &f%{_need}%  &8(&e%{_pct}%%%&8)" to player
-        message "&8&l  │  &8[%{_bar}%&8]" to player
-        message "&8&l  │  &7다음 레벨까지 &e%{_remain}% &7경험치 필요" to player
-        message "&8&l  ├─────────────────────────────" to player
-        message "&8&l  │  &e&l📊 레벨 보너스" to player
-        message "&8&l  │" to player
-        message "&8&l  │  &7🐟 최대 등급      &f: %{_등급색}%&l%{_최대등급}%" to player
-        message "&8&l  │  &7🎯 퍼펙트 존      &f: &a+%{_퍼펙트보너스}%칸" to player
-        message "&8&l  │  &7💎 스윗스팟       &f: &a+%{_존보너스}%칸" to player
-        message "&8&l  │  &7💥 크리티컬 배율  &f: &c+%{_크리티컬데미지}%%%" to player
-        message "&8&l  └─────────────────────────────" to player
-        message "" to player
+            # 미래 레벨 (미달성)
+            if {_iconType} is "unlock":
+                set {_icon} to nether star named "&e★ Lv.%{_lvNum}%" with lore "&7등급 해금 마일스톤" and "%{_reward}%"
+            else if {_iconType} is "max":
+                set {_icon} to nether star named "&6&l★ Lv.100 만렙" with lore "%{_reward}%"
+            else if {_iconType} is "milestone":
+                set {_icon} to gold nugget named "&e☆ Lv.%{_lvNum}%" with lore "&7마일스톤 보상" and "%{_reward}%"
+            else if {_iconType} is "special":
+                set {_icon} to gold ingot named "&6★ Lv.%{_lvNum}%" with lore "&7특별 보상" and "%{_reward}%"
+            else if {_iconType} is "chest":
+                set {_icon} to chest named "&f📦 Lv.%{_lvNum}%" with lore "&7레벨업 보상" and "%{_reward}%"
+            else if {_iconType} is "echest":
+                set {_icon} to ender chest named "&6📦 Lv.%{_lvNum}%" with lore "&6특별 레벨업 보상" and "%{_reward}%"
+            else if {_iconType} is "shulker":
+                set {_icon} to purple shulker box named "&d📦 Lv.%{_lvNum}%" with lore "&d전설 레벨업 보상" and "%{_reward}%"
+            else:
+                set {_icon} to white stained glass pane named "&fLv.%{_lvNum}%"
+        set slot {_slot} of {_p}'s current inventory to {_icon}
+    # (페이지 버튼은 1행 slot 0/8에 배치됨)
+
+# 레벨 로드맵 클릭
+on inventory click:
+    if player's current inventory's name contains "&0레벨 로드맵":
+        cancel event
+        if event-item is arrow:
+            set {_ci} to index of clicked slot
+            set {_page} to {레벨GUI페이지::%player%}
+            if {_page} is not set:
+                set {_page} to 1
+            # slot 8 = 다음 페이지
+            if {_ci} is 8:
+                wait 1 tick
+                레벨로드맵GUI(player, {_page} + 1)
+            # slot 0 = 이전 페이지
+            else if {_ci} is 0:
+                if {_page} > 1:
+                    wait 1 tick
+                    레벨로드맵GUI(player, {_page} - 1)
 function _fishLv(id: text) :: number:
     set {_lv} to {낚시레벨::%{_id}%}
     if {_lv} is not set:
@@ -210,3 +429,5 @@ command /낚시레벨랭킹 [<integer>]:
             send "&e%loop-number%등 &f%_nameOf({_best})% &7- &bLv.%{_lv}% &8| &f%{_cur}%&7/&f%{_need}%"
 
             remove {_best} from {_pool::*}
+
+# /스탯 명령어는 스탯.sk로 분리됨

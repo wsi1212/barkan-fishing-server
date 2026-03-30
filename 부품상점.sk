@@ -67,6 +67,20 @@ function openPartShop(p: player, category: text):
             set {_desc} to stat_type_desc({_kv::1})
             set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
             add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+        # 레벨 제한 + 출처
+        set {_reqLv} to get_part_level_req({_category}, {_name})
+        set {_origin} to get_part_origin({_category}, {_name})
+        if {_reqLv} > 0:
+            set {_playerLv} to {낚시레벨::%{_p}%}
+            if {_playerLv} is not set:
+                set {_playerLv} to 1
+            if {_playerLv} >= {_reqLv}:
+                add "&7레벨 &e: &aLv.%{_reqLv}% ✓" to {_lore::*}
+            else:
+                add "&7레벨 &e: &cLv.%{_reqLv}% ✗ &7(현재 Lv.%{_playerLv}%)" to {_lore::*}
+        if {_origin} is not "공용":
+            if {_origin} is not "개발자":
+                add "&7출처 &e: &f%{_origin}%" to {_lore::*}
         # 내구도 / 가격
         if {_category} is "미끼":
             add "&7가격 &e: &f%{_price}%원/개" to {_lore::*}

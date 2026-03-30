@@ -1,0 +1,323 @@
+# =========================================
+# 칭호.sk
+# 칭호 시스템 — GUI 선택, 자동 획득, 어드민 관리, 채팅 포맷
+# =========================================
+
+# ===== 기본 칭호 데이터 초기화 =====
+on load:
+    # 칭호 데이터: {칭호데이터::<ID>::이름}, {칭호데이터::<ID>::색상}
+    set {칭호데이터::뉴비::이름} to "&a뉴비"
+    set {칭호데이터::뉴비::색상} to "&a"
+    set {칭호데이터::뉴비::설명} to "&7처음 시작하는 어부"
+    set {칭호데이터::뉴비::아이콘} to lime dye
+
+    set {칭호데이터::콤보::이름} to "&d콤보"
+    set {칭호데이터::콤보::색상} to "&d"
+    set {칭호데이터::콤보::설명} to "&7100 연속 낚시 달성"
+    set {칭호데이터::콤보::아이콘} to magenta dye
+
+    set {칭호데이터::레벨::이름} to "&eLv."
+    set {칭호데이터::레벨::색상} to "&e"
+    set {칭호데이터::레벨::설명} to "&7현재 낚시 레벨 표시 (자동 갱신)"
+    set {칭호데이터::레벨::아이콘} to experience bottle
+
+    # 전체 칭호 ID 목록
+    delete {칭호목록::*}
+    add "뉴비" to {칭호목록::*}
+    add "콤보" to {칭호목록::*}
+    add "레벨" to {칭호목록::*}
+
+# ===== 첫 접속 시 뉴비 칭호 자동 부여 =====
+on first join:
+    set {보유칭호::%player%::뉴비} to true
+    set {장착칭호::%player%} to "뉴비"
+
+# 기존 유저도 뉴비 칭호 없으면 자동 부여 + 닉네임 팀 준비 + 칭호 태그 복원
+on join:
+    if {보유칭호::%player%::뉴비} is not true:
+        set {보유칭호::%player%::뉴비} to true
+    # 칭호 없으면 뉴비 강제 장착
+    if {장착칭호::%player%} is not set:
+        set {장착칭호::%player%} to "뉴비"
+    칭호자동체크(player)
+    # 칭호 태그 복원
+    wait 5 ticks
+    칭호태그업데이트(player)
+
+# ===== 자동 획득 체크 (레벨업/콤보 시 호출) =====
+function 칭호자동체크(p: player):
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_combo} to {낚시콤보::%{_p}%}
+    if {_combo} is not set:
+        set {_combo} to 0
+    # 콤보 칭호
+    if {_combo} >= 100:
+        if {보유칭호::%{_p}%::콤보} is not true:
+            set {보유칭호::%{_p}%::콤보} to true
+            message "&8[&e 칭호 &8] &d새 칭호 획득! &f[&d콤보&f] &7— 100 연속 낚시 달성!" to {_p}
+    # 레벨 칭호 (Lv.5부터 자동 획득)
+    if {_lv} >= 5:
+        if {보유칭호::%{_p}%::레벨} is not true:
+            set {보유칭호::%{_p}%::레벨} to true
+            message "&8[&e 칭호 &8] &e새 칭호 획득! &eLv.%{_lv}% &7— 현재 레벨이 표시됩니다!" to {_p}
+    # 콤보 리셋 시 콤보 칭호 제거
+    if {_combo} < 100:
+        if {보유칭호::%{_p}%::콤보} is true:
+            delete {보유칭호::%{_p}%::콤보}
+            if {장착칭호::%{_p}%} is "콤보":
+                delete {장착칭호::%{_p}%}
+                message "&8[&e 칭호 &8] &c콤보 칭호가 사라졌습니다..." to {_p}
+
+# ===== /칭호 — GUI 열기 =====
+command /칭호 [<text>] [<text>] [<text>]:
+    aliases: /clrgn
+    trigger:
+        # 어드민 서브커맨드
+        if arg-1 is "부여" or "give":
+            if player is op:
+                if arg-2 is not set:
+                    message "&c/칭호 부여 <닉네임> <칭호ID>"
+                    message "&7칭호 목록: %{칭호목록::*}%"
+                    stop
+                if arg-3 is not set:
+                    message "&c/칭호 부여 %arg-2% <칭호ID>"
+                    message "&7칭호 목록: %{칭호목록::*}%"
+                    stop
+                set {_target} to arg-2 parsed as player
+                if {_target} is not set:
+                    message "&c플레이어 '%arg-2%'을(를) 찾을 수 없습니다."
+                    stop
+                set {보유칭호::%{_target}%::%arg-3%} to true
+                message "&8[&e 칭호 &8] &a%{_target}'s name%에게 '%arg-3%' 칭호를 부여했습니다." to player
+                message "&8[&e 칭호 &8] &a새 칭호를 받았습니다! /칭호 에서 확인하세요." to {_target}
+                stop
+            else:
+                message "&c권한이 없습니다."
+                stop
+        if arg-1 is "회수" or "remove":
+            if player is op:
+                if arg-2 is not set:
+                    message "&c/칭호 회수 <닉네임> <칭호ID>"
+                    stop
+                if arg-3 is not set:
+                    message "&c/칭호 회수 %arg-2% <칭호ID>"
+                    stop
+                set {_target} to arg-2 parsed as player
+                if {_target} is not set:
+                    message "&c플레이어 '%arg-2%'을(를) 찾을 수 없습니다."
+                    stop
+                delete {보유칭호::%{_target}%::%arg-3%}
+                if {장착칭호::%{_target}%} is arg-3:
+                    delete {장착칭호::%{_target}%}
+                message "&8[&e 칭호 &8] &c%{_target}'s name%에게서 '%arg-3%' 칭호를 회수했습니다." to player
+                stop
+            else:
+                message "&c권한이 없습니다."
+                stop
+        if arg-1 is "생성" or "create":
+            if player is op:
+                if arg-2 is not set:
+                    message "&c/칭호 생성 <ID> <표시이름(색상포함)>"
+                    message "&7예: /칭호 생성 낚시왕 &e&l낚시왕"
+                    stop
+                if arg-3 is not set:
+                    message "&c/칭호 생성 %arg-2% <표시이름>"
+                    stop
+                set {칭호데이터::%arg-2%::이름} to arg-3
+                set {칭호데이터::%arg-2%::색상} to "&f"
+                set {칭호데이터::%arg-2%::설명} to "&7어드민이 생성한 칭호"
+                set {칭호데이터::%arg-2%::아이콘} to name tag
+                if {칭호목록::*} does not contain arg-2:
+                    add arg-2 to {칭호목록::*}
+                message "&8[&e 칭호 &8] &a칭호 '%arg-2%' (%arg-3%&a) 생성 완료!"
+                stop
+            else:
+                message "&c권한이 없습니다."
+                stop
+        # 일반 유저: GUI 열기
+        칭호GUI열기(player)
+
+# ===== 칭호 GUI =====
+function 칭호GUI열기(p: player):
+    set {_size} to size of {칭호목록::*}
+    set {_rows} to ceil(({_size} + 1) / 9)
+    if {_rows} < 2:
+        set {_rows} to 2
+    if {_rows} > 6:
+        set {_rows} to 6
+    open chest inventory with {_rows} rows named "&0칭호 선택" to {_p}
+    # 칭호 목록 (해제 없음 — 항상 1개 이상 장착)
+    set {_slot} to 0
+    loop {칭호목록::*}:
+        set {_id} to loop-value
+        set {_name} to {칭호데이터::%{_id}%::이름}
+        if {_name} is not set:
+            set {_name} to "&f%{_id}%"
+        # 레벨 칭호: 현재 레벨 숫자 표시
+        if {_id} is "레벨":
+            set {_plv} to {낚시레벨::%{_p}%}
+            if {_plv} is not set:
+                set {_plv} to 1
+            if {_plv} >= 50:
+                set {_name} to "&4&lLv.%{_plv}%"
+            else if {_plv} >= 30:
+                set {_name} to "&c&lLv.%{_plv}%"
+            else if {_plv} >= 20:
+                set {_name} to "&6&lLv.%{_plv}%"
+            else:
+                set {_name} to "&e&lLv.%{_plv}%"
+        # 콤보 칭호: 최대 콤보 표시
+        if {_id} is "콤보":
+            set {_mc} to {낚시최대콤보::%{_p}%}
+            if {_mc} is not set:
+                set {_mc} to 0
+            set {_name} to "&d&l%{_mc}% COMBO"
+        set {_desc} to {칭호데이터::%{_id}%::설명}
+        if {_desc} is not set:
+            set {_desc} to ""
+        # 콤보 설명에 최대콤보 수 표시
+        if {_id} is "콤보":
+            set {_mc} to {낚시최대콤보::%{_p}%}
+            if {_mc} is not set:
+                set {_mc} to 0
+            set {_desc} to "&7최대 콤보: &d%{_mc}%회"
+        set {_icon} to {칭호데이터::%{_id}%::아이콘}
+        if {_icon} is not set:
+            set {_icon} to paper
+        set {_equipped} to {장착칭호::%{_p}%}
+        if {_equipped} is {_id}:
+            set slot {_slot} of {_p}'s current inventory to {_icon} named "&a▸ %{_name}% &7(장착중)" with lore {_desc} and "" and "&7이미 장착중인 칭호입니다."
+        else:
+            set slot {_slot} of {_p}'s current inventory to {_icon} named "&f%{_name}% " with lore {_desc} and "" and "&a클릭하여 장착"
+        add 1 to {_slot}
+        set {칭호GUI슬롯::%{_p}%::%{_slot} - 1%} to {_id}
+
+# ===== GUI 클릭 핸들러 =====
+on inventory click:
+    if player's current inventory's name is "&0칭호 선택":
+        cancel event
+        set {_ci} to index of clicked slot
+        set {_id} to {칭호GUI슬롯::%player%::%{_ci}%}
+        if {_id} is set:
+            if {장착칭호::%player%} is {_id}:
+                message "&8[&e 칭호 &8] &7이미 장착 중인 칭호입니다."
+            else:
+                set {장착칭호::%player%} to {_id}
+                set {_name} to {칭호데이터::%{_id}%::이름}
+                message "&8[&e 칭호 &8] &a%{_name}% &a칭호를 장착했습니다!"
+                칭호태그업데이트(player)
+            close player's inventory
+
+# ===== 채팅 포맷: [칭호] 닉네임: 메시지 =====
+on chat:
+    set {_titleId} to {장착칭호::%player%}
+    if {_titleId} is set:
+        # 레벨 칭호: 현재 레벨 숫자를 동적으로 표시
+        if {_titleId} is "레벨":
+            set {_lv} to {낚시레벨::%player%}
+            if {_lv} is not set:
+                set {_lv} to 1
+            if {_lv} >= 50:
+                set {_titleDisplay} to "&4&lLv.%{_lv}%"
+            else if {_lv} >= 30:
+                set {_titleDisplay} to "&c&lLv.%{_lv}%"
+            else if {_lv} >= 20:
+                set {_titleDisplay} to "&6&lLv.%{_lv}%"
+            else:
+                set {_titleDisplay} to "&e&lLv.%{_lv}%"
+            set chat format to "%{_titleDisplay}% &f%player's name%&7: &f%message%"
+            stop
+        set {_titleName} to {칭호데이터::%{_titleId}%::이름}
+        if {_titleName} is set:
+            set chat format to "%{_titleName}% &f%player's name%&7: &f%message%"
+            stop
+    set chat format to "&f%player's name%&7: &f%message%"
+
+# ===== 탭 자동완성 =====
+on tab complete of "/칭호":
+    if tab arg-1 is "부여" or "회수":
+        if tab arg-2 is not set:
+            set tab completions for position 2 to names of all players
+        else if tab arg-3 is not set:
+            set tab completions for position 3 to {칭호목록::*}
+    else if tab arg-1 is "생성":
+        stop
+    else:
+        set tab completions for position 1 to "부여", "회수" and "생성"
+
+# ===== 머리 위 칭호+닉네임 TextDisplay =====
+function 칭호태그업데이트(p: player):
+    set {_tag} to "title_%{_p}'s uuid%"
+    set {_titleId} to {장착칭호::%{_p}%}
+    set {_name} to {_p}'s name
+    # 칭호 없으면 제거 + 닉네임 복원
+    if {_titleId} is not set:
+        execute console command "kill @e[tag=%{_tag}%_t]"
+        execute console command "kill @e[tag=%{_tag}%_n]"
+        stop
+    # 칭호 텍스트 결정
+    if {_titleId} is "레벨":
+        set {_lv} to {낚시레벨::%{_p}%}
+        if {_lv} is not set:
+            set {_lv} to 1
+        if {_lv} >= 50:
+            set {_title} to "##4##lLv.%{_lv}%"
+        else if {_lv} >= 30:
+            set {_title} to "##c##lLv.%{_lv}%"
+        else if {_lv} >= 20:
+            set {_title} to "##6##lLv.%{_lv}%"
+        else:
+            set {_title} to "##e##lLv.%{_lv}%"
+    else if {_titleId} is "콤보":
+        set {_combo} to {낚시최대콤보::%{_p}%}
+        if {_combo} is not set:
+            set {_combo} to 0
+        set {_title} to "##d##l%{_combo}% COMBO"
+    else if {_titleId} is "뉴비":
+        set {_title} to "##a##l뉴비"
+    else:
+        set {_tn} to {칭호데이터::%{_titleId}%::이름}
+        if {_tn} is not set:
+            set {_tn} to {_titleId}
+        set {_title} to "%{_tn}%"
+    replace all "##" with "§" in {_title}
+    # 텍디 2개: 칭호(배경없음) + 닉네임(배경있음)
+    set {_tagTitle} to "%{_tag}%_t"
+    set {_tagName} to "%{_tag}%_n"
+    # 기존 삭제
+    execute console command "kill @e[tag=%{_tag}%_t]"
+    execute console command "kill @e[tag=%{_tag}%_n]"
+    wait 1 tick
+    # 닉네임 텍디 (반투명 배경 + 아래 빈줄)
+    execute console command "execute at %{_name}% run summon text_display ~ ~0.3 ~ {billboard:""center"",shadow:1b,see_through:0b,default_background:1b,transformation:{translation:[0.0f,0.15f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]},Tags:[""%{_tagName}%""],text:'§f%{_name}%'}"
+    wait 1 tick
+    # 칭호 텍디 (배경 없음)
+    execute console command "execute at %{_name}% run summon text_display ~ ~0.3 ~ {billboard:""center"",shadow:1b,see_through:0b,background:0,transformation:{translation:[0.0f,0.15f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]},Tags:[""%{_tagTitle}%""],text:'%{_title}%\n '}"
+    wait 2 ticks
+    # 둘 다 플레이어에 탑승
+    execute console command "textride %{_name}% %{_tagName}%"
+    execute console command "textride %{_name}% %{_tagTitle}%"
+
+# 콤보 변경 시 업데이트
+function 콤보네임태그(p: player):
+    if {장착칭호::%{_p}%} is "콤보":
+        칭호태그업데이트({_p})
+
+# ===== 쉬프트 누르면 칭호 숨김, 떼면 다시 표시 =====
+# player is sneaking = 토글 이전 상태 (true = 방금 스니크 해제, false = 방금 스니크 시작)
+on sneak toggle:
+    loop passengers of player:
+        if loop-entity is a text display:
+            if player is sneaking:
+                # 방금 스니크 해제 → 불투명 복원 (-1b = 기본 255)
+                add nbt from "{text_opacity:-1b}" to nbt of loop-entity
+            else:
+                # 방금 스니크 시작 → 반투명 (50/255, 바닐라 스니크 닉 효과)
+                add nbt from "{text_opacity:50b}" to nbt of loop-entity
+
+# 접속종료 시 정리
+on quit:
+    execute console command "kill @e[tag=title_%player's uuid%_t]"
+    execute console command "kill @e[tag=title_%player's uuid%_n]"

@@ -1,3 +1,7 @@
+# Locator Bar 비활성화 (1.21.6+ 전용, 하위 버전은 무시됨)
+on load:
+    execute console command "gamerule locatorBar false"
+
 on first join:
     set {돈::%player%} to 0
     set {퀘스트상태::메인01::%player%} to "대기"

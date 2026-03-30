@@ -26,17 +26,45 @@ function openWorkbench(p: player):
                 set {_rn} to loop-value
                 set {_rg} to get_part_grade("낚싯대", {_rn})
                 set {_rc} to part_grade_color({_rg})
+                # 강화 레벨 조회
+                set {_enhLv} to {낚싯대강화::%{_rn}%::%{_p}%}
+                if {_enhLv} is not set:
+                    set {_enhLv} to 0
                 set {_rodInfo} to "%{_rc}%%{_rn}%"
+                if {_enhLv} > 0:
+                    set {_rodInfo} to "%{_rodInfo}% &b+%{_enhLv}%"
                 set {_rodInfo} to "%{_rodInfo}% &7(%{_rc}%%{_rg}%&7)"
-                # 스탯 파싱
+                # 강화 보너스 계산
+                set {_enhDiff} to {_enhLv}
+                set {_enhSize} to {_enhLv} * 2
+                set {_enhGrade} to floor({_enhLv} / 2)
+                set {_enhCrit} to floor({_enhLv} / 2)
+                # 스탯 파싱 + 강화 보너스 표시
                 set {_rawS} to get_part_stats_raw("낚싯대", {_rn})
                 set {_ps::*} to split {_rawS} at ","
                 set {_rodStat} to ""
                 loop {_ps::*}:
                     set {_kv::*} to split loop-value-2 at ":"
                     set {_desc} to stat_type_desc({_kv::1})
-                    set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
-                    set {_rodStat} to "%{_rodStat}%&7  %{_desc}% &e: &f%{_vt}% "
+                    set {_baseVal} to {_kv::2} parsed as number
+                    # 강화 보너스 합산 표시
+                    set {_enhBonus} to 0
+                    if {_kv::1} is "난이도":
+                        set {_enhBonus} to {_enhDiff}
+                    set {_totalVal} to {_baseVal} + {_enhBonus}
+                    set {_vt} to stat_value_text({_kv::1}, {_totalVal})
+                    if {_enhBonus} > 0:
+                        set {_rodStat} to "%{_rodStat}%&7  %{_desc}% &e: &f%{_vt}% &b(+%{_enhBonus}%) "
+                    else:
+                        set {_rodStat} to "%{_rodStat}%&7  %{_desc}% &e: &f%{_vt}% "
+                # 강화 전용 스탯 추가 (난이도 외)
+                if {_enhLv} > 0:
+                    if {_enhSize} > 0:
+                        set {_rodStat} to "%{_rodStat}%&7  크기 보너스 &e: &b+%{_enhSize}%%% "
+                    if {_enhGrade} > 0:
+                        set {_rodStat} to "%{_rodStat}%&7  등급 업 확률 &e: &b+%{_enhGrade}%%% "
+                    if {_enhCrit} > 0:
+                        set {_rodStat} to "%{_rodStat}%&7  크리티컬 확률 &e: &b+%{_enhCrit}%%% "
     # 5슬롯 요약 (릴~찌)
     set {_slotNames::1} to "릴"
     set {_slotNames::2} to "줄"
@@ -180,6 +208,20 @@ function showPartList(p: player, type: text):
             set {_desc} to stat_type_desc({_kv::1})
             set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
             add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+        # 레벨 제한 + 출처
+        set {_reqLv} to get_part_level_req({_type}, {_name})
+        set {_origin} to get_part_origin({_type}, {_name})
+        if {_reqLv} > 0:
+            set {_pLv} to {낚시레벨::%{_p}%}
+            if {_pLv} is not set:
+                set {_pLv} to 1
+            if {_pLv} >= {_reqLv}:
+                add "&7레벨 &e: &aLv.%{_reqLv}% ✓" to {_lore::*}
+            else:
+                add "&7레벨 &e: &cLv.%{_reqLv}% ✗" to {_lore::*}
+        if {_origin} is not "공용":
+            if {_origin} is not "개발자":
+                add "&7출처 &e: &f%{_origin}%" to {_lore::*}
         if {_type} is "미끼":
             set {_baitCount} to {부품인벤::미끼::%{_p}%::%{_name}%}
             if {_baitCount} is not set:
@@ -205,6 +247,16 @@ function showPartList(p: player, type: text):
 
 # ===== 부품 장착 =====
 function equipPart(p: player, type: text, name: text):
+    # 레벨 제한 체크 (OP는 무시)
+    if {_p} is not op:
+        set {_reqLv} to get_part_level_req({_type}, {_name})
+        if {_reqLv} > 0:
+            set {_playerLv} to {낚시레벨::%{_p}%}
+            if {_playerLv} is not set:
+                set {_playerLv} to 1
+            if {_playerLv} < {_reqLv}:
+                message "&8[&e 장비 &8] &c이 장비는 낚시 레벨 &e%{_reqLv}%&c 이상이 필요합니다. &7(현재: Lv.%{_playerLv}%)" to {_p}
+                stop
     # 현재 장착 중인 부품이 있으면 해제 (인벤으로 복귀 안 함 — 이미 보유목록에 있음)
     set {_old} to {낚싯대부품::%{_type}%::%{_p}%}
     # 장착
@@ -304,28 +356,35 @@ on inventory click:
 
 # ===== 부품 파괴 처리 (낚시 후 호출) =====
 function reduceDurability(p: player):
-    # 내구보존 스탯 합산
+    # 내구보존 스탯: 낚싯대 본체에서만 체크
     set {_내구보존} to 0
+    set {_toolName} to name of {_p}'s tool
+    loop {부품목록::낚싯대::*}:
+        if {_toolName} contains loop-value:
+            set {_rodRaw} to get_part_stats_raw("낚싯대", loop-value)
+            set {_rodPairs::*} to split {_rodRaw} at ","
+            loop {_rodPairs::*}:
+                set {_rodKV::*} to split loop-value-2 at ":"
+                if {_rodKV::1} is "내구보존":
+                    add ({_rodKV::2} parsed as number) to {_내구보존}
+            stop loop
+    # 인챈트/강화 보너스 내구보존 추가
+    set {_enchDur} to {낚싯대인챈트내구보존::%{_p}%}
+    if {_enchDur} is set:
+        add {_enchDur} to {_내구보존}
+    set {_강화Dur} to {낚싯대강화내구보존::%{_p}%}
+    if {_강화Dur} is set:
+        add {_강화Dur} to {_내구보존}
+    # 내구보존 확률로 장비 내구 감소 스킵
+    if {_내구보존} > 0:
+        chance of {_내구보존}%:
+            message "&8[&e 장비 &8] &b내구도가 보존되었습니다!" to {_p}
+            stop
     set {_dtypes::1} to "릴"
     set {_dtypes::2} to "줄"
     set {_dtypes::3} to "바늘"
     set {_dtypes::4} to "미끼"
     set {_dtypes::5} to "찌"
-    loop 5 times:
-        set {_dt} to {_dtypes::%loop-iteration%}
-        set {_dn} to {낚싯대부품::%{_dt}%::%{_p}%}
-        if {_dn} is set:
-            set {_dRaw} to get_part_stats_raw({_dt}, {_dn})
-            set {_dPairs::*} to split {_dRaw} at ","
-            loop {_dPairs::*}:
-                set {_dKV::*} to split loop-value-2 at ":"
-                if {_dKV::1} is "내구보존":
-                    add ({_dKV::2} parsed as number) to {_내구보존}
-    # 내구보존 확률로 내구 감소 스킵
-    if {_내구보존} > 0:
-        chance of {_내구보존}%:
-            message "&8[&e 장비 &8] &b내구도가 보존되었습니다!" to {_p}
-            stop
     # 각 슬롯 내구도 감소
     loop 5 times:
         set {_type} to {_dtypes::%loop-iteration%}

@@ -1,0 +1,167 @@
+# =========================================
+# 사이드바.sk
+# 사이드바 + 콤보 TextDisplay
+# =========================================
+
+# ===== 콤보 그라데이션 (100단위로 팔레트 변경) =====
+function 콤보그라데이션(combo: integer) :: text:
+    set {_numStr} to "%{_combo}%"
+    set {_len} to length of {_numStr}
+    set {_tier} to floor({_combo} / 100)
+    if {_tier} is 1:
+        set {_c::1} to "<##FF9AA2>"
+        set {_c::2} to "<##FFB7B2>"
+        set {_c::3} to "<##FFDAC1>"
+        set {_c::4} to "<##FFE4E1>"
+        set {_c::5} to "<##FFC0CB>"
+        set {_c::6} to "<##FFB6C1>"
+    else if {_tier} is 2:
+        set {_c::1} to "<##A0E7E5>"
+        set {_c::2} to "<##B4F8C8>"
+        set {_c::3} to "<##7FDBDA>"
+        set {_c::4} to "<##A3E4D7>"
+        set {_c::5} to "<##82E0AA>"
+        set {_c::6} to "<##76D7C4>"
+    else if {_tier} is 3:
+        set {_c::1} to "<##C7CEEA>"
+        set {_c::2} to "<##D4A5FF>"
+        set {_c::3} to "<##E8DAEF>"
+        set {_c::4} to "<##D2B4DE>"
+        set {_c::5} to "<##BB8FCE>"
+        set {_c::6} to "<##C39BD3>"
+    else if {_tier} is 4:
+        set {_c::1} to "<##FFD700>"
+        set {_c::2} to "<##FFEC8B>"
+        set {_c::3} to "<##FFF8DC>"
+        set {_c::4} to "<##FFEFD5>"
+        set {_c::5} to "<##FFE4B5>"
+        set {_c::6} to "<##FFD700>"
+    else if {_tier} is 5:
+        set {_c::1} to "<##FF9AA2>"
+        set {_c::2} to "<##FFDAC1>"
+        set {_c::3} to "<##FFFFD8>"
+        set {_c::4} to "<##B5EAD7>"
+        set {_c::5} to "<##A0C4FF>"
+        set {_c::6} to "<##C7CEEA>"
+    else:
+        set {_c::1} to "<##FF6FFF>"
+        set {_c::2} to "<##6FE0FF>"
+        set {_c::3} to "<##6FFFB4>"
+        set {_c::4} to "<##FFFF6F>"
+        set {_c::5} to "<##FF9F6F>"
+        set {_c::6} to "<##FF6FFF>"
+    set {_result} to ""
+    loop {_len} times:
+        set {_ci} to mod(loop-iteration - 1, 6) + 1
+        set {_char} to character at loop-iteration in {_numStr}
+        set {_result} to "%{_result}%%{_c::%{_ci}%}%%{_char}%"
+    return {_result}
+
+# ===== 사이드바 업데이트 함수 =====
+function 사이드바업데이트(p: player):
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_cur} to {낚시레벨현재경험치::%{_p}%}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_need} to {낚시레벨필요경험치::%{_p}%}
+    if {_need} is not set:
+        set {_need} to 50
+    set {_money} to {돈::%{_p}%}
+    if {_money} is not set:
+        set {_money} to 0
+    set {_combo} to {낚시콤보::%{_p}%}
+    if {_combo} is not set:
+        set {_combo} to 0
+    set {_area} to {area::%{_p}%}
+    if {_area} is not set:
+        set {_area} to "없음"
+    # 경험치 바 (10칸)
+    if {_need} > 0:
+        set {_filled} to floor({_cur} * 10 / {_need})
+    else:
+        set {_filled} to 0
+    if {_filled} > 10:
+        set {_filled} to 10
+    set {_expBar} to ""
+    loop 10 times:
+        if loop-iteration <= {_filled}:
+            set {_expBar} to "%{_expBar}%&a|"
+        else:
+            set {_expBar} to "%{_expBar}%&8|"
+    # 콤보 표시
+    if {_combo} >= 100:
+        set {_gradient} to 콤보그라데이션({_combo})
+        set {_comboText} to "%{_gradient}% &d연속!"
+    else if {_combo} >= 50:
+        set {_comboText} to "&d&l%{_combo}% &5연속!!"
+    else if {_combo} >= 20:
+        set {_comboText} to "&c&l%{_combo}% &e연속!"
+    else if {_combo} >= 10:
+        set {_comboText} to "&c%{_combo}% &e연속!"
+    else if {_combo} >= 5:
+        set {_comboText} to "&6%{_combo}% &e연속"
+    else if {_combo} >= 2:
+        set {_comboText} to "&a%{_combo}% &7연속"
+    else if {_combo} is 1:
+        set {_comboText} to "&71"
+    else:
+        set {_comboText} to "&70"
+    # 시간대
+    set {_time} to 현재시간대({_p})
+    if {_time} is "낮":
+        set {_timeIcon} to "&e☀"
+    else if {_time} is "저녁":
+        set {_timeIcon} to "&6☀"
+    else if {_time} is "밤":
+        set {_timeIcon} to "&9☽"
+    else:
+        set {_timeIcon} to "&b☽"
+    set {_weather} to 현재날씨({_p})
+    if {_weather} is "맑음":
+        set {_weatherIcon} to "&f☁"
+    else if {_weather} is "비":
+        set {_weatherIcon} to "&b☂"
+    else:
+        set {_weatherIcon} to "&c⚡"
+    # 스코어보드
+    set title of {_p}'s scoreboard to "&b&l⚓ 바르칸 열도"
+    set line 9 of {_p}'s scoreboard to "&f"
+    set line 8 of {_p}'s scoreboard to " &f%{_p}'s name%"
+    set line 7 of {_p}'s scoreboard to " &e낚시 Lv.%{_lv}% %{_expBar}%"
+    set line 6 of {_p}'s scoreboard to " &7소지금: &6%{_money}%원"
+    set line 5 of {_p}'s scoreboard to "&f "
+    set line 4 of {_p}'s scoreboard to " &7위치 &f%{_area}%"
+    set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% %{_weatherIcon}% %{_weather}%"
+    set line 2 of {_p}'s scoreboard to " &7콤보 %{_comboText}%"
+    set line 1 of {_p}'s scoreboard to ""
+
+# (칭호 태그/네임태그 관련은 칭호.sk에서 관리)
+
+# ===== 콤보 테스트 명령어 (op) =====
+command /콤보 [<integer>]:
+    aliases: /zhaqh
+    permission: op
+    trigger:
+        if arg-1 is set:
+            set {낚시콤보::%player%} to arg-1
+            if {낚시최대콤보::%player%} is not set:
+                set {낚시최대콤보::%player%} to 0
+            if arg-1 > {낚시최대콤보::%player%}:
+                set {낚시최대콤보::%player%} to arg-1
+            message "&8[&b 콤보 &8] &f콤보를 &e%arg-1%&f(으)로 설정했습니다." to player
+        else:
+            message "&8[&b 콤보 &8] &f현재 콤보: &e%{낚시콤보::%player%}% &8| &f최대: &e%{낚시최대콤보::%player%}%" to player
+        사이드바업데이트(player)
+        콤보네임태그(player)
+
+# ===== 접속 시 =====
+on join:
+    wait 5 ticks
+    사이드바업데이트(player)
+
+# ===== 주기적 업데이트 (5초마다) =====
+every 5 seconds:
+    loop all players:
+        사이드바업데이트(loop-player)

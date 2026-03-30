@@ -145,6 +145,24 @@ function iceboxColor(id: number) :: text:
         return "&d"
     return "&7"
 
+# ===== 자동 수납 (5단계 이상 해금) =====
+# 성공 시 true, 박스 없거나 꽉 찼으면 false
+function 자동수납(p: player, item: item) :: boolean:
+    set {_tier} to {아이스박스등급::%{_p}%}
+    if {_tier} is not set:
+        return false
+    if {_tier} < 5:
+        return false
+    set {_maxSlots} to iceboxSlots({_tier})
+    set {_rate} to iceboxRate({_tier})
+    loop {_maxSlots} times:
+        set {_idx} to loop-number - 1
+        if {아이스박스::%{_p}%::%{_idx}%} is not set:
+            set {아이스박스::%{_p}%::%{_idx}%} to {_item}
+            set {아이스박스시간::%{_p}%::%{_idx}%} to unix timestamp of now
+            return true
+    return false
+
 # ===== 아이스박스 보존 처리 =====
 function applyIceboxPreserve(item: item, entryUnix: number, rate: number) :: item:
     set {_nowUnix} to unix timestamp of now
@@ -304,6 +322,8 @@ function openIceboxShop(p: player):
         add "&7티어 &e: &f%{_id}%단계" to {_lore::*}
         add "&7보관 &e: &f%{_slots}%칸" to {_lore::*}
         add "&7보존 &e: &a%{_rate}%배" to {_lore::*}
+        if {_id} >= 5:
+            add "&b자동 수납 &a해금" to {_lore::*}
         add "&7가격 &e: &f%{_price}%원" to {_lore::*}
         add "" to {_lore::*}
         if {_id} is {_currentTier}:

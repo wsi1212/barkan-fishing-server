@@ -172,9 +172,7 @@ function 퀘스트보상(p: player, questId: text):
     set {_exp} to {퀘스트::%{_questId}%::보상경험치}
     if {_exp} is set:
         if {_exp} > 0:
-            if {낚시레벨현재경험치::%{_p}%} is not set:
-                set {낚시레벨현재경험치::%{_p}%} to 0
-            add {_exp} to {낚시레벨현재경험치::%{_p}%}
+            낚시경험치추가({_p}, {_exp})
             message "&8[&d 퀘스트 &8] &a낚시 경험치 +%{_exp}%exp" to {_p}
     # 완료 처리
     set {퀘스트상태::%{_questId}%::%{_p}%} to "완료"

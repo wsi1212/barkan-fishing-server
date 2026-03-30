@@ -1,0 +1,566 @@
+# =========================================
+# 직거래.sk
+# 플레이어 간 직접 거래 (P2P Trade) 시스템
+# /거래 <닉네임> — 거래 요청
+# /거래수락 <닉네임> — 거래 수락 → GUI 오픈
+# /거래취소 — 거래 취소
+# /거래골드 <금액> — 제안 골드 설정
+# =========================================
+
+options:
+    prefix: &8[&6 직거래 &8]
+    good: &a
+    bad: &c
+    hint: &7
+    emph: &e
+    info: &f
+    gui_name: &6직거래 창
+
+# ===== 거래 가능 아이템 여부 확인 =====
+function 거래가능여부(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "[물고기]":
+            return true
+        if loop-value contains "[조합 재료]":
+            return true
+    return false
+
+# ===== 거래 GUI 열기 =====
+function 거래GUI열기(p: player):
+    set {_other} to {거래중::%{_p}%}
+    if {_other} is not set:
+        stop
+    set {_otherPlayer} to player {_other}
+
+    open chest with 6 rows named "{@gui_name}" to {_p}
+
+    # --- 행1 (0-8): 내 제안 아이템 슬롯 ---
+    set slot 0 of {_p}'s current inventory to lime stained glass pane named "&a내 제안 아이템"
+    loop integers from 1 to 7:
+        set slot loop-integer of {_p}'s current inventory to lime stained glass pane named "&a내 제안 슬롯"
+    set slot 8 of {_p}'s current inventory to lime stained glass pane named "&a내 제안 아이템"
+
+    # 내 제안 아이템 채우기 (슬롯 0~8 → 아이템 인덱스 1~9)
+    loop integers from 1 to 9:
+        set {_slotIdx} to loop-integer - 1
+        set {_item} to {거래제안아이템::%{_p}%::%loop-integer%}
+        if {_item} is set:
+            set slot {_slotIdx} of {_p}'s current inventory to {_item}
+
+    # --- 행2 (9-17): 구분선 + 골드 ---
+    loop integers from 9 to 17:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 슬롯 13: 내가 제안하는 골드
+    set {_myGold} to {거래제안골드::%{_p}%}
+    if {_myGold} is not set:
+        set {_myGold} to 0
+    set {_goldItem} to gold nugget named "&e내가 제안하는 골드"
+    set lore of {_goldItem} to "&f%{_myGold}%골드" and "" and "&7클릭 후 채팅에 '/거래골드 <금액>' 입력" and "&7(0 = 골드 없음)"
+    set slot 13 of {_p}'s current inventory to {_goldItem}
+
+    # --- 행3 (18-26): 확인/취소 ---
+    loop integers from 18 to 26:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 슬롯 22: 내 확인 버튼
+    set {_myConfirm} to {거래확인::%{_p}%}
+    if {_myConfirm} is true:
+        set {_confirmItem} to lime dye named "&a&l확인 완료"
+        set lore of {_confirmItem} to "&7다시 클릭하면 취소"
+    else:
+        set {_confirmItem} to gray dye named "&7확인 (클릭)"
+        set lore of {_confirmItem} to "&7모든 제안이 완료되면 클릭"
+    set slot 22 of {_p}'s current inventory to {_confirmItem}
+    # 슬롯 26: 취소 버튼
+    set slot 26 of {_p}'s current inventory to barrier named "&c&l거래 취소"
+
+    # --- 행4 (27-35): 구분선 + 상대 골드 ---
+    loop integers from 27 to 35:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 슬롯 31: 상대방이 제안하는 골드
+    set {_theirGold} to {거래제안골드::%{_other}%}
+    if {_theirGold} is not set:
+        set {_theirGold} to 0
+    set {_theirGoldItem} to gold ingot named "&e%{_other}%님의 제안 골드"
+    set lore of {_theirGoldItem} to "&f%{_theirGold}%골드" and "&7(읽기 전용)"
+    set slot 31 of {_p}'s current inventory to {_theirGoldItem}
+    # 슬롯 35: 상대 확인 상태 표시
+    set {_theirConfirm} to {거래확인::%{_other}%}
+    if {_theirConfirm} is true:
+        set {_theirStatus} to lime dye named "&a%{_other}%님 확인 완료"
+    else:
+        set {_theirStatus} to red dye named "&c%{_other}%님 미확인"
+    set slot 35 of {_p}'s current inventory to {_theirStatus}
+
+    # --- 행5 (36-44): 구분선 ---
+    loop integers from 36 to 44:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+    set slot 40 of {_p}'s current inventory to paper named "&f%{_other}%님의 제안 아이템" with lore "&7(아래 슬롯, 읽기 전용)"
+
+    # --- 행6 (45-53): 상대방 제안 아이템 (읽기 전용) ---
+    loop integers from 1 to 9:
+        set {_slotIdx} to loop-integer + 44
+        set {_item} to {거래제안아이템::%{_other}%::%loop-integer%}
+        if {_item} is set:
+            set slot {_slotIdx} of {_p}'s current inventory to {_item}
+        else:
+            set slot {_slotIdx} of {_p}'s current inventory to gray stained glass pane named "&7(빈 슬롯)"
+
+# ===== 양쪽 GUI 갱신 =====
+function 거래GUI갱신(p1: text, p2: text):
+    set {_pl1} to player {_p1}
+    set {_pl2} to player {_p2}
+    if {_pl1} is set:
+        if name of {_pl1}'s current inventory is "{@gui_name}":
+            거래GUI열기({_pl1})
+    if {_pl2} is set:
+        if name of {_pl2}'s current inventory is "{@gui_name}":
+            거래GUI열기({_pl2})
+
+# ===== 거래 실행 =====
+function 거래실행(p1: text, p2: text):
+    set {_pl1} to player {_p1}
+    set {_pl2} to player {_p2}
+    if {_pl1} is not set:
+        거래취소처리({_p2})
+        stop
+    if {_pl2} is not set:
+        거래취소처리({_p1})
+        stop
+
+    # 골드 잔액 체크
+    set {_gold1} to {거래제안골드::%{_p1}%}
+    if {_gold1} is not set:
+        set {_gold1} to 0
+    set {_gold2} to {거래제안골드::%{_p2}%}
+    if {_gold2} is not set:
+        set {_gold2} to 0
+
+    if {돈::%{_p1}%} is not set:
+        set {돈::%{_p1}%} to 0
+    if {돈::%{_p2}%} is not set:
+        set {돈::%{_p2}%} to 0
+
+    if {돈::%{_p1}%} < {_gold1}:
+        close {_pl1}'s inventory
+        close {_pl2}'s inventory
+        message "{@prefix} {@bad}%{_p1}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl1}
+        message "{@prefix} {@bad}%{_p1}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl2}
+        거래데이터삭제({_p1}, {_p2})
+        stop
+    if {돈::%{_p2}%} < {_gold2}:
+        close {_pl1}'s inventory
+        close {_pl2}'s inventory
+        message "{@prefix} {@bad}%{_p2}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl1}
+        message "{@prefix} {@bad}%{_p2}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl2}
+        거래데이터삭제({_p1}, {_p2})
+        stop
+
+    # GUI 닫기
+    close {_pl1}'s inventory
+    close {_pl2}'s inventory
+
+    # 골드 교환
+    remove {_gold1} from {돈::%{_p1}%}
+    add {_gold1} to {돈::%{_p2}%}
+    remove {_gold2} from {돈::%{_p2}%}
+    add {_gold2} to {돈::%{_p1}%}
+
+    # 아이템 교환 (p1 → p2, p2 → p1)
+    loop integers from 1 to 9:
+        set {_item1} to {거래제안아이템::%{_p1}%::%loop-integer%}
+        if {_item1} is set:
+            if {_pl2} can hold {_item1}:
+                give {_item1} to {_pl2}
+            else:
+                drop {_item1} at {_pl2}'s location
+        set {_item2} to {거래제안아이템::%{_p2}%::%loop-integer%}
+        if {_item2} is set:
+            if {_pl1} can hold {_item2}:
+                give {_item2} to {_pl1}
+            else:
+                drop {_item2} at {_pl1}'s location
+
+    # 완료 메시지
+    message "{@prefix} {@good}거래 완료!" to {_pl1}
+    message "{@prefix} {@hint}받은 아이템을 확인하세요." to {_pl1}
+    if {_gold2} > 0:
+        message "{@prefix} {@hint}받은 골드: {@emph}%{_gold2}%골드" to {_pl1}
+    if {_gold1} > 0:
+        message "{@prefix} {@hint}보낸 골드: {@emph}%{_gold1}%골드" to {_pl1}
+
+    message "{@prefix} {@good}거래 완료!" to {_pl2}
+    message "{@prefix} {@hint}받은 아이템을 확인하세요." to {_pl2}
+    if {_gold1} > 0:
+        message "{@prefix} {@hint}받은 골드: {@emph}%{_gold1}%골드" to {_pl2}
+    if {_gold2} > 0:
+        message "{@prefix} {@hint}보낸 골드: {@emph}%{_gold2}%골드" to {_pl2}
+
+    # 데이터 정리
+    거래데이터삭제({_p1}, {_p2})
+
+# ===== 거래 취소 처리 =====
+function 거래취소처리(p: text):
+    set {_other} to {거래중::%{_p}%}
+    set {_pl} to player {_p}
+    if {_pl} is set:
+        # 내 제안 아이템 반환
+        loop integers from 1 to 9:
+            set {_item} to {거래제안아이템::%{_p}%::%loop-integer%}
+            if {_item} is set:
+                if {_pl} can hold {_item}:
+                    give {_item} to {_pl}
+                else:
+                    drop {_item} at {_pl}'s location
+        close {_pl}'s inventory
+        message "{@prefix} {@bad}거래가 취소되었습니다." to {_pl}
+
+    if {_other} is set:
+        set {_otherPl} to player {_other}
+        if {_otherPl} is set:
+            # 상대 제안 아이템 반환
+            loop integers from 1 to 9:
+                set {_item2} to {거래제안아이템::%{_other}%::%loop-integer%}
+                if {_item2} is set:
+                    if {_otherPl} can hold {_item2}:
+                        give {_item2} to {_otherPl}
+                    else:
+                        drop {_item2} at {_otherPl}'s location
+            close {_otherPl}'s inventory
+            message "{@prefix} {@bad}거래가 취소되었습니다." to {_otherPl}
+        거래데이터삭제({_other}, {_p})
+    else:
+        거래데이터삭제({_p}, "")
+
+# ===== 거래 데이터 삭제 =====
+function 거래데이터삭제(p1: text, p2: text):
+    delete {거래중::%{_p1}%}
+    delete {거래확인::%{_p1}%}
+    delete {거래제안아이템::%{_p1}%::*}
+    delete {거래제안골드::%{_p1}%}
+    if {_p2} is not "":
+        delete {거래중::%{_p2}%}
+        delete {거래확인::%{_p2}%}
+        delete {거래제안아이템::%{_p2}%::*}
+        delete {거래제안골드::%{_p2}%}
+
+# ===== /거래 명령어 — 거래 요청 =====
+on tab complete of "/거래":
+    set tab completions for position 1 to all players' names
+
+command /거래 [<text>]:
+    aliases: /rjfrj
+    trigger:
+        if arg-1 is not set:
+            message "{@prefix} {@hint}사용법: {@emph}/거래 <닉네임>" to player
+            stop
+
+        # 자기 자신 불가
+        if arg-1 is player's name:
+            message "{@prefix} {@bad}자기 자신과 거래할 수 없습니다." to player
+            stop
+
+        # 레벨 체크 (송신자)
+        if {낚시레벨::%player%} is not set:
+            set {낚시레벨::%player%} to 1
+        if {낚시레벨::%player%} < 15:
+            message "{@prefix} {@bad}레벨 15 이상부터 거래가 가능합니다." to player
+            stop
+
+        # 대상 온라인 체크
+        set {_target} to player arg-1
+        if {_target} is not set:
+            message "{@prefix} {@bad}%arg-1%&c님이 온라인 상태가 아닙니다." to player
+            stop
+
+        # 대상 레벨 체크
+        if {낚시레벨::%{_target}%} is not set:
+            set {낚시레벨::%{_target}%} to 1
+        if {낚시레벨::%{_target}%} < 15:
+            message "{@prefix} {@bad}%arg-1%&c님은 레벨 15 미만이라 거래할 수 없습니다." to player
+            stop
+
+        # 이미 거래 중 체크
+        if {거래중::%player%} is set:
+            message "{@prefix} {@bad}이미 거래 중입니다. 먼저 {@emph}/거래취소 {@bad}를 입력하세요." to player
+            stop
+        if {거래중::%{_target}%} is set:
+            message "{@prefix} {@bad}%arg-1%&c님이 이미 거래 중입니다." to player
+            stop
+
+        # 요청 메시지 (클릭 가능)
+        set {_senderName} to player's name
+        set {_comp} to text component from "&e%{_senderName}%&a님이 직거래를 요청합니다. &7[&a수락&7] &8[&c거절&8]"
+        set click event of {_comp} to run command "/거래수락 %{_senderName}%"
+        send component {_comp} to {_target}
+
+        message "{@prefix} {@good}%arg-1%&a님에게 거래 요청을 보냈습니다." to player
+        message "{@prefix} {@hint}상대방이 수락을 기다리는 중..." to player
+
+# ===== /거래수락 명령어 =====
+on tab complete of "/거래수락":
+    set tab completions for position 1 to all players' names
+
+command /거래수락 [<text>]:
+    aliases: /rjfrtndk
+    trigger:
+        if arg-1 is not set:
+            message "{@prefix} {@hint}사용법: {@emph}/거래수락 <닉네임>" to player
+            stop
+
+        # 자기 자신 불가
+        if arg-1 is player's name:
+            message "{@prefix} {@bad}자기 자신과 거래할 수 없습니다." to player
+            stop
+
+        set {_sender} to player arg-1
+        if {_sender} is not set:
+            message "{@prefix} {@bad}%arg-1%&c님이 온라인 상태가 아닙니다." to player
+            stop
+
+        # 이미 거래 중 체크
+        if {거래중::%player%} is set:
+            message "{@prefix} {@bad}이미 거래 중입니다. 먼저 {@emph}/거래취소 {@bad}를 입력하세요." to player
+            stop
+        if {거래중::%{_sender}%} is set:
+            message "{@prefix} {@bad}%arg-1%&c님이 이미 다른 거래 중입니다." to player
+            stop
+
+        # 레벨 체크
+        if {낚시레벨::%player%} is not set:
+            set {낚시레벨::%player%} to 1
+        if {낚시레벨::%player%} < 15:
+            message "{@prefix} {@bad}레벨 15 이상부터 거래가 가능합니다." to player
+            stop
+
+        # 거래 세션 설정
+        set {거래중::%player%} to {_sender}'s name
+        set {거래중::%{_sender}%} to player's name
+        set {거래확인::%player%} to false
+        set {거래확인::%{_sender}%} to false
+        delete {거래제안아이템::%player%::*}
+        delete {거래제안아이템::%{_sender}%::*}
+        set {거래제안골드::%player%} to 0
+        set {거래제안골드::%{_sender}%} to 0
+
+        # GUI 열기
+        wait 1 tick
+        거래GUI열기(player)
+        거래GUI열기({_sender})
+
+        message "{@prefix} {@good}거래를 시작합니다! {@hint}아이템을 슬롯에 넣고 확인 버튼을 클릭하세요." to player
+        message "{@prefix} {@good}%player%&a님이 거래를 수락했습니다! {@hint}아이템을 슬롯에 넣고 확인 버튼을 클릭하세요." to {_sender}
+        message "{@prefix} {@hint}취소: {@emph}/거래취소 {@hint}또는 창 닫기" to player
+        message "{@prefix} {@hint}취소: {@emph}/거래취소 {@hint}또는 창 닫기" to {_sender}
+
+# ===== /거래취소 명령어 =====
+command /거래취소:
+    aliases: /rjfrcnth
+    trigger:
+        if {거래중::%player%} is not set:
+            message "{@prefix} {@bad}현재 진행 중인 거래가 없습니다." to player
+            stop
+        거래취소처리(player's name)
+
+# ===== /거래골드 명령어 — 제안 골드 설정 =====
+command /거래골드 [<text>]:
+    aliases: /rjfrehfeo
+    trigger:
+        if {거래중::%player%} is not set:
+            message "{@prefix} {@bad}현재 진행 중인 거래가 없습니다." to player
+            stop
+
+        if arg-1 is not set:
+            message "{@prefix} {@hint}사용법: {@emph}/거래골드 <금액>" to player
+            stop
+
+        set {_amount} to arg-1 parsed as integer
+        if {_amount} is not set:
+            message "{@prefix} {@bad}올바른 금액을 입력해주세요." to player
+            stop
+        if {_amount} < 0:
+            message "{@prefix} {@bad}금액은 0 이상이어야 합니다." to player
+            stop
+
+        if {돈::%player%} is not set:
+            set {돈::%player%} to 0
+        if {_amount} > {돈::%player%}:
+            message "{@prefix} {@bad}골드가 부족합니다. {@hint}현재 잔액: {@emph}%{돈::%player%}%골드" to player
+            stop
+
+        # 확인 상태 초기화 (골드 바꾸면 재확인 필요)
+        set {거래확인::%player%} to false
+        set {_other} to {거래중::%player%}
+        if {_other} is set:
+            set {거래확인::%{_other}%} to false
+
+        set {거래제안골드::%player%} to {_amount}
+        message "{@prefix} {@good}제안 골드를 {@emph}%{_amount}%골드&a로 설정했습니다." to player
+
+        # GUI 갱신
+        set {_other} to {거래중::%player%}
+        if {_other} is not set:
+            stop
+        거래GUI갱신(player's name, {_other})
+
+# ===== 직거래 GUI 클릭 처리 =====
+on inventory click:
+    if name of player's current inventory is "{@gui_name}":
+        if {거래중::%player%} is not set:
+            cancel event
+            stop
+
+        set {_slot} to index of clicked slot
+        set {_other} to {거래중::%player%}
+
+        # 슬롯 13: 골드 설정 안내
+        if {_slot} is 13:
+            cancel event
+            message "{@prefix} {@hint}채팅에 {@emph}/거래골드 <금액> {@hint}을 입력하여 제안 골드를 설정하세요." to player
+            stop
+
+        # 슬롯 22: 내 확인 버튼
+        if {_slot} is 22:
+            cancel event
+            set {_confirm} to {거래확인::%player%}
+            if {_confirm} is true:
+                set {거래확인::%player%} to false
+                message "{@prefix} {@hint}확인을 취소했습니다." to player
+            else:
+                set {거래확인::%player%} to true
+                message "{@prefix} {@good}거래를 확인했습니다. 상대방의 확인을 기다리는 중..." to player
+                message "{@prefix} {@good}%player%&a님이 거래를 확인했습니다!" to player {_other}
+
+            # 양쪽 GUI 갱신
+            거래GUI갱신(player's name, {_other})
+
+            # 양쪽 모두 확인 시 거래 실행
+            if {거래확인::%player%} is true:
+                if {거래확인::%{_other}%} is true:
+                    거래실행(player's name, {_other})
+            stop
+
+        # 슬롯 26: 취소 버튼
+        if {_slot} is 26:
+            cancel event
+            거래취소처리(player's name)
+            stop
+
+        # 슬롯 35: 상대 확인 상태 (읽기 전용)
+        if {_slot} is 35:
+            cancel event
+            stop
+
+        # 슬롯 31: 상대 골드 (읽기 전용)
+        if {_slot} is 31:
+            cancel event
+            stop
+
+        # 슬롯 40: 상대 아이템 안내 (읽기 전용)
+        if {_slot} is 40:
+            cancel event
+            stop
+
+        # 행6 (45-53): 상대방 아이템 — 읽기 전용
+        if {_slot} >= 45:
+            if {_slot} <= 53:
+                cancel event
+                stop
+
+        # 행2 구분선 (9-17, 13 제외)
+        if {_slot} >= 9:
+            if {_slot} <= 17:
+                if {_slot} is not 13:
+                    cancel event
+                    stop
+
+        # 행3 구분선 (18-26, 22/26 제외)
+        if {_slot} >= 18:
+            if {_slot} <= 26:
+                if {_slot} is not 22:
+                    if {_slot} is not 26:
+                        cancel event
+                        stop
+
+        # 행4 구분선 (27-35, 31/35 제외)
+        if {_slot} >= 27:
+            if {_slot} <= 35:
+                if {_slot} is not 31:
+                    if {_slot} is not 35:
+                        cancel event
+                        stop
+
+        # 행5 구분선 (36-44, 40 제외)
+        if {_slot} >= 36:
+            if {_slot} <= 44:
+                if {_slot} is not 40:
+                    cancel event
+                    stop
+
+        # 행1 (0-8): 내 제안 아이템 슬롯 처리
+        if {_slot} >= 0:
+            if {_slot} <= 8:
+                set {_itemIdx} to {_slot} + 1
+                set {_clickedItem} to event-item
+
+                # 빈 슬롯에서 아이템 빼기 (air 클릭)
+                if {_clickedItem} is air:
+                    # 기존 아이템이 있으면 반환
+                    set {_existing} to {거래제안아이템::%player%::%{_itemIdx}%}
+                    if {_existing} is set:
+                        cancel event
+                        if player can hold {_existing}:
+                            give {_existing} to player
+                        else:
+                            drop {_existing} at player's location
+                        delete {거래제안아이템::%player%::%{_itemIdx}%}
+                        set slot {_slot} of player's current inventory to air
+                        set {거래확인::%player%} to false
+                        if {_other} is set:
+                            set {거래확인::%{_other}%} to false
+                        거래GUI갱신(player's name, {_other})
+                    stop
+
+                # 거래 불가 아이템 체크
+                if 거래가능여부({_clickedItem}) is false:
+                    cancel event
+                    message "{@prefix} {@bad}이 아이템은 거래할 수 없습니다. {@hint}(물고기, 조합 재료만 가능)" to player
+                    stop
+
+                # 확인 상태 초기화
+                set {거래확인::%player%} to false
+                if {_other} is set:
+                    set {거래확인::%{_other}%} to false
+
+                # 기존 슬롯 아이템 반환
+                set {_existing} to {거래제안아이템::%player%::%{_itemIdx}%}
+                if {_existing} is set:
+                    if player can hold {_existing}:
+                        give {_existing} to player
+                    else:
+                        drop {_existing} at player's location
+
+                # 새 아이템 등록 (인벤에서 가져오기)
+                set {거래제안아이템::%player%::%{_itemIdx}%} to {_clickedItem}
+                # 인벤에서 제거는 이벤트 기본 동작으로 처리 (cancel 안 함)
+
+                # GUI 갱신
+                거래GUI갱신(player's name, {_other})
+                stop
+
+# ===== 거래 창 닫기 처리 (확인 전 취소) =====
+on inventory close:
+    if name of player's current inventory is "{@gui_name}":
+        if {거래중::%player%} is not set:
+            stop
+        # 양쪽 모두 확인 완료 시엔 거래실행이 처리하므로 무시
+        if {거래확인::%player%} is true:
+            set {_other} to {거래중::%player%}
+            if {_other} is set:
+                if {거래확인::%{_other}%} is true:
+                    stop
+        거래취소처리(player's name)
+
+# ===== 로그아웃 시 거래 취소 =====
+on quit:
+    if {거래중::%player%} is set:
+        거래취소처리(player's name)

@@ -1,0 +1,72 @@
+# =========================================
+# 조합재료.sk
+# 낚시 중 획득 가능한 조합 재료 시스템
+# 낚싯대 조합대 제작용 재료 (추후 조합대.sk에서 사용)
+# =========================================
+
+# ===== 재료 데이터 초기화 =====
+# 형식: {조합재료::<ID>} = "표시이름|마인크래프트아이템|설명"
+on load:
+    delete {조합재료::*}
+    # === 일반 지역 재료 ===
+    set {조합재료::낡은갈고리} to "낡은 갈고리|fishing_rod|낚싯대 조합에 사용되는 오래된 갈고리"
+    set {조합재료::물고기비늘} to "물고기 비늘|paper|물고기에서 채취한 비늘 조각"
+    set {조합재료::강화실} to "강화 실|string|특수 처리된 낚싯줄 재료"
+    set {조합재료::녹슨부품} to "녹슨 부품|iron_nugget|낡고 녹슨 금속 부품"
+    set {조합재료::깃털찌조각} to "깃털 찌 조각|feather|찌 제작에 쓰이는 희귀 깃털"
+    # === 고급 재료 (B등급 이상 지역) ===
+    set {조합재료::심해수정} to "심해 수정|prismarine_crystals|심해에서 발견되는 신비한 수정"
+    set {조합재료::고대비늘} to "고대 비늘|nautilus_shell|고대 생물의 단단한 비늘"
+    set {조합재료::용암수지} to "용암 수지|magma_cream|용암 지대의 특수 수지"
+    set {조합재료::바르칸조각} to "바르칸 조각|amethyst_shard|바르칸 열도 특산 광물 조각"
+    # === 재료 드롭 테이블 ===
+    # 형식: {조합재료드롭::<지역>::*} = list of "재료ID:확률(0~100)"
+    delete {조합재료드롭::*}
+    # 바르칸물길 (기본 지역)
+    add "낡은갈고리:8" to {조합재료드롭::바르칸물길::*}
+    add "물고기비늘:12" to {조합재료드롭::바르칸물길::*}
+    add "강화실:6" to {조합재료드롭::바르칸물길::*}
+    add "녹슨부품:5" to {조합재료드롭::바르칸물길::*}
+    add "깃털찌조각:3" to {조합재료드롭::바르칸물길::*}
+    # 바르칸동굴
+    add "녹슨부품:10" to {조합재료드롭::바르칸동굴::*}
+    add "심해수정:4" to {조합재료드롭::바르칸동굴::*}
+    add "고대비늘:2" to {조합재료드롭::바르칸동굴::*}
+    add "강화실:8" to {조합재료드롭::바르칸동굴::*}
+    add "바르칸조각:3" to {조합재료드롭::바르칸동굴::*}
+    # 용암 지대
+    add "용암수지:15" to {조합재료드롭::lavatest::*}
+    add "고대비늘:5" to {조합재료드롭::lavatest::*}
+    add "바르칸조각:6" to {조합재료드롭::lavatest::*}
+    add "심해수정:4" to {조합재료드롭::lavatest::*}
+
+# ===== 재료 드롭 체크 (낚시.sk에서 미니게임 성공 후 호출) =====
+# 성공/크리티컬 낚시 후 일정 확률로 조합 재료 추가 지급
+function 조합재료드롭체크(p: player, area: text):
+    if {조합재료드롭::%{_area}%::*} is not set:
+        stop
+    loop {조합재료드롭::%{_area}%::*}:
+        set {_entry::*} to split loop-value at ":"
+        set {_matId} to {_entry::1}
+        set {_chance} to {_entry::2} parsed as number
+        chance of {_chance}%:
+            set {_matData::*} to split {조합재료::%{_matId}%} at "|"
+            set {_matName} to {_matData::1}
+            set {_matItem} to {_matData::2} parsed as item type
+            if {_matItem} is set:
+                set {_item} to 1 of {_matItem}
+                set name of {_item} to "&e%{_matName}%"
+                set lore of {_item} to "&7%{_matData::3}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
+                if player can hold {_item}:
+                    give {_item} to {_p}
+                    message "&8[&6 재료 &8] &e%{_matName}%&7을(를) 발견했습니다!" to {_p}
+                else:
+                    drop {_item} at {_p}'s location
+                    message "&8[&6 재료 &8] &e%{_matName}%&7을(를) 발견했지만 인벤이 가득 찼습니다!" to {_p}
+
+# ===== 재료 확인 함수 =====
+function 조합재료여부(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "[조합 재료]":
+            return true
+    return false
