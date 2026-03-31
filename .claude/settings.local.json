@@ -51,7 +51,13 @@
       "Bash(grep -v '\\\\$')",
       "Bash(python3:*)",
       "WebFetch(domain:skdocs.org)",
-      "WebFetch(domain:shanebeee.github.io)"
+      "WebFetch(domain:shanebeee.github.io)",
+      "Bash(chmod +x \"/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.claude/hooks/validate-sk.sh\")",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(\"/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.claude/hooks/validate-sk.sh\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(jq -e '.hooks.PostToolUse[] | select\\(.matcher == \"\"Edit|Write\"\"\\) | .hooks[] | select\\(.type == \"\"command\"\"\\) | .command' \"/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.claude/settings.json\")"
     ]
   }
 }

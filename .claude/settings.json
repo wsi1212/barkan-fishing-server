@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/validate-sk.sh\"",
+            "timeout": 10,
+            "statusMessage": ".sk 컨벤션 검증 중..."
+          }
+        ]
+      }
+    ]
+  }
+}

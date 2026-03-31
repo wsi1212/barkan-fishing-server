@@ -1,6 +1,5 @@
 # =========================================
 # 송금.sk
-# 플레이어 간 골드 송금 시스템
 # /송금 <닉네임> <금액>
 # =========================================
 
@@ -11,43 +10,27 @@ options:
     hint: &7
     emph: &e
     info: &f
-    daily_limit: 100000
     fee_rate: 5
 
-# ===== 일일 한도 초기화 체크 =====
-function 송금한도체크(p: player):
-    set {_today} to "%today%"
-    if {송금날짜::%{_p}%} is not set:
-        set {송금날짜::%{_p}%} to {_today}
-        set {송금일일한도::%{_p}%} to {@daily_limit}
-        stop
-    if {송금날짜::%{_p}%} is not {_today}:
-        set {송금날짜::%{_p}%} to {_today}
-        set {송금일일한도::%{_p}%} to {@daily_limit}
-
-# ===== /송금 명령어 =====
 on tab complete of "/송금":
-    set tab completions for position 1 to all players' names
-    set tab completions for position 2 to "1000" and "5000" and "10000" and "50000" and "100000"
+    set tab completions for position 1 to names of all players
+    set tab completions for position 2 to "<금액>"
 
 command /송금 [<text>] [<text>]:
     aliases: /thda
     trigger:
-        # 초기화
         if {돈::%player%} is not set:
             set {돈::%player%} to 0
 
-        # 인자 없음
         if arg-1 is not set:
-            message "{@prefix} {@hint}사용법: {@emph}/송금 <닉네임> <금액>" to player
-            message "{@prefix} {@hint}일일 한도: {@emph}{@daily_limit}골드 {@hint}/ 수수료: {@emph}{@fee_rate}%%" to player
+            message "{@prefix} {@hint}사용법: {@emph}/송금 <닉네임> <금액> {@hint}| 수수료: {@emph}{@fee_rate}%%" to player
             stop
 
         if arg-2 is not set:
             message "{@prefix} {@hint}사용법: {@emph}/송금 <닉네임> <금액>" to player
             stop
 
-        # 자기 자신 송금 불가
+        # 자기 자신
         if arg-1 is player's name:
             message "{@prefix} {@bad}자기 자신에게 송금할 수 없습니다." to player
             stop
@@ -55,80 +38,50 @@ command /송금 [<text>] [<text>]:
         # 금액 파싱
         set {_금액} to arg-2 parsed as integer
         if {_금액} is not set:
-            message "{@prefix} {@bad}올바른 금액을 입력해주세요. (양의 정수)" to player
+            message "{@prefix} {@bad}올바른 금액을 입력해주세요." to player
             stop
-        if {_금액} <= 0:
-            message "{@prefix} {@bad}금액은 1 이상이어야 합니다." to player
+        if {_금액} < 1000:
+            message "{@prefix} {@bad}최소 1,000골드 이상부터 송금할 수 있습니다." to player
             stop
 
         # 수신자 온라인 체크
-        set {_target} to player arg-1
+        delete {_target}
+        loop all players:
+            if loop-player's name is arg-1:
+                set {_target} to loop-player
+                stop loop
         if {_target} is not set:
             message "{@prefix} {@bad}%arg-1%&c님이 온라인 상태가 아닙니다." to player
             stop
 
-        # 수신자 레벨 체크 (Lv.15 이상)
-        if {낚시레벨::%{_target}%} is not set:
-            set {낚시레벨::%{_target}%} to 1
-        if {낚시레벨::%{_target}%} < 15:
-            message "{@prefix} {@bad}%arg-1%&c님은 레벨 15 미만이라 송금받을 수 없습니다." to player
-            stop
-
-        # 송금자 레벨 체크 (Lv.15 이상)
+        # 레벨 체크
         if {낚시레벨::%player%} is not set:
             set {낚시레벨::%player%} to 1
         if {낚시레벨::%player%} < 15:
             message "{@prefix} {@bad}레벨 15 이상부터 송금이 가능합니다." to player
             stop
 
-        # 일일 한도 체크 및 리셋
-        송금한도체크(player)
-
-        if {송금일일한도::%player%} is not set:
-            set {송금일일한도::%player%} to {@daily_limit}
-
-        if {_금액} > {송금일일한도::%player%}:
-            message "{@prefix} {@bad}일일 송금 한도 초과! {@hint}오늘 남은 한도: {@emph}%{송금일일한도::%player%}%골드" to player
-            stop
-
-        # 잔액 체크
-        if {돈::%player%} < {_금액}:
-            message "{@prefix} {@bad}골드가 부족합니다. {@hint}현재 잔액: {@emph}%{돈::%player%}%골드" to player
+        if {낚시레벨::%{_target}%} is not set:
+            set {낚시레벨::%{_target}%} to 1
+        if {낚시레벨::%{_target}%} < 15:
+            message "{@prefix} {@bad}%arg-1%&c님은 레벨 15 미만이라 송금받을 수 없습니다." to player
             stop
 
         # 수수료 계산 (5%, 내림)
         set {_수수료} to floor({_금액} * {@fee_rate} / 100)
         set {_수신액} to {_금액} - {_수수료}
+        set {_실제차감} to {_금액} + {_수수료}
 
-        # 송금 처리
-        remove {_금액} from {돈::%player%}
+        # 잔액 체크 (수수료 포함)
+        if {돈::%player%} < {_실제차감}:
+            message "{@prefix} {@bad}골드가 부족합니다. {@hint}필요: {@emph}%{_실제차감}%골드 {@hint}(송금 %{_금액}%골드 + 수수료 %{_수수료}%골드) | 잔액: {@emph}%{돈::%player%}%골드" to player
+            stop
+
+        # 처리 (수수료 포함 차감)
+        remove {_실제차감} from {돈::%player%}
         if {돈::%{_target}%} is not set:
             set {돈::%{_target}%} to 0
         add {_수신액} to {돈::%{_target}%}
 
-        # 일일 한도 차감
-        remove {_금액} from {송금일일한도::%player%}
-        if {송금일일한도::%player%} < 0:
-            set {송금일일한도::%player%} to 0
-
-        # 메시지
-        message "{@prefix} {@good}→ {@info}%{_target}%&a님에게 {@emph}%{_금액}%골드 {@good}송금 완료! {@hint}(수수료 %{_수수료}%골드) {@hint}| 잔액: {@emph}%{돈::%player%}%골드" to player
-        message "{@prefix} {@good}← {@info}%player%&a님에게서 {@emph}%{_수신액}%골드 {@good}받음! {@hint}| 잔액: {@emph}%{돈::%{_target}%}%골드" to {_target}
-
-        # 일일 한도 안내
-        message "{@prefix} {@hint}오늘 남은 송금 한도: {@emph}%{송금일일한도::%player%}%골드" to player
-
-# ===== /송금한도 — 남은 한도 조회 =====
-command /송금한도:
-    aliases: /thdgksem
-    trigger:
-        송금한도체크(player)
-        if {송금일일한도::%player%} is not set:
-            set {송금일일한도::%player%} to {@daily_limit}
-        message "{@prefix} {@hint}오늘 남은 송금 한도: {@emph}%{송금일일한도::%player%}%골드 {@hint}/ {@emph}{@daily_limit}%골드" to player
-
-# ===== 자정 한도 초기화 =====
-at 00:00:
-    loop all players:
-        set {송금날짜::%loop-player%} to "%today%"
-        set {송금일일한도::%loop-player%} to {@daily_limit}
+        message "{@prefix} {@good}→ &f%arg-1%&a님에게 {@emph}%{_금액}%골드 {@good}송금 완료! {@hint}(수수료 %{_수수료}%골드) | 잔액: {@emph}%{돈::%player%}%골드" to player
+        message "{@prefix} {@good}← &f%player%&a님에게서 {@emph}%{_수신액}%골드 {@good}받음! {@hint}잔액: {@emph}%{돈::%{_target}%}%골드" to {_target}

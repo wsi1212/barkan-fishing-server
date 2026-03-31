@@ -1,7 +1,9 @@
 # =========================================
 # 마켓.sk
 # 유저 마켓 (Player Market) 시스템
-# /마켓 — 마켓 GUI 열기
+# /마켓          — 마켓 GUI 열기 (구경/구매)
+# /마켓등록 <가격> — 손에 든 아이템 등록
+# /마켓취소       — 내 판매 목록 GUI (취소용)
 # =========================================
 
 options:
@@ -12,7 +14,6 @@ options:
     emph: &e
     info: &f
     gui_main: &6유저 마켓
-    gui_sell: &6아이템 등록
     gui_mylist: &6내 판매 목록
     gui_confirm: &6구매 확인
     max_listings: 5
@@ -25,10 +26,7 @@ function 마켓ID생성() :: text:
     if {마켓카운터} is not set:
         set {마켓카운터} to 0
     add 1 to {마켓카운터}
-    set {_n} to {마켓카운터}
-    # 6자리 패딩 (간단히)
-    set {_id} to "MKT%{_n}%"
-    return {_id}
+    return "MKT%{마켓카운터}%"
 
 # ===== 거래 가능 아이템 여부 =====
 function 마켓거래가능(item: item) :: boolean:
@@ -41,14 +39,12 @@ function 마켓거래가능(item: item) :: boolean:
 
 # ===== 아이템 최소 판매가 계산 =====
 function 마켓최소가격(item: item) :: number:
-    # 물고기: fishprice 함수 활용
     loop lore of {_item}:
         if loop-value contains "[물고기]":
             set {_grade} to parsegrade({_item})
             if {_grade} is not "":
                 set {_quality} to parsequality({_item})
                 return fishprice({_grade}, {_quality})
-    # 조합 재료: 50골드
     return {@min_mat_price}
 
 # ===== 만료 아이템 처리 =====
@@ -59,7 +55,11 @@ function 마켓만료처리(id: text):
     set {_item} to {마켓::%{_id}%::아이템}
 
     # 판매자 온라인이면 직접 지급, 아니면 우편함
-    set {_sellerPl} to player {_seller}
+    delete {_sellerPl}
+    loop all players:
+        if loop-player's name is {_seller}:
+            set {_sellerPl} to loop-player
+            stop loop
     if {_sellerPl} is set:
         if {_item} is set:
             if {_sellerPl} can hold {_item}:
@@ -68,17 +68,22 @@ function 마켓만료처리(id: text):
                 drop {_item} at {_sellerPl}'s location
         message "{@prefix} {@hint}등록하신 아이템의 판매 기간이 만료되어 반환되었습니다." to {_sellerPl}
     else:
-        # 우편함에 저장
         if {_item} is set:
             set {_mailIdx} to size of {우편::%{_seller}%::*} + 1
             set {우편::%{_seller}%::%{_mailIdx}%} to {_item}
             add {_mailIdx} to {우편::%{_seller}%::*}
 
+    # 마켓 로그 (파일)
+    set {_iname} to {마켓::%{_id}%::아이템이름}
+    if {_iname} is not set:
+        set {_iname} to "?"
+    set {_price} to {마켓::%{_id}%::가격}
+    log "[만료] %now% | ID:%{_id}% | 판매자:%{_seller}% | 아이템:%{_iname}% | 가격:%{_price}%" to "마켓로그.log"
+
     # 마켓 데이터 삭제
     remove {_id} from {마켓목록::*}
     delete {마켓::%{_id}%::판매자}
     delete {마켓::%{_id}%::아이템이름}
-    delete {마켓::%{_id}%::아이템타입}
     delete {마켓::%{_id}%::가격}
     delete {마켓::%{_id}%::수량}
     delete {마켓::%{_id}%::등록시간}
@@ -134,7 +139,7 @@ function 마켓GUI열기(p: player, page: number):
     set {_start} to ({_page} - 1) * 45 + 1
     set {_end} to min({_total}, {_start} + 44)
 
-    # 아이템 슬롯 채우기 (0~44)
+    # 아이템 슬롯 초기화
     loop integers from 0 to 44:
         set slot loop-integer of {_p}'s current inventory to air
 
@@ -148,10 +153,7 @@ function 마켓GUI열기(p: player, page: number):
                 set {_seller} to {마켓::%{_id}%::판매자}
                 set {_qty} to {마켓::%{_id}%::수량}
                 set {_exp} to {마켓::%{_id}%::만료시간}
-                set {_now} to unix timestamp of now
-                set {_remain} to {_exp} - {_now}
-                set {_remainHr} to floor({_remain} / 3600)
-                # 새 아이템 복사본에 마켓 lore 추가
+                set {_remainHr} to floor(({_exp} - unix timestamp of now) / 3600)
                 set {_displayItem} to {_listItem}
                 set {_lore::*} to lore of {_displayItem}
                 add "" to {_lore::*}
@@ -167,76 +169,36 @@ function 마켓GUI열기(p: player, page: number):
         add 1 to {_slot}
 
     # 하단 네비게이션 바
+    loop integers from 45 to 53:
+        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
+
     # 슬롯 45: 이전 페이지
     if {_page} > 1:
         set slot 45 of {_p}'s current inventory to arrow named "&7◀ 이전 페이지"
     else:
-        set slot 45 of {_p}'s current inventory to gray stained glass pane named "&8이전 페이지 없음"
+        set slot 45 of {_p}'s current inventory to gray stained glass pane named "&8◀ 이전 페이지 없음"
 
-    # 슬롯 46: 판매 등록
-    set slot 46 of {_p}'s current inventory to chest named "&a&l아이템 등록" with lore "&7클릭하여 아이템 판매 등록"
+    # 슬롯 46: 내 목록 / 취소
+    set slot 46 of {_p}'s current inventory to book named "&e내 판매 목록" with lore "&7등록한 아이템 확인 및 취소" and "&7우클릭으로 등록 취소 가능"
 
-    # 슬롯 47: 내 목록
-    set slot 47 of {_p}'s current inventory to book named "&e내 판매 목록" with lore "&7등록한 아이템 확인 및 취소"
-
-    # 슬롯 48: 빈칸
-    set slot 48 of {_p}'s current inventory to gray stained glass pane named "&f"
-
-    # 슬롯 49: 정보
-    set {_infoItem} to paper named "&f유저 마켓"
-    set lore of {_infoItem} to "&7총 등록 아이템: &f%{_total}%개" and "&7페이지: &f%{_page}% / %{_maxPage}%" and "" and "&7등록 수수료: {@list_fee_rate}%% (비환불)" and "&7만료 기간: 48시간" and "&7최대 등록: {@max_listings}개"
-    set slot 49 of {_p}'s current inventory to {_infoItem}
-
-    # 슬롯 50: 빈칸
-    set slot 50 of {_p}'s current inventory to gray stained glass pane named "&f"
-
-    # 슬롯 51: 우편함 (미수령 아이템)
+    # 슬롯 48: 우편함
     set {_mailCount} to size of {우편::%{_p}%::*}
     if {_mailCount} > 0:
-        set slot 51 of {_p}'s current inventory to chest_minecart named "&6우편함 &c(%{_mailCount}%)" with lore "&7만료된 아이템 %{_mailCount}%개 대기 중" and "&7클릭하여 수령"
+        set slot 48 of {_p}'s current inventory to chest_minecart named "&6우편함 &c(%{_mailCount}%)" with lore "&7만료 아이템 %{_mailCount}%개 대기 중" and "&7클릭하여 수령"
     else:
-        set slot 51 of {_p}'s current inventory to gray stained glass pane named "&8우편함 없음"
+        set slot 48 of {_p}'s current inventory to gray stained glass pane named "&8우편함 없음"
 
-    # 슬롯 52: 빈칸
-    set slot 52 of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 슬롯 49: 마켓 정보
+    set {_active} to 마켓활성등록수({_p}'s name)
+    set {_infoItem} to paper named "&f유저 마켓"
+    set lore of {_infoItem} to "&7총 등록 아이템: &f%{_total}%개" and "&7페이지: &f%{_page}% / %{_maxPage}%" and "" and "&e등록: &f손에 아이템 들고 /마켓등록 <가격>" and "&e취소: &f왼쪽 책 아이콘 → 우클릭" and "" and "&7내 등록: &f%{_active}% / {@max_listings}개" and "&7등록 수수료: &f{@list_fee_rate}%% (비환불)" and "&7만료 기간: &f48시간"
+    set slot 49 of {_p}'s current inventory to {_infoItem}
 
     # 슬롯 53: 다음 페이지
     if {_page} < {_maxPage}:
         set slot 53 of {_p}'s current inventory to arrow named "&7다음 페이지 ▶"
     else:
-        set slot 53 of {_p}'s current inventory to gray stained glass pane named "&8다음 페이지 없음"
-
-# ===== 아이템 등록 GUI =====
-function 마켓등록GUI열기(p: player):
-    open chest with 3 rows named "{@gui_sell}" to {_p}
-    # 슬롯 0: 아이템 넣는 칸
-    set slot 0 of {_p}'s current inventory to air
-    # 설명
-    set slot 2 of {_p}'s current inventory to paper named "&f사용법" with lore "&71. 왼쪽 슬롯에 판매할 아이템을 넣으세요" and "&72. 가격 설정: &e/마켓가격 <금액>" and "&73. 등록 버튼 클릭" and "" and "&7거래 가능: &f물고기, 조합 재료" and "&c거래 불가: 장비, 낚싯대, 부품"
-    # 슬롯 4: 가격 표시
-    set {_price} to {마켓등록가격::%{_p}%}
-    if {_price} is not set:
-        set {_price} to 0
-    set {_priceItem} to gold_ingot named "&e판매 가격: %{_price}%골드"
-    set lore of {_priceItem} to "&7채팅에 &e/마켓가격 <금액> &7입력" and "&7수수료: {@list_fee_rate}%% 선불 (비환불)"
-    set slot 4 of {_p}'s current inventory to {_priceItem}
-    # 슬롯 6: 등록 버튼
-    set slot 6 of {_p}'s current inventory to lime_dye named "&a&l등록하기" with lore "&7아이템과 가격 설정 후 클릭"
-    # 슬롯 8: 취소
-    set slot 8 of {_p}'s current inventory to barrier named "&c취소"
-
-    # 슬롯 9-17: 구분선
-    loop integers from 9 to 17:
-        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    # 슬롯 13: 수수료 안내
-    set {_feeItem} to paper named "&7수수료 안내"
-    set lore of {_feeItem} to "&7등록 시 판매 가격의 {@list_fee_rate}%%를 선불로 납부합니다." and "&7아이템이 팔리지 않더라도 수수료는 환불되지 않습니다."
-    set slot 13 of {_p}'s current inventory to {_feeItem}
-
-    # 슬롯 18-26: 미리보기
-    set slot 18 of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 19 of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 20 of {_p}'s current inventory to gray stained glass pane named "&f"
+        set slot 53 of {_p}'s current inventory to gray stained glass pane named "&8다음 페이지 없음 ▶"
 
 # ===== 내 판매 목록 GUI =====
 function 마켓내목록GUI열기(p: player):
@@ -251,9 +213,7 @@ function 마켓내목록GUI열기(p: player):
                     set {_item} to {마켓::%{_id}%::아이템}
                     if {_item} is set:
                         set {_price} to {마켓::%{_id}%::가격}
-                        set {_exp} to {마켓::%{_id}%::만료시간}
-                        set {_now} to unix timestamp of now
-                        set {_remainHr} to floor(({_exp} - {_now}) / 3600)
+                        set {_remainHr} to floor(({마켓::%{_id}%::만료시간} - unix timestamp of now) / 3600)
                         set {_displayItem} to {_item}
                         set {_lore::*} to lore of {_displayItem}
                         add "" to {_lore::*}
@@ -266,15 +226,13 @@ function 마켓내목록GUI열기(p: player):
                         set slot {_slot} of {_p}'s current inventory to {_displayItem}
                         add 1 to {_slot}
 
-    # 빈 슬롯 채우기
     loop integers from {_slot} to 44:
         set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&8빈 슬롯"
 
-    # 하단
     loop integers from 45 to 53:
         set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 49 of {_p}'s current inventory to arrow named "&7← 마켓으로 돌아가기"
     set slot 45 of {_p}'s current inventory to paper named "&f내 등록 현황" with lore "&7활성 등록: &f%{_slot}% / {@max_listings}개"
+    set slot 49 of {_p}'s current inventory to arrow named "&7← 마켓으로 돌아가기"
 
 # ===== 구매 확인 GUI =====
 function 마켓구매확인GUI열기(p: player, id: text):
@@ -297,7 +255,6 @@ function 마켓구매확인GUI열기(p: player, id: text):
         set lore of {_displayItem} to {_lore::*}
         set slot 13 of {_p}'s current inventory to {_displayItem}
 
-    # 확인
     set {_myMoney} to {돈::%{_p}%}
     if {_myMoney} is not set:
         set {_myMoney} to 0
@@ -307,33 +264,92 @@ function 마켓구매확인GUI열기(p: player, id: text):
         set slot 11 of {_p}'s current inventory to red_dye named "&c골드 부족" with lore "&7가격: &e%{_price}%골드" and "&c잔액: &f%{_myMoney}%골드 &c(부족)"
     set slot 15 of {_p}'s current inventory to barrier named "&c취소"
 
-# ===== /마켓 명령어 =====
+# ===== /마켓 — 마켓 GUI 열기 =====
 command /마켓:
     aliases: /akfex
     trigger:
         마켓GUI열기(player, 1)
 
-# ===== /마켓가격 명령어 — 등록 GUI에서 가격 설정 =====
-command /마켓가격 [<text>]:
-    aliases: /akfexrkrur
+# ===== /마켓등록 <가격> — 손에 든 아이템 등록 =====
+command /마켓등록 [<text>]:
+    aliases: /akfexehf
     trigger:
+        # 사용법
         if arg-1 is not set:
-            message "{@prefix} {@hint}사용법: {@emph}/마켓가격 <금액>" to player
+            message "{@prefix} {@hint}사용법: {@emph}/마켓등록 <가격>" to player
+            message "{@prefix} {@hint}손에 든 아이템이 마켓에 등록됩니다." to player
             stop
-        set {_amount} to arg-1 parsed as integer
-        if {_amount} is not set:
-            message "{@prefix} {@bad}올바른 금액을 입력해주세요." to player
+
+        # 가격 파싱
+        set {_price} to arg-1 parsed as integer
+        if {_price} is not set:
+            message "{@prefix} {@bad}가격은 숫자로 입력해주세요." to player
             stop
-        if {_amount} <= 0:
+        if {_price} <= 0:
             message "{@prefix} {@bad}가격은 1 이상이어야 합니다." to player
             stop
-        set {마켓등록가격::%player%} to {_amount}
-        message "{@prefix} {@good}판매 가격을 {@emph}%{_amount}%골드&a로 설정했습니다." to player
-        # GUI 갱신
-        if name of player's current inventory is "{@gui_sell}":
-            마켓등록GUI열기(player)
 
-# ===== 마켓 메인 GUI 클릭 =====
+        # 손에 든 아이템 확인
+        set {_hand} to player's tool
+        if {_hand} is air:
+            message "{@prefix} {@bad}손에 아이템을 들고 사용해주세요." to player
+            stop
+
+        # 거래 가능 여부
+        if 마켓거래가능({_hand}) is false:
+            message "{@prefix} {@bad}이 아이템은 마켓에 등록할 수 없습니다." to player
+            message "{@prefix} {@hint}등록 가능: &f물고기, 조합 재료" to player
+            stop
+
+        # 최소 가격 체크
+        set {_minPrice} to 마켓최소가격({_hand})
+        if {_price} < {_minPrice}:
+            message "{@prefix} {@bad}최소 판매가는 {@emph}%{_minPrice}%골드&c입니다." to player
+            stop
+
+        # 최대 등록 수 체크
+        set {_active} to 마켓활성등록수(player's name)
+        if {_active} >= {@max_listings}:
+            message "{@prefix} {@bad}최대 {@max_listings}개까지 등록 가능합니다. {@hint}현재: %{_active}%개" to player
+            stop
+
+        # 수수료 계산 및 잔액 체크
+        set {_fee} to floor({_price} * {@list_fee_rate} / 100)
+        if {돈::%player%} is not set:
+            set {돈::%player%} to 0
+        if {돈::%player%} < {_fee}:
+            message "{@prefix} {@bad}등록 수수료 {@emph}%{_fee}%골드&c가 부족합니다. {@hint}잔액: {@emph}%{돈::%player%}%골드" to player
+            stop
+
+        # 등록 처리
+        remove {_fee} from {돈::%player%}
+        set {_id} to 마켓ID생성()
+        set {_qty} to amount of player's tool
+        set {_now} to unix timestamp of now
+
+        set {마켓::%{_id}%::판매자} to player's name
+        set {마켓::%{_id}%::아이템이름} to name of {_hand}
+        set {마켓::%{_id}%::가격} to {_price}
+        set {마켓::%{_id}%::수량} to {_qty}
+        set {마켓::%{_id}%::등록시간} to {_now}
+        set {마켓::%{_id}%::만료시간} to {_now} + {@expiry_secs}
+        set {마켓::%{_id}%::아이템} to {_hand}
+        add {_id} to {마켓목록::*}
+
+        # 손에서 아이템 제거
+        set player's tool to air
+
+        # 마켓 로그 (파일)
+        set {_iname} to name of {_hand}
+        if {_iname} is not set:
+            set {_iname} to "%type of {_hand}%"
+        log "[등록] %now% | ID:%{_id}% | 판매자:%player's name% | 아이템:%{_iname}% x%{_qty}% | 가격:%{_price}% | 수수료:%{_fee}%" to "마켓로그.log"
+
+        message "{@prefix} {@good}마켓 등록 완료!" to player
+        message "{@prefix} {@hint}가격: {@emph}%{_price}%골드 {@hint}| 수수료: {@emph}%{_fee}%골드 {@hint}| 만료: 48시간 후" to player
+        message "{@prefix} {@hint}등록 현황: {@emph}%({_active} + 1)% / {@max_listings}개" to player
+
+# ===== 메인 마켓 GUI 클릭 =====
 on inventory click:
     if name of player's current inventory is "{@gui_main}":
         cancel event
@@ -345,7 +361,7 @@ on inventory click:
                 set {_id} to {마켓슬롯ID::%player%::%{_slot}%}
                 if {_id} is set:
                     if {마켓::%{_id}%::판매자} is player's name:
-                        message "{@prefix} {@bad}자신의 아이템은 구매할 수 없습니다. {@hint}내 판매 목록에서 취소하세요." to player
+                        message "{@prefix} {@bad}자신의 아이템은 구매할 수 없습니다. {@hint}내 판매 목록에서 취소 가능" to player
                         stop
                     마켓구매확인GUI열기(player, {_id})
                 stop
@@ -359,32 +375,16 @@ on inventory click:
                 마켓GUI열기(player, {_page} - 1)
             stop
 
-        # 슬롯 46: 아이템 등록
+        # 슬롯 46: 내 목록
         if {_slot} is 46:
-            # 최대 등록 수 체크
-            set {_active} to 마켓활성등록수(player's name)
-            if {_active} >= {@max_listings}:
-                message "{@prefix} {@bad}최대 등록 수({@max_listings}개)를 초과했습니다." to player
-                stop
-            마켓등록GUI열기(player)
-            stop
-
-        # 슬롯 47: 내 목록
-        if {_slot} is 47:
             마켓내목록GUI열기(player)
             stop
 
-        # 슬롯 49: 정보 (무시)
-        if {_slot} is 49:
-            stop
-
-        # 슬롯 51: 우편함
-        if {_slot} is 51:
+        # 슬롯 48: 우편함
+        if {_slot} is 48:
             if {우편::%player%::*} is set:
                 loop {우편::%player%::*}:
-                    set {_mailItem} to {우편아이템::%player%::%loop-value%}
-                    if {_mailItem} is not set:
-                        set {_mailItem} to {우편::%player%::%loop-value%}
+                    set {_mailItem} to {우편::%player%::%loop-value%}
                     if {_mailItem} is set:
                         if player can hold {_mailItem}:
                             give {_mailItem} to player
@@ -405,111 +405,6 @@ on inventory click:
             마켓GUI열기(player, {_page} + 1)
             stop
 
-# ===== 아이템 등록 GUI 클릭 =====
-on inventory click:
-    if name of player's current inventory is "{@gui_sell}":
-        set {_slot} to index of clicked slot
-
-        # 슬롯 0: 아이템 넣기/빼기 허용 (단, 거래 불가 차단)
-        if {_slot} is 0:
-            set {_clickedItem} to event-item
-            if {_clickedItem} is not air:
-                if 마켓거래가능({_clickedItem}) is false:
-                    cancel event
-                    message "{@prefix} {@bad}이 아이템은 마켓에 등록할 수 없습니다. {@hint}(물고기, 조합 재료만 가능)" to player
-                    stop
-            stop
-
-        # 슬롯 4: 가격 설정 안내
-        if {_slot} is 4:
-            cancel event
-            message "{@prefix} {@hint}채팅에 {@emph}/마켓가격 <금액> {@hint}을 입력하세요." to player
-            stop
-
-        # 슬롯 6: 등록 버튼
-        if {_slot} is 6:
-            cancel event
-            # 아이템 체크
-            set {_listItem} to slot 0 of player's current inventory
-            if {_listItem} is air:
-                message "{@prefix} {@bad}등록할 아이템을 슬롯에 넣어주세요." to player
-                stop
-            if 마켓거래가능({_listItem}) is false:
-                message "{@prefix} {@bad}이 아이템은 마켓에 등록할 수 없습니다." to player
-                stop
-
-            # 가격 체크
-            set {_price} to {마켓등록가격::%player%}
-            if {_price} is not set:
-                message "{@prefix} {@bad}가격을 먼저 설정해주세요. ({@emph}/마켓가격 <금액>&c)" to player
-                stop
-            if {_price} <= 0:
-                message "{@prefix} {@bad}가격은 1 이상이어야 합니다." to player
-                stop
-
-            # 최소 가격 체크
-            set {_minPrice} to 마켓최소가격({_listItem})
-            if {_price} < {_minPrice}:
-                message "{@prefix} {@bad}최소 판매가는 {@emph}%{_minPrice}%골드&c입니다." to player
-                stop
-
-            # 수수료 계산 및 차감
-            set {_fee} to floor({_price} * {@list_fee_rate} / 100)
-            if {돈::%player%} is not set:
-                set {돈::%player%} to 0
-            if {돈::%player%} < {_fee}:
-                message "{@prefix} {@bad}등록 수수료 {@emph}%{_fee}%골드&c가 부족합니다. {@hint}현재 잔액: {@emph}%{돈::%player%}%골드" to player
-                stop
-
-            # 최대 등록 수 체크
-            set {_active} to 마켓활성등록수(player's name)
-            if {_active} >= {@max_listings}:
-                message "{@prefix} {@bad}최대 등록 수({@max_listings}개)를 초과했습니다." to player
-                stop
-
-            # 등록 처리
-            remove {_fee} from {돈::%player%}
-            set {_id} to 마켓ID생성()
-            set {_qty} to item amount of {_listItem}
-            set {_now} to unix timestamp of now
-
-            set {마켓::%{_id}%::판매자} to player's name
-            set {마켓::%{_id}%::아이템이름} to name of {_listItem}
-            set {마켓::%{_id}%::가격} to {_price}
-            set {마켓::%{_id}%::수량} to {_qty}
-            set {마켓::%{_id}%::등록시간} to {_now}
-            set {마켓::%{_id}%::만료시간} to {_now} + {@expiry_secs}
-            set {마켓::%{_id}%::아이템} to {_listItem}
-            add {_id} to {마켓목록::*}
-
-            # 인벤에서 아이템 제거
-            set slot 0 of player's current inventory to air
-
-            delete {마켓등록가격::%player%}
-            close player's inventory
-
-            message "{@prefix} {@good}아이템을 마켓에 등록했습니다!" to player
-            message "{@prefix} {@hint}가격: {@emph}%{_price}%골드 {@hint}| 수수료: {@emph}%{_fee}%골드 {@hint}| 만료: 48시간 후" to player
-            stop
-
-        # 슬롯 8: 취소
-        if {_slot} is 8:
-            cancel event
-            # 슬롯 0 아이템 반환
-            set {_returnItem} to slot 0 of player's current inventory
-            if {_returnItem} is not air:
-                set slot 0 of player's current inventory to air
-                if player can hold {_returnItem}:
-                    give {_returnItem} to player
-                else:
-                    drop {_returnItem} at player's location
-            close player's inventory
-            stop
-
-        # 나머지 슬롯 차단
-        if {_slot} is not 0:
-            cancel event
-
 # ===== 내 판매 목록 GUI 클릭 =====
 on inventory click:
     if name of player's current inventory is "{@gui_mylist}":
@@ -524,10 +419,9 @@ on inventory click:
         # 슬롯 0~44: 우클릭 = 등록 취소
         if {_slot} >= 0:
             if {_slot} <= 44:
-                if mouse button is right:
+                if click type is right mouse button:
                     set {_id} to {마켓내목록슬롯::%player%::%{_slot}%}
                     if {_id} is set:
-                        # 아이템 반환
                         set {_item} to {마켓::%{_id}%::아이템}
                         if {_item} is set:
                             if player can hold {_item}:
@@ -535,7 +429,6 @@ on inventory click:
                             else:
                                 drop {_item} at player's location
 
-                        # 마켓 데이터 삭제
                         remove {_id} from {마켓목록::*}
                         delete {마켓::%{_id}%::판매자}
                         delete {마켓::%{_id}%::아이템이름}
@@ -545,7 +438,13 @@ on inventory click:
                         delete {마켓::%{_id}%::만료시간}
                         delete {마켓::%{_id}%::아이템}
 
-                        message "{@prefix} {@good}등록 취소 완료. 아이템을 반환했습니다. {@hint}(수수료 미환불)" to player
+                        # 마켓 로그 (파일)
+                        set {_iname} to name of {_item}
+                        if {_iname} is not set:
+                            set {_iname} to "%type of {_item}%"
+                        log "[취소] %now% | ID:%{_id}% | 판매자:%player's name% | 아이템:%{_iname}%" to "마켓로그.log"
+
+                        message "{@prefix} {@good}등록 취소 완료. {@hint}아이템 반환 (수수료 미환불)" to player
                         마켓내목록GUI열기(player)
                     stop
 
@@ -570,7 +469,7 @@ on inventory click:
                 stop
             if {_exp} < unix timestamp of now:
                 마켓만료처리({_id})
-                message "{@prefix} {@bad}해당 아이템의 판매 기간이 만료되었습니다." to player
+                message "{@prefix} {@bad}판매 기간이 만료된 아이템입니다." to player
                 close player's inventory
                 stop
 
@@ -581,7 +480,7 @@ on inventory click:
             if {돈::%player%} is not set:
                 set {돈::%player%} to 0
             if {돈::%player%} < {_price}:
-                message "{@prefix} {@bad}골드가 부족합니다. {@hint}현재 잔액: {@emph}%{돈::%player%}%골드" to player
+                message "{@prefix} {@bad}골드가 부족합니다. {@hint}잔액: {@emph}%{돈::%player%}%골드" to player
                 close player's inventory
                 stop
 
@@ -597,10 +496,14 @@ on inventory click:
             else:
                 drop {_item} at player's location
 
-            # 판매자에게 알림
-            set {_sellerPl} to player {_seller}
+            # 판매자 온라인이면 알림
+            delete {_sellerPl}
+            loop all players:
+                if loop-player's name is {_seller}:
+                    set {_sellerPl} to loop-player
+                    stop loop
             if {_sellerPl} is set:
-                message "{@prefix} {@good}%player%&a님이 아이템을 구매했습니다! {@emph}%{_price}%골드 {@good}수령!" to {_sellerPl}
+                message "{@prefix} {@good}%player's name%&a님이 아이템을 구매했습니다! {@emph}%{_price}%골드 {@good}수령!" to {_sellerPl}
 
             # 마켓 데이터 삭제
             remove {_id} from {마켓목록::*}
@@ -612,6 +515,12 @@ on inventory click:
             delete {마켓::%{_id}%::만료시간}
             delete {마켓::%{_id}%::아이템}
             delete {마켓구매확인ID::%player%}
+
+            # 마켓 로그 (파일)
+            set {_iname} to name of {_item}
+            if {_iname} is not set:
+                set {_iname} to "%type of {_item}%"
+            log "[구매] %now% | ID:%{_id}% | 구매자:%player's name% | 판매자:%{_seller}% | 아이템:%{_iname}% | 가격:%{_price}%" to "마켓로그.log"
 
             message "{@prefix} {@good}구매 완료! {@hint}잔액: {@emph}%{돈::%player%}%골드" to player
             close player's inventory

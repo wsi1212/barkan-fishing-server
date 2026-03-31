@@ -13,12 +13,25 @@ on load:
     add basalt to {regionguiblock::*}
 function regiondictionary(p: player, r: text):
     set {_raw::*} to get_fish({_r})
-    # 도감에 환경 물고기도 표시
+    # 환경 물고기 추가
     add get_dawn_fish({_r}) to {_raw::*}
     add get_night_fish({_r}) to {_raw::*}
     add get_rain_fish({_r}) to {_raw::*}
     add get_thunder_fish({_r}) to {_raw::*}
-    # ===== 등급별 정렬 (E→G, 범위일 경우 최소등급 기준) =====
+    # 지역별 시간/날씨 물고기도 도감에 표시
+    loop {지역물고기목록::%{_r}%::낮::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    loop {지역물고기목록::%{_r}%::낮맑음::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    loop {지역물고기목록::%{_r}%::낮비::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    loop {지역물고기목록::%{_r}%::밤::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    loop {지역물고기목록::%{_r}%::밤맑음::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    loop {지역물고기목록::%{_r}%::밤비::*}:
+        add {물고기::%loop-value%} to {_raw::*}
+    # ===== 등급별 정렬 =====
     loop {_raw::*}:
         set {_fp::*} to split loop-value at "|"
         set {_sortGrade} to {_fp::4}
@@ -45,29 +58,70 @@ function regiondictionary(p: player, r: text):
             add loop-value to {_gL::*}
         else if {_sortGrade} is "G":
             add loop-value to {_gG::*}
-    add {_gE::*} to {_fishes::*}
-    add {_gD::*} to {_fishes::*}
-    add {_gC::*} to {_fishes::*}
-    add {_gB::*} to {_fishes::*}
-    add {_gA::*} to {_fishes::*}
-    add {_gS::*} to {_fishes::*}
-    add {_gSP::*} to {_fishes::*}
-    add {_gM::*} to {_fishes::*}
-    add {_gL::*} to {_fishes::*}
-    add {_gG::*} to {_fishes::*}
-    set {_c} to 0
+    # 등급 구분선 + 물고기 합치기
+    set {_gradeNames::1} to "E"
+    set {_gradeNames::2} to "D"
+    set {_gradeNames::3} to "C"
+    set {_gradeNames::4} to "B"
+    set {_gradeNames::5} to "A"
+    set {_gradeNames::6} to "S"
+    set {_gradeNames::7} to "S+"
+    set {_gradeNames::8} to "M"
+    set {_gradeNames::9} to "L"
+    set {_gradeNames::10} to "G"
+    set {_gradeColors::1} to "&7"
+    set {_gradeColors::2} to "&f"
+    set {_gradeColors::3} to "&a"
+    set {_gradeColors::4} to "&9"
+    set {_gradeColors::5} to "&5"
+    set {_gradeColors::6} to "&6"
+    set {_gradeColors::7} to "&c"
+    set {_gradeColors::8} to "&3"
+    set {_gradeColors::9} to "&d"
+    set {_gradeColors::10} to "&e"
+    set {_gradeLists::1::*} to {_gE::*}
+    set {_gradeLists::2::*} to {_gD::*}
+    set {_gradeLists::3::*} to {_gC::*}
+    set {_gradeLists::4::*} to {_gB::*}
+    set {_gradeLists::5::*} to {_gA::*}
+    set {_gradeLists::6::*} to {_gS::*}
+    set {_gradeLists::7::*} to {_gSP::*}
+    set {_gradeLists::8::*} to {_gM::*}
+    set {_gradeLists::9::*} to {_gL::*}
+    set {_gradeLists::10::*} to {_gG::*}
+    loop integers from 1 to 10:
+        set {_gn} to {_gradeNames::%loop-integer%}
+        set {_gc} to {_gradeColors::%loop-integer%}
+        if size of {_gradeLists::%loop-integer%::*} > 0:
+            add "SEP|%{_gc}%%{_gn}%등급" to {_fishes::*}
+            add {_gradeLists::%loop-integer%::*} to {_fishes::*}
+    # GUI 열기
+    set {_total} to size of {_fishes::*}
+    set {_rows} to ceil(({_total} + 9) / 9)
+    if {_rows} < 2:
+        set {_rows} to 2
+    if {_rows} > 6:
+        set {_rows} to 6
+    open chest inventory with {_rows} rows named "&0지역별 물고기도감" to {_p}
+    set {_slot} to 9
     loop {_fishes::*}:
-        add 1 to {_c}
-    set {_c2} to {_c}
-    set {_c} to {_c} / 9
-    set {_c} to ceil({_c})
-    add 1 to {_c}
-    open chest inventory with {_c} rows named "&0지역별 물고기도감" to {_p}
-    loop {_c2} times:
-        set {_fish::%loop-iteration%::*} to split {_fishes::%loop-iteration%} at "|"
-        set slot 8+loop-iteration of {_p}'s current inventory to cod named "&f%{_fish::%loop-iteration%::1}%" with lore "&7등급 &e: &f%{_fish::%loop-iteration%::4}%" and "&7최대크기 &e: &f%{도감최대::%{_fish::%loop-iteration%::1}%::%{_p}%}%cm" and "&7처음낚은날짜 &e: &f%{처음낚은날짜::%{_fish::%loop-iteration%::1}%::%{_p}%}%"
-        if {도감최대::%{_fish::%loop-iteration%::1}%::%{_p}%} is not set:
-            set slot 8+loop-iteration of {_p}'s current inventory to coal block named "&c미확인 물고기"
+        if {_slot} >= {_rows} * 9:
+            stop loop
+        set {_data} to loop-value
+        if {_data} starts with "SEP|":
+            # 등급 구분선
+            replace all "SEP|" with "" in {_data}
+            set slot {_slot} of {_p}'s current inventory to orange stained glass pane named "%{_data}%"
+        else:
+            set {_fp::*} to split {_data} at "|"
+            set {_fname} to {_fp::1}
+            set {_fgrade} to {_fp::4}
+            set {_envText} to get_fish_env_text({_fname})
+            if {도감최대::%{_fname}%::%{_p}%} is set:
+                set slot {_slot} of {_p}'s current inventory to cod named "&f%{_fname}%" with lore "&7등급 &e: &f%{_fgrade}%" and "&7크기 &e: &f%{_fp::2}%~%{_fp::3}%cm" and "&7최대기록 &e: &f%{도감최대::%{_fname}%::%{_p}%}%cm" and "&7출현 &e: %{_envText}%" and "&7첫 낚은날 &e: &f%{처음낚은날짜::%{_fname}%::%{_p}%}%"
+            else:
+                set slot {_slot} of {_p}'s current inventory to coal block named "&c??? &8(%{_fgrade}%)" with lore "&7등급 &e: &f%{_fgrade}%" and "&7크기 &e: &f???~???cm" and "&7출현 &e: %{_envText}%"
+        add 1 to {_slot}
 
 function regiondictionarygui(p: player):
     set slot 8 of {_p}'s current inventory to compass named "&a&l지역 검색"

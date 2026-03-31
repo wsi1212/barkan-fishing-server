@@ -212,7 +212,7 @@ function 레벨로드맵GUI(p: player, page: integer):
         else if {_lvNum} is 5:
             set {_reward} to "&a크리확률 +5%%"
         else if {_lvNum} is 10:
-            set {_reward} to "&e크리배율 +1"
+            set {_reward} to "&e크리배율 +10%%"
         else if {_lvNum} is 15:
             set {_reward} to "&a크리확률 +1%%"
         else if {_lvNum} is 25:
@@ -224,11 +224,11 @@ function 레벨로드맵GUI(p: player, page: integer):
         else if {_lvNum} is 55:
             set {_reward} to "&a크리확률 +1%%"
         else if {_lvNum} is 60:
-            set {_reward} to "&e크리배율 +1"
+            set {_reward} to "&e크리배율 +10%%"
         else if {_lvNum} is 65:
             set {_reward} to "&b도망감소 +5%%"
         else if {_lvNum} is 70:
-            set {_reward} to "&e크리배율 +1 (캡 도달)"
+            set {_reward} to "&e크리배율 +10%% (캡 도달)"
         else if {_lvNum} is 75:
             set {_reward} to "&b도망감소 +5%%"
         else if {_lvNum} is 80:

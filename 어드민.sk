@@ -1,0 +1,74 @@
+# =========================================
+# 어드민.sk
+# 관리자 전용 명령어 모음
+# =========================================
+
+# ===== 목표 레벨의 필요경험치 계산 =====
+# 낚시레벨.sk 와 동일한 승수 공식으로 역산
+function 레벨필요경험치계산(targetLv: number) :: number:
+    set {_need} to 200
+    set {_lv} to 1
+    loop ({_targetLv} - 1) times:
+        if {_lv} < 15:
+            set {_need} to {_need} * 1.04
+        else if {_lv} < 25:
+            set {_need} to {_need} * 1.08
+        else if {_lv} < 40:
+            set {_need} to {_need} * 1.05
+        else if {_lv} < 50:
+            set {_need} to {_need} * 1.09
+        else if {_lv} < 60:
+            set {_need} to {_need} * 1.06
+        else:
+            set {_need} to {_need} * 1.10
+        add 1 to {_lv}
+    return floor({_need})
+
+# ===== /레벨설정 <닉네임> <레벨> =====
+on tab complete of "/레벨설정":
+    set tab completions for position 1 to names of all players
+    set tab completions for position 2 to "1" and "10" and "15" and "20" and "30" and "40" and "50" and "60" and "70" and "100"
+
+command /레벨설정 [<text>] [<text>]:
+    aliases: /fpfnjffur
+    permission: op
+    permission message: &c권한이 없습니다.
+    trigger:
+        if arg-1 is not set:
+            message "&8[&c 어드민 &8] &7사용법: &e/레벨설정 <닉네임> <레벨>" to player
+            stop
+        if arg-2 is not set:
+            message "&8[&c 어드민 &8] &7사용법: &e/레벨설정 <닉네임> <레벨>" to player
+            stop
+
+        set {_lv} to arg-2 parsed as integer
+        if {_lv} is not set:
+            message "&8[&c 어드민 &8] &c레벨은 숫자로 입력해주세요." to player
+            stop
+        if {_lv} < 1:
+            message "&8[&c 어드민 &8] &c레벨은 1 이상이어야 합니다." to player
+            stop
+        if {_lv} > 100:
+            message "&8[&c 어드민 &8] &c최대 레벨은 100입니다." to player
+            stop
+
+        delete {_target}
+        loop all players:
+            if loop-player's name is arg-1:
+                set {_target} to loop-player
+                stop loop
+        if {_target} is not set:
+            message "&8[&c 어드민 &8] &c%arg-1%님이 온라인 상태가 아닙니다." to player
+            stop
+
+        # 레벨 및 경험치 설정
+        set {낚시레벨::%{_target}%} to {_lv}
+        set {낚시레벨현재경험치::%{_target}%} to 0
+        set {낚시레벨필요경험치::%{_target}%} to 레벨필요경험치계산({_lv})
+
+        # 경험치바 동기화
+        경험치바동기화({_target})
+        칭호자동체크({_target})
+
+        message "&8[&c 어드민 &8] &f%arg-1%&a님의 레벨을 &eLv.%{_lv}%&a로 설정했습니다." to player
+        message "&8[&c 어드민 &8] &7관리자 &f%player%&7님이 레벨을 &eLv.%{_lv}%&7로 설정했습니다." to {_target}

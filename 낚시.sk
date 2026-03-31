@@ -18,7 +18,6 @@ on fish caught:
             message "&8[&b 낚시 &8] &c이 지역에서 낚시하려면 낚시 레벨 &e%{_reqLv}% &c이상이 필요합니다. &7(현재: Lv.%{낚시레벨::%player%}%)" to player
             stop
     set {_fishes::*} to get_fish({area::%player%})
-    #broadcast "getfish : %{_fishes::*}%"
     cancel event
     kill fishing hook
     set player's level to 0
@@ -26,6 +25,7 @@ on fish caught:
     # ===== 환경 감지 & 특수 물고기 추가 =====
     set {_시간대} to 현재시간대(player)
     set {_날씨} to 현재날씨(player)
+    # 전역 환경 물고기 (새벽/밤/비/뇌우)
     if {_시간대} is "새벽":
         set {_dawn::*} to get_dawn_fish({area::%player%})
         add {_dawn::*} to {_fishes::*}
@@ -38,6 +38,9 @@ on fish caught:
     if {_날씨} is "뇌우":
         set {_thunder::*} to get_thunder_fish({area::%player%})
         add {_thunder::*} to {_fishes::*}
+    # 지역별 시간/날씨 물고기 (원양어선 등)
+    set {_envFish::*} to get_region_env_fish({area::%player%}, {_시간대}, {_날씨})
+    add {_envFish::*} to {_fishes::*}
     # 환경 보너스 계산
     set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
     set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
@@ -557,23 +560,7 @@ on fish caught:
     # 바 폭이 존 폭+2보다 작지 않도록 보정
     if {_barWidth} < {_zoneWidth} + 2:
         set {_barWidth} to {_zoneWidth} + 2
-    # 레벨 보너스: 크리티컬확률 -> 퍼펙트 존 폭 증가 (10%당 +1, 최대 +2)
-    set {_perfectBonus} to floor({_크리티컬확률} / 10)
-    if {_perfectBonus} > 2:
-        set {_perfectBonus} to 2
-    add {_perfectBonus} to {_perfectWidth}
-    # 인챈트: 날카로운감각 → 퍼펙트존 추가
-    if {낚싯대인챈트퍼펙트::%player%} is set:
-        add {낚싯대인챈트퍼펙트::%player%} to {_perfectWidth}
-    # 퍼펙트 존 크기 제한: 1칸이면 전부 크리티컬, 아니면 최대 존의 1/3
-    if {_zoneWidth} <= 1:
-        set {_perfectWidth} to {_zoneWidth}
-    else:
-        set {_maxPerfect} to floor({_zoneWidth} / 3)
-        if {_maxPerfect} < 1:
-            set {_maxPerfect} to 1
-        if {_perfectWidth} > {_maxPerfect}:
-            set {_perfectWidth} to {_maxPerfect}
+    # 크리티컬 확률은 칸별 굴림에 사용 (기존 퍼펙트존 고정 폭 삭제)
     # 도주 확률 (등급 기본 - 도망확률감소/2, 최소 1%)
     set {_escapeBase} to ({_params::4} parsed as integer) - floor({_도망확률감소} / 2)
     if {_escapeBase} < 1:
@@ -595,12 +582,11 @@ on fish caught:
         set {_zoneEnd} to {_zoneStart} + {_zoneWidth} - 1
         # 퍼펙트 존 (존 내부 랜덤 위치)
         set {_perfectMaxStart} to {_zoneEnd} - {_perfectWidth} + 1
-        if {_perfectMaxStart} < {_zoneStart}:
-            set {_perfectMaxStart} to {_zoneStart}
-        set {_perfectStart} to random integer between {_zoneStart} and {_perfectMaxStart}
-        set {_perfectEnd} to {_perfectStart} + {_perfectWidth} - 1
-        if {_perfectEnd} > {_zoneEnd}:
-            set {_perfectEnd} to {_zoneEnd}
+        # 칸별 크리티컬 굴림 (각 초록 칸마다 크리확률% 독립 판정)
+        delete {미니게임크리칸::%player%::*}
+        loop integers from {_zoneStart} to {_zoneEnd}:
+            chance of {_크리티컬확률}%:
+                set {미니게임크리칸::%player%::%loop-integer%} to true
         # 스팟 이동 방향 설정 (일정 방향으로 움직임)
         set {_spotDir} to 1
         chance of 50%:
@@ -619,12 +605,9 @@ on fish caught:
         set {미니게임결과::%player%} to "대기"
         set {미니게임존시작::%player%} to {_zoneStart}
         set {미니게임존끝::%player%} to {_zoneEnd}
-        set {미니게임퍼펙트시작::%player%} to {_perfectStart}
-        set {미니게임퍼펙트끝::%player%} to {_perfectEnd}
         set {미니게임연속현재::%player%} to {_currentRound}
         set {미니게임연속총::%player%} to {_연속횟수}
-        # 스윗스팟 크리티컬 확률 (기본 10% + 레벨 크리티컬확률 + 낚싯대보너스*3)
-        set {미니게임크리티컬확률::%player%} to 10 + {_크리티컬확률} + ({_낚싯대보너스} * 3)
+        set {미니게임크리티컬확률::%player%} to {_크리티컬확률}
         set {미니게임도주확률::%player%} to {_escapeBase}
         set {미니게임도주증가::%player%} to {_escapeInc}
         # 라운드 안내
@@ -692,17 +675,13 @@ on fish caught:
                             set {_newMaxStart} to 0
                         set {_zoneStart} to random integer between 0 and {_newMaxStart}
                         set {_zoneEnd} to {_zoneStart} + {_zoneWidth} - 1
-                        set {_perfectMaxS} to {_zoneEnd} - {_perfectWidth} + 1
-                        if {_perfectMaxS} < {_zoneStart}:
-                            set {_perfectMaxS} to {_zoneStart}
-                        set {_perfectStart} to random integer between {_zoneStart} and {_perfectMaxS}
-                        set {_perfectEnd} to {_perfectStart} + {_perfectWidth} - 1
-                        if {_perfectEnd} > {_zoneEnd}:
-                            set {_perfectEnd} to {_zoneEnd}
                         set {미니게임존시작::%player%} to {_zoneStart}
                         set {미니게임존끝::%player%} to {_zoneEnd}
-                        set {미니게임퍼펙트시작::%player%} to {_perfectStart}
-                        set {미니게임퍼펙트끝::%player%} to {_perfectEnd}
+                        # 크리칸 재굴림
+                        delete {미니게임크리칸::%player%::*}
+                        loop integers from {_zoneStart} to {_zoneEnd}:
+                            chance of {_크리티컬확률}%:
+                                set {미니게임크리칸::%player%::%loop-integer%} to true
                 # 스팟 일정 방향 이동 기믹 (초록/노란 스팟이 한 방향으로 슬라이드)
                 if {_스팟이동속도} > 0:
                     add 1 to {_spotMoveCount}
@@ -711,8 +690,6 @@ on fish caught:
                         # 존 전체를 한 방향으로 1칸 이동
                         add {_spotDir} to {_zoneStart}
                         add {_spotDir} to {_zoneEnd}
-                        add {_spotDir} to {_perfectStart}
-                        add {_spotDir} to {_perfectEnd}
                         # 벽에 닿으면 반대로
                         if {_zoneEnd} >= {_barWidth}:
                             set {_spotDir} to -1
@@ -722,19 +699,15 @@ on fish caught:
                             set {_spotDir} to 1
                             set {_zoneStart} to 0
                             set {_zoneEnd} to {_zoneWidth} - 1
-                        # 퍼펙트 존 범위 보정
-                        if {_perfectStart} < {_zoneStart}:
-                            set {_perfectStart} to {_zoneStart}
-                        if {_perfectEnd} > {_zoneEnd}:
-                            set {_perfectEnd} to {_zoneEnd}
-                        if {_perfectEnd} < {_perfectStart}:
-                            set {_perfectEnd} to {_perfectStart}
                         set {미니게임존시작::%player%} to {_zoneStart}
                         set {미니게임존끝::%player%} to {_zoneEnd}
-                        set {미니게임퍼펙트시작::%player%} to {_perfectStart}
-                        set {미니게임퍼펙트끝::%player%} to {_perfectEnd}
+                        # 크리칸 재굴림 (이동할 때마다)
+                        delete {미니게임크리칸::%player%::*}
+                        loop integers from {_zoneStart} to {_zoneEnd}:
+                            chance of {_크리티컬확률}%:
+                                set {미니게임크리칸::%player%::%loop-integer%} to true
                 # 게이지 표시 (가변 바 폭)
-                send action bar 미니게임게이지({_cursor}, {_zoneStart}, {_zoneEnd}, {_perfectStart}, {_perfectEnd}, {_barWidth}) to player
+                send action bar 미니게임게이지(player, {_cursor}, {_zoneStart}, {_zoneEnd}, {_barWidth}) to player
             add 1 to {_step}
             # 보스바 진행률 업데이트
             set {_prog} to (({_maxSteps} - {_step}) / {_maxSteps}) * 100
@@ -1002,41 +975,47 @@ on fish caught:
     퀘스트_물고기(player, {_f::1}, {_등급}, {_size})
 
 on inventory close:
-    if player's current inventory's name is "&0낚시":
-        set {_autoIB} to {아이스박스등급::%player%} >= 5
+    if name of event-inventory is "&0낚시":
+        set {_autoIB} to false
+        if {자동수납해금::%player%} is true:
+            if {아이스박스자동수납::%player%} is not set:
+                set {아이스박스자동수납::%player%} to true
+            if {아이스박스자동수납::%player%} is true:
+                set {_autoIB} to true
         set {_ibCount} to 0
         loop 9 times:
             set {_slot} to (loop-iteration) - 1
-            set {_item} to slot {_slot} of player's current inventory
+            set {_item} to slot {_slot} of event-inventory
             if {_item} is not air:
+                set {_handled} to false
                 # 5단계 이상 아이스박스: 물고기 자동 수납 시도
                 if {_autoIB} is true:
                     if isfish({_item}) is true:
                         if 자동수납(player, {_item}) is true:
                             add 1 to {_ibCount}
-                            set slot {_slot} of player's current inventory to air
-                            stop
-                if player can hold {_item}:
-                    give {_item} to player
-                else:
-                    # 인벤 꽉 참 - 물고기면 자동 판매
-                    set {_autoSold} to false
-                    if isfish({_item}) is true:
-                        set {_amount} to item amount of {_item}
-                        set {_unitPrice} to calcFishPrice({_item})
-                        if {_unitPrice} > 0:
-                            set {_price} to {_unitPrice} * {_amount}
-                            if {돈::%player%} is not set:
-                                set {돈::%player%} to 0
-                            add {_price} to {돈::%player%}
-                            퀘스트_판매(player, {_amount}, {_price})
-                            set {_autoSold} to true
-                            set {_등급} to parsegrade({_item})
-                            set {_크기} to parsesize({_item})
-                            message "&8[&6 상점 &8] &e인벤 가득! 자동 판매: &f%name of {_item}% &7(%{_등급}% / %{_크기}%cm) &e%{_price}%원 &7| 잔액: &f%{돈::%player%}%원" to player
-                    if {_autoSold} is false:
+                            set {_handled} to true
+                if {_handled} is false:
+                    if player can hold {_item}:
                         give {_item} to player
-                set slot {_slot} of player's current inventory to air
+                    else:
+                        # 인벤 꽉 참 - 물고기면 자동 판매
+                        set {_autoSold} to false
+                        if isfish({_item}) is true:
+                            set {_amount} to item amount of {_item}
+                            set {_unitPrice} to calcFishPrice({_item})
+                            if {_unitPrice} > 0:
+                                set {_price} to {_unitPrice} * {_amount}
+                                if {돈::%player%} is not set:
+                                    set {돈::%player%} to 0
+                                add {_price} to {돈::%player%}
+                                퀘스트_판매(player, {_amount}, {_price})
+                                set {_autoSold} to true
+                                set {_등급} to parsegrade({_item})
+                                set {_크기} to parsesize({_item})
+                                message "&8[&6 상점 &8] &e인벤 가득! 자동 판매: &f%name of {_item}% &7(%{_등급}% / %{_크기}%cm) &e%{_price}%원 &7| 잔액: &f%{돈::%player%}%원" to player
+                        if {_autoSold} is false:
+                            give {_item} to player
+                set slot {_slot} of event-inventory to air
         if {_ibCount} > 0:
             message "&8[&b 아이스박스 &8] &b%{_ibCount}%마리 자동 수납 완료!" to player
 function fishrank(p: player, fishname: text, rank: text, size: text):

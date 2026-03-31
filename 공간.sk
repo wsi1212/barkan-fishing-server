@@ -14,6 +14,8 @@ function regionDisplayName(region: text) :: text:
         return "바르칸 동굴"
     else if {_region} is "lavatest":
         return "용암 지대"
+    else if {_region} is "원양어선":
+        return "원양어선"
     return {_region}
 
 # ===== 지역 레벨 제한 =====
@@ -26,6 +28,8 @@ function regionRequiredLevel(region: text) :: number:
         return 0
     else if {_region} is "lavatest":
         return 50
+    else if {_region} is "원양어선":
+        return 15
     return 0
 
 # ===== 레벨 미달 시 진입 거부 처리 =====

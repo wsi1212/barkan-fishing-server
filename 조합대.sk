@@ -66,7 +66,7 @@ on load:
     set {조합법::%{_id3}%::재료::3::ID} to "바르칸조각"
     set {조합법::%{_id3}%::재료::3::수량} to 2
     set {_rod3} to fishing_rod named "&c용암 낚싯대"
-    set lore of {_rod3} to "&7등급 &e: &f조합" and "&c불꽃처럼 달아오른 낚싯대." and "" and "&a경험치 보너스: &f+40%%" and "&a판매 보너스: &f+30%%" and "&a크리티컬 배율 캡: &f+1" and "&a용암 등급업률: &f+15%%" and "" and "&8[낚싯대]" and "&8craft:용암낚싯대"
+    set lore of {_rod3} to "&7등급 &e: &f조합" and "&c불꽃처럼 달아오른 낚싯대." and "" and "&a경험치 보너스: &f+40%%" and "&a판매 보너스: &f+30%%" and "&a크리티컬 배율 캡: &f+10%%" and "&a용암 등급업률: &f+15%%" and "" and "&8[낚싯대]" and "&8craft:용암낚싯대"
     set {조합법::%{_id3}%::결과} to {_rod3}
 
 # ===== 재료 보유 수량 계산 =====
@@ -75,7 +75,7 @@ function 재료보유수(p: player, matId: text) :: number:
     loop items in {_p}'s inventory:
         if loop-item is not air:
             loop lore of loop-item:
-                if loop-value contains "mat:%{_matId}%":
+                if loop-value-2 contains "mat:%{_matId}%":
                     add amount of loop-item to {_count}
     return {_count}
 
@@ -101,7 +101,7 @@ function 재료제거(p: player, matId: text, amount: number):
         if loop-item is not air:
             set {_skip} to false
             loop lore of loop-item:
-                if loop-value contains "mat:%{_matId}%":
+                if loop-value-2 contains "mat:%{_matId}%":
                     set {_skip} to true
             if {_skip} is true:
                 set {_stackAmt} to amount of loop-item

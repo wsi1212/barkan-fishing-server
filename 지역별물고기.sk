@@ -1,304 +1,176 @@
-#E D C B A S S+ M L G
-# 등급 범위: "이름|최소크기|최대크기|최소등급~최대등급" (단일등급도 가능)
+# =========================================
+# 지역별물고기.sk
+# fish.json에서 물고기 데이터를 로드하여 변수에 매핑
+# 등급 범위: "이름|최소크기|최대크기|최소등급~최대등급"
+# =========================================
+
 on load:
     delete {물고기::*}
-    # ===== 갈매기바위 (튜토리얼) =====
-    # E
-    set {물고기::갈매기숭어} to "갈매기숭어|10|25|E"
-    set {물고기::바위게} to "바위게|5|15|E"
-    set {물고기::해초새우} to "해초새우|3|12|E"
-    # E~D
-    set {물고기::파도농어} to "파도농어|15|35|E~D"
-    set {물고기::돌돔치} to "돌돔치|12|30|E~D"
-    # D~C
-    set {물고기::바위볼락} to "바위볼락|20|45|D~C"
+    delete {물고기지역::*}
+    delete {물고기환경::*}
+    delete {물고기이벤트::*}
+    delete {지역물고기목록::*}
+    delete {환경물고기::*}
 
-    # ===== 바르칸물길 =====
-    # E (최하등급 - 범위 없음)
-    set {물고기::피라미} to "피라미|13|22.5|E"
-    set {물고기::블루길} to "블루길|19.1|41|E"
-    set {물고기::모래무지} to "모래무지|10|29.2|E"
-    set {물고기::망둥어} to "망둥어|15|30|E" #바르칸 물길 사라짐
+    # fish.json 로드 (SkBee JSON)
+    set {_json} to json from file "plugins/Skript/scripts/fish.json"
+    if {_json} is not set:
+        broadcast "&c[물고기] fish.json 로드 실패!"
+        stop
 
-    # E~D
-    set {물고기::붕어} to "붕어|10|48|E~D"
-    set {물고기::참붕어} to "참붕어|8|12.5|E~D"
-    set {물고기::미꾸라지} to "미꾸라지|16|20|E~D"
+    # JSON 배열 순회
+    loop values of {_json}:
+        set {_fish} to loop-value
+        set {_name} to tag "name" of {_fish}
+        set {_min} to tag "minSize" of {_fish}
+        set {_max} to tag "maxSize" of {_fish}
+        set {_grade} to tag "grade" of {_fish}
+        set {_region} to tag "region" of {_fish}
+        set {_time} to tag "time" of {_fish}
+        set {_weather} to tag "weather" of {_fish}
+        set {_event} to tag "event" of {_fish}
 
-    # D~C
-    set {물고기::누치} to "누치|33|67|D~C"
-    set {물고기::잉어} to "잉어|31|120|D~C"
-    set {물고기::메기} to "메기|37|130|D~C"
+        # 물고기 데이터 문자열 (기존 포맷 호환)
+        set {물고기::%{_name}%} to "%{_name}%|%{_min}%|%{_max}%|%{_grade}%"
 
-    # C~B
-    set {물고기::꺽지} to "꺽지|15|20|C~B"
-    set {물고기::끄리} to "끄리|10|40|C~B"
-    set {물고기::동자개} to "동자개|20|30|C~B"
-    set {물고기::빠가사리} to "빠가사리|7|15|C~B"
-    set {물고기::숭어} to "숭어|50|100|C~B"
+        # 환경 정보 저장
+        set {물고기환경::%{_name}%::시간} to {_time}
+        set {물고기환경::%{_name}%::날씨} to {_weather}
 
-    # B~A
-    set {물고기::가물치} to "가물치|30|100|B~A"
-    set {물고기::쏘가리} to "쏘가리|20|30|B~A"
-    set {물고기::뱀장어} to "뱀장어|40|150|B~A"
-    set {물고기::농어} to "농어|50|100|B~A"
+        # 이벤트 메시지
+        if {_event} is set:
+            if "%{_event}%" is not "null":
+                set {물고기이벤트::%{_name}%} to {_event}
 
-    # A~S
-    set {물고기::은어} to "은어|15|70|A~S"
-    set {물고기::산천어} to "산천어|20|79|A~S"
-    set {물고기::연어} to "연어|60|100|A~S"
-    set {물고기::황복} to "황복|20|40|A~S"
-    set {물고기::황어} to "황어|10|50|A~S"
-    set {물고기::열목어} to "열목어|30|70|A~S"
+        # 지역별 목록 구성
+        if {_region} is "전체":
+            # 환경 특수 물고기 — 시간/날씨로 분류
+            if {_time} is "새벽":
+                add {_name} to {환경물고기::새벽::*}
+            else if {_time} is "밤":
+                add {_name} to {환경물고기::밤::*}
+            if {_weather} is "비":
+                add {_name} to {환경물고기::비::*}
+            else if {_weather} is "뇌우":
+                add {_name} to {환경물고기::뇌우::*}
+        else:
+            # 일반 지역 물고기
+            if {_time} is "전체":
+                if {_weather} is "전체":
+                    add {_name} to {지역물고기목록::%{_region}%::기본::*}
+                else if {_weather} is "맑음":
+                    add {_name} to {지역물고기목록::%{_region}%::맑음::*}
+                else if {_weather} is "비":
+                    add {_name} to {지역물고기목록::%{_region}%::비::*}
+                else if {_weather} is "뇌우":
+                    add {_name} to {지역물고기목록::%{_region}%::뇌우::*}
+            else if {_time} is "낮":
+                if {_weather} is "전체":
+                    add {_name} to {지역물고기목록::%{_region}%::낮::*}
+                else if {_weather} is "맑음":
+                    add {_name} to {지역물고기목록::%{_region}%::낮맑음::*}
+                else if {_weather} is "비":
+                    add {_name} to {지역물고기목록::%{_region}%::낮비::*}
+            else if {_time} is "밤":
+                if {_weather} is "전체":
+                    add {_name} to {지역물고기목록::%{_region}%::밤::*}
+                else if {_weather} is "맑음":
+                    add {_name} to {지역물고기목록::%{_region}%::밤맑음::*}
+                else if {_weather} is "비":
+                    add {_name} to {지역물고기목록::%{_region}%::밤비::*}
+            else if {_time} is "이벤트":
+                add {_name} to {지역물고기목록::%{_region}%::이벤트::*}
 
-    # S~S+
-    set {물고기::철갑상어} to "철갑상어|70|140|S~S+|30"
-    set {물고기::백상어} to "백상어|80|160|S~S+|35"
+    broadcast "&a[물고기] fish.json 로드 완료! (%size of {물고기::*}%종)"
 
-    # S+~M
-    set {물고기::왕연어} to "왕연어|90|170|S+~M|50"
-    set {물고기::강의제왕} to "강의제왕|100|190|S+~M|50"
-
-    # L (보스급 단일)
-    set {물고기::황금잉어} to "황금잉어|120|230|L|60"
-
-    # G (보스급 단일)
-    set {물고기::강의수호자} to "강의수호자|180|350|G|75"
-
-    # ===== 바르칸동굴 =====
-    # E (최하등급)
-    set {물고기::동굴피라미} to "동굴피라미|8|18.5|E"
-    set {물고기::암벽송사리} to "암벽송사리|6|14.0|E"
-    set {물고기::석회미꾸리} to "석회미꾸리|9|19.5|E"
-    set {물고기::지하실치} to "지하실치|7|16.0|E"
-    set {물고기::탄광피라미} to "탄광피라미|10|21.0|E"
-    set {물고기::흑점송사리} to "흑점송사리|6|15.5|E"
-    set {물고기::동굴붕어} to "동굴붕어|11|23.0|E"
-    set {물고기::자갈잉어} to "자갈잉어|9|20.5|E"
-    set {물고기::맹안망둥이} to "맹안망둥이|5|13.0|E"
-    set {물고기::지하은어} to "지하은어|8|17.5|E"
-
-    # E~D
-    set {물고기::동굴빙어} to "동굴빙어|12|24.0|E~D"
-    set {물고기::석회송어} to "석회송어|14|28.0|E~D"
-    set {물고기::흑비늘피라미} to "흑비늘피라미|13|26.5|E~D"
-    set {물고기::지하황어} to "지하황어|15|30.0|E~D"
-    set {물고기::광산메기} to "광산메기|16|32.0|E~D"
-    set {물고기::맹안갈치} to "맹안갈치|18|34.5|E~D"
-    set {물고기::심층빙어} to "심층빙어|13|27.0|E~D"
-
-    # D~C
-    set {물고기::동굴비단잉어} to "동굴비단잉어|20|38.0|D~C"
-    set {물고기::암흑송어} to "암흑송어|22|40.5|D~C"
-    set {물고기::지저농어} to "지저농어|24|44.0|D~C"
-    set {물고기::심연붕어} to "심연붕어|21|39.5|D~C"
-    set {물고기::동굴철갑어} to "동굴철갑어|23|42.0|D~C"
-
-    # C~B
-    set {물고기::심연메기} to "심연메기|30|55.0|C~B"
-    set {물고기::흑수정잉어} to "흑수정잉어|28|52.5|C~B"
-    set {물고기::광맥송어} to "광맥송어|27|50.0|C~B"
-    set {물고기::동굴전기뱀장어} to "동굴전기뱀장어|32|60.0|C~B"
-
-    # B~A
-    set {물고기::암흑철갑상어} to "암흑철갑상어|45|85.0|B~A"
-    set {물고기::심연흰장어} to "심연흰장어|40|78.0|B~A"
-    set {물고기::지하왕농어} to "지하왕농어|50|90.0|B~A"
-
-    # A~S
-    set {물고기::심연왕메기} to "심연왕메기|70|130.0|A~S"
-
-    # ===== lavatest =====
-    # C (lava 최하등급)
-    set {물고기::재비늘어} to "재비늘어|18|33|C"
-    set {물고기::홍탄어} to "홍탄어|20|36|C"
-    set {물고기::용흔어} to "용흔어|22|40|C"
-
-    # C~B
-    set {물고기::흑요어} to "흑요어|26|49|C~B"
-    set {물고기::연무어} to "연무어|29|54|C~B"
-    set {물고기::화결어} to "화결어|32|60|C~B"
-
-    # B~A
-    set {물고기::홍련어} to "홍련어|42|80|B~A"
-    set {물고기::흑열어} to "흑열어|46|88|B~A"
-
-    # A~S
-    set {물고기::화산수호자} to "화산수호자|60|112|A~S"
-    set {물고기::홍련포식자} to "홍련포식자|66|124|A~S"
-
-    # S~S+
-    set {물고기::염} to "염|72|138|S~S+|30"
-    set {물고기::흑점} to "흑점|78|148|S~S+|30"
-
-    # S+~M
-    set {물고기::인페르노} to "인페르노|96|182|S+~M|50"
-    set {물고기::라그나로크} to "라그나로크|104|200|S+~M|50"
-
-    # L (보스급 단일)
-    set {물고기::용혈어} to "용혈어|130|250|L|60"
-
-    # G (보스급 단일)
-    set {물고기::용신} to "용신|200|400|G|75"
-
-    # ===== 특수 환경 물고기 (새벽/밤/비/뇌우) — 단일등급 유지 =====
-
-    # 새벽 전용
-    set {물고기::여명잉어} to "여명잉어|30|55|A"
-    set {물고기::아침이슬복어} to "아침이슬복어|15|30|B"
-    set {물고기::새벽동굴장어} to "새벽동굴장어|45|80|A"
-
-    # 밤 전용
-    set {물고기::달빛쏘가리} to "달빛쏘가리|35|65|A"
-    set {물고기::야광붕어} to "야광붕어|10|25|C"
-    set {물고기::반딧불송사리} to "반딧불송사리|8|20|B"
-    set {물고기::어둠동굴메기} to "어둠동굴메기|20|45|B"
-    set {물고기::심야박쥐고기} to "심야박쥐고기|25|50|A"
-    set {물고기::맹인비늘고기} to "맹인비늘고기|12|28|C"
-
-    # 비 전용 (뇌우에도 출현)
-    set {물고기::빗방울잉어} to "빗방울잉어|15|35|B"
-    set {물고기::우천미꾸라지} to "우천미꾸라지|8|22|C"
-    set {물고기::수몰전갱이} to "수몰전갱이|10|25|C"
-    set {물고기::침수가재} to "침수가재|12|30|B"
-
-    # 뇌우 전용 (전 지역)
-    set {물고기::번개물고기} to "번개물고기|40|90|S+|40"
-    set {물고기::뇌전가오리} to "뇌전가오리|60|120|M|50"
-
+# ===== 지역별 기본 물고기 가져오기 =====
 function get_fish(l: text) :: texts:
-    if {_l} is "갈매기바위":
-        # E
-        add {물고기::갈매기숭어} to {_리턴물고기::*}
-        add {물고기::바위게} to {_리턴물고기::*}
-        add {물고기::해초새우} to {_리턴물고기::*}
-        # E~D
-        add {물고기::파도농어} to {_리턴물고기::*}
-        add {물고기::돌돔치} to {_리턴물고기::*}
-        # D~C
-        add {물고기::바위볼락} to {_리턴물고기::*}
-        return {_리턴물고기::*}
-    else if {_l} is "바르칸물길":
-        add {물고기::피라미} to {_리턴물고기::*}
-        add {물고기::블루길} to {_리턴물고기::*}
-        add {물고기::모래무지} to {_리턴물고기::*}
+    # 기본 물고기 (시간/날씨 무관)
+    loop {지역물고기목록::%{_l}%::기본::*}:
+        add {물고기::%loop-value%} to {_리턴물고기::*}
+    return {_리턴물고기::*}
 
-        add {물고기::붕어} to {_리턴물고기::*}
-        add {물고기::참붕어} to {_리턴물고기::*}
-        add {물고기::미꾸라지} to {_리턴물고기::*}
+# ===== 환경별 물고기 가져오기 (원양어선 지역 시간/날씨 대응) =====
+function get_region_env_fish(region: text, time: text, weather: text) :: texts:
+    # 낮 시간대
+    if {_time} is "낮":
+        loop {지역물고기목록::%{_region}%::낮::*}:
+            add {물고기::%loop-value%} to {_list::*}
+        if {_weather} is "맑음":
+            loop {지역물고기목록::%{_region}%::낮맑음::*}:
+                add {물고기::%loop-value%} to {_list::*}
+        else if {_weather} is "비" or "뇌우":
+            loop {지역물고기목록::%{_region}%::낮비::*}:
+                add {물고기::%loop-value%} to {_list::*}
+    # 밤 시간대
+    else if {_time} is "밤":
+        loop {지역물고기목록::%{_region}%::밤::*}:
+            add {물고기::%loop-value%} to {_list::*}
+        if {_weather} is "맑음":
+            loop {지역물고기목록::%{_region}%::밤맑음::*}:
+                add {물고기::%loop-value%} to {_list::*}
+        else if {_weather} is "비" or "뇌우":
+            loop {지역물고기목록::%{_region}%::밤비::*}:
+                add {물고기::%loop-value%} to {_list::*}
+    return {_list::*}
 
-        add {물고기::누치} to {_리턴물고기::*}
-        add {물고기::잉어} to {_리턴물고기::*}
-        add {물고기::메기} to {_리턴물고기::*}
+# ===== 새벽 전용 물고기 =====
+function get_dawn_fish(region: text) :: texts:
+    # 전역 새벽 물고기
+    loop {환경물고기::새벽::*}:
+        add {물고기::%loop-value%} to {_list::*}
+    return {_list::*}
 
-        add {물고기::꺽지} to {_리턴물고기::*}
-        add {물고기::끄리} to {_리턴물고기::*}
-        add {물고기::동자개} to {_리턴물고기::*}
-        add {물고기::빠가사리} to {_리턴물고기::*}
-        add {물고기::숭어} to {_리턴물고기::*}
+# ===== 밤 전용 물고기 =====
+function get_night_fish(region: text) :: texts:
+    # 전역 밤 물고기
+    loop {환경물고기::밤::*}:
+        add {물고기::%loop-value%} to {_list::*}
+    return {_list::*}
 
-        add {물고기::가물치} to {_리턴물고기::*}
-        add {물고기::쏘가리} to {_리턴물고기::*}
-        add {물고기::뱀장어} to {_리턴물고기::*}
-        add {물고기::농어} to {_리턴물고기::*}
-        
-        add {물고기::은어} to {_리턴물고기::*}
-        add {물고기::산천어} to {_리턴물고기::*}
-        add {물고기::연어} to {_리턴물고기::*}
-        add {물고기::황복} to {_리턴물고기::*}
-        add {물고기::황어} to {_리턴물고기::*}
-        add {물고기::열목어} to {_리턴물고기::*}
+# ===== 비 전용 물고기 =====
+function get_rain_fish(region: text) :: texts:
+    loop {환경물고기::비::*}:
+        add {물고기::%loop-value%} to {_list::*}
+    return {_list::*}
 
-        # S+
-        add {물고기::철갑상어} to {_리턴물고기::*}
-        add {물고기::백상어} to {_리턴물고기::*}
+# ===== 뇌우 전용 물고기 =====
+function get_thunder_fish(region: text) :: texts:
+    loop {환경물고기::뇌우::*}:
+        add {물고기::%loop-value%} to {_list::*}
+    return {_list::*}
 
-        # M
-        add {물고기::왕연어} to {_리턴물고기::*}
-        add {물고기::강의제왕} to {_리턴물고기::*}
-
-        # L
-        add {물고기::황금잉어} to {_리턴물고기::*}
-
-        # G
-        add {물고기::강의수호자} to {_리턴물고기::*}
-
-        return {_리턴물고기::*}
-    else if {_l} is "바르칸동굴":
-        # ---- E ----
-        add {물고기::동굴피라미} to {_리턴물고기::*}
-        add {물고기::암벽송사리} to {_리턴물고기::*}
-        add {물고기::석회미꾸리} to {_리턴물고기::*}
-        add {물고기::지하실치} to {_리턴물고기::*}
-        add {물고기::탄광피라미} to {_리턴물고기::*}
-        add {물고기::흑점송사리} to {_리턴물고기::*}
-        add {물고기::동굴붕어} to {_리턴물고기::*}
-        add {물고기::자갈잉어} to {_리턴물고기::*}
-        add {물고기::맹안망둥이} to {_리턴물고기::*}
-        add {물고기::지하은어} to {_리턴물고기::*}
-
-        # ---- D ----
-        add {물고기::동굴빙어} to {_리턴물고기::*}
-        add {물고기::석회송어} to {_리턴물고기::*}
-        add {물고기::흑비늘피라미} to {_리턴물고기::*}
-        add {물고기::지하황어} to {_리턴물고기::*}
-        add {물고기::광산메기} to {_리턴물고기::*}
-        add {물고기::맹안갈치} to {_리턴물고기::*}
-        add {물고기::심층빙어} to {_리턴물고기::*}
-
-        # ---- C ----
-        add {물고기::동굴비단잉어} to {_리턴물고기::*}
-        add {물고기::암흑송어} to {_리턴물고기::*}
-        add {물고기::지저농어} to {_리턴물고기::*}
-        add {물고기::심연붕어} to {_리턴물고기::*}
-        add {물고기::동굴철갑어} to {_리턴물고기::*}
-
-        # ---- B ----
-        add {물고기::심연메기} to {_리턴물고기::*}
-        add {물고기::흑수정잉어} to {_리턴물고기::*}
-        add {물고기::광맥송어} to {_리턴물고기::*}
-        add {물고기::동굴전기뱀장어} to {_리턴물고기::*}
-
-        # ---- A ----
-        add {물고기::암흑철갑상어} to {_리턴물고기::*}
-        add {물고기::심연흰장어} to {_리턴물고기::*}
-        add {물고기::지하왕농어} to {_리턴물고기::*}
-
-        # ---- S ----
-        add {물고기::심연왕메기} to {_리턴물고기::*}    
-
-        return {_리턴물고기::*}
-    else if {_l} is "lavatest":
-        # C
-        add {물고기::재비늘어} to {_리턴물고기::*}
-        add {물고기::홍탄어} to {_리턴물고기::*}
-        add {물고기::용흔어} to {_리턴물고기::*}
-
-        # B
-        add {물고기::흑요어} to {_리턴물고기::*}
-        add {물고기::연무어} to {_리턴물고기::*}
-        add {물고기::화결어} to {_리턴물고기::*}
-
-        # A
-        add {물고기::홍련어} to {_리턴물고기::*}
-        add {물고기::흑열어} to {_리턴물고기::*}
-
-        # S
-        add {물고기::화산수호자} to {_리턴물고기::*}
-        add {물고기::홍련포식자} to {_리턴물고기::*}
-
-        # S+
-        add {물고기::염} to {_리턴물고기::*}
-        add {물고기::흑점} to {_리턴물고기::*}
-
-        # M
-        add {물고기::인페르노} to {_리턴물고기::*}
-        add {물고기::라그나로크} to {_리턴물고기::*}
-
-        # L
-        add {물고기::용혈어} to {_리턴물고기::*}
-
-        # G
-        add {물고기::용신} to {_리턴물고기::*}
-
-        return {_리턴물고기::*}
+# ===== 물고기 환경 정보 텍스트 =====
+function get_fish_env_text(fishName: text) :: text:
+    set {_time} to {물고기환경::%{_fishName}%::시간}
+    set {_weather} to {물고기환경::%{_fishName}%::날씨}
+    if {_time} is not set:
+        return "&f전체"
+    if {_time} is "전체":
+        if {_weather} is "전체":
+            return "&f전체"
+        else if {_weather} is "뇌우":
+            return "&d뇌우"
+        else if {_weather} is "비":
+            return "&b비"
+        else if {_weather} is "맑음":
+            return "&e맑음"
+    else if {_time} is "새벽":
+        return "&e새벽"
+    else if {_time} is "밤":
+        if {_weather} is "전체":
+            return "&9밤"
+        else if {_weather} is "맑음":
+            return "&9밤 &e(맑음)"
+        else if {_weather} is "비":
+            return "&9밤 &b(비)"
+    else if {_time} is "낮":
+        if {_weather} is "전체":
+            return "&6낮"
+        else if {_weather} is "맑음":
+            return "&6낮 &e(맑음)"
+        else if {_weather} is "비":
+            return "&6낮 &b(비)"
+    else if {_time} is "이벤트":
+        return "&c이벤트"
+    return "&f전체"

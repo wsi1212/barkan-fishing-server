@@ -4,11 +4,10 @@
 # /거래 <닉네임> — 거래 요청
 # /거래수락 <닉네임> — 거래 수락 → GUI 오픈
 # /거래취소 — 거래 취소
-# /거래골드 <금액> — 제안 골드 설정
 # =========================================
 
 options:
-    prefix: &8[&6 직거래 &8]
+    prefix: &8[&6 거래 &8]
     good: &a
     bad: &c
     hint: &7
@@ -16,8 +15,18 @@ options:
     info: &f
     gui_name: &6직거래 창
 
+# ===== 이름으로 플레이어 찾기 =====
+function 이름으로플레이어(name: text) :: player:
+    loop all players:
+        if loop-player's name is {_name}:
+            return loop-player
+
 # ===== 거래 가능 아이템 여부 확인 =====
 function 거래가능여부(item: item) :: boolean:
+    loop lore of {_item}:
+        # 정식 수표 허용
+        if loop-value contains "[바르칸열도 정식발행]":
+            return true
     loop lore of {_item}:
         if loop-value contains "[물고기]":
             return true
@@ -25,101 +34,269 @@ function 거래가능여부(item: item) :: boolean:
             return true
     return false
 
+# ===== 슬롯→아이템 인덱스 변환 (내 아이템 3x3) =====
+# 내 아이템: 10,11,12 / 19,20,21 / 28,29,30
+function 거래내슬롯인덱스(slot: number) :: number:
+    if {_slot} >= 10:
+        if {_slot} <= 12:
+            return {_slot} - 9
+    if {_slot} >= 19:
+        if {_slot} <= 21:
+            return {_slot} - 15
+    if {_slot} >= 28:
+        if {_slot} <= 30:
+            return {_slot} - 21
+    return 0
+
 # ===== 거래 GUI 열기 =====
 function 거래GUI열기(p: player):
     set {_other} to {거래중::%{_p}%}
     if {_other} is not set:
         stop
-    set {_otherPlayer} to player {_other}
+    set {_otherPl} to 이름으로플레이어({_other})
+    open chest with 5 rows named "{@gui_name}" to {_p}
 
-    open chest with 6 rows named "{@gui_name}" to {_p}
+    # --- 벽 (col 0, col 8) ---
+    set slot 0 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 8 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 9 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 17 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 18 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 26 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 27 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 35 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 36 of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 44 of {_p}'s current inventory to black stained glass pane named "&f"
 
-    # --- 행1 (0-8): 내 제안 아이템 슬롯 ---
-    set slot 0 of {_p}'s current inventory to lime stained glass pane named "&a내 제안 아이템"
-    loop integers from 1 to 7:
-        set slot loop-integer of {_p}'s current inventory to lime stained glass pane named "&a내 제안 슬롯"
-    set slot 8 of {_p}'s current inventory to lime stained glass pane named "&a내 제안 아이템"
+    # --- 행1 (1-7): 헤더 ---
+    set slot 1 of {_p}'s current inventory to lime stained glass pane named "&a내 아이템"
+    set slot 2 of {_p}'s current inventory to lime stained glass pane named "&a내 아이템"
+    set slot 3 of {_p}'s current inventory to lime stained glass pane named "&a내 아이템"
+    set slot 4 of {_p}'s current inventory to paper named "&6&l%{_p}'s name% &8<-> &6&l%{_other}%" with lore "&7왼쪽에 거래할 아이템을 넣으세요"
+    set slot 5 of {_p}'s current inventory to orange stained glass pane named "&e상대 아이템"
+    set slot 6 of {_p}'s current inventory to orange stained glass pane named "&e상대 아이템"
+    set slot 7 of {_p}'s current inventory to orange stained glass pane named "&e상대 아이템"
 
-    # 내 제안 아이템 채우기 (슬롯 0~8 → 아이템 인덱스 1~9)
+    # --- 내 아이템 3x3: 10,11,12 / 19,20,21 / 28,29,30 ---
+    set {_myS::1} to 10
+    set {_myS::2} to 11
+    set {_myS::3} to 12
+    set {_myS::4} to 19
+    set {_myS::5} to 20
+    set {_myS::6} to 21
+    set {_myS::7} to 28
+    set {_myS::8} to 29
+    set {_myS::9} to 30
     loop integers from 1 to 9:
-        set {_slotIdx} to loop-integer - 1
+        set {_sl} to {_myS::%loop-integer%}
         set {_item} to {거래제안아이템::%{_p}%::%loop-integer%}
         if {_item} is set:
-            set slot {_slotIdx} of {_p}'s current inventory to {_item}
+            set slot {_sl} of {_p}'s current inventory to {_item}
 
-    # --- 행2 (9-17): 구분선 + 골드 ---
-    loop integers from 9 to 17:
-        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    # 슬롯 13: 내가 제안하는 골드
-    set {_myGold} to {거래제안골드::%{_p}%}
-    if {_myGold} is not set:
-        set {_myGold} to 0
-    set {_goldItem} to gold nugget named "&e내가 제안하는 골드"
-    set lore of {_goldItem} to "&f%{_myGold}%골드" and "" and "&7클릭 후 채팅에 '/거래골드 <금액>' 입력" and "&7(0 = 골드 없음)"
-    set slot 13 of {_p}'s current inventory to {_goldItem}
+    # --- 구분 기둥 (col 4): 13,22 + 31=취소 ---
+    set slot 13 of {_p}'s current inventory to gray stained glass pane named "&8|"
+    set slot 22 of {_p}'s current inventory to gray stained glass pane named "&8|"
+    set slot 31 of {_p}'s current inventory to barrier named "&c&l거래 취소"
 
-    # --- 행3 (18-26): 확인/취소 ---
-    loop integers from 18 to 26:
-        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    # 슬롯 22: 내 확인 버튼
-    set {_myConfirm} to {거래확인::%{_p}%}
-    if {_myConfirm} is true:
-        set {_confirmItem} to lime dye named "&a&l확인 완료"
-        set lore of {_confirmItem} to "&7다시 클릭하면 취소"
-    else:
-        set {_confirmItem} to gray dye named "&7확인 (클릭)"
-        set lore of {_confirmItem} to "&7모든 제안이 완료되면 클릭"
-    set slot 22 of {_p}'s current inventory to {_confirmItem}
-    # 슬롯 26: 취소 버튼
-    set slot 26 of {_p}'s current inventory to barrier named "&c&l거래 취소"
-
-    # --- 행4 (27-35): 구분선 + 상대 골드 ---
-    loop integers from 27 to 35:
-        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    # 슬롯 31: 상대방이 제안하는 골드
-    set {_theirGold} to {거래제안골드::%{_other}%}
-    if {_theirGold} is not set:
-        set {_theirGold} to 0
-    set {_theirGoldItem} to gold ingot named "&e%{_other}%님의 제안 골드"
-    set lore of {_theirGoldItem} to "&f%{_theirGold}%골드" and "&7(읽기 전용)"
-    set slot 31 of {_p}'s current inventory to {_theirGoldItem}
-    # 슬롯 35: 상대 확인 상태 표시
-    set {_theirConfirm} to {거래확인::%{_other}%}
-    if {_theirConfirm} is true:
-        set {_theirStatus} to lime dye named "&a%{_other}%님 확인 완료"
-    else:
-        set {_theirStatus} to red dye named "&c%{_other}%님 미확인"
-    set slot 35 of {_p}'s current inventory to {_theirStatus}
-
-    # --- 행5 (36-44): 구분선 ---
-    loop integers from 36 to 44:
-        set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 40 of {_p}'s current inventory to paper named "&f%{_other}%님의 제안 아이템" with lore "&7(아래 슬롯, 읽기 전용)"
-
-    # --- 행6 (45-53): 상대방 제안 아이템 (읽기 전용) ---
+    # --- 상대 아이템 3x3: 14,15,16 / 23,24,25 / 32,33,34 ---
+    set {_thS::1} to 14
+    set {_thS::2} to 15
+    set {_thS::3} to 16
+    set {_thS::4} to 23
+    set {_thS::5} to 24
+    set {_thS::6} to 25
+    set {_thS::7} to 32
+    set {_thS::8} to 33
+    set {_thS::9} to 34
     loop integers from 1 to 9:
-        set {_slotIdx} to loop-integer + 44
-        set {_item} to {거래제안아이템::%{_other}%::%loop-integer%}
-        if {_item} is set:
-            set slot {_slotIdx} of {_p}'s current inventory to {_item}
+        set {_sl} to {_thS::%loop-integer%}
+        if {_otherPl} is set:
+            set {_item} to {거래제안아이템::%{_otherPl}%::%loop-integer%}
         else:
-            set slot {_slotIdx} of {_p}'s current inventory to gray stained glass pane named "&7(빈 슬롯)"
+            delete {_item}
+        if {_item} is set:
+            set slot {_sl} of {_p}'s current inventory to {_item}
+        else:
+            set slot {_sl} of {_p}'s current inventory to light gray stained glass pane named "&7(빈 슬롯)"
 
-# ===== 양쪽 GUI 갱신 =====
+    # --- 행5 (37-43): 확인/취소/경고 ---
+    loop integers from 37 to 43:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+
+    # 슬롯 40: 경고 (행5 가운데)
+    set {_warn} to red stained glass pane named "&c&l주의"
+    set lore of {_warn} to "&c성사된 거래는 취소할 수 없습니다." and "&c약속한 물품이 정확한지" and "&c반드시 확인 후 수락하세요."
+    set slot 40 of {_p}'s current inventory to {_warn}
+
+    # 버튼 초기화
+    거래버튼갱신전체({_p}, {_otherPl}, {_other})
+
+# ===== 양쪽 GUI 버튼/상태만 갱신 (GUI 재오픈 안 함) =====
 function 거래GUI갱신(p1: text, p2: text):
-    set {_pl1} to player {_p1}
-    set {_pl2} to player {_p2}
+    set {_pl1} to 이름으로플레이어({_p1})
+    set {_pl2} to 이름으로플레이어({_p2})
     if {_pl1} is set:
-        if name of {_pl1}'s current inventory is "{@gui_name}":
-            거래GUI열기({_pl1})
-    if {_pl2} is set:
-        if name of {_pl2}'s current inventory is "{@gui_name}":
-            거래GUI열기({_pl2})
+        거래버튼갱신전체({_pl1}, {_pl2}, {_p2})
+
+# ===== 양쪽 버튼 전체 갱신 헬퍼 =====
+function 거래버튼갱신전체(p: player, otherPl: player, otherName: text):
+    set {_c1} to {거래확인::%{_p}%}
+    if {_c1} is not set:
+        set {_c1} to 0
+    set {_c2} to 0
+    if {_otherPl} is set:
+        set {_c2} to {거래확인::%{_otherPl}%}
+        if {_c2} is not set:
+            set {_c2} to 0
+    거래버튼갱신({_p}, {_c1}, {_c2}, {_otherName})
+    if {_otherPl} is set:
+        거래버튼갱신({_otherPl}, {_c2}, {_c1}, {_p}'s name)
+
+# ===== 개별 플레이어 버튼 슬롯 업데이트 =====
+# 37: 내 1차 | 38: 구분 | 39: 내 최종 | 41: 상대 1차 | 42: 구분 | 43: 상대 최종
+function 거래버튼갱신(p: player, myC: number, otherC: number, otherName: text):
+    # 슬롯 37: 내 1차 확인 버튼
+    if {_myC} >= 1:
+        set {_btn1} to yellow dye named "&e&l1차 확인 완료"
+        set lore of {_btn1} to "&7클릭하면 1차 확인 취소"
+    else:
+        set {_btn1} to gray dye named "&71차 확인 (클릭)"
+        set lore of {_btn1} to "&7제안이 완료되면 클릭"
+    set slot 37 of {_p}'s current inventory to {_btn1}
+
+    # 슬롯 38: 구분벽
+    set slot 38 of {_p}'s current inventory to black stained glass pane named "&f"
+
+    # 슬롯 39: 내 최종 확인 버튼
+    if {_myC} >= 2:
+        set {_btn2} to lime dye named "&a&l최종 확인 완료"
+        set lore of {_btn2} to "&7클릭하면 최종 확인 취소"
+    else if {_myC} >= 1:
+        if {_otherC} >= 1:
+            set {_btn2} to orange dye named "&6&l최종 확인 (클릭)"
+            set lore of {_btn2} to "&e양쪽 1차 확인 완료!" and "&7클릭하면 거래가 성사됩니다"
+        else:
+            set {_btn2} to red stained glass pane named "&c최종 확인"
+            set lore of {_btn2} to "&7상대의 1차 확인을 기다리는 중..."
+    else:
+        set {_btn2} to red stained glass pane named "&c최종 확인"
+        set lore of {_btn2} to "&71차 확인을 먼저 해주세요"
+    set slot 39 of {_p}'s current inventory to {_btn2}
+
+    # 슬롯 41: 상대 1차 확인 상태
+    if {_otherC} >= 1:
+        set slot 41 of {_p}'s current inventory to yellow dye named "&e%{_otherName}% 1차 확인"
+    else:
+        set slot 41 of {_p}'s current inventory to red dye named "&c%{_otherName}% 1차 미확인"
+
+    # 슬롯 42: 구분벽
+    set slot 42 of {_p}'s current inventory to black stained glass pane named "&f"
+
+    # 슬롯 43: 상대 최종 확인 상태
+    if {_otherC} >= 2:
+        set slot 43 of {_p}'s current inventory to lime dye named "&a%{_otherName}% 최종 확인"
+    else:
+        set slot 43 of {_p}'s current inventory to red dye named "&c%{_otherName}% 최종 미확인"
+
+# ===== 슬롯 → 슬롯 직접 동기화 (변수 안 거침) =====
+function 거래슬롯동기화(p: player):
+    if {거래중::%{_p}%} is not set:
+        stop
+    set {_other} to {거래중::%{_p}%}
+    set {_otherPl} to 이름으로플레이어({_other})
+
+    # 내 슬롯 / 상대 GUI에서의 내 아이템 슬롯
+    set {_myS::1} to 10
+    set {_myS::2} to 11
+    set {_myS::3} to 12
+    set {_myS::4} to 19
+    set {_myS::5} to 20
+    set {_myS::6} to 21
+    set {_myS::7} to 28
+    set {_myS::8} to 29
+    set {_myS::9} to 30
+    set {_thS::1} to 14
+    set {_thS::2} to 15
+    set {_thS::3} to 16
+    set {_thS::4} to 23
+    set {_thS::5} to 24
+    set {_thS::6} to 25
+    set {_thS::7} to 32
+    set {_thS::8} to 33
+    set {_thS::9} to 34
+
+    loop integers from 1 to 9:
+        set {_mySl} to {_myS::%loop-integer%}
+        set {_thSl} to {_thS::%loop-integer%}
+        set {_item} to slot {_mySl} of {_p}'s current inventory
+
+        # 거래 불가 아이템 반환
+        if {_item} is not air:
+            if 거래가능여부({_item}) is false:
+                give {_item} to {_p}
+                set slot {_mySl} of {_p}'s current inventory to air
+                message "&8[&6 직거래 &8] &c거래 불가 아이템이 반환되었습니다." to {_p}
+                set {_item} to air
+
+        # 상대 GUI에 직접 복사 (변수 안 거침)
+        if {_otherPl} is set:
+            if {_item} is not air:
+                set slot {_thSl} of {_otherPl}'s current inventory to {_item}
+            else:
+                set slot {_thSl} of {_otherPl}'s current inventory to light gray stained glass pane named "&7(빈 슬롯)"
+
+    # 확인 상태 초기화
+    set {거래확인::%{_p}%} to 0
+    if {_otherPl} is set:
+        set {거래확인::%{_otherPl}%} to 0
+    거래버튼갱신전체({_p}, {_otherPl}, {_other})
+
+# ===== 주기적 실시간 동기화 루프 =====
+# 거래 중 5틱(0.25초)마다 양쪽 슬롯을 상대 GUI에 반영
+function 거래동기화루프(p1: player, p2: player):
+    set {_myS::1} to 10
+    set {_myS::2} to 11
+    set {_myS::3} to 12
+    set {_myS::4} to 19
+    set {_myS::5} to 20
+    set {_myS::6} to 21
+    set {_myS::7} to 28
+    set {_myS::8} to 29
+    set {_myS::9} to 30
+    set {_thS::1} to 14
+    set {_thS::2} to 15
+    set {_thS::3} to 16
+    set {_thS::4} to 23
+    set {_thS::5} to 24
+    set {_thS::6} to 25
+    set {_thS::7} to 32
+    set {_thS::8} to 33
+    set {_thS::9} to 34
+    while {거래중::%{_p1}%} is set:
+        # p1 → p2 화면
+        loop integers from 1 to 9:
+            set {_mySl} to {_myS::%loop-integer%}
+            set {_thSl} to {_thS::%loop-integer%}
+            set {_item} to slot {_mySl} of {_p1}'s current inventory
+            if {_item} is not air:
+                set slot {_thSl} of {_p2}'s current inventory to {_item}
+            else:
+                set slot {_thSl} of {_p2}'s current inventory to light gray stained glass pane named "&7(빈 슬롯)"
+        # p2 → p1 화면
+        loop integers from 1 to 9:
+            set {_mySl2} to {_myS::%loop-integer%}
+            set {_thSl2} to {_thS::%loop-integer%}
+            set {_item2} to slot {_mySl2} of {_p2}'s current inventory
+            if {_item2} is not air:
+                set slot {_thSl2} of {_p1}'s current inventory to {_item2}
+            else:
+                set slot {_thSl2} of {_p1}'s current inventory to light gray stained glass pane named "&7(빈 슬롯)"
+        wait 5 ticks
 
 # ===== 거래 실행 =====
 function 거래실행(p1: text, p2: text):
-    set {_pl1} to player {_p1}
-    set {_pl2} to player {_p2}
+    set {_pl1} to 이름으로플레이어({_p1})
+    set {_pl2} to 이름으로플레이어({_p2})
     if {_pl1} is not set:
         거래취소처리({_p2})
         stop
@@ -127,128 +304,187 @@ function 거래실행(p1: text, p2: text):
         거래취소처리({_p1})
         stop
 
-    # 골드 잔액 체크
-    set {_gold1} to {거래제안골드::%{_p1}%}
-    if {_gold1} is not set:
-        set {_gold1} to 0
-    set {_gold2} to {거래제안골드::%{_p2}%}
-    if {_gold2} is not set:
-        set {_gold2} to 0
+    # 슬롯 매핑 (내 아이템 3x3)
+    set {_myS::1} to 10
+    set {_myS::2} to 11
+    set {_myS::3} to 12
+    set {_myS::4} to 19
+    set {_myS::5} to 20
+    set {_myS::6} to 21
+    set {_myS::7} to 28
+    set {_myS::8} to 29
+    set {_myS::9} to 30
 
-    if {돈::%{_p1}%} is not set:
-        set {돈::%{_p1}%} to 0
-    if {돈::%{_p2}%} is not set:
-        set {돈::%{_p2}%} to 0
-
-    if {돈::%{_p1}%} < {_gold1}:
-        close {_pl1}'s inventory
-        close {_pl2}'s inventory
-        message "{@prefix} {@bad}%{_p1}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl1}
-        message "{@prefix} {@bad}%{_p1}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl2}
-        거래데이터삭제({_p1}, {_p2})
-        stop
-    if {돈::%{_p2}%} < {_gold2}:
-        close {_pl1}'s inventory
-        close {_pl2}'s inventory
-        message "{@prefix} {@bad}%{_p2}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl1}
-        message "{@prefix} {@bad}%{_p2}%님의 골드가 부족하여 거래가 취소되었습니다." to {_pl2}
-        거래데이터삭제({_p1}, {_p2})
-        stop
+    # GUI에서 직접 아이템 수거 (변수 의존 X)
+    loop integers from 1 to 9:
+        set {_sl} to {_myS::%loop-integer%}
+        set {_items1::%loop-integer%} to slot {_sl} of {_pl1}'s current inventory
+        set {_items2::%loop-integer%} to slot {_sl} of {_pl2}'s current inventory
+        # 슬롯 비우기 (취소 핸들러가 반환하지 않도록)
+        set slot {_sl} of {_pl1}'s current inventory to air
+        set slot {_sl} of {_pl2}'s current inventory to air
 
     # GUI 닫기
     close {_pl1}'s inventory
     close {_pl2}'s inventory
 
-    # 골드 교환
-    remove {_gold1} from {돈::%{_p1}%}
-    add {_gold1} to {돈::%{_p2}%}
-    remove {_gold2} from {돈::%{_p2}%}
-    add {_gold2} to {돈::%{_p1}%}
-
     # 아이템 교환 (p1 → p2, p2 → p1)
     loop integers from 1 to 9:
-        set {_item1} to {거래제안아이템::%{_p1}%::%loop-integer%}
-        if {_item1} is set:
-            if {_pl2} can hold {_item1}:
-                give {_item1} to {_pl2}
-            else:
-                drop {_item1} at {_pl2}'s location
-        set {_item2} to {거래제안아이템::%{_p2}%::%loop-integer%}
-        if {_item2} is set:
-            if {_pl1} can hold {_item2}:
-                give {_item2} to {_pl1}
-            else:
-                drop {_item2} at {_pl1}'s location
+        if {_items1::%loop-integer%} is set:
+            if {_items1::%loop-integer%} is not air:
+                if {_pl2} can hold {_items1::%loop-integer%}:
+                    give {_items1::%loop-integer%} to {_pl2}
+                else:
+                    drop {_items1::%loop-integer%} at {_pl2}'s location
+        if {_items2::%loop-integer%} is set:
+            if {_items2::%loop-integer%} is not air:
+                if {_pl1} can hold {_items2::%loop-integer%}:
+                    give {_items2::%loop-integer%} to {_pl1}
+                else:
+                    drop {_items2::%loop-integer%} at {_pl1}'s location
 
-    # 완료 메시지
-    message "{@prefix} {@good}거래 완료!" to {_pl1}
-    message "{@prefix} {@hint}받은 아이템을 확인하세요." to {_pl1}
-    if {_gold2} > 0:
-        message "{@prefix} {@hint}받은 골드: {@emph}%{_gold2}%골드" to {_pl1}
-    if {_gold1} > 0:
-        message "{@prefix} {@hint}보낸 골드: {@emph}%{_gold1}%골드" to {_pl1}
+    # 거래 로그 (어드민 추적용 — NBT 포함)
+    delete {_log1::*}
+    delete {_log2::*}
+    loop integers from 1 to 9:
+        if {_items1::%loop-integer%} is set:
+            if {_items1::%loop-integer%} is not air:
+                set {_ln} to name of {_items1::%loop-integer%}
+                if {_ln} is not set:
+                    set {_ln} to "%type of {_items1::%loop-integer%}%"
+                add "%{_ln}% x%item amount of {_items1::%loop-integer%}%" to {_log1::*}
+        if {_items2::%loop-integer%} is set:
+            if {_items2::%loop-integer%} is not air:
+                set {_ln2} to name of {_items2::%loop-integer%}
+                if {_ln2} is not set:
+                    set {_ln2} to "%type of {_items2::%loop-integer%}%"
+                add "%{_ln2}% x%item amount of {_items2::%loop-integer%}%" to {_log2::*}
+    거래로그추가({_p1}, {_p2}, {_log1::*}, {_log2::*})
 
-    message "{@prefix} {@good}거래 완료!" to {_pl2}
-    message "{@prefix} {@hint}받은 아이템을 확인하세요." to {_pl2}
-    if {_gold1} > 0:
-        message "{@prefix} {@hint}받은 골드: {@emph}%{_gold1}%골드" to {_pl2}
-    if {_gold2} > 0:
-        message "{@prefix} {@hint}보낸 골드: {@emph}%{_gold2}%골드" to {_pl2}
+    # 아이템 원본 저장 (NBT 포함 — 정확한 추적용)
+    set {_logId} to {거래로그카운터}
+    loop integers from 1 to 9:
+        if {_items1::%loop-integer%} is set:
+            if {_items1::%loop-integer%} is not air:
+                set {거래로그아이템::%{_logId}%::P1::%loop-integer%} to {_items1::%loop-integer%}
+        if {_items2::%loop-integer%} is set:
+            if {_items2::%loop-integer%} is not air:
+                set {거래로그아이템::%{_logId}%::P2::%loop-integer%} to {_items2::%loop-integer%}
+
+    # 거래 내역 저장 (내가 보낸 / 내가 받은)
+    delete {거래내역보낸::%{_pl1}%::*}
+    delete {거래내역받은::%{_pl1}%::*}
+    delete {거래내역보낸::%{_pl2}%::*}
+    delete {거래내역받은::%{_pl2}%::*}
+    set {거래내역상대::%{_pl1}%} to {_p2}
+    set {거래내역상대::%{_pl2}%} to {_p1}
+    loop integers from 1 to 9:
+        if {_items1::%loop-integer%} is set:
+            if {_items1::%loop-integer%} is not air:
+                set {거래내역보낸::%{_pl1}%::%loop-integer%} to {_items1::%loop-integer%}
+                set {거래내역받은::%{_pl2}%::%loop-integer%} to {_items1::%loop-integer%}
+        if {_items2::%loop-integer%} is set:
+            if {_items2::%loop-integer%} is not air:
+                set {거래내역보낸::%{_pl2}%::%loop-integer%} to {_items2::%loop-integer%}
+                set {거래내역받은::%{_pl1}%::%loop-integer%} to {_items2::%loop-integer%}
+
+    # 완료 메시지 (클릭하여 내역 확인)
+    set {_comp} to text component from "{@prefix} &a거래 완료! "
+    set {_btn} to text component from "&e&l[거래 내역 보기]"
+    set hover event of {_btn} to hover event showing "&7클릭하여 거래 내역 확인"
+    set click event of {_btn} to click event to run command "/거래내역"
+    send component {_comp} and {_btn} to {_pl1}
+    send component {_comp} and {_btn} to {_pl2}
 
     # 데이터 정리
     거래데이터삭제({_p1}, {_p2})
 
 # ===== 거래 취소 처리 =====
 function 거래취소처리(p: text):
-    set {_other} to {거래중::%{_p}%}
-    set {_pl} to player {_p}
-    if {_pl} is set:
-        # 내 제안 아이템 반환
+    # 이름 → 플레이어 객체로 변환 (UUID 키 일치를 위해 반드시 필요)
+    set {_pl} to 이름으로플레이어({_p})
+    if {_pl} is not set:
+        stop
+
+    set {_other} to {거래중::%{_pl}%}
+
+    # {거래중}만 먼저 삭제 → close inventory 재발동 시 재귀 방지
+    delete {거래중::%{_pl}%}
+
+    set {_otherPl} to 이름으로플레이어({_other})
+    if {_otherPl} is set:
+        delete {거래중::%{_otherPl}%}
+
+    # 슬롯 매핑
+    set {_myS::1} to 10
+    set {_myS::2} to 11
+    set {_myS::3} to 12
+    set {_myS::4} to 19
+    set {_myS::5} to 20
+    set {_myS::6} to 21
+    set {_myS::7} to 28
+    set {_myS::8} to 29
+    set {_myS::9} to 30
+
+    # 내 아이템 반환 (GUI 슬롯에서 직접 수거)
+    if name of {_pl}'s current inventory is "{@gui_name}":
         loop integers from 1 to 9:
-            set {_item} to {거래제안아이템::%{_p}%::%loop-integer%}
-            if {_item} is set:
+            set {_sl} to {_myS::%loop-integer%}
+            set {_item} to slot {_sl} of {_pl}'s current inventory
+            if {_item} is not air:
+                set slot {_sl} of {_pl}'s current inventory to air
                 if {_pl} can hold {_item}:
                     give {_item} to {_pl}
                 else:
                     drop {_item} at {_pl}'s location
-        close {_pl}'s inventory
-        message "{@prefix} {@bad}거래가 취소되었습니다." to {_pl}
+    close {_pl}'s inventory
+    message "{@prefix} {@bad}거래가 취소되었습니다." to {_pl}
 
-    if {_other} is set:
-        set {_otherPl} to player {_other}
-        if {_otherPl} is set:
-            # 상대 제안 아이템 반환
+    # 상대 아이템 반환 (GUI 슬롯에서 직접 수거)
+    if {_otherPl} is set:
+        if name of {_otherPl}'s current inventory is "{@gui_name}":
             loop integers from 1 to 9:
-                set {_item2} to {거래제안아이템::%{_other}%::%loop-integer%}
-                if {_item2} is set:
+                set {_sl2} to {_myS::%loop-integer%}
+                set {_item2} to slot {_sl2} of {_otherPl}'s current inventory
+                if {_item2} is not air:
+                    set slot {_sl2} of {_otherPl}'s current inventory to air
                     if {_otherPl} can hold {_item2}:
                         give {_item2} to {_otherPl}
                     else:
                         drop {_item2} at {_otherPl}'s location
-            close {_otherPl}'s inventory
-            message "{@prefix} {@bad}거래가 취소되었습니다." to {_otherPl}
-        거래데이터삭제({_other}, {_p})
-    else:
-        거래데이터삭제({_p}, "")
+        close {_otherPl}'s inventory
+        message "{@prefix} {@bad}거래가 취소되었습니다." to {_otherPl}
+
+    # 나머지 데이터 정리
+    delete {거래확인::%{_pl}%}
+    delete {거래제안아이템::%{_pl}%::*}
+
+    if {_otherPl} is set:
+        delete {거래확인::%{_otherPl}%}
+        delete {거래제안아이템::%{_otherPl}%::*}
+    
 
 # ===== 거래 데이터 삭제 =====
 function 거래데이터삭제(p1: text, p2: text):
-    delete {거래중::%{_p1}%}
-    delete {거래확인::%{_p1}%}
-    delete {거래제안아이템::%{_p1}%::*}
-    delete {거래제안골드::%{_p1}%}
-    if {_p2} is not "":
-        delete {거래중::%{_p2}%}
-        delete {거래확인::%{_p2}%}
-        delete {거래제안아이템::%{_p2}%::*}
-        delete {거래제안골드::%{_p2}%}
+    set {_pl1} to 이름으로플레이어({_p1})
+    set {_pl2} to 이름으로플레이어({_p2})
+    if {_pl1} is set:
+        delete {거래중::%{_pl1}%}
+        delete {거래확인::%{_pl1}%}
+        delete {거래제안아이템::%{_pl1}%::*}
+    
+    if {_pl2} is set:
+        delete {거래중::%{_pl2}%}
+        delete {거래확인::%{_pl2}%}
+        delete {거래제안아이템::%{_pl2}%::*}
+    
 
 # ===== /거래 명령어 — 거래 요청 =====
 on tab complete of "/거래":
-    set tab completions for position 1 to all players' names
+    set tab completions for position 1 to names of all players
 
 command /거래 [<text>]:
-    aliases: /rjfrj
+    aliases: /rjfo
     trigger:
         if arg-1 is not set:
             message "{@prefix} {@hint}사용법: {@emph}/거래 <닉네임>" to player
@@ -267,7 +503,11 @@ command /거래 [<text>]:
             stop
 
         # 대상 온라인 체크
-        set {_target} to player arg-1
+        delete {_target}
+        loop all players:
+            if loop-player's name is arg-1:
+                set {_target} to loop-player
+                stop loop
         if {_target} is not set:
             message "{@prefix} {@bad}%arg-1%&c님이 온라인 상태가 아닙니다." to player
             stop
@@ -287,21 +527,27 @@ command /거래 [<text>]:
             message "{@prefix} {@bad}%arg-1%&c님이 이미 거래 중입니다." to player
             stop
 
-        # 요청 메시지 (클릭 가능)
-        set {_senderName} to player's name
-        set {_comp} to text component from "&e%{_senderName}%&a님이 직거래를 요청합니다. &7[&a수락&7] &8[&c거절&8]"
-        set click event of {_comp} to run command "/거래수락 %{_senderName}%"
-        send component {_comp} to {_target}
+        # 거래 요청 상태 저장
+        set {거래요청::%{_target}%} to player's name
+
+        # 요청 메시지 (안내 + 버튼)
+        message "{@prefix} &e%player%&a님이 거래를 요청합니다." to {_target}
+        set {_ok} to text component from "    &a&l[수락]"
+        set hover event of {_ok} to hover event showing "&7클릭하여 수락"
+        set click event of {_ok} to click event to suggest command "/거래수락 %player's name%"
+        set {_no} to text component from "  &c&l[거절]"
+        set hover event of {_no} to hover event showing "&7클릭하여 거절"
+        set click event of {_no} to click event to run command "/거래거절 %player's name%"
+        send component {_ok} and {_no} to {_target}
 
         message "{@prefix} {@good}%arg-1%&a님에게 거래 요청을 보냈습니다." to player
-        message "{@prefix} {@hint}상대방이 수락을 기다리는 중..." to player
 
 # ===== /거래수락 명령어 =====
 on tab complete of "/거래수락":
-    set tab completions for position 1 to all players' names
+    set tab completions for position 1 to names of all players
 
 command /거래수락 [<text>]:
-    aliases: /rjfrtndk
+    aliases: /rjfotnfkr
     trigger:
         if arg-1 is not set:
             message "{@prefix} {@hint}사용법: {@emph}/거래수락 <닉네임>" to player
@@ -312,9 +558,18 @@ command /거래수락 [<text>]:
             message "{@prefix} {@bad}자기 자신과 거래할 수 없습니다." to player
             stop
 
-        set {_sender} to player arg-1
+        delete {_sender}
+        loop all players:
+            if loop-player's name is arg-1:
+                set {_sender} to loop-player
+                stop loop
         if {_sender} is not set:
             message "{@prefix} {@bad}%arg-1%&c님이 온라인 상태가 아닙니다." to player
+            stop
+
+        # 요청 존재 여부 체크
+        if {거래요청::%player%} is not arg-1:
+            message "{@prefix} {@bad}%arg-1%&c님의 거래 요청이 없습니다." to player
             stop
 
         # 이미 거래 중 체크
@@ -324,6 +579,9 @@ command /거래수락 [<text>]:
         if {거래중::%{_sender}%} is set:
             message "{@prefix} {@bad}%arg-1%&c님이 이미 다른 거래 중입니다." to player
             stop
+
+        # 요청 소비
+        delete {거래요청::%player%}
 
         # 레벨 체크
         if {낚시레벨::%player%} is not set:
@@ -335,12 +593,10 @@ command /거래수락 [<text>]:
         # 거래 세션 설정
         set {거래중::%player%} to {_sender}'s name
         set {거래중::%{_sender}%} to player's name
-        set {거래확인::%player%} to false
-        set {거래확인::%{_sender}%} to false
+        set {거래확인::%player%} to 0
+        set {거래확인::%{_sender}%} to 0
         delete {거래제안아이템::%player%::*}
         delete {거래제안아이템::%{_sender}%::*}
-        set {거래제안골드::%player%} to 0
-        set {거래제안골드::%{_sender}%} to 0
 
         # GUI 열기
         wait 1 tick
@@ -352,55 +608,40 @@ command /거래수락 [<text>]:
         message "{@prefix} {@hint}취소: {@emph}/거래취소 {@hint}또는 창 닫기" to player
         message "{@prefix} {@hint}취소: {@emph}/거래취소 {@hint}또는 창 닫기" to {_sender}
 
+        # 실시간 동기화 루프 시작 (거래 종료 시 자동 중단)
+        거래동기화루프(player, {_sender})
+
 # ===== /거래취소 명령어 =====
 command /거래취소:
-    aliases: /rjfrcnth
+    aliases: /rjfocnlth
     trigger:
         if {거래중::%player%} is not set:
             message "{@prefix} {@bad}현재 진행 중인 거래가 없습니다." to player
             stop
         거래취소처리(player's name)
 
-# ===== /거래골드 명령어 — 제안 골드 설정 =====
-command /거래골드 [<text>]:
-    aliases: /rjfrehfeo
+# ===== /거래거절 명령어 — 요청 거절 (상대에게 알림) =====
+on tab complete of "/거래거절":
+    set tab completions for position 1 to names of all players
+
+command /거래거절 [<text>]:
+    aliases: /rjforjwjf
     trigger:
-        if {거래중::%player%} is not set:
-            message "{@prefix} {@bad}현재 진행 중인 거래가 없습니다." to player
-            stop
-
         if arg-1 is not set:
-            message "{@prefix} {@hint}사용법: {@emph}/거래골드 <금액>" to player
             stop
-
-        set {_amount} to arg-1 parsed as integer
-        if {_amount} is not set:
-            message "{@prefix} {@bad}올바른 금액을 입력해주세요." to player
+        # 요청이 없으면 무시
+        if {거래요청::%player%} is not arg-1:
             stop
-        if {_amount} < 0:
-            message "{@prefix} {@bad}금액은 0 이상이어야 합니다." to player
-            stop
-
-        if {돈::%player%} is not set:
-            set {돈::%player%} to 0
-        if {_amount} > {돈::%player%}:
-            message "{@prefix} {@bad}골드가 부족합니다. {@hint}현재 잔액: {@emph}%{돈::%player%}%골드" to player
-            stop
-
-        # 확인 상태 초기화 (골드 바꾸면 재확인 필요)
-        set {거래확인::%player%} to false
-        set {_other} to {거래중::%player%}
-        if {_other} is set:
-            set {거래확인::%{_other}%} to false
-
-        set {거래제안골드::%player%} to {_amount}
-        message "{@prefix} {@good}제안 골드를 {@emph}%{_amount}%골드&a로 설정했습니다." to player
-
-        # GUI 갱신
-        set {_other} to {거래중::%player%}
-        if {_other} is not set:
-            stop
-        거래GUI갱신(player's name, {_other})
+        delete {_sender}
+        loop all players:
+            if loop-player's name is arg-1:
+                set {_sender} to loop-player
+                stop loop
+        # 요청 삭제
+        delete {거래요청::%player%}
+        if {_sender} is set:
+            message "{@prefix} {@bad}%player%&c님이 거래 요청을 거절했습니다." to {_sender}
+        message "{@prefix} {@hint}거래 요청을 거절했습니다." to player
 
 # ===== 직거래 GUI 클릭 처리 =====
 on inventory click:
@@ -409,156 +650,344 @@ on inventory click:
             cancel event
             stop
 
-        set {_slot} to index of clicked slot
         set {_other} to {거래중::%player%}
 
-        # 슬롯 13: 골드 설정 안내
-        if {_slot} is 13:
-            cancel event
-            message "{@prefix} {@hint}채팅에 {@emph}/거래골드 <금액> {@hint}을 입력하여 제안 골드를 설정하세요." to player
+        # 플레이어 인벤토리 클릭 → 허용 (아이스박스 패턴)
+        if clicked inventory is player's inventory:
             stop
 
-        # 슬롯 22: 내 확인 버튼
-        if {_slot} is 22:
+        set {_slot} to index of clicked slot
+
+        # 내 아이템 슬롯 (3x3: 10-12, 19-21, 28-30) → 자유 이동, 이후 동기화
+        set {_itemIdx} to 거래내슬롯인덱스({_slot})
+        if {_itemIdx} > 0:
+            # cancel 안 함 → 마크 기본 아이템 이동 허용
+            wait 1 tick
+            거래슬롯동기화(player)
+            stop
+
+        # 슬롯 37: 1차 확인 버튼
+        if {_slot} is 37:
             cancel event
-            set {_confirm} to {거래확인::%player%}
-            if {_confirm} is true:
-                set {거래확인::%player%} to false
-                message "{@prefix} {@hint}확인을 취소했습니다." to player
+            set {_myC} to {거래확인::%player%}
+            if {_myC} is not set:
+                set {_myC} to 0
+            set {_otherPl} to 이름으로플레이어({_other})
+            if {_myC} >= 1:
+                # 이미 1차 확인됨 → 취소 (최종도 같이 취소)
+                set {거래확인::%player%} to 0
+                message "{@prefix} {@hint}1차 확인을 취소했습니다." to player
             else:
-                set {거래확인::%player%} to true
-                message "{@prefix} {@good}거래를 확인했습니다. 상대방의 확인을 기다리는 중..." to player
-                message "{@prefix} {@good}%player%&a님이 거래를 확인했습니다!" to player {_other}
-
-            # 양쪽 GUI 갱신
-            거래GUI갱신(player's name, {_other})
-
-            # 양쪽 모두 확인 시 거래 실행
-            if {거래확인::%player%} is true:
-                if {거래확인::%{_other}%} is true:
-                    거래실행(player's name, {_other})
+                set {거래확인::%player%} to 1
+                message "{@prefix} {@good}1차 확인 완료!" to player
+                if {_otherPl} is set:
+                    message "{@prefix} {@good}%player%&a님이 1차 확인했습니다!" to {_otherPl}
+            거래버튼갱신전체(player, {_otherPl}, {_other})
             stop
 
-        # 슬롯 26: 취소 버튼
-        if {_slot} is 26:
+        # 슬롯 39: 최종 확인 버튼
+        if {_slot} is 39:
+            cancel event
+            set {_myC} to {거래확인::%player%}
+            if {_myC} is not set:
+                set {_myC} to 0
+            set {_otherPl} to 이름으로플레이어({_other})
+            set {_otherC} to 0
+            if {_otherPl} is set:
+                set {_otherC} to {거래확인::%{_otherPl}%}
+                if {_otherC} is not set:
+                    set {_otherC} to 0
+
+            # 1차 미확인 → 불가
+            if {_myC} < 1:
+                message "{@prefix} {@bad}1차 확인을 먼저 해주세요." to player
+                stop
+            # 상대 1차 미확인 → 불가
+            if {_otherC} < 1:
+                message "{@prefix} {@bad}상대방의 1차 확인을 기다려주세요." to player
+                stop
+
+            if {_myC} >= 2:
+                # 이미 최종 → 취소 (1차로 복귀)
+                set {거래확인::%player%} to 1
+                message "{@prefix} {@hint}최종 확인을 취소했습니다." to player
+            else:
+                set {거래확인::%player%} to 2
+                message "{@prefix} {@good}최종 확인 완료!" to player
+                if {_otherPl} is set:
+                    message "{@prefix} {@good}%player%&a님이 최종 확인했습니다!" to {_otherPl}
+
+            거래버튼갱신전체(player, {_otherPl}, {_other})
+
+            # 양쪽 최종 확인 시 거래 실행
+            if {거래확인::%player%} is 2:
+                if {_otherPl} is set:
+                    if {거래확인::%{_otherPl}%} is 2:
+                        거래실행(player's name, {_other})
+            stop
+
+        # 슬롯 31: 취소 버튼 (행4 가운데)
+        if {_slot} is 31:
             cancel event
             거래취소처리(player's name)
             stop
 
-        # 슬롯 35: 상대 확인 상태 (읽기 전용)
-        if {_slot} is 35:
-            cancel event
-            stop
-
-        # 슬롯 31: 상대 골드 (읽기 전용)
-        if {_slot} is 31:
-            cancel event
-            stop
-
-        # 슬롯 40: 상대 아이템 안내 (읽기 전용)
-        if {_slot} is 40:
-            cancel event
-            stop
-
-        # 행6 (45-53): 상대방 아이템 — 읽기 전용
-        if {_slot} >= 45:
-            if {_slot} <= 53:
-                cancel event
-                stop
-
-        # 행2 구분선 (9-17, 13 제외)
-        if {_slot} >= 9:
-            if {_slot} <= 17:
-                if {_slot} is not 13:
-                    cancel event
-                    stop
-
-        # 행3 구분선 (18-26, 22/26 제외)
-        if {_slot} >= 18:
-            if {_slot} <= 26:
-                if {_slot} is not 22:
-                    if {_slot} is not 26:
-                        cancel event
-                        stop
-
-        # 행4 구분선 (27-35, 31/35 제외)
-        if {_slot} >= 27:
-            if {_slot} <= 35:
-                if {_slot} is not 31:
-                    if {_slot} is not 35:
-                        cancel event
-                        stop
-
-        # 행5 구분선 (36-44, 40 제외)
-        if {_slot} >= 36:
-            if {_slot} <= 44:
-                if {_slot} is not 40:
-                    cancel event
-                    stop
-
-        # 행1 (0-8): 내 제안 아이템 슬롯 처리
-        if {_slot} >= 0:
-            if {_slot} <= 8:
-                set {_itemIdx} to {_slot} + 1
-                set {_clickedItem} to event-item
-
-                # 빈 슬롯에서 아이템 빼기 (air 클릭)
-                if {_clickedItem} is air:
-                    # 기존 아이템이 있으면 반환
-                    set {_existing} to {거래제안아이템::%player%::%{_itemIdx}%}
-                    if {_existing} is set:
-                        cancel event
-                        if player can hold {_existing}:
-                            give {_existing} to player
-                        else:
-                            drop {_existing} at player's location
-                        delete {거래제안아이템::%player%::%{_itemIdx}%}
-                        set slot {_slot} of player's current inventory to air
-                        set {거래확인::%player%} to false
-                        if {_other} is set:
-                            set {거래확인::%{_other}%} to false
-                        거래GUI갱신(player's name, {_other})
-                    stop
-
-                # 거래 불가 아이템 체크
-                if 거래가능여부({_clickedItem}) is false:
-                    cancel event
-                    message "{@prefix} {@bad}이 아이템은 거래할 수 없습니다. {@hint}(물고기, 조합 재료만 가능)" to player
-                    stop
-
-                # 확인 상태 초기화
-                set {거래확인::%player%} to false
-                if {_other} is set:
-                    set {거래확인::%{_other}%} to false
-
-                # 기존 슬롯 아이템 반환
-                set {_existing} to {거래제안아이템::%player%::%{_itemIdx}%}
-                if {_existing} is set:
-                    if player can hold {_existing}:
-                        give {_existing} to player
-                    else:
-                        drop {_existing} at player's location
-
-                # 새 아이템 등록 (인벤에서 가져오기)
-                set {거래제안아이템::%player%::%{_itemIdx}%} to {_clickedItem}
-                # 인벤에서 제거는 이벤트 기본 동작으로 처리 (cancel 안 함)
-
-                # GUI 갱신
-                거래GUI갱신(player's name, {_other})
-                stop
+        # 나머지 GUI 슬롯 — 읽기 전용
+        cancel event
 
 # ===== 거래 창 닫기 처리 (확인 전 취소) =====
 on inventory close:
-    if name of player's current inventory is "{@gui_name}":
+    if name of event-inventory is "{@gui_name}":
         if {거래중::%player%} is not set:
             stop
-        # 양쪽 모두 확인 완료 시엔 거래실행이 처리하므로 무시
-        if {거래확인::%player%} is true:
+        # 양쪽 모두 최종 확인 완료 시엔 거래실행이 처리하므로 무시
+        if {거래확인::%player%} is 2:
             set {_other} to {거래중::%player%}
             if {_other} is set:
-                if {거래확인::%{_other}%} is true:
-                    stop
+                set {_otherPl} to 이름으로플레이어({_other})
+                if {_otherPl} is set:
+                    if {거래확인::%{_otherPl}%} is 2:
+                        stop
         거래취소처리(player's name)
+
+# ===== /거래내역 — 마지막 거래 내역 확인 =====
+command /거래내역:
+    aliases: /rjfonory
+    trigger:
+        if {거래내역상대::%player%} is not set:
+            message "{@prefix} {@bad}최근 거래 내역이 없습니다." to player
+            stop
+        set {_other} to {거래내역상대::%player%}
+        open chest with 5 rows named "&0거래 내역" to player
+        # 행1: 헤더
+        loop integers from 0 to 8:
+            set slot loop-integer of player's current inventory to black stained glass pane named "&f"
+        set slot 1 of player's current inventory to lime stained glass pane named "&a내가 보낸 아이템"
+        set slot 2 of player's current inventory to lime stained glass pane named "&a내가 보낸 아이템"
+        set slot 3 of player's current inventory to lime stained glass pane named "&a내가 보낸 아이템"
+        set slot 4 of player's current inventory to paper named "&6&l거래 내역" with lore "&7상대: &f%{_other}%"
+        set slot 5 of player's current inventory to orange stained glass pane named "&e내가 받은 아이템"
+        set slot 6 of player's current inventory to orange stained glass pane named "&e내가 받은 아이템"
+        set slot 7 of player's current inventory to orange stained glass pane named "&e내가 받은 아이템"
+        # 보낸 아이템 3x3: 10,11,12 / 19,20,21 / 28,29,30
+        set {_sentSlots::1} to 10
+        set {_sentSlots::2} to 11
+        set {_sentSlots::3} to 12
+        set {_sentSlots::4} to 19
+        set {_sentSlots::5} to 20
+        set {_sentSlots::6} to 21
+        set {_sentSlots::7} to 28
+        set {_sentSlots::8} to 29
+        set {_sentSlots::9} to 30
+        # 받은 아이템 3x3: 14,15,16 / 23,24,25 / 32,33,34
+        set {_rcvSlots::1} to 14
+        set {_rcvSlots::2} to 15
+        set {_rcvSlots::3} to 16
+        set {_rcvSlots::4} to 23
+        set {_rcvSlots::5} to 24
+        set {_rcvSlots::6} to 25
+        set {_rcvSlots::7} to 32
+        set {_rcvSlots::8} to 33
+        set {_rcvSlots::9} to 34
+        loop integers from 1 to 9:
+            if {거래내역보낸::%player%::%loop-integer%} is set:
+                set slot {_sentSlots::%loop-integer%} of player's current inventory to {거래내역보낸::%player%::%loop-integer%}
+            if {거래내역받은::%player%::%loop-integer%} is set:
+                set slot {_rcvSlots::%loop-integer%} of player's current inventory to {거래내역받은::%player%::%loop-integer%}
+        # 벽 (col 0, col 8)
+        set slot 9 of player's current inventory to black stained glass pane named "&f"
+        set slot 17 of player's current inventory to black stained glass pane named "&f"
+        set slot 18 of player's current inventory to black stained glass pane named "&f"
+        set slot 26 of player's current inventory to black stained glass pane named "&f"
+        set slot 27 of player's current inventory to black stained glass pane named "&f"
+        set slot 35 of player's current inventory to black stained glass pane named "&f"
+        # 구분 기둥 (col 4)
+        set slot 13 of player's current inventory to gray stained glass pane named "&8|"
+        set slot 22 of player's current inventory to gray stained glass pane named "&8|"
+        set slot 31 of player's current inventory to gray stained glass pane named "&8|"
+        # 행5: 닫기
+        loop integers from 36 to 44:
+            set slot loop-integer of player's current inventory to black stained glass pane named "&f"
+        set slot 40 of player's current inventory to barrier named "&c&l닫기"
+
+on inventory click:
+    if player's current inventory's name is "&0거래 내역":
+        cancel event
+        if index of clicked slot is 40:
+            close player's inventory
+
+# ===== 거래 로그 (어드민 추적용) =====
+# 요약 → 파일(JSON 라인) / 아이템 원본 → 변수(최근 200건만)
+function 거래로그추가(p1: text, p2: text, items1: texts, items2: texts):
+    set {_ts} to unix timestamp of now
+    set {_date} to "%now%"
+    set {_id} to {거래로그카운터}
+    if {_id} is not set:
+        set {_id} to 0
+    add 1 to {_id}
+    set {거래로그카운터} to {_id}
+
+    # 파일에 JSON 라인 기록 (영구 보존)
+    set {_i1} to join {_items1::*} with ", "
+    set {_i2} to join {_items2::*} with ", "
+    if {_i1} is not set:
+        set {_i1} to ""
+    if {_i2} is not set:
+        set {_i2} to ""
+    log "[#%{_id}%] %{_date}% | %{_p1}% <-> %{_p2}% | P1: %{_i1}% | P2: %{_i2}%" to "거래로그.log"
+
+    # 변수에는 최근 200건 아이템만 (GUI 상세보기용)
+    set {거래로그::%{_id}%::날짜} to {_date}
+    set {거래로그::%{_id}%::P1} to {_p1}
+    set {거래로그::%{_id}%::P2} to {_p2}
+    set {거래로그::%{_id}%::P1요약} to {_i1}
+    set {거래로그::%{_id}%::P2요약} to {_i2}
+
+    # 200건 초과 시 가장 오래된 변수 삭제
+    set {_old} to {_id} - 200
+    if {_old} > 0:
+        if {거래로그::%{_old}%::P1} is set:
+            delete {거래로그::%{_old}%::*}
+            delete {거래로그아이템::%{_old}%::*}
+
+on tab complete of "/거래로그":
+    set tab completions for position 1 to names of all players
+    set tab completions for position 2 to "<갯수>"
+
+command /거래로그 [<text>] [<text>]:
+    aliases: /rjfofhfm
+    permission: op
+    permission message: &c권한이 없습니다.
+    trigger:
+        set {_maxId} to {거래로그카운터}
+        if {_maxId} is not set:
+            message "{@prefix} {@bad}거래 로그가 없습니다." to player
+            stop
+        if {_maxId} <= 0:
+            message "{@prefix} {@bad}거래 로그가 없습니다." to player
+            stop
+        set {_count} to 10
+        if arg-2 is set:
+            set {_count} to arg-2 parsed as integer
+            if {_count} is not set:
+                set {_count} to 10
+        # 특정 플레이어 필터
+        set {_filter} to arg-1
+        message "{@prefix} {@emph}=== 거래 로그 (최근 %{_count}%건) ===" to player
+        set {_shown} to 0
+        set {_i} to {_maxId}
+        while {_i} > 0:
+            if {_shown} >= {_count}:
+                stop
+            set {_p1} to {거래로그::%{_i}%::P1}
+            set {_p2} to {거래로그::%{_i}%::P2}
+            set {_show} to true
+            if {_filter} is set:
+                if {_p1} is not {_filter}:
+                    if {_p2} is not {_filter}:
+                        set {_show} to false
+            if {_show} is true:
+                set {_date} to {거래로그::%{_i}%::날짜}
+                if {_date} is not set:
+                    set {_date} to "?"
+                set {_i1} to {거래로그::%{_i}%::P1요약}
+                set {_i2} to {거래로그::%{_i}%::P2요약}
+                if {_i1} is not set:
+                    set {_i1} to "(없음)"
+                if {_i2} is not set:
+                    set {_i2} to "(없음)"
+                message "&8━━━━━ &e#%{_i}% &8━━━━━" to player
+                message " &7시간: &f%{_date}%" to player
+                message " &a%{_p1}% &7→ &f%{_i1}%" to player
+                message " &e%{_p2}% &7→ &f%{_i2}%" to player
+                message " &8상세: &7/거래로그상세 %{_i}%" to player
+                add 1 to {_shown}
+            subtract 1 from {_i}
+        if {_shown} is 0:
+            message "{@prefix} {@hint}해당 조건의 로그가 없습니다." to player
+
+# ===== /거래로그상세 — 특정 거래의 아이템 GUI로 확인 =====
+on tab complete of "/거래로그상세":
+    set tab completions for position 1 to "<로그번호>"
+
+command /거래로그상세 [<text>]:
+    aliases: /rjfofhfmtkdwp
+    permission: op
+    permission message: &c권한이 없습니다.
+    trigger:
+        if arg-1 is not set:
+            message "{@prefix} {@hint}사용법: /거래로그상세 <로그번호>" to player
+            stop
+        set {_id} to arg-1 parsed as integer
+        if {_id} is not set:
+            message "{@prefix} {@bad}로그 번호는 숫자로 입력해주세요." to player
+            stop
+        if {거래로그::%{_id}%::P1} is not set:
+            message "{@prefix} {@bad}해당 로그가 없습니다." to player
+            stop
+        set {_p1} to {거래로그::%{_id}%::P1}
+        set {_p2} to {거래로그::%{_id}%::P2}
+        set {_date} to {거래로그::%{_id}%::날짜}
+        if {_date} is not set:
+            set {_date} to "?"
+        open chest with 5 rows named "&0거래 로그 #%{_id}%" to player
+        # 행1: 헤더
+        loop integers from 0 to 8:
+            set slot loop-integer of player's current inventory to black stained glass pane named "&f"
+        set slot 1 of player's current inventory to lime stained glass pane named "&a%{_p1}%의 아이템"
+        set slot 2 of player's current inventory to lime stained glass pane named "&a%{_p1}%의 아이템"
+        set slot 3 of player's current inventory to lime stained glass pane named "&a%{_p1}%의 아이템"
+        set slot 4 of player's current inventory to paper named "&6&l거래 로그 #%{_id}%" with lore "&7%{_p1}% <-> %{_p2}%" and "&7%{_date}%"
+        set slot 5 of player's current inventory to orange stained glass pane named "&e%{_p2}%의 아이템"
+        set slot 6 of player's current inventory to orange stained glass pane named "&e%{_p2}%의 아이템"
+        set slot 7 of player's current inventory to orange stained glass pane named "&e%{_p2}%의 아이템"
+        # 벽
+        set slot 9 of player's current inventory to black stained glass pane named "&f"
+        set slot 17 of player's current inventory to black stained glass pane named "&f"
+        set slot 18 of player's current inventory to black stained glass pane named "&f"
+        set slot 26 of player's current inventory to black stained glass pane named "&f"
+        set slot 27 of player's current inventory to black stained glass pane named "&f"
+        set slot 35 of player's current inventory to black stained glass pane named "&f"
+        # 구분 기둥
+        set slot 13 of player's current inventory to gray stained glass pane named "&8|"
+        set slot 22 of player's current inventory to gray stained glass pane named "&8|"
+        set slot 31 of player's current inventory to gray stained glass pane named "&8|"
+        # P1 아이템 3x3
+        set {_s::1} to 10
+        set {_s::2} to 11
+        set {_s::3} to 12
+        set {_s::4} to 19
+        set {_s::5} to 20
+        set {_s::6} to 21
+        set {_s::7} to 28
+        set {_s::8} to 29
+        set {_s::9} to 30
+        loop integers from 1 to 9:
+            if {거래로그아이템::%{_id}%::P1::%loop-integer%} is set:
+                set slot {_s::%loop-integer%} of player's current inventory to {거래로그아이템::%{_id}%::P1::%loop-integer%}
+        # P2 아이템 3x3
+        set {_r::1} to 14
+        set {_r::2} to 15
+        set {_r::3} to 16
+        set {_r::4} to 23
+        set {_r::5} to 24
+        set {_r::6} to 25
+        set {_r::7} to 32
+        set {_r::8} to 33
+        set {_r::9} to 34
+        loop integers from 1 to 9:
+            if {거래로그아이템::%{_id}%::P2::%loop-integer%} is set:
+                set slot {_r::%loop-integer%} of player's current inventory to {거래로그아이템::%{_id}%::P2::%loop-integer%}
+        # 행5: 닫기
+        loop integers from 36 to 44:
+            set slot loop-integer of player's current inventory to black stained glass pane named "&f"
+        set slot 40 of player's current inventory to barrier named "&c&l닫기"
+
+on inventory click:
+    if player's current inventory's name contains "거래 로그 #":
+        cancel event
+        if index of clicked slot is 40:
+            close player's inventory
 
 # ===== 로그아웃 시 거래 취소 =====
 on quit:

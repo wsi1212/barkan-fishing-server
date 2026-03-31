@@ -18,63 +18,6 @@ command /돈 [<text>] [<text>] [<text>]:
             message "{@bank_prefix} {@bank_color_info}%player's name%님의 잔액: {@bank_color_good}%{돈::%player%}%원" to player
             stop
 
-        # /돈 출금|인출|뽑기 금액 [갯수]
-        else if arg-1 is "출금" or "인출" or "뽑기":
-            if arg-2 is not set:
-                message "{@bank_prefix} {@bank_color_bad}출금 금액을 입력해 주세요. {@bank_color_hint}(/돈 %arg-1% <금액> [갯수])" to player
-                stop
-
-            set {_금액} to arg-2
-            set {_check} to {_금액} parsed as number
-            if {_check} is not set:
-                message "{@bank_prefix} {@bank_color_bad}출금 금액은 숫자만 입력해 주세요." to player
-                stop
-            if {_check} < 0:
-                message "{@bank_prefix} {@bank_color_bad}출금 금액에 음수는 입력할 수 없습니다." to player
-                stop
-
-            # 인벤 빈칸 체크 (이전 값 남는 것 방지)
-            delete {_empty}
-            loop 36 times:
-                if slot (loop-iteration - 1) of player's inventory is air:
-                    set {_empty} to true
-                    stop loop
-
-            if {_empty} is not set:
-                message "{@bank_prefix} {@bank_color_bad}인벤토리에 빈 공간이 없습니다. {@bank_color_hint}(종이를 받을 공간이 필요합니다)" to player
-                stop
-
-            # 1장 출금
-            if arg-3 is not set:
-                if {돈::%player%} < {_check}:
-                    message "{@bank_prefix} {@bank_color_bad}잔액이 부족합니다. {@bank_color_hint}(보유: {@bank_color_info}%{돈::%player%}%원{@bank_color_hint})" to player
-                    stop
-
-                give 1 of paper named "&f돈" with lore "&f%arg-2%원" to player
-                subtract {_check} from {돈::%player%}
-                message "{@bank_prefix} {@bank_color_good}%arg-1% 완료! {@bank_color_hint}출금: {@bank_color_emph}%{_check}%원 {@bank_color_hint}| 잔액: {@bank_color_info}%{돈::%player%}%원" to player
-                stop
-
-            # 여러장 출금
-            set {_갯수} to arg-3
-            set {_count} to {_갯수} parsed as integer
-            if {_count} is not set:
-                message "{@bank_prefix} {@bank_color_bad}출금 갯수는 정수만 입력해 주세요." to player
-                stop
-            if {_count} < 0:
-                message "{@bank_prefix} {@bank_color_bad}출금 갯수에 음수는 입력할 수 없습니다." to player
-                stop
-
-            set {_총금액} to {_check} * {_count}
-            if {돈::%player%} < {_총금액}:
-                message "{@bank_prefix} {@bank_color_bad}잔액이 부족합니다. {@bank_color_hint}(필요: {@bank_color_emph}%{_총금액}%원{@bank_color_hint} / 보유: {@bank_color_info}%{돈::%player%}%원{@bank_color_hint})" to player
-                stop
-
-            give {_count} of paper named "&f돈" with lore "&f%arg-2%원" to player
-            subtract {_총금액} from {돈::%player%}
-            message "{@bank_prefix} {@bank_color_good}%arg-1% 완료! {@bank_color_hint}총 출금: {@bank_color_emph}%{_총금액}%원 {@bank_color_hint}(&f%{_count}%장{@bank_color_hint}) | 잔액: {@bank_color_info}%{돈::%player%}%원" to player
-            stop
-
         # /돈 설정 플레이어 금액 (온라인 플레이어만)
         else if arg-1 is "설정":
             if player is not op:
@@ -154,55 +97,53 @@ command /돈 [<text>] [<text>] [<text>]:
             message "{@bank_prefix} {@bank_color_good}입금 알림! {@bank_color_info}%player's name%{@bank_color_hint}님이 {@bank_color_emph}%{_pay}%원{@bank_color_hint}을 송금했습니다." to {_target}
             stop
 
-        # 도움말
-        else:
-            message "{@bank_prefix} {@bank_color_info}사용법:" to player
-            message "{@bank_color_hint}- {@bank_color_emph}/돈 {@bank_color_hint}: 잔액 확인" to player
-            message "{@bank_color_hint}- {@bank_color_emph}/돈 출금|인출|뽑기 <금액> [갯수] {@bank_color_hint}: 종이 돈으로 출금" to player
-            message "{@bank_color_hint}- {@bank_color_emph}/돈 송금|보내기 <플레이어> <금액> {@bank_color_hint}: 플레이어에게 송금" to player
-            if player is op:
-                message "{@bank_color_hint}- {@bank_color_emph}/돈 설정 <플레이어> <금액> {@bank_color_hint}: (OP) 잔액 설정" to player
 
 
-# ===== 종이 돈: 우클릭(1장 입금) =====
+# ===== 수표 검증 함수 =====
+function 수표검증(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "[바르칸열도 정식발행]":
+            return true
+    return false
+
+function 수표금액(item: item) :: number:
+    set {_n} to name of {_item}
+    replace all "&e" with "" in {_n}
+    replace all "원" with "" in {_n}
+    set {_v} to {_n} parsed as number
+    if {_v} is set:
+        return {_v}
+    return 0
+
+# ===== 수표: 우클릭(1장 입금) =====
 on rightclick:
     if {돈::%player%} is not set:
         set {돈::%player%} to 0
 
     if player's tool is paper:
-        if player's tool's name is "&f돈":
-            set {_lore} to 1st line of player's tool's lore
-            remove 1 of player's tool from player
-
-            replace all "&f" with "" in {_lore}
-            replace all "원" with "" in {_lore}
-            set {_money} to {_lore} parsed as number
-            if {_money} is not set:
-                message "{@bank_prefix} {@bank_color_bad}해당 종이 돈의 금액을 읽을 수 없습니다." to player
+        if 수표검증(player's tool) is true:
+            set {_money} to 수표금액(player's tool)
+            if {_money} <= 0:
+                message "{@bank_prefix} {@bank_color_bad}해당 수표의 금액을 읽을 수 없습니다." to player
                 stop
-
+            remove 1 of player's tool from player
             add {_money} to {돈::%player%}
             message "{@bank_prefix} {@bank_color_good}입금 완료! {@bank_color_hint}입금: {@bank_color_emph}%{_money}%원 {@bank_color_hint}| 잔액: {@bank_color_info}%{돈::%player%}%원" to player
 
 
-# ===== 종이 돈: 좌클릭(손에 든 묶음 전부 입금) =====
+# ===== 수표: 좌클릭(손에 든 묶음 전부 입금) =====
 on leftclick:
     if {돈::%player%} is not set:
         set {돈::%player%} to 0
 
     if player's tool is paper:
-        if player's tool's name is "&f돈":
-            set {_lore} to 1st line of player's tool's lore
+        if 수표검증(player's tool) is true:
+            set {_money} to 수표금액(player's tool)
+            if {_money} <= 0:
+                message "{@bank_prefix} {@bank_color_bad}해당 수표의 금액을 읽을 수 없습니다." to player
+                stop
             set {_amt} to amount of player's tool
             set player's tool to air
-
-            replace all "&f" with "" in {_lore}
-            replace all "원" with "" in {_lore}
-            set {_money} to {_lore} parsed as number
-            if {_money} is not set:
-                message "{@bank_prefix} {@bank_color_bad}해당 종이 돈의 금액을 읽을 수 없습니다." to player
-                stop
-
             set {_total} to {_money} * {_amt}
             add {_total} to {돈::%player%}
             message "{@bank_prefix} {@bank_color_good}일괄 입금 완료! {@bank_color_hint}입금: {@bank_color_emph}%{_total}%원 {@bank_color_hint}(&f%{_amt}%장{@bank_color_hint}) | 잔액: {@bank_color_info}%{돈::%player%}%원" to player

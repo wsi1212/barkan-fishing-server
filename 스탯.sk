@@ -118,58 +118,28 @@ function 스탯GUI열기(p: player):
                     add {_sv} to {_eq판매}
                 else if {_statKey} is "내구보존":
                     add {_sv} to {_eq내구}
-                # 기여도 기록
-                if {_sv} > 0:
+                # 기여도 기록 (크리배율은 ×10 표시)
+                set {_dv} to {_sv}
+                if {_statKey} is "크리배율":
+                    set {_dv} to {_sv} * 10
+                if {_dv} > 0:
                     if {_detail::%{_statKey}%} is "":
-                        set {_detail::%{_statKey}%} to "&8(%{_en}% %{_sv}%"
+                        set {_detail::%{_statKey}%} to "&8(%{_en}% %{_dv}%"
                     else:
-                        set {_detail::%{_statKey}%} to "%{_detail::%{_statKey}%}%, %{_en}% %{_sv}%"
-    # 낚싯대 본체
+                        set {_detail::%{_statKey}%} to "%{_detail::%{_statKey}%}%, %{_en}% %{_dv}%"
+    # 낚싯대 본체 + 강화 (합산 표시)
     set {_toolName} to name of {_p}'s tool
     set {_rodName} to ""
+    set {_enhLv} to 0
     loop {부품목록::낚싯대::*}:
         if {_toolName} contains loop-value:
             set {_rodName} to loop-value
-            set {_raw} to get_part_stats_raw("낚싯대", loop-value)
-            set {_pairs::*} to split {_raw} at ","
-            loop {_pairs::*}:
-                set {_kv::*} to split loop-value-2 at ":"
-                set {_sv} to {_kv::2} parsed as number
-                set {_statKey} to {_kv::1}
-                if {_statKey} is "난이도":
-                    add {_sv} to {_eq난이도}
-                else if {_statKey} is "등급업":
-                    add {_sv} to {_eq등급업}
-                else if {_statKey} is "크리확률":
-                    add {_sv} to {_eq크리확률}
-                else if {_statKey} is "더블찬스":
-                    add {_sv} to {_eq더블}
-                else if {_statKey} is "트리플찬스":
-                    add {_sv} to {_eq트리플}
-                else if {_statKey} is "판매보너스":
-                    add {_sv} to {_eq판매}
-                else if {_statKey} is "내구보존":
-                    add {_sv} to {_eq내구}
-                else if {_statKey} is "경험치":
-                    add {_sv} to {_eq경험치}
-                else if {_statKey} is "크기":
-                    add {_sv} to {_eq크기}
-                else if {_statKey} is "크리배율":
-                    add {_sv} to {_eq크리배율}
-                # 기여도 기록 (낚싯대)
-                if {_sv} > 0:
-                    if {_detail::%{_statKey}%} is "":
-                        set {_detail::%{_statKey}%} to "&8(%{_rodName}% %{_sv}%"
-                    else:
-                        set {_detail::%{_statKey}%} to "%{_detail::%{_statKey}%}%, %{_rodName}% %{_sv}%"
             stop loop
-    # 강화
-    set {_enhLv} to 0
     if {_rodName} is not "":
         set {_enhLv} to {낚싯대강화::%{_rodName}%::%{_p}%}
         if {_enhLv} is not set:
             set {_enhLv} to 0
-    # 캐시된 강화 스탯 읽기 (강화스탯적용에서 계산된 값)
+    # 강화 캐시 읽기
     set {_enh난이도} to {낚싯대강화난이도::%{_p}%}
     if {_enh난이도} is not set:
         set {_enh난이도} to 0
@@ -197,6 +167,123 @@ function 스탯GUI열기(p: player):
     set {_enh내구} to {낚싯대강화내구::%{_p}%}
     if {_enh내구} is not set:
         set {_enh내구} to 0
+    # 낚싯대 표시명 (강화 레벨 포함)
+    set {_rodDisp} to {_rodName}
+    if {_enhLv} > 0:
+        set {_rodDisp} to "%{_rodName}%&b(+%{_enhLv}%)"
+    # 낚싯대 기본 스탯 + 강화 합산 → eq에 통합
+    if {_rodName} is not "":
+        set {_raw} to get_part_stats_raw("낚싯대", {_rodName})
+        set {_pairs::*} to split {_raw} at ","
+        loop {_pairs::*}:
+            set {_kv::*} to split loop-value at ":"
+            set {_sv} to {_kv::2} parsed as number
+            set {_statKey} to {_kv::1}
+            # 해당 스탯의 강화치 가져오기
+            set {_ev} to 0
+            if {_statKey} is "난이도":
+                set {_ev} to {_enh난이도}
+                set {_enhUsed난이도} to true
+            else if {_statKey} is "등급업":
+                set {_ev} to {_enh등급업}
+                set {_enhUsed등급업} to true
+            else if {_statKey} is "크리확률":
+                set {_ev} to {_enh크리확률}
+                set {_enhUsed크리확률} to true
+            else if {_statKey} is "크리배율":
+                set {_ev} to 0
+            else if {_statKey} is "경험치":
+                set {_ev} to {_enh경험치}
+                set {_enhUsed경험치} to true
+            else if {_statKey} is "크기":
+                set {_ev} to {_enh크기}
+                set {_enhUsed크기} to true
+            else if {_statKey} is "더블찬스":
+                set {_ev} to {_enh더블}
+                set {_enhUsed더블} to true
+            else if {_statKey} is "트리플찬스":
+                set {_ev} to {_enh트리플}
+                set {_enhUsed트리플} to true
+            else if {_statKey} is "판매보너스":
+                set {_ev} to {_enh판매}
+                set {_enhUsed판매} to true
+            else if {_statKey} is "내구보존":
+                set {_ev} to {_enh내구}
+                set {_enhUsed내구} to true
+            set {_combined} to {_sv} + {_ev}
+            # eq 합산 (기본+강화 통합)
+            if {_statKey} is "난이도":
+                add {_combined} to {_eq난이도}
+            else if {_statKey} is "등급업":
+                add {_combined} to {_eq등급업}
+            else if {_statKey} is "크리확률":
+                add {_combined} to {_eq크리확률}
+            else if {_statKey} is "크리배율":
+                add {_sv} to {_eq크리배율}
+            else if {_statKey} is "경험치":
+                add {_combined} to {_eq경험치}
+            else if {_statKey} is "크기":
+                add {_combined} to {_eq크기}
+            else if {_statKey} is "더블찬스":
+                add {_combined} to {_eq더블}
+            else if {_statKey} is "트리플찬스":
+                add {_combined} to {_eq트리플}
+            else if {_statKey} is "판매보너스":
+                add {_combined} to {_eq판매}
+            else if {_statKey} is "내구보존":
+                add {_combined} to {_eq내구}
+            # 기여도: "낚싯대이름(+N) 합산값" (크리배율은 ×10)
+            set {_dispComb} to {_combined}
+            if {_statKey} is "크리배율":
+                set {_dispComb} to {_combined} * 10
+            if {_dispComb} > 0:
+                if {_detail::%{_statKey}%} is "":
+                    set {_detail::%{_statKey}%} to "&8(%{_rodDisp}% %{_dispComb}%"
+                else:
+                    set {_detail::%{_statKey}%} to "%{_detail::%{_statKey}%}%, %{_rodDisp}% %{_dispComb}%"
+        # 강화에만 있는 스탯 (낚싯대 기본에 없는 것) 추가
+        if {_enh경험치} > 0:
+            if {_enhUsed경험치} is not true:
+                add {_enh경험치} to {_eq경험치}
+                if {_detail::경험치} is "":
+                    set {_detail::경험치} to "&8(%{_rodDisp}% %{_enh경험치}%"
+                else:
+                    set {_detail::경험치} to "%{_detail::경험치}%, %{_rodDisp}% %{_enh경험치}%"
+        if {_enh크기} > 0:
+            if {_enhUsed크기} is not true:
+                add {_enh크기} to {_eq크기}
+                if {_detail::크기} is "":
+                    set {_detail::크기} to "&8(%{_rodDisp}% %{_enh크기}%"
+                else:
+                    set {_detail::크기} to "%{_detail::크기}%, %{_rodDisp}% %{_enh크기}%"
+        if {_enh더블} > 0:
+            if {_enhUsed더블} is not true:
+                add {_enh더블} to {_eq더블}
+                if {_detail::더블찬스} is "":
+                    set {_detail::더블찬스} to "&8(%{_rodDisp}% %{_enh더블}%"
+                else:
+                    set {_detail::더블찬스} to "%{_detail::더블찬스}%, %{_rodDisp}% %{_enh더블}%"
+        if {_enh트리플} > 0:
+            if {_enhUsed트리플} is not true:
+                add {_enh트리플} to {_eq트리플}
+                if {_detail::트리플찬스} is "":
+                    set {_detail::트리플찬스} to "&8(%{_rodDisp}% %{_enh트리플}%"
+                else:
+                    set {_detail::트리플찬스} to "%{_detail::트리플찬스}%, %{_rodDisp}% %{_enh트리플}%"
+        if {_enh판매} > 0:
+            if {_enhUsed판매} is not true:
+                add {_enh판매} to {_eq판매}
+                if {_detail::판매보너스} is "":
+                    set {_detail::판매보너스} to "&8(%{_rodDisp}% %{_enh판매}%"
+                else:
+                    set {_detail::판매보너스} to "%{_detail::판매보너스}%, %{_rodDisp}% %{_enh판매}%"
+        if {_enh내구} > 0:
+            if {_enhUsed내구} is not true:
+                add {_enh내구} to {_eq내구}
+                if {_detail::내구보존} is "":
+                    set {_detail::내구보존} to "&8(%{_rodDisp}% %{_enh내구}%"
+                else:
+                    set {_detail::내구보존} to "%{_detail::내구보존}%, %{_rodDisp}% %{_enh내구}%"
     # 축복
     set {_bl경험치} to {낚싯대인챈트경험치::%{_p}%}
     if {_bl경험치} is not set:
@@ -212,26 +299,22 @@ function 스탯GUI열기(p: player):
     set {_dop크리} to 도핑크리확률({_p})
     set {_dop더블} to 도핑더블찬스({_p})
     set {_dop판매} to 도핑판매보너스({_p})
-    # === 합산 ===
-    set {_eq등급업총} to {_eq등급업} + {_enh등급업}
-    set {_eq크리확률총} to {_eq크리확률} + {_enh크리확률}
-    set {_eq난이도총} to {_eq난이도} + {_enh난이도}
-    set {_eq크기총} to {_eq크기} + {_enh크기}
+    # === 합산 (장비에 강화 이미 포함) ===
     # detail 괄호 닫기
     loop {_detail::*}:
         if loop-value is not "":
             set {_detail::%loop-index%} to "%loop-value%)"
-    set {_t등급업} to {_eq등급업총} + {_dop등급업}
+    set {_t등급업} to {_eq등급업} + {_dop등급업}
     set {_t도망} to {_lv도망감소} + {_eq도망감소} + {_dop도망}
-    set {_t크리확률} to {_lv크리확률} + {_eq크리확률총} + {_dop크리}
+    set {_t크리확률} to {_lv크리확률} + {_eq크리확률} + {_dop크리}
     set {_t크리배율} to {_lv크리배율} + {_eq크리배율}
-    set {_t경험치} to {_eq경험치} + {_bl경험치} + {_dop경험치} + {_enh경험치}
-    set {_t크기} to {_eq크기총} + {_dop크기}
-    set {_t난이도} to {_eq난이도총}
-    set {_t더블} to {_eq더블} + {_dop더블} + {_enh더블}
-    set {_t트리플} to {_eq트리플} + {_enh트리플}
-    set {_t판매} to {_eq판매} + {_dop판매} + {_enh판매}
-    set {_t내구} to {_eq내구} + {_bl내구} + {_enh내구}
+    set {_t경험치} to {_eq경험치} + {_bl경험치} + {_dop경험치}
+    set {_t크기} to {_eq크기} + {_dop크기}
+    set {_t난이도} to {_eq난이도}
+    set {_t더블} to {_eq더블} + {_dop더블}
+    set {_t트리플} to {_eq트리플}
+    set {_t판매} to {_eq판매} + {_dop판매}
+    set {_t내구} to {_eq내구} + {_bl내구}
     # === GUI 생성 (6행) ===
     open chest inventory with 6 rows named "&0종합 능력치" to {_p}
     # 배경
@@ -263,7 +346,8 @@ function 스탯GUI열기(p: player):
     add "&7등급 업 확률: &f%{_final등급업}%%%" to {_headLore::*}
     add "&7도망 확률 감소: &f%{_t도망}%%%" to {_headLore::*}
     add "&7크리티컬 확률: &f%{_t크리확률}%%%" to {_headLore::*}
-    add "&7크리티컬 배율: &f%{_final크리배율}% &8(크기+%{_critSizePct}%%%)" to {_headLore::*}
+    set {_final크리Pct} to {_final크리배율} * 10
+    add "&7크리티컬 배율: &f%{_final크리Pct}%%% &8(크기+%{_critSizePct}%%%)" to {_headLore::*}
     add "&7경험치 보너스: &f+%{_final경험치}%%%" to {_headLore::*}
     add "&7크기 보너스: &f+%{_final크기}%%%" to {_headLore::*}
     add "&7낚시 난이도: &f-%{_t난이도}%" to {_headLore::*}
@@ -281,9 +365,6 @@ function 스탯GUI열기(p: player):
     set {_축복집중} to {플레이어축복::집중::%{_p}%}
     if {_축복집중} is not set:
         set {_축복집중} to 0
-    set {_축복감각} to {플레이어축복::날카로운감각::%{_p}%}
-    if {_축복감각} is not set:
-        set {_축복감각} to 0
     set {_축복축복} to {플레이어축복::축복::%{_p}%}
     if {_축복축복} is not set:
         set {_축복축복} to 0
@@ -298,8 +379,6 @@ function 스탯GUI열기(p: player):
         add "&7행운 낚시 Lv.%{_축복행운}%: &f+%{_v}%%% 추가 보상" to {_bLore::*}
     if {_축복집중} > 0:
         add "&7집중 Lv.%{_축복집중}%: &f+%{_축복집중}%초 타임아웃" to {_bLore::*}
-    if {_축복감각} > 0:
-        add "&7날카로운 감각 Lv.%{_축복감각}%: &f+%{_축복감각}%칸 퍼펙트존" to {_bLore::*}
     if {_축복축복} > 0:
         set {_v} to {_축복축복} * 40
         add "&7축복 Lv.%{_축복축복}%: &f+%{_v}%%% 경험치" to {_bLore::*}
@@ -322,11 +401,26 @@ function 스탯GUI열기(p: player):
             set {_rkv::*} to split loop-value at ":"
             add "&7%stat_type_desc({_rkv::1})%: &f%stat_value_text({_rkv::1}, {_rkv::2} parsed as number)%" to {_rl::*}
         if {_enhLv} > 0:
-            add "&b── 강화 +%{_enhLv}% ──" to {_rl::*}
-            add "&b낚시 난이도: &f-%{_enh난이도}%" to {_rl::*}
-            add "&b크기 보너스: &f+%{_enh크기}%%%" to {_rl::*}
-            add "&b등급 업 확률: &f+%{_enh등급업}%%%" to {_rl::*}
-            add "&b크리티컬 확률: &f+%{_enh크리확률}%%%" to {_rl::*}
+            add "" to {_rl::*}
+            add "&8[강화] &b+%{_enhLv}%" to {_rl::*}
+            if {_enh난이도} > 0:
+                add "&8  &7난이도 &c-%{_enh난이도}%" to {_rl::*}
+            if {_enh크기} > 0:
+                add "&8  &7크기 &a+%{_enh크기}%%%" to {_rl::*}
+            if {_enh등급업} > 0:
+                add "&8  &7등급업 &a+%{_enh등급업}%%%" to {_rl::*}
+            if {_enh크리확률} > 0:
+                add "&8  &7크리확률 &a+%{_enh크리확률}%%%" to {_rl::*}
+            if {_enh경험치} > 0:
+                add "&8  &7경험치 &a+%{_enh경험치}%%%" to {_rl::*}
+            if {_enh더블} > 0:
+                add "&8  &7더블 &a+%{_enh더블}%%%" to {_rl::*}
+            if {_enh트리플} > 0:
+                add "&8  &7트리플 &a+%{_enh트리플}%%%" to {_rl::*}
+            if {_enh판매} > 0:
+                add "&8  &7판매 &a+%{_enh판매}%%%" to {_rl::*}
+            if {_enh내구} > 0:
+                add "&8  &7내구 &a+%{_enh내구}%%%" to {_rl::*}
         set slot 2 of {_p}'s current inventory to {_rodIcon} with lore {_rl::*}
     else:
         set slot 2 of {_p}'s current inventory to barrier named "&c낚싯대 없음"
@@ -397,10 +491,9 @@ function 스탯GUI열기(p: player):
     delete {_grLore::*}
     add "&8낚은 물고기의 등급이 한 단계 올라갈 확률" to {_grLore::*}
     add "&8──────────────" to {_grLore::*}
-    if {_eq등급업총} > 0:
-        add "&7장비: &f%{_eq등급업총}%%% %{_detail::등급업}%" to {_grLore::*}
-    if {_enh등급업} > 0:
-        add "&7강화: &f%{_enh등급업}%%%" to {_grLore::*}
+    if {_eq등급업} > 0:
+        add "&7장비: &f%{_eq등급업}%%% %{_detail::등급업}%" to {_grLore::*}
+
     if {_dop등급업} > 0:
         add "&7도핑: &f%{_dop등급업}%%%" to {_grLore::*}
     if {_envGrade} > 0:
@@ -423,17 +516,17 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_크리확Lore::*}
     if {_lv크리확률} > 0:
         add "&7레벨: &f%{_lv크리확률}%%%" to {_크리확Lore::*}
-    if {_eq크리확률총} > 0:
-        add "&7장비: &f%{_eq크리확률총}%%% %{_detail::크리확률}%" to {_크리확Lore::*}
-    if {_enh크리확률} > 0:
-        add "&7강화: &f%{_enh크리확률}%%%" to {_크리확Lore::*}
+    if {_eq크리확률} > 0:
+        add "&7장비: &f%{_eq크리확률}%%% %{_detail::크리확률}%" to {_크리확Lore::*}
+
     if {_dop크리} > 0:
         add "&7도핑: &f%{_dop크리}%%%" to {_크리확Lore::*}
     set slot 20 of {_p}'s current inventory to blaze powder named "&e크리티컬 확률: &f%{_t크리확률}%%%" with lore {_크리확Lore::*}
     # === 크리티컬 배율 ===
+    set {_t크리Pct} to {_t크리배율} * 10
     set {_cap크리} to ""
     if {_t크리배율} > 8:
-        set {_cap크리} to " &c(캡 8)"
+        set {_cap크리} to " &c(캡 80%%)"
     set {_capVal} to {_t크리배율}
     if {_capVal} > 8:
         set {_capVal} to 8
@@ -443,14 +536,16 @@ function 스탯GUI열기(p: player):
     add "&8크리티컬 시 크기와 경험치 증가량" to {_크리배Lore::*}
     add "&8──────────────" to {_크리배Lore::*}
     if {_lv크리배율} > 0:
-        add "&7레벨: &f%{_lv크리배율}%" to {_크리배Lore::*}
+        set {_lvPct} to {_lv크리배율} * 10
+        add "&7레벨: &f%{_lvPct}%%%" to {_크리배Lore::*}
     if {_eq크리배율} > 0:
-        add "&7장비: &f%{_eq크리배율}% %{_detail::크리배율}%" to {_크리배Lore::*}
+        set {_eqPct} to {_eq크리배율} * 10
+        add "&7장비: &f%{_eqPct}%%% %{_detail::크리배율}%" to {_크리배Lore::*}
     add "" to {_크리배Lore::*}
     add "&e크리티컬 시:" to {_크리배Lore::*}
     add "&7크기 증가: &f+%{_critSizePct}%%%" to {_크리배Lore::*}
     add "&7경험치 배율: &f×%{_critExpMult}%" to {_크리배Lore::*}
-    set slot 21 of {_p}'s current inventory to diamond named "&6크리티컬 배율: &f%{_t크리배율}%%{_cap크리}%" with lore {_크리배Lore::*}
+    set slot 21 of {_p}'s current inventory to diamond named "&6크리티컬 배율: &f%{_t크리Pct}%%%%{_cap크리}%" with lore {_크리배Lore::*}
     # === 경험치 보너스 ===
     set {_t경험치} to {_t경험치} + {_envExp}
     delete {_경험치Lore::*}
@@ -458,6 +553,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_경험치Lore::*}
     if {_eq경험치} > 0:
         add "&7장비: &f%{_eq경험치}%%% %{_detail::경험치}%" to {_경험치Lore::*}
+
     if {_bl경험치} > 0:
         add "&7축복: &f%{_bl경험치}%%%" to {_경험치Lore::*}
     if {_dop경험치} > 0:
@@ -470,10 +566,9 @@ function 스탯GUI열기(p: player):
     delete {_크기Lore::*}
     add "&8낚은 물고기의 크기 증가량" to {_크기Lore::*}
     add "&8──────────────" to {_크기Lore::*}
-    if {_eq크기총} > 0:
-        add "&7장비: &f%{_eq크기총}%%% %{_detail::크기}%" to {_크기Lore::*}
-    if {_enh크기} > 0:
-        add "&7강화: &f%{_enh크기}%%%" to {_크기Lore::*}
+    if {_eq크기} > 0:
+        add "&7장비: &f%{_eq크기}%%% %{_detail::크기}%" to {_크기Lore::*}
+
     if {_dop크기} > 0:
         add "&7도핑: &f%{_dop크기}%%%" to {_크기Lore::*}
     if {_envSize} > 0:
@@ -485,8 +580,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_난이도Lore::*}
     if {_eq난이도} > 0:
         add "&7장비: &f%{_eq난이도}% %{_detail::난이도}%" to {_난이도Lore::*}
-    if {_enh난이도} > 0:
-        add "&7강화: &f%{_enh난이도}%" to {_난이도Lore::*}
+
     set slot 24 of {_p}'s current inventory to compass named "&e낚시 난이도: &f-%{_t난이도}%" with lore {_난이도Lore::*}
     # === 더블 낚시 ===
     delete {_더블Lore::*}
@@ -494,6 +588,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_더블Lore::*}
     if {_eq더블} > 0:
         add "&7장비: &f%{_eq더블}%%% %{_detail::더블찬스}%" to {_더블Lore::*}
+
     if {_dop더블} > 0:
         add "&7도핑: &f%{_dop더블}%%%" to {_더블Lore::*}
     set slot 25 of {_p}'s current inventory to cod named "&b더블 낚시: &f%{_t더블}%%%" with lore {_더블Lore::*}
@@ -503,6 +598,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_트리플Lore::*}
     if {_eq트리플} > 0:
         add "&7장비: &f%{_eq트리플}%%% %{_detail::트리플찬스}%" to {_트리플Lore::*}
+
     set slot 26 of {_p}'s current inventory to tropical fish named "&d트리플 낚시: &f%{_t트리플}%%%" with lore {_트리플Lore::*}
     # === 판매가 보너스 ===
     delete {_판매Lore::*}
@@ -510,6 +606,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_판매Lore::*}
     if {_eq판매} > 0:
         add "&7장비: &f%{_eq판매}%%% %{_detail::판매보너스}%" to {_판매Lore::*}
+
     if {_dop판매} > 0:
         add "&7도핑: &f%{_dop판매}%%%" to {_판매Lore::*}
     set slot 27 of {_p}'s current inventory to gold ingot named "&6판매가 보너스: &f+%{_t판매}%%%" with lore {_판매Lore::*}
@@ -519,6 +616,7 @@ function 스탯GUI열기(p: player):
     add "&8──────────────" to {_내구Lore::*}
     if {_eq내구} > 0:
         add "&7장비: &f%{_eq내구}%%% %{_detail::내구보존}%" to {_내구Lore::*}
+
     if {_bl내구} > 0:
         add "&7축복: &f%{_bl내구}%%%" to {_내구Lore::*}
     set slot 28 of {_p}'s current inventory to anvil named "&7내구도 보존: &f%{_t내구}%%%" with lore {_내구Lore::*}
@@ -543,31 +641,17 @@ function 스탯GUI열기(p: player):
     else:
         add "&8축복 미습득" to {_집중Lore::*}
     set slot 30 of {_p}'s current inventory to clock named "&d집중: &f+%{_집중v}%초" with lore {_집중Lore::*}
-    # 날카로운 감각 (퍼펙트존 확대)
-    set {_감각v} to {_축복감각}
-    delete {_감각Lore::*}
-    add "&8미니게임 퍼펙트존 크기 증가" to {_감각Lore::*}
-    add "&8──────────────" to {_감각Lore::*}
-    if {_축복감각} > 0:
-        add "&7축복: &fLv.%{_축복감각}% &8(+%{_감각v}%칸)" to {_감각Lore::*}
-    else:
-        add "&8축복 미습득" to {_감각Lore::*}
-    set slot 31 of {_p}'s current inventory to spyglass named "&d날카로운 감각: &f+%{_감각v}%칸" with lore {_감각Lore::*}
-    # 자동 수납 (아이스박스 5단계 이상)
-    set {_ibTier} to {아이스박스등급::%{_p}%}
-    if {_ibTier} is not set:
-        set {_ibTier} to 0
+    # 자동 수납 (현질 해금)
     delete {_ibLore::*}
-    add "&8아이스박스 5단계 이상 보유 시 해금" to {_ibLore::*}
+    add "&8별도 해금이 필요한 기능입니다" to {_ibLore::*}
     add "&8──────────────" to {_ibLore::*}
-    if {_ibTier} >= 5:
-        add "&7아이스박스: &a활성 &8(Lv.%{_ibTier}%)" to {_ibLore::*}
-    else:
-        add "&c미해금 &8(현재 %{_ibTier}%단계)" to {_ibLore::*}
     set {_ibText} to "&c잠김"
-    if {_ibTier} >= 5:
+    if {자동수납해금::%{_p}%} is true:
         set {_ibText} to "&aON"
-    set slot 32 of {_p}'s current inventory to packed ice named "&b자동 수납: %{_ibText}%" with lore {_ibLore::*}
+        add "&a해금됨" to {_ibLore::*}
+    else:
+        add "&c미해금" to {_ibLore::*}
+    set slot 31 of {_p}'s current inventory to packed ice named "&b자동 수납: %{_ibText}%" with lore {_ibLore::*}
 
 # 클릭 차단
 on inventory click:

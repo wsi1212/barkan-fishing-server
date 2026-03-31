@@ -127,8 +127,8 @@ function 변속배율(step: integer, pattern: integer) :: integer:
     return 100
 
 # ===== 게이지 문자열 생성 (가변 폭) =====
-# 우선순위: 커서 > 퍼펙트존 > 스윗스팟 > 빈칸
-function 미니게임게이지(cursor: integer, zoneStart: integer, zoneEnd: integer, perfectStart: integer, perfectEnd: integer, barWidth: integer) :: text:
+# 우선순위: 커서 > 크리칸(노란) > 스윗스팟(초록) > 빈칸
+function 미니게임게이지(p: player, cursor: integer, zoneStart: integer, zoneEnd: integer, barWidth: integer) :: text:
     set {_bar} to ""
     loop {_barWidth} times:
         set {_i} to loop-iteration - 1
@@ -136,9 +136,9 @@ function 미니게임게이지(cursor: integer, zoneStart: integer, zoneEnd: int
         if {_i} >= {_zoneStart}:
             if {_i} <= {_zoneEnd}:
                 set {_ch} to "&a▓"
-        if {_i} >= {_perfectStart}:
-            if {_i} <= {_perfectEnd}:
-                set {_ch} to "&6▓"
+                # 크리칸이면 노란색
+                if {미니게임크리칸::%{_p}%::%{_i}%} is true:
+                    set {_ch} to "&6▓"
         if {_i} is {_cursor}:
             set {_ch} to "&e█"
         set {_bar} to "%{_bar}%%{_ch}%"
@@ -151,8 +151,7 @@ function 미니게임정리(p: player):
     delete {미니게임결과::%{_p}%}
     delete {미니게임존시작::%{_p}%}
     delete {미니게임존끝::%{_p}%}
-    delete {미니게임퍼펙트시작::%{_p}%}
-    delete {미니게임퍼펙트끝::%{_p}%}
+    delete {미니게임크리칸::%{_p}%::*}
     delete {미니게임크리티컬확률::%{_p}%}
     delete {미니게임도주확률::%{_p}%}
     delete {미니게임도주증가::%{_p}%}
@@ -171,29 +170,20 @@ on left click:
     if {미니게임::%player%} is 1:
         cancel event
         set {_cursor} to {미니게임커서::%player%}
-        # 퍼펙트 존 판정 (크리확률 +30% 보너스)
-        if {_cursor} >= {미니게임퍼펙트시작::%player%}:
-            if {_cursor} <= {미니게임퍼펙트끝::%player%}:
-                set {_critChance} to {미니게임크리티컬확률::%player%}
-                if {_critChance} is not set:
-                    set {_critChance} to 0
-                add 30 to {_critChance}
-                chance of {_critChance}%:
-                    set {미니게임결과::%player%} to "크리티컬"
-                    stop
-                set {미니게임결과::%player%} to "성공"
-                stop
-        # 스윗스팟 존 판정 (기본 크리확률)
+        # 스윗스팟 존 판정 (초록+노란 전체)
         if {_cursor} >= {미니게임존시작::%player%}:
             if {_cursor} <= {미니게임존끝::%player%}:
-                set {_critChance} to {미니게임크리티컬확률::%player%}
-                if {_critChance} is set:
-                    chance of {_critChance}%:
-                        set {미니게임결과::%player%} to "크리티컬"
-                        stop
+                # 크리칸(노란색) 히트 → 크리티컬 확정
+                if {미니게임크리칸::%player%::%{_cursor}%} is true:
+                    set {미니게임결과::%player%} to "크리티컬"
+                    play sound "entity.player.levelup" with volume 0.5 and pitch 1.5 to player
+                    stop
+                # 일반칸(초록) 히트 → 일반 성공
                 set {미니게임결과::%player%} to "성공"
+                play sound "entity.experience_orb.pickup" with volume 0.5 and pitch 1.2 to player
                 stop
         # 미스 - 도주 확률 판정
+        play sound "block.note_block.bass" with volume 0.4 and pitch 0.5 to player
         set {_escapeChance} to {미니게임도주확률::%player%}
         if {_escapeChance} is set:
             chance of {_escapeChance}%:

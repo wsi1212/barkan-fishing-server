@@ -70,42 +70,7 @@ function 날씨색상(weather: text) :: text:
         return "&c"
     return "&f"
 
-# ===== 새벽 전용 물고기 =====
-function get_dawn_fish(region: text) :: texts:
-    if {_region} is "바르칸물길":
-        add {물고기::여명잉어} to {_list::*}
-        add {물고기::아침이슬복어} to {_list::*}
-    else if {_region} is "바르칸동굴":
-        add {물고기::새벽동굴장어} to {_list::*}
-    return {_list::*}
-
-# ===== 밤 전용 물고기 =====
-function get_night_fish(region: text) :: texts:
-    if {_region} is "바르칸물길":
-        add {물고기::달빛쏘가리} to {_list::*}
-        add {물고기::야광붕어} to {_list::*}
-        add {물고기::반딧불송사리} to {_list::*}
-    else if {_region} is "바르칸동굴":
-        add {물고기::어둠동굴메기} to {_list::*}
-        add {물고기::심야박쥐고기} to {_list::*}
-        add {물고기::맹인비늘고기} to {_list::*}
-    return {_list::*}
-
-# ===== 비 전용 물고기 (뇌우에도 출현) =====
-function get_rain_fish(region: text) :: texts:
-    if {_region} is "바르칸물길":
-        add {물고기::빗방울잉어} to {_list::*}
-        add {물고기::우천미꾸라지} to {_list::*}
-    else if {_region} is "바르칸동굴":
-        add {물고기::수몰전갱이} to {_list::*}
-        add {물고기::침수가재} to {_list::*}
-    return {_list::*}
-
-# ===== 뇌우 전용 물고기 (전 지역) =====
-function get_thunder_fish(region: text) :: texts:
-    add {물고기::번개물고기} to {_list::*}
-    add {물고기::뇌전가오리} to {_list::*}
-    return {_list::*}
+# 환경 물고기 함수 → 지역별물고기.sk로 이관됨 (fish.json 기반)
 
 # ===== 환경 보너스 알림 (지역 입장 시) =====
 function 환경보너스알림(p: player):

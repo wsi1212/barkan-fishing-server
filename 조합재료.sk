@@ -57,7 +57,7 @@ function 조합재료드롭체크(p: player, area: text):
                 set {_item} to 1 of {_matItem}
                 set name of {_item} to "&e%{_matName}%"
                 set lore of {_item} to "&7%{_matData::3}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
-                if player can hold {_item}:
+                if {_p} can hold {_item}:
                     give {_item} to {_p}
                     message "&8[&6 재료 &8] &e%{_matName}%&7을(를) 발견했습니다!" to {_p}
                 else:

@@ -247,13 +247,15 @@ function 강화아이템업데이트(p: player, rodName: text, lv: integer):
         set name of {_p}'s tool to "&f%{_rodName}% &b+%{_lv}%"
     else:
         set name of {_p}'s tool to "&f%{_rodName}%"
-    # 기본 로어 수집 (▐ 강화 / RID 섹션 이전)
+    # 기본 로어 수집 (강화 / RID 이전만 — 컬러코드 무관 매칭)
     delete {_base::*}
     set {_cut} to false
     loop lore of {_p}'s tool:
         if loop-value contains "RID:":
             set {_cut} to true
-        if loop-value contains "▐ 강화":
+        if loop-value contains "ENH_MARK":
+            set {_cut} to true
+        if loop-value contains "강화":
             set {_cut} to true
         if {_cut} is false:
             add loop-value to {_base::*}
@@ -270,32 +272,77 @@ function 강화아이템업데이트(p: player, rodName: text, lv: integer):
         set {_ev트리플} to {낚싯대강화트리플::%{_p}%}
         set {_ev판매} to {낚싯대강화판매::%{_p}%}
         set {_ev내구} to {낚싯대강화내구::%{_p}%}
-        add "" to {_enh::*}
-        add "&8▐ &b강화 &b+%{_lv}%" to {_enh::*}
+        add "&0ENH_MARK" to {_enh::*}
+        add "&8[강화] &b+%{_lv}%" to {_enh::*}
         if {_ev난이도} > 0:
-            add "&8  &7낚시 난이도 &c-%{_ev난이도}%" to {_enh::*}
+            add "&8  &7낚시 난이도 &b-%{_ev난이도}%" to {_enh::*}
         if {_ev크기} > 0:
-            add "&8  &7크기 보너스 &a+%{_ev크기}%%%" to {_enh::*}
+            add "&8  &7크기 보너스 &b+%{_ev크기}%%%" to {_enh::*}
         if {_ev등급업} > 0:
-            add "&8  &7등급 업 확률 &a+%{_ev등급업}%%%" to {_enh::*}
+            add "&8  &7등급 업 확률 &b+%{_ev등급업}%%%" to {_enh::*}
         if {_ev크리확률} > 0:
-            add "&8  &7크리티컬 확률 &a+%{_ev크리확률}%%%" to {_enh::*}
+            add "&8  &7크리티컬 확률 &b+%{_ev크리확률}%%%" to {_enh::*}
         if {_ev크리배율} > 0:
-            add "&8  &7크리티컬 배율 &a+%{_ev크리배율}%" to {_enh::*}
+            set {_ev크리Pct} to {_ev크리배율} * 10
+            add "&8  &7크리티컬 배율 &b+%{_ev크리Pct}%%%" to {_enh::*}
         if {_ev경험치} > 0:
-            add "&8  &7경험치 보너스 &a+%{_ev경험치}%%%" to {_enh::*}
+            add "&8  &7경험치 보너스 &b+%{_ev경험치}%%%" to {_enh::*}
         if {_ev더블} > 0:
-            add "&8  &7더블 낚시 &a+%{_ev더블}%%%" to {_enh::*}
+            add "&8  &7더블 낚시 &b+%{_ev더블}%%%" to {_enh::*}
         if {_ev트리플} > 0:
-            add "&8  &7트리플 낚시 &a+%{_ev트리플}%%%" to {_enh::*}
+            add "&8  &7트리플 낚시 &b+%{_ev트리플}%%%" to {_enh::*}
         if {_ev판매} > 0:
-            add "&8  &7판매가 보너스 &a+%{_ev판매}%%%" to {_enh::*}
+            add "&8  &7판매가 보너스 &b+%{_ev판매}%%%" to {_enh::*}
         if {_ev내구} > 0:
-            add "&8  &7내구도 보존 &a+%{_ev내구}%%%" to {_enh::*}
-    # 최종 로어 = 기본 + 강화섹션 + RID
+            add "&8  &7내구도 보존 &b+%{_ev내구}%%%" to {_enh::*}
+    # 최종 로어 = 기본(강화 증분 표시) + 강화섹션 + RID
     delete {_final::*}
     loop {_base::*}:
-        add loop-value to {_final::*}
+        set {_line} to loop-value
+        # 기본 스탯 뒤에 강화 증분 표시 (하늘색)
+        if {_lv} > 0:
+            set {_suffix} to ""
+            if {_line} contains "난이도":
+                if {_ev난이도} > 0:
+                    set {_suffix} to " &b(-%{_ev난이도}%)"
+            if {_line} contains "등급":
+                if {_ev등급업} > 0:
+                    set {_suffix} to " &b(+%{_ev등급업}%%%)"
+            if {_line} contains "배율":
+                if {_ev크리배율} > 0:
+                    set {_evPct} to {_ev크리배율} * 10
+                    set {_suffix} to " &b(+%{_evPct}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "크리티컬":
+                    if {_ev크리확률} > 0:
+                        set {_suffix} to " &b(+%{_ev크리확률}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "크기":
+                    if {_ev크기} > 0:
+                        set {_suffix} to " &b(+%{_ev크기}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "경험치":
+                    if {_ev경험치} > 0:
+                        set {_suffix} to " &b(+%{_ev경험치}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "더블":
+                    if {_ev더블} > 0:
+                        set {_suffix} to " &b(+%{_ev더블}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "트리플":
+                    if {_ev트리플} > 0:
+                        set {_suffix} to " &b(+%{_ev트리플}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "판매":
+                    if {_ev판매} > 0:
+                        set {_suffix} to " &b(+%{_ev판매}%%%)"
+            if {_suffix} is "":
+                if {_line} contains "내구":
+                    if {_ev내구} > 0:
+                        set {_suffix} to " &b(+%{_ev내구}%%%)"
+            if {_suffix} is not "":
+                set {_line} to "%{_line}%%{_suffix}%"
+        add {_line} to {_final::*}
     loop {_enh::*}:
         add loop-value to {_final::*}
     if {_rid} is not "":
@@ -375,6 +422,8 @@ function 강화스탯적용(p: player):
                     add {_sv} to {낚싯대강화판매::%{_p}%}
                 else if {_sk} is "내구보존":
                     add {_sv} to {낚싯대강화내구::%{_p}%}
+    # lore도 갱신 (누적 lore 정리)
+    강화아이템업데이트({_p}, {_rod}, {_lv})
 
 # ===== 기존 데이터 마이그레이션 (1회성) =====
 # 기존 {플레이어인챈트::ID::%player%} → {플레이어축복::ID::%player%}

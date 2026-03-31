@@ -216,6 +216,16 @@ function openIcebox(p: player):
     set slot 0 of {_p}'s current inventory to packed ice named "%{_color}%%{_name}%" with lore "&7티어 &e: &f%{_id}%단계" and "&7보관 &e: &f%{_maxSlots}%칸" and "&7보존 &e: &a%{_rate}%배"
     loop integers from 1 to 6:
         set slot loop-integer of {_p}'s current inventory to light blue stained glass pane named "&e!" with lore "&7아이스박스에 보관하면 신선도가" and "&7천천히 감소합니다." and "" and "&c주의: 서버에 접속하지 않아도" and "&c신선도는 계속 감소합니다."
+    # 자동 수납 토글 (현질 해금)
+    if {자동수납해금::%{_p}%} is true:
+        if {아이스박스자동수납::%{_p}%} is not set:
+            set {아이스박스자동수납::%{_p}%} to true
+        if {아이스박스자동수납::%{_p}%} is true:
+            set slot 6 of {_p}'s current inventory to lime dye named "&a&l자동 수납: ON" with lore "&7낚시 후 물고기가 자동으로" and "&7아이스박스에 보관됩니다." and "" and "&e클릭하여 끄기"
+        else:
+            set slot 6 of {_p}'s current inventory to gray dye named "&7자동 수납: OFF" with lore "&7자동 수납이 비활성화되어 있습니다." and "" and "&e클릭하여 켜기"
+    else:
+        set slot 6 of {_p}'s current inventory to red stained glass pane named "&c자동 수납" with lore "&7이 기능은 별도 해금이 필요합니다."
     set slot 7 of {_p}'s current inventory to anvil named "&e&l업그레이드" with lore "&7클릭하여 아이스박스 상점 열기"
     set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
     # 2~6행: 보관 칸 (슬롯 9~53)
@@ -252,6 +262,16 @@ on inventory click:
             else if event-item is anvil:
                 wait 1 tick
                 openIceboxShop(player)
+            else if event-item is lime dye:
+                # 자동 수납 끄기
+                set {아이스박스자동수납::%player%} to false
+                set slot 6 of player's current inventory to gray dye named "&7자동 수납: OFF" with lore "&7자동 수납이 비활성화되어 있습니다." and "" and "&e클릭하여 켜기"
+                message "{@ice_prefix} &7자동 수납을 &c껐습니다." to player
+            else if event-item is gray dye:
+                # 자동 수납 켜기
+                set {아이스박스자동수납::%player%} to true
+                set slot 6 of player's current inventory to lime dye named "&a&l자동 수납: ON" with lore "&7낚시 후 물고기가 자동으로" and "&7아이스박스에 보관됩니다." and "" and "&e클릭하여 끄기"
+                message "{@ice_prefix} &a자동 수납을 &a켰습니다." to player
             stop
         set {_cs} to clicked slot
         set {_idx} to {_cs} - 9
@@ -323,7 +343,7 @@ function openIceboxShop(p: player):
         add "&7보관 &e: &f%{_slots}%칸" to {_lore::*}
         add "&7보존 &e: &a%{_rate}%배" to {_lore::*}
         if {_id} >= 5:
-            add "&b자동 수납 &a해금" to {_lore::*}
+            add "&7(5단계 이상)" to {_lore::*}
         add "&7가격 &e: &f%{_price}%원" to {_lore::*}
         add "" to {_lore::*}
         if {_id} is {_currentTier}:
