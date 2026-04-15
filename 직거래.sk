@@ -32,6 +32,9 @@ function 거래가능여부(item: item) :: boolean:
             return true
         if loop-value contains "[조합 재료]":
             return true
+        # 기존 물고기 호환 (태그 없이 생성된 물고기)
+        if loop-value contains "&8f:":
+            return true
     return false
 
 # ===== 슬롯→아이템 인덱스 변환 (내 아이템 3x3) =====
@@ -395,6 +398,11 @@ function 거래실행(p1: text, p2: text):
     set click event of {_btn} to click event to run command "/거래내역"
     send component {_comp} and {_btn} to {_pl1}
     send component {_comp} and {_btn} to {_pl2}
+    # 도전과제 훅
+    if {_pl1} is set:
+        도전과제체크({_pl1}, "직거래", "1")
+    if {_pl2} is set:
+        도전과제체크({_pl2}, "직거래", "1")
 
     # 데이터 정리
     거래데이터삭제({_p1}, {_p2})
@@ -652,8 +660,28 @@ on inventory click:
 
         set {_other} to {거래중::%player%}
 
-        # 플레이어 인벤토리 클릭 → 허용 (아이스박스 패턴)
+        # 플레이어 인벤토리 클릭
         if clicked inventory is player's inventory:
+            # 쉬프트클릭 → 거래 불가 아이템 차단
+            if click type is left mouse button with shift:
+                if event-item is not air:
+                    if 거래가능여부(event-item) is false:
+                        cancel event
+                        message "{@prefix} {@bad}이 아이템은 거래할 수 없습니다." to player
+                        stop
+                # 거래 가능 아이템 → 허용 후 동기화
+                wait 1 tick
+                거래슬롯동기화(player)
+                stop
+            if click type is right mouse button with shift:
+                if event-item is not air:
+                    if 거래가능여부(event-item) is false:
+                        cancel event
+                        message "{@prefix} {@bad}이 아이템은 거래할 수 없습니다." to player
+                        stop
+                wait 1 tick
+                거래슬롯동기화(player)
+                stop
             stop
 
         set {_slot} to index of clicked slot
@@ -661,6 +689,12 @@ on inventory click:
         # 내 아이템 슬롯 (3x3: 10-12, 19-21, 28-30) → 자유 이동, 이후 동기화
         set {_itemIdx} to 거래내슬롯인덱스({_slot})
         if {_itemIdx} > 0:
+            # 거래 불가 아이템 차단 (커서에 든 아이템)
+            if cursor slot of player is not air:
+                if 거래가능여부(cursor slot of player) is false:
+                    cancel event
+                    message "{@prefix} {@bad}이 아이템은 거래할 수 없습니다." to player
+                    stop
             # cancel 안 함 → 마크 기본 아이템 이동 허용
             wait 1 tick
             거래슬롯동기화(player)
@@ -733,6 +767,12 @@ on inventory click:
             stop
 
         # 나머지 GUI 슬롯 — 읽기 전용
+        cancel event
+
+# ===== 거래 GUI 드래그 차단 =====
+on inventory drag:
+    if name of player's current inventory is "{@gui_name}":
+        # 드래그된 슬롯 중 거래 GUI 슬롯이 포함되면 차단
         cancel event
 
 # ===== 거래 창 닫기 처리 (확인 전 취소) =====
@@ -855,7 +895,6 @@ on tab complete of "/거래로그":
     set tab completions for position 2 to "<갯수>"
 
 command /거래로그 [<text>] [<text>]:
-    aliases: /rjfofhfm
     permission: op
     permission message: &c권한이 없습니다.
     trigger:
@@ -911,7 +950,6 @@ on tab complete of "/거래로그상세":
     set tab completions for position 1 to "<로그번호>"
 
 command /거래로그상세 [<text>]:
-    aliases: /rjfofhfmtkdwp
     permission: op
     permission message: &c권한이 없습니다.
     trigger:

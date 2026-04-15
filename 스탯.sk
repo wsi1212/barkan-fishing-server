@@ -136,8 +136,18 @@ function 스탯GUI열기(p: player):
             set {_rodName} to loop-value
             stop loop
     if {_rodName} is not "":
-        set {_enhLv} to {낚싯대강화::%{_rodName}%::%{_p}%}
-        if {_enhLv} is not set:
+        # RID 기반으로 강화 레벨 조회 (로어에서 RID 추출)
+        set {_rodId} to ""
+        loop lore of {_p}'s tool:
+            if loop-value contains "RID:":
+                set {_ridSp::*} to split loop-value at "RID:"
+                set {_rodId} to {_ridSp::2}
+                stop loop
+        if {_rodId} is not "":
+            set {_enhLv} to {낚싯대강화::%{_rodId}%}
+            if {_enhLv} is not set:
+                set {_enhLv} to 0
+        else:
             set {_enhLv} to 0
     # 강화 캐시 읽기
     set {_enh난이도} to {낚싯대강화난이도::%{_p}%}
@@ -291,6 +301,12 @@ function 스탯GUI열기(p: player):
     set {_bl내구} to {낚싯대인챈트내구보존::%{_p}%}
     if {_bl내구} is not set:
         set {_bl내구} to 0
+    set {_bl행운} to {낚싯대인챈트행운::%{_p}%}
+    if {_bl행운} is not set:
+        set {_bl행운} to 0
+    set {_bl난이도} to {낚싯대인챈트난이도::%{_p}%}
+    if {_bl난이도} is not set:
+        set {_bl난이도} to 0
     # 도핑
     set {_dop경험치} to 도핑경험치({_p})
     set {_dop크기} to 도핑크기({_p})
@@ -310,7 +326,8 @@ function 스탯GUI열기(p: player):
     set {_t크리배율} to {_lv크리배율} + {_eq크리배율}
     set {_t경험치} to {_eq경험치} + {_bl경험치} + {_dop경험치}
     set {_t크기} to {_eq크기} + {_dop크기}
-    set {_t난이도} to {_eq난이도}
+    set {_t난이도} to {_eq난이도} - {_bl난이도}
+    set {_t행운} to {_eq행운} + {_bl행운}
     set {_t더블} to {_eq더블} + {_dop더블}
     set {_t트리플} to {_eq트리플}
     set {_t판매} to {_eq판매} + {_dop판매}

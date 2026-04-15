@@ -24,7 +24,8 @@
 | **아이스박스** | `아이스박스.sk` | 물고기 보관함 (9단계, 신선도 보존) |
 | **보트** | `보트.sk` | 투명 말 보트 (연료제, 9단계 업그레이드) |
 | **페리** | `페리.sk` | 지역간 자동 이동 (노선, 요금, 보스바) |
-| **지역** | `공간.sk` | MarSkRebirth 지역 감지 (바르칸물길, 바르칸동굴, lavatest) |
+| **지역** | `공간.sk` + Java RegionManager | MarSkRebirth 감지 + Java 데이터(regions.json) |
+| **날씨** | Java WeatherManager | 지역별 독립 날씨, 파티클, 사운드, 시야 제한 |
 | **사이드바** | `사이드바.sk` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
 | **배** | BlockShip Java | BlockDisplay+Shulker, 프리셋 3종 |
 
@@ -33,20 +34,76 @@
 - 로컬: `{_변수}`, 글로벌: `{변수::키}`
 - GUI 클릭: `index of clicked slot` 사용 (`clicked slot`은 Slot 타입이라 변수경로 불가)
 - `continue` in nested loop 불가 → `{_skip}` boolean 플래그 패턴
-- **한글 명령어 영타 별칭 필수**: 한글→영타 매핑: ㅂ=q ㅈ=w ㄷ=e ㄱ=r ㅅ=t ㅛ=y ㅕ=u ㅑ=i ㅐ=o ㅔ=p ㅁ=a ㄴ=s ㅇ=d ㄹ=f ㅎ=g ㅗ=h ㅓ=j ㅏ=k ㅣ=l ㅋ=z ㅌ=x ㅊ=c ㅍ=v ㅠ=b ㅜ=n ㅡ=m
-- **탭 자동완성 필수**: 인자가 있는 모든 명령어에 `on tab complete of "/명령어":` 블록을 반드시 추가할 것
+- **한글 명령어 영타 별칭 필수** (OP 전용 명령어는 제외): 한글→영타 매핑: ㅂ=q ㅈ=w ㄷ=e ㄱ=r ㅅ=t ㅛ=y ㅕ=u ㅑ=i ㅐ=o ㅔ=p ㅁ=a ㄴ=s ㅇ=d ㄹ=f ㅎ=g ㅗ=h ㅓ=j ㅏ=k ㅣ=l ㅋ=z ㅌ=x ㅊ=c ㅍ=v ㅠ=b ㅜ=n ㅡ=m
+- **탭 자동완성 필수** (OP 전용 명령어는 제외): 인자가 있는 모든 명령어에 `on tab complete of "/명령어":` 블록을 반드시 추가할 것
   - 인자가 **플레이어 닉네임**이면: `set tab completions for position N to names of all players`
   - 인자가 **숫자 (금액/수량/레벨 등)**이면: 자동완성 목록 **넣지 않음**. 대신 `"<금액>"`, `"<수량>"` 같은 도움말 텍스트만 표시 (예: `set tab completions for position 2 to "<금액>"`)
   - 인자가 **고정 선택지** (등급, 타입 등)이면: 가능한 값을 모두 나열
   - 자동완성 없이 명령어만 만드는 것은 금지
+
+### 변수 키 규칙 (중요 — 반드시 준수)
+
+**Skript config에 `use player UUIDs in variable names: true`** 설정됨. `{변수::%player%}`는 UUID를 키로 사용함.
+
+#### 플레이어별 글로벌 변수 (`{돈::}`, `{낚시레벨::}` 등)
+- **player 객체를 키로 사용** → `{돈::%player%}`, `{돈::%{_p}%}` (function 파라미터)
+- **절대 이름 텍스트를 키로 쓰지 않음** → `{돈::%player's name%}` ← **금지!**
+- 이유: UUID 키 `{돈::9b2e2922-...}`와 이름 키 `{돈::wsi1212}`가 분리되어 돈이 사라지는 버그 발생
+- 오프라인 플레이어 돈 접근 시: `{돈::%("이름" parsed as offline player)%}` 사용
+
+```
+# 올바른 예
+{돈::%player%}                          # on 이벤트에서
+{돈::%{_p}%}                            # function 파라미터(player 타입)
+{돈::%("wsi1212" parsed as offline player)%}  # 오프라인 플레이어
+
+# 잘못된 예 — 절대 쓰지 말 것
+{돈::%player's name%}
+{돈::%{_playerName}%}  ← 텍스트 변수를 키로 직접 사용
+```
+
+#### Java 브릿지에서 Skript 변수 접근
+- Java→Skript 브릿지 명령어에서 플레이어 이름을 받으면, **Skript에서 `parsed as player`로 변환 후** 변수 접근
+- 예: `guildcreatecheck`에서 `set {_p} to arg-1 parsed as player` → `{돈::%{_p}%}`
+
+#### 길드 시스템 변수 (예외)
+- `{길드::%이름%}`, `{길드역할::%이름%}` — Java `guildmembersync`에서 이름 텍스트로 저장
+- 이 변수들은 **이름 키 전용**으로 설계됨 (UUID 아님). 읽을 때도 `name of player`로 접근
+- 예: `{길드::%name of player%}`, `{길드::%{_pn}%}` (where `{_pn} = name of player`)
+
+### 월드 이동 규칙
+- **`player.teleport()` (Java Bukkit API)로 커스텀 월드 이동 불가** — Paper에서 작동 안 함
+- 반드시 `execute in minecraft:<월드이름> run tp <플레이어> <x> <y> <z>` 명령어 사용
+- Skript에서: `make player execute command "execute in minecraft:%world% run tp @s %x% %y% %z%"`
+- Java에서: `Bukkit.dispatchCommand(consoleSender, "execute in minecraft:world run tp player x y z")`
+
+### 메시지 전송 필터 패턴
+- 전체 메시지(broadcast) 전송 시 차단 변수 체크 필수:
+  - `{차단전체채팅::%name of player%}` — 전체 채팅 차단
+  - `{차단길드채팅::%name of player%}` — 길드 채팅 차단
+  - `{차단홍보::%name of player%}` — 길드 홍보 차단
+  - `{차단팁::%name of player%}` — 서버 팁 차단
+  - `{차단낚시공지::%name of player%}` — S등급+ 낚시 공지 차단
+- guild_world에 있는 플레이어에게는 날씨 알림 보내지 않음
+
+### guild_world 규칙
+- guild_world는 길드 전용 공허 월드
+- 날씨 시스템 적용 안 됨 (항상 맑음)
+- 날씨 알림 메시지 보내지 않음 (Java WeatherManager에서 `guild_world` 체크)
+- 사이드바에 "☀ 맑음" 고정 표시
+- 길드 미가입자가 guild_world에 있으면 자동 스폰 이동
 
 ## 스탯 용어 표준
 모든 UI(상점/장비/스탯/도핑/강화)에서 동일 용어 사용. 상세: balance.md 6장 참조.
 
 ## 주요 명령어
 - `/레벨` `/장비` `/축복` `/강화` `/칭호` `/도핑상점` `/부품상점` `/판매`
+- `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>`
 - `/콤보 [n]` `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
+- `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
+- `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — 비,뇌우,태풍,안개,모래바람,눈보라,열대야,땡볕
+- **중요**: 서버 최초 설정 시 `/gamerule doWeatherCycle false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
 
 ## 핵심 변수 (축약)
 ```
@@ -66,7 +123,36 @@
 - **Lv.100**: 하드코어 (~517시간)
 - 상세: balance.md 참조
 
-## BlockShip 배 시스템
+## BlockShip Java 플러그인 (배 + 칭호)
 - 소스: `/Users/user/development/blockship-plugin/`
-- 빌드: `./gradlew build` → `BlockShip-1.0.0-SNAPSHOT.jar`
-- `/textride <player> <tag>` — Paper addPassenger 헬퍼 (칭호 TextDisplay용)
+- 빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`
+- 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
+- **핫리로드**: `/plugman reload BlockShip` (PlugManX — 서버 재시작 없이 JAR 리로드)
+- 빌드+배포+리로드 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
+- 이후 인게임에서 `/plugman reload BlockShip`
+
+### /textride 서브커맨드 (기존 명령어에 통합, 새 명령어 등록 불필요)
+- `/textride <player> <tag>` — Paper addPassenger (기존)
+- `/textride update <player> <titleTag> <nameTag> <titleText>` — 칭호 업데이트 (HEX 지원)
+- `/textride combo <player> <titleTag> <nameTag> <combo>` — 콤보 파스텔 그라데이션
+- `/textride remove <player> <titleTag> <nameTag>` — 칭호 제거
+
+## 리소스팩
+- GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack`
+- 로컬: `~/Library/Application Support/minecraft/resourcepacks/barkan-resourcepack.zip`
+- 빌드 폴더: `~/Downloads/barkan-resourcepack/`
+- 서버 자동 적용: `server.properties`에 GitHub Releases URL+SHA1 설정됨 (`require-resource-pack=true`)
+- **자동 배포**: `~/Downloads/barkan-resourcepack/deploy.sh` 실행 한 줄로 전체 자동화
+  - ZIP 생성 (로컬+배포) → Git 커밋+푸시 → GitHub Release 업로드 → SHA1 갱신 → server.properties 업데이트
+  - 서버 재시작하면 접속자에게 자동 적용
+- **수동 배포 절차** (deploy.sh 못 쓸 때):
+  1. `~/Downloads/barkan-resourcepack/` 내 파일 수정
+  2. `cd ~/Downloads/barkan-resourcepack && zip -r /tmp/barkan-resourcepack.zip . -x ".*" -x "deploy.sh"`
+  3. `gh release delete latest --repo wsi1212/minecraft-fish-resource-pack --yes`
+  4. `gh release create latest /tmp/barkan-resourcepack.zip --repo wsi1212/minecraft-fish-resource-pack --title "Latest"`
+  5. `shasum /tmp/barkan-resourcepack.zip` → server.properties의 `resource-pack-sha1` 업데이트
+  6. 서버 재시작
+- **커스텀 사운드**: `assets/barkan/sounds.json`에 등록, `assets/barkan/sounds/weather/*.ogg`에 파일 배치
+  - ogg (Vorbis) 형식만 지원, wav→ogg 변환: `ffmpeg -i input.wav -c:a libvorbis -q:a 5 output.ogg`
+  - 페이드아웃: `ffmpeg -i input.wav -t 19 -af "afade=t=out:st=16:d=3" -c:a libvorbis -q:a 5 output.ogg`
+- 상세: [resourcepack.md](resourcepack.md)

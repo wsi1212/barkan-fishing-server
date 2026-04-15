@@ -2,8 +2,23 @@
 on load:
     execute console command "gamerule locatorBar false"
 
+# 이름키 → UUID키 돈 마이그레이션
+on join:
+    set {_pn} to name of player
+    # 이름 키에 돈이 있고 UUID 키에 없거나 0이면 마이그레이션
+    if {돈::%{_pn}%} is set:
+        if {돈::%{_pn}%} > 0:
+            if {돈::%player%} is not set:
+                set {돈::%player%} to {돈::%{_pn}%}
+                delete {돈::%{_pn}%}
+            else if {돈::%player%} <= 0:
+                set {돈::%player%} to {돈::%{_pn}%}
+                delete {돈::%{_pn}%}
+
 on first join:
     set {돈::%player%} to 0
+    set {추천코인::%player%} to 0
+    set {캐시::%player%} to 0
     set {퀘스트상태::메인01::%player%} to "대기"
     # ===== 스타터 장비 키트 (E등급) =====
     # 낚싯대: 나뭇가지 (물리 아이템 지급 — 동적 lore)

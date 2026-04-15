@@ -70,20 +70,121 @@ function 날씨색상(weather: text) :: text:
         return "&c"
     return "&f"
 
+# ===== 커스텀 날씨 시스템 → Java WeatherManager로 이관 =====
+# /날씨설정 명령어는 Java에서 처리
+# Java에서 /weathersync 콘솔 명령어로 Skript 변수 동기화
+
+# 커스텀 날씨 보너스 데이터 (Skript 낚시 로직에서 참조)
+on load:
+    set {커스텀날씨::태풍::보너스} to "0|25|5"
+    set {커스텀날씨::태풍::효과} to "난이도+3,도망+15"
+    set {커스텀날씨::안개::보너스} to "15|0|3"
+    set {커스텀날씨::안개::효과} to "시야감소"
+    set {커스텀날씨::모래바람::보너스} to "0|0|4"
+    set {커스텀날씨::모래바람::효과} to "난이도+2"
+    set {커스텀날씨::눈보라::보너스} to "30|10|0"
+    set {커스텀날씨::눈보라::효과} to "난이도+1"
+    set {커스텀날씨::열대야::보너스} to "10|20|2"
+    set {커스텀날씨::열대야::효과} to ""
+    set {커스텀날씨::땡볕::보너스} to "0|20|0"
+    set {커스텀날씨::땡볕::효과} to "난이도+1"
+    set {커스텀날씨::열대야::효과} to ""
+
+# Java → Skript 날씨 동기화 브릿지
+command /weathersync <text>:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-1 is "해제":
+            delete {서버날씨}
+            delete {서버날씨남은틱}
+        else:
+            set {서버날씨} to arg-1
+            set {서버날씨남은틱} to 12000
+
+# 커스텀 날씨 보너스 반환 (Skript 낚시 로직에서 호출)
+function 커스텀날씨보너스() :: text:
+    if {서버날씨} is set:
+        return {커스텀날씨::%{서버날씨}%::보너스}
+    return "0|0|0"
+
+function 커스텀날씨이름() :: text:
+    if {서버날씨} is set:
+        return {서버날씨}
+    return ""
+
+function 커스텀날씨효과난이도() :: number:
+    if {서버날씨} is set:
+        set {_fx} to {커스텀날씨::%{서버날씨}%::효과}
+        if {_fx} contains "난이도+":
+            set {_parts::*} to split {_fx} at ","
+            loop {_parts::*}:
+                if loop-value contains "난이도+":
+                    set {_v} to loop-value
+                    replace "난이도+" with "" in {_v}
+                    return {_v} parsed as number
+    return 0
+
+function 커스텀날씨효과도망() :: number:
+    if {서버날씨} is set:
+        set {_fx} to {커스텀날씨::%{서버날씨}%::효과}
+        if {_fx} contains "도망+":
+            set {_parts::*} to split {_fx} at ","
+            loop {_parts::*}:
+                if loop-value contains "도망+":
+                    set {_v} to loop-value
+                    replace "도망+" with "" in {_v}
+                    return {_v} parsed as number
+    return 0
+
 # 환경 물고기 함수 → 지역별물고기.sk로 이관됨 (fish.json 기반)
+
+# ===== 유효 커스텀 날씨 반환 (지역 > 전역, 없으면 "") =====
+function 유효커스텀날씨(p: player) :: text:
+    set {_area} to {area::%{_p}%}
+    if {_area} is set:
+        if {_area} is not "0":
+            if {지역날씨::%{_area}%} is set:
+                return {지역날씨::%{_area}%}
+    if {서버날씨} is set:
+        # 지역 or 부모 섬의 excluded에 해당하면 무시
+        if {_area} is set:
+            if {_area} is not "0":
+                if {지역제외날씨::%{_area}%} contains {서버날씨}:
+                    return ""
+                if {지역부모섬::%{_area}%} is set:
+                    if {지역제외날씨::%{지역부모섬::%{_area}%}%} contains {서버날씨}:
+                        return ""
+        return {서버날씨}
+    return ""
+
+# ===== 표시용 날씨 (커스텀 있으면 커스텀, 없으면 MC) =====
+function 표시날씨(p: player) :: text:
+    set {_custom} to 유효커스텀날씨({_p})
+    if {_custom} is not "":
+        return {_custom}
+    return 현재날씨({_p})
 
 # ===== 환경 보너스 알림 (지역 입장 시) =====
 function 환경보너스알림(p: player):
     set {_시간대} to 현재시간대({_p})
-    set {_날씨} to 현재날씨({_p})
+    set {_mcWeather} to 현재날씨({_p})
+    set {_displayWeather} to 표시날씨({_p})
     set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
-    set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
-    set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
-    set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
-    set {_gradeShift} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
+    set {_customW} to 유효커스텀날씨({_p})
+    if {_customW} is not "":
+        set {_cBonus::*} to split 커스텀날씨보너스지역({_p}) at "|"
+        set {_expTotal} to ({_tBonus::1} parsed as number) + ({_cBonus::1} parsed as number)
+        set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_cBonus::2} parsed as number)
+        set {_gradeShift} to ({_tBonus::3} parsed as number) + ({_cBonus::3} parsed as number)
+    else:
+        set {_wBonus::*} to split 날씨보너스({_mcWeather}) at "|"
+        set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
+        set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
+        set {_gradeShift} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
     set {_tColor} to 시간대색상({_시간대})
-    set {_wColor} to 날씨색상({_날씨})
-    send "%{_tColor}%%{_시간대}% %{_wColor}%%{_날씨}%" to {_p}
+    set {_wColor} to 날씨색상({_displayWeather})
+    send "%{_tColor}%%{_시간대}% %{_wColor}%%{_displayWeather}%" to {_p}
     if {_expTotal} > 0:
         if {_gradeShift} > 0:
             send "&a  [환경 보너스] &fEXP +%{_expTotal}%%%  크기 +%{_sizeTotal}%%%  등급업 %{_gradeShift}%%%" to {_p}
@@ -92,22 +193,38 @@ function 환경보너스알림(p: player):
     else if {_gradeShift} > 0:
         send "&a  [환경 보너스] &f등급업 %{_gradeShift}%%%" to {_p}
 
+# ===== 지역별 커스텀 날씨 보너스 =====
+function 커스텀날씨보너스지역(p: player) :: text:
+    set {_w} to 유효커스텀날씨({_p})
+    if {_w} is not "":
+        if {커스텀날씨::%{_w}%::보너스} is set:
+            return {커스텀날씨::%{_w}%::보너스}
+    return "0|0|0"
+
 # ===== /날씨 명령어 =====
 command /날씨:
     aliases: /skftl
     trigger:
         set {_시간대} to 현재시간대(player)
-        set {_날씨} to 현재날씨(player)
+        set {_mcWeather} to 현재날씨(player)
+        set {_displayWeather} to 표시날씨(player)
         set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
-        set {_wBonus::*} to split 날씨보너스({_날씨}) at "|"
-        set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
-        set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
-        set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
+        set {_customW} to 유효커스텀날씨(player)
+        if {_customW} is not "":
+            set {_cBonus::*} to split 커스텀날씨보너스지역(player) at "|"
+            set {_expTotal} to ({_tBonus::1} parsed as number) + ({_cBonus::1} parsed as number)
+            set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_cBonus::2} parsed as number)
+            set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_cBonus::3} parsed as number)
+        else:
+            set {_wBonus::*} to split 날씨보너스({_mcWeather}) at "|"
+            set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
+            set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
+            set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
         set {_tColor} to 시간대색상({_시간대})
-        set {_wColor} to 날씨색상({_날씨})
+        set {_wColor} to 날씨색상({_displayWeather})
         message "&f========== 날씨/시간 정보 ==========" to player
         message "&7시간대 &e: %{_tColor}%%{_시간대}%" to player
-        message "&7날씨 &e: %{_wColor}%%{_날씨}%" to player
+        message "&7날씨 &e: %{_wColor}%%{_displayWeather}%" to player
         message "" to player
         if {_expTotal} > 0:
             message "&a경험치 보너스 &e: &f+%{_expTotal}%%%" to player

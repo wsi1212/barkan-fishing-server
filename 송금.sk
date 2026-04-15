@@ -10,7 +10,7 @@ options:
     hint: &7
     emph: &e
     info: &f
-    fee_rate: 5
+    fee_rate: 10
 
 on tab complete of "/송금":
     set tab completions for position 1 to names of all players
@@ -23,7 +23,7 @@ command /송금 [<text>] [<text>]:
             set {돈::%player%} to 0
 
         if arg-1 is not set:
-            message "{@prefix} {@hint}사용법: {@emph}/송금 <닉네임> <금액> {@hint}| 수수료: {@emph}{@fee_rate}%%" to player
+            message "{@prefix} {@hint}사용법: {@emph}/송금 <닉네임> <금액> {@hint}| 수수료: {@emph}10%%" to player
             stop
 
         if arg-2 is not set:
@@ -85,3 +85,4 @@ command /송금 [<text>] [<text>]:
 
         message "{@prefix} {@good}→ &f%arg-1%&a님에게 {@emph}%{_금액}%골드 {@good}송금 완료! {@hint}(수수료 %{_수수료}%골드) | 잔액: {@emph}%{돈::%player%}%골드" to player
         message "{@prefix} {@good}← &f%player%&a님에게서 {@emph}%{_수신액}%골드 {@good}받음! {@hint}잔액: {@emph}%{돈::%{_target}%}%골드" to {_target}
+        도전과제체크(player, "송금", "1")

@@ -88,6 +88,8 @@ function 퀘스트즉시체크(p: player, questId: text):
             if {area::%{_p}%} is set:
                 if {area::%{_p}%} is {_obj::2}:
                     set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to 1
+                else if {섬::%{_p}%} is {_obj::2}:
+                    set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to 1
         else if {_obj::1} is "money":
             set {_target} to {_obj::2} parsed as number
             if {돈::%{_p}%} is set:
@@ -143,6 +145,10 @@ function 퀘스트진행체크(p: player, questId: text):
             set {_target} to {_obj::2} parsed as number
             if {_cur} < {_target}:
                 set {_allDone} to false
+        else if {_obj::1} is "craft":
+            set {_target} to {_obj::3} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
     if {_allDone} is true:
         set {퀘스트상태::%{_questId}%::%{_p}%} to "완료대기"
         set {_cat} to {퀘스트::%{_questId}%::카테고리}
@@ -174,6 +180,52 @@ function 퀘스트보상(p: player, questId: text):
         if {_exp} > 0:
             낚시경험치추가({_p}, {_exp})
             message "&8[&d 퀘스트 &8] &a낚시 경험치 +%{_exp}%exp" to {_p}
+    # 칭호 보상
+    set {_titleReward} to {퀘스트::%{_questId}%::보상칭호}
+    if {_titleReward} is set:
+        set {보유칭호::%{_p}%::%{_titleReward}%} to true
+        set {_titleName} to {칭호데이터::%{_titleReward}%::이름}
+        if {_titleName} is not set:
+            set {_titleName} to {_titleReward}
+        message "&8[&d 퀘스트 &8] &e칭호 획득! &f[%{_titleName}%&f]" to {_p}
+    # 페리 권한 보상
+    set {_ferryReward} to {퀘스트::%{_questId}%::보상페리}
+    if {_ferryReward} is set:
+        set {페리권한::%{_p}%::%{_ferryReward}%} to true
+        message "&8[&d 퀘스트 &8] &b페리 노선 해금! &f%{_ferryReward}%" to {_p}
+    # 등급 해금 보상
+    set {_gradeUnlock} to {퀘스트::%{_questId}%::보상등급해금}
+    if {_gradeUnlock} is set:
+        set {등급해금::%{_p}%::%{_gradeUnlock}%} to true
+        message "&8[&d 퀘스트 &8] &6%{_gradeUnlock}%등급 해금! &7이제 %{_gradeUnlock}%등급 물고기가 나타납니다." to {_p}
+        play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
+    # 도감 해금 보상
+    set {_dogramUnlock} to {퀘스트::%{_questId}%::보상도감해금}
+    if {_dogramUnlock} is set:
+        set {도감해금::%{_p}%} to true
+        message "&8[&d 퀘스트 &8] &6도감 해금! &7/메뉴에서 도감을 확인하세요." to {_p}
+    # 재료 보상 — 포맷: "재료ID:수량" 또는 "재료ID:수량,재료ID:수량,..."
+    set {_matReward} to {퀘스트::%{_questId}%::보상재료}
+    if {_matReward} is set:
+        set {_matEntries::*} to split {_matReward} at ","
+        loop {_matEntries::*}:
+            set {_mr::*} to split loop-value at ":"
+            set {_matId} to {_mr::1}
+            set {_matCount} to {_mr::2} parsed as integer
+            if {_matCount} is not set:
+                set {_matCount} to 1
+            set {_matData::*} to split {조합재료::%{_matId}%} at "|"
+            set {_matName} to {_matData::1}
+            set {_matItem} to {_matData::2} parsed as item type
+            if {_matItem} is set:
+                set {_item} to {_matCount} of {_matItem}
+                set name of {_item} to "&e%{_matName}%"
+                set lore of {_item} to "&7%{_matData::3}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
+                if {_p} can hold {_item}:
+                    give {_item} to {_p}
+                else:
+                    drop {_item} at {_p}'s location
+                message "&8[&d 퀘스트 &8] &6재료 획득! &e%{_matName}% &fx%{_matCount}%" to {_p}
     # 완료 처리
     set {퀘스트상태::%{_questId}%::%{_p}%} to "완료"
     remove {_questId} from {활성퀘스트::%{_p}%::*}
@@ -194,6 +246,7 @@ function 퀘스트보상(p: player, questId: text):
         if {_allDaily} is true:
             set {_bigSound} to true
             send title "&6&l올클리어!" with subtitle "&e오늘의 일일 퀘스트를 모두 완료!" to {_p} for 3 seconds
+            도전과제체크({_p}, "일퀘올클", "1")
     else if {_cat} is "주간":
         message "&8[&d 퀘스트 &8] &a이번주 퀘스트를 완료했습니다!" to {_p}
         # 주퀘 올클 체크
@@ -220,6 +273,8 @@ function 퀘스트보상(p: player, questId: text):
         set {_next} to {퀘스트::%{_questId}%::다음퀘스트}
         set {퀘스트상태::%{_next}%::%{_p}%} to "대기"
         message "&8[&d 퀘스트 &8] &e새로운 퀘스트가 해금되었습니다!" to {_p}
+    # 도전과제 체크 (퀘스트 완료)
+    도전과제체크({_p}, "퀘스트", {_questId})
 
 # ===== 퀘스트 포기 =====
 function 퀘스트포기(p: player, questId: text):
@@ -431,6 +486,14 @@ function 퀘스트목표텍스트(questId: text, p: player) :: text:
         else if {_obj::1} is "quest_daily":
             set {_target} to {_obj::2} parsed as number
             set {_result} to "&7일일 퀘스트 완료: &f%{_cur}%/%{_target}%개"
+        else if {_obj::1} is "craft":
+            set {_target} to {_obj::3} parsed as number
+            set {_craftName} to {_obj::2}
+            if {_craftName} is "아무":
+                set {_result} to "&7아이템 조합: &f%{_cur}%/%{_target}%개"
+            else:
+                replace all "_" with " " in {_craftName}
+                set {_result} to "&7%{_craftName}% 조합: &f%{_cur}%/%{_target}%개"
     return {_result}
 
 # ===== NPC 퀘스트 목록 GUI =====
@@ -543,6 +606,18 @@ function 퀘스트GUI아이콘(p: player, questId: text, slot: integer):
         add "&7  돈: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
     if {퀘스트::%{_questId}%::보상경험치} is set:
         add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+    if {퀘스트::%{_questId}%::보상칭호} is set:
+        set {_tn} to {칭호데이터::%{퀘스트::%{_questId}%::보상칭호}%::이름}
+        if {_tn} is not set:
+            set {_tn} to {퀘스트::%{_questId}%::보상칭호}
+        add "&7  칭호: %{_tn}%" to {_lore::*}
+    if {퀘스트::%{_questId}%::보상페리} is set:
+        add "&7  페리: &b%{퀘스트::%{_questId}%::보상페리}% &7노선 해금" to {_lore::*}
+    if {퀘스트::%{_questId}%::보상재료} is set:
+        set {_mrPrev::*} to split {퀘스트::%{_questId}%::보상재료} at ":"
+        set {_mrSplit::*} to split {조합재료::%{_mrPrev::1}%} at "|"
+        set {_mrName} to {_mrSplit::1}
+        add "&7  재료: &6%{_mrPrev::1}% &fx%{_mrPrev::2}%" to {_lore::*}
     # 슬롯 매핑 저장
     set {퀘스트GUI슬롯::%{_p}%::%{_slot}%} to {_questId}
     set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_name}%" with lore {_lore::*}
@@ -736,6 +811,13 @@ function 일일퀘스트상세GUI(p: player):
                 add "&7  보상: &f%{퀘스트::%{_qid}%::보상돈}%원" to {_lore::*}
             if {퀘스트::%{_qid}%::보상경험치} is set:
                 add "&7  경험치: &f%{퀘스트::%{_qid}%::보상경험치}%exp" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상칭호} is set:
+                add "&7  칭호: %{칭호데이터::%{퀘스트::%{_qid}%::보상칭호}%::이름}%" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상페리} is set:
+                add "&7  페리: &b%{퀘스트::%{_qid}%::보상페리}% &7노선 해금" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상재료} is set:
+                set {_mrP::*} to split {퀘스트::%{_qid}%::보상재료} at ":"
+                add "&7  재료: &6%{_mrP::1}% &fx%{_mrP::2}%" to {_lore::*}
             set slot {_sl} of {_p}'s current inventory to golden apple named "%{_nm}%" with lore {_lore::*}
         else:
             set {_progress} to 퀘스트목표텍스트({_qid}, {_p})
@@ -746,6 +828,13 @@ function 일일퀘스트상세GUI(p: player):
                 add "&7  보상: &f%{퀘스트::%{_qid}%::보상돈}%원" to {_lore::*}
             if {퀘스트::%{_qid}%::보상경험치} is set:
                 add "&7  경험치: &f%{퀘스트::%{_qid}%::보상경험치}%exp" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상칭호} is set:
+                add "&7  칭호: %{칭호데이터::%{퀘스트::%{_qid}%::보상칭호}%::이름}%" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상페리} is set:
+                add "&7  페리: &b%{퀘스트::%{_qid}%::보상페리}% &7노선 해금" to {_lore::*}
+            if {퀘스트::%{_qid}%::보상재료} is set:
+                set {_mrP::*} to split {퀘스트::%{_qid}%::보상재료} at ":"
+                add "&7  재료: &6%{_mrP::1}% &fx%{_mrP::2}%" to {_lore::*}
             set slot {_sl} of {_p}'s current inventory to filled map named "%{_nm}%" with lore {_lore::*}
         # 슬롯-퀘스트 매핑
         set {일일GUI슬롯::%{_p}%::%{_sl}%} to {_qid}
@@ -768,6 +857,13 @@ function 주간GUI아이콘(p: player, questId: text, slot: integer):
             add "&7  보상: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
         if {퀘스트::%{_questId}%::보상경험치} is set:
             add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상칭호} is set:
+            add "&7  칭호: %{칭호데이터::%{퀘스트::%{_questId}%::보상칭호}%::이름}%" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상페리} is set:
+            add "&7  페리: &b%{퀘스트::%{_questId}%::보상페리}% &7노선 해금" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상재료} is set:
+            set {_mrPrev::*} to split {퀘스트::%{_questId}%::보상재료} at ":"
+            add "&7  재료: &6%{_mrPrev::1}% &fx%{_mrPrev::2}%" to {_lore::*}
         set slot {_slot} of {_p}'s current inventory to golden apple named "%{_nm}%" with lore {_lore::*}
     else:
         set {_progress} to 퀘스트목표텍스트({_questId}, {_p})
@@ -778,6 +874,13 @@ function 주간GUI아이콘(p: player, questId: text, slot: integer):
             add "&7  보상: &f%{퀘스트::%{_questId}%::보상돈}%원" to {_lore::*}
         if {퀘스트::%{_questId}%::보상경험치} is set:
             add "&7  경험치: &f%{퀘스트::%{_questId}%::보상경험치}%exp" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상칭호} is set:
+            add "&7  칭호: %{칭호데이터::%{퀘스트::%{_questId}%::보상칭호}%::이름}%" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상페리} is set:
+            add "&7  페리: &b%{퀘스트::%{_questId}%::보상페리}% &7노선 해금" to {_lore::*}
+        if {퀘스트::%{_questId}%::보상재료} is set:
+            set {_mrPrev::*} to split {퀘스트::%{_questId}%::보상재료} at ":"
+            add "&7  재료: &6%{_mrPrev::1}% &fx%{_mrPrev::2}%" to {_lore::*}
         set slot {_slot} of {_p}'s current inventory to filled map named "%{_nm}%" with lore {_lore::*}
     set {주간GUI슬롯::%{_p}%::%{_slot}%} to {_questId}
 
@@ -983,6 +1086,28 @@ on join:
     wait 10 ticks
     일일퀘스트리셋(player)
     주간퀘스트체크(player)
+    # 기존 유저 등급/도감 자동 해금 (튜토 완료 여부 or 레벨 기반)
+    if {등급해금::%player%::C} is not true:
+        if {퀘스트상태::튜토05::%player%} is "완료":
+            set {등급해금::%player%::C} to true
+        else if {낚시레벨::%player%} >= 2:
+            set {등급해금::%player%::C} to true
+    if {등급해금::%player%::B} is not true:
+        if {퀘스트상태::튜토11::%player%} is "완료":
+            set {등급해금::%player%::B} to true
+        else if {낚시레벨::%player%} >= 3:
+            set {등급해금::%player%::B} to true
+    if {도감해금::%player%} is not true:
+        if {퀘스트상태::튜토06::%player%} is "완료":
+            set {도감해금::%player%} to true
+        else if {낚시레벨::%player%} >= 2:
+            set {도감해금::%player%} to true
+    # 기존 도감최대 데이터 → 도감발견 마이그레이션 (1회)
+    if {도감마이그레이션::%player%} is not true:
+        loop {물고기::*}:
+            if {도감최대::%loop-index%::%player%} is set:
+                set {도감발견::물고기::%player%::%loop-index%} to true
+        set {도감마이그레이션::%player%} to true
 
 # ===== 플레이어 명령어 =====
 command /퀘스트:
@@ -1081,3 +1206,68 @@ on tab complete of "/퀘스트강제완료":
 
 on tab complete of "/퀘스트초기화":
     set tab completions for position 2 to {퀘스트목록::*}
+
+# =========================================
+#   퀘스트 관리 → Java QuestCommand로 이관 (/퀘스트관리)
+# =========================================
+
+# ===== 퀘스트 요약 출력 (1줄) =====
+function 퀘스트정보출력(p: player, id: text):
+    set {_name} to {퀘스트::%{_id}%::이름}
+    if {_name} is not set:
+        message "&8  %{_id}% &c(데이터 없음)" to {_p}
+        stop
+    set {_money} to {퀘스트::%{_id}%::보상돈}
+    if {_money} is not set:
+        set {_money} to 0
+    set {_exp} to {퀘스트::%{_id}%::보상경험치}
+    if {_exp} is not set:
+        set {_exp} to 0
+    set {_rewards} to "&e%{_money}%원 &a%{_exp}%exp"
+    if {퀘스트::%{_id}%::보상칭호} is set:
+        set {_rewards} to "%{_rewards}% &d칭호:%{퀘스트::%{_id}%::보상칭호}%"
+    if {퀘스트::%{_id}%::보상페리} is set:
+        set {_rewards} to "%{_rewards}% &b페리:%{퀘스트::%{_id}%::보상페리}%"
+    if {퀘스트::%{_id}%::보상재료} is set:
+        set {_rewards} to "%{_rewards}% &6재료:%{퀘스트::%{_id}%::보상재료}%"
+    # 목표
+    set {_goalText} to ""
+    loop {퀘스트::%{_id}%::목표::*}:
+        set {_goalText} to "%{_goalText}%%loop-value% "
+    message "&7  &f%{_id}% %{_name}% &8| 보상: %{_rewards}% &8| 목표: &7%{_goalText}%" to {_p}
+
+# ===== 퀘스트 상세 출력 =====
+function 퀘스트상세출력(p: player, id: text):
+    set {_name} to {퀘스트::%{_id}%::이름}
+    if {_name} is not set:
+        message "&c존재하지 않는 퀘스트: %{_id}%" to {_p}
+        stop
+    message "&6=== %{_id}% ===" to {_p}
+    message "&7이름: %{_name}%" to {_p}
+    message "&7카테고리: &f%{퀘스트::%{_id}%::카테고리}%" to {_p}
+    message "&7필요레벨: &f%{퀘스트::%{_id}%::필요레벨}%" to {_p}
+    # 설명
+    message "&7설명:" to {_p}
+    loop {퀘스트::%{_id}%::설명::*}:
+        message "&7  %loop-value%" to {_p}
+    # 목표
+    message "&7목표:" to {_p}
+    loop {퀘스트::%{_id}%::목표::*}:
+        message "&f  %loop-value%" to {_p}
+    # 보상
+    message "&7보상:" to {_p}
+    if {퀘스트::%{_id}%::보상돈} is set:
+        message "&e  돈: %{퀘스트::%{_id}%::보상돈}%원" to {_p}
+    if {퀘스트::%{_id}%::보상경험치} is set:
+        message "&a  경험치: %{퀘스트::%{_id}%::보상경험치}%exp" to {_p}
+    if {퀘스트::%{_id}%::보상칭호} is set:
+        message "&d  칭호: %{퀘스트::%{_id}%::보상칭호}%" to {_p}
+    if {퀘스트::%{_id}%::보상페리} is set:
+        message "&b  페리: %{퀘스트::%{_id}%::보상페리}%" to {_p}
+    if {퀘스트::%{_id}%::보상재료} is set:
+        message "&6  재료: %{퀘스트::%{_id}%::보상재료}%" to {_p}
+    # 연결
+    if {퀘스트::%{_id}%::선행퀘스트} is set:
+        message "&7선행: &f%{퀘스트::%{_id}%::선행퀘스트}%" to {_p}
+    if {퀘스트::%{_id}%::다음퀘스트} is set:
+        message "&7다음: &f%{퀘스트::%{_id}%::다음퀘스트}%" to {_p}

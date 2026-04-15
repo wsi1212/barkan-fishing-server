@@ -77,6 +77,22 @@ function 사이드바업데이트(p: player):
     set {_area} to {area::%{_p}%}
     if {_area} is not set:
         set {_area} to "없음"
+    # 섬 > 지역 형태 표시
+    set {_island} to {섬::%{_p}%}
+    if {_island} is set:
+        if {_island} is not "0":
+            if {_area} is not {_island}:
+                if {_area} is not "0":
+                    if {_area} is not "없음":
+                        set {_islandDisplay} to regionDisplayName({_island})
+                        set {_areaDisplay} to regionDisplayName({_area})
+                        set {_area} to "%{_islandDisplay}% > %{_areaDisplay}%"
+                    else:
+                        set {_area} to regionDisplayName({_island})
+                else:
+                    set {_area} to regionDisplayName({_island})
+            else:
+                set {_area} to regionDisplayName({_island})
     # 경험치 바 (10칸)
     if {_need} > 0:
         set {_filled} to floor({_cur} * 10 / {_need})
@@ -127,13 +143,74 @@ function 사이드바업데이트(p: player):
         set {_weatherIcon} to "&c⚡"
     # 스코어보드
     set title of {_p}'s scoreboard to "&b&l⚓ 바르칸 열도"
-    set line 9 of {_p}'s scoreboard to "&f"
-    set line 8 of {_p}'s scoreboard to " &f%{_p}'s name%"
-    set line 7 of {_p}'s scoreboard to " &e낚시 Lv.%{_lv}% %{_expBar}%"
-    set line 6 of {_p}'s scoreboard to " &7소지금: &6%{_money}%원"
-    set line 5 of {_p}'s scoreboard to "&f "
+    set line 10 of {_p}'s scoreboard to "&f"
+    # 칭호 + 닉네임
+    set {_spn} to name of {_p}
+    if {길드::%{_spn}%} is set:
+        set {_gName} to {길드정보::%{길드::%{_spn}%}%::이름}
+        if {_gName} is not set:
+            set {_gName} to {길드::%{_spn}%}
+        set line 9 of {_p}'s scoreboard to " &b[%{_gName}%] &f%{_p}'s name%"
+    else:
+        set line 9 of {_p}'s scoreboard to " &f%{_p}'s name%"
+    set line 8 of {_p}'s scoreboard to " &e낚시 Lv.%{_lv}% %{_expBar}%"
+    set line 7 of {_p}'s scoreboard to " &7소지금: &6%{_money}%원"
+    set line 6 of {_p}'s scoreboard to "&f "
+    # 채팅 모드
+    if {길드채팅모드::%{_p}%} is true:
+        set line 5 of {_p}'s scoreboard to " &7채팅 &b길드"
+    else if {지역채팅모드::%{_p}%} is true:
+        set {_rcnt} to 0
+        loop all players:
+            if loop-player is not {_p}:
+                if {지역채팅모드::%loop-player%} is true:
+                    if loop-player's world is {_p}'s world:
+                        if distance between {_p} and loop-player <= 500:
+                            add 1 to {_rcnt}
+        set line 5 of {_p}'s scoreboard to " &7채팅 &e지역 &7(%{_rcnt}%명)"
+    else:
+        set line 5 of {_p}'s scoreboard to " &7채팅 &a전체"
     set line 4 of {_p}'s scoreboard to " &7위치 &f%{_area}%"
-    set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% %{_weatherIcon}% %{_weather}%"
+    # guild_world는 항상 맑음
+    if {_p}'s world is world "guild_world":
+        set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% &e☀ 맑음"
+    else:
+        # 날씨 표시 (지역 날씨 > 전역 날씨 > MC 날씨)
+        set {_playerArea} to {area::%{_p}%}
+        if {_playerArea} is not set:
+            set {_playerArea} to "0"
+        set {_effectiveW} to ""
+        if {지역날씨::%{_playerArea}%} is set:
+            set {_effectiveW} to {지역날씨::%{_playerArea}%}
+        else if {서버날씨} is set:
+            if {지역제외날씨::%{_playerArea}%} does not contain {서버날씨}:
+                set {_effectiveW} to {서버날씨}
+        if {_effectiveW} is not "":
+            if {_effectiveW} is "태풍":
+                set {_cwIcon} to "&4⚡"
+            else if {_effectiveW} is "안개":
+                set {_cwIcon} to "&7☁"
+            else if {_effectiveW} is "모래바람":
+                set {_cwIcon} to "&6≋"
+            else if {_effectiveW} is "눈보라":
+                set {_cwIcon} to "&b❄"
+            else if {_effectiveW} is "열대야":
+                set {_cwIcon} to "&c☀"
+            else if {_effectiveW} is "땡볕":
+                set {_cwIcon} to "&e☀"
+            else if {_effectiveW} is "비":
+                set {_cwIcon} to "&b☂"
+            else if {_effectiveW} is "뇌우":
+                set {_cwIcon} to "&c⚡"
+            else:
+                set {_cwIcon} to "&e★"
+            set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% %{_cwIcon}% %{_effectiveW}%"
+        else:
+            # MC 기본 날씨도 지역 제외 체크 (사막에서 비 제외 등)
+            if {지역제외날씨::%{_playerArea}%} contains {_weather}:
+                set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% &e☀ 맑음"
+            else:
+                set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% %{_weatherIcon}% %{_weather}%"
     set line 2 of {_p}'s scoreboard to " &7콤보 %{_comboText}%"
     set line 1 of {_p}'s scoreboard to ""
 
@@ -141,7 +218,6 @@ function 사이드바업데이트(p: player):
 
 # ===== 콤보 테스트 명령어 (op) =====
 command /콤보 [<integer>]:
-    aliases: /zhaqh
     permission: op
     trigger:
         if arg-1 is set:
@@ -161,7 +237,7 @@ on join:
     wait 5 ticks
     사이드바업데이트(player)
 
-# ===== 주기적 업데이트 (5초마다) =====
-every 5 seconds:
+# ===== 백업 폴링 (30초마다, 시간/날씨 변화 반영용) =====
+every 30 seconds:
     loop all players:
         사이드바업데이트(loop-player)

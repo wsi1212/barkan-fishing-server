@@ -53,7 +53,6 @@ on inventory click:
 
 # ===== /통발지급 — 어드민용 =====
 command /통발지급 [<text>] [<text>] [<text>]:
-    aliases: /xhdqkwlrn
     permission: op
     permission message: &c권한이 없습니다.
     trigger:

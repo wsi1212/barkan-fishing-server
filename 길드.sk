@@ -1,0 +1,1304 @@
+# ===== 길드 시스템 — Skript 브릿지 + 버프 + 채팅 + GUI =====
+
+# ===== 길드 리스트 동기화 (Java → Skript) =====
+command /guildlistsync <text> [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-1 is "init":
+            delete {길드목록::*}
+        else if arg-1 is "add":
+            if {길드목록::*} does not contain arg-2:
+                add arg-2 to {길드목록::*}
+
+# ===== 길드 정보 동기화 (Java → Skript) =====
+command /guildsync <text> <text> <text> <integer> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {길드정보::%arg-1%::이름} to {_name}
+        set {길드정보::%arg-1%::주인} to arg-3
+        set {길드정보::%arg-1%::레벨} to arg-4
+        set {길드정보::%arg-1%::인원} to arg-5
+
+# ===== 멤버 길드 동기화 (Java → Skript) =====
+command /guildmembersync <text> <text> [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-2 is "없음":
+            delete {길드::%arg-1%}
+            delete {길드역할::%arg-1%}
+        else:
+            set {길드::%arg-1%} to arg-2
+            if arg-3 is set:
+                set {길드역할::%arg-1%} to arg-3
+
+# ===== 길드 해산 시 정리 =====
+command /guilddisband <text>:
+    permission: op
+    executable by: console
+    trigger:
+        # 모든 플레이어의 길드 변수 정리
+        loop all players:
+            set {_lpn} to name of loop-player
+            if {길드::%{_lpn}%} is arg-1:
+                delete {길드::%{_lpn}%}
+                delete {길드채팅모드::%loop-player%}
+        delete {길드정보::%arg-1%::*}
+        # 길드 리스트에서 제거
+        remove arg-1 from {길드목록::*}
+        remove arg-1 from {길드리스트::*}
+        # 길드 섬 관련 변수 정리
+        set {_islandId} to "길드섬_%arg-1%"
+        delete {지역길드::%{_islandId}%}
+        delete {길드섬중심X::%{_islandId}%}
+        delete {길드섬중심Z::%{_islandId}%}
+        delete {길드섬크기::%{_islandId}%}
+        # 섬/지역 리스트에서 제거
+        remove {_islandId} from {섬리스트::*}
+        remove {_islandId} from {지역리스트::*}
+
+# ===== 길드 생성 비용 체크 (Java에서 호출) =====
+command /guildcreatecheck <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if {돈::%{_p}%} is not set:
+            set {돈::%{_p}%} to 0
+        if {돈::%{_p}%} < 10000:
+            message "&c길드 생성에 10,000원이 필요합니다. (보유: %{돈::%{_p}%}%원)" to {_p}
+            stop
+        remove 10000 from {돈::%{_p}%}
+        message "&a10,000원이 차감되었습니다." to {_p}
+        # Java에 생성 확정 알림
+        make console execute command "guildbr create %arg-1% %arg-2%"
+
+# ===== 길드 기부 비용 체크 (Java에서 호출) =====
+command /guilddonatecheck <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {_amount} to arg-3 parsed as number
+        if {_amount} is not set:
+            message "&c금액을 숫자로 입력해주세요." to {_p}
+            stop
+        if {_amount} <= 0:
+            message "&c양수를 입력해주세요." to {_p}
+            stop
+        if {돈::%{_p}%} < {_amount}:
+            message "&c소지금이 부족합니다. (보유: %{돈::%{_p}%}%원)" to {_p}
+            stop
+        remove {_amount} from {돈::%{_p}%}
+        # Java에 기부 확정 알림
+        make console execute command "guildbr donate %arg-1% %arg-2% %arg-3%"
+
+# ===== 길드 채팅 토글 =====
+command /guildchattoggle <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        # "check" 모드: Skript 변수로 길드 확인
+        if arg-2 is "check":
+            if {길드::%name of {_p}%} is not set:
+                message "&c길드에 가입되어 있지 않습니다." to {_p}
+                stop
+        if {길드채팅모드::%{_p}%} is true:
+            set {길드채팅모드::%{_p}%} to false
+            message "&a전체 채팅 모드로 전환되었습니다." to {_p}
+        else:
+            set {길드채팅모드::%{_p}%} to true
+            message "&b길드 채팅 모드로 전환되었습니다. (/채팅 으로 복귀)" to {_p}
+            # 최근 로그 20개 표시는 Java에서 처리
+
+on tab complete of "/채팅":
+    stop
+
+command /채팅:
+    aliases: /coxld
+    trigger:
+        채팅모드GUI(player)
+
+function 채팅모드GUI(p: player):
+    set {_gui} to chest inventory with 3 rows named "&0채팅 설정"
+    set {_pn} to name of {_p}
+    # 현재 모드 확인
+    set {_curMode} to "전체"
+    if {길드채팅모드::%{_p}%} is true:
+        set {_curMode} to "길드"
+    else if {지역채팅모드::%{_p}%} is true:
+        set {_curMode} to "지역"
+    # 배경
+    loop integers from 0 to 26:
+        set slot loop-integer of {_gui} to black stained glass pane named "&f"
+    # --- 행1: 채팅 모드 (슬롯 1, 4, 7) ---
+    if {_curMode} is "전체":
+        set slot 1 of {_gui} to lime stained glass pane named "&a&l전체 채팅 &7(현재)" with lore "&7모든 플레이어에게 보입니다"
+    else:
+        set slot 1 of {_gui} to white stained glass pane named "&f전체 채팅" with lore "&7모든 플레이어에게 보입니다" and "" and "&e클릭하여 전환"
+    # 지역 채팅
+    set {_cnt} to 0
+    loop all players:
+        if loop-player is not {_p}:
+            if loop-player's world is {_p}'s world:
+                if distance between {_p} and loop-player <= 500:
+                    add 1 to {_cnt}
+    if {_curMode} is "지역":
+        set slot 4 of {_gui} to lime stained glass pane named "&e&l지역 채팅 &7(현재)" with lore "&7반경 500블록 내 플레이어" and "&7주변: &f%{_cnt}%명" and "" and "&7전체 채팅이 안 보입니다"
+    else:
+        set slot 4 of {_gui} to orange stained glass pane named "&e지역 채팅" with lore "&7반경 500블록 내 플레이어" and "&7주변: &f%{_cnt}%명" and "" and "&e클릭하여 전환"
+    # 길드 채팅
+    if {길드::%{_pn}%} is set:
+        set {_gName} to {길드정보::%{길드::%{_pn}%}%::이름}
+        if {_gName} is not set:
+            set {_gName} to {길드::%{_pn}%}
+        if {_curMode} is "길드":
+            set slot 7 of {_gui} to lime stained glass pane named "&b&l길드 채팅 &7(현재)" with lore "&7길드: &f%{_gName}%" and "" and "&7전체 채팅이 안 보입니다"
+        else:
+            set slot 7 of {_gui} to cyan stained glass pane named "&b길드 채팅" with lore "&7길드: &f%{_gName}%" and "" and "&e클릭하여 전환"
+    else:
+        set slot 7 of {_gui} to gray stained glass pane named "&7길드 채팅" with lore "&c길드에 가입되어 있지 않습니다"
+    # --- 행3: 채팅 차단 토글 (슬롯 18,20,22,24,26) ---
+    # 슬롯 18: 전체 채팅 차단
+    if {차단전체채팅::%{_pn}%} is true:
+        set slot 18 of {_gui} to red stained glass pane named "&c전체 채팅 차단 &a[ON]" with lore "&7다른 플레이어 채팅 차단 중" and "&7(공지는 보입니다)" and "" and "&e클릭하여 해제"
+    else:
+        set slot 18 of {_gui} to green stained glass pane named "&a전체 채팅 수신 &7[OFF]" with lore "&7다른 플레이어 채팅 수신 중" and "" and "&e클릭하여 차단"
+    # 슬롯 20: 길드 채팅 차단
+    if {차단길드채팅::%{_pn}%} is true:
+        set slot 20 of {_gui} to red stained glass pane named "&c길드 채팅 차단 &a[ON]" with lore "&7길드원 채팅 차단 중" and "" and "&e클릭하여 해제"
+    else:
+        set slot 20 of {_gui} to green stained glass pane named "&a길드 채팅 수신 &7[OFF]" with lore "&7길드원 채팅 수신 중" and "" and "&e클릭하여 차단"
+    # 슬롯 22: 홍보 차단
+    if {차단홍보::%{_pn}%} is true:
+        set slot 22 of {_gui} to red stained glass pane named "&c홍보 차단 &a[ON]" with lore "&7길드 홍보 메시지 차단 중" and "" and "&e클릭하여 해제"
+    else:
+        set slot 22 of {_gui} to green stained glass pane named "&a홍보 수신 &7[OFF]" with lore "&7길드 홍보 메시지 수신 중" and "" and "&e클릭하여 차단"
+    # 슬롯 24: 팁 차단
+    if {차단팁::%{_pn}%} is true:
+        set slot 24 of {_gui} to red stained glass pane named "&c팁 차단 &a[ON]" with lore "&7서버 팁 메시지 차단 중" and "" and "&e클릭하여 해제"
+    else:
+        set slot 24 of {_gui} to green stained glass pane named "&a팁 수신 &7[OFF]" with lore "&7서버 팁 메시지 수신 중" and "" and "&e클릭하여 차단"
+    # 슬롯 26: 낚시 공지 차단
+    if {차단낚시공지::%{_pn}%} is true:
+        set slot 26 of {_gui} to red stained glass pane named "&c낚시 공지 차단 &a[ON]" with lore "&7S등급+ 낚시 공지 차단 중" and "" and "&e클릭하여 해제"
+    else:
+        set slot 26 of {_gui} to green stained glass pane named "&a낚시 공지 수신 &7[OFF]" with lore "&7S등급+ 낚시 공지 수신 중" and "" and "&e클릭하여 차단"
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0채팅 설정":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 1:
+            # 전체 채팅
+            set {길드채팅모드::%player%} to false
+            set {지역채팅모드::%player%} to false
+            close player's inventory
+            message "&a전체 채팅 모드로 전환되었습니다." to player
+            사이드바업데이트(player)
+        else if {_ci} is 4:
+            # 지역 채팅
+            set {_cnt} to 0
+            loop all players:
+                if loop-player is not player:
+                    if loop-player's world is player's world:
+                        if distance between player and loop-player <= 500:
+                            add 1 to {_cnt}
+            if {_cnt} is 0:
+                message "&c주변에 플레이어가 없습니다." to player
+                stop
+            # 지역채팅 ON인 사람 수
+            set {_chatCnt} to 0
+            loop all players:
+                if loop-player is not player:
+                    if {지역채팅모드::%loop-player%} is true:
+                        if loop-player's world is player's world:
+                            if distance between player and loop-player <= 500:
+                                add 1 to {_chatCnt}
+            set {길드채팅모드::%player%} to false
+            set {지역채팅모드::%player%} to true
+            close player's inventory
+            message "&e지역 채팅 모드로 전환되었습니다. &7(주변 %{_cnt}%명, 지역채팅 %{_chatCnt}%명)" to player
+            사이드바업데이트(player)
+        else if {_ci} is 7:
+            # 길드 채팅
+            set {_pn} to name of player
+            if {길드::%{_pn}%} is not set:
+                message "&c길드에 가입되어 있지 않습니다." to player
+                stop
+            set {지역채팅모드::%player%} to false
+            set {길드채팅모드::%player%} to true
+            close player's inventory
+            message "&b길드 채팅 모드로 전환되었습니다." to player
+            사이드바업데이트(player)
+        # --- 차단 토글 ---
+        else if {_ci} is 18:
+            set {_pn} to name of player
+            if {차단전체채팅::%{_pn}%} is true:
+                delete {차단전체채팅::%{_pn}%}
+                message "&a전체 채팅 차단을 해제했습니다." to player
+            else:
+                set {차단전체채팅::%{_pn}%} to true
+                message "&c전체 채팅을 차단합니다. &7(공지는 보입니다)" to player
+            채팅모드GUI(player)
+        else if {_ci} is 20:
+            set {_pn} to name of player
+            if {차단길드채팅::%{_pn}%} is true:
+                delete {차단길드채팅::%{_pn}%}
+                message "&a길드 채팅 차단을 해제했습니다." to player
+            else:
+                set {차단길드채팅::%{_pn}%} to true
+                message "&c길드 채팅을 차단합니다." to player
+            채팅모드GUI(player)
+        else if {_ci} is 22:
+            set {_pn} to name of player
+            if {차단홍보::%{_pn}%} is true:
+                delete {차단홍보::%{_pn}%}
+                message "&a홍보 메시지 차단을 해제했습니다." to player
+            else:
+                set {차단홍보::%{_pn}%} to true
+                message "&c홍보 메시지를 차단합니다." to player
+            채팅모드GUI(player)
+        else if {_ci} is 24:
+            set {_pn} to name of player
+            if {차단팁::%{_pn}%} is true:
+                delete {차단팁::%{_pn}%}
+                message "&a팁 메시지 차단을 해제했습니다." to player
+            else:
+                set {차단팁::%{_pn}%} to true
+                message "&c팁 메시지를 차단합니다." to player
+            채팅모드GUI(player)
+        else if {_ci} is 26:
+            set {_pn} to name of player
+            if {차단낚시공지::%{_pn}%} is true:
+                delete {차단낚시공지::%{_pn}%}
+                message "&a낚시 공지 차단을 해제했습니다." to player
+            else:
+                set {차단낚시공지::%{_pn}%} to true
+                message "&c낚시 공지를 차단합니다." to player
+            채팅모드GUI(player)
+
+# ===== 채팅 처리 (길드 > 지역 > 전체) =====
+on chat:
+    # 1순위: 길드 채팅 모드
+    if {길드채팅모드::%player%} is true:
+        cancel event
+        set {_pn} to name of player
+        set {_guildId} to {길드::%{_pn}%}
+        if {_guildId} is not set:
+            set {길드채팅모드::%player%} to false
+            message "&c길드에 가입되어 있지 않습니다. 전체 채팅으로 복귀합니다." to player
+            stop
+        # 직급 표시
+        set {_role} to {길드역할::%{_pn}%}
+        if {_role} is "MASTER":
+            set {_roleTag} to "&6[길드장]"
+        else if {_role} is "VICE_MASTER":
+            set {_roleTag} to "&5[부길드장]"
+        else if {_role} is "OFFICER":
+            set {_roleTag} to "&b[간부]"
+        else:
+            set {_roleTag} to "&7[길드원]"
+        # 길드원 전체에게 전송 (차단 유저 제외)
+        loop all players:
+            set {_lpn} to name of loop-player
+            if {길드::%{_lpn}%} is {_guildId}:
+                if {차단길드채팅::%{_lpn}%} is not true:
+                    message "&b[길드] %{_roleTag}% &f%player's name%&7: &f%message%" to loop-player
+    # 2순위: 지역 채팅 모드
+    else if {지역채팅모드::%player%} is true:
+        cancel event
+        loop all players:
+            if loop-player's world is player's world:
+                if distance between player and loop-player <= 500:
+                    message "&e[지역] &f%player's name%&7: &f%message%" to loop-player
+    # 3순위: 전체 채팅
+    else:
+        # 길드 채팅 모드 + 전채챗 차단 유저에게는 전체 채팅 안 보이게
+        # (지역 채팅 유저는 전체 채팅도 봄)
+        loop all players:
+            if {길드채팅모드::%loop-player%} is true:
+                remove loop-player from chat recipients
+            else:
+                set {_lpn2} to name of loop-player
+                if {차단전체채팅::%{_lpn2}%} is true:
+                    remove loop-player from chat recipients
+
+
+# ===== 길드 섬 텔포 (위치저장 + tp + 월드보더) =====
+command /guildislandtp <text> <text> <integer> <integer> <integer> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        # arg-1: player, arg-2: world, arg-3: cx, arg-4: cz, arg-5: borderSize, arg-6: islandSize
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        # 현재 위치 저장
+        set {섬이전위치::%{_p}%} to location of {_p}
+        # 텔포
+        make {_p} execute command "execute in minecraft:%arg-2% run tp @s %arg-3% 65 %arg-4%"
+        # 1틱 후 월드보더 설정 (텔포 완료 대기)
+        wait 1 tick
+        execute console command "guildsetborder %arg-1% %arg-3% %arg-4% %arg-5%"
+        # 메시지
+        send "&a길드 섬으로 이동했습니다! &7(크기: %arg-6%x%arg-6%)" to {_p}
+        send "&7/스폰 으로 돌아가기" to {_p}
+
+# ===== 길드 섬 텔포 전 위치 저장 (레거시) =====
+command /guildislandsave <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {섬이전위치::%{_p}%} to location of {_p}
+
+# ===== 길드 섬 월드보더 설정 =====
+command /guildworldborder <text> <integer> <integer> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        # arg-1: islandId, arg-2: centerX, arg-3: centerZ, arg-4: size
+        set {길드섬중심X::%arg-1%} to arg-2
+        set {길드섬중심Z::%arg-1%} to arg-3
+        set {길드섬크기::%arg-1%} to arg-4
+
+# ===== 길드 목록 GUI =====
+command /guildlistgui <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        길드목록GUI({_p}, 0)
+
+function 길드목록GUI(p: player, page: integer):
+    set {_gui} to chest inventory with 6 rows named "&0길드 목록"
+    set {길드목록페이지::%{_p}%} to {_page}
+    # 공개 길드만 필터
+    delete {_guilds::*}
+    loop {길드목록::*}:
+        set {_gId} to loop-value
+        # 공개 여부 체크 (Java에서 isPublic=false면 목록에 안 넣음)
+        add {_gId} to {_guilds::*}
+    set {_total} to size of {_guilds::*}
+    set {_start} to {_page} * 45
+    set {_slot} to 0
+    loop 45 times:
+        set {_idx} to {_start} + loop-number
+        if {_guilds::%{_idx}%} is set:
+            set {_gId} to {_guilds::%{_idx}%}
+            set {_gName} to {길드정보::%{_gId}%::이름}
+            if {_gName} is not set:
+                set {_gName} to {_gId}
+            set {_gOwner} to {길드정보::%{_gId}%::주인}
+            if {_gOwner} is not set:
+                set {_gOwner} to "?"
+            set {_gLv} to {길드정보::%{_gId}%::레벨}
+            if {_gLv} is not set:
+                set {_gLv} to 1
+            set {_gMem} to {길드정보::%{_gId}%::인원}
+            if {_gMem} is not set:
+                set {_gMem} to 0
+            set slot {_slot} of {_gui} to diamond sword named "&6%{_gName}%" with lore "&7길드레벨: &fLv.%{_gLv}%" and "&7인원: &f%{_gMem}%명" and "&7길드장: &f%{_gOwner}%" and "" and "&e클릭하여 가입 신청"
+        set {_slot} to {_slot} + 1
+    # 하단 네비게이션
+    if {_page} > 0:
+        set slot 45 of {_gui} to arrow named "&e◀ 이전"
+    if {_start} + 45 < {_total}:
+        set slot 53 of {_gui} to arrow named "&e다음 ▶"
+    # 내 길드 정보
+    if {길드::%name of {_p}%} is set:
+        set slot 49 of {_gui} to nether star named "&a내 길드: %{길드정보::%{길드::%name of {_p}%}%::이름}%"
+    else:
+        set slot 49 of {_gui} to barrier named "&7가입된 길드 없음"
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0길드 목록":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 45:
+            if {길드목록페이지::%player%} > 0:
+                길드목록GUI(player, {길드목록페이지::%player%} - 1)
+        else if {_ci} is 53:
+            길드목록GUI(player, {길드목록페이지::%player%} + 1)
+        else if {_ci} >= 0:
+            if {_ci} <= 44:
+                # 클릭한 길드에 신청
+                set {_page} to {길드목록페이지::%player%}
+                if {_page} is not set:
+                    set {_page} to 0
+                set {_idx} to {_page} * 45 + {_ci} + 1
+                delete {_guilds::*}
+                loop {길드목록::*}:
+                    add loop-value to {_guilds::*}
+                if {_guilds::%{_idx}%} is set:
+                    set {_gId} to {_guilds::%{_idx}%}
+                    # 이미 길드에 가입되어 있으면 차단
+                    set {_myPn} to name of player
+                    if {길드::%{_myPn}%} is set:
+                        message "&c이미 길드에 가입되어 있습니다." to player
+                        stop
+                    close player's inventory
+                    message "&e%{길드정보::%{_gId}%::이름}%&f 길드에 신청합니다. 채팅으로 하고싶은말을 입력하세요. (취소: '취소')" to player
+                    set {길드신청대기::%player%} to {_gId}
+
+# 신청 메시지 입력 대기
+on chat:
+    if {길드신청대기::%player%} is set:
+        cancel event
+        if message is "취소":
+            delete {길드신청대기::%player%}
+            message "&c신청이 취소되었습니다." to player
+            stop
+        set {_gId} to {길드신청대기::%player%}
+        delete {길드신청대기::%player%}
+        make player execute command "길드 신청 %{_gId}% %message%"
+
+# ===== 길드 랭킹 GUI =====
+# ===== 길드 랭킹 데이터 동기화 (Java → Skript) =====
+command /guildranksync <text> <text> <text> <integer> [<text>] [<integer>] [<integer>] [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        # arg-1: player, arg-2: type, arg-3: init/add, arg-4: count/idx
+        # add일 때: arg-5: name, arg-6: score, arg-7: members, arg-8: owner
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if arg-3 is "init":
+            delete {길드랭킹::%{_p}%::*}
+            set {길드랭킹수::%{_p}%} to arg-4
+        else if arg-3 is "add":
+            set {_idx} to arg-4
+            set {길드랭킹::%{_p}%::%{_idx}%::이름} to arg-5
+            set {길드랭킹::%{_p}%::%{_idx}%::점수} to arg-6
+            set {길드랭킹::%{_p}%::%{_idx}%::인원} to arg-7
+            set {길드랭킹::%{_p}%::%{_idx}%::길드장} to arg-8
+
+command /guildrankgui <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        길드랭킹GUI({_p}, arg-2)
+
+function 길드랭킹GUI(p: player, type: text):
+    set {_gui} to chest inventory with 6 rows named "&0길드 랭킹"
+    set {길드랭킹타입::%{_p}%} to {_type}
+    # 상단 탭 버튼
+    # 뒤로가기 (랭킹 메인으로)
+    set slot 0 of {_gui} to arrow named "&c뒤로가기"
+    # 탭: 슬롯2=활동, 슬롯4=레벨(기본), 슬롯6=블록
+    if {_type} is "활동":
+        set slot 2 of {_gui} to lime stained glass pane named "&a▶ 활동 랭킹"
+    else:
+        set slot 2 of {_gui} to gray stained glass pane named "&7활동 랭킹" with lore "&7낚시 포인트 기준" and "&7클릭하여 전환"
+    if {_type} is "레벨":
+        set slot 4 of {_gui} to lime stained glass pane named "&a▶ 길드 레벨"
+    else:
+        set slot 4 of {_gui} to gray stained glass pane named "&7길드 레벨" with lore "&7누적 경험치 기준" and "&7클릭하여 전환"
+    if {_type} is "블록":
+        set slot 6 of {_gui} to lime stained glass pane named "&a▶ 블록 랭킹"
+    else:
+        set slot 6 of {_gui} to gray stained glass pane named "&7블록 랭킹" with lore "&7섬 블록 점수 기준" and "&7클릭하여 전환"
+    # 랭킹 데이터 (Java에서 동기화됨)
+    set {_count} to {길드랭킹수::%{_p}%}
+    if {_count} is not set:
+        set {_count} to 0
+    set {_slot} to 9
+    loop integers from 0 to 9:
+        if loop-integer >= {_count}:
+            stop loop
+        set {_idx} to loop-integer
+        set {_gName} to {길드랭킹::%{_p}%::%{_idx}%::이름}
+        if {_gName} is not set:
+            set {_gName} to "?"
+        replace all "_" with " " in {_gName}
+        set {_score} to {길드랭킹::%{_p}%::%{_idx}%::점수}
+        if {_score} is not set:
+            set {_score} to 0
+        set {_mem} to {길드랭킹::%{_p}%::%{_idx}%::인원}
+        if {_mem} is not set:
+            set {_mem} to 0
+        set {_owner} to {길드랭킹::%{_p}%::%{_idx}%::길드장}
+        if {_owner} is not set:
+            set {_owner} to "?"
+        set {_rank} to loop-integer + 1
+        if {_type} is "활동":
+            set {_scoreLabel} to "낚시 포인트"
+        else if {_type} is "블록":
+            set {_scoreLabel} to "블록 점수"
+        else:
+            set {_scoreLabel} to "길드 레벨"
+        if {_rank} is 1:
+            set slot {_slot} of {_gui} to gold block named "&6&l🏆 1등 — %{_gName}%" with lore "&7%{_scoreLabel}%: &e%{_score}%" and "&7인원: &f%{_mem}%명" and "&7길드장: &f%{_owner}%"
+        else if {_rank} is 2:
+            set slot {_slot} of {_gui} to iron block named "&f&l🥈 2등 — %{_gName}%" with lore "&7%{_scoreLabel}%: &e%{_score}%" and "&7인원: &f%{_mem}%명" and "&7길드장: &f%{_owner}%"
+        else if {_rank} is 3:
+            set slot {_slot} of {_gui} to copper block named "&c&l🥉 3등 — %{_gName}%" with lore "&7%{_scoreLabel}%: &e%{_score}%" and "&7인원: &f%{_mem}%명" and "&7길드장: &f%{_owner}%"
+        else:
+            set slot {_slot} of {_gui} to paper named "&7%{_rank}%등 — %{_gName}%" with lore "&7%{_scoreLabel}%: &e%{_score}%" and "&7인원: &f%{_mem}%명" and "&7길드장: &f%{_owner}%"
+        add 1 to {_slot}
+    # 하단
+    if {길드::%name of {_p}%} is set:
+        set slot 49 of {_gui} to nether star named "&a내 길드: %{길드정보::%{길드::%name of {_p}%}%::이름}%"
+    set slot 53 of {_gui} to sunflower named "&e새로고침"
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0길드 랭킹":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 0:
+            make player execute command "/랭킹"
+        else if {_ci} is 2:
+            make player execute command "/rlfem 랭킹 활동"
+        else if {_ci} is 4:
+            make player execute command "/rlfem 랭킹 레벨"
+        else if {_ci} is 6:
+            make player execute command "/rlfem 랭킹 블록"
+        else if {_ci} is 53:
+            set {_type} to {길드랭킹타입::%player%}
+            if {_type} is not set:
+                set {_type} to "레벨"
+            make player execute command "/rlfem 랭킹 %{_type}%"
+
+# ===== 길드 포인트 적립 (낚시.sk에서 호출) =====
+function 길드포인트적립(p: player, grade: text):
+    set {_gId} to {길드::%name of {_p}%}
+    if {_gId} is not set:
+        stop
+    # 등급별 낚시 포인트
+    set {_pts} to 1
+    if {_grade} is "D":
+        set {_pts} to 2
+    else if {_grade} is "C":
+        set {_pts} to 4
+    else if {_grade} is "B":
+        set {_pts} to 8
+    else if {_grade} is "A":
+        set {_pts} to 16
+    else if {_grade} is "S":
+        set {_pts} to 32
+    else if {_grade} is "S+":
+        set {_pts} to 64
+    else if {_grade} is "M":
+        set {_pts} to 128
+    else if {_grade} is "L":
+        set {_pts} to 256
+    else if {_grade} is "G":
+        set {_pts} to 512
+    # 포인트 부스트 적용
+    set {_boost} to 길드포인트보너스({_p})
+    if {_boost} > 0:
+        set {_pts} to floor({_pts} * (1 + {_boost} / 100))
+    # Java에 포인트 전달
+    make console execute command "guildbr points %{_gId}% %{_p}% %{_pts}%"
+
+# ===== 길드 버프 함수 (낚시.sk에서 호출) =====
+function 길드경험치보너스(p: player) :: number:
+    if {길드::%name of {_p}%} is not set:
+        return 0
+    set {_gId} to {길드::%name of {_p}%}
+    if {길드버프::%{_gId}%::경험치부스트} is set:
+        return {길드버프::%{_gId}%::경험치부스트}
+    return 0
+
+function 길드크기보너스(p: player) :: number:
+    if {길드::%name of {_p}%} is not set:
+        return 0
+    set {_gId} to {길드::%name of {_p}%}
+    if {길드버프::%{_gId}%::크기부스트} is set:
+        return {길드버프::%{_gId}%::크기부스트}
+    return 0
+
+function 길드등급업보너스(p: player) :: number:
+    if {길드::%name of {_p}%} is not set:
+        return 0
+    set {_gId} to {길드::%name of {_p}%}
+    if {길드버프::%{_gId}%::등급업부스트} is set:
+        return {길드버프::%{_gId}%::등급업부스트}
+    return 0
+
+function 길드포인트보너스(p: player) :: number:
+    if {길드::%name of {_p}%} is not set:
+        return 0
+    set {_gId} to {길드::%name of {_p}%}
+    if {길드버프::%{_gId}%::포인트부스트} is set:
+        return {길드버프::%{_gId}%::포인트부스트}
+    return 0
+
+# ===== 길드 버프 동기화 (Java → Skript) =====
+command /guildbuffsync <text> <text> <number>:
+    permission: op
+    executable by: console
+    trigger:
+        # arg-1: guildId, arg-2: buffId, arg-3: value(%)
+        set {길드버프::%arg-1%::%arg-2%} to arg-3
+
+# ===== 오프라인 수락 알림 저장 =====
+command /guildacceptpending <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {길드가입대기::%arg-1%} to {_name}
+
+# ===== 오프라인 간부 승급/강등 알림 저장 =====
+command /guildrolependng <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        # arg-1: player, arg-2: guildName, arg-3: 승급/강등
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {길드역할대기::%arg-1%::길드} to {_name}
+        set {길드역할대기::%arg-1%::타입} to arg-3
+
+# ===== 오프라인 추방 알림 저장 =====
+command /guildkickpending <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {길드추방대기::%arg-1%} to {_name}
+
+# ===== 접속 시 길드 동기화 + 신청 알림 =====
+on join:
+    wait 3 seconds
+    # Java에서 멤버 동기화 + 신청 알림까지 한번에 처리
+    make console execute command "guildbr onjoin %player%"
+    # 오프라인 중 길드 수락됐으면 알림
+    set {_pn} to name of player
+    if {길드가입대기::%{_pn}%} is set:
+        message "" to player
+        message "&a&l[길드] &f%{길드가입대기::%{_pn}%}% &a길드에 가입되었습니다!" to player
+        message "" to player
+        delete {길드가입대기::%{_pn}%}
+    # 오프라인 중 간부 승급/강등 알림
+    if {길드역할대기::%{_pn}%::타입} is set:
+        set {_rType} to {길드역할대기::%{_pn}%::타입}
+        set {_rGuild} to {길드역할대기::%{_pn}%::길드}
+        if {_rType} is "승급":
+            message "" to player
+            message "&a&l[길드] &f%{_rGuild}% &a길드에서 간부로 승급되었습니다!" to player
+            message "" to player
+        else:
+            message "" to player
+            message "&c&l[길드] &f%{_rGuild}% &c길드에서 간부 직책이 해제되었습니다." to player
+            message "" to player
+        delete {길드역할대기::%{_pn}%::타입}
+        delete {길드역할대기::%{_pn}%::길드}
+    # 오프라인 중 추방됐으면 알림
+    if {길드추방대기::%{_pn}%} is set:
+        message "" to player
+        message "&c&l[길드] &f%{길드추방대기::%{_pn}%}% &c길드에서 추방되었습니다." to player
+        message "" to player
+        delete {길드추방대기::%{_pn}%}
+
+# ===== 신청 알림 메시지 (Java에서 호출, 클릭 가능 메시지) =====
+command /guildnotifyapps <text> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        message "" to {_p}
+        message "&6[길드] &e가입 신청 &f%arg-2%건&e이 대기 중입니다!" to {_p}
+        set {_btn} to text component from "  &e&l[신청 목록 확인]"
+        set hover event of {_btn} to hover event showing "&7클릭하여 신청 목록 열기"
+        set click event of {_btn} to click event to run command "/rlfem 신청목록"
+        send component {_btn} to {_p}
+        message "" to {_p}
+
+# ===== 신청목록 GUI 렌더 (Java에서 동기화 완료 후 호출) =====
+command /guildrenderappgui <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        길드신청목록GUI({_p}, arg-2)
+
+# ===== 신청목록 GUI 열기 (레거시 — Skript에서 직접 호출 시) =====
+command /guildappgui <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {_gId} to arg-2
+        make console execute command "guildbr syncapps %{_gId}% %arg-1%"
+        wait 2 ticks
+        길드신청목록GUI({_p}, {_gId})
+
+# ===== 신청 데이터 동기화 (Java → Skript) =====
+command /guildappsync <text> <text> [<text>] [<text>] [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        set {_pn} to arg-1
+        if arg-2 is "init":
+            delete {길드신청캐시::%{_pn}%::*}
+            set {길드신청캐시수::%{_pn}%} to arg-3 parsed as integer
+        else if arg-2 is "add":
+            # arg-3: index, arg-4: name, arg-5: message
+            set {_idx} to arg-3 parsed as integer
+            add 1 to {_idx}
+            set {_msg} to arg-5
+            replace all "_" with " " in {_msg}
+            set {길드신청캐시::%{_pn}%::%{_idx}%::이름} to arg-4
+            set {길드신청캐시::%{_pn}%::%{_idx}%::메시지} to {_msg}
+
+# ===== 신청목록 GUI =====
+function 길드신청목록GUI(p: player, guildId: text):
+    set {_pn} to name of {_p}
+    set {_count} to {길드신청캐시수::%{_pn}%}
+    if {_count} is not set:
+        set {_count} to 0
+    set {_rows} to ceil(({_count} + 9) / 9)
+    if {_rows} < 3:
+        set {_rows} to 3
+    if {_rows} > 6:
+        set {_rows} to 6
+    set {_gui} to chest inventory with {_rows} rows named "&0길드 가입 신청 목록"
+    set {길드신청GUI길드::%{_p}%} to {_guildId}
+    if {_count} is 0:
+        set slot 13 of {_gui} to barrier named "&c대기 중인 신청이 없습니다."
+    else:
+        loop {_count} times:
+            set {_name} to {길드신청캐시::%{_pn}%::%loop-number%::이름}
+            set {_msg} to {길드신청캐시::%{_pn}%::%loop-number%::메시지}
+            if {_name} is not set:
+                stop loop
+            set {_slot} to loop-number - 1
+            set {_head} to skull of ("%{_name}%" parsed as offline player) named "&e%{_name}%" with lore "&7메시지: &f%{_msg}%" and "" and "&a좌클릭: 수락" and "&c우클릭: 거절"
+            set slot {_slot} of {_gui} to {_head}
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0길드 가입 신청 목록":
+        cancel event
+        set {_ci} to index of clicked slot
+        set {_idx} to {_ci} + 1
+        set {_pn} to name of player
+        set {_name} to {길드신청캐시::%{_pn}%::%{_idx}%::이름}
+        if {_name} is not set:
+            stop
+        set {_gId} to {길드신청GUI길드::%player%}
+        if click type is left mouse button:
+            # 수락
+            close player's inventory
+            make player execute command "/rlfem 수락 %{_name}%"
+            wait 3 ticks
+            make player execute command "/rlfem 신청목록"
+        else if click type is right mouse button:
+            # 거절
+            close player's inventory
+            make player execute command "/rlfem 거절 %{_name}%"
+            wait 3 ticks
+            make player execute command "/rlfem 신청목록"
+
+# ===== 길드 홍보 (전체 서버 공지) =====
+command /guildpromote <text> <text> <text> <integer> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        # 1:길드ID 2:표시이름 3:소개 4:인원 5:최대인원
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {_desc} to arg-3
+        replace all "_" with " " in {_desc}
+        set {_btn} to text component from "&a&l  [클릭하여 가입 신청]"
+        set hover event of {_btn} to hover event showing "&7클릭하여 %{_name}% 길드에 신청"
+        set click event of {_btn} to click event to run command "/rlfem 신청 %arg-1%"
+        loop all players:
+            set {_lpn} to name of loop-player
+            if {차단홍보::%{_lpn}%} is not true:
+                message "" to loop-player
+                message "&6&l═══════════════════════════════" to loop-player
+                message "&e&l  [길드 홍보] &f%{_name}%" to loop-player
+                message "&7  %{_desc}%" to loop-player
+                message "&7  인원: &f%arg-4%&7/&f%arg-5%&7명" to loop-player
+                message "&6&l═══════════════════════════════" to loop-player
+                send component {_btn} to loop-player
+                message "" to loop-player
+        message "" to all players
+
+# ============================================================
+# ===== 길드 메뉴 GUI =====
+# ============================================================
+
+# ===== 데이터 수신 브릿지 =====
+command /guildmenusync <text> <text> <integer> <integer> <integer> <integer> <integer> <integer> <integer> <integer> <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        # 1:플레이어 2:길드ID 3:계좌 4:포인트 5:블록점수 6:섬크기
+        # 7:인원 8:최대인원 9:공개 10:신청수 11:소개 12:길드장 13:역할
+        set {_pn} to arg-1
+        set {gm::%{_pn}%::길드} to arg-2
+        set {gm::%{_pn}%::계좌} to arg-3
+        set {gm::%{_pn}%::포인트} to arg-4
+        set {gm::%{_pn}%::블록점수} to arg-5
+        set {gm::%{_pn}%::섬크기} to arg-6
+        set {gm::%{_pn}%::인원} to arg-7
+        set {gm::%{_pn}%::최대인원} to arg-8
+        set {gm::%{_pn}%::공개} to arg-9
+        set {gm::%{_pn}%::신청수} to arg-10
+        set {_desc} to arg-11
+        replace all "_" with " " in {_desc}
+        set {gm::%{_pn}%::소개} to {_desc}
+        set {gm::%{_pn}%::길드장} to arg-12
+        set {gm::%{_pn}%::역할} to arg-13
+        delete {gm::%{_pn}%::멤버::*}
+        delete {gm::%{_pn}%::버프::*}
+
+command /guildmenubuff <text> <text> <text> <integer> <number> <number> <integer> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        # 1:플레이어 2:버프ID 3:표시이름 4:레벨 5:현재값 6:다음값 7:비용 8:최대여부
+        set {_pn} to arg-1
+        set {_id} to arg-2
+        set {_name} to arg-3
+        replace all "_" with " " in {_name}
+        set {gm::%{_pn}%::버프::%{_id}%::이름} to {_name}
+        set {gm::%{_pn}%::버프::%{_id}%::레벨} to arg-4
+        set {gm::%{_pn}%::버프::%{_id}%::현재값} to arg-5
+        set {gm::%{_pn}%::버프::%{_id}%::다음값} to arg-6
+        set {gm::%{_pn}%::버프::%{_id}%::비용} to arg-7
+        set {gm::%{_pn}%::버프::%{_id}%::최대} to arg-8
+
+command /guildmenumember <text> <integer> <text> <text> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        # 1:플레이어 2:인덱스 3:이름 4:역할 5:기부액
+        set {_pn} to arg-1
+        set {_i} to arg-2
+        set {gm::%{_pn}%::멤버::%{_i}%::이름} to arg-3
+        set {gm::%{_pn}%::멤버::%{_i}%::역할} to arg-4
+        set {gm::%{_pn}%::멤버::%{_i}%::기부} to arg-5
+
+command /guildmenucost <text> <integer> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_pn} to arg-1
+        set {gm::%{_pn}%::슬롯비용} to arg-2
+        set {gm::%{_pn}%::섬비용} to arg-3
+
+# ===== GUI 렌더 =====
+command /guildmenugui <text>:
+    permission: op
+    executable by: console
+    trigger:
+        loop all players:
+            if name of loop-player is arg-1:
+                길드메뉴GUI(loop-player)
+                stop
+
+function 길드메뉴GUI(p: player):
+    set {_pn} to name of {_p}
+    set {_gui} to chest inventory with 6 rows named "&0길드 메뉴"
+    # 배경: 검정 유리
+    loop integers from 0 to 53:
+        set slot loop-integer of {_gui} to black stained glass pane named "&f"
+
+    # --- 행1: 정보 ---
+    set {_gName} to {gm::%{_pn}%::길드}
+    set {_desc} to {gm::%{_pn}%::소개}
+    set {_pts} to {gm::%{_pn}%::포인트}
+    set {_bs} to {gm::%{_pn}%::블록점수}
+    set {_isz} to {gm::%{_pn}%::섬크기}
+    set slot 2 of {_gui} to nether star named "&6&l%{_gName}%" with lore "&7소개: &f%{_desc}%" and "&7누적 포인트: &e%{_pts}%" and "&7블록 점수: &e%{_bs}%" and "&7섬 크기: &f%{_isz}%x%{_isz}%"
+
+    # 길드장 머리
+    set {_owner} to {gm::%{_pn}%::길드장}
+    set slot 4 of {_gui} to skull of ("%{_owner}%" parsed as offline player) named "&e&l길드장: %{_owner}%" with lore "&7역할: &6길드장"
+
+    # 계좌
+    set {_treasury} to {gm::%{_pn}%::계좌}
+    set slot 6 of {_gui} to gold ingot named "&e&l길드 계좌" with lore "&7잔액: &6%{_treasury}%원"
+
+    # --- 행2: 버프 ---
+    # 슬롯 10: 경험치, 11: 크기, 12: 등급업, 13: 포인트, 14: 이속, 15: 성급함
+    set {_buffSlots::1} to 10
+    set {_buffSlots::2} to 11
+    set {_buffSlots::3} to 12
+    set {_buffSlots::4} to 13
+    set {_buffSlots::5} to 14
+    set {_buffSlots::6} to 15
+    set {_buffIds::1} to "경험치부스트"
+    set {_buffIds::2} to "크기부스트"
+    set {_buffIds::3} to "등급업부스트"
+    set {_buffIds::4} to "포인트부스트"
+    set {_buffIds::5} to "이속증가"
+    set {_buffIds::6} to "성급함"
+    set {_buffMats::1} to experience bottle
+    set {_buffMats::2} to diamond
+    set {_buffMats::3} to emerald
+    set {_buffMats::4} to sunflower
+    set {_buffMats::5} to feather
+    set {_buffMats::6} to golden pickaxe
+    loop integers from 1 to 6:
+        set {_bid} to {_buffIds::%loop-integer%}
+        set {_sl} to {_buffSlots::%loop-integer%}
+        set {_bName} to {gm::%{_pn}%::버프::%{_bid}%::이름}
+        set {_bLv} to {gm::%{_pn}%::버프::%{_bid}%::레벨}
+        set {_bCur} to {gm::%{_pn}%::버프::%{_bid}%::현재값}
+        set {_bNext} to {gm::%{_pn}%::버프::%{_bid}%::다음값}
+        set {_bCost} to {gm::%{_pn}%::버프::%{_bid}%::비용}
+        set {_bMax} to {gm::%{_pn}%::버프::%{_bid}%::최대}
+        if {_bName} is not set:
+            set {_bName} to {_bid}
+        if {_bLv} is not set:
+            set {_bLv} to 0
+        if {_bCur} is not set:
+            set {_bCur} to 0
+        set {_myRole} to {gm::%{_pn}%::역할}
+        set {_isVice} to false
+        if {_myRole} is "MASTER" or "VICE_MASTER":
+            set {_isVice} to true
+        if {_bMax} is "1":
+            set slot {_sl} of {_gui} to {_buffMats::%loop-integer%} named "&a%{_bName}% &7Lv.%{_bLv}%" with lore "&7현재: &a+%{_bCur}%%%" and "" and "&c최대 레벨 도달"
+        else if {_isVice} is true:
+            set slot {_sl} of {_gui} to {_buffMats::%loop-integer%} named "&a%{_bName}% &7Lv.%{_bLv}%" with lore "&7현재: &a+%{_bCur}%%%" and "&7다음: &e+%{_bNext}%%%" and "&7비용: &6%{_bCost}%원" and "" and "&e클릭하여 구매"
+        else:
+            set slot {_sl} of {_gui} to {_buffMats::%loop-integer%} named "&a%{_bName}% &7Lv.%{_bLv}%" with lore "&7현재: &a+%{_bCur}%%%" and "&7다음: &e+%{_bNext}%%%" and "&7비용: &6%{_bCost}%원" and "" and "&c부길드장 이상 구매 가능"
+
+    # --- 행3: 확장/이동/설정 ---
+    set {_myRole} to {gm::%{_pn}%::역할}
+    set {_isVice} to false
+    if {_myRole} is "MASTER" or "VICE_MASTER":
+        set {_isVice} to true
+    set {_mem} to {gm::%{_pn}%::인원}
+    set {_maxMem} to {gm::%{_pn}%::최대인원}
+    set {_slotCost} to {gm::%{_pn}%::슬롯비용}
+    if {_isVice} is true:
+        if {_maxMem} >= 30:
+            set slot 19 of {_gui} to iron door named "&b&l인원 확장" with lore "&7현재: &f%{_mem}%/%{_maxMem}%명" and "" and "&c최대 도달 (30명)"
+        else:
+            set slot 19 of {_gui} to iron door named "&b&l인원 확장" with lore "&7현재: &f%{_mem}%/%{_maxMem}%명" and "&7비용: &6%{_slotCost}%원" and "" and "&e클릭하여 +1명 확장"
+    else:
+        if {_maxMem} >= 30:
+            set slot 19 of {_gui} to iron door named "&b인원 확장" with lore "&7현재: &f%{_mem}%/%{_maxMem}%명" and "" and "&c최대 도달 (30명)"
+        else:
+            set slot 19 of {_gui} to iron door named "&b인원 확장" with lore "&7현재: &f%{_mem}%/%{_maxMem}%명" and "&7비용: &6%{_slotCost}%원" and "" and "&c부길드장 이상 확장 가능"
+
+    set {_islandCost} to {gm::%{_pn}%::섬비용}
+    if {_isVice} is true:
+        if {_isz} >= 500:
+            set slot 20 of {_gui} to grass block named "&2&l섬 확장" with lore "&7현재: &f%{_isz}%x%{_isz}%" and "" and "&c최대 도달 (500x500)"
+        else:
+            set slot 20 of {_gui} to grass block named "&2&l섬 확장" with lore "&7현재: &f%{_isz}%x%{_isz}%" and "&7비용: &6%{_islandCost}%원" and "" and "&e클릭하여 +32 확장"
+    else:
+        if {_isz} >= 500:
+            set slot 20 of {_gui} to grass block named "&2&l섬 확장" with lore "&7현재: &f%{_isz}%x%{_isz}%" and "" and "&c최대 도달 (500x500)"
+        else:
+            set slot 20 of {_gui} to grass block named "&2&l섬 확장" with lore "&7현재: &f%{_isz}%x%{_isz}%" and "&7비용: &6%{_islandCost}%원" and "" and "&c부길드장 이상 확장 가능"
+
+    set slot 22 of {_gui} to ender pearl named "&d&l섬 이동" with lore "&7클릭하여 길드 섬으로 이동"
+
+    set {_pub} to {gm::%{_pn}%::공개}
+    if {_isVice} is true:
+        if {_pub} is 1:
+            set slot 24 of {_gui} to redstone named "&c설정" with lore "&7공개 상태: &a공개" and "" and "&e클릭하여 비공개로 전환"
+        else:
+            set slot 24 of {_gui} to redstone named "&c설정" with lore "&7공개 상태: &c비공개" and "" and "&e클릭하여 공개로 전환"
+    else:
+        if {_pub} is 1:
+            set slot 24 of {_gui} to redstone named "&7설정" with lore "&7공개 상태: &a공개"
+        else:
+            set slot 24 of {_gui} to redstone named "&7설정" with lore "&7공개 상태: &c비공개"
+
+    set {_appCnt} to {gm::%{_pn}%::신청수}
+    if {_myRole} is "MASTER" or "VICE_MASTER" or "OFFICER":
+        if {_appCnt} > 0:
+            set slot 25 of {_gui} to paper named "&e&l신청 목록 &c(%{_appCnt}%건)" with lore "&e클릭하여 확인"
+        else:
+            set slot 25 of {_gui} to paper named "&7신청 목록" with lore "&7대기 중인 신청 없음"
+
+    # --- 행5: 멤버 목록 ---
+    loop integers from 0 to 8:
+        set {_mName} to {gm::%{_pn}%::멤버::%loop-integer%::이름}
+        if {_mName} is set:
+            set {_mRole} to {gm::%{_pn}%::멤버::%loop-integer%::역할}
+            set {_mDonate} to {gm::%{_pn}%::멤버::%loop-integer%::기부}
+            if {_mRole} is "MASTER":
+                set {_roleText} to "&6길드장"
+            else if {_mRole} is "VICE_MASTER":
+                set {_roleText} to "&5부길드장"
+            else if {_mRole} is "OFFICER":
+                set {_roleText} to "&b간부"
+            else:
+                set {_roleText} to "&7길드원"
+            set {_sl} to 36 + loop-integer
+            set slot {_sl} of {_gui} to skull of ("%{_mName}%" parsed as offline player) named "&f%{_mName}%" with lore "&7역할: %{_roleText}%" and "&7기부: &6%{_mDonate}%원"
+
+    # --- 행4: 등급 관리 (부길드장+) ---
+    if {_myRole} is "MASTER" or "VICE_MASTER":
+        set slot 31 of {_gui} to anvil named "&d&l등급 관리" with lore "&7길드원 역할 변경" and "&e클릭하여 관리"
+
+    # --- 행6: 하단 버튼 ---
+    set slot 45 of {_gui} to diamond sword named "&b&l랭킹" with lore "&7클릭하여 길드 랭킹 보기"
+    set slot 47 of {_gui} to book named "&a&l길드 채팅" with lore "&7클릭하여 길드 채팅 토글"
+    set slot 49 of {_gui} to gold ingot named "&e&l기부" with lore "&7클릭 후 채팅에 금액 입력" and "&7/길드 기부 <금액>"
+    if {_myRole} is "MASTER":
+        set slot 51 of {_gui} to tnt named "&c&l길드 해산" with lore "&c클릭하여 해산 (되돌릴 수 없음)"
+    set slot 53 of {_gui} to compass named "&f&l길드 목록" with lore "&7다른 길드 둘러보기"
+
+    open {_gui} to {_p}
+
+# ===== 길드 메뉴 클릭 핸들러 =====
+on inventory click:
+    if player's current inventory's name is "&0길드 메뉴":
+        cancel event
+        set {_ci} to index of clicked slot
+        set {_pn} to name of player
+        set {_myRole} to {gm::%{_pn}%::역할}
+        set {_isVice} to false
+        if {_myRole} is "MASTER" or "VICE_MASTER":
+            set {_isVice} to true
+        # 버프 구매 (슬롯 10~15) — 부길드장+ 전용
+        if {_ci} >= 10:
+            if {_ci} <= 15:
+                if {_isVice} is true:
+                    set {_buffMap::10} to "경험치부스트"
+                    set {_buffMap::11} to "크기부스트"
+                    set {_buffMap::12} to "등급업부스트"
+                    set {_buffMap::13} to "포인트부스트"
+                    set {_buffMap::14} to "이속증가"
+                    set {_buffMap::15} to "성급함"
+                    set {_bid} to {_buffMap::%{_ci}%}
+                    if {_bid} is set:
+                        close player's inventory
+                        make player execute command "/rlfem 버프 %{_bid}%"
+                        wait 3 ticks
+                        make player execute command "/rlfem"
+        # 인원 확장 — 부길드장+ 전용
+        if {_ci} is 19:
+            if {_isVice} is true:
+                close player's inventory
+                make player execute command "/rlfem 확장"
+                wait 3 ticks
+                make player execute command "/rlfem"
+        # 섬 확장 — 부길드장+ 전용
+        if {_ci} is 20:
+            if {_isVice} is true:
+                close player's inventory
+                make player execute command "/rlfem 섬확장"
+                wait 3 ticks
+                make player execute command "/rlfem"
+        # 섬 이동
+        if {_ci} is 22:
+            close player's inventory
+            make player execute command "/rlfem 섬"
+        # 설정 (공개/비공개 토글) — 부길드장+ 전용
+        if {_ci} is 24:
+            if {_isVice} is true:
+                if {gm::%{_pn}%::공개} is 1:
+                    close player's inventory
+                    make player execute command "/rlfem 설정 비공개"
+                    wait 3 ticks
+                    make player execute command "/rlfem"
+                else:
+                    close player's inventory
+                    make player execute command "/rlfem 설정 공개"
+                    wait 3 ticks
+                    make player execute command "/rlfem"
+        # 등급 관리 — 부길드장+ 전용
+        if {_ci} is 31:
+            if {_isVice} is true:
+                close player's inventory
+                make console execute command "guildbr rolegui %player's name%"
+        # 신청목록
+        if {_ci} is 25:
+            close player's inventory
+            make player execute command "/rlfem 신청목록"
+        # 랭킹
+        if {_ci} is 45:
+            close player's inventory
+            make player execute command "/rlfem 랭킹"
+        # 채팅 토글
+        if {_ci} is 47:
+            close player's inventory
+            make player execute command "/채팅"
+        # 기부
+        if {_ci} is 49:
+            close player's inventory
+            message "&e채팅에 &f/길드 기부 <금액>&e을 입력하세요." to player
+        # 해산
+        if {_ci} is 51:
+            close player's inventory
+            make player execute command "/rlfem 해산"
+        # 길드 목록
+        if {_ci} is 53:
+            close player's inventory
+            make player execute command "/rlfem 목록"
+
+# ============================================================
+# ===== 등급 관리 GUI =====
+# ============================================================
+
+command /guildrolesync <text> <text> [<text>] [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        set {_pn} to arg-1
+        if arg-2 is "init":
+            delete {gr::%{_pn}%::*}
+            set {gr::%{_pn}%::수} to arg-3 parsed as integer
+        else if arg-2 is "add":
+            set {_i} to arg-3 parsed as integer
+            set {gr::%{_pn}%::%{_i}%::이름} to arg-4
+        else if arg-2 is "myrole":
+            set {gr::%{_pn}%::내역할} to arg-3
+
+command /guildrolesync6 <text> <integer> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        # 역할 별도 명령어 (arg-3이 VICE_MASTER 등 긴 텍스트)
+        set {_pn} to arg-1
+        set {gr::%{_pn}%::%arg-2%::역할} to arg-3
+
+command /guildrolegui <text>:
+    permission: op
+    executable by: console
+    trigger:
+        loop all players:
+            if name of loop-player is arg-1:
+                길드등급관리GUI(loop-player)
+                stop
+
+function 길드등급관리GUI(p: player):
+    set {_pn} to name of {_p}
+    set {_count} to {gr::%{_pn}%::수}
+    if {_count} is not set:
+        set {_count} to 0
+    set {_rows} to ceil(({_count} + 9) / 9)
+    if {_rows} < 3:
+        set {_rows} to 3
+    if {_rows} > 6:
+        set {_rows} to 6
+    set {_gui} to chest inventory with {_rows} rows named "&0길드 등급 관리"
+    set {_myRole} to {gr::%{_pn}%::내역할}
+    loop integers from 0 to ({_count} - 1):
+        set {_name} to {gr::%{_pn}%::%loop-integer%::이름}
+        set {_role} to {gr::%{_pn}%::%loop-integer%::역할}
+        if {_name} is not set:
+            stop loop
+        if {_role} is not set:
+            set {_role} to "MEMBER"
+        # 역할 표시 + 슬롯 세팅
+        if {_role} is "MASTER":
+            set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &6길드장" and "" and "&c변경 불가"
+        else if {_role} is "VICE_MASTER":
+            if {_myRole} is "MASTER":
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &5부길드장" and "" and "&e좌클릭: 간부로 강등" and "&e우클릭: 길드원으로 강등"
+            else:
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &5부길드장" and "" and "&c변경 불가"
+        else if {_role} is "OFFICER":
+            if {_myRole} is "MASTER":
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &b간부" and "" and "&e좌클릭: 부길드장 승급" and "&e우클릭: 길드원으로 강등"
+            else:
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &b간부" and "" and "&e우클릭: 길드원으로 강등"
+        else:
+            if {_myRole} is "MASTER":
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &7길드원" and "" and "&e좌클릭: 간부 승급" and "&e우클릭: 부길드장 승급"
+            else:
+                set slot loop-integer of {_gui} to skull of ("%{_name}%" parsed as offline player) named "&f%{_name}%" with lore "&7현재: &7길드원" and "" and "&e좌클릭: 간부 승급"
+    # 하단: 뒤로가기
+    set {_lastSlot} to ({_rows} * 9) - 5
+    set slot {_lastSlot} of {_gui} to arrow named "&7◀ 길드 메뉴로 돌아가기"
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0길드 등급 관리":
+        cancel event
+        set {_ci} to index of clicked slot
+        set {_pn} to name of player
+        set {_count} to {gr::%{_pn}%::수}
+        if {_count} is not set:
+            set {_count} to 0
+        # 뒤로가기
+        set {_rows} to ceil(({_count} + 9) / 9)
+        if {_rows} < 3:
+            set {_rows} to 3
+        if {_rows} > 6:
+            set {_rows} to 6
+        set {_backSlot} to ({_rows} * 9) - 5
+        if {_ci} is {_backSlot}:
+            close player's inventory
+            make player execute command "/rlfem"
+            stop
+        # 멤버 클릭
+        if {_ci} >= 0:
+            if {_ci} < {_count}:
+                set {_name} to {gr::%{_pn}%::%{_ci}%::이름}
+                set {_role} to {gr::%{_pn}%::%{_ci}%::역할}
+                if {_name} is not set:
+                    stop
+                if {_role} is "MASTER":
+                    stop
+                set {_myRole} to {gr::%{_pn}%::내역할}
+                if click type is left mouse button:
+                    # 좌클릭: 한 단계 승급
+                    if {_role} is "MEMBER":
+                        close player's inventory
+                        make console execute command "guildbr setrole %{_pn}% %{_name}% OFFICER"
+                    else if {_role} is "OFFICER":
+                        if {_myRole} is "MASTER":
+                            close player's inventory
+                            make console execute command "guildbr setrole %{_pn}% %{_name}% VICE_MASTER"
+                        else:
+                            message "&c부길드장 승급은 길드장만 가능합니다." to player
+                    else if {_role} is "VICE_MASTER":
+                        if {_myRole} is "MASTER":
+                            close player's inventory
+                            make console execute command "guildbr setrole %{_pn}% %{_name}% OFFICER"
+                        else:
+                            message "&c부길드장은 변경할 수 없습니다." to player
+                else if click type is right mouse button:
+                    # 우클릭: 한 단계 강등 또는 특수 승급
+                    if {_role} is "MEMBER":
+                        if {_myRole} is "MASTER":
+                            close player's inventory
+                            make console execute command "guildbr setrole %{_pn}% %{_name}% VICE_MASTER"
+                        else:
+                            message "&c부길드장 승급은 길드장만 가능합니다." to player
+                    else if {_role} is "OFFICER":
+                        close player's inventory
+                        make console execute command "guildbr setrole %{_pn}% %{_name}% MEMBER"
+                    else if {_role} is "VICE_MASTER":
+                        if {_myRole} is "MASTER":
+                            close player's inventory
+                            make console execute command "guildbr setrole %{_pn}% %{_name}% MEMBER"
+                        else:
+                            message "&c부길드장은 변경할 수 없습니다." to player

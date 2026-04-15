@@ -1,0 +1,410 @@
+# =========================================
+# 데이터백업.sk
+# Java PlayerDataManager ↔ Skript 브릿지
+# 5분마다 핵심 변수를 Java JSON으로 백업
+# 서버 재시작 시 CSV 유실되면 JSON에서 복원
+# =========================================
+
+# ===== 백업 트리거 (Java에서 5분마다 호출) =====
+command /pdtriggerbackup <text>:
+    permission: op
+    executable by: console
+    trigger:
+        loop all players:
+            if name of loop-player is arg-1:
+                플레이어데이터백업(loop-player)
+                stop
+
+# ===== 퇴장 시 즉시 백업 =====
+on quit:
+    플레이어데이터백업(player)
+
+# ===== 메인 백업 함수 =====
+function 플레이어데이터백업(p: player):
+    set {_n} to name of {_p}
+
+    # --- Economy ---
+    set {_money} to {돈::%{_p}%}
+    if {_money} is not set:
+        set {_money} to 0
+    set {_cash} to {캐시::%{_p}%}
+    if {_cash} is not set:
+        set {_cash} to 0
+    set {_coins} to {추천코인::%{_p}%}
+    if {_coins} is not set:
+        set {_coins} to 0
+    execute console command "pdbackup %{_n}% economy %{_money}% %{_cash}% %{_coins}%"
+
+    # --- Level ---
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_cur} to {낚시레벨현재경험치::%{_p}%}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_req} to {낚시레벨필요경험치::%{_p}%}
+    if {_req} is not set:
+        set {_req} to 200
+    execute console command "pdbackup %{_n}% level %{_lv}% %{_cur}% %{_req}%"
+
+    # --- Combo ---
+    set {_combo} to {낚시콤보::%{_p}%}
+    if {_combo} is not set:
+        set {_combo} to 0
+    set {_maxCombo} to {낚시최대콤보::%{_p}%}
+    if {_maxCombo} is not set:
+        set {_maxCombo} to 0
+    execute console command "pdbackup %{_n}% combo %{_combo}% %{_maxCombo}%"
+
+    # --- Equipment (5 slots) ---
+    loop "릴", "줄", "바늘", "미끼", "찌":
+        set {_partName} to {낚싯대부품::%loop-value%::%{_p}%}
+        set {_dur} to {부품내구도::%loop-value%::%{_p}%}
+        if {_partName} is not set:
+            set {_partName} to "없음"
+        else:
+            replace all " " with "_" in {_partName}
+        if {_dur} is not set:
+            set {_dur} to 0
+        execute console command "pdbackup %{_n}% equip %loop-value% %{_partName}% %{_dur}%"
+
+    # --- Part Inventory (릴/줄/바늘/찌 — 리스트) ---
+    loop "릴", "줄", "바늘", "찌":
+        set {_list} to ""
+        loop {부품인벤::%loop-value-1%::%{_p}%::*}:
+            set {_item} to loop-value-2
+            replace all " " with "_" in {_item}
+            if {_list} is "":
+                set {_list} to {_item}
+            else:
+                set {_list} to "%{_list}%||%{_item}%"
+        if {_list} is "":
+            set {_list} to "없음"
+        set {_slotName} to loop-value-1
+        replace all " " with "_" in {_slotName}
+        execute console command "pdbackup %{_n}% partinv %{_slotName}% %{_list}%"
+
+    # --- Bait Inventory ---
+    set {_baitList} to ""
+    loop {부품인벤::미끼::%{_p}%::*}:
+        set {_cnt} to loop-value
+        if {_cnt} is set:
+            if {_cnt} > 0:
+                set {_baitName} to loop-index
+                replace all " " with "_" in {_baitName}
+                if {_baitList} is "":
+                    set {_baitList} to "%{_baitName}%::%{_cnt}%"
+                else:
+                    set {_baitList} to "%{_baitList}%||%{_baitName}%::%{_cnt}%"
+    if {_baitList} is "":
+        set {_baitList} to "없음"
+    execute console command "pdbackup %{_n}% baitinv %{_baitList}%"
+
+    # --- Rod Enhancements ---
+    loop {부품목록::낚싯대::*}:
+        set {_enhLv} to {낚싯대강화::%loop-value%::%{_p}%}
+        if {_enhLv} is set:
+            if {_enhLv} > 0:
+                set {_rodName} to loop-value
+                replace all " " with "_" in {_rodName}
+                execute console command "pdbackup %{_n}% rodenhance %{_rodName}% %{_enhLv}%"
+
+    # --- Blessings ---
+    loop {축복목록::*}:
+        set {_blv} to {플레이어축복::%loop-value%::%{_p}%}
+        if {_blv} is set:
+            if {_blv} > 0:
+                execute console command "pdbackup %{_n}% blessing %loop-value% %{_blv}%"
+
+    # --- Title ---
+    set {_title} to {장착칭호::%{_p}%}
+    if {_title} is not set:
+        set {_title} to "없음"
+    else:
+        replace all " " with "_" in {_title}
+    set {_ownedTitles} to ""
+    loop {칭호데이터::*}:
+        set {_tid} to loop-index
+        if {보유칭호::%{_tid}%::%{_p}%} is set:
+            set {_tname} to {_tid}
+            replace all " " with "_" in {_tname}
+            if {_ownedTitles} is "":
+                set {_ownedTitles} to {_tname}
+            else:
+                set {_ownedTitles} to "%{_ownedTitles}%||%{_tname}%"
+    if {_ownedTitles} is "":
+        set {_ownedTitles} to "없음"
+    execute console command "pdbackup %{_n}% title %{_title}% %{_ownedTitles}%"
+
+    # --- Quests (활성 퀘스트만) ---
+    set {_activeStr} to ""
+    loop {활성퀘스트::%{_p}%::*}:
+        set {_qid} to loop-value
+        if {_activeStr} is "":
+            set {_activeStr} to {_qid}
+        else:
+            set {_activeStr} to "%{_activeStr}%||%{_qid}%"
+        # 각 퀘스트의 상태와 진행도
+        set {_qs} to {퀘스트상태::%{_qid}%::%{_p}%}
+        if {_qs} is not set:
+            set {_qs} to "대기"
+        set {_prog} to ""
+        # 목표 인덱스 1~10까지 체크 (퀘스트당 최대 10개 목표)
+        loop integers from 1 to 10:
+            set {_val} to {퀘스트진행::%{_qid}%::%{_p}%::%loop-integer%}
+            if {_val} is set:
+                if {_prog} is "":
+                    set {_prog} to "%loop-integer%::%{_val}%"
+                else:
+                    set {_prog} to "%{_prog}%||%loop-integer%::%{_val}%"
+        if {_prog} is "":
+            set {_prog} to "없음"
+        execute console command "pdbackup %{_n}% quest %{_qid}% %{_qs}% %{_prog}%"
+    if {_activeStr} is "":
+        set {_activeStr} to "없음"
+    execute console command "pdbackup %{_n}% activequests %{_activeStr}%"
+
+    # 주간 퀘스트
+    set {_weeklyStr} to ""
+    loop {주간퀘스트::%{_p}%::*}:
+        if {_weeklyStr} is "":
+            set {_weeklyStr} to loop-value
+        else:
+            set {_weeklyStr} to "%{_weeklyStr}%||%loop-value%"
+    if {_weeklyStr} is "":
+        set {_weeklyStr} to "없음"
+    execute console command "pdbackup %{_n}% weeklyquests %{_weeklyStr}%"
+
+    # --- Ice Box ---
+    set {_ibTier} to {아이스박스등급::%{_p}%}
+    if {_ibTier} is not set:
+        set {_ibTier} to 0
+    set {_ibTimer} to {아이스박스시간::%{_p}%}
+    if {_ibTimer} is not set:
+        set {_ibTimer} to 0
+    execute console command "pdbackup %{_n}% icebox %{_ibTier}% %{_ibTimer}%"
+
+    # --- Achievements ---
+    set {_achList} to ""
+    loop {도전과제목록::*}:
+        if {도전과제달성::%loop-value%::%{_p}%} is set:
+            if {_achList} is "":
+                set {_achList} to loop-value
+            else:
+                set {_achList} to "%{_achList}%||%loop-value%"
+    if {_achList} is "":
+        set {_achList} to "없음"
+    execute console command "pdbackup %{_n}% achievement %{_achList}%"
+
+    # --- Grade Pity ---
+    set {_pityList} to ""
+    loop "C", "B", "A", "S", "S+", "M", "L", "G":
+        set {_pv} to {등급피티::%{_p}%::%loop-value%}
+        if {_pv} is set:
+            if {_pv} > 0:
+                if {_pityList} is "":
+                    set {_pityList} to "%loop-value%::%{_pv}%"
+                else:
+                    set {_pityList} to "%{_pityList}%||%loop-value%::%{_pv}%"
+    if {_pityList} is "":
+        set {_pityList} to "없음"
+    execute console command "pdbackup %{_n}% pity %{_pityList}%"
+
+    # --- Visited Regions ---
+    set {_regions} to ""
+    loop {방문지역::%{_p}%::*}:
+        if {_regions} is "":
+            set {_regions} to loop-value
+        else:
+            set {_regions} to "%{_regions}%||%loop-value%"
+    if {_regions} is "":
+        set {_regions} to "없음"
+    execute console command "pdbackup %{_n}% visitedregions %{_regions}%"
+
+    # --- Fish Records ({물고기::*} 인덱스로 순회) ---
+    loop {물고기::*}:
+        set {_fname} to loop-index
+        set {_fmax} to {도감최대::%{_fname}%::%{_p}%}
+        if {_fmax} is set:
+            set {_ffirst} to {처음낚은날짜::%{_fname}%::%{_p}%}
+            set {_fmaxd} to {최대낚은날짜::%{_fname}%::%{_p}%}
+            if {_ffirst} is not set:
+                set {_ffirst} to "없음"
+            if {_fmaxd} is not set:
+                set {_fmaxd} to "없음"
+            set {_fnameClean} to {_fname}
+            replace all " " with "_" in {_fnameClean}
+            execute console command "pdbackup %{_n}% fishrecord %{_fnameClean}% %{_fmax}% %{_ffirst}% %{_fmaxd}%"
+
+    # --- Done signal ---
+    execute console command "pdbackup %{_n}% done"
+
+
+# =========================================
+# ===== 복원 명령어 (Java → Skript) =====
+# =========================================
+
+command /pdrestore <text> <text> [<text>] [<text>] [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if arg-2 is "economy":
+            set {돈::%{_p}%} to arg-3 parsed as number
+            set {캐시::%{_p}%} to arg-4 parsed as number
+            set {추천코인::%{_p}%} to arg-5 parsed as number
+            사이드바업데이트({_p})
+        else if arg-2 is "level":
+            set {낚시레벨::%{_p}%} to arg-3 parsed as number
+            set {낚시레벨현재경험치::%{_p}%} to arg-4 parsed as number
+            set {낚시레벨필요경험치::%{_p}%} to arg-5 parsed as number
+            사이드바업데이트({_p})
+        else if arg-2 is "combo":
+            set {낚시콤보::%{_p}%} to arg-3 parsed as number
+            set {낚시최대콤보::%{_p}%} to arg-4 parsed as number
+        else if arg-2 is "equip":
+            # arg-3=slot, arg-4=partName, arg-5=durability
+            set {_partName} to arg-4
+            replace all "_" with " " in {_partName}
+            if {_partName} is "없음":
+                delete {낚싯대부품::%arg-3%::%{_p}%}
+                delete {부품내구도::%arg-3%::%{_p}%}
+            else:
+                set {낚싯대부품::%arg-3%::%{_p}%} to {_partName}
+                set {부품내구도::%arg-3%::%{_p}%} to arg-5 parsed as number
+        else if arg-2 is "icebox":
+            set {아이스박스등급::%{_p}%} to arg-3 parsed as number
+            set {아이스박스시간::%{_p}%} to arg-4 parsed as number
+
+# 확장 복원 (단일 데이터 인자)
+command /pdrestoreex <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if arg-2 is "partinv":
+            # arg-3 = "slot||name1||name2||..."
+            set {_parts::*} to split arg-3 at "||"
+            set {_slot} to {_parts::1}
+            replace all "_" with " " in {_slot}
+            delete {부품인벤::%{_slot}%::%{_p}%::*}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    if loop-value is not "없음":
+                        set {_itemName} to loop-value
+                        replace all "_" with " " in {_itemName}
+                        add {_itemName} to {부품인벤::%{_slot}%::%{_p}%::*}
+        else if arg-2 is "baitinv":
+            # arg-3 = "name::count||name::count||..."
+            if arg-3 is not "없음":
+                set {_pairs::*} to split arg-3 at "||"
+                loop {_pairs::*}:
+                    set {_kv::*} to split loop-value at "::"
+                    set {_baitName} to {_kv::1}
+                    replace all "_" with " " in {_baitName}
+                    set {부품인벤::미끼::%{_p}%::%{_baitName}%} to {_kv::2} parsed as number
+        else if arg-2 is "rodenhance":
+            # arg-3 = "rodName::level"
+            set {_kv::*} to split arg-3 at "::"
+            set {_rodName} to {_kv::1}
+            replace all "_" with " " in {_rodName}
+            set {낚싯대강화::%{_rodName}%::%{_p}%} to {_kv::2} parsed as number
+        else if arg-2 is "blessing":
+            # arg-3 = "id::level"
+            set {_kv::*} to split arg-3 at "::"
+            set {플레이어축복::%{_kv::1}%::%{_p}%} to {_kv::2} parsed as number
+            축복효과적용({_p})
+        else if arg-2 is "title":
+            # arg-3 = "equipped||owned1||owned2||..."
+            set {_parts::*} to split arg-3 at "||"
+            set {_equipped} to {_parts::1}
+            replace all "_" with " " in {_equipped}
+            if {_equipped} is "없음":
+                delete {장착칭호::%{_p}%}
+            else:
+                set {장착칭호::%{_p}%} to {_equipped}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    if loop-value is not "없음":
+                        set {_tname} to loop-value
+                        replace all "_" with " " in {_tname}
+                        set {보유칭호::%{_tname}%::%{_p}%} to true
+        else if arg-2 is "quest":
+            # arg-3 = "questId::status::obj1Idx::val||obj2Idx::val"
+            set {_parts::*} to split arg-3 at "::"
+            if size of {_parts::*} >= 2:
+                set {_qid} to {_parts::1}
+                set {_status} to {_parts::2}
+                set {퀘스트상태::%{_qid}%::%{_p}%} to {_status}
+                # 진행도 파싱 (3번째 부분부터)
+                if size of {_parts::*} >= 3:
+                    set {_progStr} to {_parts::3}
+                    if {_progStr} is not "없음":
+                        set {_progPairs::*} to split {_progStr} at "||"
+                        loop {_progPairs::*}:
+                            set {_pkv::*} to split loop-value at "::"
+                            if size of {_pkv::*} >= 2:
+                                set {퀘스트진행::%{_qid}%::%{_p}%::%{_pkv::1}%} to {_pkv::2} parsed as number
+        else if arg-2 is "activequests":
+            delete {활성퀘스트::%{_p}%::*}
+            if arg-3 is not "없음":
+                set {_qs::*} to split arg-3 at "||"
+                loop {_qs::*}:
+                    add loop-value to {활성퀘스트::%{_p}%::*}
+        else if arg-2 is "weeklyquests":
+            delete {주간퀘스트::%{_p}%::*}
+            if arg-3 is not "없음":
+                set {_qs::*} to split arg-3 at "||"
+                loop {_qs::*}:
+                    add loop-value to {주간퀘스트::%{_p}%::*}
+        else if arg-2 is "achievement":
+            if arg-3 is not "없음":
+                set {_achs::*} to split arg-3 at "||"
+                loop {_achs::*}:
+                    set {도전과제달성::%loop-value%::%{_p}%} to true
+        else if arg-2 is "pity":
+            if arg-3 is not "없음":
+                set {_pairs::*} to split arg-3 at "||"
+                loop {_pairs::*}:
+                    set {_kv::*} to split loop-value at "::"
+                    if size of {_kv::*} >= 2:
+                        set {등급피티::%{_p}%::%{_kv::1}%} to {_kv::2} parsed as number
+        else if arg-2 is "visitedregions":
+            delete {방문지역::%{_p}%::*}
+            if arg-3 is not "없음":
+                set {_rs::*} to split arg-3 at "||"
+                loop {_rs::*}:
+                    add loop-value to {방문지역::%{_p}%::*}
+        else if arg-2 is "fishrecord":
+            # arg-3 = "fishName::maxSize::firstDate::maxDate"
+            set {_parts::*} to split arg-3 at "::"
+            if size of {_parts::*} >= 4:
+                set {_fname} to {_parts::1}
+                replace all "_" with " " in {_fname}
+                set {도감최대::%{_fname}%::%{_p}%} to {_parts::2} parsed as number
+                if {_parts::3} is not "없음":
+                    set {처음낚은날짜::%{_fname}%::%{_p}%} to {_parts::3}
+                if {_parts::4} is not "없음":
+                    set {최대낚은날짜::%{_fname}%::%{_p}%} to {_parts::4}
+
+# ===== 복원 필요 여부 체크 (Java에서 접속 시 호출) =====
+command /pdcheckandrestore <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        # 돈 변수가 없으면 복원 필요 (첫 접속자는 on first join에서 0으로 설정됨)
+        if {돈::%{_p}%} is not set:
+            execute console command "pdrestoretrigger %arg-1%"
+        else if {낚시레벨::%{_p}%} is not set:
+            execute console command "pdrestoretrigger %arg-1%"

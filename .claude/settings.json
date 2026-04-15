@@ -9,6 +9,13 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/validate-sk.sh\"",
             "timeout": 10,
             "statusMessage": ".sk 컨벤션 검증 중..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/balance-check.sh\"",
+            "timeout": 15,
+            "statusMessage": "밸런스 영향 분석 중...",
+            "description": "밸런스 관련 변경 감지: 스탯 소비처/공급처 크로스체크"
           }
         ]
       }

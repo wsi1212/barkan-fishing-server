@@ -35,9 +35,9 @@ function 낚시경험치추가(p: player, amount: number):
             add {_remain} to {낚시레벨현재경험치::%{_p}%}
             send title "&6&l레벨 업!" with subtitle "&eLv.%{낚시레벨::%{_p}%}% &7달성!" to {_p} for 2 seconds
             message "&a낚시레벨이 %{낚시레벨::%{_p}%}%LV가 되었습니다!" to {_p}
-            play sound "entity.firework_rocket.blast" with volume 1 with pitch 1 to {_p}
-            play sound "entity.firework_rocket.twinkle" with volume 1 with pitch 1.2 to {_p}
-            play sound "entity.player.levelup" with volume 0.8 with pitch 1.5 to {_p}
+            play sound "entity.firework_rocket.blast" with volume 1 and pitch 1 to {_p}
+            play sound "entity.firework_rocket.twinkle" with volume 1 and pitch 1.2 to {_p}
+            play sound "entity.player.levelup" with volume 0.8 and pitch 1.5 to {_p}
             퀘스트_레벨업({_p}, {낚시레벨::%{_p}%})
         else:
             stop loop
@@ -69,6 +69,10 @@ function 경험치바동기화(p: player):
         set {_progress} to 0
     set {_p}'s level progress to {_progress}
 
+# 마크 경험치 획득 차단 (낚시 레벨만 사용)
+on experience spawn:
+    cancel event
+
 on join:
     if {낚시레벨::%player%} is not set:
         set {낚시레벨::%player%} to 1
@@ -83,6 +87,7 @@ command /fix:
         set {낚시레벨필요경험치::%player%} to 200
         set {낚시레벨현재경험치::%player%} to 0
 command /레벨초기화 [<player>]:
+    permission: op
     trigger:
         if arg-1 is set:
             set {_t} to arg-1
@@ -96,7 +101,7 @@ command /레벨초기화 [<player>]:
         message "&a%{_t}%의 레벨이 초기화되었습니다. (낚시레벨 1, 바닐라 0)" to player
 
 command /낚시레벨:
-    aliases: /skrtlfpqpf, /레벨, /fpqpf
+    aliases: /skrtlfpqpf
     trigger:
         레벨로드맵GUI(player, 1)
 
@@ -150,6 +155,7 @@ function 레벨로드맵GUI(p: player, page: integer):
     # 배경
     loop integers from 0 to 53:
         set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 1 of {_p}'s current inventory to arrow named "&7◀ 스킬 선택"
     # 구분선 행 — 꺾임 칸(slot 26, 36)은 레벨이 들어감, 나머지는 배경
     # 행3 (slot 18~25): 빈 배경 (구분 역할)
     # 행5 (slot 37~44): 빈 배경 (구분 역할)
@@ -360,6 +366,10 @@ on inventory click:
                 if {_page} > 1:
                     wait 1 tick
                     레벨로드맵GUI(player, {_page} - 1)
+            # slot 1 = 스킬 선택으로 뒤로
+            else if {_ci} is 1:
+                close player's inventory
+                레벨선택GUI(player)
 function _fishLv(id: text) :: number:
     set {_lv} to {낚시레벨::%{_id}%}
     if {_lv} is not set:
@@ -385,6 +395,9 @@ function _nameOf(id: text) :: text:
     return "UUID-%substring of {_id} from 1 to 8%"
 on join:
     set {낚시이름::%player%} to player's name
+
+on tab complete of "/낚시레벨랭킹":
+    set tab completions for position 1 to "<페이지>"
 
 command /낚시레벨랭킹 [<integer>]:
     aliases: /skrtlfpqpffodzld

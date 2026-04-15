@@ -103,7 +103,7 @@ on inventory click:
                     stop
                 set {_name} to {낚싯대부품::%{_t}%::%player%}
                 if {_name} is not set:
-                    message "&c장착된 %{_t}%이(가) 없습니다." to player
+                    message "&c장착된 %이가({_t})% 없습니다." to player
                     stop
                 set {_cost} to 수리비용({_t}, player)
                 if {_cost} <= 0:

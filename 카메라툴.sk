@@ -6,7 +6,6 @@
 # =========================================
 
 command /카메라툴:
-    aliases: /zkajfkxnf
     permission: op
     trigger:
         give player blaze rod named "&b&l카메라 툴" with lore "&7좌클릭: 텔레포트" and "&7우클릭: 비행속도 변경"

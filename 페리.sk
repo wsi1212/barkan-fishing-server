@@ -13,7 +13,7 @@ on tab complete of "/페리설정":
     if {페리노선목록::*} is set:
         set tab completions for position 1 to {페리노선목록::*}
     set tab completions for position 2 to "출발지", "도착지", "배", "간격", "소요시간", "요금", "탑승지역" and "도착지역"
-    set tab completions for position 3 to all areas
+    set tab completions for position 3 to {섬리스트::*} and {지역리스트::*}
 
 on tab complete of "/페리시작":
     if {페리노선목록::*} is set:
@@ -45,6 +45,11 @@ function ferryRegister(p: player, route: text):
     if {area::%{_p}%} is not {_area}:
         message "{@ferry_prefix} &c탑승 지역에 있어야 등록할 수 있습니다." to {_p}
         stop
+    # 페리 권한 확인 (퀘스트 보상으로 해금)
+    if {페리노선::%{_route}%::권한필요} is true:
+        if {페리권한::%{_p}%::%{_route}%} is not true:
+            message "{@ferry_prefix} &c이 노선은 퀘스트를 완료해야 이용할 수 있습니다." to {_p}
+            stop
     # 방문한 지역인지 확인
     set {_destArea} to {페리노선::%{_route}%::도착지역}
     if {_destArea} is set:
@@ -59,7 +64,7 @@ function ferryRegister(p: player, route: text):
                 set {낚시레벨::%{_p}%} to 1
             if {낚시레벨::%{_p}%} < {_destReq}:
                 set {_destDisplay} to regionDisplayName({_destArea})
-                message "{@ferry_prefix} &c목적지 &e%{_destDisplay}%&c은(는) 낚시 레벨 &e%{_destReq}% &c이상만 입장할 수 있습니다. &7(현재: Lv.%{낚시레벨::%{_p}%}%)" to {_p}
+                message "{@ferry_prefix} &c목적지 &e%은는({_destDisplay})%&c 낚시 레벨 &e%{_destReq}% &c이상만 입장할 수 있습니다. &7(현재: Lv.%{낚시레벨::%{_p}%}%)" to {_p}
                 stop
     # 요금 확인
     set {_fare} to {페리노선::%{_route}%::요금}
@@ -322,6 +327,7 @@ command /페리탑승 [<text>]:
 
 # ===== 플레이어 명령어: 탑승 취소 =====
 command /페리취소:
+    aliases: /vlfchltn
     trigger:
         set {_found} to false
         loop {페리노선목록::*}:

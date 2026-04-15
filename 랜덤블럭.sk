@@ -1,5 +1,4 @@
 command /랜덤블럭10:
-    aliases: /fosejaqmffjr10
     permission: op
     trigger:
         # 기준: 내가 서있는 곳 "아래" 블럭

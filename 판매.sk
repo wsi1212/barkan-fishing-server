@@ -18,52 +18,52 @@ function fishprice(grade: text, quality: number) :: number:
     if {_grade} is "E":
         set {_기본가} to 100
     else if {_grade} is "D":
-        set {_기본가} to 650
+        set {_기본가} to 250
     else if {_grade} is "C":
-        set {_기본가} to 1800
+        set {_기본가} to 600
     else if {_grade} is "B":
-        set {_기본가} to 3500
+        set {_기본가} to 2000
     else if {_grade} is "A":
-        set {_기본가} to 8000
+        set {_기본가} to 6000
     else if {_grade} is "S":
-        set {_기본가} to 19000
+        set {_기본가} to 20000
     else if {_grade} is "S+":
-        set {_기본가} to 60000
+        set {_기본가} to 80000
     else if {_grade} is "M":
-        set {_기본가} to 135000
+        set {_기본가} to 150000
     else if {_grade} is "L":
-        set {_기본가} to 350000
+        set {_기본가} to 500000
     else if {_grade} is "G":
         set {_기본가} to 1300000
     if {_quality} < 0:
         set {_quality} to 0
     if {_quality} > 100:
         set {_quality} to 100
-    set {_mult} to 0.3 + {_quality} * 0.7 / 100
+    set {_mult} to 0.5 + {_quality} * 0.5 / 100
     set {_price} to floor({_기본가} * {_mult})
     return {_price}
 
 # ===== 물고기 아이템에서 등급 파싱 =====
 function parsegrade(item: item) :: text:
-    set {_lore} to 1st line of lore of {_item}
-    if {_lore} is not set:
-        return ""
-    # lore 형식: "&7등급 &e: &f{등급}"
-    replace all "&7등급 &e: &f" with "" in {_lore}
-    return {_lore}
+    loop lore of {_item}:
+        if loop-value contains "&7등급 &e:":
+            set {_line} to loop-value
+            replace all "&7등급 &e: &f" with "" in {_line}
+            return {_line}
+    return ""
 
 # ===== 물고기 아이템에서 크기 파싱 =====
 function parsesize(item: item) :: number:
-    set {_lore} to 2nd line of lore of {_item}
-    if {_lore} is not set:
-        return 0
-    # lore 형식: "&7크기 &e: &f{크기}cm"
-    replace all "&7크기 &e: &f" with "" in {_lore}
-    replace all "cm" with "" in {_lore}
-    set {_s} to {_lore} parsed as number
-    if {_s} is not set:
-        return 0
-    return {_s}
+    loop lore of {_item}:
+        if loop-value contains "&7크기 &e:":
+            set {_line} to loop-value
+            replace all "&7크기 &e: &f" with "" in {_line}
+            replace all "cm" with "" in {_line}
+            set {_s} to {_line} parsed as number
+            if {_s} is set:
+                return {_s}
+            return 0
+    return 0
 
 # ===== 크리티컬 물고기인지 확인 =====
 function iscritfish(item: item) :: boolean:
@@ -209,8 +209,13 @@ function calcFishPrice(item: item) :: number:
 # ===== 물고기인지 확인 =====
 function isfish(item: item) :: boolean:
     if {_item} is cod:
-        if 1st line of lore of {_item} contains "&7등급":
-            return true
+        loop lore of {_item}:
+            if loop-value contains "[물고기]":
+                return true
+            if loop-value contains "&8f:":
+                return true
+            if loop-value contains "&7등급":
+                return true
     return false
 
 # ===== /판매 명령어 =====
@@ -245,13 +250,20 @@ command /판매 [<text>]:
 
             add {_총액} to {돈::%player%}
             퀘스트_판매(player, {_count}, {_총액})
+            주간랭킹_판매(player, {_총액})
             message "{@sell_prefix} {@sell_good}일괄 판매 완료! {@sell_hint}%{_count}%마리 {@sell_emph}%{_총액}%원 {@sell_hint}| 잔액: {@sell_info}%{돈::%player%}%원" to player
+            사이드바업데이트(player)
+            if {총판매::%player%} is not set:
+                set {총판매::%player%} to 0
+            add {_count} to {총판매::%player%}
+            도전과제체크(player, "총판매", "%{총판매::%player%}%")
+            도전과제체크(player, "보유금", "%{돈::%player%}%")
             stop
 
-        # /판매 (손에 든 물고기 1마리)
+        # /판매 (손에 든 물고기 1마리, 없으면 상점 열기)
         if arg-1 is not set:
             if isfish(player's tool) is false:
-                message "{@sell_prefix} {@sell_bad}물고기를 손에 들고 사용해 주세요. {@sell_hint}(/판매 전부: 일괄 판매)" to player
+                opensellgui(player)
                 stop
 
             set {_price} to calcFishPrice(player's tool)
@@ -270,6 +282,7 @@ command /판매 [<text>]:
 
             add {_price} to {돈::%player%}
             퀘스트_판매(player, 1, {_price})
+            주간랭킹_판매(player, {_price})
             set {_extra} to ""
             if {_critMult} > 1:
                 set {_extra} to "%{_extra}% &6★%{_critMult}%배"
@@ -278,6 +291,12 @@ command /판매 [<text>]:
             if {_freshMult} < 1:
                 set {_extra} to "%{_extra}% %{_freshLabel}%"
             message "{@sell_prefix} {@sell_good}판매 완료! {@sell_info}%{_name}% {@sell_hint}(%{_등급}% / %{_크기}%cm)%{_extra}% {@sell_emph}%{_price}%원 {@sell_hint}| 잔액: {@sell_info}%{돈::%player%}%원" to player
+            사이드바업데이트(player)
+            if {총판매::%player%} is not set:
+                set {총판매::%player%} to 0
+            add 1 to {총판매::%player%}
+            도전과제체크(player, "총판매", "%{총판매::%player%}%")
+            도전과제체크(player, "보유금", "%{돈::%player%}%")
             stop
 
         # /판매 도움말
@@ -342,7 +361,9 @@ on inventory click:
                     set {돈::%player%} to 0
                 add {_총액} to {돈::%player%}
                 퀘스트_판매(player, {_count}, {_총액})
+                주간랭킹_판매(player, {_총액})
                 message "&8[&6 상점 &8] &a판매 완료! &7%{_count}%마리 &e%{_총액}%원 &7| 잔액: &f%{돈::%player%}%원" to player
+                사이드바업데이트(player)
                 stop
 
         # 닫기 버튼
@@ -380,6 +401,7 @@ on inventory close:
 
         if {_닫기수} > 0:
             퀘스트_판매(player, {_닫기수}, {_닫기총액})
+            주간랭킹_판매(player, {_닫기총액})
             message "&8[&6 상점 &8] &a자동 판매! &7%{_닫기수}%마리 &e%{_닫기총액}%원 &7| 잔액: &f%{돈::%player%}%원" to player
 
 # ===== 2분마다 인벤토리 물고기 신선도 lore 자동 갱신 =====

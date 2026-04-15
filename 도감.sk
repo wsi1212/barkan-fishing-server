@@ -1,0 +1,591 @@
+# ===== 도감 시스템 =====
+# 5종 도감: 물고기, 낚싯대, 부품, 재료, 지역
+# 첫 발견 시 수집레벨(지역은 탐험레벨) 경험치 지급
+
+# ===== 발견 함수 (외부에서 호출) =====
+
+# --- 물고기 발견 (낚시.sk에서 호출) ---
+function 도감_물고기(p: player, fishName: text, grade: text):
+    if {도감발견::물고기::%{_p}%::%{_fishName}%} is true:
+        stop
+    set {도감발견::물고기::%{_p}%::%{_fishName}%} to true
+    # 등급별 차등 수집exp
+    set {_xp} to 10
+    if {_grade} is "D":
+        set {_xp} to 15
+    else if {_grade} is "C":
+        set {_xp} to 20
+    else if {_grade} is "B":
+        set {_xp} to 30
+    else if {_grade} is "A":
+        set {_xp} to 50
+    else if {_grade} is "S":
+        set {_xp} to 80
+    else if {_grade} is "S+":
+        set {_xp} to 100
+    else if {_grade} is "M":
+        set {_xp} to 150
+    else if {_grade} is "L":
+        set {_xp} to 200
+    else if {_grade} is "G":
+        set {_xp} to 300
+    수집경험치추가({_p}, {_xp})
+    message "&8[&d 도감 &8] &a새 물고기 등록! &f%{_fishName}% &8(수집 +%{_xp}%exp)" to {_p}
+
+# --- 낚싯대 발견 (조합대.sk에서 호출) ---
+function 도감_낚싯대(p: player, rodName: text):
+    if {도감발견::낚싯대::%{_p}%::%{_rodName}%} is true:
+        stop
+    set {도감발견::낚싯대::%{_p}%::%{_rodName}%} to true
+    수집경험치추가({_p}, 30)
+    message "&8[&d 도감 &8] &a새 낚싯대 등록! &f%{_rodName}% &8(수집 +30exp)" to {_p}
+
+# --- 부품 발견 (부품상점.sk에서 호출) ---
+function 도감_부품(p: player, partType: text, partName: text):
+    if {도감발견::부품::%{_p}%::%{_partType}%::%{_partName}%} is true:
+        stop
+    set {도감발견::부품::%{_p}%::%{_partType}%::%{_partName}%} to true
+    수집경험치추가({_p}, 15)
+    message "&8[&d 도감 &8] &a새 부품 등록! &f%{_partName}% &8(수집 +15exp)" to {_p}
+
+# --- 재료 발견 (조합재료.sk에서 호출) ---
+function 도감_재료(p: player, matId: text):
+    if {도감발견::재료::%{_p}%::%{_matId}%} is true:
+        stop
+    set {도감발견::재료::%{_p}%::%{_matId}%} to true
+    수집경험치추가({_p}, 20)
+    set {_matData::*} to split {조합재료::%{_matId}%} at "|"
+    message "&8[&d 도감 &8] &a새 재료 등록! &e%{_matData::1}% &8(수집 +20exp)" to {_p}
+
+# --- 지역 발견 (탐험.sk 탐험_발견에서 자동 처리 → 여기선 도감 변수만 세팅) ---
+function 도감_지역(p: player, regionId: text):
+    if {도감발견::지역::%{_p}%::%{_regionId}%} is true:
+        stop
+    set {도감발견::지역::%{_p}%::%{_regionId}%} to true
+    # 탐험exp는 탐험_발견()에서 이미 지급하므로 여기선 도감 등록만
+
+# ===== 진행도 카운트 함수 =====
+function 도감카운트_물고기(p: player) :: text:
+    set {_found} to 0
+    set {_total} to 0
+    loop {물고기::*}:
+        add 1 to {_total}
+        if {도감발견::물고기::%{_p}%::%loop-index%} is true:
+            add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+function 도감카운트_낚싯대(p: player) :: text:
+    set {_found} to 0
+    set {_total} to 0
+    loop {부품::낚싯대::*}:
+        add 1 to {_total}
+        set {_data::*} to split loop-value at "|"
+        if {도감발견::낚싯대::%{_p}%::%{_data::1}%} is true:
+            add 1 to {_found}
+    # 조합 낚싯대
+    loop {조합카테::낚시::*}:
+        set {_rName} to {조합법::%loop-value%::이름}
+        if {_rName} is set:
+            add 1 to {_total}
+            if {도감발견::낚싯대::%{_p}%::%{_rName}%} is true:
+                add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+function 도감카운트_부품(p: player) :: text:
+    set {_found} to 0
+    set {_total} to 0
+    delete {_types::*}
+    add "릴" to {_types::*}
+    add "줄" to {_types::*}
+    add "바늘" to {_types::*}
+    add "찌" to {_types::*}
+    add "미끼" to {_types::*}
+    loop {_types::*}:
+        loop {부품::%loop-value-1%::*}:
+            add 1 to {_total}
+            set {_data::*} to split loop-value-2 at "|"
+            if {도감발견::부품::%{_p}%::%loop-value-1%::%{_data::1}%} is true:
+                add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+function 도감카운트_재료(p: player) :: text:
+    set {_found} to 0
+    set {_total} to 0
+    loop {조합재료::*}:
+        add 1 to {_total}
+        if {도감발견::재료::%{_p}%::%loop-index%} is true:
+            add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+function 도감카운트_지역(p: player) :: text:
+    set {_found} to 0
+    set {_total} to 0
+    loop {지역리스트::*}:
+        add 1 to {_total}
+        if {도감발견::지역::%{_p}%::%loop-value%} is true:
+            add 1 to {_found}
+    loop {섬리스트::*}:
+        if loop-value does not start with "길드섬_":
+            add 1 to {_total}
+            if {도감발견::지역::%{_p}%::%loop-value%} is true:
+                add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+# ===== 도감 메인 GUI =====
+function 도감메인GUI(p: player):
+    open chest inventory with 3 rows named "&0도감" to {_p}
+    wait 1 tick
+    loop integers from 0 to 26:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to bookshelf named "&e&l도감" with lore "&7발견한 것들을 확인하세요."
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 수집 레벨 정보
+    set {_sLv} to {수집레벨::%{_p}%}
+    if {_sLv} is not set:
+        set {_sLv} to 1
+    set {_eLv} to {탐험레벨::%{_p}%}
+    if {_eLv} is not set:
+        set {_eLv} to 1
+    # 물고기 (slot 10)
+    set {_fc} to 도감카운트_물고기({_p})
+    set slot 10 of {_p}'s current inventory to tropical fish bucket named "&b&l물고기 도감" with lore "&7잡아본 물고기 기록" and "" and "&7발견: &f%{_fc}%" and "&d수집 Lv.%{_sLv}%" and "" and "&a클릭하여 보기"
+    # 낚싯대 (slot 11)
+    set {_rc} to 도감카운트_낚싯대({_p})
+    set slot 11 of {_p}'s current inventory to fishing rod named "&e&l낚싯대 도감" with lore "&7획득한 낚싯대 기록" and "" and "&7발견: &f%{_rc}%" and "&d수집 Lv.%{_sLv}%" and "" and "&a클릭하여 보기"
+    # 부품 (slot 12)
+    set {_pc} to 도감카운트_부품({_p})
+    set slot 12 of {_p}'s current inventory to tripwire hook named "&a&l부품 도감" with lore "&7획득한 부품 기록" and "" and "&7발견: &f%{_pc}%" and "&d수집 Lv.%{_sLv}%" and "" and "&a클릭하여 보기"
+    # 재료 (slot 13)
+    set {_mc} to 도감카운트_재료({_p})
+    set slot 13 of {_p}'s current inventory to chest named "&6&l재료 도감" with lore "&7발견한 조합 재료" and "" and "&7발견: &f%{_mc}%" and "&d수집 Lv.%{_sLv}%" and "" and "&a클릭하여 보기"
+    # 지역 (slot 14)
+    set {_lc} to 도감카운트_지역({_p})
+    set slot 14 of {_p}'s current inventory to filled map named "&5&l지역 도감" with lore "&7방문한 지역 기록" and "" and "&7발견: &f%{_lc}%" and "&5탐험 Lv.%{_eLv}%" and "" and "&a클릭하여 보기"
+    # 수집품 (slot 15)
+    set {_cc} to 도감카운트_수집품({_p})
+    set slot 15 of {_p}'s current inventory to player head named "&5&l수집품 도감" with lore "&7숨겨진 수집품 찾기" and "" and "&7발견: &f%{_cc}%" and "&5탐험 Lv.%{_eLv}%" and "" and "&a클릭하여 보기"
+
+# ===== 도감 메인 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0도감":
+        cancel event
+        if clicked inventory is player's inventory:
+            stop
+        if clicked slot is 8:
+            close player's inventory
+            stop
+        if clicked slot is 10:
+            # 물고기 도감 — 기존 시스템 활용
+            close player's inventory
+            wait 1 tick
+            set {도감페이지::%player%} to 0
+            regiondictionary(player, {지역리스트::1})
+            stop
+        if clicked slot is 11:
+            wait 1 tick
+            도감_낚싯대GUI(player)
+            stop
+        if clicked slot is 12:
+            set {도감부품필터::%player%} to "릴"
+            wait 1 tick
+            도감_부품GUI(player)
+            stop
+        if clicked slot is 13:
+            wait 1 tick
+            도감_재료GUI(player)
+            stop
+        if clicked slot is 14:
+            wait 1 tick
+            도감_지역GUI(player)
+            stop
+        if clicked slot is 15:
+            wait 1 tick
+            도감_수집품GUI(player)
+            stop
+
+# ===== 낚싯대 도감 GUI (페이지네이션) =====
+function 도감_낚싯대GUI(p: player):
+    set {_page} to {도감낚싯대페이지::%{_p}%}
+    if {_page} is not set:
+        set {_page} to 1
+    open chest inventory with 6 rows named "&0도감: 낚싯대" to {_p}
+    wait 1 tick
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
+    set slot 4 of {_p}'s current inventory to fishing rod named "&e&l낚싯대 도감"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 상점 낚싯대 + 조합 낚싯대 수집
+    delete {_rods::*}
+    loop {부품::낚싯대::*}:
+        set {_data::*} to split loop-value at "|"
+        add {_data::1} to {_rods::*}
+    loop {조합카테::낚시::*}:
+        set {_rName} to {조합법::%loop-value%::이름}
+        if {_rName} is set:
+            add {_rName} to {_rods::*}
+    # 페이지 계산
+    set {_total} to size of {_rods::*}
+    set {_perPage} to 28
+    set {_maxPage} to ceil({_total} / {_perPage})
+    if {_maxPage} <= 0:
+        set {_maxPage} to 1
+    if {_page} > {_maxPage}:
+        set {_page} to {_maxPage}
+    set {도감낚싯대페이지::%{_p}%} to {_page}
+    set {_start} to ({_page} - 1) * {_perPage}
+    # 슬롯 배열
+    delete {_slots::*}
+    add 10 to {_slots::*}
+    add 11 to {_slots::*}
+    add 12 to {_slots::*}
+    add 13 to {_slots::*}
+    add 14 to {_slots::*}
+    add 15 to {_slots::*}
+    add 16 to {_slots::*}
+    add 19 to {_slots::*}
+    add 20 to {_slots::*}
+    add 21 to {_slots::*}
+    add 22 to {_slots::*}
+    add 23 to {_slots::*}
+    add 24 to {_slots::*}
+    add 25 to {_slots::*}
+    add 28 to {_slots::*}
+    add 29 to {_slots::*}
+    add 30 to {_slots::*}
+    add 31 to {_slots::*}
+    add 32 to {_slots::*}
+    add 33 to {_slots::*}
+    add 34 to {_slots::*}
+    add 37 to {_slots::*}
+    add 38 to {_slots::*}
+    add 39 to {_slots::*}
+    add 40 to {_slots::*}
+    add 41 to {_slots::*}
+    add 42 to {_slots::*}
+    add 43 to {_slots::*}
+    # 페이지 범위 추출
+    delete {_pageRods::*}
+    set {_qi} to 0
+    loop {_rods::*}:
+        add 1 to {_qi}
+        if {_qi} > {_start}:
+            if size of {_pageRods::*} < {_perPage}:
+                add loop-value to {_pageRods::*}
+    set {_si} to 0
+    loop {_pageRods::*}:
+        add 1 to {_si}
+        set {_sl} to {_slots::%{_si}%}
+        if {도감발견::낚싯대::%{_p}%::%loop-value%} is true:
+            set slot {_sl} of {_p}'s current inventory to fishing rod named "&e%loop-value%" with lore "&a발견!"
+        else:
+            set slot {_sl} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 낚싯대"
+    # 네비게이션
+    set slot 49 of {_p}'s current inventory to paper named "&7페이지 %{_page}%/%{_maxPage}% &8(%{_total}%개)"
+    if {_page} > 1:
+        set slot 48 of {_p}'s current inventory to arrow named "&e← 이전 페이지"
+    if {_page} < {_maxPage}:
+        set slot 50 of {_p}'s current inventory to arrow named "&e다음 페이지 →"
+
+on inventory click:
+    if player's current inventory's name is "&0도감: 낚싯대":
+        cancel event
+        if clicked slot is 0:
+            wait 1 tick
+            도감메인GUI(player)
+            stop
+        if clicked slot is 8:
+            close player's inventory
+            stop
+        if clicked slot is 48:
+            if {도감낚싯대페이지::%player%} > 1:
+                remove 1 from {도감낚싯대페이지::%player%}
+                wait 1 tick
+                도감_낚싯대GUI(player)
+            stop
+        if clicked slot is 50:
+            add 1 to {도감낚싯대페이지::%player%}
+            wait 1 tick
+            도감_낚싯대GUI(player)
+            stop
+
+# ===== 부품 도감 GUI =====
+function 도감_부품GUI(p: player):
+    set {_filter} to {도감부품필터::%{_p}%}
+    if {_filter} is not set:
+        set {_filter} to "릴"
+    open chest inventory with 6 rows named "&0도감: 부품" to {_p}
+    wait 1 tick
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
+    set slot 4 of {_p}'s current inventory to tripwire hook named "&a&l부품 도감 &7(%{_filter}%)"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 필터 탭
+    if {_filter} is "릴":
+        set slot 1 of {_p}'s current inventory to lime dye named "&a&l릴"
+    else:
+        set slot 1 of {_p}'s current inventory to gray dye named "&7릴"
+    if {_filter} is "줄":
+        set slot 2 of {_p}'s current inventory to lime dye named "&a&l줄"
+    else:
+        set slot 2 of {_p}'s current inventory to gray dye named "&7줄"
+    if {_filter} is "바늘":
+        set slot 3 of {_p}'s current inventory to lime dye named "&a&l바늘"
+    else:
+        set slot 3 of {_p}'s current inventory to gray dye named "&7바늘"
+    if {_filter} is "찌":
+        set slot 5 of {_p}'s current inventory to lime dye named "&a&l찌"
+    else:
+        set slot 5 of {_p}'s current inventory to gray dye named "&7찌"
+    if {_filter} is "미끼":
+        set slot 6 of {_p}'s current inventory to lime dye named "&a&l미끼"
+    else:
+        set slot 6 of {_p}'s current inventory to gray dye named "&7미끼"
+    # 부품 배치
+    delete {_slots::*}
+    add 10 to {_slots::*}
+    add 11 to {_slots::*}
+    add 12 to {_slots::*}
+    add 13 to {_slots::*}
+    add 14 to {_slots::*}
+    add 15 to {_slots::*}
+    add 16 to {_slots::*}
+    add 19 to {_slots::*}
+    add 20 to {_slots::*}
+    add 21 to {_slots::*}
+    add 22 to {_slots::*}
+    add 23 to {_slots::*}
+    add 24 to {_slots::*}
+    add 25 to {_slots::*}
+    add 28 to {_slots::*}
+    add 29 to {_slots::*}
+    add 30 to {_slots::*}
+    add 31 to {_slots::*}
+    add 32 to {_slots::*}
+    add 33 to {_slots::*}
+    add 34 to {_slots::*}
+    add 37 to {_slots::*}
+    add 38 to {_slots::*}
+    add 39 to {_slots::*}
+    add 40 to {_slots::*}
+    add 41 to {_slots::*}
+    add 42 to {_slots::*}
+    add 43 to {_slots::*}
+    set {_si} to 0
+    loop {부품::%{_filter}%::*}:
+        add 1 to {_si}
+        if {_si} > 28:
+            stop
+        set {_sl} to {_slots::%{_si}%}
+        set {_data::*} to split loop-value at "|"
+        set {_name} to {_data::1}
+        set {_grade} to {_data::2}
+        set {_color} to part_grade_color({_grade})
+        if {도감발견::부품::%{_p}%::%{_filter}%::%{_name}%} is true:
+            delete {_lore::*}
+            add "&7등급: %{_color}%%{_grade}%" to {_lore::*}
+            add "&7가격: &f%{_data::3}%원" to {_lore::*}
+            set {_statsRaw} to {_data::5}
+            if {_statsRaw} is set:
+                set {_pairs::*} to split {_statsRaw} at ","
+                loop {_pairs::*}:
+                    set {_kv::*} to split loop-value-2 at ":"
+                    set {_desc} to stat_type_desc({_kv::1})
+                    set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+                    add "&7%{_desc}%: &f%{_vt}%" to {_lore::*}
+            add "" to {_lore::*}
+            add "&a발견!" to {_lore::*}
+            set slot {_sl} of {_p}'s current inventory to tripwire hook named "%{_color}%%{_name}%" with lore {_lore::*}
+        else:
+            set slot {_sl} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 부품" and "&7등급: %{_color}%%{_grade}%"
+
+on inventory click:
+    if player's current inventory's name is "&0도감: 부품":
+        cancel event
+        if clicked slot is 0:
+            wait 1 tick
+            도감메인GUI(player)
+            stop
+        if clicked slot is 8:
+            close player's inventory
+            stop
+        set {_newF} to ""
+        if clicked slot is 1:
+            set {_newF} to "릴"
+        else if clicked slot is 2:
+            set {_newF} to "줄"
+        else if clicked slot is 3:
+            set {_newF} to "바늘"
+        else if clicked slot is 5:
+            set {_newF} to "찌"
+        else if clicked slot is 6:
+            set {_newF} to "미끼"
+        if {_newF} is not "":
+            set {도감부품필터::%player%} to {_newF}
+            wait 1 tick
+            도감_부품GUI(player)
+            stop
+
+# ===== 재료 도감 GUI =====
+function 도감_재료GUI(p: player):
+    open chest inventory with 3 rows named "&0도감: 재료" to {_p}
+    wait 1 tick
+    loop integers from 0 to 26:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
+    set slot 4 of {_p}'s current inventory to chest named "&6&l재료 도감"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    set {_si} to 9
+    loop {조합재료::*}:
+        set {_matId} to loop-index
+        set {_data::*} to split loop-value at "|"
+        set {_name} to {_data::1}
+        if {도감발견::재료::%{_p}%::%{_matId}%} is true:
+            set {_item} to {_data::2} parsed as item type
+            if {_item} is set:
+                set slot {_si} of {_p}'s current inventory to {_item} named "&e%{_name}%" with lore "&7%{_data::3}%" and "" and "&a발견!"
+        else:
+            set slot {_si} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 재료"
+        add 1 to {_si}
+        if {_si} is 18:
+            set {_si} to 18
+
+on inventory click:
+    if player's current inventory's name is "&0도감: 재료":
+        cancel event
+        if clicked slot is 0:
+            wait 1 tick
+            도감메인GUI(player)
+            stop
+        if clicked slot is 8:
+            close player's inventory
+            stop
+
+# ===== 지역 도감 GUI (페이지네이션) =====
+function 도감_지역GUI(p: player):
+    set {_page} to {도감지역페이지::%{_p}%}
+    if {_page} is not set:
+        set {_page} to 1
+    open chest inventory with 6 rows named "&0도감: 지역" to {_p}
+    wait 1 tick
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
+    set slot 4 of {_p}'s current inventory to filled map named "&5&l지역 도감"
+    set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
+    # 지역 + 섬 수집
+    delete {_regions::*}
+    loop {지역리스트::*}:
+        add loop-value to {_regions::*}
+    loop {섬리스트::*}:
+        if loop-value does not start with "길드섬_":
+            add loop-value to {_regions::*}
+    # 페이지 계산
+    set {_total} to size of {_regions::*}
+    set {_perPage} to 28
+    set {_maxPage} to ceil({_total} / {_perPage})
+    if {_maxPage} <= 0:
+        set {_maxPage} to 1
+    if {_page} > {_maxPage}:
+        set {_page} to {_maxPage}
+    set {도감지역페이지::%{_p}%} to {_page}
+    set {_start} to ({_page} - 1) * {_perPage}
+    # 슬롯 배열
+    delete {_slots::*}
+    add 10 to {_slots::*}
+    add 11 to {_slots::*}
+    add 12 to {_slots::*}
+    add 13 to {_slots::*}
+    add 14 to {_slots::*}
+    add 15 to {_slots::*}
+    add 16 to {_slots::*}
+    add 19 to {_slots::*}
+    add 20 to {_slots::*}
+    add 21 to {_slots::*}
+    add 22 to {_slots::*}
+    add 23 to {_slots::*}
+    add 24 to {_slots::*}
+    add 25 to {_slots::*}
+    add 28 to {_slots::*}
+    add 29 to {_slots::*}
+    add 30 to {_slots::*}
+    add 31 to {_slots::*}
+    add 32 to {_slots::*}
+    add 33 to {_slots::*}
+    add 34 to {_slots::*}
+    add 37 to {_slots::*}
+    add 38 to {_slots::*}
+    add 39 to {_slots::*}
+    add 40 to {_slots::*}
+    add 41 to {_slots::*}
+    add 42 to {_slots::*}
+    add 43 to {_slots::*}
+    # 페이지 범위 추출
+    delete {_pageRegions::*}
+    set {_qi} to 0
+    loop {_regions::*}:
+        add 1 to {_qi}
+        if {_qi} > {_start}:
+            if size of {_pageRegions::*} < {_perPage}:
+                add loop-value to {_pageRegions::*}
+    set {_si} to 0
+    loop {_pageRegions::*}:
+        add 1 to {_si}
+        set {_sl} to {_slots::%{_si}%}
+        set {_rid} to loop-value
+        set {_dname} to {지역표시이름::%{_rid}%}
+        if {_dname} is not set:
+            set {_dname} to {_rid}
+        if {도감발견::지역::%{_p}%::%{_rid}%} is true:
+            set {_reqLv} to {지역레벨제한::%{_rid}%}
+            if {_reqLv} is not set:
+                set {_reqLv} to 1
+            delete {_lore::*}
+            add "&7필요 레벨: &fLv.%{_reqLv}%" to {_lore::*}
+            set {_parent} to {지역부모섬::%{_rid}%}
+            if {_parent} is set:
+                set {_pname} to {지역표시이름::%{_parent}%}
+                if {_pname} is not set:
+                    set {_pname} to {_parent}
+                add "&7소속: &f%{_pname}%" to {_lore::*}
+            add "" to {_lore::*}
+            add "&a발견!" to {_lore::*}
+            set slot {_sl} of {_p}'s current inventory to filled map named "&5%{_dname}%" with lore {_lore::*}
+        else:
+            set slot {_sl} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 지역"
+    # 네비게이션
+    set slot 49 of {_p}'s current inventory to paper named "&7페이지 %{_page}%/%{_maxPage}% &8(%{_total}%개)"
+    if {_page} > 1:
+        set slot 48 of {_p}'s current inventory to arrow named "&e← 이전 페이지"
+    if {_page} < {_maxPage}:
+        set slot 50 of {_p}'s current inventory to arrow named "&e다음 페이지 →"
+
+on inventory click:
+    if player's current inventory's name is "&0도감: 지역":
+        cancel event
+        if clicked slot is 0:
+            wait 1 tick
+            도감메인GUI(player)
+            stop
+        if clicked slot is 8:
+            close player's inventory
+            stop
+        if clicked slot is 48:
+            if {도감지역페이지::%player%} > 1:
+                remove 1 from {도감지역페이지::%player%}
+                wait 1 tick
+                도감_지역GUI(player)
+            stop
+        if clicked slot is 50:
+            add 1 to {도감지역페이지::%player%}
+            wait 1 tick
+            도감_지역GUI(player)
+            stop
+
+# ===== 브릿지 명령어 (조합대 → 도감, 파일 로드 순서 문제 우회) =====
+command /dogamrod <player> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        도감_낚싯대(arg-1, arg-2)

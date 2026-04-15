@@ -1,0 +1,285 @@
+# ===== 탐험 시스템 =====
+# 숨겨진 장소 발견, 새로운 지역 도달 시 경험치
+# 변수: {탐험레벨::%p%}, {탐험경험치::%p%}, {탐험필요경험치::%p%}
+# 실제 탐험 메카닉은 추후 구현
+
+# ===== 발견 헬퍼 함수 =====
+# 외부 시스템에서 호출: 탐험_발견(player, "타입", "ID")
+# 타입별 기본 XP 자동 결정. 같은 ID 재발견 시 XP 미지급.
+#
+# 사용 예시:
+#   탐험_발견(player, "지역", "바르칸물길")     — 지역 입장 시 (공간.sk에서 호출됨)
+#   탐험_발견(player, "보물상자", "북섬_동굴1")  — 보물상자 발견 시
+#   탐험_발견(player, "조각상", "고대신상_01")    — 숨겨진 조각상 발견 시
+#   탐험_발견(player, "비밀장소", "용암동굴_입구") — 비밀 장소 발견 시
+#   탐험_발견(player, "NPC", "여행상인_길베르")   — 새 NPC 만남
+#
+# 새 발견 타입 추가하려면 아래 if-else에 케이스만 추가하면 됨.
+function 탐험_발견(p: player, type: text, id: text):
+    # 중복 방지 — 같은 발견은 한 번만 XP 지급
+    if {탐험발견::%{_p}%::%{_type}%::*} contains {_id}:
+        stop
+    add {_id} to {탐험발견::%{_p}%::%{_type}%::*}
+    # 지역 발견 시 도감 등록
+    if {_type} is "지역":
+        도감_지역({_p}, {_id})
+    # 타입별 XP + 표시명 결정
+    if {_type} is "지역":
+        set {_xp} to 50
+        set {_label} to "&5새 지역 발견"
+    else if {_type} is "비밀장소":
+        set {_xp} to 100
+        set {_label} to "&d비밀 장소 발견"
+    else if {_type} is "보물상자":
+        set {_xp} to 30
+        set {_label} to "&6보물상자 발견"
+    else if {_type} is "조각상":
+        set {_xp} to 25
+        set {_label} to "&b유물 발견"
+    else if {_type} is "NPC":
+        set {_xp} to 15
+        set {_label} to "&a새 인물 만남"
+    else if {_type} is "던전":
+        set {_xp} to 150
+        set {_label} to "&c던전 발견"
+    else if {_type} is "유적":
+        set {_xp} to 80
+        set {_label} to "&e고대 유적 발견"
+    else:
+        # 기본값 — 알 수 없는 타입
+        set {_xp} to 20
+        set {_label} to "&7새로운 발견"
+    # 알림 + XP 지급
+    send "%{_label}% &7+&5%{_xp}% 탐험 XP" to {_p}
+    play sound "entity.player.levelup" with volume 0.4 and pitch 1.8 to {_p}
+    탐험경험치추가({_p}, {_xp})
+
+# ===== 경험치 추가 함수 =====
+function 탐험경험치추가(p: player, amount: number):
+    if {탐험레벨::%{_p}%} is not set:
+        set {탐험레벨::%{_p}%} to 1
+        set {탐험경험치::%{_p}%} to 0
+        set {탐험필요경험치::%{_p}%} to 100
+    if {탐험레벨::%{_p}%} >= 50:
+        stop
+    add {_amount} to {탐험경험치::%{_p}%}
+    loop 50 times:
+        if {탐험경험치::%{_p}%} >= {탐험필요경험치::%{_p}%}:
+            if {탐험레벨::%{_p}%} >= 50:
+                set {탐험경험치::%{_p}%} to {탐험필요경험치::%{_p}%}
+                stop loop
+            remove {탐험필요경험치::%{_p}%} from {탐험경험치::%{_p}%}
+            set {탐험필요경험치::%{_p}%} to floor({탐험필요경험치::%{_p}%} * 1.06)
+            add 1 to {탐험레벨::%{_p}%}
+            send title "&5&l레벨 업!" with subtitle "&f탐험 Lv.%{탐험레벨::%{_p}%}% &7달성!" to {_p} for 2 seconds
+            message "&5[탐험] &f레벨이 %{탐험레벨::%{_p}%}%LV가 되었습니다!" to {_p}
+            play sound "entity.player.levelup" with volume 0.8 and pitch 1.5 to {_p}
+        else:
+            stop loop
+
+# ===== 탐험 레벨 로드맵 GUI =====
+function 탐험레벨GUI(p: player, page: integer):
+    set {_lv} to {탐험레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_cur} to {탐험경험치::%{_p}%}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_need} to {탐험필요경험치::%{_p}%}
+    if {_need} is not set:
+        set {_need} to 100
+    set {_remain} to {_need} - {_cur}
+    if {_remain} < 0:
+        set {_remain} to 0
+    if {_need} > 0:
+        set {_pct} to floor({_cur} * 100 / {_need})
+    else:
+        set {_pct} to 0
+    set {_perPage} to 29
+    set {_startLv} to ({_page} - 1) * {_perPage} + 1
+    set {_endLv} to {_page} * {_perPage}
+    if {_endLv} > 50:
+        set {_endLv} to 50
+    open chest inventory with 6 rows named "&0탐험 로드맵 (Lv.%{_startLv}%~%{_endLv}%)" to {_p}
+    set {탐험GUI페이지::%{_p}%} to {_page}
+    # ㄹ자 경로
+    delete {_path::*}
+    loop integers from 0 to 8:
+        set {_path::%loop-integer + 1%} to 9 + loop-integer
+    set {_path::10} to 26
+    loop integers from 0 to 8:
+        set {_path::%11 + loop-integer%} to 35 - loop-integer
+    set {_path::20} to 36
+    loop integers from 0 to 8:
+        set {_path::%21 + loop-integer%} to 45 + loop-integer
+    loop integers from 0 to 53:
+        set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 1 of {_p}'s current inventory to arrow named "&7◀ 스킬 선택"
+    # 1행: 정보바
+    set {_head} to skull of {_p}
+    set {_filled} to 0
+    if {_need} > 0:
+        set {_filled} to floor({_cur} * 50 / {_need})
+    if {_filled} > 50:
+        set {_filled} to 50
+    set {_bar} to ""
+    loop 50 times:
+        if loop-iteration <= {_filled}:
+            set {_bar} to "%{_bar}%&5|"
+        else:
+            set {_bar} to "%{_bar}%&8|"
+    set slot 4 of {_p}'s current inventory to {_head} named "&5&l탐험 Lv.%{_lv}% &7%{_p}'s name%" with lore "&7경험치: &5%{_cur}%&7/&f%{_need}%" and "&8[%{_bar}%&8] &5%{_pct}%%%" and "&7남은 경험치: &e%{_remain}%"
+    # 페이지 버튼
+    if {_page} > 1:
+        set {_prevStart} to ({_page} - 2) * {_perPage} + 1
+        set {_prevEnd} to ({_page} - 1) * {_perPage}
+        set slot 0 of {_p}'s current inventory to arrow named "&c◀ 이전 페이지" with lore "&7Lv.%{_prevStart}%~%{_prevEnd}%"
+    if {_endLv} < 50:
+        set {_nextStart} to {_page} * {_perPage} + 1
+        set {_nextEnd} to ({_page} + 1) * {_perPage}
+        if {_nextEnd} > 50:
+            set {_nextEnd} to 50
+        set slot 8 of {_p}'s current inventory to arrow named "&a다음 페이지 ▶" with lore "&7Lv.%{_nextStart}%~%{_nextEnd}%"
+    # 각 레벨 배치
+    loop integers from 1 to 29:
+        set {_idx} to loop-integer
+        set {_lvNum} to {_startLv} + {_idx} - 1
+        if {_lvNum} > 50:
+            stop loop
+        set {_slot} to {_path::%{_idx}%}
+        if {_slot} is not set:
+            stop loop
+        set {_reward} to ""
+        set {_iconType} to "normal"
+        if mod({_lvNum}, 5) is 0:
+            set {_iconType} to "milestone"
+        # === 티어 해금 ===
+        if {_lvNum} is 11:
+            set {_reward} to "&e&l작은 비밀 장소 발견 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 21:
+            set {_reward} to "&6&l숨겨진 던전 발견 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 31:
+            set {_reward} to "&b&l고대 유적 발견 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 41:
+            set {_reward} to "&d&l전설의 비밀 해금!"
+            set {_iconType} to "unlock"
+        else if {_lvNum} is 50:
+            set {_reward} to "&6&l만렙! 탐험 마스터"
+            set {_iconType} to "max"
+        # === 마일스톤 보상 ===
+        else if {_lvNum} is 5:
+            set {_reward} to "&5이동 속도 증가"
+        else if {_lvNum} is 10:
+            set {_reward} to "&5발견 보너스 증가"
+        else if {_lvNum} is 15:
+            set {_reward} to "&5이동 속도 증가"
+        else if {_lvNum} is 20:
+            set {_reward} to "&5발견 보너스 증가"
+        else if {_lvNum} is 25:
+            set {_reward} to "&5숨겨진 요소 감지 강화"
+        else if {_lvNum} is 30:
+            set {_reward} to "&5발견 보너스 증가"
+        else if {_lvNum} is 35:
+            set {_reward} to "&5이동 속도 증가"
+        else if {_lvNum} is 40:
+            set {_reward} to "&5희귀 발견 확률 상승"
+        else if {_lvNum} is 45:
+            set {_reward} to "&5전설 발견 확률 상승"
+        # === 돈 보상 ===
+        else if {_lvNum} is 3:
+            set {_reward} to "&f보상: 300원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 7:
+            set {_reward} to "&f보상: 700원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 13:
+            set {_reward} to "&f보상: 1,500원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 17:
+            set {_reward} to "&f보상: 2,500원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 23:
+            set {_reward} to "&e보상: 4,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 27:
+            set {_reward} to "&e보상: 6,000원"
+            set {_iconType} to "chest"
+        else if {_lvNum} is 33:
+            set {_reward} to "&6보상: 10,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 37:
+            set {_reward} to "&6보상: 15,000원"
+            set {_iconType} to "echest"
+        else if {_lvNum} is 43:
+            set {_reward} to "&d보상: 25,000원"
+            set {_iconType} to "shulker"
+        else if {_lvNum} is 47:
+            set {_reward} to "&d보상: 40,000원"
+            set {_iconType} to "shulker"
+        # 아이콘 결정
+        if {_lvNum} is {_lv}:
+            set {_icon} to experience bottle named "&5&l◆ Lv.%{_lvNum}% &7(현재)" with lore "&7경험치: &5%{_cur}%&7/&f%{_need}%" and "&8[%{_bar}%&8] &5%{_pct}%%%" and "&7남은 경험치: &e%{_remain}%"
+        else if {_lvNum} < {_lv}:
+            if {_iconType} is "unlock":
+                set {_icon} to nether star named "&a✓ Lv.%{_lvNum}%" with lore "&a달성 완료" and "%{_reward}%"
+            else if {_iconType} is "chest" or "echest" or "shulker":
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%" with lore "&a수령 완료" and "%{_reward}%"
+            else if {_reward} is not "":
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%" with lore "&a달성 완료" and "%{_reward}%"
+            else:
+                set {_icon} to lime stained glass pane named "&a✓ Lv.%{_lvNum}%"
+        else:
+            if {_iconType} is "unlock":
+                set {_icon} to nether star named "&e★ Lv.%{_lvNum}%" with lore "&7탐험 티어 해금" and "%{_reward}%"
+            else if {_iconType} is "max":
+                set {_icon} to nether star named "&6&l★ Lv.50 만렙" with lore "%{_reward}%"
+            else if {_iconType} is "milestone":
+                set {_icon} to gold nugget named "&e☆ Lv.%{_lvNum}%" with lore "&7마일스톤 보상" and "%{_reward}%"
+            else if {_iconType} is "chest":
+                set {_icon} to chest named "&f Lv.%{_lvNum}%" with lore "&7레벨업 보상" and "%{_reward}%"
+            else if {_iconType} is "echest":
+                set {_icon} to ender chest named "&6 Lv.%{_lvNum}%" with lore "&6특별 레벨업 보상" and "%{_reward}%"
+            else if {_iconType} is "shulker":
+                set {_icon} to purple shulker box named "&d Lv.%{_lvNum}%" with lore "&d전설 레벨업 보상" and "%{_reward}%"
+            else:
+                set {_icon} to white stained glass pane named "&fLv.%{_lvNum}%"
+        set slot {_slot} of {_p}'s current inventory to {_icon}
+
+# 탐험 로드맵 클릭
+on inventory click:
+    if player's current inventory's name contains "&0탐험 로드맵":
+        cancel event
+        if event-item is arrow:
+            set {_ci} to index of clicked slot
+            set {_page} to {탐험GUI페이지::%player%}
+            if {_page} is not set:
+                set {_page} to 1
+            if {_ci} is 8:
+                wait 1 tick
+                탐험레벨GUI(player, {_page} + 1)
+            else if {_ci} is 0:
+                if {_page} > 1:
+                    wait 1 tick
+                    탐험레벨GUI(player, {_page} - 1)
+            else if {_ci} is 1:
+                close player's inventory
+                레벨선택GUI(player)
+
+# ===== 접속 시 초기화 =====
+on join:
+    if {탐험레벨::%player%} is not set:
+        set {탐험레벨::%player%} to 1
+        set {탐험경험치::%player%} to 0
+        set {탐험필요경험치::%player%} to 100
+
+# ===== 명령어 =====
+on tab complete of "/탐험레벨":
+    stop
+
+command /탐험레벨:
+    aliases: /xkagjafpqpf
+    trigger:
+        탐험레벨GUI(player, 1)

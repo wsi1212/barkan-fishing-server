@@ -1,7 +1,7 @@
 # =========================================
 # 수표.sk
 # /수표 <금액> [장수]
-# 돈 → 종이 수표로 출금 (수수료 5%, 올림)
+# 돈 → 종이 수표로 출금 (수수료 10%, 올림)
 # 우클릭/좌클릭 입금은 돈.sk 에서 처리
 # =========================================
 
@@ -12,7 +12,7 @@ options:
     hint: &7
     emph: &e
     info: &f
-    fee_rate: 0.05
+    fee_rate: 0.10
 
 on tab complete of "/수표":
     set tab completions for position 1 to "<금액>"
@@ -25,7 +25,7 @@ command /수표 [<text>] [<text>]:
             set {돈::%player%} to 0
 
         if arg-1 is not set:
-            message "{@prefix} {@hint}사용법: {@emph}/수표 <금액> [장수] {@hint}| 수수료: {@emph}5%%" to player
+            message "{@prefix} {@hint}사용법: {@emph}/수표 <금액> [장수] {@hint}| 수수료: {@emph}10%%" to player
             message "{@hint}손에 들고 우클릭 → 1장 입금 | 좌클릭 → 묶음 전체 입금" to player
             stop
 
@@ -78,3 +78,4 @@ command /수표 [<text>] [<text>]:
             message "{@prefix} {@good}발행 완료! {@hint}액면가: {@emph}%{_check}%원 {@hint}| 수수료: {@emph}%{_총수수료}%원 {@hint}| 잔액: {@emph}%{돈::%player%}%원" to player
         else:
             message "{@prefix} {@good}발행 완료! {@hint}액면가: {@emph}%{_총액면}%원 {@hint}(&f%{_count}%장{@hint}) | 수수료: {@emph}%{_총수수료}%원 {@hint}| 잔액: {@emph}%{돈::%player%}%원" to player
+        도전과제체크(player, "수표발행", "1")

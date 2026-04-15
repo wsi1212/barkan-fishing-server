@@ -1,0 +1,77 @@
+# =========================================
+# 유틸.sk
+# 공용 유틸리티 함수 — 한글 조사, 물고기 모델 등
+# =========================================
+
+# ===== 물고기 커스텀 모델 ID (리소스팩 연동) =====
+# 리소스팩 assets/minecraft/items/cod.json의 custom_model_data 키와 매칭
+function 물고기모델ID(name: text) :: text:
+    if {_name} is "용신":
+        return "dragon_god"
+    else if {_name} is "흰긴수염고래":
+        return "blue_whale"
+    else if {_name} is "사자갈기해파리":
+        return "lion_mane_jelly"
+    else if {_name} is "산갈치":
+        return "regalecus"
+    return ""
+
+# 물고기모델적용: 삭제됨 (section effect는 function 내 사용 불가)
+# 대신 호출부에서 직접 inline으로 apply custom model data 사용
+
+on load:
+    # 받침 없는 한글 글자 전체 (399자)
+    set {받침없는글자} to "가개갸걔거게겨계고과괘괴교구궈궤귀규그긔기까깨꺄꺠꺼께껴꼐꼬꽈꽤꾀꾜꾸꿔꿰뀌뀨끄끠끼나내냐냬너네녀녜노놔놰뇌뇨누눠눼뉘뉴느늬니다대댜댸더데뎌뎨도돠돼되됴두둬뒈뒤듀드듸디따때땨떄떠떼뗘뗴또똬뙈뙤뚀뚜뚸뛔뛰뜌뜨띄띠라래랴럐러레려례로롸뢔뢰료루뤄뤠뤼류르릐리마매먀먜머메며몌모뫄뫠뫼묘무뭐뭬뮈뮤므믜미바배뱌뱨버베벼볘보봐봬뵈뵤부붜붸뷔뷰브븨비빠빼뺘뺴뻐뻬뼈뼤뽀뽜뽸뾔뾰뿌뿨쀄쀠쀼쁘쁴삐사새샤섀서세셔셰소솨쇄쇠쇼수숴쉐쉬슈스싀시싸쌔쌰썌써쎄쎠쎼쏘쏴쐐쐬쑈쑤쒀쒜쒸쓔쓰씌씨아애야얘어에여예오와왜외요우워웨위유으의이자재쟈쟤저제져졔조좌좨죄죠주줘줴쥐쥬즈즤지짜째쨔쨰쩌쩨쪄쪠쪼쫘쫴쬐쬬쭈쭤쮀쮜쮸쯔쯰찌차채챠챼처체쳐쳬초촤쵀최쵸추춰췌취츄츠츼치카캐캬컈커케켜켸코콰쾌쾨쿄쿠쿼퀘퀴큐크킈키타태탸턔터테텨톄토톼퇘퇴툐투퉈퉤튀튜트틔티파패퍄퍠퍼페펴폐포퐈퐤푀표푸풔풰퓌퓨프픠피하해햐햬허헤혀혜호화홰회효후훠훼휘휴흐희히"
+
+# ===== 받침 여부 판별 =====
+# true = 받침 있음, false = 받침 없음
+function 받침있음(word: text) :: boolean:
+    set {_clean} to {_word}
+    replace all "&" with "" in {_clean}
+    # 색상 코드 잔여물 제거 (0~9, a~f, k~o, r)
+    replace all "§" with "" in {_clean}
+    if length of {_clean} < 1:
+        return false
+    set {_last} to last character of {_clean}
+    if {받침없는글자} contains {_last}:
+        return false
+    return true
+
+# ===== 조사 함수들 =====
+# 단어 + 적절한 조사를 붙여서 반환
+
+# 이/가
+function 이가(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%이"
+    return "%{_word}%가"
+
+# 을/를
+function 을를(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%을"
+    return "%{_word}%를"
+
+# 은/는
+function 은는(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%은"
+    return "%{_word}%는"
+
+# 으로/로
+function 으로로(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%으로"
+    return "%{_word}%로"
+
+# 과/와
+function 과와(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%과"
+    return "%{_word}%와"
+
+# 아/야 (호칭)
+function 아야(word: text) :: text:
+    if 받침있음({_word}) is true:
+        return "%{_word}%아"
+    return "%{_word}%야"

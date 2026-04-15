@@ -136,7 +136,7 @@ function openWorkbench(p: player):
                 add "&7내구도 &e: &f%{_dur}%/%{_maxdur}%" to {_lore::*}
                 set slot {_slot} of {_p}'s current inventory to {_icon} named "%{_color}%%{_equipped}%" with lore {_lore::*}
         else:
-            set slot {_slot} of {_p}'s current inventory to gray stained glass pane named "&c%{_type}% (없음)" with lore "&7장착된 %{_type}%이(가) 없습니다."
+            set slot {_slot} of {_p}'s current inventory to gray stained glass pane named "&c%{_type}% (없음)" with lore "&7장착된 %이가({_type})% 없습니다."
     # 2행 나머지 (14~17)
     set slot 14 of {_p}'s current inventory to black stained glass pane named "&f"
     set slot 15 of {_p}'s current inventory to black stained glass pane named "&f"
@@ -181,7 +181,7 @@ function showPartList(p: player, type: text):
     set {_slot} to 27
     # 해제 버튼 (현재 장착 중인 경우)
     if {낚싯대부품::%{_type}%::%{_p}%} is set:
-        set slot {_slot} of {_p}'s current inventory to barrier named "&c%{_type}% 해제" with lore "&7현재 장착된 %{_type}%을(를) 해제합니다."
+        set slot {_slot} of {_p}'s current inventory to barrier named "&c%{_type}% 해제" with lore "&7현재 장착된 %을를({_type})% 해제합니다."
         add 1 to {_slot}
     # 아이템 슬롯: {_slot} ~ 42 (43,44는 네비용)
     set {_perPage} to 43 - {_slot}
@@ -272,20 +272,25 @@ function equipPart(p: player, type: text, name: text):
                 add {_old} to {부품인벤::%{_type}%::%{_p}%::*}
     set {_grade} to get_part_grade({_type}, {_name})
     set {_color} to part_grade_color({_grade})
-    message "&8[&e 장비 &8] %{_color}%%{_name}%&a을(를) %{_type}% 슬롯에 장착했습니다." to {_p}
+    message "&8[&e 장비 &8] %{_color}%%을를({_name})%&a %{_type}% 슬롯에 장착했습니다." to {_p}
+    # 도전과제 훅 (조합 카운터)
+    if {총조합::%{_p}%} is not set:
+        set {총조합::%{_p}%} to 0
+    add 1 to {총조합::%{_p}%}
+    도전과제체크({_p}, "조합", "%{총조합::%{_p}%}%")
 
 # ===== 부품 해제 =====
 function unequipPart(p: player, type: text):
     set {_old} to {낚싯대부품::%{_type}%::%{_p}%}
     if {_old} is not set:
-        message "&8[&e 장비 &8] &c해제할 %{_type}%이(가) 없습니다." to {_p}
+        message "&8[&e 장비 &8] &c해제할 %이가({_type})% 없습니다." to {_p}
         stop
     # 미끼가 아닌 부품은 보유 목록으로 복귀
     if {_type} is not "미끼":
         add {_old} to {부품인벤::%{_type}%::%{_p}%::*}
     delete {낚싯대부품::%{_type}%::%{_p}%}
     delete {부품내구도::%{_type}%::%{_p}%}
-    message "&8[&e 장비 &8] &c%{_old}%을(를) 해제했습니다." to {_p}
+    message "&8[&e 장비 &8] &c%을를({_old})% 해제했습니다." to {_p}
 
 # ===== 작업대 GUI 클릭 =====
 on inventory click:
@@ -408,7 +413,7 @@ function reduceDurability(p: player):
                     delete {낚싯대부품::%{_type}%::%{_p}%}
                     delete {부품내구도::%{_type}%::%{_p}%}
                     set {_color} to part_grade_color(get_part_grade({_type}, {_name}))
-                    message "&8[&e 장비 &8] &c%{_color}%%{_name}%&c이(가) 파괴되었습니다!" to {_p}
+                    message "&8[&e 장비 &8] &c%{_color}%%이가({_name})%&c 파괴되었습니다!" to {_p}
 
 # ===== 장비 완전 장착 여부 확인 =====
 function hasFullEquipment(p: player) :: boolean:

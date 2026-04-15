@@ -402,7 +402,7 @@ on inventory click:
                     set {아이스박스등급::%player%} to {_id}
                     set {_color} to iceboxColor({_id})
                     set {_name} to iceboxName({_id})
-                    message "{@ice_prefix} %{_color}%%{_name}%&a을(를) 구매했습니다! &7(-%{_price}%원 | 잔액: %{돈::%player%}%원)" to player
+                    message "{@ice_prefix} %{_color}%%을를({_name})%&a 구매했습니다! &7(-%{_price}%원 | 잔액: %{돈::%player%}%원)" to player
                     message "{@ice_prefix} &7/아이스박스 &f명령어로 열 수 있습니다." to player
                     wait 1 tick
                     openIceboxShop(player)

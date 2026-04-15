@@ -59,10 +59,13 @@ function 조합재료드롭체크(p: player, area: text):
                 set lore of {_item} to "&7%{_matData::3}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
                 if {_p} can hold {_item}:
                     give {_item} to {_p}
-                    message "&8[&6 재료 &8] &e%{_matName}%&7을(를) 발견했습니다!" to {_p}
+                    message "&8[&6 재료 &8] &e%을를({_matName})%&7 발견했습니다!" to {_p}
                 else:
                     drop {_item} at {_p}'s location
-                    message "&8[&6 재료 &8] &e%{_matName}%&7을(를) 발견했지만 인벤이 가득 찼습니다!" to {_p}
+                    message "&8[&6 재료 &8] &e%을를({_matName})%&7 발견했지만 인벤이 가득 찼습니다!" to {_p}
+                도감_재료({_p}, {_matId})
+                # 퀘스트 훅: 재료 획득
+                퀘스트_재료({_p}, {_matId})
 
 # ===== 재료 확인 함수 =====
 function 조합재료여부(item: item) :: boolean:

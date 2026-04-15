@@ -6,6 +6,11 @@ options:
     bank_color_bad: &c
     bank_color_emph: &e
 
+on tab complete of "/돈":
+    set tab completions for position 1 to "설정"
+    set tab completions for position 2 to names of all players
+    set tab completions for position 3 to "<금액>"
+
 command /돈 [<text>] [<text>] [<text>]:
     aliases: /ehs
     trigger:
@@ -53,6 +58,7 @@ command /돈 [<text>] [<text>] [<text>]:
             set {돈::%{_target}%} to {_amt}
             message "{@bank_prefix} {@bank_color_emph}관리자 &f%player's name%{@bank_color_emph}님이 잔액을 {@bank_color_good}%{_amt}%원{@bank_color_emph}으로 설정했습니다." to {_target}
             message "{@bank_prefix} {@bank_color_good}설정 완료! {@bank_color_info}%arg-2%{@bank_color_hint}님의 잔액을 {@bank_color_emph}%{_amt}%원{@bank_color_hint}으로 변경했습니다." to player
+            사이드바업데이트({_target})
             stop
 
         # /돈 보내기|송금 플레이어 금액 (온라인 플레이어만)
@@ -95,6 +101,8 @@ command /돈 [<text>] [<text>] [<text>]:
 
             message "{@bank_prefix} {@bank_color_good}송금 완료! {@bank_color_info}%arg-2%{@bank_color_hint}님에게 {@bank_color_emph}%{_pay}%원{@bank_color_hint}을 보냈습니다. | 잔액: {@bank_color_info}%{돈::%player%}%원" to player
             message "{@bank_prefix} {@bank_color_good}입금 알림! {@bank_color_info}%player's name%{@bank_color_hint}님이 {@bank_color_emph}%{_pay}%원{@bank_color_hint}을 송금했습니다." to {_target}
+            사이드바업데이트(player)
+            사이드바업데이트({_target})
             stop
 
 

@@ -1,0 +1,131 @@
+# ===== 스킬 레벨 선택 허브 =====
+# /레벨 → 낚시/재배/채굴/요리/탐험/수집 선택 GUI
+
+function 스킬진행바(cur: number, need: number, color: text) :: text:
+    set {_fill} to floor({_cur} * 10 / {_need})
+    if {_fill} > 10:
+        set {_fill} to 10
+    set {_bar} to ""
+    if {_fill} > 0:
+        loop {_fill} times:
+            set {_bar} to "%{_bar}%%{_color}%▮"
+    set {_empty} to 10 - {_fill}
+    if {_empty} > 0:
+        loop {_empty} times:
+            set {_bar} to "%{_bar}%&8▯"
+    return {_bar}
+
+function 레벨선택GUI(p: player):
+    set {_gui} to chest inventory with 3 rows named "&0스킬 레벨"
+    loop integers from 0 to 26:
+        set slot loop-integer of {_gui} to black stained glass pane named "&f"
+    # --- 낚시 (slot 10) ---
+    set {_flv} to {낚시레벨::%{_p}%}
+    if {_flv} is not set:
+        set {_flv} to 1
+    set {_fcur} to {낚시레벨현재경험치::%{_p}%}
+    if {_fcur} is not set:
+        set {_fcur} to 0
+    set {_fneed} to {낚시레벨필요경험치::%{_p}%}
+    if {_fneed} is not set:
+        set {_fneed} to 200
+    set {_fpct} to floor({_fcur} * 100 / {_fneed})
+    set {_fbar} to 스킬진행바({_fcur}, {_fneed}, "&b")
+    set slot 10 of {_gui} to fishing rod named "&b&l낚시 &fLv.%{_flv}%" with lore "&7%{_fbar}% &f%{_fpct}%%%" and "&7%{_fcur}% / %{_fneed}% XP" and "" and "&e클릭하여 상세 보기"
+    # --- 재배 (slot 11) ---
+    set {_glv} to {재배레벨::%{_p}%}
+    if {_glv} is not set:
+        set {_glv} to 1
+    set {_gcur} to {재배경험치::%{_p}%}
+    if {_gcur} is not set:
+        set {_gcur} to 0
+    set {_gneed} to {재배필요경험치::%{_p}%}
+    if {_gneed} is not set:
+        set {_gneed} to 100
+    set {_gpct} to floor({_gcur} * 100 / {_gneed})
+    set {_gbar} to 스킬진행바({_gcur}, {_gneed}, "&a")
+    set slot 11 of {_gui} to wheat named "&a&l재배 &fLv.%{_glv}%" with lore "&7%{_gbar}% &f%{_gpct}%%%" and "&7%{_gcur}% / %{_gneed}% XP" and "" and "&e클릭하여 상세 보기"
+    # --- 채굴 (slot 12) ---
+    set {_mlv} to {채굴레벨::%{_p}%}
+    if {_mlv} is not set:
+        set {_mlv} to 1
+    set {_mcur} to {채굴경험치::%{_p}%}
+    if {_mcur} is not set:
+        set {_mcur} to 0
+    set {_mneed} to {채굴필요경험치::%{_p}%}
+    if {_mneed} is not set:
+        set {_mneed} to 100
+    set {_mpct} to floor({_mcur} * 100 / {_mneed})
+    set {_mbar} to 스킬진행바({_mcur}, {_mneed}, "&e")
+    set slot 12 of {_gui} to diamond pickaxe named "&e&l채굴 &fLv.%{_mlv}%" with lore "&7%{_mbar}% &f%{_mpct}%%%" and "&7%{_mcur}% / %{_mneed}% XP" and "" and "&e클릭하여 상세 보기"
+    # --- 요리 (slot 13) ---
+    set {_clv} to {요리레벨::%{_p}%}
+    if {_clv} is not set:
+        set {_clv} to 1
+    set {_ccur} to {요리경험치::%{_p}%}
+    if {_ccur} is not set:
+        set {_ccur} to 0
+    set {_cneed} to {요리필요경험치::%{_p}%}
+    if {_cneed} is not set:
+        set {_cneed} to 100
+    set {_cpct} to floor({_ccur} * 100 / {_cneed})
+    set {_cbar} to 스킬진행바({_ccur}, {_cneed}, "&6")
+    set slot 13 of {_gui} to bread named "&6&l요리 &fLv.%{_clv}%" with lore "&7%{_cbar}% &f%{_cpct}%%%" and "&7%{_ccur}% / %{_cneed}% XP" and "" and "&e클릭하여 상세 보기"
+    # --- 탐험 (slot 14) ---
+    set {_elv} to {탐험레벨::%{_p}%}
+    if {_elv} is not set:
+        set {_elv} to 1
+    set {_ecur} to {탐험경험치::%{_p}%}
+    if {_ecur} is not set:
+        set {_ecur} to 0
+    set {_eneed} to {탐험필요경험치::%{_p}%}
+    if {_eneed} is not set:
+        set {_eneed} to 100
+    set {_epct} to floor({_ecur} * 100 / {_eneed})
+    set {_ebar} to 스킬진행바({_ecur}, {_eneed}, "&5")
+    set slot 14 of {_gui} to compass named "&5&l탐험 &fLv.%{_elv}%" with lore "&7%{_ebar}% &f%{_epct}%%%" and "&7%{_ecur}% / %{_eneed}% XP" and "" and "&e클릭하여 상세 보기"
+    # --- 수집 (slot 15) ---
+    set {_slv} to {수집레벨::%{_p}%}
+    if {_slv} is not set:
+        set {_slv} to 1
+    set {_scur} to {수집경험치::%{_p}%}
+    if {_scur} is not set:
+        set {_scur} to 0
+    set {_sneed} to {수집필요경험치::%{_p}%}
+    if {_sneed} is not set:
+        set {_sneed} to 100
+    set {_spct} to floor({_scur} * 100 / {_sneed})
+    set {_sbar} to 스킬진행바({_scur}, {_sneed}, "&d")
+    set slot 15 of {_gui} to chest named "&d&l수집 &fLv.%{_slv}%" with lore "&7%{_sbar}% &f%{_spct}%%%" and "&7%{_scur}% / %{_sneed}% XP" and "" and "&e클릭하여 상세 보기"
+    open {_gui} to {_p}
+
+on inventory click:
+    if player's current inventory's name is "&0스킬 레벨":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 10:
+            wait 1 tick
+            레벨로드맵GUI(player, 1)
+        else if {_ci} is 11:
+            wait 1 tick
+            재배레벨GUI(player, 1)
+        else if {_ci} is 12:
+            wait 1 tick
+            채굴레벨GUI(player, 1)
+        else if {_ci} is 13:
+            wait 1 tick
+            요리레벨GUI(player, 1)
+        else if {_ci} is 14:
+            wait 1 tick
+            탐험레벨GUI(player, 1)
+        else if {_ci} is 15:
+            wait 1 tick
+            수집레벨GUI(player, 1)
+
+on tab complete of "/레벨":
+    stop
+
+command /레벨:
+    aliases: /fpqpf
+    trigger:
+        레벨선택GUI(player)

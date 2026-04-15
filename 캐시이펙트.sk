@@ -1,0 +1,464 @@
+# =========================================
+# 캐시이펙트.sk
+# 후원자/캐시 전용 시각 효과 시스템
+# 낚시 이펙트, 프리미엄 자랑, 날개, 오라 등
+# =========================================
+
+# ===== 이펙트 데이터 =====
+on load:
+    # 이펙트 종류 등록
+    # 형식: {이펙트데이터::ID} = "이름|설명|타입"
+    # 타입: fishing(낚시 성공), show(물고기 자랑), aura(상시 오라), wing(날개)
+    delete {이펙트데이터::*}
+    delete {이펙트목록::*}
+
+    # --- 낚시 이펙트 (물고기 잡을 때) ---
+    set {이펙트데이터::황금빛} to "황금빛 폭발|&eS등급 이상 잡을 때 금색 파티클 폭발|fishing"
+    set {이펙트데이터::불꽃놀이} to "불꽃놀이|&c물고기 잡을 때 불꽃 파티클|fishing"
+    set {이펙트데이터::벚꽃} to "벚꽃 바람|&d물고기 잡을 때 분홍 꽃잎이 흩날림|fishing"
+    set {이펙트데이터::번개} to "번개 강타|&bA등급 이상 잡을 때 번개 이펙트|fishing"
+    set {이펙트데이터::눈꽃} to "눈꽃 결정|&f물고기 잡을 때 눈 결정 파티클|fishing"
+    add "황금빛" to {이펙트목록::*}
+    add "불꽃놀이" to {이펙트목록::*}
+    add "벚꽃" to {이펙트목록::*}
+    add "번개" to {이펙트목록::*}
+    add "눈꽃" to {이펙트목록::*}
+
+    # --- 자랑 이펙트 (큰 물고기 들었을 때) ---
+    set {이펙트데이터::팡파레} to "팡파레|&e큰 물고기 자랑 시 팡파레 + 금색 파티클|show"
+    set {이펙트데이터::무지개} to "무지개 오라|&d큰 물고기 자랑 시 무지개 원형 파티클|show"
+    set {이펙트데이터::용오름} to "용오름|&c큰 물고기 자랑 시 불기둥 상승 이펙트|show"
+    add "팡파레" to {이펙트목록::*}
+    add "무지개" to {이펙트목록::*}
+    add "용오름" to {이펙트목록::*}
+
+    # --- 오라 이펙트 (상시 발동, 낚시 중) ---
+    set {이펙트데이터::불꽃오라} to "불꽃 오라|&c낚시 중 발 아래 불꽃 파티클|aura"
+    set {이펙트데이터::물방울오라} to "물방울 오라|&b낚시 중 주변에 물방울 파티클|aura"
+    set {이펙트데이터::별빛오라} to "별빛 오라|&e낚시 중 머리 위에 반짝이는 별|aura"
+    add "불꽃오라" to {이펙트목록::*}
+    add "물방울오라" to {이펙트목록::*}
+    add "별빛오라" to {이펙트목록::*}
+
+    # --- 날개 이펙트 (상시, 등 뒤 파티클) ---
+    set {이펙트데이터::천사날개} to "천사 날개|&f하얀 깃털 파티클 날개|wing"
+    set {이펙트데이터::악마날개} to "악마 날개|&4붉은 불꽃 파티클 날개|wing"
+    set {이펙트데이터::나비날개} to "나비 날개|&d보라+분홍 파티클 날개|wing"
+    set {이펙트데이터::용날개} to "용 날개|&6주황+금색 파티클 날개|wing"
+    add "천사날개" to {이펙트목록::*}
+    add "악마날개" to {이펙트목록::*}
+    add "나비날개" to {이펙트목록::*}
+    add "용날개" to {이펙트목록::*}
+
+# ===== 이펙트 선택/변경 명령어 =====
+command /이펙트 [<text>]:
+    aliases: /dlvpdxm
+    trigger:
+        if arg-1 is not set:
+            이펙트GUI(player)
+        else if arg-1 is "해제":
+            delete {장착이펙트::낚시::%player%}
+            delete {장착이펙트::자랑::%player%}
+            delete {장착이펙트::오라::%player%}
+            delete {장착이펙트::날개::%player%}
+            message "&8[&d 이펙트 &8] &7모든 이펙트가 해제되었습니다." to player
+
+on tab complete of "/이펙트":
+    set tab completions for position 1 to "해제"
+
+# ===== 이펙트 선택 GUI =====
+function 이펙트GUI(p: player):
+    open chest inventory with 6 rows named "&0이펙트 설정" to {_p}
+    wait 1 tick
+    # 상단 바
+    loop 9 times:
+        set slot (loop-number - 1) of {_p}'s current inventory to black stained glass pane named "&f"
+    set slot 4 of {_p}'s current inventory to firework rocket named "&d&l이펙트 설정" with lore "&7보유한 이펙트를 장착/해제합니다."
+
+    # 낚시 이펙트 (slot 9~)
+    set slot 9 of {_p}'s current inventory to fishing rod named "&e&l낚시 이펙트" with lore "&7물고기 잡을 때 발동"
+    set {_slot} to 10
+    loop {이펙트목록::*}:
+        set {_id} to loop-value
+        set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+        if {_data::3} is "fishing":
+            이펙트슬롯세팅({_p}, {_slot}, {_id}, {_data::1}, {_data::2}, "낚시")
+            add 1 to {_slot}
+
+    # 자랑 이펙트 (slot 18~)
+    set slot 18 of {_p}'s current inventory to golden apple named "&6&l자랑 이펙트" with lore "&7큰 물고기 자랑 시 발동"
+    set {_slot} to 19
+    loop {이펙트목록::*}:
+        set {_id} to loop-value
+        set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+        if {_data::3} is "show":
+            이펙트슬롯세팅({_p}, {_slot}, {_id}, {_data::1}, {_data::2}, "자랑")
+            add 1 to {_slot}
+
+    # 오라 이펙트 (slot 27~)
+    set slot 27 of {_p}'s current inventory to blaze powder named "&c&l오라 이펙트" with lore "&7낚시 중 상시 발동"
+    set {_slot} to 28
+    loop {이펙트목록::*}:
+        set {_id} to loop-value
+        set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+        if {_data::3} is "aura":
+            이펙트슬롯세팅({_p}, {_slot}, {_id}, {_data::1}, {_data::2}, "오라")
+            add 1 to {_slot}
+
+    # 날개 이펙트 (slot 36~)
+    set slot 36 of {_p}'s current inventory to elytra named "&b&l날개 이펙트" with lore "&7등 뒤에 파티클 날개 표시"
+    set {_slot} to 37
+    loop {이펙트목록::*}:
+        set {_id} to loop-value
+        set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+        if {_data::3} is "wing":
+            이펙트슬롯세팅({_p}, {_slot}, {_id}, {_data::1}, {_data::2}, "날개")
+            add 1 to {_slot}
+
+    # 전체 해제
+    set slot 49 of {_p}'s current inventory to barrier named "&c&l전체 해제" with lore "&7모든 이펙트를 해제합니다."
+
+function 이펙트슬롯세팅(p: player, slot: integer, id: text, name: text, desc: text, category: text):
+    set {_owned} to {캐시외형::%{_p}%::cosmetic:%{_id}%}
+    set {_equipped} to {장착이펙트::%{_category}%::%{_p}%}
+    delete {_lore::*}
+    add {_desc} to {_lore::*}
+    add "" to {_lore::*}
+    if {_owned} is true:
+        if {_equipped} is {_id}:
+            add "&a✔ 장착 중" to {_lore::*}
+            add "&7클릭하여 해제" to {_lore::*}
+            set slot {_slot} of {_p}'s current inventory to lime stained glass pane named "&a%{_name}%" with lore {_lore::*}
+        else:
+            add "&e보유 중" to {_lore::*}
+            add "&7클릭하여 장착" to {_lore::*}
+            set slot {_slot} of {_p}'s current inventory to yellow stained glass pane named "&e%{_name}%" with lore {_lore::*}
+    else:
+        add "&c미보유" to {_lore::*}
+        add "&7/캐시상점에서 구매하세요" to {_lore::*}
+        set slot {_slot} of {_p}'s current inventory to red stained glass pane named "&c%{_name}%" with lore {_lore::*}
+    set {이펙트GUI슬롯::%{_p}%::%{_slot}%} to "%{_id}%:%{_category}%"
+
+# ===== GUI 클릭 =====
+on inventory click:
+    if player's current inventory's name is "&0이펙트 설정":
+        cancel event
+        set {_ci} to index of clicked slot
+        if {_ci} is 49:
+            delete {장착이펙트::낚시::%player%}
+            delete {장착이펙트::자랑::%player%}
+            delete {장착이펙트::오라::%player%}
+            delete {장착이펙트::날개::%player%}
+            message "&8[&d 이펙트 &8] &7모든 이펙트가 해제되었습니다." to player
+            play sound "ui.button.click" with volume 0.5 and pitch 1 to player
+            wait 1 tick
+            이펙트GUI(player)
+            stop
+        set {_mapping} to {이펙트GUI슬롯::%player%::%{_ci}%}
+        if {_mapping} is set:
+            set {_parts::*} to split {_mapping} at ":"
+            set {_id} to {_parts::1}
+            set {_cat} to {_parts::2}
+            # 보유 체크
+            if {캐시외형::%player%::cosmetic:%{_id}%} is not true:
+                message "&c이 이펙트를 보유하고 있지 않습니다. &7/캐시상점에서 구매하세요." to player
+                stop
+            # 토글
+            if {장착이펙트::%{_cat}%::%player%} is {_id}:
+                delete {장착이펙트::%{_cat}%::%player%}
+                set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+                message "&8[&d 이펙트 &8] &7%{_data::1}% &7이펙트를 해제했습니다." to player
+            else:
+                set {장착이펙트::%{_cat}%::%player%} to {_id}
+                set {_data::*} to split {이펙트데이터::%{_id}%} at "|"
+                message "&8[&d 이펙트 &8] &a%{_data::1}% &a이펙트를 장착했습니다!" to player
+            play sound "ui.button.click" with volume 0.5 and pitch 1.2 to player
+            wait 1 tick
+            이펙트GUI(player)
+
+# ========================================
+# 이펙트 실행 함수 (다른 .sk에서 호출)
+# ========================================
+
+# ===== 낚시 성공 이펙트 =====
+function 캐시이펙트_낚시성공(p: player, grade: text):
+    set {_fx} to {장착이펙트::낚시::%{_p}%}
+    if {_fx} is not set:
+        stop
+    set {_loc} to location of {_p}
+    add 1 to y-coordinate of {_loc}
+
+    if {_fx} is "황금빛":
+        # S등급 이상에서만 발동
+        if {_grade} is "S" or "S+" or "M" or "L" or "G":
+            execute console command "particle dust_color_transition 1.0 0.84 0.0 2.0 1.0 1.0 0.0 %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.5 0.8 0.5 0.1 30 force"
+            play sound "entity.firework_rocket.twinkle" with volume 1 and pitch 1.5 to {_p}
+
+    else if {_fx} is "불꽃놀이":
+        execute console command "particle flame %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.3 0.5 0.3 0.05 20 force"
+        play sound "entity.firework_rocket.blast" with volume 0.8 and pitch 1.2 to {_p}
+
+    else if {_fx} is "벚꽃":
+        execute console command "particle cherry_leaves %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.5 1 0.5 0.02 25 force"
+        play sound "block.cherry_leaves.place" with volume 1 and pitch 1 to {_p}
+
+    else if {_fx} is "번개":
+        # A등급 이상에서만 발동
+        if {_grade} is "A" or "S" or "S+" or "M" or "L" or "G":
+            strike lightning effect at location of {_p}
+            play sound "entity.lightning_bolt.thunder" with volume 0.5 and pitch 1.5 to {_p}
+
+    else if {_fx} is "눈꽃":
+        execute console command "particle snowflake %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.5 1 0.5 0.02 30 force"
+        play sound "block.powder_snow.step" with volume 1 and pitch 1.5 to {_p}
+
+# ===== 물고기 자랑 이펙트 =====
+function 캐시이펙트_자랑(p: player):
+    set {_fx} to {장착이펙트::자랑::%{_p}%}
+    if {_fx} is not set:
+        stop
+    set {_loc} to location of {_p}
+    add 2 to y-coordinate of {_loc}
+
+    if {_fx} is "팡파레":
+        play sound "ui.toast.challenge_complete" with volume 1 and pitch 1.2 to {_p}
+        execute console command "particle dust_color_transition 1.0 0.84 0.0 2.0 1.0 1.0 0.0 %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 1 1 1 0.05 50 force"
+        wait 5 ticks
+        execute console command "particle totem_of_undying %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.5 1 0.5 0.3 40 force"
+
+    else if {_fx} is "무지개":
+        # 여러 색 파티클을 원형으로
+        loop 7 times:
+            set {_angle} to (loop-number - 1) * 51.4
+            set {_rad} to {_angle} * 3.14159 / 180
+            set {_dx} to 1.5 * cos({_rad})
+            set {_dz} to 1.5 * sin({_rad})
+            set {_r} to sin((loop-number * 51.4) * 3.14159 / 180) * 0.5 + 0.5
+            set {_g} to sin((loop-number * 51.4 + 120) * 3.14159 / 180) * 0.5 + 0.5
+            set {_b} to sin((loop-number * 51.4 + 240) * 3.14159 / 180) * 0.5 + 0.5
+            execute console command "particle dust_color_transition %{_r}% %{_g}% %{_b}% 1.5 %{_r}% %{_g}% %{_b}% %x-coordinate of {_loc} + {_dx}% %y-coordinate of {_loc}% %z-coordinate of {_loc} + {_dz}% 0.1 0.3 0.1 0.01 5 force"
+        play sound "block.amethyst_block.chime" with volume 1 and pitch 0.8 to {_p}
+
+    else if {_fx} is "용오름":
+        loop 10 times:
+            set {_y} to y-coordinate of {_loc} + (loop-number * 0.3)
+            execute console command "particle flame %x-coordinate of {_loc}% %{_y}% %z-coordinate of {_loc}% 0.2 0 0.2 0.05 10 force"
+            wait 1 tick
+        play sound "entity.blaze.shoot" with volume 0.8 and pitch 0.5 to {_p}
+
+# ===== 오라 이펙트 (매 2초 반복) =====
+every 2 seconds:
+    loop all players:
+        set {_fx} to {장착이펙트::오라::%loop-player%}
+        if {_fx} is set:
+            # 낚시 중인지 체크 (선택: 항상 or 낚시 중만)
+            set {_loc} to location of loop-player
+            if {_fx} is "불꽃오라":
+                execute console command "particle flame %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% 0.3 0.1 0.3 0.01 5 force"
+            else if {_fx} is "물방울오라":
+                execute console command "particle dripping_water %x-coordinate of {_loc}% %y-coordinate of {_loc} + 1% %z-coordinate of {_loc}% 0.4 0.5 0.4 0.01 8 force"
+            else if {_fx} is "별빛오라":
+                execute console command "particle end_rod %x-coordinate of {_loc}% %y-coordinate of {_loc} + 2.2% %z-coordinate of {_loc}% 0.2 0.1 0.2 0.01 3 force"
+
+# ===== 날개 이펙트 (매 4틱 반복) =====
+# 날개 모양: 플레이어 등 뒤에 좌우 대칭으로 파티클 점을 찍어 윤곽선 형성
+# 좌표: (옆으로 거리, 높이) 쌍으로 정의, yaw 기준 회전 적용
+# 날개 윤곽점 데이터 (한쪽 기준, 반대쪽은 좌우반전)
+#   (side, up) = 옆으로 얼마나, 위로 얼마나
+on load:
+    # ===== 천사 날개: 깃털이 겹겹이 채워진 넓은 날개 =====
+    # 이미지 참고: 위로 펼쳐지고 아래로 길게 늘어지는 깃털
+    # (옆거리|높이) — 내부를 빽빽하게 채움
+    delete {날개좌표::천사::*}
+    # 최하단 깃털 (길게 늘어지는 부분)
+    add "0.1|0.0" to {날개좌표::천사::*}
+    add "0.2|0.0" to {날개좌표::천사::*}
+    add "0.3|-0.05" to {날개좌표::천사::*}
+    add "0.4|-0.1" to {날개좌표::천사::*}
+    add "0.5|-0.12" to {날개좌표::천사::*}
+    add "0.6|-0.1" to {날개좌표::천사::*}
+    add "0.7|-0.05" to {날개좌표::천사::*}
+    # 2번째 깃털층
+    add "0.1|0.15" to {날개좌표::천사::*}
+    add "0.2|0.15" to {날개좌표::천사::*}
+    add "0.35|0.12" to {날개좌표::천사::*}
+    add "0.5|0.1" to {날개좌표::천사::*}
+    add "0.65|0.12" to {날개좌표::천사::*}
+    add "0.8|0.15" to {날개좌표::천사::*}
+    # 3번째 깃털층
+    add "0.1|0.3" to {날개좌표::천사::*}
+    add "0.25|0.3" to {날개좌표::천사::*}
+    add "0.4|0.28" to {날개좌표::천사::*}
+    add "0.55|0.3" to {날개좌표::천사::*}
+    add "0.7|0.32" to {날개좌표::천사::*}
+    add "0.85|0.35" to {날개좌표::천사::*}
+    # 4번째 깃털층
+    add "0.1|0.45" to {날개좌표::천사::*}
+    add "0.25|0.45" to {날개좌표::천사::*}
+    add "0.4|0.45" to {날개좌표::천사::*}
+    add "0.55|0.48" to {날개좌표::천사::*}
+    add "0.7|0.5" to {날개좌표::천사::*}
+    add "0.85|0.55" to {날개좌표::천사::*}
+    add "0.95|0.6" to {날개좌표::천사::*}
+    # 5번째 깃털층
+    add "0.1|0.6" to {날개좌표::천사::*}
+    add "0.25|0.6" to {날개좌표::천사::*}
+    add "0.4|0.62" to {날개좌표::천사::*}
+    add "0.55|0.65" to {날개좌표::천사::*}
+    add "0.7|0.7" to {날개좌표::천사::*}
+    add "0.85|0.75" to {날개좌표::천사::*}
+    add "1.0|0.8" to {날개좌표::천사::*}
+    # 상단 (위로 솟은 부분)
+    add "0.1|0.75" to {날개좌표::천사::*}
+    add "0.25|0.78" to {날개좌표::천사::*}
+    add "0.4|0.82" to {날개좌표::천사::*}
+    add "0.55|0.88" to {날개좌표::천사::*}
+    add "0.7|0.92" to {날개좌표::천사::*}
+    add "0.85|0.95" to {날개좌표::천사::*}
+    # 꼭대기
+    add "0.15|0.9" to {날개좌표::천사::*}
+    add "0.3|0.95" to {날개좌표::천사::*}
+    add "0.45|1.0" to {날개좌표::천사::*}
+    add "0.6|1.05" to {날개좌표::천사::*}
+    add "0.75|1.05" to {날개좌표::천사::*}
+
+    # ===== 악마 날개: 뾰족한 갈래 + 내부 채움 =====
+    delete {날개좌표::악마::*}
+    add "0.1|0.0" to {날개좌표::악마::*}
+    add "0.2|0.05" to {날개좌표::악마::*}
+    add "0.3|0.15" to {날개좌표::악마::*}
+    add "0.15|0.2" to {날개좌표::악마::*}
+    add "0.3|0.35" to {날개좌표::악마::*}
+    add "0.45|0.5" to {날개좌표::악마::*}
+    add "0.2|0.4" to {날개좌표::악마::*}
+    add "0.35|0.55" to {날개좌표::악마::*}
+    add "0.5|0.7" to {날개좌표::악마::*}
+    add "0.65|0.85" to {날개좌표::악마::*}
+    add "0.25|0.6" to {날개좌표::악마::*}
+    add "0.4|0.75" to {날개좌표::악마::*}
+    add "0.55|0.9" to {날개좌표::악마::*}
+    add "0.7|1.05" to {날개좌표::악마::*}
+    add "0.85|1.2" to {날개좌표::악마::*}
+    # 갈래 끝 (뾰족)
+    add "0.6|0.55" to {날개좌표::악마::*}
+    add "0.75|0.7" to {날개좌표::악마::*}
+    add "0.9|0.85" to {날개좌표::악마::*}
+    add "0.8|0.5" to {날개좌표::악마::*}
+    add "0.95|0.65" to {날개좌표::악마::*}
+
+    # ===== 나비 날개: 둥글게 채워진 상하 날개 =====
+    delete {날개좌표::나비::*}
+    # 아래 날개 (작은 원형)
+    add "0.15|0.0" to {날개좌표::나비::*}
+    add "0.3|0.0" to {날개좌표::나비::*}
+    add "0.4|-0.05" to {날개좌표::나비::*}
+    add "0.2|0.1" to {날개좌표::나비::*}
+    add "0.35|0.1" to {날개좌표::나비::*}
+    add "0.45|0.05" to {날개좌표::나비::*}
+    add "0.25|0.2" to {날개좌표::나비::*}
+    add "0.15|0.15" to {날개좌표::나비::*}
+    # 위 날개 (큰 원형)
+    add "0.15|0.35" to {날개좌표::나비::*}
+    add "0.3|0.35" to {날개좌표::나비::*}
+    add "0.45|0.38" to {날개좌표::나비::*}
+    add "0.6|0.42" to {날개좌표::나비::*}
+    add "0.2|0.5" to {날개좌표::나비::*}
+    add "0.35|0.52" to {날개좌표::나비::*}
+    add "0.5|0.55" to {날개좌표::나비::*}
+    add "0.65|0.58" to {날개좌표::나비::*}
+    add "0.75|0.6" to {날개좌표::나비::*}
+    add "0.25|0.65" to {날개좌표::나비::*}
+    add "0.4|0.68" to {날개좌표::나비::*}
+    add "0.55|0.72" to {날개좌표::나비::*}
+    add "0.7|0.75" to {날개좌표::나비::*}
+    add "0.3|0.8" to {날개좌표::나비::*}
+    add "0.45|0.85" to {날개좌표::나비::*}
+    add "0.6|0.88" to {날개좌표::나비::*}
+    add "0.35|0.95" to {날개좌표::나비::*}
+    add "0.5|0.95" to {날개좌표::나비::*}
+
+    # ===== 용 날개: 박쥐형, 뼈대+막 =====
+    delete {날개좌표::용::*}
+    # 뼈대 (메인 줄기)
+    add "0.1|0.0" to {날개좌표::용::*}
+    add "0.2|0.2" to {날개좌표::용::*}
+    add "0.3|0.4" to {날개좌표::용::*}
+    add "0.4|0.6" to {날개좌표::용::*}
+    add "0.5|0.8" to {날개좌표::용::*}
+    add "0.6|1.0" to {날개좌표::용::*}
+    add "0.7|1.15" to {날개좌표::용::*}
+    # 갈래 1
+    add "0.75|1.0" to {날개좌표::용::*}
+    add "0.85|0.85" to {날개좌표::용::*}
+    add "0.95|0.7" to {날개좌표::용::*}
+    # 갈래 2
+    add "0.65|0.8" to {날개좌표::용::*}
+    add "0.8|0.65" to {날개좌표::용::*}
+    add "0.9|0.5" to {날개좌표::용::*}
+    # 갈래 3
+    add "0.55|0.6" to {날개좌표::용::*}
+    add "0.7|0.45" to {날개좌표::용::*}
+    add "0.85|0.3" to {날개좌표::용::*}
+    # 막 채움
+    add "0.35|0.25" to {날개좌표::용::*}
+    add "0.5|0.45" to {날개좌표::용::*}
+    add "0.65|0.65" to {날개좌표::용::*}
+    add "0.45|0.35" to {날개좌표::용::*}
+    add "0.6|0.5" to {날개좌표::용::*}
+    add "0.75|0.55" to {날개좌표::용::*}
+
+# ===== 날개 그리기 함수 (하이픽셀 방식) =====
+# 핵심: dust 파티클 + count 0 + speed 0 → 정확한 좌표에 1점, 수명 최소
+# 매 틱마다 그려서 잔상 없이 플레이어를 따라감
+function 날개그리기(p: player, coords: texts, r: number, g: number, b: number, size: number):
+    set {_loc} to location of {_p}
+    set {_yaw} to yaw of {_p}
+    # 등 뒤 방향 (yaw + 180)
+    set {_backRad} to ({_yaw} + 180) * 3.14159 / 180
+    # 좌우 방향 (yaw + 90)
+    set {_sideRad} to ({_yaw} + 90) * 3.14159 / 180
+    set {_backX} to -1 * sin({_backRad}) * 0.35
+    set {_backZ} to cos({_backRad}) * 0.35
+    set {_baseX} to x-coordinate of {_loc} + {_backX}
+    set {_baseY} to y-coordinate of {_loc} + 0.8
+    set {_baseZ} to z-coordinate of {_loc} + {_backZ}
+    set {_w} to world of {_p}
+    loop {_coords::*}:
+        set {_pt::*} to split loop-value at "|"
+        set {_side} to {_pt::1} parsed as number
+        set {_up} to {_pt::2} parsed as number
+        set {_sideX} to -1 * sin({_sideRad}) * {_side}
+        set {_sideZ} to cos({_sideRad}) * {_side}
+        set {_ly} to {_baseY} + {_up}
+        # 왼쪽 날개 — dust count:0 speed:0 = 정확한 좌표에 1점
+        set {_lx} to {_baseX} + {_sideX}
+        set {_lz} to {_baseZ} + {_sideZ}
+        execute console command "particle dust %{_r}% %{_g}% %{_b}% %{_size}% %{_lx}% %{_ly}% %{_lz}% 0 0 0 0 1 force"
+        # 오른쪽 날개 (좌우반전)
+        set {_rx2} to {_baseX} - {_sideX}
+        set {_rz2} to {_baseZ} - {_sideZ}
+        execute console command "particle dust %{_r}% %{_g}% %{_b}% %{_size}% %{_rx2}% %{_ly}% %{_rz2}% 0 0 0 0 1 force"
+
+# 매 2틱마다 렌더 (1틱=너무 빈번, 4틱=잔상)
+# dust 파티클 기본 수명 ~1초지만 count:0+speed:0이면 제자리에 고정
+# 2틱 간격이면 이전 프레임이 거의 사라질 때 새 프레임 그려짐
+every 2 ticks:
+    loop all players:
+        set {_fx} to {장착이펙트::날개::%loop-player%}
+        if {_fx} is set:
+            if {_fx} is "천사날개":
+                # 흰색, 사이즈 0.7 (작은 점 = 깃털 느낌)
+                날개그리기(loop-player, {날개좌표::천사::*}, 1.0, 1.0, 1.0, 0.7)
+            else if {_fx} is "악마날개":
+                # 붉은색, 사이즈 0.8
+                날개그리기(loop-player, {날개좌표::악마::*}, 0.8, 0.1, 0.1, 0.8)
+            else if {_fx} is "나비날개":
+                # 보라+분홍, 사이즈 0.6 (작은 나비)
+                날개그리기(loop-player, {날개좌표::나비::*}, 0.8, 0.3, 0.9, 0.6)
+            else if {_fx} is "용날개":
+                # 주황+금색, 사이즈 0.9 (크고 위엄)
+                날개그리기(loop-player, {날개좌표::용::*}, 1.0, 0.6, 0.0, 0.9)
+
+# ===== 캐시상점 연동 =====
+# 이펙트 상점 데이터는 캐시상점.sk에서 일괄 관리
+# 이 파일에서는 이펙트 실행/GUI만 담당

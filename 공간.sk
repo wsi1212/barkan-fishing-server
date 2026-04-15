@@ -4,33 +4,24 @@ function enterlava(p: player):
 function exitlava(p: player):
     set {용암낚시::%{_p}%} to 0
 
-# ===== 지역 표시 이름 =====
+# ===== 지역 표시 이름 (Java RegionManager 연동) =====
 function regionDisplayName(region: text) :: text:
-    if {_region} is "갈매기바위":
-        return "갈매기 바위"
-    else if {_region} is "바르칸물길":
-        return "바르칸 물길"
-    else if {_region} is "바르칸동굴":
-        return "바르칸 동굴"
-    else if {_region} is "lavatest":
-        return "용암 지대"
-    else if {_region} is "원양어선":
-        return "원양어선"
+    if {지역표시이름::%{_region}%} is set:
+        return {지역표시이름::%{_region}%}
     return {_region}
 
-# ===== 지역 레벨 제한 =====
+# ===== 지역 레벨 제한 (Java RegionManager 연동, 섬 상속 포함) =====
 function regionRequiredLevel(region: text) :: number:
-    if {_region} is "갈매기바위":
-        return 0
-    else if {_region} is "바르칸물길":
-        return 0
-    else if {_region} is "바르칸동굴":
-        return 0
-    else if {_region} is "lavatest":
-        return 50
-    else if {_region} is "원양어선":
-        return 15
-    return 0
+    set {_lvl} to 0
+    if {지역레벨제한::%{_region}%} is set:
+        set {_lvl} to {지역레벨제한::%{_region}%}
+    # 부모 섬 레벨도 체크 (max)
+    if {지역부모섬::%{_region}%} is set:
+        set {_islandLvl} to {지역레벨제한::%{지역부모섬::%{_region}%}%}
+        if {_islandLvl} is set:
+            if {_islandLvl} > {_lvl}:
+                set {_lvl} to {_islandLvl}
+    return {_lvl}
 
 # ===== 레벨 미달 시 진입 거부 처리 =====
 function rejectEntry(p: player, region: text):
@@ -38,36 +29,32 @@ function rejectEntry(p: player, region: text):
     message "&8[&b 낚시 &8] &c이 지역은 낚시 레벨 &e%{_req}% &c이상만 입장할 수 있습니다. &7(현재: Lv.%{낚시레벨::%{_p}%}%)" to {_p}
     set {area::%{_p}%} to "0"
     set {거부쿨다운::%{_p}%} to true
-    # 탈것 정보 미리 저장
     if {_p} is riding:
         set {_vehicle} to vehicle of {_p}
-    # 텔포 (탈것 탑승 중이어도 텔포하면 자동 하차)
     if {안전위치::%{_p}%} is set:
         teleport {_p} to {안전위치::%{_p}%}
     else:
         message "&8[&b 낚시 &8] &c비정상적인 접근이 감지되어 스폰으로 이동합니다." to {_p}
-        teleport {_p} to spawn of world "flatroom"
-    # 탈것 제거
+        teleport {_p} to spawn of world "world"
     wait 1 tick
     if {_vehicle} is set:
         kill {_vehicle}
-    # 텔포 후에도 여전히 구역 안이면 스폰으로 강제 이동
     wait 3 ticks
-    set {_stillIn} to false
-    loop all areas:
-        if loop-value is {_region}:
-            if {_p} is in area loop-value:
-                set {_stillIn} to true
-            stop loop
-    if {_stillIn} is true:
+    # 텔포 후에도 지역 안이면 스폰으로 강제 이동
+    if {area::%{_p}%} is {_region}:
         message "&8[&b 낚시 &8] &c비정상적인 접근이 감지되어 스폰으로 이동합니다." to {_p}
-        teleport {_p} to spawn of world "flatroom"
-    # 5초간 안전위치 저장 차단 (경계 근처 위치 저장 방지)
+        teleport {_p} to spawn of world "world"
     wait 5 seconds
     delete {거부쿨다운::%{_p}%}
 
 # ===== 입장 처리 =====
 function areaEnter(p: player, area: text):
+    # 길드 섬 체크 — 길드원만 입장 가능
+    if {지역길드::%{_area}%} is set:
+        if {길드::%name of {_p}%} is not {지역길드::%{_area}%}:
+            message "&8[&b 낚시 &8] &c이 지역은 &f%{지역길드::%{_area}%}% &c길드 전용입니다." to {_p}
+            rejectEntry({_p}, {_area})
+            stop
     set {_req} to regionRequiredLevel({_area})
     if {_req} > 0:
         if {낚시레벨::%{_p}%} is not set:
@@ -76,28 +63,45 @@ function areaEnter(p: player, area: text):
             rejectEntry({_p}, {_area})
             stop
     set {area::%{_p}%} to {_area}
-    # 방문 지역 기록 (페리 이용 조건)
     if {방문지역::%{_p}%::*} does not contain {_area}:
         add {_area} to {방문지역::%{_p}%::*}
-        set {_firstDisp} to regionDisplayName({_area})
-        wait 1 tick
-        send title "&6✦ 새로운 지역 발견!" with subtitle "&f%{_firstDisp}%" to {_p}
-        play sound "ui.toast.challenge_complete" with volume 0.8 with pitch 1 to {_p}
+        # 도전과제 체크 (지역 발견 + 방문 수)
+        도전과제체크({_p}, "지역", {_area})
+        도전과제체크({_p}, "지역방문", "%size of {방문지역::%{_p}%::*}%")
+        # 탐험 경험치 (신규 지역 발견 시)
+        탐험_발견({_p}, "지역", {_area})
     set {_display} to regionDisplayName({_area})
     message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
     if {_area} is "lavatest":
         enterlava({_p})
     환경보너스알림({_p})
     퀘스트_지역입장({_p}, {_area})
+    사이드바업데이트({_p})
+    # 지역 낚시대회 보스바 표시 (지역 or 섬 대회)
+    if {낚시대회::bar} is set:
+        if {낚시대회::지역} is set:
+            if {낚시대회::지역} is {_area}:
+                add {_p} to bossbar players of {낚시대회::bar}
+            else if {지역부모섬::%{_area}%} is set:
+                if {낚시대회::지역} is {지역부모섬::%{_area}%}:
+                    add {_p} to bossbar players of {낚시대회::bar}
 
 # ===== 퇴장 처리 =====
 function areaExit(p: player, area: text):
     set {_display} to regionDisplayName({_area})
     message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_p}
     set {area::%{_p}%} to "0"
+    사이드바업데이트({_p})
     if {_area} is "lavatest":
         exitlava({_p})
-    # 페리 대기 자동 취소
+    # 지역 낚시대회: 미참가자는 퇴장 시 보스바 제거 (섬 대회 포함)
+    if {낚시대회::bar} is set:
+        if {낚시대회참가::%{_p}%} is not set:
+            if {낚시대회::지역} is {_area}:
+                remove {_p} from bossbar players of {낚시대회::bar}
+            else if {지역부모섬::%{_area}%} is set:
+                if {낚시대회::지역} is {지역부모섬::%{_area}%}:
+                    remove {_p} from bossbar players of {낚시대회::bar}
     if {페리노선목록::*} is set:
         loop {페리노선목록::*}:
             if {페리노선::%loop-value%::탑승지역} is {_area}:
@@ -106,7 +110,7 @@ function areaExit(p: player, area: text):
                     remove {_p} from bossbar players of (bossbar named "ferry_wait_%loop-value%")
                     message "&8[&9 페리 &8] &e탑승 지역을 벗어나 &f%loop-value%&e 노선 탑승이 취소되었습니다." to {_p}
 
-# ===== 낚시 시도 시 레벨 체크 (마인카트 등 우회 대응) =====
+# ===== 낚시 시도 시 레벨 체크 =====
 on fishing line cast:
     set {_area} to {area::%player%}
     if {_area} is not set:
@@ -120,18 +124,9 @@ on fishing line cast:
                 cancel event
                 rejectEntry(player, {_area})
                 stop
-    # 기록 안 된 상태에서도 실제 위치 체크
     else:
-        loop all areas:
-            if player is in area loop-value:
-                set {_req} to regionRequiredLevel(loop-value)
-                if {_req} > 0:
-                    if {낚시레벨::%player%} is not set:
-                        set {낚시레벨::%player%} to 1
-                    if {낚시레벨::%player%} < {_req}:
-                        cancel event
-                        rejectEntry(player, loop-value)
-                stop loop
+        # area 변수가 없으면 Java RegionTracker가 아직 감지 안 한 상태
+        stop
 
 on rightclick:
     if clicked block is warped sign:
@@ -139,117 +134,181 @@ on rightclick:
             cancel event
 
 on join:
-    # flatroom이 아닌 월드에서 접속하면 flatroom 스폰으로 이동
-    if player's world is not world "flatroom":
-        teleport player to spawn of world "flatroom"
+    if player is not op:
+        if player's world is not world "world":
+            teleport player to spawn of world "world"
     wait 5 ticks
     set {안전위치::%player%} to player's location
 
-# ===== 리스폰: 항상 flatroom에서 부활 =====
 on respawn:
-    set respawn location to spawn of world "flatroom"
+    set player's bed location to spawn of world "world"
+    set respawn location to spawn of world "world"
 
-# ===== 텔레포트 감지: TP로 지역 진입/퇴장 처리 =====
-on teleport:
-    wait 1 tick
-    set {_oldArea} to {area::%player%}
-    if {_oldArea} is not set:
-        set {_oldArea} to "0"
-    # 텔포 후 현재 위치의 지역 확인
-    set {_newArea} to "0"
-    loop all areas:
-        if player is in area loop-value:
-            set {_newArea} to loop-value
-            stop loop
-    if {_newArea} is {_oldArea}:
-        stop
-    # 이전 지역 퇴장
-    if {_oldArea} is not "0":
-        areaExit(player, {_oldArea})
-    # 새 지역 입장
-    if {_newArea} is not "0":
-        areaEnter(player, {_newArea})
-    else:
-        set {area::%player%} to "0"
+# ===== 지역 진입/퇴장 — Java RegionTracker 브릿지 =====
+# Java가 20틱마다 플레이어 위치 체크 → /regionevent 명령어로 Skript에 알림
+command /regionevent <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_action} to arg-1
+        set {_player} to arg-2 parsed as player
+        if {_player} is not set:
+            stop
+        set {_region} to arg-3
+        if {_action} is "enter":
+            areaEnter({_player}, {_region})
+        else if {_action} is "exit":
+            areaExit({_player}, {_region})
+        else if {_action} is "islandenter":
+            set {섬::%{_player}%} to {_region}
+            set {_display} to regionDisplayName({_region})
+            message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
+            사이드바업데이트({_player})
+        else if {_action} is "islandexit":
+            set {_display} to regionDisplayName({_region})
+            message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
+            set {섬::%{_player}%} to "0"
+            사이드바업데이트({_player})
 
-# ===== 트리거 기반: 지역 진입 감지 =====
-on enter area:
-    set {_newArea} to "0"
-    loop all areas:
-        if player is in area loop-value:
-            set {_newArea} to loop-value
-            stop loop
-    if {_newArea} is "0":
-        stop
-    set {_oldArea} to {area::%player%}
-    if {_oldArea} is not set:
-        set {_oldArea} to "0"
-    if {_newArea} is {_oldArea}:
-        stop
-    # 이전 지역 퇴장
-    if {_oldArea} is not "0":
-        areaExit(player, {_oldArea})
-    # 새 지역 입장
-    areaEnter(player, {_newArea})
-
-# ===== 트리거 기반: 지역 퇴장 감지 =====
-on exit area:
-    wait 1 tick
-    set {_oldArea} to {area::%player%}
-    if {_oldArea} is not set:
-        stop
-    if {_oldArea} is "0":
-        stop
-    # 정말 나갔는지 확인 (is in area는 loop-value만 가능)
-    set {_stillIn} to false
-    loop all areas:
-        if loop-value is {_oldArea}:
-            if player is in area loop-value:
-                set {_stillIn} to true
-            stop loop
-    if {_stillIn} is false:
-        areaExit(player, {_oldArea})
-        # 나간 직후 다른 지역에 있는지 체크
-        set {_newArea} to "0"
-        loop all areas:
-            if player is in area loop-value:
-                set {_newArea} to loop-value
-                stop loop
-        if {_newArea} is not "0":
-            areaEnter(player, {_newArea})
-        else:
-            set {안전위치::%player%} to player's location
-
-# ===== 백업 폴링: 안전 위치 저장 + 퇴장 누락 보정 (가벼운 주기) =====
-every 3 seconds:
+# ===== 안전위치 저장 (지역 밖일 때) =====
+every 5 seconds:
     loop all players:
-        set {_oldArea} to {area::%loop-player-1%}
-        if {_oldArea} is not set:
-            set {_oldArea} to "0"
-        if {_oldArea} is "0":
-            # 지역 밖: 안전위치 저장만
+        set {_area} to {area::%loop-player-1%}
+        if {_area} is not set:
+            set {_area} to "0"
+        if {_area} is "0":
             if {거부쿨다운::%loop-player-1%} is not set:
                 set {안전위치::%loop-player-1%} to loop-player-1's location
+
+# =========================================
+#   지역 관리는 Java 플러그인 (BlockShip)으로 이관
+#   /regionmanage — 지역 생성/삭제/설정/바이옴/파티클
+#   데이터: plugins/BlockShip/regions.json
+# =========================================
+
+# ===== 지역 리스트 — Java RegionManager에서 동기화 =====
+# 서버 시작 시 Java가 /regionsync로 자동 동기화
+# 수동 리로드: /지역 리로드 → Java가 다시 동기화
+
+# ===== 지역 리스트 동기화 (Java → Skript) =====
+command /regionlistsync <text> [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-1 is "init":
+            delete {지역리스트::*}
+        else if arg-1 is "add":
+            add arg-2 to {지역리스트::*}
+
+# ===== Java RegionManager → Skript 변수 동기화 브릿지 =====
+# Java에서 "regionsync <id> <표시이름> <레벨제한>" 콘솔 명령어 전송
+command /regionsync <text> <text> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_name} to arg-2
+        replace all "_" with " " in {_name}
+        set {지역표시이름::%arg-1%} to {_name}
+        set {지역레벨제한::%arg-1%} to arg-3
+
+command /regionweathersync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {지역허용날씨::%arg-1%} to arg-2
+
+command /regionexcludesync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-2 is "없음":
+            delete {지역제외날씨::%arg-1%}
         else:
-            # 지역 안으로 기록됨: 실제로 나갔는지 1회 체크
-            set {_stillIn} to false
-            loop all areas:
-                if loop-value-2 is {_oldArea}:
-                    if loop-player-1 is in area loop-value-2:
-                        set {_stillIn} to true
-                    stop loop
-            if {_stillIn} is false:
-                areaExit(loop-player-1, {_oldArea})
-                set {안전위치::%loop-player-1%} to loop-player-1's location
+            set {지역제외날씨::%arg-1%} to arg-2
+
+# 지역별 날씨 이벤트 (Java WeatherManager → Skript)
+command /regionweatherevent <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-1 is "전역":
+            if arg-2 is "해제":
+                delete {서버날씨}
             else:
-                # 지역 안에 있는데 레벨 미달이면 강제 퇴장
-                set {_req} to regionRequiredLevel({_oldArea})
-                if {_req} > 0:
-                    if {낚시레벨::%loop-player-1%} is not set:
-                        set {낚시레벨::%loop-player-1%} to 1
-                    if {낚시레벨::%loop-player-1%} < {_req}:
-                        if {거부쿨다운::%loop-player-1%} is not set:
-                            rejectEntry(loop-player-1, {_oldArea})
+                set {서버날씨} to arg-2
+        else:
+            if arg-2 is "해제":
+                delete {지역날씨::%arg-1%}
+            else:
+                set {지역날씨::%arg-1%} to arg-2
+        # 날씨 변경 시 전체 사이드바 갱신
+        loop all players:
+            사이드바업데이트(loop-player)
+
+# 물고기 등록 수 출력 (Java 브릿지)
+command /regionfishcount <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {_fishes::*} to get_fish(arg-2)
+        message "&7물고기: &f%size of {_fishes::*}%종" to {_p}
+
+# ===== 월드 이동 명령어 (MV 대체) =====
+on tab complete of "/월드":
+    set tab completions for position 1 to names of all worlds
+
+command /월드 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            message "&6=== 월드 목록 ===" to player
+            loop all worlds:
+                set {_here} to ""
+                if player's world is loop-world:
+                    set {_here} to " &a(현재)"
+                message "&7  %loop-world%%{_here}%" to player
+            stop
+        set {_wName} to arg-1 in lower case
+        # 월드가 로드 안 되어 있으면 로드 시도
+        if world("%{_wName}%") is not set:
+            execute console command "loadworld %{_wName}%"
+            wait 3 ticks
+        # world는 기본 월드(overworld)
+        if {_wName} is "world":
+            make player execute command "execute in minecraft:overworld run tp @s 0 100 0"
+        else:
+            make player execute command "execute in minecraft:%{_wName}% run tp @s 0 100 0"
+        message "&a%arg-1% 월드로 이동했습니다." to player
+
+# ===== 섬 리스트 동기화 (Java → Skript) =====
+command /islandlistsync <text> [<text>]:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-1 is "init":
+            delete {섬리스트::*}
+        else if arg-1 is "add":
+            add arg-2 to {섬리스트::*}
+
+# ===== 부모 섬 동기화 (Java → Skript) =====
+command /regionparentsync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {지역부모섬::%arg-1%} to arg-2
+
+# ===== 길드 소유 지역 동기화 (Java → Skript) =====
+command /regionguildsync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        if arg-2 is "없음":
+            delete {지역길드::%arg-1%}
+        else:
+            set {지역길드::%arg-1%} to arg-2
 
 # =========================================
 #   보트 시스템 → 보트.sk 으로 분리됨

@@ -13,7 +13,7 @@ command /섬 [<text>]:
                     delete {섬이전위치::%player%}
                 else:
                     # 이전 위치가 없으면 flatroom 스폰으로
-                    make player execute command "/mv tp flatroom"
+                    teleport player to spawn of world "world"
                     send "&a메인 월드로 돌아왔습니다." to player
             else:
                 send "&c섬이 아닙니다." to player

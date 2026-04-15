@@ -21,11 +21,134 @@ on load:
     set {칭호데이터::레벨::설명} to "&7현재 낚시 레벨 표시 (자동 갱신)"
     set {칭호데이터::레벨::아이콘} to experience bottle
 
+    set {칭호데이터::서포터::이름} to "&d❤ Supporter"
+    set {칭호데이터::서포터::색상} to "&d"
+    set {칭호데이터::서포터::설명} to "&7서버를 후원해주신 분께 드리는 칭호"
+    set {칭호데이터::서포터::아이콘} to pink dye
+    set {칭호데이터::서포터::애니메이션} to true
+
+    set {칭호데이터::신살자::이름} to "&4&l神殺者"
+    set {칭호데이터::신살자::색상} to "&4"
+    set {칭호데이터::신살자::설명} to "&7바다의 신을 낚아올린 전설적인 어부"
+    set {칭호데이터::신살자::아이콘} to nether star
+    set {칭호데이터::신살자::애니메이션} to true
+
+    # 프리미엄 칭호 (캐시상점)
+    set {칭호데이터::프리미엄골드::이름} to "&6✦ Gold"
+    set {칭호데이터::프리미엄골드::색상} to "&6"
+    set {칭호데이터::프리미엄골드::설명} to "&7프리미엄 금색 칭호"
+    set {칭호데이터::프리미엄골드::아이콘} to gold ingot
+    set {칭호데이터::프리미엄골드::애니메이션} to true
+
+    set {칭호데이터::프리미엄무지개::이름} to "&c무&6지&e개"
+    set {칭호데이터::프리미엄무지개::색상} to "&d"
+    set {칭호데이터::프리미엄무지개::설명} to "&7프리미엄 무지개 칭호"
+    set {칭호데이터::프리미엄무지개::아이콘} to painting
+    set {칭호데이터::프리미엄무지개::애니메이션} to true
+
+    set {칭호데이터::프리미엄불꽃::이름} to "&c🔥 불꽃"
+    set {칭호데이터::프리미엄불꽃::색상} to "&c"
+    set {칭호데이터::프리미엄불꽃::설명} to "&7프리미엄 불꽃 칭호"
+    set {칭호데이터::프리미엄불꽃::아이콘} to blaze powder
+    set {칭호데이터::프리미엄불꽃::애니메이션} to true
+
+    # 특수 칭호
+    set {칭호데이터::건축가::이름} to "&6⚒ 건축가"
+    set {칭호데이터::건축가::색상} to "&6"
+    set {칭호데이터::건축가::설명} to "&7바르칸 열도를 건설한 위대한 건축가"
+    set {칭호데이터::건축가::아이콘} to brick
+    set {칭호데이터::건축가::애니메이션} to true
+
+    # 도전과제 보상 칭호
+    set {칭호데이터::세계여행자::이름} to "&a세계 여행자"
+    set {칭호데이터::세계여행자::색상} to "&a"
+    set {칭호데이터::세계여행자::설명} to "&73개 이상의 지역을 방문한 탐험가"
+    set {칭호데이터::세계여행자::아이콘} to filled map
+
+    set {칭호데이터::백전노장::이름} to "&b백전노장"
+    set {칭호데이터::백전노장::색상} to "&b"
+    set {칭호데이터::백전노장::설명} to "&7100마리 이상의 물고기를 낚은 어부"
+    set {칭호데이터::백전노장::아이콘} to cod
+
+    set {칭호데이터::천마리전설::이름} to "&b&l천 마리의 전설"
+    set {칭호데이터::천마리전설::색상} to "&b"
+    set {칭호데이터::천마리전설::설명} to "&71000마리의 물고기를 낚아올린 전설"
+    set {칭호데이터::천마리전설::아이콘} to tropical fish
+
+    set {칭호데이터::백만장자::이름} to "&6&l백만장자"
+    set {칭호데이터::백만장자::색상} to "&6"
+    set {칭호데이터::백만장자::설명} to "&7100만원을 보유한 부자"
+    set {칭호데이터::백만장자::아이콘} to gold block
+
+    set {칭호데이터::억만장자::이름} to "&6&l억만장자"
+    set {칭호데이터::억만장자::색상} to "&6"
+    set {칭호데이터::억만장자::설명} to "&71억을 보유한 재벌"
+    set {칭호데이터::억만장자::아이콘} to beacon
+
+    set {칭호데이터::도감박사::이름} to "&c물고기 박사"
+    set {칭호데이터::도감박사::색상} to "&c"
+    set {칭호데이터::도감박사::설명} to "&750종의 물고기를 등록한 학자"
+    set {칭호데이터::도감박사::아이콘} to enchanted book
+
+    set {칭호데이터::백과사전::이름} to "&c&l백과사전"
+    set {칭호데이터::백과사전::색상} to "&c"
+    set {칭호데이터::백과사전::설명} to "&7100종의 물고기를 등록한 박학다식"
+    set {칭호데이터::백과사전::아이콘} to knowledge book
+
+    set {칭호데이터::장인::이름} to "&5&l장인"
+    set {칭호데이터::장인::색상} to "&5"
+    set {칭호데이터::장인::설명} to "&7낚시 레벨 50에 도달한 장인"
+    set {칭호데이터::장인::아이콘} to netherite ingot
+
+    set {칭호데이터::만렙전설::이름} to "&4&l만렙의 전설"
+    set {칭호데이터::만렙전설::색상} to "&4"
+    set {칭호데이터::만렙전설::설명} to "&7낚시 레벨 100에 도달한 전설"
+    set {칭호데이터::만렙전설::아이콘} to nether star
+
+    set {칭호데이터::불꽃연타::이름} to "&d&l불꽃 연타"
+    set {칭호데이터::불꽃연타::색상} to "&d"
+    set {칭호데이터::불꽃연타::설명} to "&7200 콤보를 달성한 집중력의 화신"
+    set {칭호데이터::불꽃연타::아이콘} to blaze rod
+
+    set {칭호데이터::극한강화::이름} to "&5&l극한 강화"
+    set {칭호데이터::극한강화::색상} to "&5"
+    set {칭호데이터::극한강화::설명} to "&7+10 강화를 달성한 장인"
+    set {칭호데이터::극한강화::아이콘} to netherite ingot
+
     # 전체 칭호 ID 목록
     delete {칭호목록::*}
     add "뉴비" to {칭호목록::*}
     add "콤보" to {칭호목록::*}
     add "레벨" to {칭호목록::*}
+    add "서포터" to {칭호목록::*}
+    add "신살자" to {칭호목록::*}
+    add "세계여행자" to {칭호목록::*}
+    add "백전노장" to {칭호목록::*}
+    add "천마리전설" to {칭호목록::*}
+    add "백만장자" to {칭호목록::*}
+    add "억만장자" to {칭호목록::*}
+    add "도감박사" to {칭호목록::*}
+    add "백과사전" to {칭호목록::*}
+    add "장인" to {칭호목록::*}
+    add "만렙전설" to {칭호목록::*}
+    add "불꽃연타" to {칭호목록::*}
+    add "극한강화" to {칭호목록::*}
+    # 특수 칭호
+    add "건축가" to {칭호목록::*}
+    # 프리미엄 칭호 (캐시상점)
+    add "프리미엄골드" to {칭호목록::*}
+    add "프리미엄무지개" to {칭호목록::*}
+    add "프리미엄불꽃" to {칭호목록::*}
+
+    # 리로드 시 온라인 플레이어 칭호 복원
+    wait 10 ticks
+    loop all players:
+        execute console command "kill @e[tag=title_%loop-player's uuid%_t]"
+        execute console command "kill @e[tag=title_%loop-player's uuid%_n]"
+        execute console command "titlestop %loop-player's name%"
+    wait 5 ticks
+    loop all players:
+        칭호태그업데이트(loop-player)
 
 # ===== 첫 접속 시 뉴비 칭호 자동 부여 =====
 on first join:
@@ -40,8 +163,12 @@ on join:
     if {장착칭호::%player%} is not set:
         set {장착칭호::%player%} to "뉴비"
     칭호자동체크(player)
-    # 칭호 태그 복원
+    # 기존 잔여 칭호 엔티티 제거 후 새로 생성
     wait 5 ticks
+    execute console command "kill @e[tag=title_%player's uuid%_t]"
+    execute console command "kill @e[tag=title_%player's uuid%_n]"
+    execute console command "titlestop %player's name%"
+    wait 3 ticks
     칭호태그업데이트(player)
 
 # ===== 자동 획득 체크 (레벨업/콤보 시 호출) =====
@@ -62,9 +189,37 @@ function 칭호자동체크(p: player):
         if {보유칭호::%{_p}%::레벨} is not true:
             set {보유칭호::%{_p}%::레벨} to true
             message "&8[&e 칭호 &8] &e새 칭호 획득! &eLv.%{_lv}% &7— 현재 레벨이 표시됩니다!" to {_p}
-    # 레벨 칭호 장착 중이면 TextDisplay 갱신
+    # 장인 칭호 (Lv.50)
+    if {_lv} >= 50:
+        if {보유칭호::%{_p}%::장인} is not true:
+            set {보유칭호::%{_p}%::장인} to true
+            message "&8[&e 칭호 &8] &6새 칭호 획득! &f[&6장인&f] &7— 낚시 레벨 50 달성!" to {_p}
+            play sound "ui.toast.challenge_complete" with volume 1.0 and pitch 1.0 to {_p}
+    # 만렙전설 칭호 (Lv.100)
+    if {_lv} >= 100:
+        if {보유칭호::%{_p}%::만렙전설} is not true:
+            set {보유칭호::%{_p}%::만렙전설} to true
+            set {_t} to text component from "&4&l⭐ %{_p}'s name%&4&l님이 &f[&4&l만렙의 전설&f] &4&l칭호를 획득했습니다!"
+            set hover event of {_t} to a new hover event showing "&4&l만렙의 전설%nl%&7획득 조건: &f낚시 레벨 100 달성%nl%&7설명: &f낚시 레벨 100에 도달한 전설적인 어부"
+            send component {_t} to all players
+            send title "&4&l만렙의 전설" with subtitle "&7낚시 레벨 100에 도달한 전설적인 어부" to {_p} for 5 seconds with fade in 1 second and fade out 2 seconds
+            play sound "ui.toast.challenge_complete" with volume 1.0 and pitch 0.5 to {_p}
+            wait 5 ticks
+            play sound "entity.ender_dragon.growl" with volume 0.5 and pitch 1.2 to {_p}
+    # 레벨 칭호 장착 중이면 갱신 (data merge로 가벼움)
     if {장착칭호::%{_p}%} is "레벨":
         칭호태그업데이트({_p})
+    # 신살자 칭호 (G등급 낚은 적 있으면)
+    if {도감G등급::%{_p}%} is true:
+        if {보유칭호::%{_p}%::신살자} is not true:
+            set {보유칭호::%{_p}%::신살자} to true
+            set {_t} to text component from "&4&l⚡ %{_p}'s name%&4&l님이 &f[&4&l神殺者&f] &4&l칭호를 획득했습니다!"
+            set hover event of {_t} to a new hover event showing "&4&l神殺者%nl%&7획득 조건: &fG등급 물고기 낚기%nl%&7설명: &f바다의 신을 낚아올린 자, 전설이 되다."
+            send component {_t} to all players
+            send title "&4&l神殺者" with subtitle "&7바다의 신을 낚아올린 자, 전설이 되다." to {_p} for 5 seconds with fade in 1 second and fade out 2 seconds
+            play sound "ui.toast.challenge_complete" with volume 1.0 and pitch 0.5 to {_p}
+            wait 5 ticks
+            play sound "entity.wither.spawn" with volume 0.3 and pitch 1.5 to {_p}
     # 콤보 리셋 시 콤보 칭호 제거
     if {_combo} < 100:
         if {보유칭호::%{_p}%::콤보} is true:
@@ -90,7 +245,7 @@ command /칭호 [<text>] [<text>] [<text>]:
                     stop
                 set {_target} to arg-2 parsed as player
                 if {_target} is not set:
-                    message "&c플레이어 '%arg-2%'을(를) 찾을 수 없습니다."
+                    message "&c플레이어 '%arg-2%' 를 찾을 수 없습니다."
                     stop
                 set {보유칭호::%{_target}%::%arg-3%} to true
                 message "&8[&e 칭호 &8] &a%{_target}'s name%에게 '%arg-3%' 칭호를 부여했습니다." to player
@@ -109,7 +264,7 @@ command /칭호 [<text>] [<text>] [<text>]:
                     stop
                 set {_target} to arg-2 parsed as player
                 if {_target} is not set:
-                    message "&c플레이어 '%arg-2%'을(를) 찾을 수 없습니다."
+                    message "&c플레이어 '%arg-2%' 를 찾을 수 없습니다."
                     stop
                 delete {보유칭호::%{_target}%::%arg-3%}
                 if {장착칭호::%{_target}%} is arg-3:
@@ -190,7 +345,10 @@ function 칭호GUI열기(p: player):
         if {_icon} is not set:
             set {_icon} to paper
         set {_equipped} to {장착칭호::%{_p}%}
-        if {_equipped} is {_id}:
+        if {보유칭호::%{_p}%::%{_id}%} is not true:
+            # 미보유 — 잠금
+            set slot {_slot} of {_p}'s current inventory to gray dye named "&8🔒 &7??? " with lore "&7아직 획득하지 못한 칭호입니다." and {_desc}
+        else if {_equipped} is {_id}:
             set slot {_slot} of {_p}'s current inventory to {_icon} named "&a▸ %{_name}% &7(장착중)" with lore {_desc} and "" and "&7이미 장착중인 칭호입니다."
         else:
             set slot {_slot} of {_p}'s current inventory to {_icon} named "&f%{_name}% " with lore {_desc} and "" and "&a클릭하여 장착"
@@ -204,6 +362,9 @@ on inventory click:
         set {_ci} to index of clicked slot
         set {_id} to {칭호GUI슬롯::%player%::%{_ci}%}
         if {_id} is set:
+            if {보유칭호::%player%::%{_id}%} is not true:
+                message "&8[&e 칭호 &8] &c아직 획득하지 못한 칭호입니다."
+                stop
             if {장착칭호::%player%} is {_id}:
                 message "&8[&e 칭호 &8] &7이미 장착 중인 칭호입니다."
             else:
@@ -240,74 +401,64 @@ on chat:
 
 # ===== 탭 자동완성 =====
 on tab complete of "/칭호":
-    if tab arg-1 is "부여" or "회수":
-        if tab arg-2 is not set:
-            set tab completions for position 2 to names of all players
-        else if tab arg-3 is not set:
-            set tab completions for position 3 to {칭호목록::*}
-    else if tab arg-1 is "생성":
-        stop
-    else:
-        set tab completions for position 1 to "부여", "회수" and "생성"
+    set tab completions for position 1 to "부여", "회수" and "생성"
+    set tab completions for position 2 to names of all players
+    set tab completions for position 3 to {칭호목록::*}
 
-# ===== 머리 위 칭호+닉네임 TextDisplay =====
+# ===== 칭호 TextDisplay 업데이트 (Java 플러그인 호출) =====
+# BlockShip 플러그인의 /titleupdate, /titlecombo, /titleremove 사용
+# → HEX 그라데이션 지원, 깜빡임 없음, 서버 부하 최소화
 function 칭호태그업데이트(p: player):
-    # 동시 호출 방지 (wait 틱 사이 중복 소환 방지)
-    if {칭호업데이트중::%{_p}%} is true:
-        stop
-    set {칭호업데이트중::%{_p}%} to true
     set {_tag} to "title_%{_p}'s uuid%"
     set {_titleId} to {장착칭호::%{_p}%}
     set {_name} to {_p}'s name
-    # 칭호 없으면 제거 + 닉네임 복원
+    set {_tagTitle} to "%{_tag}%_t"
+    set {_tagName} to "%{_tag}%_n"
+    # 기존 애니메이션 항상 먼저 정지
+    execute console command "titlestop %{_name}%"
+    # 칭호 없으면 제거
     if {_titleId} is not set:
-        execute console command "kill @e[tag=%{_tag}%_t]"
-        execute console command "kill @e[tag=%{_tag}%_n]"
-        delete {칭호업데이트중::%{_p}%}
+        execute console command "titleremove %{_name}% %{_tagTitle}% %{_tagName}%"
         stop
-    # 칭호 텍스트 결정
+    # 서포터 칭호 → Java 애니메이션 (색상 흐르는 효과)
+    if {_titleId} is "서포터":
+        execute console command "titleanim %{_name}% %{_tagTitle}% %{_tagName}% supporter Supporter"
+        stop
+    # 신살자 칭호 → Java 애니메이션 (빨간 그라데이션)
+    if {_titleId} is "신살자":
+        execute console command "titleanim %{_name}% %{_tagTitle}% %{_tagName}% godslayer 神殺者"
+        stop
+    # 콤보 칭호 → Java 파스텔 그라데이션
+    if {_titleId} is "콤보":
+        set {_combo} to {낚시최대콤보::%{_p}%}
+        if {_combo} is not set:
+            set {_combo} to 0
+        execute console command "titlecombo %{_name}% %{_tagTitle}% %{_tagName}% %{_combo}%"
+        stop
+    # 레벨 칭호
     if {_titleId} is "레벨":
         set {_lv} to {낚시레벨::%{_p}%}
         if {_lv} is not set:
             set {_lv} to 1
         if {_lv} >= 50:
-            set {_title} to "##4##lLv.%{_lv}%"
+            set {_title} to "&4&lLv.%{_lv}%"
         else if {_lv} >= 30:
-            set {_title} to "##c##lLv.%{_lv}%"
+            set {_title} to "&c&lLv.%{_lv}%"
         else if {_lv} >= 20:
-            set {_title} to "##6##lLv.%{_lv}%"
+            set {_title} to "&6&lLv.%{_lv}%"
         else:
-            set {_title} to "##e##lLv.%{_lv}%"
-    else if {_titleId} is "콤보":
-        set {_combo} to {낚시최대콤보::%{_p}%}
-        if {_combo} is not set:
-            set {_combo} to 0
-        set {_title} to "##d##l%{_combo}% COMBO"
+            set {_title} to "&e&lLv.%{_lv}%"
     else if {_titleId} is "뉴비":
-        set {_title} to "##a##l뉴비"
+        set {_title} to "&a&l뉴비"
     else:
         set {_tn} to {칭호데이터::%{_titleId}%::이름}
         if {_tn} is not set:
             set {_tn} to {_titleId}
         set {_title} to "%{_tn}%"
-    replace all "##" with "§" in {_title}
-    # 텍디 2개: 칭호(배경없음) + 닉네임(배경있음)
-    set {_tagTitle} to "%{_tag}%_t"
-    set {_tagName} to "%{_tag}%_n"
-    # 기존 삭제
-    execute console command "kill @e[tag=%{_tag}%_t]"
-    execute console command "kill @e[tag=%{_tag}%_n]"
-    wait 1 tick
-    # 닉네임 텍디 (반투명 배경 + 아래 빈줄)
-    execute console command "execute at %{_name}% run summon text_display ~ ~0.3 ~ {billboard:""center"",shadow:1b,see_through:0b,default_background:1b,transformation:{translation:[0.0f,0.15f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]},Tags:[""%{_tagName}%""],text:'§f%{_name}%'}"
-    wait 1 tick
-    # 칭호 텍디 (배경 없음)
-    execute console command "execute at %{_name}% run summon text_display ~ ~0.3 ~ {billboard:""center"",shadow:1b,see_through:0b,background:0,transformation:{translation:[0.0f,0.15f,0.0f],left_rotation:[0.0f,0.0f,0.0f,1.0f],scale:[1.0f,1.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f]},Tags:[""%{_tagTitle}%""],text:'%{_title}%\n '}"
-    wait 2 ticks
-    # 둘 다 플레이어에 탑승
-    execute console command "textride %{_name}% %{_tagName}%"
-    execute console command "textride %{_name}% %{_tagTitle}%"
-    delete {칭호업데이트중::%{_p}%}
+    # & → @@ 치환 (Java에서 @@ → & 복원)
+    set {_safeTitle} to {_title}
+    replace all "&" with "@@" in {_safeTitle}
+    execute console command "titleupdate %{_name}% %{_tagTitle}% %{_tagName}% %{_safeTitle}%"
 
 # 콤보 변경 시 업데이트
 function 콤보네임태그(p: player):
@@ -326,7 +477,30 @@ on sneak toggle:
                 # 방금 스니크 시작 → 반투명 (50/255, 바닐라 스니크 닉 효과)
                 add nbt from "{text_opacity:50b}" to nbt of loop-entity
 
-# 접속종료 시 정리
-on quit:
+# 사망 시 칭호 제거 + 리스폰 시 복원
+on death of player:
+    execute console command "titlestop %victim's name%"
+    execute console command "kill @e[tag=title_%victim's uuid%_t]"
+    execute console command "kill @e[tag=title_%victim's uuid%_n]"
+
+on respawn:
+    wait 10 ticks
+    칭호태그업데이트(player)
+
+# 월드 이동 시 칭호 재생성
+on world change:
     execute console command "kill @e[tag=title_%player's uuid%_t]"
     execute console command "kill @e[tag=title_%player's uuid%_n]"
+    wait 10 ticks
+    칭호태그업데이트(player)
+
+# 접속종료 시 정리
+on quit:
+    execute console command "titlestop %player's name%"
+    execute console command "titleremove %player's name% title_%player's uuid%_t title_%player's uuid%_n"
+    execute console command "kill @e[tag=title_%player's uuid%_t]"
+    execute console command "kill @e[tag=title_%player's uuid%_n]"
+
+# 서버 종료 시 모든 칭호 엔티티 정리
+on unload:
+    execute console command "kill @e[type=text_display,tag=!fishback]"

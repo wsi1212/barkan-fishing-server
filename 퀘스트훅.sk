@@ -60,7 +60,8 @@ function 퀘스트등급숫자(grade: text) :: number:
     return 0
 
 # ===== 물고기 낚았을 때 =====
-function 퀘스트_물고기(p: player, fishName: text, grade: text, size: number):
+# quality: 품질 0~100 (크기 기반, 신선도와 별개)
+function 퀘스트_물고기(p: player, fishName: text, grade: text, size: number, quality: number = 50):
     if {활성퀘스트::%{_p}%::*} is not set:
         stop
     loop {활성퀘스트::%{_p}%::*}:
@@ -112,6 +113,51 @@ function 퀘스트_물고기(p: player, fishName: text, grade: text, size: numbe
                                     send title "" with subtitle "&7%{퀘스트::%{_qid}%::이름}% &f%{_cur}%&7/%{_target}%" to {_p} for 1.5 seconds
                                 else if {_show} is "chat":
                                     message "&8[&d 퀘스트 &8] &7%{퀘스트::%{_qid}%::이름}% &8- &f%{_cur}%&7/&f%{_target}%" to {_p}
+            # --- fish_fresh 목표: fish_fresh|이름|등급|수량|최소크기|최소품질 ---
+            if {_obj::1} is "fish_fresh":
+                set {_nameOk} to false
+                if {_obj::2} is "아무":
+                    set {_nameOk} to true
+                else if {_obj::2} is {_fishName}:
+                    set {_nameOk} to true
+                if {_nameOk} is true:
+                    set {_gradeOk} to false
+                    if {_obj::3} is "아무":
+                        set {_gradeOk} to true
+                    else:
+                        set {_reqGrade} to {_obj::3}
+                        if {_reqGrade} contains "~":
+                            set {_gr::*} to split {_reqGrade} at "~"
+                            set {_reqMin} to 퀘스트등급숫자({_gr::1})
+                            set {_reqMax} to 퀘스트등급숫자({_gr::2})
+                        else:
+                            set {_reqMin} to 퀘스트등급숫자({_reqGrade})
+                            set {_reqMax} to 10
+                        set {_gotRank} to 퀘스트등급숫자({_grade})
+                        if {_gotRank} >= {_reqMin}:
+                            if {_gotRank} <= {_reqMax}:
+                                set {_gradeOk} to true
+                    if {_gradeOk} is true:
+                        set {_minSize} to {_obj::5} parsed as number
+                        if {_minSize} is not set:
+                            set {_minSize} to 0
+                        set {_minQuality} to {_obj::6} parsed as number
+                        if {_minQuality} is not set:
+                            set {_minQuality} to 0
+                        if {_size} >= {_minSize}:
+                            if {_quality} >= {_minQuality}:
+                                set {_target} to {_obj::4} parsed as number
+                                set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                                if {_cur} is not set:
+                                    set {_cur} to 0
+                                if {_cur} < {_target}:
+                                    add 1 to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                                    set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                                    set {_show} to 퀘스트표시방식({_qid}, "fish", {_obj::3}, {_target})
+                                    if {_show} is "title":
+                                        send title "" with subtitle "&7%{퀘스트::%{_qid}%::이름}% &f%{_cur}%&7/%{_target}%" to {_p} for 1.5 seconds
+                                    else if {_show} is "chat":
+                                        message "&8[&d 퀘스트 &8] &7%{퀘스트::%{_qid}%::이름}% &8- &f%{_cur}%&7/&f%{_target}%" to {_p}
         퀘스트진행체크({_p}, {_qid})
 
 # ===== 레벨업 했을 때 =====
@@ -240,3 +286,82 @@ function 퀘스트_판매(p: player, count: integer, price: number):
                     if {돈::%{_p}%} >= {_target}:
                         message "&8[&d 퀘스트 &8] &a%{퀘스트::%{_qid}%::이름}% — 목표 달성!" to {_p}
         퀘스트진행체크({_p}, {_qid})
+
+# ===== 재료를 획득했을 때 =====
+# 목표 포맷: material|재료ID|수량
+function 퀘스트_재료(p: player, matId: text):
+    if {활성퀘스트::%{_p}%::*} is not set:
+        stop
+    loop {활성퀘스트::%{_p}%::*}:
+        set {_qid} to loop-value
+        if {퀘스트상태::%{_qid}%::%{_p}%} is not "진행":
+            continue
+        set {_objIdx} to 0
+        loop {퀘스트::%{_qid}%::목표::*}:
+            add 1 to {_objIdx}
+            set {_obj::*} to split loop-value-2 at "|"
+            if {_obj::1} is "material":
+                set {_reqMat} to {_obj::2}
+                if {_reqMat} = "아무":
+                    set {_matMatch} to true
+                else if {_reqMat} = {_matId}:
+                    set {_matMatch} to true
+                else:
+                    set {_matMatch} to false
+                if {_matMatch} is true:
+                    set {_target} to {_obj::3} parsed as number
+                    set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                    if {_cur} is not set:
+                        set {_cur} to 0
+                    if {_cur} < {_target}:
+                        add 1 to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                        set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                        set {_show} to 퀘스트표시방식({_qid}, "material", "", {_target})
+                        if {_show} is "title":
+                            send title "" with subtitle "&7%{퀘스트::%{_qid}%::이름}% &f%{_cur}%&7/%{_target}%" to {_p} for 1.5 seconds
+                        else if {_show} is "chat":
+                            message "&8[&d 퀘스트 &8] &7%{퀘스트::%{_qid}%::이름}% &8- &f%{_cur}%&7/&f%{_target}%" to {_p}
+        퀘스트진행체크({_p}, {_qid})
+
+# ===== 조합 완료 시 =====
+# 목표 포맷: craft|이름(또는 아무)|수량
+function 퀘스트_조합(p: player, craftName: text):
+    if {활성퀘스트::%{_p}%::*} is not set:
+        stop
+    # 조합대 이름의 공백→밑줄 변환 (questsync 호환)
+    set {_cn} to {_craftName}
+    replace all " " with "_" in {_cn}
+    loop {활성퀘스트::%{_p}%::*}:
+        set {_qid} to loop-value
+        if {퀘스트상태::%{_qid}%::%{_p}%} is not "진행":
+            continue
+        set {_objIdx} to 0
+        loop {퀘스트::%{_qid}%::목표::*}:
+            add 1 to {_objIdx}
+            set {_obj::*} to split loop-value-2 at "|"
+            if {_obj::1} is "craft":
+                set {_nameOk} to false
+                if {_obj::2} is "아무":
+                    set {_nameOk} to true
+                else if {_obj::2} is {_cn}:
+                    set {_nameOk} to true
+                if {_nameOk} is true:
+                    set {_target} to {_obj::3} parsed as number
+                    set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                    if {_cur} is not set:
+                        set {_cur} to 0
+                    if {_cur} < {_target}:
+                        add 1 to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                        set {_cur} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                        send title "" with subtitle "&7%{퀘스트::%{_qid}%::이름}% &f%{_cur}%&7/%{_target}%" to {_p} for 1.5 seconds
+        퀘스트진행체크({_p}, {_qid})
+
+# ===== 조합 브릿지 명령어 (조합대.sk → 퀘스트훅) =====
+command /questcraftdone <player>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_name} to {조합완료이름::%arg-1%}
+        delete {조합완료이름::%arg-1%}
+        if {_name} is set:
+            퀘스트_조합(arg-1, {_name})

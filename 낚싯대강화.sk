@@ -9,14 +9,16 @@
 on load:
     # === 축복 데이터 (계정 귀속, 모든 낚싯대에 적용) ===
     delete {축복목록::*}
-    set {축복::행운낚시} to "행운 낚시|3|3000|낚시 시 추가 보상 확률 +Lv×5%%"
-    set {축복::집중} to "집중|3|4000|미니게임 타임아웃 +Lv×1초"
-    set {축복::축복} to "축복|3|5000|경험치 +Lv×40%% 추가"
-    set {축복::보존} to "보존|3|3000|장비 내구보존 +Lv×8%%"
-    add "행운낚시" to {축복목록::*}
+    set {축복::행운} to "행운|5|80000|행운 +Lv×3%%"
+    set {축복::집중} to "집중|5|50000|미니게임 타임아웃 +Lv×1초"
+    set {축복::축복} to "축복|5|100000|경험치 +Lv×10%% 추가"
+    set {축복::보존} to "보존|5|50000|장비 내구보존 +Lv×8%%"
+    set {축복::안정} to "안정|5|60000|난이도 -Lv×3%%"
+    add "행운" to {축복목록::*}
     add "집중" to {축복목록::*}
     add "축복" to {축복목록::*}
     add "보존" to {축복목록::*}
+    add "안정" to {축복목록::*}
 
     # === 강화 비용/확률 (낚싯대별 적용) ===
     delete {강화비용::*}
@@ -30,6 +32,16 @@ on load:
     set {강화비용::8} to 130000
     set {강화비용::9} to 200000
     set {강화비용::10} to 350000
+    set {강화비용::11} to 600000
+    set {강화비용::12} to 1000000
+    set {강화비용::13} to 1800000
+    set {강화비용::14} to 3000000
+    set {강화비용::15} to 5000000
+    set {강화비용::16} to 8000000
+    set {강화비용::17} to 13000000
+    set {강화비용::18} to 20000000
+    set {강화비용::19} to 35000000
+    set {강화비용::20} to 50000000
     delete {강화확률::*}
     set {강화확률::1} to 100
     set {강화확률::2} to 95
@@ -41,6 +53,16 @@ on load:
     set {강화확률::8} to 30
     set {강화확률::9} to 20
     set {강화확률::10} to 10
+    set {강화확률::11} to 8
+    set {강화확률::12} to 6
+    set {강화확률::13} to 5
+    set {강화확률::14} to 4
+    set {강화확률::15} to 3
+    set {강화확률::16} to 2.5
+    set {강화확률::17} to 2
+    set {강화확률::18} to 1.5
+    set {강화확률::19} to 1
+    set {강화확률::20} to 0.5
     # 하락 확률 (+1~+4: 없음, +5부터 점진적으로)
     delete {강화하락::*}
     set {강화하락::1} to 0
@@ -53,112 +75,127 @@ on load:
     set {강화하락::8} to 20
     set {강화하락::9} to 25
     set {강화하락::10} to 30
+    set {강화하락::11} to 35
+    set {강화하락::12} to 40
+    set {강화하락::13} to 45
+    set {강화하락::14} to 50
+    set {강화하락::15} to 55
+    set {강화하락::16} to 60
+    set {강화하락::17} to 65
+    set {강화하락::18} to 70
+    set {강화하락::19} to 75
+    set {강화하락::20} to 80
+    # 체크포인트: 이 레벨 아래로는 하락 불가
+    delete {강화체크포인트::*}
+    set {강화체크포인트::5} to true
+    set {강화체크포인트::10} to true
+    set {강화체크포인트::15} to true
 
     # === 낚싯대별 강화 테이블 ===
     # 형식: {강화테이블::낚싯대이름::최대} = 최대강화레벨
     #       {강화테이블::낚싯대이름::N}   = "스탯:값,스탯:값" (N강에서 획득)
     delete {강화테이블::*}
     # --- E등급 ---
-    set {강화테이블::나뭇가지::최대} to 2
+    set {강화테이블::나뭇가지::최대} to 5
     set {강화테이블::나뭇가지::1} to "경험치:10"
     set {강화테이블::나뭇가지::2} to "난이도:1"
     # --- D등급 ---
-    set {강화테이블::대나무 막대기::최대} to 3
+    set {강화테이블::대나무 막대기::최대} to 8
     set {강화테이블::대나무 막대기::1} to "경험치:10"
     set {강화테이블::대나무 막대기::2} to "크기:4"
     set {강화테이블::대나무 막대기::3} to "난이도:1"
-    set {강화테이블::행운의 낚싯대::최대} to 3
+    set {강화테이블::행운의 낚싯대::최대} to 8
     set {강화테이블::행운의 낚싯대::1} to "등급업:2"
     set {강화테이블::행운의 낚싯대::2} to "경험치:10"
     set {강화테이블::행운의 낚싯대::3} to "등급업:3"
     # --- C등급 ---
-    set {강화테이블::참나무 낚싯대::최대} to 4
+    set {강화테이블::참나무 낚싯대::최대} to 10
     set {강화테이블::참나무 낚싯대::1} to "경험치:12"
     set {강화테이블::참나무 낚싯대::2} to "난이도:1"
     set {강화테이블::참나무 낚싯대::3} to "크기:5"
     set {강화테이블::참나무 낚싯대::4} to "크리확률:2"
-    set {강화테이블::경험의 낚싯대::최대} to 4
+    set {강화테이블::경험의 낚싯대::최대} to 10
     set {강화테이블::경험의 낚싯대::1} to "경험치:20"
     set {강화테이블::경험의 낚싯대::2} to "경험치:20"
     set {강화테이블::경험의 낚싯대::3} to "난이도:1"
     set {강화테이블::경험의 낚싯대::4} to "경험치:30"
-    set {강화테이블::낚시꾼의 낚싯대::최대} to 4
+    set {강화테이블::낚시꾼의 낚싯대::최대} to 10
     set {강화테이블::낚시꾼의 낚싯대::1} to "크리확률:3"
     set {강화테이블::낚시꾼의 낚싯대::2} to "크리확률:3"
     set {강화테이블::낚시꾼의 낚싯대::3} to "난이도:1"
     set {강화테이블::낚시꾼의 낚싯대::4} to "크리배율:1"
-    set {강화테이블::대물 낚싯대::최대} to 4
+    set {강화테이블::대물 낚싯대::최대} to 10
     set {강화테이블::대물 낚싯대::1} to "크기:6"
     set {강화테이블::대물 낚싯대::2} to "크기:6"
     set {강화테이블::대물 낚싯대::3} to "난이도:1"
     set {강화테이블::대물 낚싯대::4} to "크기:10"
     # --- B등급 ---
-    set {강화테이블::강화목 낚싯대::최대} to 5
+    set {강화테이블::강화목 낚싯대::최대} to 13
     set {강화테이블::강화목 낚싯대::1} to "난이도:1"
     set {강화테이블::강화목 낚싯대::2} to "크기:5"
     set {강화테이블::강화목 낚싯대::3} to "등급업:2"
     set {강화테이블::강화목 낚싯대::4} to "난이도:1"
     set {강화테이블::강화목 낚싯대::5} to "크리확률:3"
-    set {강화테이블::쌍둥이 낚싯대::최대} to 5
+    set {강화테이블::쌍둥이 낚싯대::최대} to 13
     set {강화테이블::쌍둥이 낚싯대::1} to "더블찬스:3"
     set {강화테이블::쌍둥이 낚싯대::2} to "더블찬스:4"
     set {강화테이블::쌍둥이 낚싯대::3} to "트리플찬스:2"
     set {강화테이블::쌍둥이 낚싯대::4} to "더블찬스:5"
     set {강화테이블::쌍둥이 낚싯대::5} to "트리플찬스:3"
-    set {강화테이블::황금 낚싯대::최대} to 5
+    set {강화테이블::황금 낚싯대::최대} to 13
     set {강화테이블::황금 낚싯대::1} to "판매보너스:5"
     set {강화테이블::황금 낚싯대::2} to "판매보너스:6"
     set {강화테이블::황금 낚싯대::3} to "경험치:10"
     set {강화테이블::황금 낚싯대::4} to "판매보너스:8"
     set {강화테이블::황금 낚싯대::5} to "등급업:2"
-    set {강화테이블::견고한 낚싯대::최대} to 5
+    set {강화테이블::견고한 낚싯대::최대} to 13
     set {강화테이블::견고한 낚싯대::1} to "내구보존:10"
     set {강화테이블::견고한 낚싯대::2} to "난이도:1"
     set {강화테이블::견고한 낚싯대::3} to "내구보존:12"
     set {강화테이블::견고한 낚싯대::4} to "크기:6"
     set {강화테이블::견고한 낚싯대::5} to "내구보존:15"
-    set {강화테이블::전문가 낚싯대::최대} to 5
+    set {강화테이블::전문가 낚싯대::최대} to 13
     set {강화테이블::전문가 낚싯대::1} to "크리확률:3"
     set {강화테이블::전문가 낚싯대::2} to "난이도:1"
     set {강화테이블::전문가 낚싯대::3} to "크리확률:4"
     set {강화테이블::전문가 낚싯대::4} to "크리배율:1"
     set {강화테이블::전문가 낚싯대::5} to "크리확률:5"
-    set {강화테이블::행운꾼의 낚싯대::최대} to 5
+    set {강화테이블::행운꾼의 낚싯대::최대} to 13
     set {강화테이블::행운꾼의 낚싯대::1} to "등급업:2"
     set {강화테이블::행운꾼의 낚싯대::2} to "크리확률:2"
     set {강화테이블::행운꾼의 낚싯대::3} to "등급업:3"
     set {강화테이블::행운꾼의 낚싯대::4} to "크리확률:3"
     set {강화테이블::행운꾼의 낚싯대::5} to "등급업:4"
     # --- A등급 ---
-    set {강화테이블::흑단목 낚싯대::최대} to 6
+    set {강화테이블::흑단목 낚싯대::최대} to 16
     set {강화테이블::흑단목 낚싯대::1} to "난이도:1"
     set {강화테이블::흑단목 낚싯대::2} to "크기:6"
     set {강화테이블::흑단목 낚싯대::3} to "등급업:2"
     set {강화테이블::흑단목 낚싯대::4} to "난이도:1"
     set {강화테이블::흑단목 낚싯대::5} to "크리확률:4"
     set {강화테이블::흑단목 낚싯대::6} to "크기:10"
-    set {강화테이블::명인의 낚싯대::최대} to 6
+    set {강화테이블::명인의 낚싯대::최대} to 16
     set {강화테이블::명인의 낚싯대::1} to "등급업:3"
     set {강화테이블::명인의 낚싯대::2} to "경험치:15"
     set {강화테이블::명인의 낚싯대::3} to "등급업:3"
     set {강화테이블::명인의 낚싯대::4} to "난이도:1"
     set {강화테이블::명인의 낚싯대::5} to "등급업:4"
     set {강화테이블::명인의 낚싯대::6} to "크리확률:4"
-    set {강화테이블::대어꾼의 낚싯대::최대} to 6
+    set {강화테이블::대어꾼의 낚싯대::최대} to 16
     set {강화테이블::대어꾼의 낚싯대::1} to "크기:7"
     set {강화테이블::대어꾼의 낚싯대::2} to "크기:8"
     set {강화테이블::대어꾼의 낚싯대::3} to "난이도:1"
     set {강화테이블::대어꾼의 낚싯대::4} to "크기:10"
     set {강화테이블::대어꾼의 낚싯대::5} to "크리확률:3"
     set {강화테이블::대어꾼의 낚싯대::6} to "크기:14"
-    set {강화테이블::상인의 낚싯대::최대} to 6
+    set {강화테이블::상인의 낚싯대::최대} to 16
     set {강화테이블::상인의 낚싯대::1} to "판매보너스:6"
     set {강화테이블::상인의 낚싯대::2} to "판매보너스:7"
     set {강화테이블::상인의 낚싯대::3} to "경험치:12"
     set {강화테이블::상인의 낚싯대::4} to "판매보너스:9"
     set {강화테이블::상인의 낚싯대::5} to "등급업:2"
     set {강화테이블::상인의 낚싯대::6} to "판매보너스:12"
-    set {강화테이블::학자의 낚싯대::최대} to 6
+    set {강화테이블::학자의 낚싯대::최대} to 16
     set {강화테이블::학자의 낚싯대::1} to "경험치:25"
     set {강화테이블::학자의 낚싯대::2} to "경험치:28"
     set {강화테이블::학자의 낚싯대::3} to "난이도:1"
@@ -166,7 +203,7 @@ on load:
     set {강화테이블::학자의 낚싯대::5} to "크리확률:3"
     set {강화테이블::학자의 낚싯대::6} to "경험치:40"
     # --- S등급 (엔드컨텐츠) ---
-    set {강화테이블::용왕의 낚싯대::최대} to 8
+    set {강화테이블::용왕의 낚싯대::최대} to 20
     set {강화테이블::용왕의 낚싯대::1} to "등급업:3"
     set {강화테이블::용왕의 낚싯대::2} to "난이도:1"
     set {강화테이블::용왕의 낚싯대::3} to "등급업:4"
@@ -175,7 +212,7 @@ on load:
     set {강화테이블::용왕의 낚싯대::6} to "난이도:1"
     set {강화테이블::용왕의 낚싯대::7} to "등급업:6"
     set {강화테이블::용왕의 낚싯대::8} to "크리확률:5"
-    set {강화테이블::심해 낚싯대::최대} to 8
+    set {강화테이블::심해 낚싯대::최대} to 20
     set {강화테이블::심해 낚싯대::1} to "크리확률:4"
     set {강화테이블::심해 낚싯대::2} to "크리배율:1"
     set {강화테이블::심해 낚싯대::3} to "크리확률:5"
@@ -184,7 +221,7 @@ on load:
     set {강화테이블::심해 낚싯대::6} to "크리배율:1"
     set {강화테이블::심해 낚싯대::7} to "난이도:1"
     set {강화테이블::심해 낚싯대::8} to "크리확률:8"
-    set {강화테이블::바르칸 낚싯대::최대} to 8
+    set {강화테이블::바르칸 낚싯대::최대} to 20
     set {강화테이블::바르칸 낚싯대::1} to "더블찬스:4"
     set {강화테이블::바르칸 낚싯대::2} to "트리플찬스:2"
     set {강화테이블::바르칸 낚싯대::3} to "더블찬스:5"
@@ -203,7 +240,18 @@ function 축복최대레벨(id: text) :: integer:
     return {_data::2} parsed as integer
 function 축복가격(id: text, level: integer) :: integer:
     set {_data::*} to split {축복::%{_id}%} at "|"
-    return ({_data::3} parsed as integer) * {_level}
+    set {_base} to {_data::3} parsed as integer
+    # Lv1: 기본가, Lv2: x3, Lv3: x7, Lv4: x15, Lv5: x30
+    if {_level} is 1:
+        return {_base}
+    else if {_level} is 2:
+        return {_base} * 3
+    else if {_level} is 3:
+        return {_base} * 7
+    else if {_level} is 4:
+        return {_base} * 15
+    else:
+        return {_base} * 30
 function 축복설명(id: text) :: text:
     set {_data::*} to split {축복::%{_id}%} at "|"
     return {_data::4}
@@ -247,15 +295,15 @@ function 강화아이템업데이트(p: player, rodName: text, lv: integer):
         set name of {_p}'s tool to "&f%{_rodName}% &b+%{_lv}%"
     else:
         set name of {_p}'s tool to "&f%{_rodName}%"
-    # 기본 로어 수집 (강화 / RID 이전만 — 컬러코드 무관 매칭)
+    # 기본 로어 수집 (ENH_MARK/[강화]/RID 이후 전부 제거 — 강화 섹션 재생성)
     delete {_base::*}
     set {_cut} to false
     loop lore of {_p}'s tool:
-        if loop-value contains "RID:":
-            set {_cut} to true
         if loop-value contains "ENH_MARK":
             set {_cut} to true
-        if loop-value contains "강화":
+        if loop-value contains "[강화]":
+            set {_cut} to true
+        if loop-value contains "RID:":
             set {_cut} to true
         if {_cut} is false:
             add loop-value to {_base::*}
@@ -299,47 +347,44 @@ function 강화아이템업데이트(p: player, rodName: text, lv: integer):
     delete {_final::*}
     loop {_base::*}:
         set {_line} to loop-value
-        # 기본 스탯 뒤에 강화 증분 표시 (하늘색)
+        # 이전 강화 suffix 제거 (§b( 이후 전부 잘라냄)
+        if {_line} contains " §b(":
+            set {_cleanParts::*} to split {_line} at " §b("
+            set {_line} to {_cleanParts::1}
+        # 기본 스탯 뒤에 강화 증분 표시 (하늘색, 한 줄에 한 번만)
         if {_lv} > 0:
             set {_suffix} to ""
             if {_line} contains "난이도":
                 if {_ev난이도} > 0:
                     set {_suffix} to " &b(-%{_ev난이도}%)"
-            if {_line} contains "등급":
-                if {_ev등급업} > 0:
-                    set {_suffix} to " &b(+%{_ev등급업}%%%)"
-            if {_line} contains "배율":
+            else if {_line} contains "배율":
                 if {_ev크리배율} > 0:
                     set {_evPct} to {_ev크리배율} * 10
                     set {_suffix} to " &b(+%{_evPct}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "크리티컬":
-                    if {_ev크리확률} > 0:
-                        set {_suffix} to " &b(+%{_ev크리확률}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "크기":
-                    if {_ev크기} > 0:
-                        set {_suffix} to " &b(+%{_ev크기}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "경험치":
-                    if {_ev경험치} > 0:
-                        set {_suffix} to " &b(+%{_ev경험치}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "더블":
-                    if {_ev더블} > 0:
-                        set {_suffix} to " &b(+%{_ev더블}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "트리플":
-                    if {_ev트리플} > 0:
-                        set {_suffix} to " &b(+%{_ev트리플}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "판매":
-                    if {_ev판매} > 0:
-                        set {_suffix} to " &b(+%{_ev판매}%%%)"
-            if {_suffix} is "":
-                if {_line} contains "내구":
-                    if {_ev내구} > 0:
-                        set {_suffix} to " &b(+%{_ev내구}%%%)"
+            else if {_line} contains "크리티컬":
+                if {_ev크리확률} > 0:
+                    set {_suffix} to " &b(+%{_ev크리확률}%%%)"
+            else if {_line} contains "등급":
+                if {_ev등급업} > 0:
+                    set {_suffix} to " &b(+%{_ev등급업}%%%)"
+            else if {_line} contains "크기":
+                if {_ev크기} > 0:
+                    set {_suffix} to " &b(+%{_ev크기}%%%)"
+            else if {_line} contains "경험치":
+                if {_ev경험치} > 0:
+                    set {_suffix} to " &b(+%{_ev경험치}%%%)"
+            else if {_line} contains "더블":
+                if {_ev더블} > 0:
+                    set {_suffix} to " &b(+%{_ev더블}%%%)"
+            else if {_line} contains "트리플":
+                if {_ev트리플} > 0:
+                    set {_suffix} to " &b(+%{_ev트리플}%%%)"
+            else if {_line} contains "판매":
+                if {_ev판매} > 0:
+                    set {_suffix} to " &b(+%{_ev판매}%%%)"
+            else if {_line} contains "내구":
+                if {_ev내구} > 0:
+                    set {_suffix} to " &b(+%{_ev내구}%%%)"
             if {_suffix} is not "":
                 set {_line} to "%{_line}%%{_suffix}%"
         add {_line} to {_final::*}
@@ -358,15 +403,19 @@ function 축복효과적용(p: player):
     set {_축복lv} to {플레이어축복::축복::%{_p}%}
     if {_축복lv} is not set:
         set {_축복lv} to 0
-    set {낚싯대인챈트경험치::%{_p}%} to {_축복lv} * 40
+    set {낚싯대인챈트경험치::%{_p}%} to {_축복lv} * 10
     set {_집중lv} to {플레이어축복::집중::%{_p}%}
     if {_집중lv} is not set:
         set {_집중lv} to 0
     set {낚싯대인챈트타임아웃::%{_p}%} to {_집중lv} * 20
-    set {_행운lv} to {플레이어축복::행운낚시::%{_p}%}
+    set {_행운lv} to {플레이어축복::행운::%{_p}%}
     if {_행운lv} is not set:
         set {_행운lv} to 0
-    set {낚싯대인챈트행운::%{_p}%} to {_행운lv} * 5
+    set {낚싯대인챈트행운::%{_p}%} to {_행운lv} * 3
+    set {_안정lv} to {플레이어축복::안정::%{_p}%}
+    if {_안정lv} is not set:
+        set {_안정lv} to 0
+    set {낚싯대인챈트난이도::%{_p}%} to {_안정lv} * 3
 
 # ===== 강화 스탯 캐시 적용 (낚싯대별, 테이블 기반) =====
 function 강화스탯적용(p: player):
@@ -393,35 +442,49 @@ function 강화스탯적용(p: player):
     if {_lv} <= 0:
         stop
     # 레벨 1~현재까지 누적 합산
+    set {낚싯대강화행운::%{_p}%} to 0
     loop {_lv} times:
         set {_step} to loop-number
         set {_data} to {강화테이블::%{_rod}%::%{_step}%}
-        if {_data} is set:
-            set {_pairs::*} to split {_data} at ","
-            loop {_pairs::*}:
-                set {_kv::*} to split loop-value-2 at ":"
-                set {_sk} to {_kv::1}
-                set {_sv} to {_kv::2} parsed as number
-                if {_sk} is "난이도":
-                    add {_sv} to {낚싯대강화난이도::%{_p}%}
-                else if {_sk} is "크기":
-                    add {_sv} to {낚싯대강화크기::%{_p}%}
-                else if {_sk} is "등급업":
-                    add {_sv} to {낚싯대강화등급업::%{_p}%}
-                else if {_sk} is "크리확률":
-                    add {_sv} to {낚싯대강화크리확률::%{_p}%}
-                else if {_sk} is "크리배율":
-                    add {_sv} to {낚싯대강화크리배율::%{_p}%}
-                else if {_sk} is "경험치":
-                    add {_sv} to {낚싯대강화경험치::%{_p}%}
-                else if {_sk} is "더블찬스":
-                    add {_sv} to {낚싯대강화더블::%{_p}%}
-                else if {_sk} is "트리플찬스":
-                    add {_sv} to {낚싯대강화트리플::%{_p}%}
-                else if {_sk} is "판매보너스":
-                    add {_sv} to {낚싯대강화판매::%{_p}%}
-                else if {_sk} is "내구보존":
-                    add {_sv} to {낚싯대강화내구::%{_p}%}
+        if {_data} is not set:
+            # 공통 테이블: 개별 테이블에 없는 레벨
+            # 매 레벨: 난이도:1, 크기:2, 크리확률:1
+            set {_data} to "난이도:1,크기:2,크리확률:1"
+            # 짝수 레벨 추가: 등급업:1
+            set {_mod2} to mod({_step}, 2)
+            if {_mod2} is 0:
+                set {_data} to "%{_data}%,등급업:1"
+            # 5의 배수 추가: 행운:1
+            set {_mod5} to mod({_step}, 5)
+            if {_mod5} is 0:
+                set {_data} to "%{_data}%,행운:1"
+        set {_pairs::*} to split {_data} at ","
+        loop {_pairs::*}:
+            set {_kv::*} to split loop-value-2 at ":"
+            set {_sk} to {_kv::1}
+            set {_sv} to {_kv::2} parsed as number
+            if {_sk} is "난이도":
+                add {_sv} to {낚싯대강화난이도::%{_p}%}
+            else if {_sk} is "크기":
+                add {_sv} to {낚싯대강화크기::%{_p}%}
+            else if {_sk} is "등급업":
+                add {_sv} to {낚싯대강화등급업::%{_p}%}
+            else if {_sk} is "크리확률":
+                add {_sv} to {낚싯대강화크리확률::%{_p}%}
+            else if {_sk} is "크리배율":
+                add {_sv} to {낚싯대강화크리배율::%{_p}%}
+            else if {_sk} is "경험치":
+                add {_sv} to {낚싯대강화경험치::%{_p}%}
+            else if {_sk} is "더블찬스":
+                add {_sv} to {낚싯대강화더블::%{_p}%}
+            else if {_sk} is "트리플찬스":
+                add {_sv} to {낚싯대강화트리플::%{_p}%}
+            else if {_sk} is "판매보너스":
+                add {_sv} to {낚싯대강화판매::%{_p}%}
+            else if {_sk} is "내구보존":
+                add {_sv} to {낚싯대강화내구::%{_p}%}
+            else if {_sk} is "행운":
+                add {_sv} to {낚싯대강화행운::%{_p}%}
     # lore도 갱신 (누적 lore 정리)
     강화아이템업데이트({_p}, {_rod}, {_lv})
 
@@ -625,7 +688,7 @@ on inventory click:
                     축복효과적용(player)
                     set {_name} to 축복이름({_id})
                     message "&8[&d 축복 &8] &a%{_name}%&a Lv.%{_nextLv}% 축복 완료! &7(-%{_cost}%원)" to player
-                    play sound "block.enchantment_table.use" with volume 1 with pitch 1.2 to player
+                    play sound "block.enchantment_table.use" with volume 1 and pitch 1.2 to player
                     wait 1 tick
                     make player execute command "/축복"
 
@@ -660,32 +723,94 @@ on inventory click:
             subtract {_cost} from {돈::%player%}
             set {_성공률} to {강화확률::%{_nextLv}%}
             set {_하락률} to {강화하락::%{_nextLv}%}
-            set {_roll} to random integer between 1 and 100
-            if {_roll} <= {_성공률}:
+            # 강화확률 상승 주문서 체크 (인벤에 있으면 사용)
+            set {_boostUsed} to false
+            loop all items in player's inventory:
+                if lore of loop-item contains "scroll:강화확률상승":
+                    add 5 to {_성공률}
+                    set {_boostUsed} to true
+                    if amount of loop-item > 1:
+                        remove 1 of loop-item from player
+                    else:
+                        set loop-item to air
+                    message "&8[&b 강화 &8] &e강화확률 상승 주문서 사용! &a(+5%%)" to player
+                    exit loop
+            # 하락방지 주문서 체크 (인벤에서 적합한 등급 찾기)
+            set {_hasShield} to false
+            set {_shieldGrade} to 0
+            if {_nextLv} >= 6:
+                if {_nextLv} <= 10:
+                    set {_shieldGrade} to 1
+                else if {_nextLv} <= 15:
+                    set {_shieldGrade} to 2
+                else if {_nextLv} <= 18:
+                    set {_shieldGrade} to 3
+                else:
+                    set {_shieldGrade} to 4
+                loop all items in player's inventory:
+                    if lore of loop-item contains "scroll:하락방지:%{_shieldGrade}%":
+                        set {_hasShield} to true
+                        set {_shieldItem} to loop-item
+                        exit loop
+            # 강화 판정 (roll 1~1000, 소수점 성공률 대응)
+            set {_roll} to random integer between 1 and 1000
+            set {_successThreshold} to {_성공률} * 10
+            set {_downgradeThreshold} to {_successThreshold} + ({_하락률} * 10)
+            if {_roll} <= {_successThreshold}:
                 set {낚싯대강화::%{_rodId}%} to {_nextLv}
                 강화스탯적용(player)
                 강화아이템업데이트(player, {_rod}, {_nextLv})
                 message "&8[&b 강화 &8] &a&l성공! &b%{_rod}% +%{_nextLv}% &7(-%{_cost}%원)" to player
-                play sound "block.anvil.use" with volume 1 with pitch 1.5 to player
+                play sound "block.anvil.use" with volume 1 and pitch 1.5 to player
+                도전과제체크(player, "강화", "%{_nextLv}%")
+                # +15 이상 성공 시 서버 공지
+                if {_nextLv} >= 15:
+                    broadcast "&8[&6&l강화&8] &e%player% &7님이 &b%{_rod}% &a+%{_nextLv}% &7강화에 성공했습니다!"
                 wait 1 tick
                 make player execute command "/강화"
                 stop
-            set {_하락임계} to {_성공률} + {_하락률}
-            if {_roll} <= {_하락임계}:
+            if {_roll} <= {_downgradeThreshold}:
+                # 하락 판정 — 하락방지 주문서 체크
+                if {_hasShield} is true:
+                    # 하락방지 사용: 하락 대신 유지
+                    if amount of {_shieldItem} > 1:
+                        remove 1 of {_shieldItem} from player
+                    else:
+                        loop all items in player's inventory:
+                            if lore of loop-item contains "scroll:하락방지:%{_shieldGrade}%":
+                                set loop-item to air
+                                exit loop
+                    message "&8[&b 강화 &8] &e실패 &8| &d하락방지! &7레벨 유지 &b+%{_lv}% &7(-%{_cost}%원)" to player
+                    play sound "block.glass.break" with volume 1 and pitch 1.5 to player
+                    wait 1 tick
+                    make player execute command "/강화"
+                    stop
+                # 실제 하락 처리
                 if {_lv} > 0:
                     set {_newLv} to {_lv} - 1
-                    set {낚싯대강화::%{_rodId}%} to {_newLv}
-                    강화스탯적용(player)
-                    강화아이템업데이트(player, {_rod}, {_newLv})
-                    message "&8[&b 강화 &8] &c&l하락! &7%{_rod}% &b+%{_lv}% &7→ &c+%{_newLv}% &7(-%{_cost}%원)" to player
+                    # 체크포인트 체크: 5, 10, 15 아래로 하락 불가
+                    if {강화체크포인트::%{_lv}%} is true:
+                        set {_newLv} to {_lv}
+                        message "&8[&b 강화 &8] &c&l하락! &7→ &e체크포인트 보호! &7유지 &b+%{_lv}% &7(-%{_cost}%원)" to player
+                    else:
+                        # 하락 후에도 체크포인트 아래로 안 가도록
+                        loop 20 times:
+                            if {강화체크포인트::%{_newLv}%} is true:
+                                exit loop
+                            if {_newLv} <= 0:
+                                exit loop
+                        set {낚싯대강화::%{_rodId}%} to {_newLv}
+                        강화스탯적용(player)
+                        강화아이템업데이트(player, {_rod}, {_newLv})
+                        message "&8[&b 강화 &8] &c&l하락! &7%{_rod}% &b+%{_lv}% &7→ &c+%{_newLv}% &7(-%{_cost}%원)" to player
                 else:
                     message "&8[&b 강화 &8] &c&l하락! &7(이미 +0, 유지) &7(-%{_cost}%원)" to player
-                play sound "block.anvil.land" with volume 1 with pitch 0.3 to player
+                play sound "block.anvil.land" with volume 1 and pitch 0.3 to player
                 wait 1 tick
                 make player execute command "/강화"
                 stop
             message "&8[&b 강화 &8] &e실패. &7레벨 유지 &b+%{_lv}% &7(-%{_cost}%원)" to player
-            play sound "block.anvil.land" with volume 1 with pitch 0.7 to player
+            play sound "block.anvil.land" with volume 1 and pitch 0.7 to player
             wait 1 tick
             make player execute command "/강화"
 
