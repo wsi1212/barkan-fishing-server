@@ -1,0 +1,64 @@
+# ===== 여관 시스템 =====
+# 여관 NPC를 통한 마을 거점 설정 + /거점 명령어
+
+# =========================================
+#   여관 스폰 설정 함수 (NPC.sk 액션에서 호출)
+# =========================================
+
+function 여관스폰설정(p: player, npcId: text):
+    set {_town} to {NPC::%{_npcId}%::여관마을}
+    if {_town} is not set:
+        send "&c[여관] 여관 정보가 설정되지 않은 NPC입니다. 관리자에게 문의해주세요." to {_p}
+        stop
+    set {여관스폰마을::%{_p}%} to {_town}
+    set {여관스폰월드::%{_p}%} to {NPC::%{_npcId}%::여관스폰월드}
+    set {여관스폰x::%{_p}%} to {NPC::%{_npcId}%::여관스폰x}
+    set {여관스폰y::%{_p}%} to {NPC::%{_npcId}%::여관스폰y}
+    set {여관스폰z::%{_p}%} to {NPC::%{_npcId}%::여관스폰z}
+    send "&6[여관] &f%{_town}%&7이(가) 거점으로 설정되었습니다." to {_p}
+    send "&7다음 접속부터 이 마을에서 시작됩니다. &e/거점&7으로 언제든 돌아올 수 있어요." to {_p}
+    play sound "entity.experience_orb.pickup" with volume 1 and pitch 1.2 at {_p}
+
+# =========================================
+#   접속 시 거점 스폰 처리
+# =========================================
+
+on join:
+    wait 5 ticks
+    if {여관스폰마을::%player%} is not set:
+        stop
+    set {_w} to {여관스폰월드::%player%}
+    set {_x} to {여관스폰x::%player%}
+    set {_y} to {여관스폰y::%player%}
+    set {_z} to {여관스폰z::%player%}
+    make player execute command "execute in minecraft:%{_w}% run tp @s %{_x}% %{_y}% %{_z}%"
+
+# 사망 후 리스폰 시 거점으로
+on respawn:
+    if {여관스폰마을::%player%} is not set:
+        stop
+    wait 2 ticks
+    set {_w} to {여관스폰월드::%player%}
+    set {_x} to {여관스폰x::%player%}
+    set {_y} to {여관스폰y::%player%}
+    set {_z} to {여관스폰z::%player%}
+    make player execute command "execute in minecraft:%{_w}% run tp @s %{_x}% %{_y}% %{_z}%"
+
+# =========================================
+#   /거점 — 설정한 여관 마을로 이동
+# =========================================
+
+command /거점:
+    aliases: /rjwja
+    trigger:
+        if {여관스폰마을::%player%} is not set:
+            send "&c[여관] 아직 거점으로 설정한 마을이 없습니다." to player
+            send "&7마을의 여관주인에게 말을 걸어 숙박해보세요!" to player
+            stop
+        set {_w} to {여관스폰월드::%player%}
+        set {_x} to {여관스폰x::%player%}
+        set {_y} to {여관스폰y::%player%}
+        set {_z} to {여관스폰z::%player%}
+        set {_town} to {여관스폰마을::%player%}
+        make player execute command "execute in minecraft:%{_w}% run tp @s %{_x}% %{_y}% %{_z}%"
+        send "&6[여관] &f%{_town}%&7으로 이동했습니다." to player

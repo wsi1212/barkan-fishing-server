@@ -3,6 +3,5 @@
 command /스폰:
     aliases: /넴주, /tmvhs, /spawn
     trigger:
-        make player execute command "execute in minecraft:overworld run tp @s 0 100 0"
-        # 개인 월드보더 초기화 (길드 섬에서 나올 때)
-        send "&a스폰으로 이동했습니다." to player
+        make player execute command "execute in minecraft:overworld run tp @s 365 97 749"
+        send "&a스폰 마을로 이동했습니다." to player

@@ -1,0 +1,20 @@
+# ===== 광산 모자 =====
+# 빛 블록 로직은 Java(BlockShip)에서 처리
+# 이 파일은 아이템 정의 + 지급 명령어만 담당
+
+function 광산모자아이템() :: item:
+    set {_item} to golden helmet named "&6광산 모자"
+    set lore of {_item} to "&7착용하면 주위가 밝아집니다." and "&8▶ 특수 장비"
+    return {_item}
+
+command /광산모자지급 [<player>]:
+    permission: op
+    trigger:
+        set {_target} to arg-1
+        if {_target} is not set:
+            set {_target} to player
+        give {_target} 광산모자아이템()
+        if player is {_target}:
+            send "&6[광산 모자] &a지급되었습니다." to player
+        else:
+            send "&6[광산 모자] &f%name of {_target}%&a에게 지급했습니다." to player

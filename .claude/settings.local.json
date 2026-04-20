@@ -195,7 +195,9 @@
       "Bash(awk -F'\"' '{print $2}')",
       "Bash(awk '/set {_id} to/ {id=$NF; gsub\\(/[\"}]/, \"\", id\\); next} /set {조합법::[^:]*::이름} to/ && id {match\\($0, /\"\\([^\"]*\\)\"/, arr\\); print id \": \" arr[1]; id=\"\"} ' '/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/조합대.sk')",
       "Bash(rm -rf world)",
-      "Bash(mv low:*)"
+      "Bash(mv low:*)",
+      "Bash(javap -c -p hidenicknamesreload/hidenicknamesreload/Utils/Utils.class)",
+      "Bash(xargs ls:*)"
     ]
   }
 }

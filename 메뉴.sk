@@ -272,18 +272,16 @@ on inventory click:
             cancel event
             if clicked slot is 14:
                 wait 1 tick
-                set {도감페이지::%player%} to 0
-                # 첫 항목: 섬이 있으면 섬, 아니면 지역
-                if {섬리스트::1} is set:
-                    regiondictionary(player, {섬리스트::1})
-                else:
-                    regiondictionary(player, {지역리스트::1})
+                if {도감해금::%player%} is not true:
+                    message "&8[&d 도감 &8] &c아직 도감이 해금되지 않았습니다. 튜토리얼을 진행해주세요." to player
+                    stop
+                도감메인GUI(player)
             else if clicked slot is 10:
                 wait 1 tick
                 openWorkbench(player)
             else if clicked slot is 12:
                 wait 1 tick
-                opensellgui(player)
+                레벨선택GUI(player)
             else if clicked slot is 16:
                 wait 1 tick
                 openPartShop(player, "낚싯대")
@@ -304,7 +302,8 @@ command /메뉴:
             set {_slot} to (loop-iteration)-1
             set slot {_slot} of player's current inventory to {gui::메뉴::%{_slot}%}
         set slot 10 of player's current inventory to anvil named "&e&l장비 작업대" with lore "&7낚시 장비를 장착합니다." and "&7클릭하여 작업대 열기"
-        set slot 12 of player's current inventory to gold ingot named "&e&l물고기 상점" with lore "&7잡은 물고기를 판매합니다." and "&7클릭하여 상점 열기"
+        set slot 12 of player's current inventory to nether star named "&e&l레벨 로드맵" with lore "&7낚시 레벨과 스킬을 확인합니다." and "&7클릭하여 레벨 로드맵 열기"
+        set slot 14 of player's current inventory to bookshelf named "&d&l도감" with lore "&7발견한 물고기와 수집품을 확인합니다." and "&7클릭하여 도감 열기"
         set slot 16 of player's current inventory to emerald named "&e&l부품 상점" with lore "&7낚시 부품을 구매합니다." and "&7클릭하여 상점 열기"
         set slot 20 of player's current inventory to book named "&d&l퀘스트 목록" with lore "&7현재 진행 중인 퀘스트를 확인합니다." and "&7클릭하여 퀘스트 목록 열기"
         set slot 22 of player's current inventory to packed ice named "&b&l아이스박스" with lore "&7물고기를 신선하게 보관합니다." and "&7클릭하여 아이스박스 열기"

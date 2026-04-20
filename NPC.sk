@@ -115,6 +115,9 @@ on right click on entity:
                 if {NPC::%loop-value%::페리} is true:
                     페리탑승GUI(player)
                     stop
+                if {NPC::%loop-value%::상점} is true:
+                    opensellgui(player)
+                    stop
                 set {대화엔티티::%player%} to clicked entity
                 npc대화시작(player, loop-value)
                 stop
@@ -357,6 +360,8 @@ function npc선택지GUI(p: player, npcId: text, key: text):
             set slot {_choiceSlot} of {_p}'s current inventory to red wool named "&c%{_text}%"
         else if {_action} is "닫기":
             set slot {_choiceSlot} of {_p}'s current inventory to gray wool named "&7%{_text}%"
+        else if {_action} is "여관설정":
+            set slot {_choiceSlot} of {_p}'s current inventory to yellow wool named "&e%{_text}%"
         else:
             set slot {_choiceSlot} of {_p}'s current inventory to lime wool named "&a%{_text}%"
         set {대화선택지슬롯::%{_p}%::%{_choiceSlot}%} to {_cid}
@@ -407,13 +412,19 @@ on inventory click:
             close player's inventory
             wait 1 tick
             npc대화정리(player)
+        else if {_action} is "여관설정":
+            set {대화GUI전환::%player%} to true
+            close player's inventory
+            wait 1 tick
+            여관스폰설정(player, {_npcId})
+            npc대화정리(player)
 
 # =========================================
 #   대화 GUI 닫힘 감지
 # =========================================
 
 on inventory close:
-    if player's current inventory's name is "&0대화":
+    if name of event-inventory is "&0대화":
         if {대화GUI전환::%player%} is true:
             delete {대화GUI전환::%player%}
             stop
@@ -524,10 +535,14 @@ command /npc목록:
             set {_qCount} to size of {NPC::%{_id}%::퀘스트::*}
             if {_qCount} is not set:
                 set {_qCount} to 0
-            set {_ferryTag} to ""
+            set {_tags} to ""
             if {NPC::%{_id}%::페리} is true:
-                set {_ferryTag} to " &9[페리]"
-            message "&7  - &f%{_id}% &7(%{_name}%&7) CID:%{_cid}% 퀘스트:%{_qCount}%개%{_ferryTag}%" to player
+                set {_tags} to "%{_tags}% &9[페리]"
+            if {NPC::%{_id}%::상점} is true:
+                set {_tags} to "%{_tags}% &e[상점]"
+            if {NPC::%{_id}%::여관} is true:
+                set {_tags} to "%{_tags}% &6[여관]"
+            message "&7  - &f%{_id}% &7(%{_name}%&7) CID:%{_cid}% 퀘스트:%{_qCount}%개%{_tags}%" to player
 
 # ===== 디버그 =====
 command /npc디버그 <text>:
@@ -592,6 +607,69 @@ command /npc페리 <text>:
             message "&8[&d NPC &8] &e%{_id}%&7를 &a페리 NPC&7로 설정했습니다." to player
 
 on tab complete of "/npc페리":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+
+command /npc여관 <text> <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        set {_town} to arg-2
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        set {NPC::%{_id}%::여관} to true
+        set {NPC::%{_id}%::여관마을} to {_town}
+        set {NPC::%{_id}%::여관스폰월드} to name of world of player
+        set {NPC::%{_id}%::여관스폰x} to x-coordinate of player
+        set {NPC::%{_id}%::여관스폰y} to y-coordinate of player
+        set {NPC::%{_id}%::여관스폰z} to z-coordinate of player
+        message "&8[&d NPC &8] &e%{_id}%&7를 &a여관 NPC&7로 설정했습니다." to player
+        message "&7마을명: &f%{_town}%" to player
+        message "&7거점 좌표: &f%x-coordinate of player%, %y-coordinate of player%, %z-coordinate of player% (%name of world of player%)" to player
+
+command /npc여관해제 <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        if {NPC::%{_id}%::여관} is not true:
+            message "&8[&d NPC &8] &c%{_id}%은 여관 NPC가 아닙니다." to player
+            stop
+        delete {NPC::%{_id}%::여관}
+        delete {NPC::%{_id}%::여관마을}
+        delete {NPC::%{_id}%::여관스폰월드}
+        delete {NPC::%{_id}%::여관스폰x}
+        delete {NPC::%{_id}%::여관스폰y}
+        delete {NPC::%{_id}%::여관스폰z}
+        message "&8[&d NPC &8] &e%{_id}%&7의 여관 NPC 설정을 &c해제&7했습니다." to player
+
+command /npc상점 <text>:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        if {NPC::%{_id}%::상점} is true:
+            delete {NPC::%{_id}%::상점}
+            message "&8[&d NPC &8] &e%{_id}%&7의 상점 NPC 설정을 &c해제&7했습니다." to player
+        else:
+            set {NPC::%{_id}%::상점} to true
+            message "&8[&d NPC &8] &e%{_id}%&7를 &a상점 NPC&7로 설정했습니다. (클릭 시 /상점 GUI 오픈)" to player
+
+on tab complete of "/npc상점":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+
+on tab complete of "/npc여관":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+    set tab completions for position 2 to "<마을이름>"
+
+on tab complete of "/npc여관해제":
     if {NPC목록::*} is set:
         set tab completions for position 1 to {NPC목록::*}
 
@@ -854,4 +932,23 @@ on load:
     # 튜토14 완료
     delete {대화::할아버지::퀘스트완료::튜토14::대사::*}
     add "...해냈구나." to {대화::할아버지::퀘스트완료::튜토14::대사::*}
+
+    # =============================================
+    #   여관주인 (마을 거점 설정 NPC)
+    # =============================================
+
+    # --- 인사 ---
+    delete {대화::여관주인::인사::대사::*}
+    delete {대화::여관주인::인사::선택지::*}
+    add "어서오세요, 나그네." to {대화::여관주인::인사::대사::*}
+    add "이 마을에서 하룻밤 쉬어가시겠어요?" to {대화::여관주인::인사::대사::*}
+    add "여기를 거점으로 삼으면 언제든 &f/거점&7으로 돌아오실 수 있답니다." to {대화::여관주인::인사::대사::*}
+    add "c1" to {대화::여관주인::인사::선택지::*}
+    add "c2" to {대화::여관주인::인사::선택지::*}
+    set {대화::여관주인::인사::선택지텍스트::c1} to "여기서 묵겠습니다"
+    set {대화::여관주인::인사::선택지액션::c1} to "여관설정"
+    set {대화::여관주인::인사::선택지이동::c1} to "x"
+    set {대화::여관주인::인사::선택지텍스트::c2} to "그냥 지나가겠습니다"
+    set {대화::여관주인::인사::선택지액션::c2} to "닫기"
+    set {대화::여관주인::인사::선택지이동::c2} to "x"
     add "대단하다. 이제 진짜 어부야." to {대화::할아버지::퀘스트완료::튜토14::대사::*}

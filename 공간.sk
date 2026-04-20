@@ -144,6 +144,12 @@ on respawn:
     set player's bed location to spawn of world "world"
     set respawn location to spawn of world "world"
 
+# 월드 이동 시 지역/섬 즉시 초기화 (RegionTracker 폴링 딜레이 방지)
+on world change:
+    set {area::%player%} to "0"
+    set {섬::%player%} to "0"
+    사이드바업데이트(player)
+
 # ===== 지역 진입/퇴장 — Java RegionTracker 브릿지 =====
 # Java가 20틱마다 플레이어 위치 체크 → /regionevent 명령어로 Skript에 알림
 command /regionevent <text> <text> <text>:

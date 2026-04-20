@@ -201,3 +201,9 @@ command /도감관리 [<text>] [<text>] [<text>]:
 
         else:
             message "&8[&c 어드민 &8] &c올바른 모드를 입력하세요: 전체오픈, 전체잠금, 오픈, 잠금" to player
+
+# ===== OP 접속 시 크리에이티브 모드 =====
+# (이름표 숨김은 BlockShip Java 플러그인이 Scoreboard API로 처리)
+on join:
+    if player is op:
+        set player's gamemode to creative

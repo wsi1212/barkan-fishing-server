@@ -11,7 +11,7 @@ command /collectiblesync <text> [<text>] [<text>] [<text>]:
             delete {수집품목록::*}
             delete {수집품섬목록::*}
         else if arg-1 is "add":
-            # /collectiblesync add <ID> <섬> <world>:<x>:<y>:<z>
+            # /collectiblesync add <ID> <섬> <world>:<x>:<y>:<z>:<headType>
             add arg-2 to {수집품목록::*}
             set {수집품::%arg-2%::섬} to arg-3
             set {_loc::*} to split arg-4 at ":"
@@ -19,6 +19,8 @@ command /collectiblesync <text> [<text>] [<text>] [<text>]:
             set {수집품::%arg-2%::x} to {_loc::2} parsed as integer
             set {수집품::%arg-2%::y} to {_loc::3} parsed as integer
             set {수집품::%arg-2%::z} to {_loc::4} parsed as integer
+            if {_loc::5} is set:
+                set {수집품::%arg-2%::타입} to {_loc::5}
             if {수집품섬목록::*} does not contain arg-3:
                 add arg-3 to {수집품섬목록::*}
         else if arg-1 is "remove":
@@ -47,8 +49,12 @@ command /collectiblefound <player> <text>:
             if {수집품발견::%{_p}%::%loop-value%} is true:
                 add 1 to {_totalFound}
         set {_totalAll} to size of {수집품목록::*}
+        # 섬별 진행도 계산
+        set {_island} to {수집품::%{_foundId}%::섬}
+        set {_islandCount} to 도감카운트_수집품섬({_p}, {_island})
         # 메시지 + 효과
-        message "&8[&5 수집품 &8] &d숨겨진 수집품을 발견했습니다! &8(%{_totalFound}%/%{_totalAll}%)" to {_p}
+        message "&8[&5 수집품 &8] &d숨겨진 수집품 발견! &f%{_foundId}%" to {_p}
+        message "&8[&5 수집품 &8] &7%{_island}% &8- &f%{_islandCount}% &8| &7전체 &f%{_totalFound}%/%{_totalAll}%" to {_p}
         message "&8[&5 수집품 &8] &5+40 탐험 경험치" to {_p}
         play sound "entity.player.levelup" with volume 0.5 and pitch 1.8 to {_p}
         # 마일스톤 체크
@@ -258,7 +264,16 @@ function 도감_수집품상세GUI(p: player):
             set {_sl} to {_slots::%{_si}%}
             set {_cid} to loop-value
             if {수집품발견::%{_p}%::%{_cid}%} is true:
-                set slot {_sl} of {_p}'s current inventory to player head named "&a#%{_num}% &f%{_cid}%" with lore "&a발견!"
+                # 수집품 타입에 맞는 아이템
+                set {_typeName} to {수집품::%{_cid}%::타입}
+                if {_typeName} is not set:
+                    set {_typeName} to "creeper head"
+                replace all "_" with " " in {_typeName}
+                set {_typeName} to lowercase {_typeName}
+                set {_displayItem} to {_typeName} parsed as item type
+                if {_displayItem} is not set:
+                    set {_displayItem} to creeper head
+                set slot {_sl} of {_p}'s current inventory to {_displayItem} named "&a#%{_num}% &f%{_cid}%" with lore "&a발견!"
             else:
                 set slot {_sl} of {_p}'s current inventory to coal named "&8#%{_num}% ???" with lore "&7아직 발견하지 못한 수집품"
     # 네비게이션
