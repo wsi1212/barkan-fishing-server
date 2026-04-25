@@ -216,6 +216,54 @@ function 사이드바업데이트(p: player):
 
 # (칭호 태그/네임태그 관련은 칭호.sk에서 관리)
 
+# ===== 사이드바 테스트 명령어 (3가지 방식) =====
+# 1. 레거시 Skript (현재 사이드바업데이트가 쓰는 방식)
+command /테스트1:
+    permission: op
+    trigger:
+        set title of player's scoreboard to "&aTEST 1 (legacy)"
+        set line 3 of player's scoreboard to "&f방식: set title of scoreboard"
+        set line 2 of player's scoreboard to "&e%player's name%"
+        set line 1 of player's scoreboard to "&7line 1"
+        send "[1] legacy 시도함. 보이나?" to player
+
+# 2. Skript 2.13 네이티브
+command /테스트2:
+    permission: op
+    trigger:
+        wipe player's sidebar
+        set name of sidebar of player to "&bTEST 2 (native)"
+        set id based score "&f방식: sidebar of player" in sidebar of player to 3 with id "t2_a"
+        set id based score "&e%player's name%" in sidebar of player to 2 with id "t2_b"
+        set id based score "&7line 1" in sidebar of player to 1 with id "t2_c"
+        send "[2] native 시도함. 보이나?" to player
+
+# 3. 바닐라 /scoreboard 명령
+command /테스트3:
+    permission: op
+    trigger:
+        execute console command "scoreboard objectives remove t3"
+        execute console command "scoreboard objectives add t3 dummy {""text"":""TEST 3 vanilla""}"
+        execute console command "scoreboard objectives setdisplay sidebar t3"
+        execute console command "scoreboard players set &fline_a t3 3"
+        execute console command "scoreboard players set %player% t3 2"
+        execute console command "scoreboard players set &7line_c t3 1"
+        send "[3] vanilla 시도함. 보이나?" to player
+
+# 디버그: 현재 objective 상태
+command /테스트조회:
+    permission: op
+    trigger:
+        execute player command "scoreboard objectives list"
+
+# 테스트 정리
+command /테스트삭제:
+    permission: op
+    trigger:
+        execute console command "scoreboard objectives remove t3"
+        wipe player's sidebar
+        send "정리됨" to player
+
 # ===== 콤보 테스트 명령어 (op) =====
 command /콤보 [<integer>]:
     permission: op

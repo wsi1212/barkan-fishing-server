@@ -206,6 +206,39 @@ on inventory click:
     if player's current inventory's name is "&0지역별 물고기도감":
         cancel event
         set {_ci} to index of clicked slot
+        # 어드민: 물고기 슬롯(9~44) 클릭 → 해당 물고기 인벤 지급
+        if player is op:
+            if {_ci} >= 9:
+                if {_ci} <= 44:
+                    set {_page} to {도감물고기페이지::%player%}
+                    if {_page} is not set:
+                        set {_page} to 0
+                    set {_idx} to {_page} * 36 + ({_ci} - 9) + 1
+                    set {_fdata} to {도감캐시::%player%::%{_idx}%}
+                    if {_fdata} is set:
+                        set {_fp::*} to split {_fdata} at "|"
+                        set {_등급} to {_fp::4}
+                        if {_등급} contains "~":
+                            set {_sg::*} to split {_등급} at "~"
+                            set {_등급} to {_sg::1}
+                        set {_size} to {_fp::3} parsed as number
+                        set {_fishItem} to cod named "&f%{_fp::1}%"
+                        delete {_adminLore::*}
+                        add "&8[물고기]" to {_adminLore::*}
+                        add "&r" to {_adminLore::*}
+                        add "&7등급 &e: &f%{_등급}%" to {_adminLore::*}
+                        add "&7크기 &e: &f%{_size}%cm" to {_adminLore::*}
+                        add "&7신선도 &e: &a100%%" to {_adminLore::*}
+                        add "&f%now%" to {_adminLore::*}
+                        add "&8f:%unix timestamp of now%:0:1" to {_adminLore::*}
+                        set lore of {_fishItem} to {_adminLore::*}
+                        set {_mid} to 물고기모델ID({_fp::1})
+                        if {_mid} is not "":
+                            apply custom model data to {_fishItem}:
+                                strings: {_mid}
+                        give {_fishItem} to player
+                        message "&8[&d 도감 &8] &a%{_fp::1}% &7지급 완료 &8(어드민)" to player
+                    stop
         # 슬롯 45 = 물고기 이전 페이지
         if {_ci} is 45:
             if {도감물고기페이지::%player%} > 0:
@@ -456,6 +489,39 @@ on inventory click:
     if player's current inventory's name is "&0전체 물고기도감":
         cancel event
         set {_ci} to index of clicked slot
+        # 어드민: 물고기 슬롯(9~44) 클릭 → 해당 물고기 인벤 지급
+        if player is op:
+            if {_ci} >= 9:
+                if {_ci} <= 44:
+                    set {_page} to {전체도감페이지::%player%}
+                    if {_page} is not set:
+                        set {_page} to 0
+                    set {_idx} to {_page} * 36 + ({_ci} - 9) + 1
+                    set {_fdata} to {전체도감캐시::%player%::%{_idx}%}
+                    if {_fdata} is set:
+                        set {_fp::*} to split {_fdata} at "|"
+                        set {_등급} to {_fp::4}
+                        if {_등급} contains "~":
+                            set {_sg::*} to split {_등급} at "~"
+                            set {_등급} to {_sg::1}
+                        set {_size} to {_fp::3} parsed as number
+                        set {_fishItem} to cod named "&f%{_fp::1}%"
+                        delete {_adminLore::*}
+                        add "&8[물고기]" to {_adminLore::*}
+                        add "&r" to {_adminLore::*}
+                        add "&7등급 &e: &f%{_등급}%" to {_adminLore::*}
+                        add "&7크기 &e: &f%{_size}%cm" to {_adminLore::*}
+                        add "&7신선도 &e: &a100%%" to {_adminLore::*}
+                        add "&f%now%" to {_adminLore::*}
+                        add "&8f:%unix timestamp of now%:0:1" to {_adminLore::*}
+                        set lore of {_fishItem} to {_adminLore::*}
+                        set {_mid} to 물고기모델ID({_fp::1})
+                        if {_mid} is not "":
+                            apply custom model data to {_fishItem}:
+                                strings: {_mid}
+                        give {_fishItem} to player
+                        message "&8[&d 도감 &8] &a%{_fp::1}% &7지급 완료 &8(어드민)" to player
+                    stop
         # 슬롯 48 = 도감 메인 메뉴로
         if {_ci} is 48:
             close player's inventory

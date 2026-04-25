@@ -6,14 +6,668 @@
 # ===== 물고기 커스텀 모델 ID (리소스팩 연동) =====
 # 리소스팩 assets/minecraft/items/cod.json의 custom_model_data 키와 매칭
 function 물고기모델ID(name: text) :: text:
-    if {_name} is "용신":
-        return "dragon_god"
-    else if {_name} is "흰긴수염고래":
-        return "blue_whale"
-    else if {_name} is "사자갈기해파리":
-        return "lion_mane_jelly"
+    if {_name} is "갈매기숭어":
+        return "galmaegisung_eo"
+    else if {_name} is "바위게":
+        return "ba_wige"
+    else if {_name} is "해초새우":
+        return "haechosae_u"
+    else if {_name} is "모래새우":
+        return "molaesae_u"
+    else if {_name} is "사구미꾸라지":
+        return "sagumi_kkulaji"
+    else if {_name} is "동굴붕어":
+        return "donggulbung_eo"
+    else if {_name} is "동굴피라미":
+        return "donggulpilami"
+    else if {_name} is "맹안망둥이":
+        return "maeng_anmangdung_i"
+    else if {_name} is "석회미꾸리":
+        return "seoghoemi_kkuli"
+    else if {_name} is "암벽송사리":
+        return "ambyeogsongsali"
+    else if {_name} is "자갈잉어":
+        return "jagal_ing_eo"
+    else if {_name} is "지하실치":
+        return "jihasilchi"
+    else if {_name} is "지하은어":
+        return "jiha_eun_eo"
+    else if {_name} is "탄광피라미":
+        return "tangwangpilami"
+    else if {_name} is "흑점송사리":
+        return "heugjeomsongsali"
+    else if {_name} is "망둥어":
+        return "mangdung_eo"
+    else if {_name} is "모래무지":
+        return "molaemuji"
+    else if {_name} is "블루길":
+        return "beullugil"
+    else if {_name} is "피라미":
+        return "pilami"
+    else if {_name} is "모래망둥이":
+        return "molaemangdung_i"
+    else if {_name} is "사막미꾸라지":
+        return "samagmi_kkulaji"
+    else if {_name} is "오아시스새우":
+        return "o_asiseusae_u"
+    else if {_name} is "백화피라미":
+        return "baeghwapilami"
+    else if {_name} is "수맥새우":
+        return "sumaegsae_u"
+    else if {_name} is "지하수맥미꾸리":
+        return "jihasumaegmi_kkuli"
+    else if {_name} is "교단의인장":
+        return "gyodan_ui_injang"
+    else if {_name} is "밧줄새우":
+        return "basjulsae_u"
+    else if {_name} is "상단화물꼬리표":
+        return "sangdanhwamulkkolipyo"
+    else if {_name} is "항구청어":
+        return "hanggucheong_eo"
+    else if {_name} is "양식붕어":
+        return "yangsigbung_eo"
+    else if {_name} is "거미불가사리":
+        return "geomibulgasali"
+    else if {_name} is "꼬치고기":
+        return "kkochigogi"
+    else if {_name} is "노래미":
+        return "nolaemi"
+    else if {_name} is "노무라입깃해파리":
+        return "nomula_ibgishaepali"
+    else if {_name} is "달고기":
+        return "dalgogi"
+    else if {_name} is "독가시치":
+        return "doggasichi"
+    else if {_name} is "두빛보름달해파리":
+        return "dubichboleumdalhaepali"
+    else if {_name} is "말쥐치":
+        return "maljwichi"
+    else if {_name} is "망둑어":
+        return "mangdug_eo"
+    else if {_name} is "민달고기":
+        return "mindalgogi"
+    else if {_name} is "바다나리":
+        return "badanali"
+    else if {_name} is "바다황어":
+        return "badahwang_eo"
+    else if {_name} is "보름달물해파리":
+        return "boleumdalmulhaepali"
+    else if {_name} is "불가사리":
+        return "bulgasali"
+    else if {_name} is "빡대":
+        return "ppagdae"
+    else if {_name} is "상자해파리":
+        return "sangjahaepali"
+    else if {_name} is "성대":
+        return "seongdae"
+    else if {_name} is "쏠배감펭":
+        return "ssolbaegampeng"
+    else if {_name} is "쏨뱅이":
+        return "ssombaeng_i"
+    else if {_name} is "쑤기미":
+        return "ssugimi"
+    else if {_name} is "양태":
+        return "yangtae"
+    else if {_name} is "용치놀래기":
+        return "yongchinollaegi"
+    else if {_name} is "자리돔":
+        return "jalidom"
+    else if {_name} is "쥐노래미":
+        return "jwinolaemi"
+    else if {_name} is "쥐치":
+        return "jwichi"
+    else if {_name} is "쫄복":
+        return "jjolbog"
+    else if {_name} is "참놀래기":
+        return "chamnollaegi"
+    else if {_name} is "황놀래기":
+        return "hwangnollaegi"
+    else if {_name} is "돌돔치":
+        return "doldomchi"
+    else if {_name} is "파도농어":
+        return "padonong_eo"
+    else if {_name} is "모래참붕어":
+        return "molaechambung_eo"
+    else if {_name} is "광산메기":
+        return "gwangsanmegi"
+    else if {_name} is "동굴빙어":
+        return "donggulbing_eo"
+    else if {_name} is "맹안갈치":
+        return "maeng_angalchi"
+    else if {_name} is "석회송어":
+        return "seoghoesong_eo"
+    else if {_name} is "심층빙어":
+        return "simcheungbing_eo"
+    else if {_name} is "지하황어":
+        return "jihahwang_eo"
+    else if {_name} is "흑비늘피라미":
+        return "heugbineulpilami"
+    else if {_name} is "미꾸라지":
+        return "mi_kkulaji"
+    else if {_name} is "붕어":
+        return "bung_eo"
+    else if {_name} is "참붕어":
+        return "chambung_eo"
+    else if {_name} is "제단의불씨":
+        return "jedan_uibul_ssi"
+    else if {_name} is "사막참붕어":
+        return "samagchambung_eo"
+    else if {_name} is "선인장고기":
+        return "seon_injanggogi"
+    else if {_name} is "맹안사막어":
+        return "maeng_ansamag_eo"
+    else if {_name} is "지하수맥붕어":
+        return "jihasumaegbung_eo"
+    else if {_name} is "상단고등어":
+        return "sangdangodeung_eo"
+    else if {_name} is "항구고등어":
+        return "hanggugodeung_eo"
+    else if {_name} is "양식농어":
+        return "yangsignong_eo"
+    else if {_name} is "양식잉어":
+        return "yangsig_ing_eo"
+    else if {_name} is "가숭어":
+        return "gasung_eo"
+    else if {_name} is "고등어":
+        return "godeung_eo"
+    else if {_name} is "노랑가오리":
+        return "nolangga_oli"
+    else if {_name} is "바다숭어":
+        return "badasung_eo"
+    else if {_name} is "청대치":
+        return "cheongdaechi"
+    else if {_name} is "청어":
+        return "cheong_eo"
+    else if {_name} is "홍서대":
+        return "hongseodae"
+    else if {_name} is "홍어":
+        return "hong_eo"
+    else if {_name} is "가자미":
+        return "gajami"
+    else if {_name} is "대구":
+        return "daegu"
+    else if {_name} is "도다리":
+        return "dodali"
+    else if {_name} is "만새기":
+        return "mansaegi"
+    else if {_name} is "망치 고등어":
+        return "mangchi_godeung_eo"
+    else if {_name} is "바다농어":
+        return "badanong_eo"
+    else if {_name} is "벵에돔":
+        return "beng_edom"
+    else if {_name} is "볼락":
+        return "bollag"
+    else if {_name} is "삼치":
+        return "samchi"
+    else if {_name} is "아귀":
+        return "agwi"
+    else if {_name} is "우럭":
+        return "uleog"
+    else if {_name} is "점농어":
+        return "jeomnong_eo"
+    else if {_name} is "줄도다리":
+        return "juldodali"
+    else if {_name} is "줄삼치":
+        return "julsamchi"
+    else if {_name} is "초롱아귀":
+        return "cholong_agwi"
+    else if {_name} is "멸치":
+        return "myeolchi"
+    else if {_name} is "빨판상어":
+        return "ppalpansang_eo"
+    else if {_name} is "오징어":
+        return "ojing_eo"
+    else if {_name} is "바위볼락":
+        return "ba_wibollag"
+    else if {_name} is "모래속잉어":
+        return "molaesog_ing_eo"
+    else if {_name} is "동굴비단잉어":
+        return "donggulbidan_ing_eo"
+    else if {_name} is "동굴철갑어":
+        return "donggulcheolgab_eo"
+    else if {_name} is "심연붕어":
+        return "sim_yeonbung_eo"
+    else if {_name} is "암흑송어":
+        return "amheugsong_eo"
+    else if {_name} is "지저농어":
+        return "jijeonong_eo"
+    else if {_name} is "누치":
+        return "nuchi"
+    else if {_name} is "메기":
+        return "megi"
+    else if {_name} is "잉어":
+        return "ing_eo"
+    else if {_name} is "재투성이메기":
+        return "jaetuseong_imegi"
+    else if {_name} is "모래뱀장어":
+        return "molaebaemjang_eo"
+    else if {_name} is "오아시스잉어":
+        return "o_asiseu_ing_eo"
+    else if {_name} is "수정비늘잉어":
+        return "sujeongbineul_ing_eo"
+    else if {_name} is "지하수맥메기":
+        return "jihasumaegmegi"
+    else if {_name} is "교역소농어":
+        return "gyo_yeogsonong_eo"
+    else if {_name} is "화물선농어":
+        return "hwamulseonnong_eo"
+    else if {_name} is "양식메기":
+        return "yangsigmegi"
+    else if {_name} is "양식숭어":
+        return "yangsigsung_eo"
+    else if {_name} is "곰치":
+        return "gomchi"
+    else if {_name} is "날치":
+        return "nalchi"
+    else if {_name} is "명태":
+        return "myeongtae"
+    else if {_name} is "문절망둑":
+        return "munjeolmangdug"
+    else if {_name} is "부시리":
+        return "busili"
+    else if {_name} is "잿방어":
+        return "jaesbang_eo"
+    else if {_name} is "쥐치복":
+        return "jwichibog"
+    else if {_name} is "한치":
+        return "hanchi"
+    else if {_name} is "갑오징어":
+        return "gab_ojing_eo"
+    else if {_name} is "강도다리":
+        return "gangdodali"
+    else if {_name} is "광어":
+        return "gwang_eo"
+    else if {_name} is "매가오리":
+        return "maega_oli"
+    else if {_name} is "방어":
+        return "bang_eo"
+    else if {_name} is "카와이":
+        return "ka_wa_i"
+    else if {_name} is "감성돔":
+        return "gamseongdom"
+    else if {_name} is "능성어":
+        return "neungseong_eo"
+    else if {_name} is "민어":
+        return "min_eo"
+    else if {_name} is "참돔":
+        return "chamdom"
+    else if {_name} is "참복":
+        return "chambog"
+    else if {_name} is "흑점복":
+        return "heugjeombog"
+    else if {_name} is "용흔어":
+        return "yongheun_eo"
+    else if {_name} is "재비늘어":
+        return "jaebineul_eo"
+    else if {_name} is "홍탄어":
+        return "hongtan_eo"
+    else if {_name} is "맹인비늘고기":
+        return "maeng_inbineulgogi"
+    else if {_name} is "수몰전갱이":
+        return "sumoljeongaeng_i"
+    else if {_name} is "야광붕어":
+        return "yagwangbung_eo"
+    else if {_name} is "우천미꾸라지":
+        return "ucheonmi_kkulaji"
+    else if {_name} is "검은불꽃붕어":
+        return "geom_eunbulkkochbung_eo"
+    else if {_name} is "곱상어":
+        return "gobsang_eo"
+    else if {_name} is "괭이상어":
+        return "gwaeng_isang_eo"
+    else if {_name} is "미흑점상어":
+        return "miheugjeomsang_eo"
+    else if {_name} is "별상어":
+        return "byeolsang_eo"
+    else if {_name} is "신락상어":
+        return "sinlagsang_eo"
+    else if {_name} is "쭈꾸미":
+        return "jju_kkumi"
+    else if {_name} is "펜두상어":
+        return "pendusang_eo"
+    else if {_name} is "연무어":
+        return "yeonmu_eo"
+    else if {_name} is "화결어":
+        return "hwagyeol_eo"
+    else if {_name} is "흑요어":
+        return "heug_yo_eo"
+    else if {_name} is "사구의망둥이":
+        return "sagu_uimangdung_i"
+    else if {_name} is "광맥송어":
+        return "gwangmaegsong_eo"
+    else if {_name} is "동굴전기뱀장어":
+        return "dongguljeongibaemjang_eo"
+    else if {_name} is "심연메기":
+        return "sim_yeonmegi"
+    else if {_name} is "흑수정잉어":
+        return "heugsujeong_ing_eo"
+    else if {_name} is "꺽지":
+        return "kkeogji"
+    else if {_name} is "끄리":
+        return "kkeuli"
+    else if {_name} is "동자개":
+        return "dongjagae"
+    else if {_name} is "빠가사리":
+        return "ppagasali"
+    else if {_name} is "숭어":
+        return "sung_eo"
+    else if {_name} is "사막황어":
+        return "samaghwang_eo"
+    else if {_name} is "열사의숭어":
+        return "yeolsa_uisung_eo"
+    else if {_name} is "용암수맥어":
+        return "yong_amsumaeg_eo"
+    else if {_name} is "사막상선단잉어":
+        return "samagsangseondan_ing_eo"
+    else if {_name} is "상선단잉어":
+        return "sangseondan_ing_eo"
+    else if {_name} is "가다랑어":
+        return "gadalang_eo"
+    else if {_name} is "갈치":
+        return "galchi"
+    else if {_name} is "문어":
+        return "mun_eo"
+    else if {_name} is "옥돔":
+        return "ogdom"
+    else if {_name} is "전기가오리":
+        return "jeongiga_oli"
+    else if {_name} is "혹돔":
+        return "hogdom"
+    else if {_name} is "돌돔":
+        return "doldom"
+    else if {_name} is "먹장어":
+        return "meogjang_eo"
+    else if {_name} is "무명갈전갱이":
+        return "mumyeonggaljeongaeng_i"
+    else if {_name} is "바라쿠다":
+        return "balakuda"
+    else if {_name} is "붉바리":
+        return "bulgbali"
+    else if {_name} is "자바리":
+        return "jabali"
+    else if {_name} is "반딧불송사리":
+        return "bandisbulsongsali"
+    else if {_name} is "빗방울잉어":
+        return "bisbang_ul_ing_eo"
+    else if {_name} is "아침이슬복어":
+        return "achim_iseulbog_eo"
+    else if {_name} is "어둠동굴메기":
+        return "eodumdonggulmegi"
+    else if {_name} is "침수가재":
+        return "chimsugajae"
+    else if {_name} is "가래상어":
+        return "galaesang_eo"
+    else if {_name} is "낫돌고래":
+        return "nasdolgolae"
+    else if {_name} is "레본상어":
+        return "lebonsang_eo"
+    else if {_name} is "레오파드상어":
+        return "le_opadeusang_eo"
+    else if {_name} is "말레이원양해파리":
+        return "malle_i_won_yanghaepali"
+    else if {_name} is "무태상어":
+        return "mutaesang_eo"
+    else if {_name} is "블랙팁샤크":
+        return "beullaegtibsyakeu"
+    else if {_name} is "블루탱":
+        return "beullutaeng"
+    else if {_name} is "산호상어":
+        return "sanhosang_eo"
+    else if {_name} is "투쿠시":
+        return "tukusi"
+    else if {_name} is "흉상어":
+        return "hyungsang_eo"
+    else if {_name} is "흑기흉상어":
+        return "heuggihyungsang_eo"
+    else if {_name} is "흰동가리":
+        return "huindonggali"
+    else if {_name} is "홍련어":
+        return "honglyeon_eo"
+    else if {_name} is "흑열어":
+        return "heug_yeol_eo"
+    else if {_name} is "사구의비밀":
+        return "sagu_uibimil"
+    else if {_name} is "심연흰장어":
+        return "sim_yeonhuinjang_eo"
+    else if {_name} is "암흑철갑상어":
+        return "amheugcheolgabsang_eo"
+    else if {_name} is "지하왕농어":
+        return "jiha_wangnong_eo"
+    else if {_name} is "가물치":
+        return "gamulchi"
+    else if {_name} is "농어":
+        return "nong_eo"
+    else if {_name} is "뱀장어":
+        return "baemjang_eo"
+    else if {_name} is "쏘가리":
+        return "ssogali"
+    else if {_name} is "이프리트의분노":
+        return "ipeuliteu_uibunno"
+    else if {_name} is "불꽃지느러미":
+        return "bulkkochjineuleomi"
+    else if {_name} is "황금사막어":
+        return "hwanggeumsamag_eo"
+    else if {_name} is "이프리트의핏줄":
+        return "ipeuliteu_uipisjul"
+    else if {_name} is "밀수꾼의전리품":
+        return "milsu_kkun_uijeonlipum"
+    else if {_name} is "갯장어":
+        return "gaesjang_eo"
+    else if {_name} is "돌가자미":
+        return "dolgajami"
+    else if {_name} is "붕장어":
+        return "bungjang_eo"
+    else if {_name} is "돗돔":
+        return "dosdom"
+    else if {_name} is "참다랑어":
+        return "chamdalang_eo"
+    else if {_name} is "달빛쏘가리":
+        return "dalbichssogali"
+    else if {_name} is "새벽동굴장어":
+        return "saebyeogdongguljang_eo"
+    else if {_name} is "심야박쥐고기":
+        return "sim_yabagjwigogi"
+    else if {_name} is "여명잉어":
+        return "yeomyeong_ing_eo"
+    else if {_name} is "대포한치":
+        return "daepohanchi"
+    else if {_name} is "뱀상어":
+        return "baemsang_eo"
+    else if {_name} is "벨루가":
+        return "belluga"
+    else if {_name} is "악상어":
+        return "agsang_eo"
+    else if {_name} is "일각돌고래":
+        return "ilgagdolgolae"
+    else if {_name} is "청상아리":
+        return "cheongsang_ali"
+    else if {_name} is "해마":
+        return "haema"
+    else if {_name} is "환도상어":
+        return "hwandosang_eo"
+    else if {_name} is "황소상어":
+        return "hwangsosang_eo"
+    else if {_name} is "홍련포식자":
+        return "honglyeonposigja"
+    else if {_name} is "화산수호자":
+        return "hwasansuhoja"
+    else if {_name} is "모래폭풍어":
+        return "molaepogpung_eo"
+    else if {_name} is "신기루어":
+        return "singilu_eo"
+    else if {_name} is "심연왕메기":
+        return "sim_yeon_wangmegi"
+    else if {_name} is "산천어":
+        return "sancheon_eo"
+    else if {_name} is "연어":
+        return "yeon_eo"
+    else if {_name} is "열목어":
+        return "yeolmog_eo"
+    else if {_name} is "은어":
+        return "eun_eo"
+    else if {_name} is "황복":
+        return "hwangbog"
+    else if {_name} is "황어":
+        return "hwang_eo"
+    else if {_name} is "심연수맥어":
+        return "sim_yeonsumaeg_eo"
+    else if {_name} is "귀상어":
+        return "gwisang_eo"
+    else if {_name} is "돗새치":
+        return "dos_saechi"
+    else if {_name} is "청새치":
+        return "cheongsaechi"
+    else if {_name} is "톱상어":
+        return "tobsang_eo"
+    else if {_name} is "다금바리":
+        return "dageumbali"
+    else if {_name} is "혼마구로":
+        return "honmagulo"
+    else if {_name} is "개복치":
+        return "gaebogchi"
+    else if {_name} is "나폴레옹피쉬":
+        return "napolle_ongpiswi"
+    else if {_name} is "남방큰돌고래":
+        return "nambangkeundolgolae"
+    else if {_name} is "넙치농어":
+        return "neobchinong_eo"
+    else if {_name} is "노틸러스":
+        return "notilleoseu"
+    else if {_name} is "돔발상어":
+        return "dombalsang_eo"
+    else if {_name} is "참돌고래":
+        return "chamdolgolae"
+    else if {_name} is "큰돌고래":
+        return "keundolgolae"
+    else if {_name} is "톱가오리":
+        return "tobga_oli"
+    else if {_name} is "해룡":
+        return "haelyong"
+    else if {_name} is "흰부리돌고래":
+        return "huinbulidolgolae"
+    else if {_name} is "염":
+        return "yeom"
+    else if {_name} is "흑점":
+        return "heugjeom"
+    else if {_name} is "백상어":
+        return "baegsang_eo"
+    else if {_name} is "철갑상어":
+        return "cheolgabsang_eo"
+    else if {_name} is "사막의수호자":
+        return "samag_uisuhoja"
+    else if {_name} is "지하의제왕":
+        return "jiha_uije_wang"
+    else if {_name} is "번개물고기":
+        return "beongaemulgogi"
+    else if {_name} is "이프리트의눈물":
+        return "ipeuliteu_uinunmul"
+    else if {_name} is "만타가오리":
+        return "mantaga_oli"
+    else if {_name} is "바다거북":
+        return "badageobug"
+    else if {_name} is "배럴아이":
+        return "baeleol_a_i"
+    else if {_name} is "장수거북":
+        return "jangsugeobug"
+    else if {_name} is "척탄병":
+        return "cheogtanbyeong"
+    else if {_name} is "라그나로크":
+        return "lageunalokeu"
+    else if {_name} is "인페르노":
+        return "inpeleuno"
+    else if {_name} is "강의제왕":
+        return "gang_uije_wang"
+    else if {_name} is "왕연어":
+        return "wang_yeon_eo"
+    else if {_name} is "오아시스의왕":
+        return "o_asiseu_ui_wang"
+    else if {_name} is "뇌전가오리":
+        return "noejeonga_oli"
+    else if {_name} is "덤보문어":
+        return "deombomun_eo"
+    else if {_name} is "리본이악어":
+        return "libon_i_ag_eo"
+    else if {_name} is "메가마우스상어":
+        return "megama_useusang_eo"
+    else if {_name} is "밍크고래":
+        return "mingkeugolae"
+    else if {_name} is "반딧불이오징어":
+        return "bandisbul_i_ojing_eo"
+    else if {_name} is "백상아리":
+        return "baegsang_ali"
     else if {_name} is "산갈치":
         return "regalecus"
+    else if {_name} is "유령상어":
+        return "yulyeongsang_eo"
+    else if {_name} is "참고래":
+        return "chamgolae"
+    else if {_name} is "콜로살오징어":
+        return "kollosal_ojing_eo"
+    else if {_name} is "흡혈오징어":
+        return "heubhyeol_ojing_eo"
+    else if {_name} is "용혈어":
+        return "yonghyeol_eo"
+    else if {_name} is "황금잉어":
+        return "hwanggeum_ing_eo"
+    else if {_name} is "황금모래잉어":
+        return "hwanggeummolae_ing_eo"
+    else if {_name} is "수맥의수호자":
+        return "sumaeg_uisuhoja"
+    else if {_name} is "거대 태평양 문어":
+        return "geodae_taepyeong_yang_mun_eo"
+    else if {_name} is "고래상어":
+        return "golaesang_eo"
+    else if {_name} is "귀신고래":
+        return "gwisingolae"
+    else if {_name} is "그린란드상어":
+        return "geulinlandeusang_eo"
+    else if {_name} is "글라우쿠스":
+        return "geulla_ukuseu"
+    else if {_name} is "돌묵상어":
+        return "dolmugsang_eo"
+    else if {_name} is "마귀상어":
+        return "magwisang_eo"
+    else if {_name} is "머리없는닭해파리":
+        return "meoli_eobsneundalghaepali"
+    else if {_name} is "범고래":
+        return "beomgolae"
+    else if {_name} is "빗해파리":
+        return "bishaepali"
+    else if {_name} is "일각고래":
+        return "ilgaggolae"
+    else if {_name} is "클리오네":
+        return "keulli_one"
+    else if {_name} is "풍선장어":
+        return "pungseonjang_eo"
+    else if {_name} is "향유고래":
+        return "hyang_yugolae"
+    else if {_name} is "혹등고래":
+        return "hogdeunggolae"
+    else if {_name} is "용신":
+        return "dragon_god"
+    else if {_name} is "강의수호자":
+        return "gang_uisuhoja"
+    else if {_name} is "이프리트의축복":
+        return "ipeuliteu_uichugbog"
+    else if {_name} is "이프리트의핵":
+        return "ipeuliteu_uihaeg"
+    else if {_name} is "라브카":
+        return "labeuka"
+    else if {_name} is "라티메리아 메나도엔시스":
+        return "latimeli_a_menado_ensiseu"
+    else if {_name} is "리게일러커스 글렌":
+        return "lige_illeokeoseu_geullen"
+    else if {_name} is "사자갈기해파리":
+        return "lion_mane_jelly"
+    else if {_name} is "스티지아머두서 지간티어":
+        return "seutiji_ameoduseo_jiganti_eo"
+    else if {_name} is "이디아칸더스 앳랜티커스":
+        return "idi_akandeoseu_aeslaentikeoseu"
+    else if {_name} is "티부로니아":
+        return "tibuloni_a"
+    else if {_name} is "흰긴수염고래":
+        return "blue_whale"
     return ""
 
 # 물고기모델적용: 삭제됨 (section effect는 function 내 사용 불가)
