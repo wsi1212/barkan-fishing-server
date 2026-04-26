@@ -379,7 +379,12 @@
       "Bash(env)",
       "Bash(split -l 55 /tmp/fish-gen/_all_fish.txt /tmp/fish-gen/_chunk_)",
       "Bash(split -l 33 /tmp/fish-gen/_all_fish.txt /tmp/fish-gen/_sa_)",
-      "Bash(split -l 30 /tmp/fish-gen/_all_fish.txt /tmp/fish-gen/_agent_)"
+      "Bash(split -l 30 /tmp/fish-gen/_all_fish.txt /tmp/fish-gen/_agent_)",
+      "Bash(cp /tmp/test_model.json ~/Downloads/barkan-resourcepack/assets/minecraft/models/item/fish/blue_whale.json)",
+      "Bash(rm -f /tmp/barkan-resourcepack.zip)",
+      "Bash(identify /tmp/fish-gen/processed/gomchi.png)",
+      "Bash(ls -la *퀘스트*)",
+      "Bash(grep -li \"퀘스트\\\\|quest\" *.md)"
     ],
     "defaultMode": "bypassPermissions"
   }

@@ -77,22 +77,28 @@ function 사이드바업데이트(p: player):
     set {_area} to {area::%{_p}%}
     if {_area} is not set:
         set {_area} to "없음"
-    # 섬 > 지역 형태 표시
+    # 직접 부모 > 현재 지역 형태 표시 (체인 따라 가장 가까운 부모)
     set {_island} to {섬::%{_p}%}
-    if {_island} is set:
-        if {_island} is not "0":
-            if {_area} is not {_island}:
-                if {_area} is not "0":
-                    if {_area} is not "없음":
-                        set {_islandDisplay} to regionDisplayName({_island})
-                        set {_areaDisplay} to regionDisplayName({_area})
-                        set {_area} to "%{_islandDisplay}% > %{_areaDisplay}%"
-                    else:
-                        set {_area} to regionDisplayName({_island})
+    if {_area} is not "0":
+        if {_area} is not "없음":
+            # 직접 부모 = {지역부모섬::%area%} (체인의 immediate parent)
+            set {_directParent} to {지역부모섬::%{_area}%}
+            if {_directParent} is set:
+                if {_directParent} is not {_area}:
+                    set {_pDisplay} to regionDisplayName({_directParent})
+                    set {_areaDisplay} to regionDisplayName({_area})
+                    set {_area} to "%{_pDisplay}% > %{_areaDisplay}%"
                 else:
-                    set {_area} to regionDisplayName({_island})
+                    set {_area} to regionDisplayName({_area})
             else:
+                # 부모 없으면 자기 자신만
+                set {_area} to regionDisplayName({_area})
+        else if {_island} is set:
+            if {_island} is not "0":
                 set {_area} to regionDisplayName({_island})
+    else if {_island} is set:
+        if {_island} is not "0":
+            set {_area} to regionDisplayName({_island})
     # 경험치 바 (10칸)
     if {_need} > 0:
         set {_filled} to floor({_cur} * 10 / {_need})
@@ -175,16 +181,11 @@ function 사이드바업데이트(p: player):
     if {_p}'s world is world "guild_world":
         set line 3 of {_p}'s scoreboard to " &7환경 %{_timeIcon}% %{_time}% &e☀ 맑음"
     else:
-        # 날씨 표시 (지역 날씨 > 전역 날씨 > MC 날씨)
+        # 날씨 표시 (자기 active > 부모 체인 active > 전역) — 유효커스텀날씨 함수 위임
         set {_playerArea} to {area::%{_p}%}
         if {_playerArea} is not set:
             set {_playerArea} to "0"
-        set {_effectiveW} to ""
-        if {지역날씨::%{_playerArea}%} is set:
-            set {_effectiveW} to {지역날씨::%{_playerArea}%}
-        else if {서버날씨} is set:
-            if {지역제외날씨::%{_playerArea}%} does not contain {서버날씨}:
-                set {_effectiveW} to {서버날씨}
+        set {_effectiveW} to 유효커스텀날씨({_p})
         if {_effectiveW} is not "":
             if {_effectiveW} is "태풍":
                 set {_cwIcon} to "&4⚡"

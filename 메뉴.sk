@@ -13,24 +13,25 @@ on load:
     add cobblestone to {regionguiblock::*}
 function regiondictionary(p: player, r: text):
     set {_raw::*} to get_fish({_r})
-    # 환경 물고기 추가
-    add get_dawn_fish({_r}) to {_raw::*}
-    add get_night_fish({_r}) to {_raw::*}
-    add get_rain_fish({_r}) to {_raw::*}
-    add get_thunder_fish({_r}) to {_raw::*}
-    # 지역별 시간/날씨 물고기도 도감에 표시
+    # 지역별 시간/날씨 sublist만 추가. 환경물고기는 글로벌이라 제외(필요하면 물고기추가로 명시 등록). 제외 목록 필터링 적용
     loop {지역물고기목록::%{_r}%::낮::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::낮맑음::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::낮비::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤맑음::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤비::*}:
-        add {물고기::%loop-value%} to {_raw::*}
+        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
+            add {물고기::%loop-value%} to {_raw::*}
     # ===== 등급별 정렬 =====
     loop {_raw::*}:
         set {_fp::*} to split loop-value at "|"
@@ -305,9 +306,6 @@ on inventory click:
             cancel event
             if clicked slot is 14:
                 wait 1 tick
-                if {도감해금::%player%} is not true:
-                    message "&8[&d 도감 &8] &c아직 도감이 해금되지 않았습니다. 튜토리얼을 진행해주세요." to player
-                    stop
                 도감메인GUI(player)
             else if clicked slot is 10:
                 wait 1 tick
@@ -350,9 +348,6 @@ on swap hand items:
 command /도감:
     aliases: /ehrka
     trigger:
-        if {도감해금::%player%} is not true:
-            message "&8[&d 도감 &8] &c아직 도감이 해금되지 않았습니다. 튜토리얼을 진행해주세요." to player
-            stop
         도감메인GUI(player)
 
 # ===== 전체 도감 (등급별 정렬) =====

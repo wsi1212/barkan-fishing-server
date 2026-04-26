@@ -118,6 +118,12 @@ on right click on entity:
                 if {NPC::%loop-value%::상점} is true:
                     opensellgui(player)
                     stop
+                if {NPC::%loop-value%::대장간} is true:
+                    set {_village} to {NPC::%loop-value%::대장간마을}
+                    if {_village} is not set:
+                        set {_village} to ""
+                    조합대GUI열기(player, "고급", 1, "", {_village})
+                    stop
                 set {대화엔티티::%player%} to clicked entity
                 npc대화시작(player, loop-value)
                 stop
@@ -542,6 +548,11 @@ command /npc목록:
                 set {_tags} to "%{_tags}% &e[상점]"
             if {NPC::%{_id}%::여관} is true:
                 set {_tags} to "%{_tags}% &6[여관]"
+            if {NPC::%{_id}%::대장간} is true:
+                set {_v} to {NPC::%{_id}%::대장간마을}
+                if {_v} is not set:
+                    set {_v} to "?"
+                set {_tags} to "%{_tags}% &c[대장간:%{_v}%]"
             message "&7  - &f%{_id}% &7(%{_name}%&7) CID:%{_cid}% 퀘스트:%{_qCount}%개%{_tags}%" to player
 
 # ===== 디버그 =====
@@ -663,6 +674,35 @@ command /npc상점 <text>:
 on tab complete of "/npc상점":
     if {NPC목록::*} is set:
         set tab completions for position 1 to {NPC목록::*}
+
+# ===== 대장간 NPC 등록/해제 =====
+# /npc대장간 <id> [<마을>] — 마을 인자 있으면 등록 + 해당 마을 전용 레시피
+#                          마을 인자 없고 이미 대장간이면 → 해제
+on tab complete of "/npc대장간":
+    if {NPC목록::*} is set:
+        set tab completions for position 1 to {NPC목록::*}
+    set tab completions for position 2 to "<마을이름 (예: 본섬마을, 안개마을)>"
+
+command /npc대장간 <text> [<text>]:
+    permission: op
+    trigger:
+        set {_id} to arg-1
+        if {NPC::%{_id}%::citizensId} is not set:
+            message "&8[&d NPC &8] &c등록되지 않은 NPC: %{_id}%" to player
+            stop
+        if arg-2 is not set:
+            # 토글 해제
+            if {NPC::%{_id}%::대장간} is true:
+                delete {NPC::%{_id}%::대장간}
+                delete {NPC::%{_id}%::대장간마을}
+                message "&8[&d NPC &8] &e%{_id}%&7의 대장간 설정을 &c해제&7했습니다." to player
+            else:
+                message "&8[&d NPC &8] &c마을 이름을 입력하세요: /npc대장간 %{_id}% <마을>" to player
+            stop
+        set {NPC::%{_id}%::대장간} to true
+        set {NPC::%{_id}%::대장간마을} to arg-2
+        message "&8[&d NPC &8] &e%{_id}%&7를 &a대장간 NPC&7로 설정했습니다." to player
+        message "&7  마을: &f%arg-2% &8(클릭 시 해당 마을 전용 레시피만 표시)" to player
 
 on tab complete of "/npc여관":
     if {NPC목록::*} is set:

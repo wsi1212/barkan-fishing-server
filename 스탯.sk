@@ -68,6 +68,7 @@ function 스탯GUI열기(p: player):
     set {_eq트리플} to 0
     set {_eq판매} to 0
     set {_eq내구} to 0
+    set {_eq행운} to 0
     set {_slots::1} to "릴"
     set {_slots::2} to "줄"
     set {_slots::3} to "바늘"
@@ -85,6 +86,7 @@ function 스탯GUI열기(p: player):
     set {_detail::트리플찬스} to ""
     set {_detail::판매보너스} to ""
     set {_detail::내구보존} to ""
+    set {_detail::행운} to ""
     loop 5 times:
         set {_sn} to {_slots::%loop-iteration%}
         set {_en} to {낚싯대부품::%{_sn}%::%{_p}%}
@@ -118,6 +120,8 @@ function 스탯GUI열기(p: player):
                     add {_sv} to {_eq판매}
                 else if {_statKey} is "내구보존":
                     add {_sv} to {_eq내구}
+                else if {_statKey} is "행운":
+                    add {_sv} to {_eq행운}
                 # 기여도 기록 (크리배율은 ×10 표시)
                 set {_dv} to {_sv}
                 if {_statKey} is "크리배율":
@@ -177,6 +181,9 @@ function 스탯GUI열기(p: player):
     set {_enh내구} to {낚싯대강화내구::%{_p}%}
     if {_enh내구} is not set:
         set {_enh내구} to 0
+    set {_enh행운} to {낚싯대강화행운::%{_p}%}
+    if {_enh행운} is not set:
+        set {_enh행운} to 0
     # 낚싯대 표시명 (강화 레벨 포함)
     set {_rodDisp} to {_rodName}
     if {_enhLv} > 0:
@@ -220,6 +227,9 @@ function 스탯GUI열기(p: player):
             else if {_statKey} is "내구보존":
                 set {_ev} to {_enh내구}
                 set {_enhUsed내구} to true
+            else if {_statKey} is "행운":
+                set {_ev} to {_enh행운}
+                set {_enhUsed행운} to true
             set {_combined} to {_sv} + {_ev}
             # eq 합산 (기본+강화 통합)
             if {_statKey} is "난이도":
@@ -242,6 +252,8 @@ function 스탯GUI열기(p: player):
                 add {_combined} to {_eq판매}
             else if {_statKey} is "내구보존":
                 add {_combined} to {_eq내구}
+            else if {_statKey} is "행운":
+                add {_combined} to {_eq행운}
             # 기여도: "낚싯대이름(+N) 합산값" (크리배율은 ×10)
             set {_dispComb} to {_combined}
             if {_statKey} is "크리배율":
@@ -294,6 +306,13 @@ function 스탯GUI열기(p: player):
                     set {_detail::내구보존} to "&8(%{_rodDisp}% %{_enh내구}%"
                 else:
                     set {_detail::내구보존} to "%{_detail::내구보존}%, %{_rodDisp}% %{_enh내구}%"
+        if {_enh행운} > 0:
+            if {_enhUsed행운} is not true:
+                add {_enh행운} to {_eq행운}
+                if {_detail::행운} is "":
+                    set {_detail::행운} to "&8(%{_rodDisp}% %{_enh행운}%"
+                else:
+                    set {_detail::행운} to "%{_detail::행운}%, %{_rodDisp}% %{_enh행운}%"
     # 축복
     set {_bl경험치} to {낚싯대인챈트경험치::%{_p}%}
     if {_bl경험치} is not set:
@@ -376,7 +395,7 @@ function 스탯GUI열기(p: player):
     add "&8각 아이콘에서 상세 내역 확인" to {_headLore::*}
     set slot 0 of {_p}'s current inventory to {_head} named "&b&lLv.%{_lv}% %{_p}'s name%" with lore {_headLore::*}
     # 축복 요약 (slot 1)
-    set {_축복행운} to {플레이어축복::행운낚시::%{_p}%}
+    set {_축복행운} to {플레이어축복::행운::%{_p}%}
     if {_축복행운} is not set:
         set {_축복행운} to 0
     set {_축복집중} to {플레이어축복::집중::%{_p}%}
@@ -392,8 +411,8 @@ function 스탯GUI열기(p: player):
     add "&d&l축복 (계정 귀속)" to {_bLore::*}
     add "" to {_bLore::*}
     if {_축복행운} > 0:
-        set {_v} to {_축복행운} * 5
-        add "&7행운 낚시 Lv.%{_축복행운}%: &f+%{_v}%%% 추가 보상" to {_bLore::*}
+        set {_v} to {_축복행운} * 3
+        add "&7행운 Lv.%{_축복행운}%: &f+%{_v}%%% 고등급 확률" to {_bLore::*}
     if {_축복집중} > 0:
         add "&7집중 Lv.%{_축복집중}%: &f+%{_축복집중}%초 타임아웃" to {_bLore::*}
     if {_축복축복} > 0:
@@ -637,17 +656,19 @@ function 스탯GUI열기(p: player):
     if {_bl내구} > 0:
         add "&7축복: &f%{_bl내구}%%%" to {_내구Lore::*}
     set slot 28 of {_p}'s current inventory to anvil named "&7내구도 보존: &f%{_t내구}%%%" with lore {_내구Lore::*}
-    # === 축복 전용 스탯 ===
-    # 행운 낚시
-    set {_행운v} to {_축복행운} * 5
+    # === 행운 (장비+축복 합산: 고등급 물고기 출현 확률) ===
+    set {_축복행운값} to {_축복행운} * 3
+    set {_t총행운} to {_eq행운} + {_축복행운값}
     delete {_행운Lore::*}
-    add "&8낚시 시 추가 보상을 받을 확률" to {_행운Lore::*}
+    add "&8높을수록 고등급 물고기 출현 확률 증가" to {_행운Lore::*}
     add "&8──────────────" to {_행운Lore::*}
+    if {_eq행운} > 0:
+        add "&7장비: &f+%{_eq행운}%%% %{_detail::행운}%" to {_행운Lore::*}
     if {_축복행운} > 0:
-        add "&7축복: &fLv.%{_축복행운}% &8(+%{_행운v}%%%)" to {_행운Lore::*}
-    else:
-        add "&8축복 미습득" to {_행운Lore::*}
-    set slot 29 of {_p}'s current inventory to rabbit foot named "&d행운 낚시: &f%{_행운v}%%%" with lore {_행운Lore::*}
+        add "&7축복: &fLv.%{_축복행운}% &8(+%{_축복행운값}%%%)" to {_행운Lore::*}
+    if {_t총행운} is 0:
+        add "&8행운 없음" to {_행운Lore::*}
+    set slot 29 of {_p}'s current inventory to rabbit foot named "&d행운: &f+%{_t총행운}%%%" with lore {_행운Lore::*}
     # 집중 (타임아웃 증가)
     set {_집중v} to {_축복집중}
     delete {_집중Lore::*}

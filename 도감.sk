@@ -77,18 +77,30 @@ function 도감카운트_물고기(p: player) :: text:
 function 도감카운트_낚싯대(p: player) :: text:
     set {_found} to 0
     set {_total} to 0
+    delete {_seen::*}
+    # 부품데이터 낚싯대
     loop {부품::낚싯대::*}:
-        add 1 to {_total}
         set {_data::*} to split loop-value at "|"
-        if {도감발견::낚싯대::%{_p}%::%{_data::1}%} is true:
-            add 1 to {_found}
-    # 조합 낚싯대
-    loop {조합카테::낚시::*}:
-        set {_rName} to {조합법::%loop-value%::이름}
-        if {_rName} is set:
+        set {_rn} to {_data::1}
+        if {_seen::*} does not contain {_rn}:
+            add {_rn} to {_seen::*}
             add 1 to {_total}
-            if {도감발견::낚싯대::%{_p}%::%{_rName}%} is true:
+            if {도감발견::낚싯대::%{_p}%::%{_rn}%} is true:
                 add 1 to {_found}
+    # 조합 낚싯대 ([낚싯대] 태그만, 중복 제거)
+    loop {조합카테::낚시::*}:
+        set {_cidC} to loop-value
+        set {_rNameC} to {조합법::%{_cidC}%::이름}
+        if {_rNameC} is set:
+            set {_rItemC} to {조합법::%{_cidC}%::결과}
+            if {_rItemC} is set:
+                set {_rLoreC} to "%lore of {_rItemC}%"
+                if {_rLoreC} contains "[낚싯대]":
+                    if {_seen::*} does not contain {_rNameC}:
+                        add {_rNameC} to {_seen::*}
+                        add 1 to {_total}
+                        if {도감발견::낚싯대::%{_p}%::%{_rNameC}%} is true:
+                            add 1 to {_found}
     return "%{_found}%/%{_total}%"
 
 function 도감카운트_부품(p: player) :: text:
@@ -215,15 +227,21 @@ function 도감_낚싯대GUI(p: player):
     set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
     set slot 4 of {_p}'s current inventory to fishing rod named "&e&l낚싯대 도감"
     set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
-    # 상점 낚싯대 + 조합 낚싯대 수집
+    # 상점 낚싯대 + 조합 낚싯대 수집 ([낚싯대] 태그만, 중복 제거)
     delete {_rods::*}
     loop {부품::낚싯대::*}:
         set {_data::*} to split loop-value at "|"
         add {_data::1} to {_rods::*}
     loop {조합카테::낚시::*}:
-        set {_rName} to {조합법::%loop-value%::이름}
+        set {_cid} to loop-value
+        set {_rName} to {조합법::%{_cid}%::이름}
         if {_rName} is set:
-            add {_rName} to {_rods::*}
+            set {_rItem} to {조합법::%{_cid}%::결과}
+            if {_rItem} is set:
+                set {_rLore} to "%lore of {_rItem}%"
+                if {_rLore} contains "[낚싯대]":
+                    if {_rods::*} does not contain {_rName}:
+                        add {_rName} to {_rods::*}
     # 페이지 계산
     set {_total} to size of {_rods::*}
     set {_perPage} to 28
@@ -427,29 +445,87 @@ on inventory click:
             도감_부품GUI(player)
             stop
 
-# ===== 재료 도감 GUI =====
+# ===== 재료 도감 GUI (페이지네이션, 6행) =====
 function 도감_재료GUI(p: player):
-    open chest inventory with 3 rows named "&0도감: 재료" to {_p}
+    set {_page} to {도감재료페이지::%{_p}%}
+    if {_page} is not set:
+        set {_page} to 1
+    open chest inventory with 6 rows named "&0도감: 재료" to {_p}
     wait 1 tick
-    loop integers from 0 to 26:
+    loop integers from 0 to 53:
         set slot loop-integer of {_p}'s current inventory to black stained glass pane named "&f"
     set slot 0 of {_p}'s current inventory to arrow named "&e← 도감 메뉴"
     set slot 4 of {_p}'s current inventory to chest named "&6&l재료 도감"
     set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
-    set {_si} to 9
+    # 재료 ID 리스트 추출
+    delete {_mats::*}
     loop {조합재료::*}:
-        set {_matId} to loop-index
-        set {_data::*} to split loop-value at "|"
-        set {_name} to {_data::1}
-        if {도감발견::재료::%{_p}%::%{_matId}%} is true:
-            set {_item} to {_data::2} parsed as item type
-            if {_item} is set:
-                set slot {_si} of {_p}'s current inventory to {_item} named "&e%{_name}%" with lore "&7%{_data::3}%" and "" and "&a발견!"
-        else:
-            set slot {_si} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 재료"
-        add 1 to {_si}
-        if {_si} is 18:
-            set {_si} to 18
+        add loop-index to {_mats::*}
+    set {_total} to size of {_mats::*}
+    set {_perPage} to 28
+    set {_maxPage} to ceil({_total} / {_perPage})
+    if {_maxPage} <= 0:
+        set {_maxPage} to 1
+    if {_page} > {_maxPage}:
+        set {_page} to {_maxPage}
+    set {도감재료페이지::%{_p}%} to {_page}
+    set {_start} to ({_page} - 1) * {_perPage}
+    # 슬롯 배열 (4 줄, 7 슬롯/줄, 가장자리 비움)
+    delete {_slots::*}
+    add 10 to {_slots::*}
+    add 11 to {_slots::*}
+    add 12 to {_slots::*}
+    add 13 to {_slots::*}
+    add 14 to {_slots::*}
+    add 15 to {_slots::*}
+    add 16 to {_slots::*}
+    add 19 to {_slots::*}
+    add 20 to {_slots::*}
+    add 21 to {_slots::*}
+    add 22 to {_slots::*}
+    add 23 to {_slots::*}
+    add 24 to {_slots::*}
+    add 25 to {_slots::*}
+    add 28 to {_slots::*}
+    add 29 to {_slots::*}
+    add 30 to {_slots::*}
+    add 31 to {_slots::*}
+    add 32 to {_slots::*}
+    add 33 to {_slots::*}
+    add 34 to {_slots::*}
+    add 37 to {_slots::*}
+    add 38 to {_slots::*}
+    add 39 to {_slots::*}
+    add 40 to {_slots::*}
+    add 41 to {_slots::*}
+    add 42 to {_slots::*}
+    add 43 to {_slots::*}
+    # 페이지 범위 추출 + 표시
+    set {_qi} to 0
+    set {_si} to 0
+    loop {_mats::*}:
+        add 1 to {_qi}
+        if {_qi} > {_start}:
+            if {_si} < {_perPage}:
+                add 1 to {_si}
+                set {_matId} to loop-value
+                set {_data::*} to split {조합재료::%{_matId}%} at "|"
+                set {_name} to {_data::1}
+                set {_sl} to {_slots::%{_si}%}
+                if {도감발견::재료::%{_p}%::%{_matId}%} is true:
+                    set {_item} to {_data::2} parsed as item type
+                    if {_item} is set:
+                        set slot {_sl} of {_p}'s current inventory to {_item} named "&e%{_name}%" with lore "&7%{_data::3}%" and "" and "&a발견!"
+                    else:
+                        set slot {_sl} of {_p}'s current inventory to paper named "&e%{_name}%" with lore "&7%{_data::3}%" and "" and "&a발견!"
+                else:
+                    set slot {_sl} of {_p}'s current inventory to coal named "&8???" with lore "&7아직 발견하지 못한 재료"
+    # 네비게이션
+    set slot 49 of {_p}'s current inventory to paper named "&7페이지 %{_page}%/%{_maxPage}% &8(%{_total}%개)"
+    if {_page} > 1:
+        set slot 48 of {_p}'s current inventory to arrow named "&e← 이전 페이지"
+    if {_page} < {_maxPage}:
+        set slot 50 of {_p}'s current inventory to arrow named "&e다음 페이지 →"
 
 on inventory click:
     if player's current inventory's name is "&0도감: 재료":
@@ -460,6 +536,17 @@ on inventory click:
             stop
         if clicked slot is 8:
             close player's inventory
+            stop
+        if clicked slot is 48:
+            if {도감재료페이지::%player%} > 1:
+                remove 1 from {도감재료페이지::%player%}
+                wait 1 tick
+                도감_재료GUI(player)
+            stop
+        if clicked slot is 50:
+            add 1 to {도감재료페이지::%player%}
+            wait 1 tick
+            도감_재료GUI(player)
             stop
 
 # ===== 지역 도감 GUI (페이지네이션) =====

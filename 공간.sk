@@ -48,7 +48,7 @@ function rejectEntry(p: player, region: text):
     delete {거부쿨다운::%{_p}%}
 
 # ===== 입장 처리 =====
-function areaEnter(p: player, area: text):
+function areaEnter(p: player, area: text, silent: boolean = false):
     # 길드 섬 체크 — 길드원만 입장 가능
     if {지역길드::%{_area}%} is set:
         if {길드::%name of {_p}%} is not {지역길드::%{_area}%}:
@@ -70,8 +70,9 @@ function areaEnter(p: player, area: text):
         도전과제체크({_p}, "지역방문", "%size of {방문지역::%{_p}%::*}%")
         # 탐험 경험치 (신규 지역 발견 시)
         탐험_발견({_p}, "지역", {_area})
-    set {_display} to regionDisplayName({_area})
-    message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
+    if {_silent} is not true:
+        set {_display} to regionDisplayName({_area})
+        message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
     if {_area} is "lavatest":
         enterlava({_p})
     환경보너스알림({_p})
@@ -87,9 +88,10 @@ function areaEnter(p: player, area: text):
                     add {_p} to bossbar players of {낚시대회::bar}
 
 # ===== 퇴장 처리 =====
-function areaExit(p: player, area: text):
-    set {_display} to regionDisplayName({_area})
-    message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_p}
+function areaExit(p: player, area: text, silent: boolean = false):
+    if {_silent} is not true:
+        set {_display} to regionDisplayName({_area})
+        message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_p}
     set {area::%{_p}%} to "0"
     사이드바업데이트({_p})
     if {_area} is "lavatest":
@@ -152,7 +154,8 @@ on world change:
 
 # ===== 지역 진입/퇴장 — Java RegionTracker 브릿지 =====
 # Java가 20틱마다 플레이어 위치 체크 → /regionevent 명령어로 Skript에 알림
-command /regionevent <text> <text> <text>:
+# 4번째 인자가 "silent" 면 메시지 없이 area/섬 변수만 갱신 (부모-자식 체인 이동)
+command /regionevent <text> <text> <text> [<text>]:
     permission: op
     executable by: console
     trigger:
@@ -161,18 +164,23 @@ command /regionevent <text> <text> <text>:
         if {_player} is not set:
             stop
         set {_region} to arg-3
+        set {_silent} to false
+        if arg-4 is "silent":
+            set {_silent} to true
         if {_action} is "enter":
-            areaEnter({_player}, {_region})
+            areaEnter({_player}, {_region}, {_silent})
         else if {_action} is "exit":
-            areaExit({_player}, {_region})
+            areaExit({_player}, {_region}, {_silent})
         else if {_action} is "islandenter":
             set {섬::%{_player}%} to {_region}
-            set {_display} to regionDisplayName({_region})
-            message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
+            if {_silent} is not true:
+                set {_display} to regionDisplayName({_region})
+                message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
             사이드바업데이트({_player})
         else if {_action} is "islandexit":
-            set {_display} to regionDisplayName({_region})
-            message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
+            if {_silent} is not true:
+                set {_display} to regionDisplayName({_region})
+                message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
             set {섬::%{_player}%} to "0"
             사이드바업데이트({_player})
 
@@ -306,6 +314,28 @@ command /regionparentsync <text> <text>:
     trigger:
         set {지역부모섬::%arg-1%} to arg-2
 
+# ===== 지역별 커스텀 물고기 동기화 (Java → Skript) =====
+# Java에서 "regioncustomfishsync <지역ID> <fish1,fish2,...|없음>" 전송
+command /regioncustomfishsync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        delete {지역물고기목록::%arg-1%::커스텀::*}
+        if arg-2 is not "없음":
+            loop split arg-2 at ",":
+                add loop-value to {지역물고기목록::%arg-1%::커스텀::*}
+
+# ===== 지역별 제외 물고기 동기화 (Java → Skript) =====
+# Java에서 "regionexcludefishsync <지역ID> <fish1,fish2,...|없음>" 전송
+command /regionexcludefishsync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        delete {지역물고기제외::%arg-1%::*}
+        if arg-2 is not "없음":
+            loop split arg-2 at ",":
+                set {지역물고기제외::%arg-1%::%loop-value%} to true
+
 # ===== 길드 소유 지역 동기화 (Java → Skript) =====
 command /regionguildsync <text> <text>:
     permission: op
@@ -315,6 +345,68 @@ command /regionguildsync <text> <text>:
             delete {지역길드::%arg-1%}
         else:
             set {지역길드::%arg-1%} to arg-2
+
+# ===== 지역 삭제 시 정리 (Java RegionManager.deleteRegion에서 호출) =====
+# 모든 지역 관련 Skript 변수 제거 — /지역 삭제 후 도감/날씨 잔재 제거
+command /regiondeletesync <text>:
+    permission: op
+    executable by: console
+    trigger:
+        delete {지역표시이름::%arg-1%}
+        delete {지역레벨제한::%arg-1%}
+        delete {지역부모섬::%arg-1%}
+        delete {지역길드::%arg-1%}
+        delete {지역허용날씨::%arg-1%}
+        delete {지역제외날씨::%arg-1%}
+        delete {지역날씨::%arg-1%}
+        # 지역물고기목록의 모든 시간/날씨 서브키 정리
+        delete {지역물고기목록::%arg-1%::*}
+        # 리스트에서도 제거 (중복 안전 처리)
+        if {지역리스트::*} contains arg-1:
+            remove arg-1 from {지역리스트::*}
+        if {섬리스트::*} contains arg-1:
+            remove arg-1 from {섬리스트::*}
+        # 모든 플레이어의 발견 기록은 보존(역사 기록), 단 방문 리스트만 제거
+        loop all players:
+            if {방문지역::%loop-player%::*} contains arg-1:
+                remove arg-1 from {방문지역::%loop-player%::*}
+
+# ===== 지역 잔재 일괄 청소 (op 수동 실행) =====
+# 현재 {지역리스트::*}/{섬리스트::*}에 있지만 Java에서 동기화 안 된 (= 표시이름 미등록) 항목 정리
+on tab complete of "/지역잔재청소":
+    set tab completions for position 1 to "확인", "실행"
+
+command /지역잔재청소 [<text>]:
+    permission: op
+    permission message: &c권한이 없습니다.
+    trigger:
+        if arg-1 is not set:
+            send "&8[&c 어드민 &8] &7사용법:" to player
+            send "&8  &e/지역잔재청소 확인 &7— 잔재 후보 목록 보기" to player
+            send "&8  &e/지역잔재청소 실행 &7— 잔재 일괄 제거" to player
+            stop
+        delete {_stale::*}
+        # 지역리스트에서 표시이름 미등록 항목 = Java가 sync 안 한 잔재
+        if {지역리스트::*} is set:
+            loop {지역리스트::*}:
+                if {지역표시이름::%loop-value%} is not set:
+                    add loop-value to {_stale::*}
+        if {섬리스트::*} is set:
+            loop {섬리스트::*}:
+                if {지역표시이름::%loop-value%} is not set:
+                    add loop-value to {_stale::*}
+        if size of {_stale::*} is 0:
+            send "&8[&c 어드민 &8] &a잔재 없음 — 모든 지역이 정상 동기화됨." to player
+            stop
+        send "&8[&c 어드민 &8] &7잔재 후보: &c%size of {_stale::*}%개" to player
+        loop {_stale::*}:
+            send "&8  - &f%loop-value%" to player
+        if arg-1 is "실행":
+            loop {_stale::*}:
+                make console execute command "regiondeletesync %loop-value%"
+            send "&8[&c 어드민 &8] &a%size of {_stale::*}%개 잔재 제거 완료." to player
+        else:
+            send "&8[&c 어드민 &8] &7제거하려면 &e/지역잔재청소 실행" to player
 
 # =========================================
 #   보트 시스템 → 보트.sk 으로 분리됨

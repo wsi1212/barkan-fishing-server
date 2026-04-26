@@ -67,6 +67,77 @@ function 커스텀재료제거(p: player, matId: text, amount: number):
                     remove {_left} of loop-item from {_p}'s inventory
                     set {_left} to 0
 
+# ===== 레시피 해금 여부 =====
+function 레시피해금됨(p: player, craftId: text) :: boolean:
+    if {조합법::%{_craftId}%::락잠금} is not true:
+        return true
+    if {레시피해금::%{_p}%::%{_craftId}%} is true:
+        return true
+    return false
+
+function 레시피해금부여(p: player, craftId: text):
+    set {레시피해금::%{_p}%::%{_craftId}%} to true
+
+# ===== 부품데이터 기반 낚싯대 아이템 생성 (상점/조합 공용) =====
+function 부품낚싯대생성(name: text) :: item:
+    set {_grade} to get_part_grade("낚싯대", {_name})
+    set {_color} to part_grade_color({_grade})
+    set {_rod} to 1 of fishing rod named "%{_color}%%{_name}%"
+    delete {_lore::*}
+    add "&7등급 &e: %{_color}%%{_grade}%" to {_lore::*}
+    set {_raw} to get_part_stats_raw("낚싯대", {_name})
+    set {_pairs::*} to split {_raw} at ","
+    loop {_pairs::*}:
+        set {_kv::*} to split loop-value at ":"
+        if {_kv::1} is "등급특화":
+            add "&7등급 특화 &e: &f%{_kv::2}%등급 확률 2배" to {_lore::*}
+        else:
+            set {_desc} to stat_type_desc({_kv::1})
+            set {_vt} to stat_value_text({_kv::1}, {_kv::2} parsed as number)
+            add "&7%{_desc}% &e: &f%{_vt}%" to {_lore::*}
+    set lore of {_rod} to {_lore::*}
+    set {_rod} to unbreakable {_rod}
+    enchant {_rod} with lure 2
+    return {_rod}
+
+# ===== 중간재 아이템 생성 헬퍼 =====
+function 중간재아이템(matId: text, displayName: text, mc: text, color: text, desc: text) :: item:
+    set {_t} to {_mc} parsed as item type
+    if {_t} is not set:
+        set {_t} to paper
+    set {_item} to 1 of {_t}
+    set name of {_item} to "%{_color}%%{_displayName}%"
+    set lore of {_item} to "&7%{_desc}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
+    return {_item}
+
+# ===== 별빛 진주 재료 추가 헬퍼 (자동으로 다음 slot에 추가) =====
+# slot 인자는 호환성 위해 받지만 사용 안 함 (재료수+1 위치 자동 사용)
+function 별빛진주재료추가(id: text, slot: integer, qty: integer):
+    set {_cur} to {조합법::%{_id}%::재료수}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_new} to {_cur} + 1
+    set {조합법::%{_id}%::재료수} to {_new}
+    set {조합법::%{_id}%::재료::%{_new}%::타입} to "custom"
+    set {조합법::%{_id}%::재료::%{_new}%::ID} to "별빛진주"
+    set {조합법::%{_id}%::재료::%{_new}%::이름} to "별빛 진주"
+    set {조합법::%{_id}%::재료::%{_new}%::MC} to "heart of the sea"
+    set {조합법::%{_id}%::재료::%{_new}%::수량} to {_qty}
+
+# ===== 일반 재료 추가 헬퍼 (낚싯대에 광물 추가용, 자동 슬롯) =====
+# slot 인자는 호환성 위해 받지만 사용 안 함 (재료수+1 위치 자동 사용)
+function 재료추가(id: text, slot: integer, matId: text, name: text, mc: text, qty: integer):
+    set {_cur} to {조합법::%{_id}%::재료수}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_new} to {_cur} + 1
+    set {조합법::%{_id}%::재료수} to {_new}
+    set {조합법::%{_id}%::재료::%{_new}%::타입} to "custom"
+    set {조합법::%{_id}%::재료::%{_new}%::ID} to {_matId}
+    set {조합법::%{_id}%::재료::%{_new}%::이름} to {_name}
+    set {조합법::%{_id}%::재료::%{_new}%::MC} to {_mc}
+    set {조합법::%{_id}%::재료::%{_new}%::수량} to {_qty}
+
 # ===== 조합 가능 여부 =====
 function 조합가능여부2(p: player, craftId: text) :: boolean:
     set {_cnt} to {조합법::%{_craftId}%::재료수}
@@ -244,6 +315,49 @@ on load:
     set lore of {_r} to "&7네더라이트 파편 8개를 압축한 희귀 광물" and "" and "&8[조합 재료]" and "&8mat:강화네더라이트파편"
     set {조합법::%{_id}%::결과} to {_r}
 
+    # ----- 추가 광물 (M12~M14) -----
+    set {_id} to "M12"
+    add {_id} to {조합카테::광물::*}
+    set {조합법::%{_id}%::이름} to "강화 화약"
+    set {조합법::%{_id}%::카테고리} to "광물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "gunpowder"
+    set {조합법::%{_id}%::재료::1::이름} to "화약"
+    set {조합법::%{_id}%::재료::1::MC} to "gunpowder"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of gunpowder named "&8강화 화약"
+    set lore of {_r} to "&7화약 16개를 압축한 강화 광물" and "" and "&8[조합 재료]" and "&8mat:강화화약"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "M13"
+    add {_id} to {조합카테::광물::*}
+    set {조합법::%{_id}%::이름} to "강화 흑요석"
+    set {조합법::%{_id}%::카테고리} to "광물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "obsidian"
+    set {조합법::%{_id}%::재료::1::이름} to "흑요석"
+    set {조합법::%{_id}%::재료::1::MC} to "obsidian"
+    set {조합법::%{_id}%::재료::1::수량} to 8
+    set {_r} to 1 of obsidian named "&5강화 흑요석"
+    set lore of {_r} to "&7흑요석 8개를 압축한 강화 광물" and "" and "&8[조합 재료]" and "&8mat:강화흑요석"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "M14"
+    add {_id} to {조합카테::광물::*}
+    set {조합법::%{_id}%::이름} to "강화 레드스톤"
+    set {조합법::%{_id}%::카테고리} to "광물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "redstone"
+    set {조합법::%{_id}%::재료::1::이름} to "레드스톤"
+    set {조합법::%{_id}%::재료::1::MC} to "redstone"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of redstone named "&c강화 레드스톤"
+    set lore of {_r} to "&7레드스톤 16개를 압축한 강화 광물" and "" and "&8[조합 재료]" and "&8mat:강화레드스톤"
+    set {조합법::%{_id}%::결과} to {_r}
+
     # ========== 농산물 조합 (4개) ==========
     set {_id} to "F01"
     add {_id} to {조합카테::농산물::*}
@@ -299,6 +413,91 @@ on load:
     set {조합법::%{_id}%::재료::1::수량} to 16
     set {_r} to 1 of beetroot named "&c강화 비트루트"
     set lore of {_r} to "&7비트루트 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화비트루트"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    # ----- 추가 농산물 (F05~F10) -----
+    set {_id} to "F05"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 호박"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "pumpkin"
+    set {조합법::%{_id}%::재료::1::이름} to "호박"
+    set {조합법::%{_id}%::재료::1::MC} to "pumpkin"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of pumpkin named "&6강화 호박"
+    set lore of {_r} to "&7호박 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화호박"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "F06"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 멜론"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "melon slice"
+    set {조합법::%{_id}%::재료::1::이름} to "멜론 조각"
+    set {조합법::%{_id}%::재료::1::MC} to "melon slice"
+    set {조합법::%{_id}%::재료::1::수량} to 32
+    set {_r} to 1 of melon slice named "&a강화 멜론"
+    set lore of {_r} to "&7멜론 조각 32개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화멜론"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "F07"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 사탕수수"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "sugar cane"
+    set {조합법::%{_id}%::재료::1::이름} to "사탕수수"
+    set {조합법::%{_id}%::재료::1::MC} to "sugar cane"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of sugar cane named "&a강화 사탕수수"
+    set lore of {_r} to "&7사탕수수 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화사탕수수"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "F08"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 코코아"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "cocoa beans"
+    set {조합법::%{_id}%::재료::1::이름} to "코코아 콩"
+    set {조합법::%{_id}%::재료::1::MC} to "cocoa beans"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of cocoa beans named "&6강화 코코아"
+    set lore of {_r} to "&7코코아 콩 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화코코아"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "F09"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 스위트베리"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "sweet berries"
+    set {조합법::%{_id}%::재료::1::이름} to "스위트베리"
+    set {조합법::%{_id}%::재료::1::MC} to "sweet berries"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of sweet berries named "&c강화 스위트베리"
+    set lore of {_r} to "&7스위트베리 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화스위트베리"
+    set {조합법::%{_id}%::결과} to {_r}
+
+    set {_id} to "F10"
+    add {_id} to {조합카테::농산물::*}
+    set {조합법::%{_id}%::이름} to "강화 사과"
+    set {조합법::%{_id}%::카테고리} to "농산물"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "item"
+    set {조합법::%{_id}%::재료::1::ID} to "apple"
+    set {조합법::%{_id}%::재료::1::이름} to "사과"
+    set {조합법::%{_id}%::재료::1::MC} to "apple"
+    set {조합법::%{_id}%::재료::1::수량} to 16
+    set {_r} to 1 of apple named "&c강화 사과"
+    set lore of {_r} to "&7사과 16개를 압축한 강화 농산물" and "" and "&8[조합 재료]" and "&8mat:강화사과"
     set {조합법::%{_id}%::결과} to {_r}
 
     # ========== 고급 조합 (8개) ==========
@@ -429,7 +628,7 @@ on load:
     set {조합법::%{_id}%::재료::1::타입} to "custom"
     set {조합법::%{_id}%::재료::1::ID} to "낡은갈고리"
     set {조합법::%{_id}%::재료::1::이름} to "낡은 갈고리"
-    set {조합법::%{_id}%::재료::1::MC} to "fishing rod"
+    set {조합법::%{_id}%::재료::1::MC} to "tripwire hook"
     set {조합법::%{_id}%::재료::1::수량} to 2
     set {조합법::%{_id}%::재료::2::타입} to "custom"
     set {조합법::%{_id}%::재료::2::ID} to "물고기비늘"
@@ -489,7 +688,7 @@ on load:
     set {조합법::%{_id}%::재료::1::타입} to "custom"
     set {조합법::%{_id}%::재료::1::ID} to "낡은갈고리"
     set {조합법::%{_id}%::재료::1::이름} to "낡은 갈고리"
-    set {조합법::%{_id}%::재료::1::MC} to "fishing rod"
+    set {조합법::%{_id}%::재료::1::MC} to "tripwire hook"
     set {조합법::%{_id}%::재료::1::수량} to 1
     set {조합법::%{_id}%::재료::2::타입} to "custom"
     set {조합법::%{_id}%::재료::2::ID} to "녹슨부품"
@@ -520,73 +719,11 @@ on load:
     set lore of {_r} to "&7등급: &f조합" and "&7깃털로 만든 가벼운 찌." and "" and "&a크기: &f+2%%" and "" and "&8[찌]" and "&8craft:초보자찌"
     set {조합법::%{_id}%::결과} to {_r}
 
-    # --- 낡은 낚싯대 ---
-    set {_id} to "R01"
-    add {_id} to {조합카테::낚시::*}
-    set {조합법::%{_id}%::이름} to "낡은 낚싯대"
-    set {조합법::%{_id}%::카테고리} to "낚시"
-    set {조합법::%{_id}%::재료수} to 2
-    set {조합법::%{_id}%::재료::1::타입} to "custom"
-    set {조합법::%{_id}%::재료::1::ID} to "낡은갈고리"
-    set {조합법::%{_id}%::재료::1::이름} to "낡은 갈고리"
-    set {조합법::%{_id}%::재료::1::MC} to "fishing rod"
-    set {조합법::%{_id}%::재료::1::수량} to 3
-    set {조합법::%{_id}%::재료::2::타입} to "custom"
-    set {조합법::%{_id}%::재료::2::ID} to "물고기비늘"
-    set {조합법::%{_id}%::재료::2::이름} to "물고기 비늘"
-    set {조합법::%{_id}%::재료::2::MC} to "paper"
-    set {조합법::%{_id}%::재료::2::수량} to 5
-    set {_r} to fishing rod named "&7낡은 낚싯대"
-    set lore of {_r} to "&7등급: &f조합" and "&7낡고 오래된 낚싯대." and "" and "&a경험치 보너스: &f+5%%" and "&a판매 보너스: &f+0%%" and "" and "&8[낚싯대]" and "&8craft:낡은낚싯대"
-    set {조합법::%{_id}%::결과} to {_r}
+    # ========== 중간재 (지역별 부품) — 항상 표시 ==========
+    낚시중간재등록()
 
-    set {_id} to "R02"
-    add {_id} to {조합카테::낚시::*}
-    set {조합법::%{_id}%::이름} to "심해 낚싯대"
-    set {조합법::%{_id}%::카테고리} to "낚시"
-    set {조합법::%{_id}%::재료수} to 3
-    set {조합법::%{_id}%::재료::1::타입} to "custom"
-    set {조합법::%{_id}%::재료::1::ID} to "심해수정"
-    set {조합법::%{_id}%::재료::1::이름} to "심해 수정"
-    set {조합법::%{_id}%::재료::1::MC} to "prismarine crystals"
-    set {조합법::%{_id}%::재료::1::수량} to 3
-    set {조합법::%{_id}%::재료::2::타입} to "custom"
-    set {조합법::%{_id}%::재료::2::ID} to "강화실"
-    set {조합법::%{_id}%::재료::2::이름} to "강화 실"
-    set {조합법::%{_id}%::재료::2::MC} to "string"
-    set {조합법::%{_id}%::재료::2::수량} to 5
-    set {조합법::%{_id}%::재료::3::타입} to "custom"
-    set {조합법::%{_id}%::재료::3::ID} to "고대비늘"
-    set {조합법::%{_id}%::재료::3::이름} to "고대 비늘"
-    set {조합법::%{_id}%::재료::3::MC} to "nautilus shell"
-    set {조합법::%{_id}%::재료::3::수량} to 2
-    set {_r} to fishing rod named "&9심해 낚싯대"
-    set lore of {_r} to "&7등급: &f조합" and "&9심해에서 빛나는 특수 낚싯대." and "" and "&a경험치 보너스: &f+25%%" and "&a판매 보너스: &f+15%%" and "&a심해 등급업률: &f+10%%" and "" and "&8[낚싯대]" and "&8craft:심해낚싯대"
-    set {조합법::%{_id}%::결과} to {_r}
-
-    set {_id} to "R03"
-    add {_id} to {조합카테::낚시::*}
-    set {조합법::%{_id}%::이름} to "용암 낚싯대"
-    set {조합법::%{_id}%::카테고리} to "낚시"
-    set {조합법::%{_id}%::재료수} to 3
-    set {조합법::%{_id}%::재료::1::타입} to "custom"
-    set {조합법::%{_id}%::재료::1::ID} to "용암수지"
-    set {조합법::%{_id}%::재료::1::이름} to "용암 수지"
-    set {조합법::%{_id}%::재료::1::MC} to "magma cream"
-    set {조합법::%{_id}%::재료::1::수량} to 5
-    set {조합법::%{_id}%::재료::2::타입} to "custom"
-    set {조합법::%{_id}%::재료::2::ID} to "녹슨부품"
-    set {조합법::%{_id}%::재료::2::이름} to "녹슨 부품"
-    set {조합법::%{_id}%::재료::2::MC} to "iron nugget"
-    set {조합법::%{_id}%::재료::2::수량} to 3
-    set {조합법::%{_id}%::재료::3::타입} to "custom"
-    set {조합법::%{_id}%::재료::3::ID} to "바르칸조각"
-    set {조합법::%{_id}%::재료::3::이름} to "바르칸 조각"
-    set {조합법::%{_id}%::재료::3::MC} to "amethyst shard"
-    set {조합법::%{_id}%::재료::3::수량} to 2
-    set {_r} to fishing rod named "&c용암 낚싯대"
-    set lore of {_r} to "&7등급: &f조합" and "&c불꽃처럼 달아오른 낚싯대." and "" and "&a경험치 보너스: &f+40%%" and "&a판매 보너스: &f+30%%" and "&a크리티컬 배율 캡: &f+10%%" and "&a용암 등급업률: &f+15%%" and "" and "&8[낚싯대]" and "&8craft:용암낚싯대"
-    set {조합법::%{_id}%::결과} to {_r}
+    # ========== 낚싯대 레시피 (부품데이터 기반, 락잠금 ON) ==========
+    낚시낚싯대레시피등록()
 
     # ========== 특수 조합 (5개) ==========
     set {_id} to "S01"
@@ -684,22 +821,317 @@ on load:
     set lore of {_r} to "&7전설급 낚시 미끼" and "" and "&a크리확률: &f+3%%" and "" and "&8[미끼 재료]"
     set {조합법::%{_id}%::결과} to {_r}
 
+# =========================================
+# 중간재 등록 (낚시 카테고리, 락잠금 OFF — 항상 표시)
+# 형식: 중간재정의(id, 이름, mc, 결과ID, 결과색, 결과설명, mat1Type, mat1Id, mat1Name, mat1MC, mat1Qty, ...)
+# =========================================
+function 낚시중간재등록():
+    # --- C01: 정제된 갈고리 (본섬) ---
+    set {_id} to "C01"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "정제된 갈고리"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 1
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "낡은갈고리"
+    set {조합법::%{_id}%::재료::1::이름} to "낡은 갈고리"
+    set {조합법::%{_id}%::재료::1::MC} to "tripwire hook"
+    set {조합법::%{_id}%::재료::1::수량} to 8
+    set {조합법::%{_id}%::결과} to 중간재아이템("정제된갈고리", "정제된 갈고리", "tripwire hook", "&f", "본섬 — 낡은 갈고리를 다듬은 부품")
+
+    # --- C02: 단단한 자루 (본섬) ---
+    set {_id} to "C02"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "단단한 자루"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "강화실"
+    set {조합법::%{_id}%::재료::1::이름} to "강화 실"
+    set {조합법::%{_id}%::재료::1::MC} to "string"
+    set {조합법::%{_id}%::재료::1::수량} to 6
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "물고기비늘"
+    set {조합법::%{_id}%::재료::2::이름} to "물고기 비늘"
+    set {조합법::%{_id}%::재료::2::MC} to "paper"
+    set {조합법::%{_id}%::재료::2::수량} to 8
+    set {조합법::%{_id}%::결과} to 중간재아이템("단단한자루", "단단한 자루", "stick", "&f", "본섬 — 낚싯대 손잡이용 부품")
+
+    # --- C03: 강철 심 (본섬) ---
+    set {_id} to "C03"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "강철 심"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "녹슨부품"
+    set {조합법::%{_id}%::재료::1::이름} to "녹슨 부품"
+    set {조합법::%{_id}%::재료::1::MC} to "iron nugget"
+    set {조합법::%{_id}%::재료::1::수량} to 8
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "강화철괴"
+    set {조합법::%{_id}%::재료::2::이름} to "강화 철괴"
+    set {조합법::%{_id}%::재료::2::MC} to "iron ingot"
+    set {조합법::%{_id}%::재료::2::수량} to 2
+    set {조합법::%{_id}%::결과} to 중간재아이템("강철심", "강철 심", "iron ingot", "&7", "본섬 — 단단한 금속 심")
+
+    # --- C04: 행운의 매듭 (안개섬) ---
+    set {_id} to "C04"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "행운의 매듭"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "안개수정"
+    set {조합법::%{_id}%::재료::1::이름} to "안개 수정"
+    set {조합법::%{_id}%::재료::1::MC} to "amethyst shard"
+    set {조합법::%{_id}%::재료::1::수량} to 4
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "행운의구슬"
+    set {조합법::%{_id}%::재료::2::이름} to "행운의 구슬"
+    set {조합법::%{_id}%::재료::2::MC} to "chorus fruit"
+    set {조합법::%{_id}%::재료::2::수량} to 2
+    set {조합법::%{_id}%::결과} to 중간재아이템("행운의매듭", "행운의 매듭", "chorus fruit", "&d", "안개섬 — 행운이 깃든 매듭")
+
+    # --- C05: 진주 코어 (산호군도) ---
+    set {_id} to "C05"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "진주 코어"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "진주"
+    set {조합법::%{_id}%::재료::1::이름} to "진주"
+    set {조합법::%{_id}%::재료::1::MC} to "nautilus shell"
+    set {조합법::%{_id}%::재료::1::수량} to 4
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "산호조각"
+    set {조합법::%{_id}%::재료::2::이름} to "산호 조각"
+    set {조합법::%{_id}%::재료::2::MC} to "brain coral"
+    set {조합법::%{_id}%::재료::2::수량} to 8
+    set {조합법::%{_id}%::결과} to 중간재아이템("진주코어", "진주 코어", "heart of the sea", "&b", "산호군도 — 진주를 응결한 코어")
+
+    # --- C06: 정글 그립 (정글섬) ---
+    set {_id} to "C06"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "정글 그립"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "야자수섬유"
+    set {조합법::%{_id}%::재료::1::이름} to "야자수 섬유"
+    set {조합법::%{_id}%::재료::1::MC} to "bamboo"
+    set {조합법::%{_id}%::재료::1::수량} to 8
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "거대비늘"
+    set {조합법::%{_id}%::재료::2::이름} to "거대 비늘"
+    set {조합법::%{_id}%::재료::2::MC} to "turtle scute"
+    set {조합법::%{_id}%::재료::2::수량} to 4
+    set {조합법::%{_id}%::결과} to 중간재아이템("정글그립", "정글 그립", "bamboo", "&a", "정글섬 — 거대물고기를 위한 손잡이")
+
+    # --- C07: 고대 부적 (폐허섬) ---
+    set {_id} to "C07"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "고대 부적"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "고대룬"
+    set {조합법::%{_id}%::재료::1::이름} to "고대 룬"
+    set {조합법::%{_id}%::재료::1::MC} to "echo shard"
+    set {조합법::%{_id}%::재료::1::수량} to 4
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "학자의잉크"
+    set {조합법::%{_id}%::재료::2::이름} to "학자의 잉크"
+    set {조합법::%{_id}%::재료::2::MC} to "ink sac"
+    set {조합법::%{_id}%::재료::2::수량} to 6
+    set {조합법::%{_id}%::결과} to 중간재아이템("고대부적", "고대 부적", "echo shard", "&3", "폐허섬 — 룬과 잉크로 봉인된 부적")
+
+    # --- C08: 용암 코어 (용암군도) ---
+    set {_id} to "C08"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "용암 코어"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "마그마결정"
+    set {조합법::%{_id}%::재료::1::이름} to "마그마 결정"
+    set {조합법::%{_id}%::재료::1::MC} to "fire charge"
+    set {조합법::%{_id}%::재료::1::수량} to 4
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "용암수지"
+    set {조합법::%{_id}%::재료::2::이름} to "용암 수지"
+    set {조합법::%{_id}%::재료::2::MC} to "magma cream"
+    set {조합법::%{_id}%::재료::2::수량} to 4
+    set {조합법::%{_id}%::결과} to 중간재아이템("용암코어", "용암 코어", "magma block", "&c", "용암군도 — 식지 않는 용암 코어")
+
+    # --- C09: 심해 코어 (심연균열) ---
+    set {_id} to "C09"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "심해 코어"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "심해수정"
+    set {조합법::%{_id}%::재료::1::이름} to "심해 수정"
+    set {조합법::%{_id}%::재료::1::MC} to "prismarine crystals"
+    set {조합법::%{_id}%::재료::1::수량} to 4
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "고대비늘"
+    set {조합법::%{_id}%::재료::2::이름} to "고대 비늘"
+    set {조합법::%{_id}%::재료::2::MC} to "nautilus shell"
+    set {조합법::%{_id}%::재료::2::수량} to 2
+    set {조합법::%{_id}%::결과} to 중간재아이템("심해코어", "심해 코어", "heart of the sea", "&9", "심연균열 — 심해의 정수가 응축된 코어")
+
+    # --- C10: 바르칸 핵 (심연균열) ---
+    set {_id} to "C10"
+    add {_id} to {조합카테::고급::*}
+    set {조합법::%{_id}%::이름} to "바르칸 핵"
+    set {조합법::%{_id}%::카테고리} to "고급"
+    set {조합법::%{_id}%::재료수} to 2
+    set {조합법::%{_id}%::재료::1::타입} to "custom"
+    set {조합법::%{_id}%::재료::1::ID} to "바르칸조각"
+    set {조합법::%{_id}%::재료::1::이름} to "바르칸 조각"
+    set {조합법::%{_id}%::재료::1::MC} to "amethyst cluster"
+    set {조합법::%{_id}%::재료::1::수량} to 8
+    set {조합법::%{_id}%::재료::2::타입} to "custom"
+    set {조합법::%{_id}%::재료::2::ID} to "강화네더라이트파편"
+    set {조합법::%{_id}%::재료::2::이름} to "강화 네더라이트 파편"
+    set {조합법::%{_id}%::재료::2::MC} to "netherite scrap"
+    set {조합법::%{_id}%::재료::2::수량} to 2
+    set {조합법::%{_id}%::결과} to 중간재아이템("바르칸핵", "바르칸 핵", "netherite ingot", "&5", "심연균열 — 바르칸 열도의 정수")
+
+    # ----- 중간재 별빛 진주 추가 (C01·C03은 기본 부품이라 제외) -----
+    별빛진주재료추가("C02", 3, 1)
+    별빛진주재료추가("C04", 3, 2)
+    별빛진주재료추가("C05", 3, 2)
+    별빛진주재료추가("C06", 3, 1)
+    별빛진주재료추가("C07", 3, 1)
+    별빛진주재료추가("C08", 3, 1)
+    별빛진주재료추가("C09", 3, 2)
+    별빛진주재료추가("C10", 3, 3)
+
+    # ----- 중간재 광물 보강 -----
+    재료추가("C03", 4, "강화부싯돌", "강화 부싯돌", "flint", 4)
+    재료추가("C09", 4, "강화레드스톤", "강화 레드스톤", "redstone", 4)
+    재료추가("C10", 4, "강화흑요석", "강화 흑요석", "obsidian", 2)
+    재료추가("C04", 4, "강화청금석", "강화 청금석", "lapis lazuli", 4)
+    재료추가("C07", 4, "강화에메랄드", "강화 에메랄드", "emerald", 2)
+
+# =========================================
+# 낚싯대 레시피 등록 (락잠금 ON — 레시피 구매 시 해금)
+# 결과: 부품데이터 기반 실제 낚싯대 아이템
+# =========================================
+function 낚시낚싯대레시피등록():
+    낚싯대레시피정의("R10", "대나무 막대기", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 1, "custom", "야자수섬유", "야자수 섬유", "bamboo", 4)
+    낚싯대레시피정의("R11", "행운의 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 1, "custom", "행운의매듭", "행운의 매듭", "chorus fruit", 1)
+    낚싯대레시피정의("R12", "참나무 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "단단한자루", "단단한 자루", "stick", 1)
+    낚싯대레시피정의("R13", "잉어꾼의 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "단단한자루", "단단한 자루", "stick", 1)
+    낚싯대레시피정의("R14", "경험의 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "학자의잉크", "학자의 잉크", "ink sac", 4)
+    낚싯대레시피정의("R15", "낚시꾼의 낚싯대", 3, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "단단한자루", "단단한 자루", "stick", 1, "custom", "강철심", "강철 심", "iron ingot", 1)
+    낚싯대레시피정의("R16", "대물 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "거대비늘", "거대 비늘", "turtle scute", 4)
+    낚싯대레시피정의("R17", "전문가 낚싯대", 3, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 3, "custom", "강철심", "강철 심", "iron ingot", 2, "custom", "단단한자루", "단단한 자루", "stick", 1)
+    낚싯대레시피정의("R18", "강화목 낚싯대", 3, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 3, "custom", "강철심", "강철 심", "iron ingot", 2, "custom", "용암코어", "용암 코어", "magma block", 1)
+    낚싯대레시피정의("R19", "쌍둥이 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 3, "custom", "진주코어", "진주 코어", "heart of the sea", 2)
+    낚싯대레시피정의("R20", "황금 낚싯대", 3, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 2, "custom", "진주코어", "진주 코어", "heart of the sea", 1, "custom", "강화금괴", "강화 금괴", "gold ingot", 4)
+    낚싯대레시피정의("R21", "견고한 낚싯대", 2, "custom", "강철심", "강철 심", "iron ingot", 3, "custom", "용암코어", "용암 코어", "magma block", 1)
+    낚싯대레시피정의("R22", "행운꾼의 낚싯대", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 3, "custom", "행운의매듭", "행운의 매듭", "chorus fruit", 2)
+    낚싯대레시피정의("R23", "행운꾼의 대물대", 2, "custom", "행운의매듭", "행운의 매듭", "chorus fruit", 3, "custom", "거대비늘", "거대 비늘", "turtle scute", 4)
+    낚싯대레시피정의("R24", "흑단목 낚싯대", 3, "custom", "강철심", "강철 심", "iron ingot", 4, "custom", "단단한자루", "단단한 자루", "stick", 2, "custom", "강화네더라이트파편", "강화 네더라이트 파편", "netherite scrap", 2)
+    낚싯대레시피정의("R25", "명인의 낚싯대", 2, "custom", "고대부적", "고대 부적", "echo shard", 2, "custom", "강철심", "강철 심", "iron ingot", 3)
+    낚싯대레시피정의("R26", "학자의 낚싯대", 2, "custom", "고대부적", "고대 부적", "echo shard", 3, "custom", "학자의잉크", "학자의 잉크", "ink sac", 8)
+    낚싯대레시피정의("R27", "도전자의 낚싯대", 2, "custom", "고대부적", "고대 부적", "echo shard", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 4)
+    낚싯대레시피정의("R28", "대어꾼의 낚싯대", 2, "custom", "정글그립", "정글 그립", "bamboo", 3, "custom", "거대비늘", "거대 비늘", "turtle scute", 6)
+    낚싯대레시피정의("R29", "상인의 낚싯대", 2, "custom", "진주코어", "진주 코어", "heart of the sea", 3, "custom", "강화금괴", "강화 금괴", "gold ingot", 8)
+    낚싯대레시피정의("R30", "금등어 전용대", 2, "custom", "진주코어", "진주 코어", "heart of the sea", 3, "custom", "강화금괴", "강화 금괴", "gold ingot", 6)
+    낚싯대레시피정의("R31", "용왕의 낚싯대", 3, "custom", "바르칸핵", "바르칸 핵", "netherite ingot", 2, "custom", "심해코어", "심해 코어", "heart of the sea", 2, "custom", "강화네더라이트파편", "강화 네더라이트 파편", "netherite scrap", 4)
+    낚싯대레시피정의("R32", "심해 낚싯대", 3, "custom", "심해코어", "심해 코어", "heart of the sea", 3, "custom", "행운의매듭", "행운의 매듭", "chorus fruit", 3, "custom", "안개수정", "안개 수정", "amethyst shard", 8)
+    낚싯대레시피정의("R33", "바르칸 낚싯대", 3, "custom", "바르칸핵", "바르칸 핵", "netherite ingot", 3, "custom", "강철심", "강철 심", "iron ingot", 4, "custom", "진주코어", "진주 코어", "heart of the sea", 2)
+    낚싯대레시피정의("R34", "고수의 낚싯대", 3, "custom", "바르칸핵", "바르칸 핵", "netherite ingot", 2, "custom", "심해코어", "심해 코어", "heart of the sea", 2, "custom", "정제된갈고리", "정제된 갈고리", "tripwire hook", 4)
+    낚싯대레시피정의("R35", "전설의 낚싯대", 3, "custom", "바르칸핵", "바르칸 핵", "netherite ingot", 3, "custom", "심해코어", "심해 코어", "heart of the sea", 3, "custom", "용비늘", "용 비늘", "dragon breath", 1)
+
+    # ----- 낚싯대에 광물 재료 보강 (slot 4) -----
+    # D~C 등급
+    재료추가("R10", 4, "강화석탄", "강화 석탄", "coal", 2)
+    재료추가("R11", 4, "강화부싯돌", "강화 부싯돌", "flint", 2)
+    재료추가("R12", 4, "강화석탄", "강화 석탄", "coal", 3)
+    재료추가("R13", 4, "강화부싯돌", "강화 부싯돌", "flint", 3)
+    재료추가("R14", 4, "강화레드스톤", "강화 레드스톤", "redstone", 3)
+    재료추가("R15", 4, "강화구리괴", "강화 구리괴", "copper ingot", 3)
+    재료추가("R16", 4, "강화철괴", "강화 철괴", "iron ingot", 3)
+    # B 등급
+    재료추가("R17", 4, "강화철괴", "강화 철괴", "iron ingot", 4)
+    재료추가("R18", 4, "강화구리괴", "강화 구리괴", "copper ingot", 4)
+    재료추가("R19", 4, "강화금괴", "강화 금괴", "gold ingot", 4)
+    재료추가("R20", 4, "강화금괴", "강화 금괴", "gold ingot", 6)
+    재료추가("R21", 4, "강화흑요석", "강화 흑요석", "obsidian", 2)
+    재료추가("R22", 4, "강화청금석", "강화 청금석", "lapis lazuli", 4)
+    재료추가("R23", 4, "강화레드스톤", "강화 레드스톤", "redstone", 4)
+    # A 등급
+    재료추가("R24", 4, "강화네더라이트파편", "강화 네더라이트 파편", "netherite scrap", 1)
+    재료추가("R25", 4, "강화에메랄드", "강화 에메랄드", "emerald", 4)
+    재료추가("R26", 4, "강화청금석", "강화 청금석", "lapis lazuli", 6)
+    재료추가("R27", 4, "강화다이아몬드", "강화 다이아몬드", "diamond", 2)
+    재료추가("R28", 4, "강화에메랄드", "강화 에메랄드", "emerald", 3)
+    재료추가("R29", 4, "강화금괴", "강화 금괴", "gold ingot", 8)
+    재료추가("R30", 4, "강화금괴", "강화 금괴", "gold ingot", 6)
+    # S 등급 — 압축 블록 또는 네더라이트
+    재료추가("R31", 4, "강화네더라이트파편", "강화 네더라이트 파편", "netherite scrap", 4)
+    재료추가("R32", 4, "강화다이아몬드", "강화 다이아몬드", "diamond", 4)
+    재료추가("R33", 4, "압축다이아블록", "압축 다이아 블록", "diamond block", 1)
+    재료추가("R34", 4, "강화네더라이트파편", "강화 네더라이트 파편", "netherite scrap", 3)
+    재료추가("R35", 4, "압축에메랄드블록", "압축 에메랄드 블록", "emerald block", 1)
+
+# 낚싯대 레시피 정의 헬퍼 (가변 인자 대신 텍스트 시리즈로)
+function 낚싯대레시피정의(id: text, rodName: text, matCount: integer, t1: text, id1: text, n1: text, mc1: text, q1: integer, t2: text = "", id2: text = "", n2: text = "", mc2: text = "", q2: integer = 0, t3: text = "", id3: text = "", n3: text = "", mc3: text = "", q3: integer = 0):
+    add {_id} to {조합카테::낚시::*}
+    set {조합법::%{_id}%::이름} to {_rodName}
+    set {조합법::%{_id}%::카테고리} to "낚시"
+    set {조합법::%{_id}%::재료수} to {_matCount}
+    set {조합법::%{_id}%::락잠금} to true
+    set {조합법::%{_id}%::결과부품이름} to {_rodName}
+    set {조합법::%{_id}%::재료::1::타입} to {_t1}
+    set {조합법::%{_id}%::재료::1::ID} to {_id1}
+    set {조합법::%{_id}%::재료::1::이름} to {_n1}
+    set {조합법::%{_id}%::재료::1::MC} to {_mc1}
+    set {조합법::%{_id}%::재료::1::수량} to {_q1}
+    if {_matCount} >= 2:
+        set {조합법::%{_id}%::재료::2::타입} to {_t2}
+        set {조합법::%{_id}%::재료::2::ID} to {_id2}
+        set {조합법::%{_id}%::재료::2::이름} to {_n2}
+        set {조합법::%{_id}%::재료::2::MC} to {_mc2}
+        set {조합법::%{_id}%::재료::2::수량} to {_q2}
+    if {_matCount} >= 3:
+        set {조합법::%{_id}%::재료::3::타입} to {_t3}
+        set {조합법::%{_id}%::재료::3::ID} to {_id3}
+        set {조합법::%{_id}%::재료::3::이름} to {_n3}
+        set {조합법::%{_id}%::재료::3::MC} to {_mc3}
+        set {조합법::%{_id}%::재료::3::수량} to {_q3}
+    set {조합법::%{_id}%::결과} to 부품낚싯대생성({_rodName})
+    # 부품→레시피ID 역매핑 (부품상점에서 사용)
+    set {부품_레시피ID::낚싯대::%{_rodName}%} to {_id}
+
 # ===== 조합대 GUI 열기 =====
 # 슬롯 맵: 레시피목록(9,10,18,19,27,28,36,37) 그리드(12-14,21-23,30-32)
 #          화살표(16) 결과(17) 제작(34) 카테탭(46-50) 페이지(45,53) 닫기(8)
-function 조합대GUI열기(p: player, cat: text, page: integer, selId: text):
-    open chest inventory with 6 rows named "{@gui_name}" to {_p}
+function 조합대GUI열기(p: player, cat: text, page: integer, selId: text, village: text = ""):
+    # village 파라미터: "" = 전체 (op /조합대), 이름 = 해당 마을 전용 레시피만
+    set {_guiName} to "{@gui_name}"
+    if {_village} is not "":
+        set {_guiName} to "&0%{_village}% 대장간"
+    open chest inventory with 6 rows named {_guiName} to {_p}
     set {조합대카테::%{_p}%} to {_cat}
     set {조합대페이지::%{_p}%} to {_page}
     set {조합대선택::%{_p}%} to {_selId}
+    set {조합대마을::%{_p}%} to {_village}
     # 배경 채우기
     loop integers from 0 to 53:
         set slot loop-integer of {_p}'s current inventory to gray stained glass pane named "&f"
-    # 닫기
+    # 안내 (slot 0)
+    set slot 0 of {_p}'s current inventory to book named "&e조합대 안내" with lore "&7재료를 모아 아이템을 제작하세요!" and "&7카테고리를 선택하고 레시피를 클릭!"
+    # 닫기 (slot 8)
     set slot 8 of {_p}'s current inventory to barrier named "&c&l닫기"
-    # 안내
-    set slot 0 of {_p}'s current inventory to book named "&e조합대 안내" with lore "&7재료를 모아 아이템을 제작하세요!" and "&7카테고리를 선택하고 레시피를 클릭!" and "" and "&7채굴/재배로 재료를 모으세요."
-    # 카테고리 탭
+    # 카테고리 탭 (slot 1~5, 상단)
     set {_cats::1} to "광물"
     set {_cats::2} to "농산물"
     set {_cats::3} to "고급"
@@ -712,32 +1144,83 @@ function 조합대GUI열기(p: player, cat: text, page: integer, selId: text):
     set {_catIcons::5} to nether star
     loop integers from 1 to 5:
         set {_catName} to {_cats::%loop-integer%}
-        set {_catSlot} to 45 + loop-integer
+        set {_catSlot} to loop-integer
         if {_catName} is {_cat}:
             set slot {_catSlot} of {_p}'s current inventory to {_catIcons::%loop-integer%} named "&e&l%{_catName}%" with lore "&a현재 선택됨"
         else:
             set slot {_catSlot} of {_p}'s current inventory to {_catIcons::%loop-integer%} named "&7%{_catName}%" with lore "&7클릭하여 이동"
-    # 레시피 목록
+    # 레시피 목록 (좌측 5열 × 5줄 = 25 슬롯, col 5는 구분선)
     delete {조합대슬롯::%{_p}%::*}
     set {_recipeSlots::1} to 9
     set {_recipeSlots::2} to 10
-    set {_recipeSlots::3} to 18
-    set {_recipeSlots::4} to 19
-    set {_recipeSlots::5} to 27
-    set {_recipeSlots::6} to 28
-    set {_recipeSlots::7} to 36
-    set {_recipeSlots::8} to 37
-    set {_perPage} to 8
-    set {_start} to ({_page} - 1) * {_perPage} + 1
-    set {_listIdx} to 0
-    set {_totalInCat} to size of {조합카테::%{_cat}%::*}
+    set {_recipeSlots::3} to 11
+    set {_recipeSlots::4} to 12
+    set {_recipeSlots::5} to 13
+    set {_recipeSlots::6} to 18
+    set {_recipeSlots::7} to 19
+    set {_recipeSlots::8} to 20
+    set {_recipeSlots::9} to 21
+    set {_recipeSlots::10} to 22
+    set {_recipeSlots::11} to 27
+    set {_recipeSlots::12} to 28
+    set {_recipeSlots::13} to 29
+    set {_recipeSlots::14} to 30
+    set {_recipeSlots::15} to 31
+    set {_recipeSlots::16} to 36
+    set {_recipeSlots::17} to 37
+    set {_recipeSlots::18} to 38
+    set {_recipeSlots::19} to 39
+    set {_recipeSlots::20} to 40
+    set {_recipeSlots::21} to 45
+    set {_recipeSlots::22} to 46
+    set {_recipeSlots::23} to 47
+    set {_recipeSlots::24} to 48
+    set {_recipeSlots::25} to 49
+    set {_perPage} to 25
+    # col 5 구분선 (회색 유리는 배경 채우기에서 이미 됨, 명시적으로 유지)
+    # 해금된 레시피만 별도 리스트로 필터링 + 마을 전용 체크
+    delete {_visList::*}
     if {조합카테::%{_cat}%::*} is set:
         loop {조합카테::%{_cat}%::*}:
+            if 레시피해금됨({_p}, loop-value) is true:
+                # 마을 필터: 레시피의 소속마을이 비어있으면 전역(모든 대장간)
+                # 설정되어 있으면 village와 일치할 때만 표시
+                # village="" (op 직접 호출)이면 전부 표시
+                set {_recipeVillage} to {조합법::%loop-value%::소속마을}
+                if {_village} is "":
+                    add loop-value to {_visList::*}
+                else if {_recipeVillage} is not set:
+                    add loop-value to {_visList::*}
+                else if {_recipeVillage} is "":
+                    add loop-value to {_visList::*}
+                else if {_recipeVillage} is {_village}:
+                    add loop-value to {_visList::*}
+    set {_totalInCat} to size of {_visList::*}
+    # 페이지 nav를 위해 첫/끝 슬롯 예약 → 실제 표시 가능 수 결정
+    set {_hasPrev} to false
+    set {_hasNext} to false
+    if {_page} > 1:
+        set {_hasPrev} to true
+    if {_page} * {_perPage} < {_totalInCat}:
+        set {_hasNext} to true
+    set {_firstRecipeIdx} to 1
+    set {_lastRecipeIdx} to {_perPage}
+    if {_hasPrev} is true:
+        set {_firstRecipeIdx} to 2
+    if {_hasNext} is true:
+        set {_lastRecipeIdx} to {_perPage} - 1
+    set {_displayCount} to {_lastRecipeIdx} - {_firstRecipeIdx} + 1
+    set {_start} to ({_page} - 1) * {_perPage} + 1
+    set {_listIdx} to 0
+    set {_displayed} to 0
+    if {_visList::*} is set:
+        loop {_visList::*}:
             add 1 to {_listIdx}
             if {_listIdx} >= {_start}:
-                set {_slotIdx} to {_listIdx} - {_start} + 1
-                if {_slotIdx} > {_perPage}:
+                if {_displayed} >= {_displayCount}:
                     stop loop
+                add 1 to {_displayed}
+                set {_slotIdx} to {_firstRecipeIdx} + {_displayed} - 1
                 set {_cid} to loop-value
                 set {_rSlot} to {_recipeSlots::%{_slotIdx}%}
                 set {_cname} to {조합법::%{_cid}%::이름}
@@ -758,27 +1241,28 @@ function 조합대GUI열기(p: player, cat: text, page: integer, selId: text):
                 set lore of {_listItem} to {_newLore::*}
                 set slot {_rSlot} of {_p}'s current inventory to {_listItem}
                 set {조합대슬롯::%{_p}%::%{_rSlot}%} to {_cid}
-    # 페이지 버튼
-    if {_start} > 1:
-        set slot 45 of {_p}'s current inventory to arrow named "&c◀ 이전" with lore "&7이전 페이지"
-    if {_start} + {_perPage} - 1 < {_totalInCat}:
-        set slot 53 of {_p}'s current inventory to arrow named "&a다음 ▶" with lore "&7다음 페이지"
-    # 3x3 그리드 + 결과 + 제작 버튼
-    set {_gridSlots::1} to 12
-    set {_gridSlots::2} to 13
-    set {_gridSlots::3} to 14
-    set {_gridSlots::4} to 21
-    set {_gridSlots::5} to 22
-    set {_gridSlots::6} to 23
-    set {_gridSlots::7} to 30
-    set {_gridSlots::8} to 31
-    set {_gridSlots::9} to 32
+    # 페이지 버튼 — 레시피 영역 첫/끝 슬롯에 배치
+    if {_hasPrev} is true:
+        set slot 9 of {_p}'s current inventory to arrow named "&c◀ 이전" with lore "&7이전 페이지"
+    if {_hasNext} is true:
+        set slot 49 of {_p}'s current inventory to arrow named "&a다음 ▶" with lore "&7다음 페이지"
+    # 3x3 그리드 (오른쪽 벽: slot 15,16,17 / 24,25,26 / 33,34,35)
+    set {_gridSlots::1} to 15
+    set {_gridSlots::2} to 16
+    set {_gridSlots::3} to 17
+    set {_gridSlots::4} to 24
+    set {_gridSlots::5} to 25
+    set {_gridSlots::6} to 26
+    set {_gridSlots::7} to 33
+    set {_gridSlots::8} to 34
+    set {_gridSlots::9} to 35
     # 그리드 초기화 (검은 유리)
     loop integers from 1 to 9:
         set slot {_gridSlots::%loop-integer%} of {_p}'s current inventory to black stained glass pane named "&f"
-    set slot 16 of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 17 of {_p}'s current inventory to gray stained glass pane named "&f"
-    set slot 34 of {_p}'s current inventory to gray stained glass pane named "&8제작 불가"
+    # 결과 미리보기 (slot 43, 그리드 아래 가운데)
+    set slot 43 of {_p}'s current inventory to gray stained glass pane named "&f"
+    # 제작 버튼 (slot 52, 결과 아래)
+    set slot 52 of {_p}'s current inventory to gray stained glass pane named "&8제작 불가"
     if {_selId} is not "":
         if {조합법::%{_selId}%::이름} is set:
             set {_matCnt} to {조합법::%{_selId}%::재료수}
@@ -810,31 +1294,38 @@ function 조합대GUI열기(p: player, cat: text, page: integer, selId: text):
                         else:
                             set lore of {_gridItem} to "&c보유: %{_mHave}% / 필요: %{_mNeed}%" and "&c✗ 부족"
                         set slot {_gSlot} of {_p}'s current inventory to {_gridItem}
-            # 화살표
-            set slot 16 of {_p}'s current inventory to arrow named "&e&l→"
-            # 결과 미리보기
+            # 결과 미리보기 (slot 43)
             set {_resultItem} to {조합법::%{_selId}%::결과}
             if {_resultItem} is set:
-                set slot 17 of {_p}'s current inventory to {_resultItem}
-            # 제작 버튼
+                set slot 43 of {_p}'s current inventory to {_resultItem}
+            # 제작 버튼 (slot 52)
             if {_canCraft} is true:
-                set slot 34 of {_p}'s current inventory to lime concrete named "&a&l제작하기!" with lore "&7클릭하여 제작합니다."
+                set slot 52 of {_p}'s current inventory to lime concrete named "&a&l제작하기!" with lore "&7클릭하여 제작합니다."
             else:
-                set slot 34 of {_p}'s current inventory to red concrete named "&c&l재료 부족" with lore "&7필요한 재료가 부족합니다."
+                set slot 52 of {_p}'s current inventory to red concrete named "&c&l재료 부족" with lore "&7필요한 재료가 부족합니다."
 
 # ===== 클릭 핸들러 =====
 on inventory click:
-    if name of player's current inventory is "{@gui_name}":
+    set {_invName} to name of player's current inventory
+    set {_isCraftGUI} to false
+    if {_invName} is "{@gui_name}":
+        set {_isCraftGUI} to true
+    else if {_invName} contains "대장간":
+        set {_isCraftGUI} to true
+    if {_isCraftGUI} is true:
         cancel event
         set {_slot} to index of clicked slot
-        # 닫기
+        set {_curVillage} to {조합대마을::%player%}
+        if {_curVillage} is not set:
+            set {_curVillage} to ""
+        # 닫기 (slot 8)
         if {_slot} is 8:
             close player's inventory
             stop
-        # 카테고리 탭 (46-50)
-        if {_slot} >= 46:
-            if {_slot} <= 50:
-                set {_catIdx} to {_slot} - 45
+        # 카테고리 탭 (slot 1~5, 상단)
+        if {_slot} >= 1:
+            if {_slot} <= 5:
+                set {_catIdx} to {_slot}
                 set {_cats::1} to "광물"
                 set {_cats::2} to "농산물"
                 set {_cats::3} to "고급"
@@ -843,32 +1334,37 @@ on inventory click:
                 set {_newCat} to {_cats::%{_catIdx}%}
                 if {_newCat} is set:
                     wait 1 tick
-                    조합대GUI열기(player, {_newCat}, 1, "")
+                    조합대GUI열기(player, {_newCat}, 1, "", {_curVillage})
                 stop
-        # 페이지 이동
-        if {_slot} is 45:
-            set {_pg} to {조합대페이지::%player%}
-            if {_pg} is not set:
-                set {_pg} to 1
-            if {_pg} > 1:
+        # 페이지 이동 (slot 9 = 이전, slot 49 = 다음 — 레시피 영역 첫/끝)
+        if {_slot} is 9:
+            if {조합대슬롯::%player%::9} is not set:
+                set {_pg} to {조합대페이지::%player%}
+                if {_pg} is not set:
+                    set {_pg} to 1
+                if {_pg} > 1:
+                    wait 1 tick
+                    조합대GUI열기(player, {조합대카테::%player%}, {_pg} - 1, {조합대선택::%player%}, {_curVillage})
+                stop
+        if {_slot} is 49:
+            if {조합대슬롯::%player%::49} is not set:
+                set {_pg} to {조합대페이지::%player%}
+                if {_pg} is not set:
+                    set {_pg} to 1
                 wait 1 tick
-                조합대GUI열기(player, {조합대카테::%player%}, {_pg} - 1, {조합대선택::%player%})
-            stop
-        if {_slot} is 53:
-            set {_pg} to {조합대페이지::%player%}
-            if {_pg} is not set:
-                set {_pg} to 1
-            wait 1 tick
-            조합대GUI열기(player, {조합대카테::%player%}, {_pg} + 1, {조합대선택::%player%})
-            stop
-        # 레시피 선택 (9,10,18,19,27,28,36,37)
+                조합대GUI열기(player, {조합대카테::%player%}, {_pg} + 1, {조합대선택::%player%}, {_curVillage})
+                stop
+        # 레시피 선택
         set {_cid} to {조합대슬롯::%player%::%{_slot}%}
         if {_cid} is set:
+            if 레시피해금됨(player, {_cid}) is false:
+                message "{@prefix} &c레시피가 해금되지 않았습니다. 부품상점에서 구매하세요." to player
+                stop
             wait 1 tick
-            조합대GUI열기(player, {조합대카테::%player%}, {조합대페이지::%player%}, {_cid})
+            조합대GUI열기(player, {조합대카테::%player%}, {조합대페이지::%player%}, {_cid}, {_curVillage})
             stop
-        # 제작 버튼 (34)
-        if {_slot} is 34:
+        # 제작 버튼 (slot 52)
+        if {_slot} is 52:
             set {_selId} to {조합대선택::%player%}
             if {_selId} is not set:
                 stop
@@ -905,16 +1401,132 @@ on inventory click:
             set {_rlore} to "%lore of {_result}%"
             if {_rlore} contains "[낚싯대]":
                 execute console command "dogamrod %player% %{_cname}%"
+            # 부품데이터 기반 낚싯대 — 결과부품이름이 있으면 정식 도감 등록
+            if {조합법::%{_selId}%::결과부품이름} is set:
+                set {_rodName} to {조합법::%{_selId}%::결과부품이름}
+                도감_낚싯대(player, {_rodName})
+            # 결과 아이템이 [조합 재료] mat 태그 보유 시 재료 도감 자동 등록
+            if {_rlore} contains "mat:":
+                loop lore of {_result}:
+                    if loop-value contains "mat:":
+                        set {_matSp::*} to split loop-value at "mat:"
+                        if {_matSp::2} is set:
+                            set {_matIdReg} to {_matSp::2}
+                            # color/format 코드 제거 — 마지막 값이 mat ID
+                            도감_재료(player, {_matIdReg})
+                            stop loop
             # GUI 갱신
             wait 1 tick
-            조합대GUI열기(player, {조합대카테::%player%}, {조합대페이지::%player%}, {_selId})
+            조합대GUI열기(player, {조합대카테::%player%}, {조합대페이지::%player%}, {_selId}, {_curVillage})
             stop
 
 # ===== 명령어 =====
 on tab complete of "/조합대":
     stop
 
-command /조합대:
+command /조합대 [<text>]:
     aliases: /whqkqteo
     trigger:
-        조합대GUI열기(player, "광물", 1, "")
+        # op만 직접 호출 가능 (전체 레시피 보기). 일반 플레이어는 마을 대장간 NPC를 통해서만 가능.
+        if player is not op:
+            send "&8[&6 조합대 &8] &c조합은 마을의 &e대장간 NPC&c에게서만 가능합니다." to player
+            stop
+        # op + 마을 인자 → 그 마을의 대장간 시뮬레이션
+        # op + 인자 없음 → 전체 레시피 (관리용)
+        set {_v} to ""
+        if arg-1 is set:
+            set {_v} to arg-1
+        조합대GUI열기(player, "낚시", 1, "", {_v})
+
+on tab complete of "/조합대":
+    # 등록된 대장간 마을 자동완성 (NPC 데이터에서 수집)
+    delete {_villages::*}
+    if {NPC목록::*} is set:
+        loop {NPC목록::*}:
+            if {NPC::%loop-value%::대장간} is true:
+                set {_v} to {NPC::%loop-value%::대장간마을}
+                if {_v} is set:
+                    if {_villages::*} does not contain {_v}:
+                        add {_v} to {_villages::*}
+    if size of {_villages::*} > 0:
+        set tab completions for position 1 to {_villages::*}
+    else:
+        set tab completions for position 1 to "<마을이름>"
+
+# ===== 레시피 마을 지정 (op 관리용) =====
+on tab complete of "/레시피마을":
+    delete {_ids::*}
+    loop {조합법::*}:
+        if {조합법::%loop-index%::이름} is set:
+            add loop-index to {_ids::*}
+    if size of {_ids::*} > 0:
+        set tab completions for position 1 to {_ids::*}
+    else:
+        set tab completions for position 1 to "<레시피ID>"
+    set tab completions for position 2 to "<마을이름 또는 전역>"
+
+command /레시피마을 [<text>] [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            send "&8[&6 레시피 &8] &7사용법:" to player
+            send "&8  &e/레시피마을 <레시피ID> <마을> &7— 레시피를 마을 전용으로 지정" to player
+            send "&8  &e/레시피마을 <레시피ID> 전역 &7— 마을 제한 해제" to player
+            stop
+        set {_rid} to arg-1
+        if {조합법::%{_rid}%::이름} is not set:
+            send "&8[&6 레시피 &8] &c존재하지 않는 레시피: &f%{_rid}%" to player
+            stop
+        if arg-2 is not set:
+            set {_cur} to {조합법::%{_rid}%::소속마을}
+            if {_cur} is set:
+                if {_cur} is not "":
+                    send "&8[&6 레시피 &8] &7%{_rid}% (&f%{조합법::%{_rid}%::이름}%&7) → &e%{_cur}% &7전용" to player
+                else:
+                    send "&8[&6 레시피 &8] &7%{_rid}% → &a전역 (모든 대장간)" to player
+            else:
+                send "&8[&6 레시피 &8] &7%{_rid}% → &a전역 (모든 대장간)" to player
+            stop
+        if arg-2 is "전역":
+            delete {조합법::%{_rid}%::소속마을}
+            send "&8[&6 레시피 &8] &a%{_rid}% (&f%{조합법::%{_rid}%::이름}%&a) → 모든 대장간 표시" to player
+        else:
+            set {조합법::%{_rid}%::소속마을} to arg-2
+            send "&8[&6 레시피 &8] &a%{_rid}% (&f%{조합법::%{_rid}%::이름}%&a) → &e%arg-2% &a대장간 전용" to player
+
+# ===== 마을 전용 레시피 추가 헬퍼 (op 또는 스크립트용) =====
+# 새 레시피 ID를 받아서 광물/낚시/특수 등 카테고리에 마을 전용으로 등록 가능하도록.
+# 사용 패턴: 일반 레시피 등록 후 → 레시피마을_지정(id, "마을이름")
+function 레시피마을_지정(id: text, village: text):
+    set {조합법::%{_id}%::소속마을} to {_village}
+
+# 디버그: 레시피 락 상태 + 해금 상태 확인
+command /레시피상태 [<text>]:
+    permission: op
+    trigger:
+        set {_target} to player
+        if arg-1 is set:
+            set {_pp} to arg-1 parsed as player
+            if {_pp} is set:
+                set {_target} to {_pp}
+        send "&8[&6 레시피 &8] &f%{_target}'s name% &7상태:" to player
+        set {_lockTotal} to 0
+        set {_unlocked} to 0
+        if {조합카테::낚시::*} is set:
+            loop {조합카테::낚시::*}:
+                set {_id} to loop-value
+                if {조합법::%{_id}%::락잠금} is true:
+                    add 1 to {_lockTotal}
+                    set {_rname} to {조합법::%{_id}%::이름}
+                    if {레시피해금::%{_target}%::%{_id}%} is true:
+                        send "  &a✓ %{_id}% &7%{_rname}% &8(해금됨)" to player
+                        add 1 to {_unlocked}
+                    else:
+                        send "  &c✗ %{_id}% &7%{_rname}% &8(잠김)" to player
+        send "&8총 &e%{_unlocked}%&8/&e%{_lockTotal}% &7해금" to player
+        # 부품_레시피ID 매핑 확인
+        send "&8부품→ID 매핑:" to player
+        set {_mapCount} to 0
+        loop {부품_레시피ID::낚싯대::*}:
+            add 1 to {_mapCount}
+        send "  &e%{_mapCount}%&7개 등록됨" to player

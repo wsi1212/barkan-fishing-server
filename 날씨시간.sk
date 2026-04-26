@@ -139,22 +139,42 @@ function 커스텀날씨효과도망() :: number:
 
 # 환경 물고기 함수 → 지역별물고기.sk로 이관됨 (fish.json 기반)
 
-# ===== 유효 커스텀 날씨 반환 (지역 > 전역, 없으면 "") =====
+# ===== 유효 커스텀 날씨 반환 (자기 active > 부모 체인 active > 전역) =====
 function 유효커스텀날씨(p: player) :: text:
     set {_area} to {area::%{_p}%}
-    if {_area} is set:
-        if {_area} is not "0":
-            if {지역날씨::%{_area}%} is set:
-                return {지역날씨::%{_area}%}
+    if {_area} is not set:
+        set {_area} to "0"
+    if {_area} is "0":
+        if {서버날씨} is set:
+            return {서버날씨}
+        return ""
+    # 1. 자기 자신 active 우선
+    if {지역날씨::%{_area}%} is set:
+        return {지역날씨::%{_area}%}
+    # 2. 부모 체인 active 따라가기
+    set {_cur} to {_area}
+    loop 32 times:
+        set {_pid} to {지역부모섬::%{_cur}%}
+        if {_pid} is not set:
+            stop loop
+        if {지역날씨::%{_pid}%} is set:
+            # 자식이 거부하면 맑음
+            if {지역제외날씨::%{_area}%} contains {지역날씨::%{_pid}%}:
+                return ""
+            return {지역날씨::%{_pid}%}
+        set {_cur} to {_pid}
+    # 3. 전역 날씨 (체인 어디든 제외 시 무시)
     if {서버날씨} is set:
-        # 지역 or 부모 섬의 excluded에 해당하면 무시
-        if {_area} is set:
-            if {_area} is not "0":
-                if {지역제외날씨::%{_area}%} contains {서버날씨}:
-                    return ""
-                if {지역부모섬::%{_area}%} is set:
-                    if {지역제외날씨::%{지역부모섬::%{_area}%}%} contains {서버날씨}:
-                        return ""
+        if {지역제외날씨::%{_area}%} contains {서버날씨}:
+            return ""
+        set {_cur2} to {_area}
+        loop 32 times:
+            set {_pid2} to {지역부모섬::%{_cur2}%}
+            if {_pid2} is not set:
+                stop loop
+            if {지역제외날씨::%{_pid2}%} contains {서버날씨}:
+                return ""
+            set {_cur2} to {_pid2}
         return {서버날씨}
     return ""
 

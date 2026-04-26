@@ -530,6 +530,8 @@ on fish caught:
         add {낚싯대강화판매::%player%} to {_판매보너스}
     if {낚싯대강화내구::%player%} is set:
         add {낚싯대강화내구::%player%} to {_내구보존}
+    if {낚싯대강화행운::%player%} is set:
+        add {낚싯대강화행운::%player%} to {_행운}
     # ===== 축복(인챈트) 보너스 적용 =====
     if {낚싯대인챈트경험치::%player%} is set:
         add {낚싯대인챈트경험치::%player%} to {_경험치보너스}
