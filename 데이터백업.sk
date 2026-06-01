@@ -132,21 +132,9 @@ function 플레이어데이터백업(p: offline player):
         set {_baitList} to "없음"
     execute console command "pdbackup %{_n}% baitinv %{_baitList}%"
 
-    # --- Rod Enhancements ---
-    loop {부품목록::낚싯대::*}:
-        set {_enhLv} to {낚싯대강화::%loop-value%::%{_p}%}
-        if {_enhLv} is set:
-            if {_enhLv} > 0:
-                set {_rodName} to loop-value
-                replace all " " with "_" in {_rodName}
-                execute console command "pdbackup %{_n}% rodenhance %{_rodName}% %{_enhLv}%"
-
-    # --- Blessings ---
-    loop {축복목록::*}:
-        set {_blv} to {플레이어축복::%loop-value%::%{_p}%}
-        if {_blv} is set:
-            if {_blv} > 0:
-                execute console command "pdbackup %{_n}% blessing %loop-value% %{_blv}%"
+    # --- Rod Enhancements / Blessings ---
+    # ★ 낚싯대강화.sk → Java(Enhance/BlessingManager) 이관: 강화=rodenhance-rid.json(RID 권위),
+    #   축복=PlayerData.blessings 권위. Java 단독 write + push-back(restore). backup 제거(클로버 차단).
 
     # --- Title ---
     set {_title} to {장착칭호::%{_p}%}
@@ -272,7 +260,9 @@ function 플레이어데이터백업(p: offline player):
     # --- Phase D 배치1: 확장 스칼라 (스킬레벨/통계/접속/마이그레이션/강화스탯) ---
     # ★ 채굴/재배/요리/수집/탐험 prefix(XX레벨/경험치/필요경험치)는 Java SkillManager 권위로 이관됨 → backup 제거(클로버 차단).
     #   Java가 단독 write(PlayerData.extraNums) + push-back(pdrestoreex). 채집은 .sk 미이관이라 Skript 유지.
-    loop "채집레벨", "채집경험치", "채집필요경험치", "총낚시", "총조합", "총판매", "접속일수", "주간접속일수", "주간일퀘완료수", "용암낚시", "칭호마지막레벨", "송금일일한도", "낚싯대강화경험치", "낚싯대강화난이도", "낚싯대강화내구", "낚싯대강화더블", "낚싯대강화등급업", "낚싯대강화크기", "낚싯대강화크리배율", "낚싯대강화크리확률", "낚싯대강화트리플", "낚싯대강화판매", "낚싯대인챈트경험치", "낚싯대인챈트난이도", "낚싯대인챈트내구보존", "낚싯대인챈트타임아웃", "낚싯대인챈트퍼펙트", "낚싯대인챈트행운":
+    # ★ 낚싯대강화*/낚싯대인챈트* 캐시변수 제거 — Java(Enhance/BlessingManager)가 강화레벨/축복레벨에서
+    #   파생 계산해 pdrestoreex로 push-back. Skript는 더 이상 권위 아님 → backup 제거(클로버 차단).
+    loop "채집레벨", "채집경험치", "채집필요경험치", "총낚시", "총조합", "총판매", "접속일수", "주간접속일수", "주간일퀘완료수", "용암낚시", "칭호마지막레벨", "송금일일한도":
         set {_sv} to {%loop-value%::%{_p}%}
         if {_sv} is set:
             execute console command "pdbackup %{_n}% exnum %loop-value% %{_sv}%"
@@ -418,7 +408,7 @@ command /pdrestoreex <text> <text> <text>:
             # arg-3 = "id::level"
             set {_kv::*} to split arg-3 at "::"
             set {플레이어축복::%{_kv::1}%::%{_p}%} to {_kv::2} parsed as number
-            축복효과적용({_p})
+            # 인챈트 캐시 push는 Java BlessingManager(blessingrefresh/onJoin)가 담당
         else if arg-2 is "title":
             # arg-3 = "equipped||owned1||owned2||..."
             set {_parts::*} to split arg-3 at "||"

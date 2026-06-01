@@ -26,3 +26,43 @@ command /enhancesync <text>:
 
         else if {_sub} is "lvl":
             set {강화테이블::%{_p::2}%::%{_p::3}%} to {_p::4}
+
+# ===========================================================================
+# 낚싯대강화.sk → Java(BlockShip Blessing/EnhanceManager) 이관 브릿지
+#  권위: 축복=PlayerData.blessings, 강화=rodenhance-rid.json(RID키). GUI/판정=Java.
+#  외부 호출 shim + push-back 수신 + 레거시 RID 마이그레이션.
+# ===========================================================================
+
+# ----- 캐시 refresh shim (Java로 위임, 동기 실행) -----
+#  낚시.sk가 catch마다 강화스탯적용(player) 호출 → Java가 손에 든 낚싯대 누적스탯 재계산
+#  → pdrestoreex로 {낚싯대강화*} 즉시 set (동기). 데이터복원이 부르던 축복효과적용도 shim.
+function 강화스탯적용(p: player):
+    execute console command "enhancerefresh %{_p}'s name%"
+function 축복효과적용(p: player):
+    execute console command "blessingrefresh %{_p}'s name%"
+
+# ----- {낚싯대강화::%rid%} push-back (스탯.sk가 RID로 강화레벨 표시) -----
+command /enhridset <text> <number>:
+    permission: op
+    executable by: console
+    trigger:
+        set {낚싯대강화::%arg-1%} to arg-2
+
+# ----- 도전과제 훅 (Java 강화 성공 → 도전과제체크 함수 호출) -----
+command /achievecheck <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is set:
+            도전과제체크({_p}, arg-2, arg-3)
+
+# ----- 레거시 RID 강화레벨 1회성 마이그레이션 (Skript {낚싯대강화::%rid%} → Java) -----
+#  RID키 엔트리는 직접 number 값을 가짐(rodName키는 하위리스트라 직접값 없음 → 필터됨).
+on load:
+    if {강화RID마이그레이션완료} is not set:
+        loop {낚싯대강화::*}:
+            if loop-value is set:
+                if loop-value is a number:
+                    execute console command "enhmigrate %loop-index% %loop-value%"
+        set {강화RID마이그레이션완료} to true

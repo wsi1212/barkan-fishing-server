@@ -552,7 +552,8 @@
       "Bash(ssh -o ConnectTimeout=10 -i ~/.ssh/oracle-mc.key -o StrictHostKeyChecking=no -o LogLevel=ERROR ubuntu@134.185.113.25 ' *)",
       "Bash(npm ls *)",
       "Bash(npm config *)",
-      "Bash(kill -9 89820)"
+      "Bash(kill -9 89820)",
+      "Bash(ssh -i ~/.ssh/oracle-mc.key -o ConnectTimeout=10 ubuntu@134.185.113.25 'grep -nE \"DEBUG.*[Cc]reating ship|DEBUG.*Selection|Exception|Caused by|at com.blockship|internal error|Unhandled|배 create|ship create\" ~/mcserver/logs/latest.log | tail -100')"
     ],
     "defaultMode": "bypassPermissions"
   },
