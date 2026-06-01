@@ -1,0 +1,23 @@
+# =========================================
+# 어드민_bridge.sk — 어드민.sk Java 이관 브릿지 (partial, 9/24)
+# Java(AdminManager + FishingLevelManager)가 아래를 소유:
+#   - OP 접속/월드이동 크리에이티브 (어드민.sk on join / on world change 이관)
+#   - /레벨설정 <닉> <레벨>  → FishingLevelManager.setLevel (PlayerData 권위 + pdrestore level push-back + titleautocheck)
+#   - /최대콤보설정 <닉> <콤보> → AdminManager.setMaxCombo (PlayerData.maxCombo 권위 + pdrestore combo push-back + combonametag)
+# 미이관(Skript 유지): /도감관리 — {물고기/부품목록/조합법/조합재료} Skript DB에 강결합이라
+#   Java가 동기 read 불가 → 어드민.sk에 잔류.
+#
+# 이 브릿지는 Java→Skript 콤보 네임태그/사이드바 훅만 제공:
+#   /combonametag <name> — pdrestore combo 가 {낚시콤보/낚시최대콤보}만 set하므로,
+#     사이드바업데이트(사이드바.sk)+콤보네임태그(칭호.sk) Skript 함수를 콘솔 경유로 호출.
+# =========================================
+
+command /combonametag <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        사이드바업데이트({_p})
+        콤보네임태그({_p})

@@ -1,111 +1,9 @@
 # =========================================
-# 어드민.sk
-# 관리자 전용 명령어 모음
+# 어드민.sk — 관리자 전용 명령어 (partial, 9/24 이관 후 잔류분)
+# ★ Java 이관됨 (어드민_bridge.sk / AdminManager / FishingLevelManager):
+#     /레벨설정, /최대콤보설정, OP 접속·월드이동 크리에이티브, 레벨필요경험치계산 함수.
+# ★ Skript 잔류: /도감관리 — {물고기/부품목록/조합법/조합재료} Skript DB에 강결합이라 Java 동기 read 불가.
 # =========================================
-
-# ===== 목표 레벨의 필요경험치 계산 =====
-# 낚시레벨.sk 와 동일한 승수 공식으로 역산
-function 레벨필요경험치계산(targetLv: number) :: number:
-    set {_need} to 200
-    set {_lv} to 1
-    loop ({_targetLv} - 1) times:
-        if {_lv} < 15:
-            set {_need} to {_need} * 1.04
-        else if {_lv} < 25:
-            set {_need} to {_need} * 1.08
-        else if {_lv} < 40:
-            set {_need} to {_need} * 1.05
-        else if {_lv} < 50:
-            set {_need} to {_need} * 1.09
-        else if {_lv} < 60:
-            set {_need} to {_need} * 1.06
-        else:
-            set {_need} to {_need} * 1.10
-        add 1 to {_lv}
-    return floor({_need})
-
-# ===== /레벨설정 <닉네임> <레벨> =====
-on tab complete of "/레벨설정":
-    set tab completions for position 1 to names of all players
-    set tab completions for position 2 to "1" and "10" and "15" and "20" and "30" and "40" and "50" and "60" and "70" and "100"
-
-command /레벨설정 [<text>] [<text>]:
-    permission: op
-    permission message: &c권한이 없습니다.
-    trigger:
-        if arg-1 is not set:
-            message "&8[&c 어드민 &8] &7사용법: &e/레벨설정 <닉네임> <레벨>" to player
-            stop
-        if arg-2 is not set:
-            message "&8[&c 어드민 &8] &7사용법: &e/레벨설정 <닉네임> <레벨>" to player
-            stop
-
-        set {_lv} to arg-2 parsed as integer
-        if {_lv} is not set:
-            message "&8[&c 어드민 &8] &c레벨은 숫자로 입력해주세요." to player
-            stop
-        if {_lv} < 1:
-            message "&8[&c 어드민 &8] &c레벨은 1 이상이어야 합니다." to player
-            stop
-        if {_lv} > 100:
-            message "&8[&c 어드민 &8] &c최대 레벨은 100입니다." to player
-            stop
-
-        delete {_target}
-        loop all players:
-            if loop-player's name is arg-1:
-                set {_target} to loop-player
-                stop loop
-        if {_target} is not set:
-            message "&8[&c 어드민 &8] &c%arg-1%님이 온라인 상태가 아닙니다." to player
-            stop
-
-        # 레벨 및 경험치 설정
-        set {낚시레벨::%{_target}%} to {_lv}
-        set {낚시레벨현재경험치::%{_target}%} to 0
-        set {낚시레벨필요경험치::%{_target}%} to 레벨필요경험치계산({_lv})
-
-        # 경험치바 동기화
-        경험치바동기화({_target})
-        칭호자동체크({_target})
-
-        message "&8[&c 어드민 &8] &f%arg-1%&a님의 레벨을 &eLv.%{_lv}%&a로 설정했습니다." to player
-        message "&8[&c 어드민 &8] &7관리자 &f%player%&7님이 레벨을 &eLv.%{_lv}%&7로 설정했습니다." to {_target}
-
-# ===== /최대콤보설정 <닉네임> <콤보> =====
-on tab complete of "/최대콤보설정":
-    set tab completions for position 1 to names of all players
-    set tab completions for position 2 to "<콤보>"
-
-command /최대콤보설정 [<text>] [<text>]:
-    permission: op
-    permission message: &c권한이 없습니다.
-    trigger:
-        if arg-1 is not set:
-            message "&8[&c 어드민 &8] &7사용법: &e/최대콤보설정 <닉네임> <콤보>" to player
-            stop
-        if arg-2 is not set:
-            message "&8[&c 어드민 &8] &7사용법: &e/최대콤보설정 <닉네임> <콤보>" to player
-            stop
-        set {_val} to arg-2 parsed as integer
-        if {_val} is not set:
-            message "&8[&c 어드민 &8] &c콤보는 숫자로 입력해주세요." to player
-            stop
-        if {_val} < 0:
-            message "&8[&c 어드민 &8] &c콤보는 0 이상이어야 합니다." to player
-            stop
-        delete {_target}
-        loop all players:
-            if loop-player's name is arg-1:
-                set {_target} to loop-player
-                stop loop
-        if {_target} is not set:
-            message "&8[&c 어드민 &8] &c%arg-1%님이 온라인 상태가 아닙니다." to player
-            stop
-        set {낚시최대콤보::%{_target}%} to {_val}
-        사이드바업데이트({_target})
-        콤보네임태그({_target})
-        message "&8[&c 어드민 &8] &f%arg-1%&a님의 최대 콤보를 &e%{_val}%&a로 설정했습니다." to player
 
 # ===== /도감관리 <닉네임> <모드> [물고기이름] =====
 # 모드: 전체오픈 / 전체잠금 / 오픈 <물고기> / 잠금 <물고기>
@@ -304,18 +202,3 @@ command /도감관리 [<text>] [<text>] [<text>]:
 
         else:
             message "&8[&c 어드민 &8] &c올바른 모드를 입력하세요: 전체오픈, 전체잠금, 오픈, 잠금" to player
-
-# ===== OP 접속 시 크리에이티브 모드 =====
-# (이름표 숨김은 BlockShip Java 플러그인이 Scoreboard API로 처리)
-on join:
-    if player is op:
-        wait 10 ticks
-        if player is op:
-            set player's gamemode to creative
-
-# 월드 이동 시 OP는 크리에이티브 유지 (Paper의 per-world 게임모드 저장 덮어쓰기)
-on world change:
-    if player is op:
-        wait 2 ticks
-        if player is op:
-            set player's gamemode to creative
