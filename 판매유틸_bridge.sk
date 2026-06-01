@@ -1,0 +1,245 @@
+# =========================================
+# 판매유틸_bridge.sk — 물고기 아이템 공용 함수 (판매.sk에서 분리, 유지)
+# fishprice/parse*/freshness/calcFishPrice/isfish 등 — 낚시.sk·마켓.sk·낚시이벤트_bridge가 호출.
+# /sellhook = SellCommand(Java)가 판매 후 부수효과(퀘스트/주간랭킹/총판매/도전과제/사이드바) 실행용.
+# 판매 명령/상점 GUI는 Java(SellCommand)로 이관됨.
+# =========================================
+
+# ===== 가격 계산 함수 =====
+# 가격 = 등급 기본가 × (0.3 + 품질×0.7/100), 품질 0~100 → 배율 0.3~1.0
+function fishprice(grade: text, quality: number) :: number:
+    set {_기본가} to 0
+    if {_grade} is "E":
+        set {_기본가} to 100
+    else if {_grade} is "D":
+        set {_기본가} to 250
+    else if {_grade} is "C":
+        set {_기본가} to 600
+    else if {_grade} is "B":
+        set {_기본가} to 2000
+    else if {_grade} is "A":
+        set {_기본가} to 6000
+    else if {_grade} is "S":
+        set {_기본가} to 20000
+    else if {_grade} is "S+":
+        set {_기본가} to 80000
+    else if {_grade} is "M":
+        set {_기본가} to 150000
+    else if {_grade} is "L":
+        set {_기본가} to 500000
+    else if {_grade} is "G":
+        set {_기본가} to 1300000
+    if {_quality} < 0:
+        set {_quality} to 0
+    if {_quality} > 100:
+        set {_quality} to 100
+    set {_mult} to 0.5 + {_quality} * 0.5 / 100
+    set {_price} to floor({_기본가} * {_mult})
+    return {_price}
+
+# ===== 물고기 아이템에서 등급 파싱 =====
+function parsegrade(item: item) :: text:
+    loop lore of {_item}:
+        if loop-value contains "&7등급 &e:":
+            set {_line} to loop-value
+            replace all "&7등급 &e: &f" with "" in {_line}
+            return {_line}
+    return ""
+
+# ===== 물고기 아이템에서 크기 파싱 =====
+function parsesize(item: item) :: number:
+    loop lore of {_item}:
+        if loop-value contains "&7크기 &e:":
+            set {_line} to loop-value
+            replace all "&7크기 &e: &f" with "" in {_line}
+            replace all "cm" with "" in {_line}
+            set {_s} to {_line} parsed as number
+            if {_s} is set:
+                return {_s}
+            return 0
+    return 0
+
+# ===== 크리티컬 물고기인지 확인 =====
+function iscritfish(item: item) :: boolean:
+    loop lore of {_item}:
+        if loop-value contains "크리티컬":
+            return true
+    return false
+
+# ===== 크리티컬 배율 파싱 (없으면 1 반환) =====
+function parsecrit(item: item) :: number:
+    loop lore of {_item}:
+        if loop-value contains "크리티컬":
+            set {_line} to loop-value
+            replace all "&6★ 크리티컬 &e" with "" in {_line}
+            replace all "배" with "" in {_line}
+            set {_mult} to {_line} parsed as number
+            if {_mult} is set:
+                return {_mult}
+    return 1
+
+# ===== 판매보너스 파싱 (없으면 0 반환) =====
+function parsesellbonus(item: item) :: number:
+    loop lore of {_item}:
+        if loop-value contains "판매보너스":
+            set {_line} to loop-value
+            replace all "&e$ 판매보너스 &f+" with "" in {_line}
+            replace all "%%" with "" in {_line}
+            set {_val} to {_line} parsed as number
+            if {_val} is set:
+                return {_val}
+    return 0
+
+# ===== 품질 파싱 (f:unix:preserve:quality) =====
+# 기존 물고기(quality 필드 없음)는 50 반환 (기본가 × 1.0)
+function parsequality(item: item) :: number:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return 50
+    set {_parts::*} to split {_data} at ":"
+    set {_q} to {_parts::3} parsed as number
+    if {_q} is not set:
+        return 50
+    if {_q} < 0:
+        return 0
+    if {_q} > 100:
+        return 100
+    return {_q}
+
+# ===== 신선도 기계데이터 파싱 (f:unix:preserve:quality) =====
+function parseFishData(item: item) :: text:
+    loop lore of {_item}:
+        set {_raw} to uncolored loop-value
+        if {_raw} starts with "f:":
+            replace "f:" with "" in {_raw}
+            return {_raw}
+    return ""
+
+# ===== 신선도 배율 반환 (0.2 ~ 1.0) =====
+function freshnessMult(item: item) :: number:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return 1.0
+    set {_parts::*} to split {_data} at ":"
+    set {_catchUnix} to {_parts::1} parsed as number
+    if {_catchUnix} is not set:
+        return 1.0
+    set {_preserveMins} to {_parts::2} parsed as number
+    if {_preserveMins} is not set:
+        set {_preserveMins} to 0
+    set {_nowUnix} to unix timestamp of now
+    set {_ageSecs} to {_nowUnix} - {_catchUnix}
+    set {_ageMins} to floor({_ageSecs} / 60) - {_preserveMins}
+    if {_ageMins} < 0:
+        set {_ageMins} to 0
+    if {_ageMins} <= 15:
+        return 1.0
+    else if {_ageMins} <= 40:
+        return 0.85
+    else if {_ageMins} <= 90:
+        return 0.65
+    else if {_ageMins} <= 180:
+        return 0.40
+    return 0.20
+
+# ===== 신선도 라벨 (색상+%+이름) =====
+function freshnessLabel(item: item) :: text:
+    set {_data} to parseFishData({_item})
+    if {_data} is "":
+        return "&a신선함"
+    set {_parts::*} to split {_data} at ":"
+    set {_catchUnix} to {_parts::1} parsed as number
+    if {_catchUnix} is not set:
+        return "&a신선함"
+    set {_preserveMins} to {_parts::2} parsed as number
+    if {_preserveMins} is not set:
+        set {_preserveMins} to 0
+    set {_nowUnix} to unix timestamp of now
+    set {_ageSecs} to {_nowUnix} - {_catchUnix}
+    set {_ageMins} to floor({_ageSecs} / 60) - {_preserveMins}
+    if {_ageMins} < 0:
+        set {_ageMins} to 0
+    if {_ageMins} <= 15:
+        set {_pct} to 100 - {_ageMins}
+        return "&a%{_pct}%%%"
+    else if {_ageMins} <= 40:
+        set {_pct} to 85 - floor(({_ageMins} - 15) * 20 / 25)
+        return "&e%{_pct}%%%"
+    else if {_ageMins} <= 90:
+        set {_pct} to 65 - floor(({_ageMins} - 40) * 25 / 50)
+        return "&6%{_pct}%%%"
+    else if {_ageMins} <= 180:
+        set {_pct} to 40 - floor(({_ageMins} - 90) * 20 / 90)
+        return "&c%{_pct}%%%"
+    return "&420%%"
+
+# ===== 신선도 lore 업데이트 함수 =====
+function updateFreshnessLore(item: item) :: item:
+    set {_label} to freshnessLabel({_item})
+    set {_newLore::*} to lore of {_item}
+    set {_idx} to 0
+    loop {_newLore::*}:
+        add 1 to {_idx}
+        if loop-value contains "신선도":
+            set {_newLore::%{_idx}%} to "&7신선도 &e: %{_label}%"
+    set lore of {_item} to {_newLore::*}
+    return {_item}
+
+# ===== 최종 판매가 계산 (기본가×품질 × 크리 × 판매보너스 × 신선도) =====
+function calcFishPrice(item: item) :: number:
+    set {_등급} to parsegrade({_item})
+    if {_등급} is "":
+        return 0
+    set {_품질} to parsequality({_item})
+    set {_critMult} to parsecrit({_item})
+    set {_sellBonus} to parsesellbonus({_item})
+    set {_base} to floor(fishprice({_등급}, {_품질}) * {_critMult})
+    if {_sellBonus} > 0:
+        set {_base} to floor({_base} * (100 + {_sellBonus}) / 100)
+    set {_freshMult} to freshnessMult({_item})
+    set {_base} to floor({_base} * {_freshMult})
+    return {_base}
+
+# ===== 물고기인지 확인 =====
+function isfish(item: item) :: boolean:
+    if {_item} is cod:
+        loop lore of {_item}:
+            if loop-value contains "[물고기]":
+                return true
+            if loop-value contains "&8f:":
+                return true
+            if loop-value contains "&7등급":
+                return true
+    return false
+
+# ===== 2분마다 인벤토리 물고기 신선도 lore 자동 갱신 =====
+every 2 minutes:
+    loop all players:
+        loop integers from 0 to 35:
+            set {_item} to slot loop-integer of loop-player's inventory
+            if {_item} is not air:
+                if isfish({_item}):
+                    set {_data} to parseFishData({_item})
+                    if {_data} is not "":
+                        set {_updated} to updateFreshnessLore({_item})
+                        set slot loop-integer of loop-player's inventory to {_updated}
+
+# 판매 부수효과: player§§count§§money (Java가 MoneyBridge.add 후 호출)
+command /sellhook <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::1} parsed as player
+        if {_p} is not set:
+            stop
+        set {_count} to {_t::2} parsed as integer
+        set {_money} to {_t::3} parsed as number
+        퀘스트_판매({_p}, {_count}, {_money})
+        주간랭킹_판매({_p}, {_money})
+        if {총판매::%{_p}%} is not set:
+            set {총판매::%{_p}%} to 0
+        add {_count} to {총판매::%{_p}%}
+        도전과제체크({_p}, "총판매", "%{총판매::%{_p}%}%")
+        도전과제체크({_p}, "보유금", "%{돈::%{_p}%}%")
+        사이드바업데이트({_p})
