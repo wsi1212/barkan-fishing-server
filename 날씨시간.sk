@@ -88,19 +88,10 @@ on load:
     set {커스텀날씨::열대야::효과} to ""
     set {커스텀날씨::땡볕::보너스} to "0|20|0"
     set {커스텀날씨::땡볕::효과} to "난이도+1"
-    set {커스텀날씨::열대야::효과} to ""
 
-# Java → Skript 날씨 동기화 브릿지
-command /weathersync <text>:
-    permission: op
-    executable by: console
-    trigger:
-        if arg-1 is "해제":
-            delete {서버날씨}
-            delete {서버날씨남은틱}
-        else:
-            set {서버날씨} to arg-1
-            set {서버날씨남은틱} to 12000
+# Java → Skript 날씨 동기화 브릿지는 공간.sk 의 /regionweatherevent 가 단독 담당.
+# (Java WeatherManager 가 startGlobalWeather/syncToSkript 에서 regionweatherevent 만 dispatch)
+# 과거 /weathersync 는 어디서도 호출되지 않는 사문(dead) 명령이라 제거함 — {서버날씨}는 regionweatherevent 가 권위.
 
 # 커스텀 날씨 보너스 반환 (Skript 낚시 로직에서 호출)
 function 커스텀날씨보너스() :: text:
