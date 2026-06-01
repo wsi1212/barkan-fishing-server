@@ -293,18 +293,8 @@ function 플레이어데이터백업(p: offline player):
             set {_fl} to "%{_fl}%||%loop-index%"
     if {_fl} is not "":
         execute console command "pdbackup %{_n}% exflag 캐시외형 %{_fl}%"
-    set {_fl} to ""
-    loop {수집품발견::%{_p}%::*}:
-        if loop-value is true:
-            set {_fl} to "%{_fl}%||%loop-index%"
-    if {_fl} is not "":
-        execute console command "pdbackup %{_n}% exflag 수집품발견 %{_fl}%"
-    set {_fl} to ""
-    loop {수집품마일스톤::%{_p}%::*}:
-        if loop-value is true:
-            set {_fl} to "%{_fl}%||%loop-index%"
-    if {_fl} is not "":
-        execute console command "pdbackup %{_n}% exflag 수집품마일스톤 %{_fl}%"
+    # 수집품발견/수집품마일스톤 backup 제거 — Java(CollectibleManager)가 PlayerData.extraFlags 단독 권위.
+    #   stale Skript값으로 덮어쓰면 클로버(split-brain) → backup 안 함. 복원/실시간 push-back은 유지.
 
     # --- Phase D 배치3: 인덱스 리스트(낚싯대수집, uuid::N=str, 값 _인코딩) ---
     set {_ls} to ""

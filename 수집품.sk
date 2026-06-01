@@ -27,83 +27,12 @@ command /collectiblesync <text> [<text>] [<text>] [<text>]:
             remove arg-2 from {수집품목록::*}
             delete {수집품::%arg-2%::*}
 
-# ===== 우클릭 이벤트 — Java에서 /collectiblefound 브릿지로 호출 =====
-# Java PlayerInteractEvent에서 머리 블록 우클릭 감지 → 이 명령어 호출
-command /collectiblefound <player> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1
-        set {_foundId} to arg-2
-        # 이미 발견?
-        if {수집품발견::%{_p}%::%{_foundId}%} is true:
-            message "&8[&5 수집품 &8] &7이미 발견한 수집품입니다." to {_p}
-            stop
-        # 첫 발견!
-        set {수집품발견::%{_p}%::%{_foundId}%} to true
-        # 탐험 경험치
-        탐험경험치추가({_p}, 40)
-        # 총 발견 수 계산
-        set {_totalFound} to 0
-        loop {수집품목록::*}:
-            if {수집품발견::%{_p}%::%loop-value%} is true:
-                add 1 to {_totalFound}
-        set {_totalAll} to size of {수집품목록::*}
-        # 섬별 진행도 계산
-        set {_island} to {수집품::%{_foundId}%::섬}
-        set {_islandCount} to 도감카운트_수집품섬({_p}, {_island})
-        # 메시지 + 효과
-        message "&8[&5 수집품 &8] &d숨겨진 수집품 발견! &f%{_foundId}%" to {_p}
-        message "&8[&5 수집품 &8] &7%{_island}% &8- &f%{_islandCount}% &8| &7전체 &f%{_totalFound}%/%{_totalAll}%" to {_p}
-        message "&8[&5 수집품 &8] &5+40 탐험 경험치" to {_p}
-        play sound "entity.player.levelup" with volume 0.5 and pitch 1.8 to {_p}
-        # 마일스톤 체크
-        수집품마일스톤({_p}, {_totalFound})
-
-# ===== 마일스톤 보상 =====
-function 수집품마일스톤(p: player, count: number):
-    if {_count} is 5:
-        if {수집품마일스톤::%{_p}%::5} is not true:
-            set {수집품마일스톤::%{_p}%::5} to true
-            if {돈::%{_p}%} is not set:
-                set {돈::%{_p}%} to 0
-            add 1000 to {돈::%{_p}%}
-            set {보유칭호::%{_p}%::수집가} to true
-            message "&6[마일스톤] &e수집품 5개 달성! &f+1000원 &d칭호: 수집가" to {_p}
-            send title "&6&l마일스톤!" with subtitle "&e수집품 5개 달성!" to {_p} for 3 seconds
-            play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
-    if {_count} is 15:
-        if {수집품마일스톤::%{_p}%::15} is not true:
-            set {수집품마일스톤::%{_p}%::15} to true
-            add 3000 to {돈::%{_p}%}
-            message "&6[마일스톤] &e수집품 15개 달성! &f+3000원" to {_p}
-            send title "&6&l마일스톤!" with subtitle "&e수집품 15개 달성!" to {_p} for 3 seconds
-            play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
-    if {_count} is 30:
-        if {수집품마일스톤::%{_p}%::30} is not true:
-            set {수집품마일스톤::%{_p}%::30} to true
-            add 10000 to {돈::%{_p}%}
-            set {보유칭호::%{_p}%::탐험의달인} to true
-            message "&6[마일스톤] &e수집품 30개 달성! &f+10000원 &d칭호: 탐험의 달인" to {_p}
-            send title "&6&l마일스톤!" with subtitle "&e수집품 30개 달성!" to {_p} for 3 seconds
-            play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
-    if {_count} is 50:
-        if {수집품마일스톤::%{_p}%::50} is not true:
-            set {수집품마일스톤::%{_p}%::50} to true
-            add 30000 to {돈::%{_p}%}
-            message "&6[마일스톤] &e수집품 50개 달성! &f+30000원" to {_p}
-            send title "&6&l마일스톤!" with subtitle "&e수집품 50개 달성!" to {_p} for 3 seconds
-            play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
-    # 전부 발견
-    set {_total} to size of {수집품목록::*}
-    if {_count} >= {_total}:
-        if {_total} > 0:
-            if {수집품마일스톤::%{_p}%::전부} is not true:
-                set {수집품마일스톤::%{_p}%::전부} to true
-                set {보유칭호::%{_p}%::모든것의발견자} to true
-                message "&6[마일스톤] &6&l모든 수집품을 발견했습니다! &d칭호: 모든 것의 발견자" to {_p}
-                send title "&6&l완전 정복!" with subtitle "&d모든 수집품 발견!" to {_p} for 5 seconds
-                play sound "ui.toast.challenge_complete" with volume 1 and pitch 0.8 to {_p}
+# ===== 발견/마일스톤 = Java(CollectibleManager)로 이관됨 =====
+# Java CollectibleListener.onInteractEntity → CollectibleManager.found() 가 직접 처리:
+#   발견 dedup/탐험경험치(skillexp)/진행도 메시지/마일스톤(돈=MoneyBridge, 칭호=pdrestoreex exflag 보유칭호).
+# 권위: PlayerData.extraFlags["수집품발견"] / ["수집품마일스톤"]. Skript {수집품발견}/{수집품마일스톤}은
+#   로그인 복원(PlayerDataManager) + 발견 시 pdrestoreex exflag push-back 으로 미러됨(아래 GUI가 읽음).
+# 따라서 /collectiblefound 명령과 수집품마일스톤() 함수는 제거됨.
 
 # ===== 도감용 카운트 함수 =====
 function 도감카운트_수집품(p: player) :: text:

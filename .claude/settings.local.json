@@ -553,7 +553,11 @@
       "Bash(npm ls *)",
       "Bash(npm config *)",
       "Bash(kill -9 89820)",
-      "Bash(ssh -i ~/.ssh/oracle-mc.key -o ConnectTimeout=10 ubuntu@134.185.113.25 'grep -nE \"DEBUG.*[Cc]reating ship|DEBUG.*Selection|Exception|Caused by|at com.blockship|internal error|Unhandled|배 create|ship create\" ~/mcserver/logs/latest.log | tail -100')"
+      "Bash(ssh -i ~/.ssh/oracle-mc.key -o ConnectTimeout=10 ubuntu@134.185.113.25 'grep -nE \"DEBUG.*[Cc]reating ship|DEBUG.*Selection|Exception|Caused by|at com.blockship|internal error|Unhandled|배 create|ship create\" ~/mcserver/logs/latest.log | tail -100')",
+      "Bash(scp -i ~/.ssh/oracle-mc.key /Users/user/development/blockship-plugin/build/libs/BlockShip-1.0.0-SNAPSHOT.jar ubuntu@134.185.113.25:~/mcserver/plugins/)",
+      "Bash(ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'ls -la ~/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar')",
+      "Bash(ssh -i ~/.ssh/oracle-mc.key -o ConnectTimeout=15 ubuntu@134.185.113.25 'grep -nE \"유지시간 만료|자동 회수|auto.?recall\" ~/mcserver/logs/latest.log | tail -10')",
+      "Bash(scp -i ~/.ssh/oracle-mc.key build/libs/BlockShip-1.0.0-SNAPSHOT.jar ubuntu@134.185.113.25:~/mcserver/plugins/)"
     ],
     "defaultMode": "bypassPermissions"
   },
