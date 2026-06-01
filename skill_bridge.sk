@@ -1,0 +1,16 @@
+# =========================================
+# skill_bridge.sk — 스킬 Java 이관 브릿지 (권위 인버전)
+# Java(SkillManager)가 PlayerData.extraNums(채굴레벨 등) 단독 권위. 이 브릿지는 기존 Skript 호출처 중계.
+#  - XXX경험치추가(p, amount): 외부 호출(도감→수집, 수집품→탐험 등) → /skillexp 위임
+#  - XXX레벨GUI(p, page): 허브(스킬레벨.sk 레벨선택GUI)가 호출 → Java /XX레벨 로 리다이렉트
+# Java가 변경 시 {XX레벨/경험치/필요경험치}로 push-back(pdrestoreex)하므로 허브/사이드바는 무수정 동작.
+# ★데이터백업.sk는 이관된 스킬 prefix backup 제거(Java 권위를 stale Skript로 덮어쓰는 클로버 차단).
+# 파일럿: 채굴. 나머지(재배/요리/수집/탐험)는 각 .sk 이관 시 여기에 추가.
+# =========================================
+
+# ===== 채굴 (이관됨) =====
+function 채굴경험치추가(p: player, amount: number):
+    execute console command "skillexp 채굴 %{_p}'s name% %{_amount}%"
+
+function 채굴레벨GUI(p: player, page: integer):
+    make {_p} execute command "채굴레벨"
