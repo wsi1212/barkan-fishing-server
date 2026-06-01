@@ -14,11 +14,13 @@ on load:
     set {축복::축복} to "축복|5|100000|경험치 +Lv×10%% 추가"
     set {축복::보존} to "보존|5|50000|장비 내구보존 +Lv×8%%"
     set {축복::안정} to "안정|5|60000|난이도 -Lv×3%%"
+    set {축복::통발} to "통발|5|60000|통발 설치 한도 +Lv개"
     add "행운" to {축복목록::*}
     add "집중" to {축복목록::*}
     add "축복" to {축복목록::*}
     add "보존" to {축복목록::*}
     add "안정" to {축복목록::*}
+    add "통발" to {축복목록::*}
 
     # === 강화 비용/확률 (낚싯대별 적용) ===
     delete {강화비용::*}
@@ -557,6 +559,8 @@ on inventory click:
                     subtract {_cost} from {돈::%player%}
                     set {플레이어축복::%{_id}%::%player%} to {_nextLv}
                     축복효과적용(player)
+                    # Java 미러 즉시 갱신 (통발 한도 등 Java가 읽는 축복 즉시 반영)
+                    execute console command "pdbackup %player's name% blessing %{_id}% %{_nextLv}%"
                     set {_name} to 축복이름({_id})
                     message "&8[&d 축복 &8] &a%{_name}%&a Lv.%{_nextLv}% 축복 완료! &7(-%{_cost}%원)" to player
                     play sound "block.enchantment_table.use" with volume 1 and pitch 1.2 to player
