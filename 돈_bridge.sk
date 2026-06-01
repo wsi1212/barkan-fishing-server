@@ -57,3 +57,6 @@ command /moneyop <text> <text> <number>:
             subtract arg-3 from {돈::%{_p}%}
         else if arg-2 is "set":
             set {돈::%{_p}%} to arg-3
+        # 돈 하한 0원 (음수 불가)
+        if {돈::%{_p}%} < 0:
+            set {돈::%{_p}%} to 0
