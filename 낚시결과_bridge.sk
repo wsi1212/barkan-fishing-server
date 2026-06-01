@@ -1,0 +1,12 @@
+# =========================================
+# 낚시결과_bridge.sk — Java 연산 결과 동기 반환 브릿지
+# dispatchCommand는 메인스레드 동기 실행 → Skript가 /fishgrade 호출 시 Java가 이 명령으로 결과를
+# {낚시결과::%name%::%key%} 에 써넣고, 호출 반환 직후 Skript가 읽는다. (Java→Skript 값반환 트릭)
+# 결과 변수는 휘발성(이름키 OK). 콘솔/내부 전용.
+# =========================================
+
+command /setfishresult <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {낚시결과::%arg-1%::%arg-2%} to arg-3

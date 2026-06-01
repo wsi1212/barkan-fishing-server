@@ -22,3 +22,23 @@ command /낚시그림자 [<text>]:
 
 on tab complete of "/낚시그림자":
     set tab completions for position 1 to "on" and "off"
+
+# Phase 1 컷오버 토글: 켜면 낚시.sk가 등급 결정을 Java(/fishgrade)에 위임.
+# ★ 반드시 /낚시그림자 on 으로 분포 패리티(/fishshadow stats) 확인 후에만 켤 것.
+command /낚시자바등급 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is "on":
+            set {낚시자바등급} to true
+            send "&8[&b 낚시자바등급 &8] &a켜짐 — 등급 결정을 Java가 소유(/fishgrade)" to player
+        else if arg-1 is "off":
+            delete {낚시자바등급}
+            send "&8[&b 낚시자바등급 &8] &c꺼짐 — Skript 인라인 롤로 복귀" to player
+        else:
+            if {낚시자바등급} is true:
+                send "&8[&b 낚시자바등급 &8] &f현재: &aON" to player
+            else:
+                send "&8[&b 낚시자바등급 &8] &f현재: &cOFF" to player
+
+on tab complete of "/낚시자바등급":
+    set tab completions for position 1 to "on" and "off"

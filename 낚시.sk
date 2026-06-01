@@ -104,8 +104,8 @@ on fish caught:
     # {_maxGradeNum}: S=6, S+=7, M=8, L=9, G=10
     # 행운 배율: 행운 1당 +1% (행운 10 = ×1.10, 행운 50 = ×1.50)
     set {_행운배율} to (100 + {_행운}) / 100
-    # [그림자/Phase0] 롤 직전 피티 스냅샷 (게임 영향 0)
-    if {낚시그림자} is true:
+    # [Phase0/1] 롤 직전 피티 스냅샷 (그림자 로깅 + Java 등급권위 입력용, 게임 영향 0)
+    if {낚시그림자} is true or {낚시자바등급} is true:
         loop "G", "L", "M", "SP", "S", "A", "B", "C", "D":
             set {_snapPity::%loop-value%} to {등급피티::%player%::%loop-value%}
             if {_snapPity::%loop-value%} is not set:
@@ -372,8 +372,8 @@ on fish caught:
     else:
         message "&f이곳엔 물고기가 존재하지 않습니다." to player
         stop
-    # [그림자/Phase0] 등급 패리티 로깅 (게임 영향 0, 테스트등급 강제 catch 제외)
-    if {낚시그림자} is true:
+    # [Phase0/1] 그림자 로깅 + Java 등급 권위 (테스트등급 강제 catch 제외). 둘 다 기본 off → 동작 변화 0.
+    if {낚시그림자} is true or {낚시자바등급} is true:
         if {_isTest} is false:
             set {_availCsv} to ""
             loop "E", "D", "C", "B", "A", "S", "S+", "M", "L", "G":
@@ -388,7 +388,23 @@ on fish caught:
             set {_ucFlag} to "false"
             if {등급해금::%player%::C} is true:
                 set {_ucFlag} to "true"
-            execute console command "fishshadow %player% %{낚시레벨::%player%}% 0 %{_ubFlag}% %{_ucFlag}% %{_availCsv}% %{_pityCsv}% %{_등급}%"
+            # 그림자: Skript가 권위, Java는 병렬 로깅만
+            if {낚시그림자} is true:
+                execute console command "fishshadow %player% %{낚시레벨::%player%}% 0 %{_ubFlag}% %{_ucFlag}% %{_availCsv}% %{_pityCsv}% %{_등급}%"
+            # 컷오버: Java 등급 권위 — 동기 호출 후 결과/피티 채택 (인라인 롤 결과 덮어씀)
+            if {낚시자바등급} is true:
+                delete {낚시결과::%player's name%::grade}
+                execute console command "fishgrade %player% %{낚시레벨::%player%}% 0 %{_ubFlag}% %{_ucFlag}% %{_availCsv}% %{_pityCsv}%"
+                if {낚시결과::%player's name%::grade} is set:
+                    if {낚시결과::%player's name%::grade} is "NOFISH":
+                        message "&f이곳엔 물고기가 존재하지 않습니다." to player
+                        stop
+                    set {_등급} to {낚시결과::%player's name%::grade}
+                    set {_jp::*} to split {낚시결과::%player's name%::pity} at ","
+                    loop {_jp::*}:
+                        set {_kv::*} to split loop-value at ":"
+                        set {등급피티::%player%::%{_kv::1}%} to {_kv::2} parsed as integer
+                    delete {낚시결과::%player's name%::*}
     set {_크리티컬확률} to 0
     set {_크리티컬데미지} to 1
     set {_최대등급} to "S"
