@@ -717,6 +717,26 @@ on fish caught:
     if {_escapeBase} > 100:
         set {_escapeBase} to 100
     set {_escapeInc} to {_params::4} parsed as integer
+    # [Phase4] Java 미니게임 정적도출 채택 (틱 루프는 Skript 유지). 기본 off → 동작 변화 0.
+    if {낚시자바미니} is true:
+        if {_customPattern} is "":
+            if {_isTest} is false:
+                delete {낚시결과::%player's name%::mparams}
+                execute console command "fishminigame %player% %{_등급}% %{_size}% %{_낚싯대보너스}% %{_도망확률감소}% %{_환경난이도추가}% %{_환경도망추가}% %{_스팟이동속도}%"
+                if {낚시결과::%player's name%::mparams} is set:
+                    set {_mpp::*} to split {낚시결과::%player's name%::mparams} at "|"
+                    set {_net} to {_mpp::1} parsed as integer
+                    set {_barWidth} to {_mpp::2} parsed as integer
+                    set {_zoneWidth} to {_mpp::3} parsed as integer
+                    set {_overflowDiff} to {_mpp::4} parsed as integer
+                    set {_escapeBase} to {_mpp::5} parsed as integer
+                    set {_escapeInc} to {_mpp::6} parsed as integer
+                    set {_좌우속도} to {_mpp::7} parsed as integer
+                    set {_변속패턴} to {_mpp::8} parsed as integer
+                    set {_스팟이동속도} to {_mpp::9} parsed as integer
+                    set {_연속횟수} to {_mpp::10} parsed as integer
+                    set {_방향전환} to {_mpp::11} parsed as integer
+                    delete {낚시결과::%player's name%::mparams}
     # ===== 연속 미니게임 루프 =====
     set {_roundSuccess} to 0
     set {_roundCritical} to 0
@@ -1056,12 +1076,30 @@ on fish caught:
         set {_quality} to 0
     if {_quality} > 100:
         set {_quality} to 100
+    # [Phase3] Java 보상 연산 채택 (더블/트리플·아이템·등급업은 Skript 유지). 기본 off → 동작 변화 0.
+    set {_javaReward} to false
+    if {낚시자바보상} is true:
+        if {_isTest} is false:
+            set {_critFlag} to "false"
+            if {_critExpBonus} is true:
+                set {_critFlag} to "true"
+            set {_cMult} to {_critExpMult}
+            if {_cMult} is not set:
+                set {_cMult} to 1
+            delete {낚시결과::%player's name%::rquality}
+            execute console command "fishreward %player% %{_등급}% %{_size}% %{_minSize}% %{_maxSize}% %{_크기보너스}% %{_환경크기보너스}% %{_경험치보너스}% %{_환경경험치보너스}% %{_critFlag}% %{_cMult}%"
+            if {낚시결과::%player's name%::rquality} is set:
+                set {_quality} to {낚시결과::%player's name%::rquality} parsed as integer
+                set {_javaReward} to true
     # 찌 크기 보너스 적용
     if {_크기보너스} > 0:
         add {_size} * {_크기보너스} / 100 to {_size}
     # ===== 환경 크기 보너스 =====
     if {_환경크기보너스} > 0:
         add {_size} * {_환경크기보너스} / 100 to {_size}
+    # [Phase3] Java 최종 크기 채택 (보너스 적용 후)
+    if {_javaReward} is true:
+        set {_size} to {낚시결과::%player's name%::rsize} parsed as number
     # 인벤 풀 체크 → 바로 자동 판매
     set {_emptySlots} to 0
     loop 36 times:
@@ -1207,6 +1245,10 @@ on fish caught:
     if {_critExpBonus} is true:
         set {_origExp} to {_baseExp}
         set {_baseExp} to {_baseExp} * {_critExpMult}
+    # [Phase3] Java 경험치 채택
+    if {_javaReward} is true:
+        set {_baseExp} to {낚시결과::%player's name%::rexp} parsed as number
+        delete {낚시결과::%player's name%::*}
     if {_critExpBonus} is true:
         message "&6낚시 경험치 +%{_baseExp}%exp &8(%{_origExp}% → %{_baseExp}%exp)" to player
     else:

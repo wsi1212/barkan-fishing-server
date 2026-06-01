@@ -42,3 +42,41 @@ command /낚시자바등급 [<text>]:
 
 on tab complete of "/낚시자바등급":
     set tab completions for position 1 to "on" and "off"
+
+# Phase 3 컷오버 토글: 보상 수학(품질/최종크기/경험치)을 Java(/fishreward)에 위임. 더블/트리플·아이템·등급업은 Skript 유지.
+command /낚시자바보상 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is "on":
+            set {낚시자바보상} to true
+            send "&8[&b 낚시자바보상 &8] &a켜짐 — 품질/크기/경험치 Java 소유" to player
+        else if arg-1 is "off":
+            delete {낚시자바보상}
+            send "&8[&b 낚시자바보상 &8] &c꺼짐" to player
+        else:
+            if {낚시자바보상} is true:
+                send "&8[&b 낚시자바보상 &8] &f현재: &aON" to player
+            else:
+                send "&8[&b 낚시자바보상 &8] &f현재: &cOFF" to player
+
+on tab complete of "/낚시자바보상":
+    set tab completions for position 1 to "on" and "off"
+
+# Phase 4 컷오버 토글: 미니게임 정적 도출(난이도/존폭/도주율/파라미터)을 Java(/fishminigame)에 위임. 틱 루프는 Skript 유지.
+command /낚시자바미니 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is "on":
+            set {낚시자바미니} to true
+            send "&8[&b 낚시자바미니 &8] &a켜짐 — 미니게임 정적도출 Java 소유(틱 루프는 Skript)" to player
+        else if arg-1 is "off":
+            delete {낚시자바미니}
+            send "&8[&b 낚시자바미니 &8] &c꺼짐" to player
+        else:
+            if {낚시자바미니} is true:
+                send "&8[&b 낚시자바미니 &8] &f현재: &aON" to player
+            else:
+                send "&8[&b 낚시자바미니 &8] &f현재: &cOFF" to player
+
+on tab complete of "/낚시자바미니":
+    set tab completions for position 1 to "on" and "off"
