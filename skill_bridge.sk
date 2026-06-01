@@ -1,16 +1,74 @@
 # =========================================
-# skill_bridge.sk — 스킬 Java 이관 브릿지 (권위 인버전)
-# Java(SkillManager)가 PlayerData.extraNums(채굴레벨 등) 단독 권위. 이 브릿지는 기존 Skript 호출처 중계.
-#  - XXX경험치추가(p, amount): 외부 호출(도감→수집, 수집품→탐험 등) → /skillexp 위임
+# skill_bridge.sk — 스킬 Java 이관 브릿지 (권위 인버전, 5종)
+# Java(SkillManager)가 PlayerData.extraNums(XX레벨/경험치/필요경험치) 단독 권위.
+#  - XXX경험치추가(p, amount): 외부 호출(도감→수집경험치추가, 수집품→탐험경험치추가) → /skillexp 위임
 #  - XXX레벨GUI(p, page): 허브(스킬레벨.sk 레벨선택GUI)가 호출 → Java /XX레벨 로 리다이렉트
 # Java가 변경 시 {XX레벨/경험치/필요경험치}로 push-back(pdrestoreex)하므로 허브/사이드바는 무수정 동작.
-# ★데이터백업.sk는 이관된 스킬 prefix backup 제거(Java 권위를 stale Skript로 덮어쓰는 클로버 차단).
-# 파일럿: 채굴. 나머지(재배/요리/수집/탐험)는 각 .sk 이관 시 여기에 추가.
+# ★데이터백업.sk는 이관된 5스킬 prefix backup 제거(Java 권위를 stale Skript로 덮어쓰는 클로버 차단). 채집은 유지.
 # =========================================
 
-# ===== 채굴 (이관됨) =====
+# ===== 채굴 =====
 function 채굴경험치추가(p: player, amount: number):
     execute console command "skillexp 채굴 %{_p}'s name% %{_amount}%"
-
 function 채굴레벨GUI(p: player, page: integer):
     make {_p} execute command "채굴레벨"
+
+# ===== 재배 =====
+function 재배경험치추가(p: player, amount: number):
+    execute console command "skillexp 재배 %{_p}'s name% %{_amount}%"
+function 재배레벨GUI(p: player, page: integer):
+    make {_p} execute command "재배레벨"
+
+# ===== 요리 =====
+function 요리경험치추가(p: player, amount: number):
+    execute console command "skillexp 요리 %{_p}'s name% %{_amount}%"
+function 요리레벨GUI(p: player, page: integer):
+    make {_p} execute command "요리레벨"
+
+# ===== 수집 (외부 호출: 도감.sk 수집경험치추가) =====
+function 수집경험치추가(p: player, amount: number):
+    execute console command "skillexp 수집 %{_p}'s name% %{_amount}%"
+function 수집레벨GUI(p: player, page: integer):
+    make {_p} execute command "수집레벨"
+
+# ===== 탐험 (외부 호출: 수집품.sk 탐험경험치추가, 공간.sk 탐험_발견) =====
+function 탐험경험치추가(p: player, amount: number):
+    execute console command "skillexp 탐험 %{_p}'s name% %{_amount}%"
+function 탐험레벨GUI(p: player, page: integer):
+    make {_p} execute command "탐험레벨"
+
+# 탐험_발견 — discovery 추적(Skript 권위 유지: {탐험발견} + 도감 등록) + 타입별 탐험 XP(→Java 브릿지).
+#   공간.sk(지역 진입) 등에서 호출. 원본 탐험.sk 함수 그대로(exp만 Java로 위임).
+function 탐험_발견(p: player, type: text, id: text):
+    if {탐험발견::%{_p}%::%{_type}%::*} contains {_id}:
+        stop
+    add {_id} to {탐험발견::%{_p}%::%{_type}%::*}
+    if {_type} is "지역":
+        도감_지역({_p}, {_id})
+    if {_type} is "지역":
+        set {_xp} to 50
+        set {_label} to "&5새 지역 발견"
+    else if {_type} is "비밀장소":
+        set {_xp} to 100
+        set {_label} to "&d비밀 장소 발견"
+    else if {_type} is "보물상자":
+        set {_xp} to 30
+        set {_label} to "&6보물상자 발견"
+    else if {_type} is "조각상":
+        set {_xp} to 25
+        set {_label} to "&b유물 발견"
+    else if {_type} is "NPC":
+        set {_xp} to 15
+        set {_label} to "&a새 인물 만남"
+    else if {_type} is "던전":
+        set {_xp} to 150
+        set {_label} to "&c던전 발견"
+    else if {_type} is "유적":
+        set {_xp} to 80
+        set {_label} to "&e고대 유적 발견"
+    else:
+        set {_xp} to 20
+        set {_label} to "&7새로운 발견"
+    send "%{_label}% &7+&5%{_xp}% 탐험 XP" to {_p}
+    play sound "entity.player.levelup" with volume 0.4 and pitch 1.8 to {_p}
+    탐험경험치추가({_p}, {_xp})
