@@ -1,0 +1,84 @@
+# =========================================
+# 수리_bridge.sk — 장비 수리 비용/실행 (수리.sk에서 분리, 유지)
+# GUI는 Java(RepairGui). 비용계산·수리실행은 정확한 라이브 {부품내구도}/{돈} 필요 → Skript 유지.
+# /durread: 내구도를 Java 캐시(PlayerData)로 동기(GUI 표시 정확). /repairdo: 실제 수리.
+# =========================================
+
+# 수리 비용 = (최대내구 - 현재내구) × 등급단가 (수리.sk 8-39)
+function 수리비용(type: text, p: player) :: number:
+    set {_name} to {낚싯대부품::%{_type}%::%{_p}%}
+    if {_name} is not set:
+        return 0
+    set {_maxDur} to get_part_durability({_type}, {_name})
+    set {_curDur} to {부품내구도::%{_type}%::%{_p}%}
+    if {_curDur} is not set:
+        set {_curDur} to 0
+    set {_missing} to {_maxDur} - {_curDur}
+    if {_missing} <= 0:
+        return 0
+    set {_grade} to get_part_grade({_type}, {_name})
+    set {_단가} to 50
+    if {_grade} is "D":
+        set {_단가} to 100
+    else if {_grade} is "C":
+        set {_단가} to 200
+    else if {_grade} is "B":
+        set {_단가} to 400
+    else if {_grade} is "A":
+        set {_단가} to 800
+    else if {_grade} is "S":
+        set {_단가} to 1500
+    else if {_grade} is "S+":
+        set {_단가} to 3000
+    else if {_grade} is "M":
+        set {_단가} to 6000
+    else if {_grade} is "L":
+        set {_단가} to 12000
+    else if {_grade} is "G":
+        set {_단가} to 25000
+    return {_missing} * {_단가}
+
+# 내구도 동기 (GUI 표시용): 5부위 현재 내구도를 Java PlayerData 캐시에 push
+command /durread <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        loop "릴", "줄", "바늘", "미끼", "찌":
+            set {_name} to {낚싯대부품::%loop-value%::%{_p}%}
+            if {_name} is set:
+                set {_dur} to {부품내구도::%loop-value%::%{_p}%}
+                if {_dur} is not set:
+                    set {_dur} to 0
+                execute console command "durcacheset %{_p}'s name% %loop-value% %{_dur}%"
+
+# 실제 수리: player§§type (Java GUI 클릭이 호출)
+command /repairdo <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::1} parsed as player
+        if {_p} is not set:
+            stop
+        set {_type} to {_t::2}
+        set {_name} to {낚싯대부품::%{_type}%::%{_p}%}
+        if {_name} is not set:
+            message "&c장착된 부품이 없습니다." to {_p}
+            stop
+        set {_cost} to 수리비용({_type}, {_p})
+        if {_cost} <= 0:
+            message "&7이미 완전 수리 상태입니다." to {_p}
+            stop
+        if {돈::%{_p}%} is not set:
+            set {돈::%{_p}%} to 0
+        if {돈::%{_p}%} < {_cost}:
+            message "&c돈이 부족합니다! &7(필요: &e%{_cost}%원&7, 소지: &e%{돈::%{_p}%}%원&7)" to {_p}
+            stop
+        subtract {_cost} from {돈::%{_p}%}
+        set {부품내구도::%{_type}%::%{_p}%} to get_part_durability({_type}, {_name})
+        set {_color} to part_grade_color(get_part_grade({_type}, {_name}))
+        message "&8[&e 수리 &8] %{_color}%%{_name}%&a 수리 완료! &7(-%{_cost}%원)" to {_p}
+        play sound "block.anvil.use" with volume 1 and pitch 1.2 to {_p}
