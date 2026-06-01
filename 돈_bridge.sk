@@ -1,0 +1,17 @@
+# =========================================
+# 돈_bridge.sk — Phase 5 fishing 머니 지급 브릿지
+# Java(낚시 보상/자동판매/대회상금)가 계산한 금액을 라이브 {돈} 에 더함.
+# {돈} 권위는 Skript 유지(23개 스크립트가 읽고씀) — Java는 오늘 Skript가 하던 'add to {돈}'을 대신 트리거만.
+# 콘솔/내부 전용. Java FishingHooks.pay()가 fishing.pay.java 켜졌을 때만 호출 → 현재 휴면.
+# =========================================
+
+command /fishpay <text> <number>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if {돈::%{_p}%} is not set:
+            set {돈::%{_p}%} to 0
+        add arg-2 to {돈::%{_p}%}
