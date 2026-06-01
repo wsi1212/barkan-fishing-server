@@ -24,17 +24,17 @@ function 도핑활성(p: player) :: boolean:
 
 # ----- 이름 (id → 표시명). Java 테이블 미러 -----
 function 도핑이름(id: text) :: text:
-    {_id} is "어부의빵":
+    if {_id} is "어부의빵":
         return "어부의 빵"
-    {_id} is "해산물스튜":
+    if {_id} is "해산물스튜":
         return "해산물 스튜"
-    {_id} is "행운물약":
+    if {_id} is "행운물약":
         return "행운의 물약"
-    {_id} is "집중물약":
+    if {_id} is "집중물약":
         return "집중의 물약"
-    {_id} is "황금미역국":
+    if {_id} is "황금미역국":
         return "황금 미역국"
-    {_id} is "전설의만찬":
+    if {_id} is "전설의만찬":
         return "전설의 만찬"
     return {_id}
 
