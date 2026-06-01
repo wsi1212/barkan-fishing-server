@@ -1,0 +1,17 @@
+# =========================================
+# 캐시이펙트_bridge.sk — 캐시이펙트.sk Java 이관 브릿지
+# Java(CashEffectManager)가 전체 소유:
+#   - /이펙트 [해제] GUI/명령, 장착 선택(in-memory, 원본도 비영속)
+#   - 오라(2초)/날개(2틱) 자체 태스크
+#   - 보유 판정 = PlayerData.extraFlags["캐시외형"] (캐시상점_bridge가 미러)
+# 이 파일은 낚시 성공/자랑 이펙트 훅 함수만 shim으로 유지(낚시.sk/낚시*_bridge.sk가 아직 Skript라 호출함).
+#   캐시이펙트_낚시성공/캐시이펙트_자랑 → /cashfx 위임(Java 실행).
+# =========================================
+
+# 낚시 성공 이펙트 (장착이펙트::낚시) — Java가 보유/등급 판정
+function 캐시이펙트_낚시성공(p: player, grade: text):
+    execute console command "cashfx success %{_p}'s name% %{_grade}%"
+
+# 물고기 자랑 이펙트 (장착이펙트::자랑) — Java가 보유 판정
+function 캐시이펙트_자랑(p: player):
+    execute console command "cashfx brag %{_p}'s name%"
