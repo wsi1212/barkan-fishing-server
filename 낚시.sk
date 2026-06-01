@@ -741,6 +741,25 @@ on fish caught:
     set {_roundSuccess} to 0
     set {_roundCritical} to 0
     set {_currentRound} to 0
+    # [Phase4-틱] Java 미니게임 틱루프 위임 (기본 off). Java가 멀티라운드 전체 실행 → {미니게임결과::%player%} set.
+    if {낚시자바미니틱} is true:
+        if {_customPattern} is "":
+            if {_isTest} is false:
+                set {_jbRounds} to {_연속횟수}
+                set {_mgExtra} to 0
+                if {낚싯대인챈트타임아웃::%player%} is set:
+                    set {_mgExtra} to {낚싯대인챈트타임아웃::%player%}
+                delete {미니게임결과::%player%}
+                execute console command "fishmgrun %player%§§%{_등급}%§§%{_barWidth}%§§%{_zoneWidth}%§§%{_overflowDiff}%§§%{_escapeBase}%§§%{_escapeInc}%§§%{_좌우속도}%§§%{_변속패턴}%§§%{_스팟이동속도}%§§%{_방향전환}%§§%{_net}%§§%{_크리티컬확률}%§§%{_jbRounds}%§§%{_mgExtra}%"
+                set {_jbWait} to 0
+                while {미니게임결과::%player%} is not set:
+                    wait 1 tick
+                    add 1 to {_jbWait}
+                    if {_jbWait} > 800:
+                        set {미니게임결과::%player%} to "대기"
+                # Skript 라운드 루프/연속 메시지 스킵 (결과는 아래 983에서 {미니게임결과} 읽음)
+                set {_연속횟수} to 1
+                set {_currentRound} to 1
     if {_연속횟수} > 1:
         send "&e&l연속 미니게임! &f총 &e%{_연속횟수}%&f회 성공해야 합니다!" to player
     while {_currentRound} < {_연속횟수}:

@@ -10,3 +10,12 @@ command /setfishresult <text> <text> <text>:
     executable by: console
     trigger:
         set {낚시결과::%arg-1%::%arg-2%} to arg-3
+
+# Phase4 틱루프 라이브: Java 미니게임 최종 결과를 player-object 키 {미니게임결과}에 set (낚시.sk 983이 읽음).
+command /setmgresult <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is set:
+            set {미니게임결과::%{_p}%} to arg-2
