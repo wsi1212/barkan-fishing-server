@@ -1,0 +1,205 @@
+# =========================================
+# 장비시스템_bridge.sk — 장비시스템.sk에서 분리, 유지
+# GUI(작업대/부품목록/장착/해제)는 Java(WorkbenchGui). 데이터 권위는 Skript 유지:
+#   {낚싯대부품}/{부품내구도}/{부품인벤} — 낚시.sk/수리_bridge/부품상점_bridge/변수관리가 읽고 씀.
+# 이 파일이 제공:
+#   /equipread  — 5부위 장착/내구 + 부품인벤(리스트) + 미끼인벤을 Java PlayerData 캐시로 동기 (GUI 표시 정확)
+#   /equipdo    — 부품 장착 (player§§type§§name)  ← Java GUI 클릭이 호출
+#   /unequipdo  — 부품 해제 (player§§type)        ← Java GUI 클릭이 호출
+#   reduceDurability / hasFullEquipment / missingPartMessage — 낚시.sk 등이 호출 (Skript 권위 변수 읽음)
+# =========================================
+
+# ===== /equipread: 장비 상태를 Java 캐시로 동기 (RepairGui /durread 패턴) =====
+command /equipread <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {_n} to {_p}'s name
+        # 장착 5부위 + 내구도
+        loop "릴", "줄", "바늘", "미끼", "찌":
+            set {_partName} to {낚싯대부품::%loop-value%::%{_p}%}
+            set {_dur} to {부품내구도::%loop-value%::%{_p}%}
+            if {_partName} is not set:
+                set {_partName} to "없음"
+            else:
+                replace all " " with "_" in {_partName}
+            if {_dur} is not set:
+                set {_dur} to 0
+            execute console command "pdbackup %{_n}% equip %loop-value% %{_partName}% %{_dur}%"
+        # 보유 부품 리스트 (릴/줄/바늘/찌)
+        loop "릴", "줄", "바늘", "찌":
+            set {_list} to ""
+            loop {부품인벤::%loop-value-1%::%{_p}%::*}:
+                set {_item} to loop-value-2
+                replace all " " with "_" in {_item}
+                if {_list} is "":
+                    set {_list} to {_item}
+                else:
+                    set {_list} to "%{_list}%||%{_item}%"
+            if {_list} is "":
+                set {_list} to "없음"
+            execute console command "pdbackup %{_n}% partinv %loop-value-1% %{_list}%"
+        # 미끼 인벤
+        set {_baitList} to ""
+        loop {부품인벤::미끼::%{_p}%::*}:
+            set {_cnt} to loop-value
+            if {_cnt} is set:
+                if {_cnt} > 0:
+                    set {_baitName} to loop-index
+                    replace all " " with "_" in {_baitName}
+                    if {_baitList} is "":
+                        set {_baitList} to "%{_baitName}%::%{_cnt}%"
+                    else:
+                        set {_baitList} to "%{_baitList}%||%{_baitName}%::%{_cnt}%"
+        if {_baitList} is "":
+            set {_baitList} to "없음"
+        execute console command "pdbackup %{_n}% baitinv %{_baitList}%"
+
+# ===== /equipdo: 부품 장착 (Java GUI 클릭) — equipPart 이관 =====
+command /equipdo <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::1} parsed as player
+        if {_p} is not set:
+            stop
+        set {_type} to {_t::2}
+        set {_name} to {_t::3}
+        if {부품::%{_type}%::%{_name}%} is not set:
+            stop
+        # 레벨 제한 체크 (OP는 무시)
+        if {_p} is not op:
+            set {_reqLv} to get_part_level_req({_type}, {_name})
+            if {_reqLv} > 0:
+                set {_playerLv} to {낚시레벨::%{_p}%}
+                if {_playerLv} is not set:
+                    set {_playerLv} to 1
+                if {_playerLv} < {_reqLv}:
+                    message "&8[&e 장비 &8] &c이 장비는 낚시 레벨 &e%{_reqLv}%&c 이상이 필요합니다. &7(현재: Lv.%{_playerLv}%)" to {_p}
+                    stop
+        set {_old} to {낚싯대부품::%{_type}%::%{_p}%}
+        set {낚싯대부품::%{_type}%::%{_p}%} to {_name}
+        set {부품내구도::%{_type}%::%{_p}%} to get_part_durability({_type}, {_name})
+        # 미끼가 아닌 부품은 보유 목록에서 제거, 이전 부품은 복귀
+        if {_type} is not "미끼":
+            remove {_name} from {부품인벤::%{_type}%::%{_p}%::*}
+            if {_old} is set:
+                if {_old} is not {_name}:
+                    add {_old} to {부품인벤::%{_type}%::%{_p}%::*}
+        set {_color} to part_grade_color(get_part_grade({_type}, {_name}))
+        message "&8[&e 장비 &8] %{_color}%%을를({_name})%&a %{_type}% 슬롯에 장착했습니다." to {_p}
+        # 도전과제 훅 (조합 카운터)
+        if {총조합::%{_p}%} is not set:
+            set {총조합::%{_p}%} to 0
+        add 1 to {총조합::%{_p}%}
+        도전과제체크({_p}, "조합", "%{총조합::%{_p}%}%")
+
+# ===== /unequipdo: 부품 해제 (Java GUI 클릭) — unequipPart 이관 =====
+command /unequipdo <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::1} parsed as player
+        if {_p} is not set:
+            stop
+        set {_type} to {_t::2}
+        set {_old} to {낚싯대부품::%{_type}%::%{_p}%}
+        if {_old} is not set:
+            message "&8[&e 장비 &8] &c해제할 %이가({_type})% 없습니다." to {_p}
+            stop
+        if {_type} is not "미끼":
+            add {_old} to {부품인벤::%{_type}%::%{_p}%::*}
+        delete {낚싯대부품::%{_type}%::%{_p}%}
+        delete {부품내구도::%{_type}%::%{_p}%}
+        message "&8[&e 장비 &8] &c%을를({_old})% 해제했습니다." to {_p}
+
+# ===== 부품 내구도 감소 (낚시 후 호출) — reduceDurability 유지 (낚시.sk/낚시이벤트_bridge가 호출) =====
+function reduceDurability(p: player):
+    # 내구보존 스탯: 낚싯대 본체에서만 체크
+    set {_내구보존} to 0
+    set {_toolName} to name of {_p}'s tool
+    loop {부품목록::낚싯대::*}:
+        if {_toolName} contains loop-value:
+            set {_rodRaw} to get_part_stats_raw("낚싯대", loop-value)
+            set {_rodPairs::*} to split {_rodRaw} at ","
+            loop {_rodPairs::*}:
+                set {_rodKV::*} to split loop-value-2 at ":"
+                if {_rodKV::1} is "내구보존":
+                    add ({_rodKV::2} parsed as number) to {_내구보존}
+            stop loop
+    # 인챈트/강화 보너스 내구보존 추가 (레거시 캐시변수 — 보통 미설정)
+    set {_enchDur} to {낚싯대인챈트내구보존::%{_p}%}
+    if {_enchDur} is set:
+        add {_enchDur} to {_내구보존}
+    set {_강화Dur} to {낚싯대강화내구보존::%{_p}%}
+    if {_강화Dur} is set:
+        add {_강화Dur} to {_내구보존}
+    # 내구보존 확률로 장비 내구 감소 스킵
+    if {_내구보존} > 0:
+        chance of {_내구보존}%:
+            message "&8[&e 장비 &8] &b내구도가 보존되었습니다!" to {_p}
+            stop
+    set {_dtypes::1} to "릴"
+    set {_dtypes::2} to "줄"
+    set {_dtypes::3} to "바늘"
+    set {_dtypes::4} to "미끼"
+    set {_dtypes::5} to "찌"
+    # 각 슬롯 내구도 감소
+    loop 5 times:
+        set {_type} to {_dtypes::%loop-iteration%}
+        set {_name} to {낚싯대부품::%{_type}%::%{_p}%}
+        if {_name} is set:
+            subtract 1 from {부품내구도::%{_type}%::%{_p}%}
+            if {부품내구도::%{_type}%::%{_p}%} <= 0:
+                set {_destroyed} to true
+                # 미끼는 수량도 1 차감
+                if {_type} is "미끼":
+                    subtract 1 from {부품인벤::미끼::%{_p}%::%{_name}%}
+                    if {부품인벤::미끼::%{_p}%::%{_name}%} > 0:
+                        # 미끼 1개 소모, 새 미끼 장전
+                        set {_maxdur} to get_part_durability("미끼", {_name})
+                        set {부품내구도::미끼::%{_p}%} to {_maxdur}
+                        set {_destroyed} to false
+                    else:
+                        delete {부품인벤::미끼::%{_p}%::%{_name}%}
+                # 부품 파괴 (미끼 재장전 시 스킵)
+                if {_destroyed} is true:
+                    delete {낚싯대부품::%{_type}%::%{_p}%}
+                    delete {부품내구도::%{_type}%::%{_p}%}
+                    set {_color} to part_grade_color(get_part_grade({_type}, {_name}))
+                    message "&8[&e 장비 &8] &c%{_color}%%이가({_name})%&c 파괴되었습니다!" to {_p}
+
+# ===== 장비 완전 장착 여부 확인 — hasFullEquipment 유지 =====
+function hasFullEquipment(p: player) :: boolean:
+    if {낚싯대부품::릴::%{_p}%} is not set:
+        return false
+    if {낚싯대부품::줄::%{_p}%} is not set:
+        return false
+    if {낚싯대부품::바늘::%{_p}%} is not set:
+        return false
+    if {낚싯대부품::미끼::%{_p}%} is not set:
+        return false
+    if {낚싯대부품::찌::%{_p}%} is not set:
+        return false
+    return true
+
+# ===== 빠진 부품 메시지 — missingPartMessage 유지 =====
+function missingPartMessage(p: player):
+    set {_msg} to ""
+    if {낚싯대부품::릴::%{_p}%} is not set:
+        set {_msg} to "%{_msg}%릴 "
+    if {낚싯대부품::줄::%{_p}%} is not set:
+        set {_msg} to "%{_msg}%줄 "
+    if {낚싯대부품::바늘::%{_p}%} is not set:
+        set {_msg} to "%{_msg}%바늘 "
+    if {낚싯대부품::미끼::%{_p}%} is not set:
+        set {_msg} to "%{_msg}%미끼 "
+    if {낚싯대부품::찌::%{_p}%} is not set:
+        set {_msg} to "%{_msg}%찌 "
+    message "&8[&e 장비 &8] &c다음 부품이 없습니다: &f%{_msg}%" to {_p}
+    message "&8[&e 장비 &8] &7/장비 에서 부품을 장착하세요." to {_p}
