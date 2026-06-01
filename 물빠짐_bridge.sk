@@ -1,0 +1,17 @@
+# =========================================
+# 물빠짐_bridge.sk — 물빠짐(WaterTeleport) Java 이관 마이그 브릿지 (일회성 import)
+# Java(WaterTeleportManager, waterteleport.json)로 전환. 기존 {waterTP::dest}+제한초를 1회 import.
+# import 후 Java가 전부 소유(1초 루프 TP, /watertp). 이 브릿지는 import 전용.
+# =========================================
+
+on load:
+    wait 40 ticks
+    if {waterTP마이그됨} is not set:
+        if {waterTP::dest} is set:
+            set {_d} to {waterTP::dest}
+            set {_lim} to {waterTP::limitSeconds}
+            if {_lim} is not set:
+                set {_lim} to 8
+            execute console command "watertpimport %world of {_d}% %x-coordinate of {_d}% %y-coordinate of {_d}% %z-coordinate of {_d}% %{_lim}%"
+            send "[물빠짐마이그] 목적지를 Java(waterteleport.json)로 import했습니다." to console
+        set {waterTP마이그됨} to true
