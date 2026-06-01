@@ -275,9 +275,11 @@ on inventory click:
             set {_pn} to name of player
             if {차단팁::%{_pn}%} is true:
                 delete {차단팁::%{_pn}%}
+                make console execute command "tipblock %{_pn}% 0"
                 message "&a팁 메시지 차단을 해제했습니다." to player
             else:
                 set {차단팁::%{_pn}%} to true
+                make console execute command "tipblock %{_pn}% 1"
                 message "&c팁 메시지를 차단합니다." to player
             채팅모드GUI(player)
         else if {_ci} is 26:
@@ -689,8 +691,11 @@ on join:
     wait 3 seconds
     # Java에서 멤버 동기화 + 신청 알림까지 한번에 처리
     make console execute command "guildbr onjoin %player%"
-    # 오프라인 중 길드 수락됐으면 알림
+    # 팁 차단 플래그를 Java(TipManager)로 push (팁.sk 이관)
     set {_pn} to name of player
+    if {차단팁::%{_pn}%} is true:
+        make console execute command "tipblock %{_pn}% 1"
+    # 오프라인 중 길드 수락됐으면 알림
     if {길드가입대기::%{_pn}%} is set:
         message "" to player
         message "&a&l[길드] &f%{길드가입대기::%{_pn}%}% &a길드에 가입되었습니다!" to player
