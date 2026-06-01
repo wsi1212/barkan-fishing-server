@@ -7,6 +7,11 @@
 # ★데이터백업.sk는 이관된 5스킬 prefix backup 제거(Java 권위를 stale Skript로 덮어쓰는 클로버 차단). 채집은 유지.
 # =========================================
 
+# ===== 스킬 선택 허브 (스킬레벨.sk 레벨선택GUI 이관 → Java /레벨) =====
+# 외부 호출: 메뉴.sk(스킬 버튼), 낚시레벨.sk(로드맵 뒤로가기). Java SkillManager.openHub 위임.
+function 레벨선택GUI(p: player):
+    make {_p} execute command "레벨"
+
 # ===== 채굴 =====
 function 채굴경험치추가(p: player, amount: number):
     execute console command "skillexp 채굴 %{_p}'s name% %{_amount}%"
