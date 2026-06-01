@@ -29,6 +29,18 @@ command /moneyread <text>:
             set {돈::%{_p}%} to 0
         execute console command "moneycacheset %{_p}'s name% %{돈::%{_p}%}%"
 
+# 오프라인 포함 지급 (마켓 판매자 등): 이름→offline player 키로 {돈} 가산
+command /moneyoffline <text> <number>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_op} to arg-1 parsed as offline player
+        if {_op} is not set:
+            stop
+        if {돈::%{_op}%} is not set:
+            set {돈::%{_op}%} to 0
+        add arg-2 to {돈::%{_op}%}
+
 # 쓰기: Java가 계산 후 {돈} 변경 (오늘 Skript가 하던 그대로)
 command /moneyop <text> <text> <number>:
     permission: op
