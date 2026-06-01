@@ -1,0 +1,113 @@
+# =========================================
+# 캐시상점_bridge.sk — 캐시 상점 구매/지급 로직 (캐시상점.sk에서 분리, 유지)
+# 아이템 데이터·GUI는 Java(CashShopData/CashShopGui)로 이관. 구매=/cashbuy(통화 차감 + 지급).
+# 통화({캐시}/{추천코인})·외형({캐시외형})·칭호({보유칭호})·버프는 Skript 권위 유지(타 시스템 공유).
+# =========================================
+
+# 구매: itemId§§player§§currency§§coin§§cash§§tag§§name§§lore  (Java가 데이터 전달)
+command /cashbuy <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::2} parsed as player
+        if {_p} is not set:
+            stop
+        set {_cur} to {_t::3}
+        set {_coin} to {_t::4} parsed as number
+        set {_cash} to {_t::5} parsed as number
+        set {_tag} to {_t::6}
+        set {_name} to {_t::7}
+        set {_lore} to {_t::8}
+        # 영구 아이템 중복 방지
+        if {_tag} contains "skin:":
+            if {캐시외형::%{_p}%::%{_tag}%} is true:
+                message "&c이미 보유 중인 아이템입니다!" to {_p}
+                stop
+        if {_tag} contains "cosmetic:":
+            if {캐시외형::%{_p}%::%{_tag}%} is true:
+                message "&c이미 보유 중인 아이템입니다!" to {_p}
+                stop
+        # 통화 차감
+        if {_cur} is "coin":
+            if {_coin} <= 0:
+                message "&c이 아이템은 추천 코인으로 구매할 수 없습니다." to {_p}
+                stop
+            if {추천코인::%{_p}%} is not set:
+                set {추천코인::%{_p}%} to 0
+            if {추천코인::%{_p}%} < {_coin}:
+                message "&c추천 코인 부족! &7(필요: %{_coin}%개, 보유: %{추천코인::%{_p}%}%개)" to {_p}
+                stop
+            subtract {_coin} from {추천코인::%{_p}%}
+            message "&8[&a 상점 &8] &e%{_name}% &7구매! &a(-%{_coin}% 추천코인)" to {_p}
+        else:
+            if {캐시::%{_p}%} is not set:
+                set {캐시::%{_p}%} to 0
+            if {캐시::%{_p}%} < {_cash}:
+                message "&c캐시 부족! &7(필요: %{_cash}%, 보유: %{캐시::%{_p}%}%)" to {_p}
+                stop
+            subtract {_cash} from {캐시::%{_p}%}
+            message "&8[&6 상점 &8] &e%{_name}% &7구매! &6(-%{_cash}% 캐시)" to {_p}
+        # 지급
+        if {_tag} contains "scroll:":
+            set {_item} to 1 of paper
+            delete {_il::*}
+            add {_lore} to {_il::*}
+            add "" to {_il::*}
+            add "&8[%{_name}%]" to {_il::*}
+            add "&8%{_tag}%" to {_il::*}
+            set name of {_item} to "&b%{_name}%"
+            set lore of {_item} to {_il::*}
+            if {_p} can hold {_item}:
+                give {_item} to {_p}
+            else:
+                drop {_item} at {_p}'s location
+                message "&7인벤토리 가득! 바닥에 떨어졌습니다." to {_p}
+        else if {_tag} contains "buff:경험치2배":
+            set {경험치2배::%{_p}%} to true
+            set {경험치2배만료::%{_p}%} to now
+            add 1 hour to {경험치2배만료::%{_p}%}
+            message "&a1시간 동안 경험치 2배!" to {_p}
+        else if {_tag} contains "buff:길드부스터":
+            message "&a길드 부스터 활성화! &7(길드 시스템 연동 예정)" to {_p}
+        else if {_tag} is "cosmetic:칭호":
+            set {캐시외형::%{_p}%::%{_tag}%} to true
+            set {보유칭호::%{_p}%::프리미엄골드} to true
+            set {보유칭호::%{_p}%::프리미엄무지개} to true
+            set {보유칭호::%{_p}%::프리미엄불꽃} to true
+            message "&d프리미엄 칭호 3종 해금! &7/칭호 에서 장착하세요!" to {_p}
+        else if {_tag} contains "skin:":
+            set {캐시외형::%{_p}%::%{_tag}%} to true
+            message "&d외형 해금! &e%{_name}%" to {_p}
+        else if {_tag} contains "cosmetic:":
+            set {캐시외형::%{_p}%::%{_tag}%} to true
+            message "&d외형 해금! &e%{_name}% &7(/이펙트 에서 장착)" to {_p}
+        play sound "entity.experience_orb.pickup" with volume 1 and pitch 1.5 to {_p}
+
+# ===== 통화 OP/조회 (캐시상점.sk에서 이동) =====
+command /캐시지급 <player> <integer>:
+    permission: op
+    trigger:
+        if {캐시::%arg-1%} is not set:
+            set {캐시::%arg-1%} to 0
+        add arg-2 to {캐시::%arg-1%}
+        message "&8[&6 캐시 &8] &e%arg-1%&7에게 &6%arg-2%캐시&7 지급!" to player
+        message "&8[&6 캐시 &8] &6%arg-2%캐시&7 지급! &7(보유: %{캐시::%arg-1%}%)" to arg-1
+
+command /추천코인지급 <player> <integer>:
+    permission: op
+    trigger:
+        if {추천코인::%arg-1%} is not set:
+            set {추천코인::%arg-1%} to 0
+        add arg-2 to {추천코인::%arg-1%}
+        message "&8[&a 코인 &8] &e%arg-1%&7에게 &a%arg-2%코인&7 지급!" to player
+        message "&8[&a 코인 &8] &a%arg-2%코인&7 지급! &7(보유: %{추천코인::%arg-1%}%)" to arg-1
+
+command /캐시:
+    aliases: /zotl
+    trigger:
+        message "&8━━━━━━━━━━━━━━━━━━━━" to player
+        message "&6  캐시: &f%{캐시::%player%}%" to player
+        message "&a  추천 코인: &f%{추천코인::%player%}%개" to player
+        message "&8━━━━━━━━━━━━━━━━━━━━" to player
+        message "&7  /캐시상점 &8| &7/추천상점" to player
