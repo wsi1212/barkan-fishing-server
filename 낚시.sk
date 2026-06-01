@@ -4,6 +4,9 @@
 #
 #
 on fish caught:
+    # [완전소유] Java FishingListener가 처리 → Skript는 즉시 양보(Java가 cancel). 기본 off.
+    if {낚시자바전체} is true:
+        stop
     if {미니게임::%player%} is 1:
         cancel event
         stop
