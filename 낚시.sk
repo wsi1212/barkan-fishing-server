@@ -105,7 +105,12 @@ on fish caught:
     # 행운 배율: 행운 1당 +1% (행운 10 = ×1.10, 행운 50 = ×1.50)
     set {_행운배율} to (100 + {_행운}) / 100
     # [Phase0/1] 롤 직전 피티 스냅샷 (그림자 로깅 + Java 등급권위 입력용, 게임 영향 0)
-    if {낚시그림자} is true or {낚시자바등급} is true:
+    set {_doSnap} to false
+    if {낚시그림자} is true:
+        set {_doSnap} to true
+    if {낚시자바등급} is true:
+        set {_doSnap} to true
+    if {_doSnap} is true:
         loop "G", "L", "M", "SP", "S", "A", "B", "C", "D":
             set {_snapPity::%loop-value%} to {등급피티::%player%::%loop-value%}
             if {_snapPity::%loop-value%} is not set:
@@ -373,7 +378,12 @@ on fish caught:
         message "&f이곳엔 물고기가 존재하지 않습니다." to player
         stop
     # [Phase0/1] 그림자 로깅 + Java 등급 권위 (테스트등급 강제 catch 제외). 둘 다 기본 off → 동작 변화 0.
-    if {낚시그림자} is true or {낚시자바등급} is true:
+    set {_doGradeJava} to false
+    if {낚시그림자} is true:
+        set {_doGradeJava} to true
+    if {낚시자바등급} is true:
+        set {_doGradeJava} to true
+    if {_doGradeJava} is true:
         if {_isTest} is false:
             set {_availCsv} to ""
             loop "E", "D", "C", "B", "A", "S", "S+", "M", "L", "G":
