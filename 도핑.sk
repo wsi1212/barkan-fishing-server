@@ -48,7 +48,9 @@ function 도핑적용(p: player, id: text):
     set {_min} to floor({_duration} / 60)
     set {_sec} to mod({_duration}, 60)
     message "&8[&a 도핑 &8] &e%{_name}%&a 사용! &7(%{_min}%분 %{_sec}%초)" to {_p}
-    play sound "entity.player.burp" with volume 1 with pitch 1.2 to {_p}
+    play sound "entity.player.burp" with volume 1 and pitch 1.2 to {_p}
+    # [Phase0b] Java 미러 동기화 (catch 시 Java가 보너스 조회용; 권위는 Skript 유지)
+    execute console command "pdbackup %{_p}'s name% doping %{_id}% %{도핑::%{_p}%::만료}%"
 
 # ===== 도핑 만료 체크 (낚시 시 호출) =====
 function 도핑체크(p: player):
@@ -70,6 +72,8 @@ function 도핑제거(p: player):
     delete {도핑::%{_p}%::크리확률}
     delete {도핑::%{_p}%::더블찬스}
     delete {도핑::%{_p}%::판매보너스}
+    # [Phase0b] Java 미러 해제
+    execute console command "pdbackup %{_p}'s name% doping none 0"
 
 # ===== 도핑 보너스 조회 (낚시.sk에서 호출) =====
 function 도핑경험치(p: player) :: number:
@@ -195,3 +199,11 @@ command /도핑:
         set {_min} to floor({_remain} / 60)
         set {_sec} to mod({_remain}, 60)
         message "&8[&a 도핑 &8] &e%{_name}% &7남은 시간: &e%{_min}%분 %{_sec}%초"
+
+# [Phase0b] 접속 시 Java 도핑 미러를 Skript 권위값으로 재동기화 (PlayerData 복원 이후)
+on join:
+    wait 80 ticks
+    if {도핑::%player%::타입} is set:
+        execute console command "pdbackup %player's name% doping %{도핑::%player%::타입}% %{도핑::%player%::만료}%"
+    else:
+        execute console command "pdbackup %player's name% doping none 0"
