@@ -227,70 +227,8 @@ function 커스텀날씨보너스지역(p: player) :: text:
             return {커스텀날씨::%{_w}%::보너스}
     return "0|0|0"
 
-# ===== /날씨 명령어 =====
-command /날씨:
-    aliases: /skftl
-    trigger:
-        set {_시간대} to 현재시간대(player)
-        set {_mcWeather} to 현재날씨(player)
-        set {_displayWeather} to 표시날씨(player)
-        set {_tBonus::*} to split 시간보너스({_시간대}) at "|"
-        set {_customW} to 유효커스텀날씨(player)
-        if {_customW} is not "":
-            set {_cBonus::*} to split 커스텀날씨보너스지역(player) at "|"
-            set {_expTotal} to ({_tBonus::1} parsed as number) + ({_cBonus::1} parsed as number)
-            set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_cBonus::2} parsed as number)
-            set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_cBonus::3} parsed as number)
-        else:
-            set {_wBonus::*} to split 날씨보너스({_mcWeather}) at "|"
-            set {_expTotal} to ({_tBonus::1} parsed as number) + ({_wBonus::1} parsed as number)
-            set {_sizeTotal} to ({_tBonus::2} parsed as number) + ({_wBonus::2} parsed as number)
-            set {_gradeTotal} to ({_tBonus::3} parsed as number) + ({_wBonus::3} parsed as number)
-        set {_tColor} to 시간대색상({_시간대})
-        set {_wColor} to 날씨색상({_displayWeather})
-        message "&f========== 날씨/시간 정보 ==========" to player
-        message "&7시간대 &e: %{_tColor}%%{_시간대}%" to player
-        message "&7날씨 &e: %{_wColor}%%{_displayWeather}%" to player
-        message "" to player
-        if {_expTotal} > 0:
-            message "&a경험치 보너스 &e: &f+%{_expTotal}%%%" to player
-        else:
-            message "&7경험치 보너스 &e: &f없음" to player
-        if {_sizeTotal} > 0:
-            message "&b크기 보너스 &e: &f+%{_sizeTotal}%%%" to player
-        else:
-            message "&7크기 보너스 &e: &f없음" to player
-        if {_gradeTotal} > 0:
-            message "&6등급 시프트 확률 &e: &f+%{_gradeTotal}%%%" to player
-        else:
-            message "&7등급 시프트 확률 &e: &f없음" to player
-        # 특수 물고기 안내
-        set {_area} to {area::%player%}
-        if {_area} is not "0":
-            if {_area} is set:
-                message "" to player
-                message "&7현재 특수 물고기:" to player
-                if {_시간대} is "새벽":
-                    set {_special::*} to get_dawn_fish({_area})
-                    if {_special::*} is set:
-                        loop {_special::*}:
-                            set {_d::*} to split loop-value at "|"
-                            message "&d  [새벽] &f%{_d::1}% &7(%{_d::4}%등급)" to player
-                else if {_시간대} is "밤":
-                    set {_special::*} to get_night_fish({_area})
-                    if {_special::*} is set:
-                        loop {_special::*}:
-                            set {_d::*} to split loop-value at "|"
-                            message "&9  [밤] &f%{_d::1}% &7(%{_d::4}%등급)" to player
-                if {_날씨} is "비" or "뇌우":
-                    set {_special2::*} to get_rain_fish({_area})
-                    if {_special2::*} is set:
-                        loop {_special2::*}:
-                            set {_d::*} to split loop-value at "|"
-                            message "&b  [비] &f%{_d::1}% &7(%{_d::4}%등급)" to player
-                if {_날씨} is "뇌우":
-                    set {_special3::*} to get_thunder_fish({_area})
-                    if {_special3::*} is set:
-                        loop {_special3::*}:
-                            set {_d::*} to split loop-value at "|"
-                            message "&c  [뇌우] &f%{_d::1}% &7(%{_d::4}%등급)" to player
+# ===== /날씨 명령어 → Java WeatherInfoCommand로 이관 (BlockShip) =====
+# 표시 전용 명령. 권위 변수({서버날씨}/{area}/{지역날씨} 등)는 여전히 Skript/공간.sk 소유지만,
+# Java는 RegionTracker/WeatherManager/FishLoader 자체 권위로만 동작(Skript 변수 안 읽음).
+# 이 파일의 함수들(현재시간대/현재날씨/시간보너스/날씨보너스/유효커스텀날씨/커스텀날씨* 등)은
+# 낚시.sk·사이드바.sk·장비.sk·공간.sk(미이관)가 라이브로 호출하므로 그대로 유지한다.
