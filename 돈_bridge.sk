@@ -15,3 +15,33 @@ command /fishpay <text> <number>:
         if {돈::%{_p}%} is not set:
             set {돈::%{_p}%} to 0
         add arg-2 to {돈::%{_p}%}
+
+# ===== 머니 접근 브릿지 (Java MoneyBridge용) — {돈}은 Skript 단일 권위 유지 =====
+# 읽기: Java가 호출 → 현재 {돈}을 Java PlayerData.money 캐시에 push (동기)
+command /moneyread <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if {돈::%{_p}%} is not set:
+            set {돈::%{_p}%} to 0
+        execute console command "moneycacheset %{_p}'s name% %{돈::%{_p}%}%"
+
+# 쓰기: Java가 계산 후 {돈} 변경 (오늘 Skript가 하던 그대로)
+command /moneyop <text> <text> <number>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if {돈::%{_p}%} is not set:
+            set {돈::%{_p}%} to 0
+        if arg-2 is "add":
+            add arg-3 to {돈::%{_p}%}
+        else if arg-2 is "subtract":
+            subtract arg-3 from {돈::%{_p}%}
+        else if arg-2 is "set":
+            set {돈::%{_p}%} to arg-3
