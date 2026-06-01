@@ -198,6 +198,8 @@ function 퀘스트보상(p: player, questId: text):
     set {_ferryReward} to {퀘스트::%{_questId}%::보상페리}
     if {_ferryReward} is set:
         set {페리권한::%{_p}%::%{_ferryReward}%} to true
+        # 페리 Java 이관: 권한을 Java(PlayerData.extraFlags 페리권한)에도 부여
+        execute console command "ferryperm %{_p}'s name% %{_ferryReward}%"
         message "&8[&d 퀘스트 &8] &b페리 노선 해금! &f%{_ferryReward}%" to {_p}
     # 등급 해금 보상
     set {_gradeUnlock} to {퀘스트::%{_questId}%::보상등급해금}

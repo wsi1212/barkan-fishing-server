@@ -124,13 +124,7 @@ function areaExit(p: player, area: text, silent: boolean = false):
             else if {지역부모섬::%{_area}%} is set:
                 if {낚시대회::지역} is {지역부모섬::%{_area}%}:
                     remove {_p} from bossbar players of {낚시대회::bar}
-    if {페리노선목록::*} is set:
-        loop {페리노선목록::*}:
-            if {페리노선::%loop-value%::탑승지역} is {_area}:
-                if {페리대기::%loop-value%::*} contains {_p}:
-                    remove {_p} from {페리대기::%loop-value%::*}
-                    remove {_p} from bossbar players of (bossbar named "ferry_wait_%loop-value%")
-                    message "&8[&9 페리 &8] &e탑승 지역을 벗어나 &f%loop-value%&e 노선 탑승이 취소되었습니다." to {_p}
+    # (페리 탑승지역 이탈 취소는 Java FerryManager tick이 처리 — 페리.sk 이관됨)
 
 # ===== 낚시 시도 시 레벨 체크 =====
 on fishing line cast:

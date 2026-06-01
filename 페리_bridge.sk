@@ -1,0 +1,27 @@
+# =========================================
+# 페리_bridge.sk — 페리 Java 이관 브릿지
+# Java(FerryManager, ferries.json)가 페리 전체 소유. NPC 대화가 호출하는 페리탑승GUI만 중계.
+#  - 페리탑승GUI(p): NPC.sk가 호출 → Java /ferryopengui 로 GUI 오픈
+#  - on load: 기존 op {페리노선} 데이터(위치/숫자/지역) 1회 Java import({페리마이그됨} 가드)
+# 권한 부여는 퀘스트.sk가 /ferryperm dispatch. 탑승지역 이탈 취소는 Java tick이 처리(공간.sk 페리블록 제거됨).
+# =========================================
+
+function 페리탑승GUI(p: player):
+    execute console command "ferryopengui %{_p}'s name%"
+
+on load:
+    wait 60 ticks
+    if {페리마이그됨} is not set:
+        if {페리노선목록::*} is set:
+            loop {페리노선목록::*}:
+                set {_r} to loop-value
+                loop "출발지", "도착지", "배":
+                    set {_loc} to {페리노선::%{_r}%::%loop-value-2%}
+                    if {_loc} is set:
+                        execute console command "ferryimportloc %{_r}% %loop-value-2% %world of {_loc}% %x-coordinate of {_loc}% %y-coordinate of {_loc}% %z-coordinate of {_loc}% %yaw of {_loc}% %pitch of {_loc}%"
+                loop "간격", "소요시간", "요금", "탑승지역", "도착지역":
+                    set {_v} to {페리노선::%{_r}%::%loop-value-2%}
+                    if {_v} is set:
+                        execute console command "ferryimportval %{_r}% %loop-value-2% %{_v}%"
+            send "[페리마이그] 노선 데이터를 Java(ferries.json)로 import했습니다." to console
+        set {페리마이그됨} to true
