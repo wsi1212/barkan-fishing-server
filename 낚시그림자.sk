@@ -1,0 +1,24 @@
+# =========================================
+# 낚시그림자.sk — Phase 0 그림자 하네스 토글 (op)
+# {낚시그림자}=true 일 때만 낚시.sk가 catch 등급 입력/결과를 Java(/fishshadow)로 전송.
+# 게임 동작에는 영향 없음(로깅·패리티 검증 전용). 기본 off.
+# 누적 통계: /fishshadow stats (Java, op) | CSV: plugins/BlockShip/fishshadow.csv
+# =========================================
+
+command /낚시그림자 [<text>]:
+    permission: op
+    trigger:
+        if arg-1 is "on":
+            set {낚시그림자} to true
+            send "&8[&b 낚시그림자 &8] &a켜짐 — catch마다 /fishshadow 전송" to player
+        else if arg-1 is "off":
+            delete {낚시그림자}
+            send "&8[&b 낚시그림자 &8] &c꺼짐" to player
+        else:
+            if {낚시그림자} is true:
+                send "&8[&b 낚시그림자 &8] &f현재: &aON &7(/낚시그림자 off 로 끄기, /fishshadow stats 로 통계)" to player
+            else:
+                send "&8[&b 낚시그림자 &8] &f현재: &cOFF &7(/낚시그림자 on 로 켜기)" to player
+
+on tab complete of "/낚시그림자":
+    set tab completions for position 1 to "on" and "off"

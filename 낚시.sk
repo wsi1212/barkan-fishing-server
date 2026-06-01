@@ -104,6 +104,12 @@ on fish caught:
     # {_maxGradeNum}: S=6, S+=7, M=8, L=9, G=10
     # 행운 배율: 행운 1당 +1% (행운 10 = ×1.10, 행운 50 = ×1.50)
     set {_행운배율} to (100 + {_행운}) / 100
+    # [그림자/Phase0] 롤 직전 피티 스냅샷 (게임 영향 0)
+    if {낚시그림자} is true:
+        loop "G", "L", "M", "SP", "S", "A", "B", "C", "D":
+            set {_snapPity::%loop-value%} to {등급피티::%player%::%loop-value%}
+            if {_snapPity::%loop-value%} is not set:
+                set {_snapPity::%loop-value%} to 0
     set {_등급} to "E"
     # G등급 (표기 0.01%) — 레벨 50+ (gradeNum 10)
     if {_maxGradeNum} >= 10:
@@ -366,6 +372,23 @@ on fish caught:
     else:
         message "&f이곳엔 물고기가 존재하지 않습니다." to player
         stop
+    # [그림자/Phase0] 등급 패리티 로깅 (게임 영향 0, 테스트등급 강제 catch 제외)
+    if {낚시그림자} is true:
+        if {_isTest} is false:
+            set {_availCsv} to ""
+            loop "E", "D", "C", "B", "A", "S", "S+", "M", "L", "G":
+                if {_%loop-value%::*} is set:
+                    set {_availCsv} to "%{_availCsv}%%loop-value%,"
+            set {_pityCsv} to ""
+            loop "G", "L", "M", "SP", "S", "A", "B", "C", "D":
+                set {_pityCsv} to "%{_pityCsv}%%loop-value%:%{_snapPity::%loop-value%}%,"
+            set {_ubFlag} to "false"
+            if {등급해금::%player%::B} is true:
+                set {_ubFlag} to "true"
+            set {_ucFlag} to "false"
+            if {등급해금::%player%::C} is true:
+                set {_ucFlag} to "true"
+            execute console command "fishshadow %player% %{낚시레벨::%player%}% 0 %{_ubFlag}% %{_ucFlag}% %{_availCsv}% %{_pityCsv}% %{_등급}%"
     set {_크리티컬확률} to 0
     set {_크리티컬데미지} to 1
     set {_최대등급} to "S"
