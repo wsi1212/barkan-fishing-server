@@ -137,6 +137,76 @@
 - `/textride combo <player> <titleTag> <nameTag> <combo>` — 콤보 파스텔 그라데이션
 - `/textride remove <player> <titleTag> <nameTag>` — 칭호 제거
 
+## 운영 서버 (Oracle Cloud)
+
+### 서버 정보
+- **Provider**: Oracle Cloud Infrastructure (Always Free)
+- **계정**: 가족 명의 (rhfipkk tenancy, ap-chuncheon-1)
+- **리전**: South Korea North (Chuncheon) — 한국 핑 5~10ms
+- **인스턴스**: `minecraft-server` (ID는 retry log 참조)
+- **현재 사양**: VM.Standard.A1.Flex 1 OCPU / 6 GB RAM (백그라운드 resize 시도 중, 목표 4/24)
+- **OS**: Ubuntu 24.04 ARM64
+- **공인 IP**: `134.185.113.25` (Ephemeral — 인스턴스 재생성 시 변경됨)
+- **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
+- **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25`
+- **OCI CLI 설정**: `~/.oci-family/config` (가족 계정용, OCI_CLI_CONFIG_FILE 환경변수로 지정)
+- **서버 경로**: `~/mcserver/` (인스턴스 안)
+- **Java**: Azul Zulu JDK 21 ARM (`/usr/lib/jvm/zulu21-ca-arm64`)
+- **방화벽**: 22 (SSH), 25565 (마크) 열림 (iptables + OCI Security List)
+
+### Dev / Prod 분리 (옵션 C - 하이브리드)
+- **Mac (패더)** = dev: 본인이 개발/테스트하는 곳
+- **Oracle (춘천)** = prod: 베타 유저 접속하는 운영 서버
+- **유저 데이터(`variables.csv`, `world/`)는 환경별 별개** — sync 금지!
+- 코드(`.sk`, jar, 설정)만 dev → prod 동기화
+
+### 자동 sync (옵션 C)
+**.sk 파일** — fswatch + rsync 자동 동기화
+- 위치: `~/auto-sync-skript.sh`
+- 작동: Mac에서 `.sk` 저장 → 즉시 오라클 업로드 (1초)
+- 백그라운드 실행: `nohup ~/auto-sync-skript.sh > ~/auto-sync.log 2>&1 &`
+- 적용: 인게임에서 `/sk reload <파일명>` 또는 `/sk reload scripts/`
+
+**BlockShip Java plugin** — 빌드 후 배포 스크립트
+- 위치: `~/deploy-blockship.sh`
+- 한 줄 실행: `~/deploy-blockship.sh`
+- 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 plugman reload
+
+**전체 변경** — Git 백업
+- Skript scripts 폴더가 git repo
+- 의미 있는 변경마다 commit
+- 오라클은 git pull 하지 않음 (rsync로 이미 sync됨). Git은 백업/롤백용
+
+### 운영 명령어
+```bash
+# 오라클 SSH 접속
+ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25
+
+# 마크 서버 콘솔 (tmux 세션)
+ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 -t 'tmux attach -t mc'
+# 분리: Ctrl+B, D
+
+# 마크 서버 재시작 (systemd)
+ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'sudo systemctl restart mcserver'
+
+# 로그 확인
+ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'tail -f ~/mcserver/logs/latest.log'
+
+# variables.csv 백업
+scp -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25:~/mcserver/plugins/Skript/variables.csv ~/Desktop/prod-vars-$(date +%Y%m%d).csv
+```
+
+### 자동 백업 (오라클 cron)
+- 매일 04:00: `variables.csv` → `~/mcserver/backups/`
+- 매일 05:00: 월드 폴더 tar.gz → `~/mcserver/backups/`
+- 30일 지난 백업 자동 삭제
+
+### Resize 자동 재시도 (백그라운드)
+- 위치: `~/oracle-auto-retry/resize-retry.sh`
+- 동작: 현재 사양보다 큰 자리 나는 대로 자동 resize 시도 (목표 4/24)
+- 로그: `~/oracle-auto-retry/resize-retry.log`
+- 성공: `~/oracle-auto-retry/SUCCESS-RESIZE.txt` 생성 + macOS 알림
+
 ## 리소스팩
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack`
 - 로컬: `~/Library/Application Support/minecraft/resourcepacks/barkan-resourcepack.zip`

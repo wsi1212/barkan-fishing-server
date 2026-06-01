@@ -1,0 +1,28 @@
+# ===========================================================================
+# 강화 테이블 브릿지 — Java(BlockShip EnhanceLoader) → Skript 동기화 수신
+#
+# Java가 enhance.json(강화 테이블)의 권위 소스. /enhancesync 로
+#   {강화테이블::낚싯대::최대}(정수), {강화테이블::낚싯대::N}("스탯:값") 채움.
+# 낚싯대강화.sk의 강화 로직이 그대로 읽음.
+#
+# 전송 포맷: /enhancesync <필드들을 §§로 join>
+#   init
+#   max§§<낚싯대>§§<최대레벨>
+#   lvl§§<낚싯대>§§<레벨N>§§<스탯:값>
+# ===========================================================================
+
+command /enhancesync <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p::*} to arg-1 split at "§§"
+        set {_sub} to {_p::1}
+
+        if {_sub} is "init":
+            delete {강화테이블::*}
+
+        else if {_sub} is "max":
+            set {강화테이블::%{_p::2}%::최대} to {_p::3} parsed as integer
+
+        else if {_sub} is "lvl":
+            set {강화테이블::%{_p::2}%::%{_p::3}%} to {_p::4}

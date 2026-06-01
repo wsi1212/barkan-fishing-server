@@ -262,7 +262,12 @@ on right click:
                     set {_tx} to {_coords::1} parsed as number
                     set {_ty} to {_coords::2} parsed as number
                     set {_tz} to {_coords::3} parsed as number
-                    set {_dist} to distance between player and location({_tx}, {_ty}, {_tz}, world {_coords::4})
+                    set {_tw} to world {_coords::4}
+                    if {_tw} is not player's world:
+                        # 다른 월드의 통발 — 거리 계산 시 cross-world 에러 방지
+                        set {_dist} to 99999
+                    else:
+                        set {_dist} to distance between player and location({_tx}, {_ty}, {_tz}, {_tw})
                     if {_dist} < 4:
                         if {통발::%{_lk}%::완료} is false:
                             set {_elapsed} to unix timestamp of now - {통발::%{_lk}%::설치시간}

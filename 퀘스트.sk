@@ -104,6 +104,8 @@ function 퀘스트즉시체크(p: player, questId: text):
             if {_doneCount} is not set:
                 set {_doneCount} to 0
             set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to {_doneCount}
+        else if {_obj::1} is "dogam":
+            set {퀘스트진행::%{_questId}%::%{_p}%::%{_objIdx}%} to 도감_지역발견수({_p}, {_obj::2})
     퀘스트진행체크({_p}, {_questId})
 
 # ===== 진행 완료 체크 =====
@@ -146,6 +148,10 @@ function 퀘스트진행체크(p: player, questId: text):
             if {_cur} < {_target}:
                 set {_allDone} to false
         else if {_obj::1} is "craft":
+            set {_target} to {_obj::3} parsed as number
+            if {_cur} < {_target}:
+                set {_allDone} to false
+        else if {_obj::1} is "dogam":
             set {_target} to {_obj::3} parsed as number
             if {_cur} < {_target}:
                 set {_allDone} to false
@@ -494,6 +500,10 @@ function 퀘스트목표텍스트(questId: text, p: player) :: text:
             else:
                 replace all "_" with " " in {_craftName}
                 set {_result} to "&7%{_craftName}% 조합: &f%{_cur}%/%{_target}%개"
+        else if {_obj::1} is "dogam":
+            set {_target} to {_obj::3} parsed as number
+            set {_regName} to 도감_지역표시({_obj::2})
+            set {_result} to "&7%{_regName}% 도감: &f%{_cur}%/%{_target}%종"
     return {_result}
 
 # ===== NPC 퀘스트 목록 GUI =====

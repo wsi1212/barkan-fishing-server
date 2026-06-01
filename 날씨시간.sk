@@ -139,6 +139,20 @@ function 커스텀날씨효과도망() :: number:
 
 # 환경 물고기 함수 → 지역별물고기.sk로 이관됨 (fish.json 기반)
 
+# ===== 자체 weather 보유 가능 여부 (Java canOwnWeather 미러) =====
+# - 섬 자체: 불가
+# - 섬 직속 자식 (parent in 섬리스트): 가능
+# - 자식의 자식 (parent in 지역리스트): 불가 → 부모 inherit 강제
+function 자체날씨가능(region: text) :: boolean:
+    if {섬리스트::*} contains {_region}:
+        return false
+    set {_pid} to {지역부모섬::%{_region}%}
+    if {_pid} is not set:
+        return true
+    if {섬리스트::*} contains {_pid}:
+        return true
+    return false
+
 # ===== 유효 커스텀 날씨 반환 (자기 active > 부모 체인 active > 전역) =====
 function 유효커스텀날씨(p: player) :: text:
     set {_area} to {area::%{_p}%}
@@ -148,9 +162,10 @@ function 유효커스텀날씨(p: player) :: text:
         if {서버날씨} is set:
             return {서버날씨}
         return ""
-    # 1. 자기 자신 active 우선
-    if {지역날씨::%{_area}%} is set:
-        return {지역날씨::%{_area}%}
+    # 1. 자기 자신 active 우선 — 단, 자체 weather 보유 가능한 region만
+    if 자체날씨가능({_area}) is true:
+        if {지역날씨::%{_area}%} is set:
+            return {지역날씨::%{_area}%}
     # 2. 부모 체인 active 따라가기
     set {_cur} to {_area}
     loop 32 times:

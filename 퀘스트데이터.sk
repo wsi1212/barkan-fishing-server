@@ -10,6 +10,7 @@
 #   money|금액
 #   login|일수
 #   quest_daily|횟수
+#   dogam|지역(섬)ID|종수    ← 해당 지역+하위지역 도감 N종 발견 (예: dogam|사막|35)
 
 # ===== questsync 브릿지 명령어 (Java → Skript) =====
 command /questsync <text> [<text>] [<text>] [<text>]:

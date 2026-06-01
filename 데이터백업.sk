@@ -19,9 +19,41 @@ command /pdtriggerbackup <text>:
 on quit:
     플레이어데이터백업(player)
 
-# ===== 메인 백업 함수 =====
-function 플레이어데이터백업(p: player):
+# ===== JSON 백필 (전체 플레이어 데이터 → JSON, 오프라인 포함) =====
+# 돈 데이터가 있는 모든 UUID를 순회하며 PlayerData JSON 생성/갱신.
+# CSV→JSON 추가 작성만 (삭제 없음) → 안전. CSV 제외 전 커버리지 100% 확보용.
+command /pd백필:
+    permission: op
+    executable by: console and players
+    trigger:
+        set {_cnt} to 0
+        loop {돈::*}:
+            # UUID→이름은 Java(pdbackfilone)가 해석 후 pdbackupname으로 되돌려 백업 실행
+            execute console command "pdbackfilone %loop-index%"
+            add 1 to {_cnt}
+        send "&8[&ePD&8] &a백필 트리거 완료: &f%{_cnt}%개 UUID &7(Java가 이름해석+백업)" to sender
+
+# 이름 기반 백업 (Java pdbackfilone이 UUID→이름 해석 후 호출) — 오프라인 플레이어 백필용
+command /pdbackupname <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_op} to arg-1 parsed as offline player
+        if {_op} is set:
+            플레이어데이터백업({_op})
+
+# ===== 메인 백업 함수 (오프라인 플레이어도 허용 — 백필용) =====
+function 플레이어데이터백업(p: offline player):
     set {_n} to name of {_p}
+    if {_n} is not set:
+        stop
+
+    # ★ 안전 가드 (돈/레벨 Java 권위 이관): 돈이 아직 복원 전(미설정)이면 백업 스킵.
+    #   CSV 메모리-only 전환 시, 접속 직후 복원 전에 백업이 돌면 빈 {돈}=0을 보내 JSON을 0으로
+    #   덮어쓰는 치명적 레이스가 생김 → {돈} 미설정이면 아예 백업하지 않음(데이터 보존).
+    #   (신규 플레이어는 on first join에서 {돈}=0이 set되므로 정상 백업됨)
+    if {돈::%{_p}%} is not set:
+        stop
 
     # --- Economy ---
     set {_money} to {돈::%{_p}%}
@@ -68,8 +100,8 @@ function 플레이어데이터백업(p: player):
             set {_dur} to 0
         execute console command "pdbackup %{_n}% equip %loop-value% %{_partName}% %{_dur}%"
 
-    # --- Part Inventory (릴/줄/바늘/찌 — 리스트) ---
-    loop "릴", "줄", "바늘", "찌":
+    # --- Part Inventory (릴/줄/바늘/찌/낚싯대 — 리스트) ---
+    loop "릴", "줄", "바늘", "찌", "낚싯대":
         set {_list} to ""
         loop {부품인벤::%loop-value-1%::%{_p}%::*}:
             set {_item} to loop-value-2
@@ -122,47 +154,48 @@ function 플레이어데이터백업(p: player):
         set {_title} to "없음"
     else:
         replace all " " with "_" in {_title}
+    # ★ 수정: 실제 보유칭호 키 순회(레지스트리 비의존). 키 순서 = 보유칭호::UUID::TITLE (게임 데이터와 일치).
+    #   기존엔 {칭호데이터::*}를 돌며 {보유칭호::TITLE::UUID}(잘못된 순서)를 확인해 항상 빈값이었음.
     set {_ownedTitles} to ""
-    loop {칭호데이터::*}:
-        set {_tid} to loop-index
-        if {보유칭호::%{_tid}%::%{_p}%} is set:
-            set {_tname} to {_tid}
-            replace all " " with "_" in {_tname}
-            if {_ownedTitles} is "":
-                set {_ownedTitles} to {_tname}
-            else:
-                set {_ownedTitles} to "%{_ownedTitles}%||%{_tname}%"
+    loop {보유칭호::%{_p}%::*}:
+        set {_tname} to loop-index
+        replace all " " with "_" in {_tname}
+        if {_ownedTitles} is "":
+            set {_ownedTitles} to {_tname}
+        else:
+            set {_ownedTitles} to "%{_ownedTitles}%||%{_tname}%"
     if {_ownedTitles} is "":
         set {_ownedTitles} to "없음"
     execute console command "pdbackup %{_n}% title %{_title}% %{_ownedTitles}%"
 
-    # --- Quests (활성 퀘스트만) ---
+    # --- Quests: 활성 목록 ---
     set {_activeStr} to ""
     loop {활성퀘스트::%{_p}%::*}:
-        set {_qid} to loop-value
         if {_activeStr} is "":
-            set {_activeStr} to {_qid}
+            set {_activeStr} to loop-value
         else:
-            set {_activeStr} to "%{_activeStr}%||%{_qid}%"
-        # 각 퀘스트의 상태와 진행도
-        set {_qs} to {퀘스트상태::%{_qid}%::%{_p}%}
-        if {_qs} is not set:
-            set {_qs} to "대기"
-        set {_prog} to ""
-        # 목표 인덱스 1~10까지 체크 (퀘스트당 최대 10개 목표)
-        loop integers from 1 to 10:
-            set {_val} to {퀘스트진행::%{_qid}%::%{_p}%::%loop-integer%}
-            if {_val} is set:
-                if {_prog} is "":
-                    set {_prog} to "%loop-integer%::%{_val}%"
-                else:
-                    set {_prog} to "%{_prog}%||%loop-integer%::%{_val}%"
-        if {_prog} is "":
-            set {_prog} to "없음"
-        execute console command "pdbackup %{_n}% quest %{_qid}% %{_qs}% %{_prog}%"
+            set {_activeStr} to "%{_activeStr}%||%loop-value%"
     if {_activeStr} is "":
         set {_activeStr} to "없음"
     execute console command "pdbackup %{_n}% activequests %{_activeStr}%"
+
+    # --- Quests: 모든 퀘스트 상태/진행도 (★ 활성뿐 아니라 완료/메인/튜토 전부 백업) ---
+    #   기존엔 활성 퀘스트만 백업해 메인·튜토 완료상태가 복원 시 유실됐음.
+    loop {퀘스트상태::*}:
+        set {_qid} to loop-index
+        set {_qs} to {퀘스트상태::%{_qid}%::%{_p}%}
+        if {_qs} is set:
+            set {_prog} to ""
+            loop integers from 1 to 10:
+                set {_val} to {퀘스트진행::%{_qid}%::%{_p}%::%loop-integer%}
+                if {_val} is set:
+                    if {_prog} is "":
+                        set {_prog} to "%loop-integer%::%{_val}%"
+                    else:
+                        set {_prog} to "%{_prog}%||%loop-integer%::%{_val}%"
+            if {_prog} is "":
+                set {_prog} to "없음"
+            execute console command "pdbackup %{_n}% quest %{_qid}% %{_qs}% %{_prog}%"
 
     # 주간 퀘스트
     set {_weeklyStr} to ""
@@ -197,15 +230,15 @@ function 플레이어데이터백업(p: player):
     execute console command "pdbackup %{_n}% achievement %{_achList}%"
 
     # --- Grade Pity ---
+    # ★ 수정: 실제 등급피티 키 순회(고정 등급목록 비의존 → 실제 저장키 d/sp 등 보존).
     set {_pityList} to ""
-    loop "C", "B", "A", "S", "S+", "M", "L", "G":
-        set {_pv} to {등급피티::%{_p}%::%loop-value%}
-        if {_pv} is set:
-            if {_pv} > 0:
-                if {_pityList} is "":
-                    set {_pityList} to "%loop-value%::%{_pv}%"
-                else:
-                    set {_pityList} to "%{_pityList}%||%loop-value%::%{_pv}%"
+    loop {등급피티::%{_p}%::*}:
+        set {_pv} to loop-value
+        if {_pv} > 0:
+            if {_pityList} is "":
+                set {_pityList} to "%loop-index%::%{_pv}%"
+            else:
+                set {_pityList} to "%{_pityList}%||%loop-index%::%{_pv}%"
     if {_pityList} is "":
         set {_pityList} to "없음"
     execute console command "pdbackup %{_n}% pity %{_pityList}%"
@@ -221,8 +254,8 @@ function 플레이어데이터백업(p: player):
         set {_regions} to "없음"
     execute console command "pdbackup %{_n}% visitedregions %{_regions}%"
 
-    # --- Fish Records ({물고기::*} 인덱스로 순회) ---
-    loop {물고기::*}:
+    # --- Fish Records ({도감최대::*} 인덱스로 순회 — 레지스트리 비의존, 삭제된 물고기 기록도 보존) ---
+    loop {도감최대::*}:
         set {_fname} to loop-index
         set {_fmax} to {도감최대::%{_fname}%::%{_p}%}
         if {_fmax} is set:
@@ -235,6 +268,70 @@ function 플레이어데이터백업(p: player):
             set {_fnameClean} to {_fname}
             replace all " " with "_" in {_fnameClean}
             execute console command "pdbackup %{_n}% fishrecord %{_fnameClean}% %{_fmax}% %{_ffirst}% %{_fmaxd}%"
+
+    # --- Phase D 배치1: 확장 스칼라 (스킬레벨/통계/접속/마이그레이션/강화스탯) ---
+    loop "수집레벨", "수집경험치", "수집필요경험치", "요리레벨", "요리경험치", "요리필요경험치", "재배레벨", "재배경험치", "재배필요경험치", "채굴레벨", "채굴경험치", "채굴필요경험치", "채집레벨", "채집경험치", "채집필요경험치", "탐험레벨", "탐험경험치", "탐험필요경험치", "총낚시", "총조합", "총판매", "접속일수", "주간접속일수", "주간일퀘완료수", "용암낚시", "칭호마지막레벨", "송금일일한도", "낚싯대강화경험치", "낚싯대강화난이도", "낚싯대강화내구", "낚싯대강화더블", "낚싯대강화등급업", "낚싯대강화크기", "낚싯대강화크리배율", "낚싯대강화크리확률", "낚싯대강화트리플", "낚싯대강화판매", "낚싯대인챈트경험치", "낚싯대인챈트난이도", "낚싯대인챈트내구보존", "낚싯대인챈트타임아웃", "낚싯대인챈트퍼펙트", "낚싯대인챈트행운":
+        set {_sv} to {%loop-value%::%{_p}%}
+        if {_sv} is set:
+            execute console command "pdbackup %{_n}% exnum %loop-value% %{_sv}%"
+    loop "낚시이름", "마지막접속날짜", "주간접속날짜", "일일퀘스트날짜", "주간퀘스트주차":
+        set {_sv} to {%loop-value%::%{_p}%}
+        if {_sv} is set:
+            execute console command "pdbackup %{_n}% exstr %loop-value% %{_sv}%"
+    loop "마이그레이션완료", "도감마이그레이션", "도감해금", "도감g등급":
+        if {%loop-value%::%{_p}%} is true:
+            execute console command "pdbackup %{_n}% exbool %loop-value%"
+
+    # --- Phase D 배치3: 플래그맵(uuid::key=bool) — 정적prefix 단일루프(bare loop-index) ---
+    set {_fl} to ""
+    loop {레시피해금::%{_p}%::*}:
+        if loop-value is true:
+            set {_fl} to "%{_fl}%||%loop-index%"
+    if {_fl} is not "":
+        execute console command "pdbackup %{_n}% exflag 레시피해금 %{_fl}%"
+    set {_fl} to ""
+    loop {등급해금::%{_p}%::*}:
+        if loop-value is true:
+            set {_fl} to "%{_fl}%||%loop-index%"
+    if {_fl} is not "":
+        execute console command "pdbackup %{_n}% exflag 등급해금 %{_fl}%"
+    set {_fl} to ""
+    loop {캐시외형::%{_p}%::*}:
+        if loop-value is true:
+            set {_fl} to "%{_fl}%||%loop-index%"
+    if {_fl} is not "":
+        execute console command "pdbackup %{_n}% exflag 캐시외형 %{_fl}%"
+    set {_fl} to ""
+    loop {수집품발견::%{_p}%::*}:
+        if loop-value is true:
+            set {_fl} to "%{_fl}%||%loop-index%"
+    if {_fl} is not "":
+        execute console command "pdbackup %{_n}% exflag 수집품발견 %{_fl}%"
+    set {_fl} to ""
+    loop {수집품마일스톤::%{_p}%::*}:
+        if loop-value is true:
+            set {_fl} to "%{_fl}%||%loop-index%"
+    if {_fl} is not "":
+        execute console command "pdbackup %{_n}% exflag 수집품마일스톤 %{_fl}%"
+
+    # --- Phase D 배치3: 인덱스 리스트(낚싯대수집, uuid::N=str, 값 _인코딩) ---
+    set {_ls} to ""
+    loop {낚싯대수집::%{_p}%::*}:
+        set {_iv} to loop-value
+        replace all " " with "_" in {_iv}
+        if {_ls} is "":
+            set {_ls} to {_iv}
+        else:
+            set {_ls} to "%{_ls}%||%{_iv}%"
+    if {_ls} is not "":
+        execute console command "pdbackup %{_n}% exlist 낚싯대수집 %{_ls}%"
+
+    # --- Phase D 배치4: 중첩 도감발견(cat::uuid::item) / 탐험발견(uuid::cat::idx) ---
+    #   카테고리는 고정 게임상수 → 명시 호출(상위 와일드카드 {도감발견::*} 회피, 헬퍼=단일루프).
+    #   ※ 도감 카테고리 추가 시 아래 목록 갱신.
+    loop "낚싯대", "물고기", "부품", "재료", "지역":
+        pd백업도감발견({_p}, {_n}, loop-value)
+    pd백업탐험발견({_p}, {_n}, "지역")
 
     # --- Done signal ---
     execute console command "pdbackup %{_n}% done"
@@ -336,7 +433,8 @@ command /pdrestoreex <text> <text> <text>:
                     if loop-value is not "없음":
                         set {_tname} to loop-value
                         replace all "_" with " " in {_tname}
-                        set {보유칭호::%{_tname}%::%{_p}%} to true
+                        # ★ 수정: UUID::TITLE 순서 (게임 데이터와 일치). 기존 TITLE::UUID는 게임이 못 읽었음.
+                        set {보유칭호::%{_p}%::%{_tname}%} to true
         else if arg-2 is "quest":
             # arg-3 = "questId::status::obj1Idx::val||obj2Idx::val"
             set {_parts::*} to split arg-3 at "::"
@@ -394,6 +492,59 @@ command /pdrestoreex <text> <text> <text>:
                     set {처음낚은날짜::%{_fname}%::%{_p}%} to {_parts::3}
                 if {_parts::4} is not "없음":
                     set {최대낚은날짜::%{_fname}%::%{_p}%} to {_parts::4}
+        else if arg-2 is "exnum":
+            # arg-3 = "prefix::value"
+            set {_kv::*} to split arg-3 at "::"
+            if size of {_kv::*} >= 2:
+                set {%{_kv::1}%::%{_p}%} to {_kv::2} parsed as number
+        else if arg-2 is "exstr":
+            # arg-3 = "prefix§§value" (값에 공백 가능)
+            set {_kv::*} to split arg-3 at "§§"
+            if size of {_kv::*} >= 2:
+                set {%{_kv::1}%::%{_p}%} to {_kv::2}
+        else if arg-2 is "exbool":
+            # arg-3 = "prefix"
+            set {%arg-3%::%{_p}%} to true
+        else if arg-2 is "exflag":
+            # arg-3 = "prefix||key1||key2..."  → {prefix::p::key} = true
+            set {_parts::*} to split arg-3 at "||"
+            set {_pre} to {_parts::1}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    set {%{_pre}%::%{_p}%::%loop-value%} to true
+        else if arg-2 is "exlist":
+            # arg-3 = "prefix||v1||v2..." (값 _인코딩) → {prefix::p::*} 리스트
+            set {_parts::*} to split arg-3 at "||"
+            set {_pre} to {_parts::1}
+            delete {%{_pre}%::%{_p}%::*}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    set {_iv} to loop-value
+                    replace all "_" with " " in {_iv}
+                    add {_iv} to {%{_pre}%::%{_p}%::*}
+        else if arg-2 is "exdex":
+            # arg-3 = "cat||item1||item2..." (item 공백가능, greedy arg) → {도감발견::cat::p::item}=true
+            set {_parts::*} to split arg-3 at "||"
+            set {_cat} to {_parts::1}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    set {도감발견::%{_cat}%::%{_p}%::%loop-value%} to true
+        else if arg-2 is "exexp":
+            # arg-3 = "cat||v1||v2..." → {탐험발견::p::cat::*} 리스트(순서)
+            set {_parts::*} to split arg-3 at "||"
+            set {_cat} to {_parts::1}
+            delete {탐험발견::%{_p}%::%{_cat}%::*}
+            set {_idx} to 0
+            loop {_parts::*}:
+                add 1 to {_idx}
+                if {_idx} > 1:
+                    add loop-value to {탐험발견::%{_p}%::%{_cat}%::*}
 
 # ===== 복원 필요 여부 체크 (Java에서 접속 시 호출) =====
 command /pdcheckandrestore <text>:
@@ -408,3 +559,31 @@ command /pdcheckandrestore <text>:
             execute console command "pdrestoretrigger %arg-1%"
         else if {낚시레벨::%{_p}%} is not set:
             execute console command "pdrestoretrigger %arg-1%"
+
+
+# =========================================
+# ===== Phase D 배치4 백업 헬퍼 (중첩 → 단일루프) =====
+# =========================================
+# 도감발견::<cat>::<uuid>::<item>=bool  →  카테고리당 단일루프(bare loop-index=item)
+function pd백업도감발견(p: offline player, n: text, cat: text):
+    set {_d} to ""
+    loop {도감발견::%{_cat}%::%{_p}%::*}:
+        if loop-value is true:
+            if {_d} is "":
+                set {_d} to "%loop-index%"
+            else:
+                set {_d} to "%{_d}%||%loop-index%"
+    if {_d} is not "":
+        execute console command "pdbackup %{_n}% exdex %{_cat}% %{_d}%"
+
+# 탐험발견::<uuid>::<cat>::<idx>=str  →  카테고리당 단일루프(순서 보존)
+function pd백업탐험발견(p: offline player, n: text, cat: text):
+    set {_e} to ""
+    loop {탐험발견::%{_p}%::%{_cat}%::*}:
+        set {_ev} to loop-value
+        if {_e} is "":
+            set {_e} to {_ev}
+        else:
+            set {_e} to "%{_e}%||%{_ev}%"
+    if {_e} is not "":
+        execute console command "pdbackup %{_n}% exexp %{_cat}% %{_e}%"

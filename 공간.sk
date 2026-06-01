@@ -70,12 +70,22 @@ function areaEnter(p: player, area: text, silent: boolean = false):
         도전과제체크({_p}, "지역방문", "%size of {방문지역::%{_p}%::*}%")
         # 탐험 경험치 (신규 지역 발견 시)
         탐험_발견({_p}, "지역", {_area})
-    if {_silent} is not true:
+    # 같은 지역 알림 쿨다운 (10초) — 짧은 시간 왔다갔다 시 메시지 스팸 방지
+    set {_shouldNotify} to true
+    if {_silent} is true:
+        set {_shouldNotify} to false
+    else:
+        set {_lastNotify} to {지역알림쿨다운::%{_p}%::%{_area}%}
+        if {_lastNotify} is set:
+            if difference between {_lastNotify} and now < 10 seconds:
+                set {_shouldNotify} to false
+    if {_shouldNotify} is true:
+        set {지역알림쿨다운::%{_p}%::%{_area}%} to now
         set {_display} to regionDisplayName({_area})
         message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
+        환경보너스알림({_p})
     if {_area} is "lavatest":
         enterlava({_p})
-    환경보너스알림({_p})
     퀘스트_지역입장({_p}, {_area})
     사이드바업데이트({_p})
     # 지역 낚시대회 보스바 표시 (지역 or 섬 대회)
@@ -89,7 +99,17 @@ function areaEnter(p: player, area: text, silent: boolean = false):
 
 # ===== 퇴장 처리 =====
 function areaExit(p: player, area: text, silent: boolean = false):
-    if {_silent} is not true:
+    # 같은 지역 퇴장 알림 쿨다운 (10초)
+    set {_shouldNotify} to true
+    if {_silent} is true:
+        set {_shouldNotify} to false
+    else:
+        set {_lastExit} to {지역퇴장쿨다운::%{_p}%::%{_area}%}
+        if {_lastExit} is set:
+            if difference between {_lastExit} and now < 10 seconds:
+                set {_shouldNotify} to false
+    if {_shouldNotify} is true:
+        set {지역퇴장쿨다운::%{_p}%::%{_area}%} to now
         set {_display} to regionDisplayName({_area})
         message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_p}
     set {area::%{_p}%} to "0"
@@ -174,13 +194,27 @@ command /regionevent <text> <text> <text> [<text>]:
         else if {_action} is "islandenter":
             set {섬::%{_player}%} to {_region}
             if {_silent} is not true:
-                set {_display} to regionDisplayName({_region})
-                message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
+                set {_lastNotify2} to {지역알림쿨다운::%{_player}%::%{_region}%}
+                set {_show} to true
+                if {_lastNotify2} is set:
+                    if difference between {_lastNotify2} and now < 10 seconds:
+                        set {_show} to false
+                if {_show} is true:
+                    set {지역알림쿨다운::%{_player}%::%{_region}%} to now
+                    set {_display} to regionDisplayName({_region})
+                    message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
             사이드바업데이트({_player})
         else if {_action} is "islandexit":
             if {_silent} is not true:
-                set {_display} to regionDisplayName({_region})
-                message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
+                set {_lastExit2} to {지역퇴장쿨다운::%{_player}%::%{_region}%}
+                set {_show2} to true
+                if {_lastExit2} is set:
+                    if difference between {_lastExit2} and now < 10 seconds:
+                        set {_show2} to false
+                if {_show2} is true:
+                    set {지역퇴장쿨다운::%{_player}%::%{_region}%} to now
+                    set {_display} to regionDisplayName({_region})
+                    message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
             set {섬::%{_player}%} to "0"
             사이드바업데이트({_player})
 
@@ -314,27 +348,47 @@ command /regionparentsync <text> <text>:
     trigger:
         set {지역부모섬::%arg-1%} to arg-2
 
-# ===== 지역별 커스텀 물고기 동기화 (Java → Skript) =====
-# Java에서 "regioncustomfishsync <지역ID> <fish1,fish2,...|없음>" 전송
-command /regioncustomfishsync <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        delete {지역물고기목록::%arg-1%::커스텀::*}
-        if arg-2 is not "없음":
-            loop split arg-2 at ",":
-                add loop-value to {지역물고기목록::%arg-1%::커스텀::*}
+# ===== fish.json → Skript 동기화 브릿지 =====
+# Java FishLoader가 호출. 이 명령들이 모든 fish 변수를 채움.
 
-# ===== 지역별 제외 물고기 동기화 (Java → Skript) =====
-# Java에서 "regionexcludefishsync <지역ID> <fish1,fish2,...|없음>" 전송
-command /regionexcludefishsync <text> <text>:
+# 동기화 시작 시 모든 fish 변수 초기화
+command /fishsyncreset:
     permission: op
     executable by: console
     trigger:
-        delete {지역물고기제외::%arg-1%::*}
+        delete {물고기::*}
+        delete {물고기환경::*}
+        delete {지역물고기목록::*}
+        delete {환경물고기::*}
+
+# 물고기 정의: /fishdefsync <name> <min> <max> <grade> <time> <weather>
+command /fishdefsync <text> <text> <text> <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {물고기::%arg-1%} to "%arg-1%|%arg-2%|%arg-3%|%arg-4%"
+        set {물고기환경::%arg-1%::시간} to arg-5
+        set {물고기환경::%arg-1%::날씨} to arg-6
+
+# 지역별 fish 할당: /regionfishsync <region> <sublist> <fish1,fish2,...>
+command /regionfishsync <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        delete {지역물고기목록::%arg-1%::%arg-2%::*}
+        if arg-3 is not "없음":
+            loop split arg-3 at ",":
+                add loop-value to {지역물고기목록::%arg-1%::%arg-2%::*}
+
+# 환경 fish: /envfishsync <env> <fish1,fish2,...>
+command /envfishsync <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        delete {환경물고기::%arg-1%::*}
         if arg-2 is not "없음":
             loop split arg-2 at ",":
-                set {지역물고기제외::%arg-1%::%loop-value%} to true
+                add loop-value to {환경물고기::%arg-1%::*}
 
 # ===== 길드 소유 지역 동기화 (Java → Skript) =====
 command /regionguildsync <text> <text>:
@@ -370,6 +424,30 @@ command /regiondeletesync <text>:
         loop all players:
             if {방문지역::%loop-player%::*} contains arg-1:
                 remove arg-1 from {방문지역::%loop-player%::*}
+
+# ===== 자식의 자식 잘못된 날씨 변수 청소 (op 수동) =====
+# Java cleanupInvalidActiveWeathers 와 짝 — Skript 변수도 청소
+command /날씨변수청소:
+    permission: op
+    trigger:
+        set {_cleaned} to 0
+        loop {지역날씨::*}:
+            set {_rid} to "%loop-index%"
+            # 자체 weather 보유 가능 여부 체크
+            if {섬리스트::*} contains {_rid}:
+                delete {지역날씨::%{_rid}%}
+                add 1 to {_cleaned}
+            else:
+                set {_pid} to {지역부모섬::%{_rid}%}
+                if {_pid} is set:
+                    if {섬리스트::*} does not contain {_pid}:
+                        # 자식의 자식 — 자체 weather 보유 불가
+                        delete {지역날씨::%{_rid}%}
+                        send "&8[&c 어드민 &8] &7삭제: &c{지역날씨::%{_rid}%} &7(부모 %{_pid}% 는 섬 아님)" to player
+                        add 1 to {_cleaned}
+        send "&8[&c 어드민 &8] &a%{_cleaned}%&7개 stale 날씨 변수 정리 완료." to player
+        loop all players:
+            사이드바업데이트(loop-player)
 
 # ===== 지역 잔재 일괄 청소 (op 수동 실행) =====
 # 현재 {지역리스트::*}/{섬리스트::*}에 있지만 Java에서 동기화 안 된 (= 표시이름 미등록) 항목 정리

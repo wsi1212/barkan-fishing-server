@@ -309,4 +309,13 @@ command /도감관리 [<text>] [<text>] [<text>]:
 # (이름표 숨김은 BlockShip Java 플러그인이 Scoreboard API로 처리)
 on join:
     if player is op:
-        set player's gamemode to creative
+        wait 10 ticks
+        if player is op:
+            set player's gamemode to creative
+
+# 월드 이동 시 OP는 크리에이티브 유지 (Paper의 per-world 게임모드 저장 덮어쓰기)
+on world change:
+    if player is op:
+        wait 2 ticks
+        if player is op:
+            set player's gamemode to creative

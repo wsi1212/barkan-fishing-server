@@ -249,6 +249,37 @@ function 퀘스트_일퀘완료(p: player):
                     message "&8[&d 퀘스트 &8] &7%{퀘스트::%{_qid}%::이름}% &f%{_cnt}%&7/&f%{_target}%개" to {_p}
         퀘스트진행체크({_p}, {_qid})
 
+# ===== 새 물고기 종 발견했을 때 (도감 완성도 퀘스트) =====
+# 목표 포맷: dogam|지역(섬)ID|종수  — 도감.sk 도감_물고기()에서 호출
+function 퀘스트_도감(p: player):
+    if {활성퀘스트::%{_p}%::*} is not set:
+        stop
+    loop {활성퀘스트::%{_p}%::*}:
+        set {_qid} to loop-value
+        if {퀘스트상태::%{_qid}%::%{_p}%} is not "진행":
+            continue
+        set {_objIdx} to 0
+        loop {퀘스트::%{_qid}%::목표::*}:
+            add 1 to {_objIdx}
+            set {_obj::*} to split loop-value-2 at "|"
+            if {_obj::1} is "dogam":
+                set {_region} to {_obj::2}
+                set {_target} to {_obj::3} parsed as number
+                set {_cur} to 도감_지역발견수({_p}, {_region})
+                set {_prev} to {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%}
+                if {_prev} is not set:
+                    set {_prev} to 0
+                set {퀘스트진행::%{_qid}%::%{_p}%::%{_objIdx}%} to {_cur}
+                # 새 종이 실제로 늘었을 때만 알림 (메인/튜토는 타이틀)
+                if {_cur} > {_prev}:
+                    set {_regName} to 도감_지역표시({_region})
+                    set {_show} to 퀘스트표시방식({_qid}, "dogam", "", {_target})
+                    if {_show} is "title":
+                        send title "" with subtitle "&7%{퀘스트::%{_qid}%::이름}% &f%{_cur}%&7/%{_target}%종" to {_p} for 1.5 seconds
+                    else if {_show} is "chat":
+                        message "&8[&d 퀘스트 &8] &7%{퀘스트::%{_qid}%::이름}% &8- &f%{_regName}% 도감 %{_cur}%&7/&f%{_target}%종" to {_p}
+        퀘스트진행체크({_p}, {_qid})
+
 # ===== 물고기 판매했을 때 =====
 function 퀘스트_판매(p: player, count: integer, price: number):
     if {활성퀘스트::%{_p}%::*} is not set:

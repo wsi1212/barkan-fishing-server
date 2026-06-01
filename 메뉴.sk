@@ -13,25 +13,19 @@ on load:
     add cobblestone to {regionguiblock::*}
 function regiondictionary(p: player, r: text):
     set {_raw::*} to get_fish({_r})
-    # 지역별 시간/날씨 sublist만 추가. 환경물고기는 글로벌이라 제외(필요하면 물고기추가로 명시 등록). 제외 목록 필터링 적용
+    # 지역별 시간/날씨 sublist 추가 (환경물고기는 글로벌이라 fish.json에서 명시 등록 시에만)
     loop {지역물고기목록::%{_r}%::낮::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::낮맑음::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::낮비::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤맑음::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     loop {지역물고기목록::%{_r}%::밤비::*}:
-        if {지역물고기제외::%{_r}%::%loop-value%} is not set:
-            add {물고기::%loop-value%} to {_raw::*}
+        add {물고기::%loop-value%} to {_raw::*}
     # ===== 등급별 정렬 =====
     loop {_raw::*}:
         set {_fp::*} to split loop-value at "|"
