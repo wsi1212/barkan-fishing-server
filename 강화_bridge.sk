@@ -62,7 +62,8 @@ command /achievecheck <text> <text> <text>:
 on load:
     if {강화RID마이그레이션완료} is not set:
         loop {낚싯대강화::*}:
+            # RID키는 직접 number 값(set), rodName키는 하위리스트라 직접값 없음(미set) → 자동 필터.
+            #  Java enhmigrate가 parseInt 2차 가드 + 기존 Java값 있으면 무시.
             if loop-value is set:
-                if loop-value is a number:
-                    execute console command "enhmigrate %loop-index% %loop-value%"
+                execute console command "enhmigrate %loop-index% %loop-value%"
         set {강화RID마이그레이션완료} to true
