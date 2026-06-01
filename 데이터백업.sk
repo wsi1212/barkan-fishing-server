@@ -206,16 +206,8 @@ function 플레이어데이터백업(p: offline player):
     execute console command "pdbackup %{_n}% icebox %{_ibTier}% %{_ibTimer}%"
 
     # --- Achievements ---
-    set {_achList} to ""
-    loop {도전과제목록::*}:
-        if {도전과제달성::%loop-value%::%{_p}%} is set:
-            if {_achList} is "":
-                set {_achList} to loop-value
-            else:
-                set {_achList} to "%{_achList}%||%loop-value%"
-    if {_achList} is "":
-        set {_achList} to "없음"
-    execute console command "pdbackup %{_n}% achievement %{_achList}%"
+    # [야간이관] 도전과제.sk → Java(AchievementManager) 권위. PlayerData.completedAchievements가 직접 권위라
+    #   Skript 백업 루프 제거(클로버 차단: stale {도전과제달성}이 Java를 덮어쓰지 않게). 복원은 pdrestoreex achievement 유지.
 
     # --- Grade Pity ---
     # ★ 수정: 실제 등급피티 키 순회(고정 등급목록 비의존 → 실제 저장키 d/sp 등 보존).

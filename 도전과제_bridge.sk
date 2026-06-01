@@ -1,0 +1,79 @@
+# =========================================
+# 도전과제_bridge.sk
+# 도전과제.sk → Java(AchievementManager) 이관 브릿지
+#
+# Java 권위: 카탈로그 + 평가 + 수여 + GUI (PlayerData.completedAchievements).
+# 이 파일이 남기는 것:
+#   1) 도전과제체크(p, type, value) 시밍 — 외부 호출처(낚시/판매/공간/퀘스트/강화/조합)가 부르는 함수.
+#      → /achcheck 로 Java 평가엔진 dispatch.
+#   2) /achtitle 핸들러 — Java 수여 시 칭호 보상(보유칭호/사이드바/칭호데이터는 Skript 권위)을 Skript에서 처리.
+#   3) 접속일수 카운터 + 접속 시 일괄 도전과제 체크 (Skript 변수 읽기라 Skript 유지).
+#
+# {도전과제달성}은 Skript 미러로 남으며 Java가 pdrestoreex achievement로 push-back.
+# 데이터백업.sk의 achievement 백업 루프는 제거됨(Java 권위 클로버 차단).
+# =========================================
+
+# ===== 도전과제 체크 시밍 (외부 호출 함수 — 시그니처 유지) =====
+function 도전과제체크(p: player, type: text, value: text):
+    execute console command "achcheck %{_p}'s name% %{_type}% %{_value}%"
+
+# ===== Java 수여 → 칭호 보상 처리 (Skript 권위 변수) =====
+# /achtitle <player> <titleId|없음>
+command /achtitle <text> <text>:
+    permission: op
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        if arg-2 is not "없음":
+            set {보유칭호::%{_p}%::%arg-2%} to true
+            set {_tn} to {칭호데이터::%arg-2%::이름}
+            if {_tn} is not set:
+                set {_tn} to arg-2
+            message "&8[&e ★ &8] &e칭호 획득! &f[%{_tn}%&f]" to {_p}
+        # 돈/사이드바 갱신 (Java가 돈을 MoneyBridge로 더했으므로 사이드바만 새로고침)
+        사이드바업데이트({_p})
+
+# ===== 접속일수 카운터 + 접속 시 일괄 체크 =====
+on join:
+    if {접속일수::%player%} is not set:
+        set {접속일수::%player%} to 0
+    if {마지막접속날짜::%player%} is not set:
+        set {마지막접속날짜::%player%} to ""
+    set {_today} to "%now%"
+    set {_todayShort::*} to split {_today} at " "
+    set {_todayDate} to {_todayShort::1}
+    if {마지막접속날짜::%player%} is not {_todayDate}:
+        add 1 to {접속일수::%player%}
+        set {마지막접속날짜::%player%} to {_todayDate}
+    # 접속 시 도전과제 일괄 체크
+    wait 30 ticks
+    도전과제체크(player, "접속일", "%{접속일수::%player%}%")
+    도전과제체크(player, "보유금", "%{돈::%player%}%")
+    도전과제체크(player, "레벨", "%{낚시레벨::%player%}%")
+    # 지역 방문 수
+    set {_visitCount} to size of {방문지역::%player%::*}
+    if {_visitCount} > 0:
+        도전과제체크(player, "지역방문", "%{_visitCount}%")
+        # 개별 지역도 체크
+        loop {방문지역::%player%::*}:
+            도전과제체크(player, "지역", loop-value)
+    # 총 낚시 수
+    if {총낚시::%player%} is set:
+        도전과제체크(player, "총낚시", "%{총낚시::%player%}%")
+    # 총 판매 수
+    if {총판매::%player%} is set:
+        도전과제체크(player, "총판매", "%{총판매::%player%}%")
+    # 콤보
+    if {낚시최대콤보::%player%} is set:
+        도전과제체크(player, "콤보", "%{낚시최대콤보::%player%}%")
+    # 도감 수
+    set {_docCount} to 0
+    loop {도감최대::*}:
+        if loop-index contains "%player%":
+            add 1 to {_docCount}
+    if {_docCount} > 0:
+        도전과제체크(player, "도감", "%{_docCount}%")
+    # G등급
+    if {도감G등급::%player%} is true:
+        도전과제체크(player, "등급", "G")
