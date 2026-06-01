@@ -1,0 +1,57 @@
+# =========================================
+# 낚시레벨_bridge.sk — 낚시레벨.sk Java 이관 브릿지 (권위 인버전)
+# Java(FishingLevelManager)가 PlayerData(fishingLevel/현재경험치/필요경험치) 단독 권위.
+#  - 낚시경험치추가(p, amount): 외부 호출(낚시.sk/퀘스트.sk/낚시이벤트_bridge.sk) → /fishexp 위임
+#      → Java가 레벨업 처리 + pdrestore level push-back + 퀘스트/칭호 훅(questlevelup/titleautocheck)
+#  - 경험치바동기화(p): 외부 호출(어드민.sk가 {낚시레벨} 직접 set 후 호출) → Skript값을 Java로 sync(pdbackup level)
+#      후 /fishbarsync 로 마크 경험치바 갱신. (Skript→Java 역동기 = 외부 .sk write 흡수)
+#  - /낚시레벨, /낚시레벨랭킹, /fix, /레벨초기화, on experience spawn = Java로 이관 (낚시레벨.sk 삭제됨)
+# Java가 변경 시 {낚시레벨/현재경험치/필요경험치}로 push-back(pdrestore level)하므로
+#  사이드바/스탯/칭호/낚시/공간/장비 등 미이관 리더는 무수정 동작.
+# ★데이터백업.sk의 level backup은 유지 (push-back으로 {낚시레벨}=Java값 동기화 → backup idempotent).
+# =========================================
+
+# ===== 경험치 추가 + 레벨업 (낚시레벨.sk 낚시경험치추가 이관 → Java /fishexp) =====
+function 낚시경험치추가(p: player, amount: number):
+    execute console command "fishexp %{_p}'s name% %{_amount}%"
+
+# ===== 마크 경험치바 동기화 (낚시레벨.sk 경험치바동기화 이관) =====
+# 호출자가 {낚시레벨} 등을 직접 set한 뒤 부르므로(어드민.sk), 그 값을 먼저 Java로 sync(pdbackup level).
+function 경험치바동기화(p: player):
+    set {_lv} to {낚시레벨::%{_p}%}
+    if {_lv} is not set:
+        set {_lv} to 1
+    set {_cur} to {낚시레벨현재경험치::%{_p}%}
+    if {_cur} is not set:
+        set {_cur} to 0
+    set {_need} to {낚시레벨필요경험치::%{_p}%}
+    if {_need} is not set:
+        set {_need} to 50
+    execute console command "pdbackup %{_p}'s name% level %{_lv}% %{_cur}% %{_need}%"
+    execute console command "fishbarsync %{_p}'s name%"
+
+# ===== 레벨업 훅 콘솔 위임 (Java→Skript, 퀘스트훅.sk/칭호.sk 함수가 Skript라 명령 경유) =====
+command /questlevelup <text> <integer>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        퀘스트_레벨업({_p}, arg-2)
+
+command /titleautocheck <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        칭호자동체크({_p})
+
+# ===== on join: 밀린 레벨업 정산 + 낚시이름 등록 (낚시레벨.sk on join 이관) =====
+# PlayerData restore(pdrestore level) 후 Skript 캐시에 값이 들어오므로, 약간 지연 후 0 exp 정산.
+on join:
+    set {낚시이름::%player%} to player's name
+    wait 1 second
+    낚시경험치추가(player, 0)
