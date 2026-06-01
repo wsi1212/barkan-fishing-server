@@ -759,17 +759,21 @@ on fish caught:
                 set {_mgExtra} to 0
                 if {낚싯대인챈트타임아웃::%player%} is set:
                     set {_mgExtra} to {낚싯대인챈트타임아웃::%player%}
+                delete {낚시결과::%player's name%::mgstarted}
                 delete {미니게임결과::%player%}
                 execute console command "fishmgrun %player%§§%{_등급}%§§%{_barWidth}%§§%{_zoneWidth}%§§%{_overflowDiff}%§§%{_escapeBase}%§§%{_escapeInc}%§§%{_좌우속도}%§§%{_변속패턴}%§§%{_스팟이동속도}%§§%{_방향전환}%§§%{_net}%§§%{_크리티컬확률}%§§%{_jbRounds}%§§%{_mgExtra}%"
-                set {_jbWait} to 0
-                while {미니게임결과::%player%} is not set:
-                    wait 1 tick
-                    add 1 to {_jbWait}
-                    if {_jbWait} > 800:
-                        set {미니게임결과::%player%} to "대기"
-                # Skript 라운드 루프/연속 메시지 스킵 (결과는 아래 983에서 {미니게임결과} 읽음)
-                set {_연속횟수} to 1
-                set {_currentRound} to 1
+                # Java가 정상 시작했을 때만 위임/대기. 미시작(클래스 미로드 등)이면 스킵 안 함 → Skript 자체 미니게임 폴백.
+                if {낚시결과::%player's name%::mgstarted} is set:
+                    delete {낚시결과::%player's name%::mgstarted}
+                    set {_jbWait} to 0
+                    while {미니게임결과::%player%} is not set:
+                        wait 1 tick
+                        add 1 to {_jbWait}
+                        if {_jbWait} > 800:
+                            set {미니게임결과::%player%} to "대기"
+                    # Skript 라운드 루프/연속 메시지 스킵 (결과는 아래 983에서 {미니게임결과} 읽음)
+                    set {_연속횟수} to 1
+                    set {_currentRound} to 1
     if {_연속횟수} > 1:
         send "&e&l연속 미니게임! &f총 &e%{_연속횟수}%&f회 성공해야 합니다!" to player
     while {_currentRound} < {_연속횟수}:
