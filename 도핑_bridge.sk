@@ -1,0 +1,92 @@
+# =========================================
+# 도핑_bridge.sk  (도핑.sk 이관 브릿지)
+# 권위/상점/GUI/구매/만료 = Java DopingManager (PlayerData.dopingType/Expiry, DopingTable).
+# 여기는 아직 Skript인 낚시.sk(595-602)/스탯.sk(330-336)가 호출하는
+# 도핑체크 + 도핑경험치…도핑판매보너스 + 도핑이름 shim만 유지.
+#
+# Java가 pdrestoreex(exstr/exnum)로 push-back하는 캐시변수를 read:
+#   {도핑캐시타입::%p%}   = 활성 도핑 id, 미설정/만료시 "없음"
+#   {도핑캐시만료::%p%}   = unix 만료초
+#   {도핑캐시경험치::%p%} … {도핑캐시판매보너스::%p%} = 7종 스탯 보너스
+# 캐시는 onJoin/구매/만료(Java) 시 refresh. 만료 in-session은 도핑체크가 로컬 정리.
+# =========================================
+
+# ----- 활성 여부 헬퍼 (만료 반영) -----
+function 도핑활성(p: player) :: boolean:
+    if {도핑캐시타입::%{_p}%} is not set:
+        return false
+    if {도핑캐시타입::%{_p}%} is "없음":
+        return false
+    if {도핑캐시만료::%{_p}%} is set:
+        if (unix timestamp of now) >= {도핑캐시만료::%{_p}%}:
+            return false
+    return true
+
+# ----- 이름 (id → 표시명). Java 테이블 미러 -----
+function 도핑이름(id: text) :: text:
+    {_id} is "어부의빵":
+        return "어부의 빵"
+    {_id} is "해산물스튜":
+        return "해산물 스튜"
+    {_id} is "행운물약":
+        return "행운의 물약"
+    {_id} is "집중물약":
+        return "집중의 물약"
+    {_id} is "황금미역국":
+        return "황금 미역국"
+    {_id} is "전설의만찬":
+        return "전설의 만찬"
+    return {_id}
+
+# ----- 만료 체크 (낚시.sk 595에서 매 캐치 호출) -----
+# in-session 만료를 로컬 정리 + 메시지(원본 도핑.sk 56-63 동등). Java가 onJoin에 재push.
+function 도핑체크(p: player):
+    if {도핑캐시타입::%{_p}%} is not set:
+        stop
+    if {도핑캐시타입::%{_p}%} is "없음":
+        stop
+    if {도핑캐시만료::%{_p}%} is not set:
+        stop
+    if (unix timestamp of now) >= {도핑캐시만료::%{_p}%}:
+        set {_name} to 도핑이름({도핑캐시타입::%{_p}%})
+        message "&8[&a 도핑 &8] &c%{_name}%&c 효과가 만료되었습니다." to {_p}
+        set {도핑캐시타입::%{_p}%} to "없음"
+        # Java 권위도 해제(다음 catch/표시에서 0 보너스 보장)
+        execute console command "dopingrefresh %{_p}'s name%"
+
+# ----- 보너스 조회 (낚시.sk 596-602 / 스탯.sk 330-336) -----
+function 도핑경험치(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시경험치::%{_p}%} is set:
+            return {도핑캐시경험치::%{_p}%}
+    return 0
+function 도핑크기(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시크기::%{_p}%} is set:
+            return {도핑캐시크기::%{_p}%}
+    return 0
+function 도핑등급업(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시등급업::%{_p}%} is set:
+            return {도핑캐시등급업::%{_p}%}
+    return 0
+function 도핑도망감소(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시도망감소::%{_p}%} is set:
+            return {도핑캐시도망감소::%{_p}%}
+    return 0
+function 도핑크리확률(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시크리확률::%{_p}%} is set:
+            return {도핑캐시크리확률::%{_p}%}
+    return 0
+function 도핑더블찬스(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시더블찬스::%{_p}%} is set:
+            return {도핑캐시더블찬스::%{_p}%}
+    return 0
+function 도핑판매보너스(p: player) :: number:
+    if 도핑활성({_p}) is true:
+        if {도핑캐시판매보너스::%{_p}%} is set:
+            return {도핑캐시판매보너스::%{_p}%}
+    return 0
