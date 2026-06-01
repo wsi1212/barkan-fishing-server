@@ -1371,19 +1371,26 @@ on inventory click:
             if {_selId} is "":
                 stop
             set {_canCraft} to 조합가능여부2(player, {_selId})
+            set {_opBypass} to false
             if {_canCraft} is false:
-                message "{@prefix} &c재료가 부족합니다." to player
-                stop
-            # 재료 제거
-            set {_matCnt} to {조합법::%{_selId}%::재료수}
-            loop integers from 1 to {_matCnt}:
-                set {_mType} to {조합법::%{_selId}%::재료::%loop-integer%::타입}
-                set {_mID} to {조합법::%{_selId}%::재료::%loop-integer%::ID}
-                set {_mNeed} to {조합법::%{_selId}%::재료::%loop-integer%::수량}
-                if {_mType} is "item":
-                    아이템재료제거(player, {_mID}, {_mNeed})
+                if player is op:
+                    # OP: 재료 부족이어도 바로 지급 (재료 소모 안 함)
+                    set {_opBypass} to true
+                    message "{@prefix} &e&l[OP] &c재료 부족 무시 &7→ 바로 지급합니다." to player
                 else:
-                    커스텀재료제거(player, {_mID}, {_mNeed})
+                    message "{@prefix} &c재료가 부족합니다." to player
+                    stop
+            # 재료 제거 (OP 바이패스 시 건너뜀)
+            if {_opBypass} is false:
+                set {_matCnt} to {조합법::%{_selId}%::재료수}
+                loop integers from 1 to {_matCnt}:
+                    set {_mType} to {조합법::%{_selId}%::재료::%loop-integer%::타입}
+                    set {_mID} to {조합법::%{_selId}%::재료::%loop-integer%::ID}
+                    set {_mNeed} to {조합법::%{_selId}%::재료::%loop-integer%::수량}
+                    if {_mType} is "item":
+                        아이템재료제거(player, {_mID}, {_mNeed})
+                    else:
+                        커스텀재료제거(player, {_mID}, {_mNeed})
             # 결과 지급
             set {_result} to {조합법::%{_selId}%::결과}
             if {_result} is set:
