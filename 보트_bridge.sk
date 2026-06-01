@@ -1,0 +1,22 @@
+# =========================================
+# 보트_bridge.sk — 보트 Java 이관 마이그 브릿지 (보트등급 일회성 import)
+# Java(BoatManager)가 보트 전체 소유. 영속=PlayerData.extraNums["보트등급"](Java 권위).
+# 기존 {보트등급::%player%}(CSV) 값을 접속 시 1회 Java로 import. import 후 Java가 단독 read/write.
+# 세션상태({보트탑승중} 등)는 transient이라 무시(보트.sk 삭제로 reader 없음).
+# =========================================
+
+on join:
+    wait 60 ticks
+    if {보트등급마이그됨::%player's name%} is not set:
+        if {보트등급::%player%} is set:
+            execute console command "boatimport %player's name% %{보트등급::%player%}%"
+        set {보트등급마이그됨::%player's name%} to true
+
+command /보트마이그:
+    permission: op
+    trigger:
+        loop all players:
+            if {보트등급::%loop-player%} is set:
+                execute console command "boatimport %loop-player's name% %{보트등급::%loop-player%}%"
+                set {보트등급마이그됨::%loop-player's name%} to true
+        send "&a[보트마이그] 접속자 보트등급 import 완료." to player
