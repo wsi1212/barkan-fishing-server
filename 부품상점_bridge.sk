@@ -1,0 +1,77 @@
+# =========================================
+# 부품상점_bridge.sk — 부품 구매 로직 (부품상점.sk에서 분리, 유지)
+# buyPart/buyBait: {돈}/{부품인벤}/{레시피해금}/도감 쓰기 (장비/조합대와 공유 → Skript 권위 유지).
+# GUI/명령은 Java(PartShopGui)로 이관. Java가 /partbuy로 구매 트리거.
+# =========================================
+
+function buyPart(p: player, type: text, name: text):
+    set {_grade} to get_part_grade({_type}, {_name})
+    set {_color} to part_grade_color({_grade})
+    if {_type} is "낚싯대":
+        # 낚싯대 카테고리 → 레시피 구매 (해금)
+        set {_recipeId} to {부품_레시피ID::낚싯대::%{_name}%}
+        if {_recipeId} is not set:
+            message "&8[&6 부품상점 &8] &c이 낚싯대는 상점에서 구매할 수 없습니다." to {_p}
+            stop
+        if {레시피해금::%{_p}%::%{_recipeId}%} is true:
+            message "&8[&6 부품상점 &8] &c이미 해금된 레시피입니다." to {_p}
+            stop
+        set {_price} to round(get_part_price({_type}, {_name}) * 0.5)
+        if {돈::%{_p}%} < {_price}:
+            message "&8[&6 부품상점 &8] &c잔액이 부족합니다. (필요: %{_price}%원, 잔액: %{돈::%{_p}%}%원)" to {_p}
+            stop
+        subtract {_price} from {돈::%{_p}%}
+        set {레시피해금::%{_p}%::%{_recipeId}%} to true
+        message "&8[&6 부품상점 &8] &e[레시피] %{_color}%%{_name}%&a 해금! &7(-%{_price}%원) &7조합대에서 제작하세요." to {_p}
+        play sound "ui.toast.challenge_complete" with volume 0.5 and pitch 1.2 to {_p}
+        도감_낚싯대({_p}, {_name})
+    else:
+        set {_price} to get_part_price({_type}, {_name})
+        if {돈::%{_p}%} < {_price}:
+            message "&8[&6 부품상점 &8] &c잔액이 부족합니다. (필요: %{_price}%원, 잔액: %{돈::%{_p}%}%원)" to {_p}
+            stop
+        subtract {_price} from {돈::%{_p}%}
+        add {_name} to {부품인벤::%{_type}%::%{_p}%::*}
+        message "&8[&6 부품상점 &8] %{_color}%%을를({_name})%&a 구매했습니다! &7(-%{_price}%원 | 잔액: %{돈::%{_p}%}%원)" to {_p}
+        도감_부품({_p}, {_type}, {_name})
+
+# ===== 미끼 구매 =====
+function buyBait(p: player, name: text, count: integer):
+    if {부품인벤::미끼::%{_p}%::%{_name}%} is not set:
+        set {부품인벤::미끼::%{_p}%::%{_name}%} to 0
+    # 99개 상한 체크
+    set {_current} to {부품인벤::미끼::%{_p}%::%{_name}%}
+    if {_current} >= 99:
+        message "&8[&6 부품상점 &8] &c이미 99개를 보유하고 있습니다." to {_p}
+        stop
+    set {_buyCount} to {_count}
+    if {_current} + {_buyCount} > 99:
+        set {_buyCount} to 99 - {_current}
+    set {_unitPrice} to get_part_price("미끼", {_name})
+    set {_total} to {_unitPrice} * {_buyCount}
+    if {돈::%{_p}%} < {_total}:
+        message "&8[&6 부품상점 &8] &c잔액이 부족합니다. (필요: %{_total}%원, 잔액: %{돈::%{_p}%}%원)" to {_p}
+        stop
+    subtract {_total} from {돈::%{_p}%}
+    add {_buyCount} to {부품인벤::미끼::%{_p}%::%{_name}%}
+    set {_grade} to get_part_grade("미끼", {_name})
+    set {_color} to part_grade_color({_grade})
+    message "&8[&6 부품상점 &8] %{_color}%%{_name}% &fx%{_buyCount}%&a 구매! &7(-%{_total}%원 | 잔액: %{돈::%{_p}%}%원 | 보유: %{부품인벤::미끼::%{_p}%::%{_name}%}%개)" to {_p}
+    도감_부품({_p}, "미끼", {_name})
+
+# 구매 트리거: category§§name§§player§§count (Java GUI가 호출)
+command /partbuy <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_cat} to {_t::1}
+        set {_name} to {_t::2}
+        set {_p} to {_t::3} parsed as player
+        if {_p} is not set:
+            stop
+        if {_cat} is "미끼":
+            set {_cnt} to {_t::4} parsed as integer
+            buyBait({_p}, {_name}, {_cnt})
+        else:
+            buyPart({_p}, {_cat}, {_name})
