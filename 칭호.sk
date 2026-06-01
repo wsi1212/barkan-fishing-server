@@ -94,146 +94,10 @@ function 칭호자동체크(p: player):
                 delete {장착칭호::%{_p}%}
                 message "&8[&e 칭호 &8] &c콤보 칭호가 사라졌습니다..." to {_p}
 
-# ===== /칭호 — GUI 열기 =====
-command /칭호 [<text>] [<text>] [<text>]:
-    aliases: /clrgn
-    trigger:
-        # 어드민 서브커맨드
-        if arg-1 is "부여" or "give":
-            if player is op:
-                if arg-2 is not set:
-                    message "&c/칭호 부여 <닉네임> <칭호ID>"
-                    message "&7칭호 목록: %{칭호목록::*}%"
-                    stop
-                if arg-3 is not set:
-                    message "&c/칭호 부여 %arg-2% <칭호ID>"
-                    message "&7칭호 목록: %{칭호목록::*}%"
-                    stop
-                set {_target} to arg-2 parsed as player
-                if {_target} is not set:
-                    message "&c플레이어 '%arg-2%' 를 찾을 수 없습니다."
-                    stop
-                set {보유칭호::%{_target}%::%arg-3%} to true
-                message "&8[&e 칭호 &8] &a%{_target}'s name%에게 '%arg-3%' 칭호를 부여했습니다." to player
-                message "&8[&e 칭호 &8] &a새 칭호를 받았습니다! /칭호 에서 확인하세요." to {_target}
-                stop
-            else:
-                message "&c권한이 없습니다."
-                stop
-        if arg-1 is "회수" or "remove":
-            if player is op:
-                if arg-2 is not set:
-                    message "&c/칭호 회수 <닉네임> <칭호ID>"
-                    stop
-                if arg-3 is not set:
-                    message "&c/칭호 회수 %arg-2% <칭호ID>"
-                    stop
-                set {_target} to arg-2 parsed as player
-                if {_target} is not set:
-                    message "&c플레이어 '%arg-2%' 를 찾을 수 없습니다."
-                    stop
-                delete {보유칭호::%{_target}%::%arg-3%}
-                if {장착칭호::%{_target}%} is arg-3:
-                    delete {장착칭호::%{_target}%}
-                message "&8[&e 칭호 &8] &c%{_target}'s name%에게서 '%arg-3%' 칭호를 회수했습니다." to player
-                stop
-            else:
-                message "&c권한이 없습니다."
-                stop
-        if arg-1 is "생성" or "create":
-            if player is op:
-                if arg-2 is not set:
-                    message "&c/칭호 생성 <ID> <표시이름(색상포함)>"
-                    message "&7예: /칭호 생성 낚시왕 &e&l낚시왕"
-                    stop
-                if arg-3 is not set:
-                    message "&c/칭호 생성 %arg-2% <표시이름>"
-                    stop
-                execute console command "titledef create %arg-2% %arg-3%"
-                message "&8[&e 칭호 &8] &a칭호 '%arg-2%' (%arg-3%&a) 생성 완료!"
-                stop
-            else:
-                message "&c권한이 없습니다."
-                stop
-        # 일반 유저: GUI 열기
-        칭호GUI열기(player)
-
-# ===== 칭호 GUI =====
-function 칭호GUI열기(p: player):
-    set {_size} to size of {칭호목록::*}
-    set {_rows} to ceil(({_size} + 1) / 9)
-    if {_rows} < 2:
-        set {_rows} to 2
-    if {_rows} > 6:
-        set {_rows} to 6
-    open chest inventory with {_rows} rows named "&0칭호 선택" to {_p}
-    # 칭호 목록 (해제 없음 — 항상 1개 이상 장착)
-    set {_slot} to 0
-    loop {칭호목록::*}:
-        set {_id} to loop-value
-        set {_name} to {칭호데이터::%{_id}%::이름}
-        if {_name} is not set:
-            set {_name} to "&f%{_id}%"
-        # 레벨 칭호: 현재 레벨 숫자 표시
-        if {_id} is "레벨":
-            set {_plv} to {낚시레벨::%{_p}%}
-            if {_plv} is not set:
-                set {_plv} to 1
-            if {_plv} >= 50:
-                set {_name} to "&4&lLv.%{_plv}%"
-            else if {_plv} >= 30:
-                set {_name} to "&c&lLv.%{_plv}%"
-            else if {_plv} >= 20:
-                set {_name} to "&6&lLv.%{_plv}%"
-            else:
-                set {_name} to "&e&lLv.%{_plv}%"
-        # 콤보 칭호: 최대 콤보 표시
-        if {_id} is "콤보":
-            set {_mc} to {낚시최대콤보::%{_p}%}
-            if {_mc} is not set:
-                set {_mc} to 0
-            set {_name} to "&d&l%{_mc}% COMBO"
-        set {_desc} to {칭호데이터::%{_id}%::설명}
-        if {_desc} is not set:
-            set {_desc} to ""
-        # 콤보 설명에 최대콤보 수 표시
-        if {_id} is "콤보":
-            set {_mc} to {낚시최대콤보::%{_p}%}
-            if {_mc} is not set:
-                set {_mc} to 0
-            set {_desc} to "&7최대 콤보: &d%{_mc}%회"
-        set {_icon} to {칭호데이터::%{_id}%::아이콘}
-        if {_icon} is not set:
-            set {_icon} to paper
-        set {_equipped} to {장착칭호::%{_p}%}
-        if {보유칭호::%{_p}%::%{_id}%} is not true:
-            # 미보유 — 잠금
-            set slot {_slot} of {_p}'s current inventory to gray dye named "&8🔒 &7??? " with lore "&7아직 획득하지 못한 칭호입니다." and {_desc}
-        else if {_equipped} is {_id}:
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "&a▸ %{_name}% &7(장착중)" with lore {_desc} and "" and "&7이미 장착중인 칭호입니다."
-        else:
-            set slot {_slot} of {_p}'s current inventory to {_icon} named "&f%{_name}% " with lore {_desc} and "" and "&a클릭하여 장착"
-        add 1 to {_slot}
-        set {칭호GUI슬롯::%{_p}%::%{_slot} - 1%} to {_id}
-
-# ===== GUI 클릭 핸들러 =====
-on inventory click:
-    if player's current inventory's name is "&0칭호 선택":
-        cancel event
-        set {_ci} to index of clicked slot
-        set {_id} to {칭호GUI슬롯::%player%::%{_ci}%}
-        if {_id} is set:
-            if {보유칭호::%player%::%{_id}%} is not true:
-                message "&8[&e 칭호 &8] &c아직 획득하지 못한 칭호입니다."
-                stop
-            if {장착칭호::%player%} is {_id}:
-                message "&8[&e 칭호 &8] &7이미 장착 중인 칭호입니다."
-            else:
-                set {장착칭호::%player%} to {_id}
-                set {_name} to {칭호데이터::%{_id}%::이름}
-                message "&8[&e 칭호 &8] &a%{_name}% &a칭호를 장착했습니다!"
-                칭호태그업데이트(player)
-            close player's inventory
+# ===== /칭호 명령 + 선택 GUI + 어드민(부여/회수/생성) → Java(TitleGuiManager) 이관 =====
+#   BlockShipPlugin이 /칭호(별칭 /clrgn) 등록. 장착/부여/회수는 titleequip/titlegrant/
+#   titlerevoke(칭호_bridge.sk)로 {장착칭호}/{보유칭호} 권위 변수 갱신 위임. 생성=titledef.
+#   GUI 슬롯 매핑({칭호GUI슬롯})·on inventory click 핸들러도 Java로 이관됨.
 
 # ===== 채팅 포맷: [칭호] 닉네임: 메시지 =====
 on chat:
@@ -260,11 +124,7 @@ on chat:
             stop
     set chat format to "&f%player's name%&7: &f%message%"
 
-# ===== 탭 자동완성 =====
-on tab complete of "/칭호":
-    set tab completions for position 1 to "부여", "회수" and "생성"
-    set tab completions for position 2 to names of all players
-    set tab completions for position 3 to {칭호목록::*}
+# ===== 탭 자동완성 → Java(/칭호 tabComplete)로 이관됨 =====
 
 # ===== 칭호 TextDisplay 업데이트 (Java 플러그인 호출) =====
 # BlockShip 플러그인의 /titleupdate, /titlecombo, /titleremove 사용
