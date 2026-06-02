@@ -117,9 +117,11 @@ command /guildchattoggle <text> <text>:
         if {길드채팅모드::%{_p}%} is true:
             set {길드채팅모드::%{_p}%} to false
             message "&a전체 채팅 모드로 전환되었습니다." to {_p}
+            make console execute command "sidebarchatmode %name of {_p}% none"
         else:
             set {길드채팅모드::%{_p}%} to true
             message "&b길드 채팅 모드로 전환되었습니다. (/채팅 으로 복귀)" to {_p}
+            make console execute command "sidebarchatmode %name of {_p}% guild"
             # 최근 로그 20개 표시는 Java에서 처리
 
 on tab complete of "/채팅":
@@ -207,6 +209,7 @@ on inventory click:
             set {지역채팅모드::%player%} to false
             close player's inventory
             message "&a전체 채팅 모드로 전환되었습니다." to player
+            make console execute command "sidebarchatmode %name of player% none"
             사이드바업데이트(player)
         else if {_ci} is 4:
             # 지역 채팅
@@ -231,6 +234,7 @@ on inventory click:
             set {지역채팅모드::%player%} to true
             close player's inventory
             message "&e지역 채팅 모드로 전환되었습니다. &7(주변 %{_cnt}%명, 지역채팅 %{_chatCnt}%명)" to player
+            make console execute command "sidebarchatmode %name of player% region"
             사이드바업데이트(player)
         else if {_ci} is 7:
             # 길드 채팅
@@ -242,6 +246,7 @@ on inventory click:
             set {길드채팅모드::%player%} to true
             close player's inventory
             message "&b길드 채팅 모드로 전환되었습니다." to player
+            make console execute command "sidebarchatmode %name of player% guild"
             사이드바업데이트(player)
         # --- 차단 토글 ---
         else if {_ci} is 18:
@@ -695,6 +700,13 @@ on join:
     set {_pn} to name of player
     if {차단팁::%{_pn}%} is true:
         make console execute command "tipblock %{_pn}% 1"
+    # 채팅모드를 Java(SidebarManager)로 push (사이드바.sk 이관)
+    if {길드채팅모드::%player%} is true:
+        make console execute command "sidebarchatmode %{_pn}% guild"
+    else if {지역채팅모드::%player%} is true:
+        make console execute command "sidebarchatmode %{_pn}% region"
+    else:
+        make console execute command "sidebarchatmode %{_pn}% none"
     # 오프라인 중 길드 수락됐으면 알림
     if {길드가입대기::%{_pn}%} is set:
         message "" to player
