@@ -1,0 +1,40 @@
+# ===========================================================================
+# 수집품 브릿지 — 수집품.sk → Java(CollectibleManager/CollectibleDexGui) shim
+#
+# 발견/마일스톤 로직: 이미 Java(CollectibleManager.found) 권위. (PlayerData.extraFlags)
+# 수집품 도감 GUI(섬별 목록 + 상세 페이지): 이번에 Java(CollectibleDexGui)로 이관.
+#   - 정의=collectibles.json(CollectibleManager), 발견여부=PlayerData.extraFlags["수집품발견"].
+#   - Skript {수집품*} 변수는 GUI 가 더이상 안 읽음. collectiblesync 동기화 변수는
+#     도감카운트_수집품() shim 만 참조(메인 도감 라벨용).
+#
+# 외부 진입점(도감.sk 가 호출)을 유지하기 위한 shim:
+#   - 도감_수집품GUI(player)  → 콘솔 collectibledex open <player> (Java GUI 오픈)
+#   - 도감카운트_수집품(player) → 메인 도감 슬롯 라벨용 카운트 ("found/total")
+# 뒤로가기 수신:
+#   - /collectibledexback <player> → 도감.sk 의 도감메인GUI(player) 재오픈
+# ===========================================================================
+
+# 메인 도감(도감.sk 슬롯 15) → 수집품 도감(Java) 진입 shim
+function 도감_수집품GUI(p: player):
+    execute console command "collectibledex open %{_p}%"
+
+# 메인 도감 카운트 라벨 (도감.sk 가 직접 호출). collectiblesync 미러 변수 read.
+function 도감카운트_수집품(p: player) :: text:
+    set {_found} to 0
+    set {_total} to size of {수집품목록::*}
+    if {_total} is not set:
+        set {_total} to 0
+    loop {수집품목록::*}:
+        if {수집품발견::%{_p}%::%loop-value%} is true:
+            add 1 to {_found}
+    return "%{_found}%/%{_total}%"
+
+# Java CollectibleDexGui 뒤로가기 → 메인 도감(아직 Skript) 재오픈
+command /collectibledexback <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        도감메인GUI({_p})
