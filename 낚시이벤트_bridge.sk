@@ -73,6 +73,7 @@ command /fishreward2 <text>:
             send "&8[&b 낚시 &8] &7인벤이 가득 차 &f%{_fish}%&7 자동 판매! &e+%{_price}%원" to {_p}
         else:
             give {_item} to {_p}
+            send "&8[&b 낚시 &8] &a%{_grade}%등급 &f%{_fish}% &7%{_size}%cm &a획득!" to {_p}
             loop {_extra} times:
                 give {_item} to {_p}
             if {_extra} >= 2:
