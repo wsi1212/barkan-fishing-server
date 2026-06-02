@@ -97,37 +97,40 @@ function npc대화정리(p: player):
     delete {대화진행퀘스트::%{_p}%}
 
 # =========================================
-#   NPC 클릭 이벤트
+#   NPC 클릭 이벤트 → Java(NpcInteractListener) 이관
 # =========================================
+# on right click on entity + 역할 NPC(페리/상점/대장간) 분기는 BlockShip Java로 이관됨.
+# 대화 NPC는 Java가 /npcdialoguestart <player> <npcId> 로 위임 → 아래 브릿지가
+# 엔티티를 이름으로 재취득({대화엔티티} 세팅, TextDisplay 말풍선 위치용) 후 npc대화시작 호출.
+# (퀘스트 분기/진행도/선택지 필터는 라이브 {퀘스트상태} 의존이라 Skript 엔진 유지 — 퀘스트 이관 시 함께 이관 예정.)
 
-on right click on entity:
-    if name of clicked entity is set:
-        set {_clickedName} to uncolored name of clicked entity
-        if {NPC목록::*} is not set:
+command /npcdialoguestart <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
             stop
-        loop {NPC목록::*}:
-            set {_npcName} to {NPC::%loop-value%::이름}
-            if {_npcName} is not set:
-                continue
-            set {_npcName} to uncolored {_npcName}
-            if {_clickedName} is {_npcName}:
-                cancel event
-                if {NPC::%loop-value%::페리} is true:
-                    페리탑승GUI(player)
-                    stop
-                if {NPC::%loop-value%::상점} is true:
-                    opensellgui(player)
-                    stop
-                if {NPC::%loop-value%::대장간} is true:
-                    set {_village} to {NPC::%loop-value%::대장간마을}
-                    if {_village} is not set:
-                        set {_village} to ""
-                    # 조합대 Java 이관 — Java CraftingGui로 위임 (craftopen <player>§§<category>§§<village>)
-                    execute console command "craftopen %player%§§고급§§%{_village}%"
-                    stop
-                set {대화엔티티::%player%} to clicked entity
-                npc대화시작(player, loop-value)
-                stop
+        set {_npcId} to arg-2
+        set {_npcName} to {NPC::%{_npcId}%::이름}
+        if {_npcName} is not set:
+            stop
+        set {_npcName} to uncolored {_npcName}
+        # 엔티티 재취득: 플레이어 주변에서 이름이 일치하는 가장 가까운 엔티티
+        set {_best} to false
+        set {_bestDist} to 9999
+        loop entities in radius 8 around location of {_p}:
+            set {_en} to name of loop-entity
+            if {_en} is set:
+                if uncolored {_en} is {_npcName}:
+                    set {_d} to distance between location of {_p} and location of loop-entity
+                    if {_d} < {_bestDist}:
+                        set {_bestDist} to {_d}
+                        set {대화엔티티::%{_p}%} to loop-entity
+                        set {_best} to true
+        if {_best} is false:
+            stop
+        npc대화시작({_p}, {_npcId})
 
 # =========================================
 #   대화 시작
