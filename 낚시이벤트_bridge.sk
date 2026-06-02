@@ -84,6 +84,13 @@ command /fishreward2 <text>:
         if {_isCrit} is true:
             도전과제체크({_p}, "크리티컬", "1")
         # ===== 경험치 + 내구 =====
+        # 원본 낚시.sk catch 메시지/소리 복원 (Java 포팅 누락분)
+        if {_isCrit} is true:
+            send "&6낚시 경험치 +%{_exp}%exp &8(크리티컬!)" to {_p}
+            play sound "entity.player.levelup" with volume 0.5 and pitch 1.5 to {_p}
+        else:
+            send "&a낚시 경험치 +%{_exp}%exp" to {_p}
+            play sound "entity.experience_orb.pickup" with volume 0.5 and pitch 1.2 to {_p}
         낚시경험치추가({_p}, {_exp})
         reduceDurability({_p})
         # ===== 콤보 =====
