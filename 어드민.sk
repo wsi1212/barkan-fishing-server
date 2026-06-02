@@ -202,3 +202,8 @@ command /도감관리 [<text>] [<text>] [<text>]:
 
         else:
             message "&8[&c 어드민 &8] &c올바른 모드를 입력하세요: 전체오픈, 전체잠금, 오픈, 잠금" to player
+            stop
+
+        # 변경된 도감/레시피 발견을 Java(dexDiscovery/fishRecords)에 즉시 반영
+        # (안 그러면 다음 정기 백업까지 Java 도감 GUI에 안 보임)
+        execute console command "pdbackupname %arg-1%"
