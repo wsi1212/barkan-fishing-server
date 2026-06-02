@@ -243,3 +243,8 @@ command /sellhook <text>:
         도전과제체크({_p}, "총판매", "%{총판매::%{_p}%}%")
         도전과제체크({_p}, "보유금", "%{돈::%{_p}%}%")
         사이드바업데이트({_p})
+
+# NPC 상점 상호작용 시 호출 (판매.sk opensellgui 이관 — Java SellGuiListener /상점으로 위임)
+#  판매.sk 삭제로 고아가 됐던 함수 복원 (NPC.sk:119가 호출).
+function opensellgui(p: player):
+    make {_p} execute command "상점"
