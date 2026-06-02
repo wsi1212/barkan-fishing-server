@@ -2,21 +2,11 @@
 on load:
     execute console command "gamerule locatorBar false"
 
-# 이름키 → UUID키 돈 마이그레이션
-on join:
-    set {_pn} to name of player
-    # 이름 키에 돈이 있고 UUID 키에 없거나 0이면 마이그레이션
-    if {돈::%{_pn}%} is set:
-        if {돈::%{_pn}%} > 0:
-            if {돈::%player%} is not set:
-                set {돈::%player%} to {돈::%{_pn}%}
-                delete {돈::%{_pn}%}
-            else if {돈::%player%} <= 0:
-                set {돈::%player%} to {돈::%{_pn}%}
-                delete {돈::%{_pn}%}
+# 돈 = Java PlayerData.money 권위 (Skript {돈} 제거). 신규/초기화는 Java getOrCreate가 money=0으로 처리.
+#   → on join 돈 마이그레이션 / on first join 돈 init 제거.
 
 on first join:
-    set {돈::%player%} to 0
+    # 캐시/추천코인은 아직 Skript 권위(캐시상점_bridge.sk) → 여기서 초기화 유지.
     set {추천코인::%player%} to 0
     set {캐시::%player%} to 0
     # 퀘스트 state는 Java QuestManager 권위. 첫 퀘스트는 상태 미설정(null)이어도 수락 가능 → 별도 세팅 불필요.

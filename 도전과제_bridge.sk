@@ -49,7 +49,8 @@ on join:
     # 접속 시 도전과제 일괄 체크
     wait 30 ticks
     도전과제체크(player, "접속일", "%{접속일수::%player%}%")
-    도전과제체크(player, "보유금", "%{돈::%player%}%")
+    # 보유금: Java AchievementManager가 PlayerData.money 직접 read (돈 Java 권위) → 전달값 미사용
+    도전과제체크(player, "보유금", "0")
     도전과제체크(player, "레벨", "%{낚시레벨::%player%}%")
     # 지역 방문 수
     set {_visitCount} to size of {방문지역::%player%::*}

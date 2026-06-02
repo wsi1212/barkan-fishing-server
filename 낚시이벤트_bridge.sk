@@ -67,9 +67,8 @@ command /fishreward2 <text>:
             if {_sell} > 0:
                 add {_price} * {_sell} / 100 to {_price}
             set {_price} to floor({_price})
-            if {돈::%{_p}%} is not set:
-                set {돈::%{_p}%} to 0
-            add {_price} to {돈::%{_p}%}
+            # 돈 = Java PlayerData.money 권위 → moneyop add (콘솔, Java 등록)
+            execute console command "moneyop %{_p}'s name% add %{_price}%"
             send "&8[&b 낚시 &8] &7인벤이 가득 차 &f%{_fish}%&7 자동 판매! &e+%{_price}%원" to {_p}
         else:
             give {_item} to {_p}

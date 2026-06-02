@@ -27,7 +27,8 @@ command /pd백필:
     executable by: console and players
     trigger:
         set {_cnt} to 0
-        loop {돈::*}:
+        loop {캐시::*}:
+            # 돈은 Java 권위(백필 불필요). 캐시/추천코인 등 Skript 권위 변수 보유 UUID 순회.
             # UUID→이름은 Java(pdbackfilone)가 해석 후 pdbackupname으로 되돌려 백업 실행
             execute console command "pdbackfilone %loop-index%"
             add 1 to {_cnt}
@@ -48,17 +49,15 @@ function 플레이어데이터백업(p: offline player):
     if {_n} is not set:
         stop
 
-    # ★ 안전 가드 (돈/레벨 Java 권위 이관): 돈이 아직 복원 전(미설정)이면 백업 스킵.
-    #   CSV 메모리-only 전환 시, 접속 직후 복원 전에 백업이 돌면 빈 {돈}=0을 보내 JSON을 0으로
-    #   덮어쓰는 치명적 레이스가 생김 → {돈} 미설정이면 아예 백업하지 않음(데이터 보존).
-    #   (신규 플레이어는 on first join에서 {돈}=0이 set되므로 정상 백업됨)
-    if {돈::%{_p}%} is not set:
+    # ★ 안전 가드: 캐시(Skript 권위)가 아직 복원 전(미설정)이면 백업 스킵.
+    #   접속 직후 복원 전 백업이 돌면 빈값(0)으로 JSON을 덮어쓰는 레이스 → 미설정이면 백업하지 않음(데이터 보존).
+    #   (신규 플레이어는 on first join에서 {캐시}=0이 set되므로 정상 백업됨)
+    #   ※ 돈은 Java PlayerData.money 단일 권위라 더 이상 백업하지 않음.
+    if {캐시::%{_p}%} is not set:
         stop
 
-    # --- Economy ---
-    set {_money} to {돈::%{_p}%}
-    if {_money} is not set:
-        set {_money} to 0
+    # --- Economy (돈은 Java 권위 → 미백업. money 자리엔 0 placeholder, Java parseEconomy가 무시) ---
+    set {_money} to 0
     set {_cash} to {캐시::%{_p}%}
     if {_cash} is not set:
         set {_cash} to 0
@@ -287,7 +286,7 @@ command /pdrestore <text> <text> [<text>] [<text>] [<text>]:
         if {_p} is not set:
             stop
         if arg-2 is "economy":
-            set {돈::%{_p}%} to arg-3 parsed as number
+            # arg-3=money(무시: Java 권위), arg-4=cash, arg-5=coins
             set {캐시::%{_p}%} to arg-4 parsed as number
             set {추천코인::%{_p}%} to arg-5 parsed as number
             사이드바업데이트({_p})
@@ -492,8 +491,9 @@ command /pdcheckandrestore <text>:
         set {_p} to arg-1 parsed as player
         if {_p} is not set:
             stop
-        # 돈 변수가 없으면 복원 필요 (첫 접속자는 on first join에서 0으로 설정됨)
-        if {돈::%{_p}%} is not set:
+        # 캐시/레벨 변수가 없으면 복원 필요 (돈은 Java 권위라 체크 대상 아님).
+        #   첫 접속자는 on first join에서 캐시=0이 설정됨.
+        if {캐시::%{_p}%} is not set:
             execute console command "pdrestoretrigger %arg-1%"
         else if {낚시레벨::%{_p}%} is not set:
             execute console command "pdrestoretrigger %arg-1%"

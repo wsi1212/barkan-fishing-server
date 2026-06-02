@@ -61,45 +61,9 @@ command /guilddisband <text>:
         remove {_islandId} from {섬리스트::*}
         remove {_islandId} from {지역리스트::*}
 
-# ===== 길드 생성 비용 체크 (Java에서 호출) =====
-command /guildcreatecheck <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        if {돈::%{_p}%} is not set:
-            set {돈::%{_p}%} to 0
-        if {돈::%{_p}%} < 10000:
-            message "&c길드 생성에 10,000원이 필요합니다. (보유: %{돈::%{_p}%}%원)" to {_p}
-            stop
-        remove 10000 from {돈::%{_p}%}
-        message "&a10,000원이 차감되었습니다." to {_p}
-        # Java에 생성 확정 알림
-        make console execute command "guildbr create %arg-1% %arg-2%"
-
-# ===== 길드 기부 비용 체크 (Java에서 호출) =====
-command /guilddonatecheck <text> <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        set {_amount} to arg-3 parsed as number
-        if {_amount} is not set:
-            message "&c금액을 숫자로 입력해주세요." to {_p}
-            stop
-        if {_amount} <= 0:
-            message "&c양수를 입력해주세요." to {_p}
-            stop
-        if {돈::%{_p}%} < {_amount}:
-            message "&c소지금이 부족합니다. (보유: %{돈::%{_p}%}%원)" to {_p}
-            stop
-        remove {_amount} from {돈::%{_p}%}
-        # Java에 기부 확정 알림
-        make console execute command "guildbr donate %arg-1% %arg-2% %arg-3%"
+# ===== 길드 생성/기부 비용 체크 =====
+# ★ 돈 = Java PlayerData.money 권위로 이관. 비용 체크+차감+생성/기부 확정 모두 Java GuildCommand가 직접 수행.
+#    (구 guildcreatecheck/guilddonatecheck Skript 브릿지 제거 — {돈} 의존 제거)
 
 # ===== 길드 채팅 토글 =====
 command /guildchattoggle <text> <text>:
