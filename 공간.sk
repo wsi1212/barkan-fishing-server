@@ -10,8 +10,13 @@
 #     - on rightclick (warped sign + 낚싯대 = 취소)
 # =========================================
 
+# /sk reload 시 plugin이 살아있으니 regionresync로 지역/fish 미러 데이터 복원.
+# (이전엔 지역별물고기.sk on load 에 있었음 — 해당 파일 Java 이관 후 삭제로 이리 이동)
+on load:
+    execute console command "regionresync"
+
 # ===== {area} push-back (Java RegionTracker areaEnter/areaExit/world change 가 호출) =====
-# 장비.sk(get_fish 미리보기)·날씨시간.sk(유효커스텀날씨)가 {area::%p%}를 읽음.
+# 날씨시간.sk(유효커스텀날씨)가 {area::%p%}를 읽음. (초음파탐지기 미리보기는 Java FishDetectorListener 로 이관)
 command /setarea <text> <text>:
     permission: op
     executable by: console
@@ -98,16 +103,7 @@ command /regionweatherevent <text> <text>:
         loop all players:
             사이드바업데이트(loop-player)
 
-# 물고기 등록 수 출력 (Java 브릿지)
-command /regionfishcount <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        set {_fishes::*} to get_fish(arg-2)
-        message "&7물고기: &f%size of {_fishes::*}%종" to {_p}
+# 물고기 등록 수 출력: Java RegionCommand 가 FishLoader 로 직접 계산(왕복 제거).
 
 # ===== 섬 리스트 동기화 (Java → Skript) =====
 command /islandlistsync <text> [<text>]:
