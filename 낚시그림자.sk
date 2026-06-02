@@ -99,3 +99,23 @@ command /낚시자바미니틱 [<text>]:
 
 on tab complete of "/낚시자바미니틱":
     set tab completions for position 1 to "on" and "off"
+
+# =========================================
+# ★ 플래그 데드락 해결 (2026-06-02)
+# 문제: FishingConfig.fullJava 등은 Java static이라 재시작/리로드 시 false로 리셋되는데,
+#   {낚시자바전체} 등 Skript 미러는 variables.csv에 persist → 재시작마다 어긋나 바닐라 낚시됨.
+# 해결: on load(부팅/리로드 시)에 persist된 Skript 플래그 값을 Java로 재동기화(/fishflag).
+#   → 매번 수동 재설정 불필요. 마지막 설정이 재시작 후에도 유지됨.
+#   ({낚시자바미니틱}은 낚시.sk가 직접 읽는 Skript 전용 플래그라 동기화 불필요 — 자체 persist.)
+on load:
+    wait 2 seconds
+    if {낚시자바전체} is true:
+        execute console command "fishflag full on"
+    if {낚시그림자} is true:
+        execute console command "fishflag shadow on"
+    if {낚시자바등급} is true:
+        execute console command "fishflag grade on"
+    if {낚시자바보상} is true:
+        execute console command "fishflag reward on"
+    if {낚시자바미니} is true:
+        execute console command "fishflag minigame on"
