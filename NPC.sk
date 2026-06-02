@@ -122,7 +122,8 @@ on right click on entity:
                     set {_village} to {NPC::%loop-value%::대장간마을}
                     if {_village} is not set:
                         set {_village} to ""
-                    조합대GUI열기(player, "고급", 1, "", {_village})
+                    # 조합대 Java 이관 — Java CraftingGui로 위임 (craftopen <player>§§<category>§§<village>)
+                    execute console command "craftopen %player%§§고급§§%{_village}%"
                     stop
                 set {대화엔티티::%player%} to clicked entity
                 npc대화시작(player, loop-value)

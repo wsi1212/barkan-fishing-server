@@ -1,0 +1,85 @@
+# =========================================
+# 조합대_bridge.sk — 조합대 Java 이관 브릿지 (thin)
+# 데이터/GUI/로직은 Java(com.blockship.crafting)가 소유.
+# 결과 낚싯대 생성(부품낚싯대생성)/도감/퀘스트 훅은 Skript 유지 → Java가 콘솔 명령으로 위임.
+#
+# 호환 미러: 조합대.sk/조합재료.sk의 on load {조합법}/{조합카테}/{조합재료}/{조합재료드롭} 등록은
+# 도감.sk/퀘스트.sk/어드민.sk가 아직 읽으므로 그대로 유지(읽기 전용 데이터 미러).
+# 이 브릿지는 Java→Skript 단방향 write/위임만.
+# =========================================
+
+# ===== rod 레시피 결과 지급 (부품데이터 기반 낚싯대) =====
+# Java CraftingGui.craft → craftgive <player> <recipeId>
+# {조합법::%id%::결과부품이름} (미러)로 부품낚싯대생성 호출 + 지급 + 도감/퀘스트 훅.
+command /craftgive <player> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1
+        set {_id} to arg-2
+        set {_rodName} to {조합법::%{_id}%::결과부품이름}
+        if {_rodName} is not set:
+            # 미러에 없으면 일반 결과 아이템 사용 (안전망)
+            set {_rodName} to {조합법::%{_id}%::이름}
+        if {_rodName} is not set:
+            stop
+        set {_rod} to 부품낚싯대생성({_rodName})
+        if {_p} can hold {_rod}:
+            give {_rod} to {_p}
+        else:
+            drop {_rod} at {_p}'s location
+            message "&8[&6 조합대 &8] &7인벤토리가 가득 차 바닥에 떨어졌습니다!" to {_p}
+        message "&8[&6 조합대 &8] &a%{_rodName}% &a제작 완료!" to {_p}
+        play sound "entity.player.levelup" with volume 0.7 and pitch 1.5 to {_p}
+        # 퀘스트(조합) 훅
+        set {조합완료이름::%{_p}%} to {_rodName}
+        execute console command "questcraftdone %{_p}%"
+        # 낚싯대 도감 등록
+        도감_낚싯대({_p}, {_rodName})
+
+# ===== direct 레시피 제작 후 훅 (도감/퀘스트) =====
+# Java CraftingGui.craft(direct) → craftpost <player>§§<displayName>§§<rodTag 0|1>§§<matId>
+command /craftpost <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_t::*} to split arg-1 at "§§"
+        set {_p} to {_t::1} parsed as player
+        if {_p} is not set:
+            stop
+        set {_name} to {_t::2}
+        set {_rodTag} to {_t::3}
+        set {_matId} to {_t::4}
+        # 퀘스트(조합) 훅
+        set {조합완료이름::%{_p}%} to {_name}
+        execute console command "questcraftdone %{_p}%"
+        # [낚싯대] 태그 결과 → 낚싯대 도감 (R00 초보자 낚싯대 등)
+        if {_rodTag} is "1":
+            execute console command "dogamrod %{_p}% %{_name}%"
+        # mat:재료 태그 결과 → 재료 도감
+        if {_matId} is not "":
+            도감_재료({_p}, {_matId})
+
+# ===== 지역 재료 드롭 후 도감/퀘스트 훅 =====
+# Java CraftingManager.dropMaterials → craftmatdrop <player> <matId>
+command /craftmatdrop <player> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        도감_재료(arg-1, arg-2)
+        퀘스트_재료(arg-1, arg-2)
+
+# ===== 라이브 {레시피해금} → PlayerData 미러 동기 =====
+# Java가 GUI/상태 표시 전 호출 → 라이브 Skript 해금상태를 pdbackup exflag로 Java 캐시에 push.
+command /craftunlockread <player>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1
+        set {_n} to name of {_p}
+        set {_fl} to ""
+        loop {레시피해금::%{_p}%::*}:
+            if loop-value is true:
+                set {_fl} to "%{_fl}%||%loop-index%"
+        if {_fl} is not "":
+            execute console command "pdbackup %{_n}% exflag 레시피해금 %{_fl}%"
