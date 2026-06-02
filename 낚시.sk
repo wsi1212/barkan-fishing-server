@@ -1505,6 +1505,13 @@ every 1 second:
             broadcast "&e낚시대회가 종료되었습니다! &7(/낚시대회 순위)"
             if {낚시대회물고기::*} is not set:
                 broadcast "&7낚시대회의 기록이 없어 상금을 지급하지 못했습니다."
+                # ★ 버그수정: stop 전에 대회 상태 정리 — 안 그러면 {낚시대회::bar}가 남아
+                #   every-1-second가 매초 '종료' 무한 브로드캐스트(도배)함.
+                delete {낚시대회::bar}
+                delete {낚시대회::1등}
+                delete {낚시대회참가::*}
+                delete {낚시대회물고기::*}
+                delete {낚시대회::*}
                 stop
 
             set {_pool::*} to {낚시대회물고기::*}
