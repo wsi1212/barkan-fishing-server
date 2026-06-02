@@ -29,7 +29,8 @@ function 도감카운트_수집품(p: player) :: text:
             add 1 to {_found}
     return "%{_found}%/%{_total}%"
 
-# Java CollectibleDexGui 뒤로가기 → 메인 도감(아직 Skript) 재오픈
+# Java CollectibleDexGui 뒤로가기 안전망 → Java 메인 도감(MainDexGui) 재오픈.
+# (정상 경로는 CollectibleDexGui.back()이 MainDexGui.openMain()을 직접 호출. 이 명령은 미주입 시 폴백.)
 command /collectibledexback <text>:
     permission: op
     executable by: console
@@ -37,4 +38,4 @@ command /collectibledexback <text>:
         set {_p} to arg-1 parsed as player
         if {_p} is not set:
             stop
-        도감메인GUI({_p})
+        execute console command "maindex open %{_p}%"

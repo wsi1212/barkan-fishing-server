@@ -539,14 +539,27 @@ command /pdcheckandrestore <text>:
 # ===== Phase D 배치4 백업 헬퍼 (중첩 → 단일루프) =====
 # =========================================
 # 도감발견::<cat>::<uuid>::<item>=bool  →  카테고리당 단일루프(bare loop-index=item)
+# 부품은 2단 중첩({도감발견::부품::uuid::type::name}) → "type::name" 으로 평탄화해 백업.
 function pd백업도감발견(p: offline player, n: text, cat: text):
     set {_d} to ""
-    loop {도감발견::%{_cat}%::%{_p}%::*}:
-        if loop-value is true:
-            if {_d} is "":
-                set {_d} to "%loop-index%"
-            else:
-                set {_d} to "%{_d}%||%loop-index%"
+    if {_cat} is "부품":
+        # 2단 루프: type → name. exdex item 키 = "type::name" (Java MainDexGui 가 동일 형식으로 조회).
+        loop {도감발견::부품::%{_p}%::*}:
+            set {_type} to loop-index-1
+            loop {도감발견::부품::%{_p}%::%{_type}%::*}:
+                if loop-value-2 is true:
+                    set {_item} to "%{_type}%::%loop-index-2%"
+                    if {_d} is "":
+                        set {_d} to {_item}
+                    else:
+                        set {_d} to "%{_d}%||%{_item}%"
+    else:
+        loop {도감발견::%{_cat}%::%{_p}%::*}:
+            if loop-value is true:
+                if {_d} is "":
+                    set {_d} to "%loop-index%"
+                else:
+                    set {_d} to "%{_d}%||%loop-index%"
     if {_d} is not "":
         execute console command "pdbackup %{_n}% exdex %{_cat}% %{_d}%"
 
