@@ -88,14 +88,7 @@ function areaEnter(p: player, area: text, silent: boolean = false):
         enterlava({_p})
     퀘스트_지역입장({_p}, {_area})
     사이드바업데이트({_p})
-    # 지역 낚시대회 보스바 표시 (지역 or 섬 대회)
-    if {낚시대회::bar} is set:
-        if {낚시대회::지역} is set:
-            if {낚시대회::지역} is {_area}:
-                add {_p} to bossbar players of {낚시대회::bar}
-            else if {지역부모섬::%{_area}%} is set:
-                if {낚시대회::지역} is {지역부모섬::%{_area}%}:
-                    add {_p} to bossbar players of {낚시대회::bar}
+    # (지역 낚시대회 보스바 입/퇴장 동기화는 Java ContestManager가 처리 — 이관됨)
 
 # ===== 퇴장 처리 =====
 function areaExit(p: player, area: text, silent: boolean = false):
@@ -116,14 +109,7 @@ function areaExit(p: player, area: text, silent: boolean = false):
     사이드바업데이트({_p})
     if {_area} is "lavatest":
         exitlava({_p})
-    # 지역 낚시대회: 미참가자는 퇴장 시 보스바 제거 (섬 대회 포함)
-    if {낚시대회::bar} is set:
-        if {낚시대회참가::%{_p}%} is not set:
-            if {낚시대회::지역} is {_area}:
-                remove {_p} from bossbar players of {낚시대회::bar}
-            else if {지역부모섬::%{_area}%} is set:
-                if {낚시대회::지역} is {지역부모섬::%{_area}%}:
-                    remove {_p} from bossbar players of {낚시대회::bar}
+    # (지역 낚시대회 보스바 퇴장 동기화는 Java ContestManager가 처리 — 이관됨)
     # (페리 탑승지역 이탈 취소는 Java FerryManager tick이 처리 — 페리.sk 이관됨)
 
 # ===== 낚시 시도 시 레벨 체크 =====

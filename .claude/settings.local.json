@@ -557,7 +557,14 @@
       "Bash(scp -i ~/.ssh/oracle-mc.key /Users/user/development/blockship-plugin/build/libs/BlockShip-1.0.0-SNAPSHOT.jar ubuntu@134.185.113.25:~/mcserver/plugins/)",
       "Bash(ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'ls -la ~/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar')",
       "Bash(ssh -i ~/.ssh/oracle-mc.key -o ConnectTimeout=15 ubuntu@134.185.113.25 'grep -nE \"유지시간 만료|자동 회수|auto.?recall\" ~/mcserver/logs/latest.log | tail -10')",
-      "Bash(scp -i ~/.ssh/oracle-mc.key build/libs/BlockShip-1.0.0-SNAPSHOT.jar ubuntu@134.185.113.25:~/mcserver/plugins/)"
+      "Bash(scp -i ~/.ssh/oracle-mc.key build/libs/BlockShip-1.0.0-SNAPSHOT.jar ubuntu@134.185.113.25:~/mcserver/plugins/)",
+      "Bash([ -f \"$BASE/lh-backend/$f\" ])",
+      "Bash(mkdir -p ~/lh-migration/cron)",
+      "Bash(node extract.js '/Users/user/New DeskTop/develop/lh-backend/functions/index.js')",
+      "Bash(node -e \"const c=require\\('./constants.json'\\); console.log\\('첫 지역:', JSON.stringify\\(c.districts[0]\\)\\); console.log\\('마지막 지역:', JSON.stringify\\(c.districts[c.districts.length-1]\\)\\);\")",
+      "Bash(ssh -i *)",
+      "Bash(scp -i ~/.ssh/oracle-mc.key -o StrictHostKeyChecking=no -o LogLevel=ERROR ~/lh-migration/cron/ingest-rentals.js ~/lh-migration/cron/constants.json ~/lh-migration/db.env ubuntu@134.185.113.25:~/lh-cron/)",
+      "Bash(scp -i ~/.ssh/oracle-mc.key -o StrictHostKeyChecking=no -o LogLevel=ERROR ~/lh-migration/api/server.js ubuntu@134.185.113.25:~/lh-api/)"
     ],
     "defaultMode": "bypassPermissions"
   },

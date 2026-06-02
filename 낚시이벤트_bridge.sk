@@ -109,20 +109,11 @@ command /fishreward2 <text>:
         콤보네임태그({_p})
         칭호자동체크({_p})
         도전과제체크({_p}, "콤보", "%{낚시콤보::%{_p}%}%")
-        # ===== 드롭/길드/대회 =====
+        # ===== 드롭/길드 =====
+        # (낚시대회 기록은 Java ContestManager.recordCatch가 직접 처리 — fishrank 제거)
         조합재료드롭체크({_p}, {_area})
         if {길드::%name of {_p}%} is set:
             길드포인트적립({_p}, {_grade})
-        if {낚시대회::시간} is set:
-            set {_canRank} to true
-            if {낚시대회::지역} is set:
-                set {_canRank} to false
-                if {_area} is {낚시대회::지역}:
-                    set {_canRank} to true
-                else if {섬::%{_p}%} is {낚시대회::지역}:
-                    set {_canRank} to true
-            if {_canRank} is true:
-                fishrank({_p}, {_fish}, {_grade}, "%{_size}%")
         # ===== G등급 도감 플래그 =====
         if {_grade} is "G":
             if {도감G등급::%{_p}%} is not true:
