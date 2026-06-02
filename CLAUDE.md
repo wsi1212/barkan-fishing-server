@@ -144,7 +144,7 @@
 - **계정**: 가족 명의 (rhfipkk tenancy, ap-chuncheon-1)
 - **리전**: South Korea North (Chuncheon) — 한국 핑 5~10ms
 - **인스턴스**: `minecraft-server` (ID는 retry log 참조)
-- **현재 사양**: VM.Standard.A1.Flex 1 OCPU / 6 GB RAM (백그라운드 resize 시도 중, 목표 4/24)
+- **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 12G)
 - **OS**: Ubuntu 24.04 ARM64
 - **공인 IP**: `134.185.113.25` (Ephemeral — 인스턴스 재생성 시 변경됨)
 - **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
