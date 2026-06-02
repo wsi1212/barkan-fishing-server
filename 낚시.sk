@@ -1570,6 +1570,9 @@ command /낚시대회 [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
             message "&e/낚시대회 강제종료" to player
             message "&e/낚시대회 순위" to player
         else if arg-1 is "시작":
+            if player is not op:
+                message "&c권한이 없습니다. (낚시대회 시작은 관리자 전용)" to player
+                stop
             if arg-2 or arg-3 or arg-4 is not set:
                 message "&e/낚시대회 시작 <시간(분)> <상금> <전역|지역명> [최저레벨] [최고레벨]" to player
             else:
