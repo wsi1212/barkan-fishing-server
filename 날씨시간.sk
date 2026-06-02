@@ -219,6 +219,17 @@ function 환경보너스알림(p: player):
     else if {_gradeShift} > 0:
         send "&a  [환경 보너스] &f등급업 %{_gradeShift}%%%" to {_p}
 
+# Java RegionTracker(areaEnter, 비-silent 입장) → 환경보너스알림 위임 브릿지
+# /envbonusnotify <player>
+command /envbonusnotify <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        환경보너스알림({_p})
+
 # ===== 지역별 커스텀 날씨 보너스 =====
 function 커스텀날씨보너스지역(p: player) :: text:
     set {_w} to 유효커스텀날씨({_p})

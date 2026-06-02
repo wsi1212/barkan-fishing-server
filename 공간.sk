@@ -1,223 +1,47 @@
-function enterlava(p: player):
-    set {용암낚시::%{_p}%} to 1
+# =========================================
+#   공간.sk — 지역 sync 미러 브릿지 + 얇은 push-back 전용
+#
+#   지역 입장/퇴장 오케스트레이터(areaEnter/areaExit/레벨게이트/길드체크/알림/
+#   환경보너스/lava/on join/respawn/world change//월드)는 Java RegionTracker로 이관됨.
+#   여기 남은 것:
+#     - /setarea, /setlava : Java → Skript 얇은 push-back ({area}=장비/날씨시간이 읽음, {용암낚시}=백업)
+#     - Java RegionManager/WeatherManager/FishLoader → Skript 변수 동기화 미러 브릿지
+#       (메뉴/길드/지역별물고기/도감/날씨시간 등 미이관 .sk 가 소비 → 유지)
+#     - on rightclick (warped sign + 낚싯대 = 취소)
+# =========================================
 
-function exitlava(p: player):
-    set {용암낚시::%{_p}%} to 0
-
-# ===== 지역 표시 이름 (Java RegionManager 연동) =====
-function regionDisplayName(region: text) :: text:
-    if {지역표시이름::%{_region}%} is set:
-        return {지역표시이름::%{_region}%}
-    return {_region}
-
-# ===== 지역 레벨 제한 (Java RegionManager 연동, 섬 상속 포함) =====
-function regionRequiredLevel(region: text) :: number:
-    set {_lvl} to 0
-    if {지역레벨제한::%{_region}%} is set:
-        set {_lvl} to {지역레벨제한::%{_region}%}
-    # 부모 섬 레벨도 체크 (max)
-    if {지역부모섬::%{_region}%} is set:
-        set {_islandLvl} to {지역레벨제한::%{지역부모섬::%{_region}%}%}
-        if {_islandLvl} is set:
-            if {_islandLvl} > {_lvl}:
-                set {_lvl} to {_islandLvl}
-    return {_lvl}
-
-# ===== 레벨 미달 시 진입 거부 처리 =====
-function rejectEntry(p: player, region: text):
-    set {_req} to regionRequiredLevel({_region})
-    message "&8[&b 낚시 &8] &c이 지역은 낚시 레벨 &e%{_req}% &c이상만 입장할 수 있습니다. &7(현재: Lv.%{낚시레벨::%{_p}%}%)" to {_p}
-    set {area::%{_p}%} to "0"
-    set {거부쿨다운::%{_p}%} to true
-    if {_p} is riding:
-        set {_vehicle} to vehicle of {_p}
-    if {안전위치::%{_p}%} is set:
-        teleport {_p} to {안전위치::%{_p}%}
-    else:
-        message "&8[&b 낚시 &8] &c비정상적인 접근이 감지되어 스폰으로 이동합니다." to {_p}
-        teleport {_p} to spawn of world "world"
-    wait 1 tick
-    if {_vehicle} is set:
-        kill {_vehicle}
-    wait 3 ticks
-    # 텔포 후에도 지역 안이면 스폰으로 강제 이동
-    if {area::%{_p}%} is {_region}:
-        message "&8[&b 낚시 &8] &c비정상적인 접근이 감지되어 스폰으로 이동합니다." to {_p}
-        teleport {_p} to spawn of world "world"
-    wait 5 seconds
-    delete {거부쿨다운::%{_p}%}
-
-# ===== 입장 처리 =====
-function areaEnter(p: player, area: text, silent: boolean = false):
-    # 길드 섬 체크 — 길드원만 입장 가능
-    if {지역길드::%{_area}%} is set:
-        if {길드::%name of {_p}%} is not {지역길드::%{_area}%}:
-            message "&8[&b 낚시 &8] &c이 지역은 &f%{지역길드::%{_area}%}% &c길드 전용입니다." to {_p}
-            rejectEntry({_p}, {_area})
+# ===== {area} push-back (Java RegionTracker areaEnter/areaExit/world change 가 호출) =====
+# 장비.sk(get_fish 미리보기)·날씨시간.sk(유효커스텀날씨)가 {area::%p%}를 읽음.
+command /setarea <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
             stop
-    set {_req} to regionRequiredLevel({_area})
-    if {_req} > 0:
-        if {낚시레벨::%{_p}%} is not set:
-            set {낚시레벨::%{_p}%} to 1
-        if {낚시레벨::%{_p}%} < {_req}:
-            rejectEntry({_p}, {_area})
+        set {area::%{_p}%} to arg-2
+
+# ===== {용암낚시} push-back (Java RegionTracker lava enter/exit 가 호출) =====
+# 데이터백업.sk가 백업하는 변수. (1=용암지대 / 0=아님)
+command /setlava <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
             stop
-    set {area::%{_p}%} to {_area}
-    if {방문지역::%{_p}%::*} does not contain {_area}:
-        add {_area} to {방문지역::%{_p}%::*}
-        # 도전과제 체크 (지역 발견 + 방문 수)
-        도전과제체크({_p}, "지역", {_area})
-        도전과제체크({_p}, "지역방문", "%size of {방문지역::%{_p}%::*}%")
-        # 탐험 경험치 (신규 지역 발견 시)
-        탐험_발견({_p}, "지역", {_area})
-    # 같은 지역 알림 쿨다운 (10초) — 짧은 시간 왔다갔다 시 메시지 스팸 방지
-    set {_shouldNotify} to true
-    if {_silent} is true:
-        set {_shouldNotify} to false
-    else:
-        set {_lastNotify} to {지역알림쿨다운::%{_p}%::%{_area}%}
-        if {_lastNotify} is set:
-            if difference between {_lastNotify} and now < 10 seconds:
-                set {_shouldNotify} to false
-    if {_shouldNotify} is true:
-        set {지역알림쿨다운::%{_p}%::%{_area}%} to now
-        set {_display} to regionDisplayName({_area})
-        message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_p}
-        환경보너스알림({_p})
-    if {_area} is "lavatest":
-        enterlava({_p})
-    # 퀘스트(지역입장)는 Java QuestManager.onRegionEnter
-    execute console command "questhook region %{_p}'s name% %{_area}%"
-    사이드바업데이트({_p})
-    # (지역 낚시대회 보스바 입/퇴장 동기화는 Java ContestManager가 처리 — 이관됨)
-
-# ===== 퇴장 처리 =====
-function areaExit(p: player, area: text, silent: boolean = false):
-    # 같은 지역 퇴장 알림 쿨다운 (10초)
-    set {_shouldNotify} to true
-    if {_silent} is true:
-        set {_shouldNotify} to false
-    else:
-        set {_lastExit} to {지역퇴장쿨다운::%{_p}%::%{_area}%}
-        if {_lastExit} is set:
-            if difference between {_lastExit} and now < 10 seconds:
-                set {_shouldNotify} to false
-    if {_shouldNotify} is true:
-        set {지역퇴장쿨다운::%{_p}%::%{_area}%} to now
-        set {_display} to regionDisplayName({_area})
-        message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_p}
-    set {area::%{_p}%} to "0"
-    사이드바업데이트({_p})
-    if {_area} is "lavatest":
-        exitlava({_p})
-    # (지역 낚시대회 보스바 퇴장 동기화는 Java ContestManager가 처리 — 이관됨)
-    # (페리 탑승지역 이탈 취소는 Java FerryManager tick이 처리 — 페리.sk 이관됨)
-
-# ===== 낚시 시도 시 레벨 체크 =====
-on fishing line cast:
-    set {_area} to {area::%player%}
-    if {_area} is not set:
-        set {_area} to "0"
-    if {_area} is not "0":
-        set {_req} to regionRequiredLevel({_area})
-        if {_req} > 0:
-            if {낚시레벨::%player%} is not set:
-                set {낚시레벨::%player%} to 1
-            if {낚시레벨::%player%} < {_req}:
-                cancel event
-                rejectEntry(player, {_area})
-                stop
-    else:
-        # area 변수가 없으면 Java RegionTracker가 아직 감지 안 한 상태
-        stop
+        set {용암낚시::%{_p}%} to arg-2 parsed as number
 
 on rightclick:
     if clicked block is warped sign:
         if player's tool is fishing rod:
             cancel event
 
-on join:
-    if player is not op:
-        if player's world is not world "world":
-            teleport player to spawn of world "world"
-    wait 5 ticks
-    set {안전위치::%player%} to player's location
-
-on respawn:
-    set player's bed location to spawn of world "world"
-    set respawn location to spawn of world "world"
-
-# 월드 이동 시 지역/섬 즉시 초기화 (RegionTracker 폴링 딜레이 방지)
-on world change:
-    set {area::%player%} to "0"
-    set {섬::%player%} to "0"
-    사이드바업데이트(player)
-
-# ===== 지역 진입/퇴장 — Java RegionTracker 브릿지 =====
-# Java가 20틱마다 플레이어 위치 체크 → /regionevent 명령어로 Skript에 알림
-# 4번째 인자가 "silent" 면 메시지 없이 area/섬 변수만 갱신 (부모-자식 체인 이동)
-command /regionevent <text> <text> <text> [<text>]:
-    permission: op
-    executable by: console
-    trigger:
-        set {_action} to arg-1
-        set {_player} to arg-2 parsed as player
-        if {_player} is not set:
-            stop
-        set {_region} to arg-3
-        set {_silent} to false
-        if arg-4 is "silent":
-            set {_silent} to true
-        if {_action} is "enter":
-            areaEnter({_player}, {_region}, {_silent})
-        else if {_action} is "exit":
-            areaExit({_player}, {_region}, {_silent})
-        else if {_action} is "islandenter":
-            set {섬::%{_player}%} to {_region}
-            if {_silent} is not true:
-                set {_lastNotify2} to {지역알림쿨다운::%{_player}%::%{_region}%}
-                set {_show} to true
-                if {_lastNotify2} is set:
-                    if difference between {_lastNotify2} and now < 10 seconds:
-                        set {_show} to false
-                if {_show} is true:
-                    set {지역알림쿨다운::%{_player}%::%{_region}%} to now
-                    set {_display} to regionDisplayName({_region})
-                    message "&8[&b 낚시 &8] &a%{_display}%&f에 입장하였습니다." to {_player}
-            사이드바업데이트({_player})
-        else if {_action} is "islandexit":
-            if {_silent} is not true:
-                set {_lastExit2} to {지역퇴장쿨다운::%{_player}%::%{_region}%}
-                set {_show2} to true
-                if {_lastExit2} is set:
-                    if difference between {_lastExit2} and now < 10 seconds:
-                        set {_show2} to false
-                if {_show2} is true:
-                    set {지역퇴장쿨다운::%{_player}%::%{_region}%} to now
-                    set {_display} to regionDisplayName({_region})
-                    message "&8[&b 낚시 &8] &a%{_display}%&f에서 퇴장하였습니다." to {_player}
-            set {섬::%{_player}%} to "0"
-            사이드바업데이트({_player})
-
-# ===== 안전위치 저장 (지역 밖일 때) =====
-every 5 seconds:
-    loop all players:
-        set {_area} to {area::%loop-player-1%}
-        if {_area} is not set:
-            set {_area} to "0"
-        if {_area} is "0":
-            if {거부쿨다운::%loop-player-1%} is not set:
-                set {안전위치::%loop-player-1%} to loop-player-1's location
-
 # =========================================
 #   지역 관리는 Java 플러그인 (BlockShip)으로 이관
 #   /regionmanage — 지역 생성/삭제/설정/바이옴/파티클
 #   데이터: plugins/BlockShip/regions.json
 # =========================================
-
-# ===== 지역 리스트 — Java RegionManager에서 동기화 =====
-# 서버 시작 시 Java가 /regionsync로 자동 동기화
-# 수동 리로드: /지역 리로드 → Java가 다시 동기화
 
 # ===== 지역 리스트 동기화 (Java → Skript) =====
 command /regionlistsync <text> [<text>]:
@@ -284,33 +108,6 @@ command /regionfishcount <text> <text>:
             stop
         set {_fishes::*} to get_fish(arg-2)
         message "&7물고기: &f%size of {_fishes::*}%종" to {_p}
-
-# ===== 월드 이동 명령어 (MV 대체) =====
-on tab complete of "/월드":
-    set tab completions for position 1 to names of all worlds
-
-command /월드 [<text>]:
-    permission: op
-    trigger:
-        if arg-1 is not set:
-            message "&6=== 월드 목록 ===" to player
-            loop all worlds:
-                set {_here} to ""
-                if player's world is loop-world:
-                    set {_here} to " &a(현재)"
-                message "&7  %loop-world%%{_here}%" to player
-            stop
-        set {_wName} to arg-1 in lower case
-        # 월드가 로드 안 되어 있으면 로드 시도
-        if world("%{_wName}%") is not set:
-            execute console command "loadworld %{_wName}%"
-            wait 3 ticks
-        # world는 기본 월드(overworld)
-        if {_wName} is "world":
-            make player execute command "execute in minecraft:overworld run tp @s 0 100 0"
-        else:
-            make player execute command "execute in minecraft:%{_wName}% run tp @s 0 100 0"
-        message "&a%arg-1% 월드로 이동했습니다." to player
 
 # ===== 섬 리스트 동기화 (Java → Skript) =====
 command /islandlistsync <text> [<text>]:

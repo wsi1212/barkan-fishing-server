@@ -77,3 +77,14 @@ function 탐험_발견(p: player, type: text, id: text):
     send "%{_label}% &7+&5%{_xp}% 탐험 XP" to {_p}
     play sound "entity.player.levelup" with volume 0.4 and pitch 1.8 to {_p}
     탐험경험치추가({_p}, {_xp})
+
+# Java RegionTracker(areaEnter, 신규 지역) → 탐험_발견 위임 브릿지
+# /explorediscover <player> <type> <id>
+command /explorediscover <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        탐험_발견({_p}, arg-2, arg-3)
