@@ -1,4 +1,5 @@
 command gui [<text>] [<text>] [<integer>]:
+    permission: op
     trigger:
         if arg-1 or arg-2 is not set:
             message "&c잘못된 방식입니다." to player
