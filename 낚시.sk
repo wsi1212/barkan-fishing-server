@@ -1555,7 +1555,11 @@ on join:
             # 전역 대회: 모든 플레이어
             add player to bossbar players of {낚시대회::bar}
 on tab complete of "/낚시대회":
-    set tab completions for position 1 to "시작", "강제종료" and "순위"
+    # op 전용 서브명령(시작/강제종료)은 op에게만 자동완성 노출 (일반유저=순위만)
+    if player is op:
+        set tab completions for position 1 to "시작", "강제종료" and "순위"
+    else:
+        set tab completions for position 1 to "순위"
     set tab completions for position 2 to "<시간(분)>"
     set tab completions for position 3 to "<상금>"
     set tab completions for position 4 to "전역", {섬리스트::*} and {지역리스트::*}
