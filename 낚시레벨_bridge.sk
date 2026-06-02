@@ -30,16 +30,8 @@ function 경험치바동기화(p: player):
     execute console command "pdbackup %{_p}'s name% level %{_lv}% %{_cur}% %{_need}%"
     execute console command "fishbarsync %{_p}'s name%"
 
-# ===== 레벨업 훅 콘솔 위임 (Java→Skript, 퀘스트훅.sk/칭호.sk 함수가 Skript라 명령 경유) =====
-command /questlevelup <text> <integer>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        퀘스트_레벨업({_p}, arg-2)
-
+# ===== 레벨업 훅 콘솔 위임 (Java→Skript, 칭호.sk 함수가 Skript라 명령 경유) =====
+# (퀘스트 레벨업 훅은 Java QuestManager.onLevelUp 직접 호출 — questlevelup 제거됨)
 command /titleautocheck <text>:
     permission: op
     executable by: console

@@ -86,7 +86,8 @@ function areaEnter(p: player, area: text, silent: boolean = false):
         환경보너스알림({_p})
     if {_area} is "lavatest":
         enterlava({_p})
-    퀘스트_지역입장({_p}, {_area})
+    # 퀘스트(지역입장)는 Java QuestManager.onRegionEnter
+    execute console command "questhook region %{_p}'s name% %{_area}%"
     사이드바업데이트({_p})
     # (지역 낚시대회 보스바 입/퇴장 동기화는 Java ContestManager가 처리 — 이관됨)
 

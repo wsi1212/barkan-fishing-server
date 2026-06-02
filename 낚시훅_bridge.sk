@@ -19,11 +19,11 @@ command /낚시훅 <text>:
             # dogam§§player§§grade§§fish
             도감_물고기({_p}, {_t::4}, {_t::3})
         else if {_type} is "quest_fish":
-            # quest_fish§§player§§grade§§size§§quality§§fish
-            퀘스트_물고기({_p}, {_t::6}, {_t::3}, {_t::4} parsed as number, {_t::5} parsed as number)
+            # quest_fish§§player§§grade§§size§§quality§§fish → Java QuestManager.onFish
+            execute console command "questhook fish %{_t::2}% %{_t::3}% %{_t::4}% %{_t::5}% %{_t::6}%"
         else if {_type} is "quest_sell":
-            # quest_sell§§player§§count§§price
-            퀘스트_판매({_p}, {_t::3} parsed as integer, {_t::4} parsed as number)
+            # quest_sell§§player§§count§§price → Java QuestManager.onSell
+            execute console command "questhook sell %{_t::2}% %{_t::3}% %{_t::4}%"
         else if {_type} is "achieve":
             # achieve§§player§§type§§value
             도전과제체크({_p}, {_t::3}, {_t::4})

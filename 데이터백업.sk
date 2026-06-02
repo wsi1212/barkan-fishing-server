@@ -156,45 +156,9 @@ function 플레이어데이터백업(p: offline player):
         set {_ownedTitles} to "없음"
     execute console command "pdbackup %{_n}% title %{_title}% %{_ownedTitles}%"
 
-    # --- Quests: 활성 목록 ---
-    set {_activeStr} to ""
-    loop {활성퀘스트::%{_p}%::*}:
-        if {_activeStr} is "":
-            set {_activeStr} to loop-value
-        else:
-            set {_activeStr} to "%{_activeStr}%||%loop-value%"
-    if {_activeStr} is "":
-        set {_activeStr} to "없음"
-    execute console command "pdbackup %{_n}% activequests %{_activeStr}%"
-
-    # --- Quests: 모든 퀘스트 상태/진행도 (★ 활성뿐 아니라 완료/메인/튜토 전부 백업) ---
-    #   기존엔 활성 퀘스트만 백업해 메인·튜토 완료상태가 복원 시 유실됐음.
-    loop {퀘스트상태::*}:
-        set {_qid} to loop-index
-        set {_qs} to {퀘스트상태::%{_qid}%::%{_p}%}
-        if {_qs} is set:
-            set {_prog} to ""
-            loop integers from 1 to 10:
-                set {_val} to {퀘스트진행::%{_qid}%::%{_p}%::%loop-integer%}
-                if {_val} is set:
-                    if {_prog} is "":
-                        set {_prog} to "%loop-integer%::%{_val}%"
-                    else:
-                        set {_prog} to "%{_prog}%||%loop-integer%::%{_val}%"
-            if {_prog} is "":
-                set {_prog} to "없음"
-            execute console command "pdbackup %{_n}% quest %{_qid}% %{_qs}% %{_prog}%"
-
-    # 주간 퀘스트
-    set {_weeklyStr} to ""
-    loop {주간퀘스트::%{_p}%::*}:
-        if {_weeklyStr} is "":
-            set {_weeklyStr} to loop-value
-        else:
-            set {_weeklyStr} to "%{_weeklyStr}%||%loop-value%"
-    if {_weeklyStr} is "":
-        set {_weeklyStr} to "없음"
-    execute console command "pdbackup %{_n}% weeklyquests %{_weeklyStr}%"
+    # --- Quests ---
+    # 퀘스트 state(상태/진행/활성/일일/주간)는 Java QuestManager 권위(PlayerData가 직접 소유·영속).
+    #   Skript 변수가 없으므로 백업하지 않음 (백업하면 빈값이 Java 권위 데이터를 덮어씀 → 금지).
 
     # --- Ice Box ---
     set {_ibTier} to {아이스박스등급::%{_p}%}

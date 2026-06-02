@@ -19,7 +19,7 @@ on first join:
     set {돈::%player%} to 0
     set {추천코인::%player%} to 0
     set {캐시::%player%} to 0
-    set {퀘스트상태::메인01::%player%} to "대기"
+    # 퀘스트 state는 Java QuestManager 권위. 첫 퀘스트는 상태 미설정(null)이어도 수락 가능 → 별도 세팅 불필요.
     # ===== 스타터 장비 키트 (E등급) =====
     # 낚싯대: 나뭇가지 (물리 아이템 지급 — 동적 lore)
     set {_grade} to get_part_grade("낚싯대", "나뭇가지")

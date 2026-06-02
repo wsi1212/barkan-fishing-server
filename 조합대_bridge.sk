@@ -31,9 +31,8 @@ command /craftgive <player> <text>:
             message "&8[&6 조합대 &8] &7인벤토리가 가득 차 바닥에 떨어졌습니다!" to {_p}
         message "&8[&6 조합대 &8] &a%{_rodName}% &a제작 완료!" to {_p}
         play sound "entity.player.levelup" with volume 0.7 and pitch 1.5 to {_p}
-        # 퀘스트(조합) 훅
-        set {조합완료이름::%{_p}%} to {_rodName}
-        execute console command "questcraftdone %{_p}%"
+        # 퀘스트(조합) 훅 → Java QuestManager.onCraft
+        execute console command "questhook craft %{_p}'s name% %{_rodName}%"
         # 낚싯대 도감 등록
         도감_낚싯대({_p}, {_rodName})
 
@@ -50,9 +49,8 @@ command /craftpost <text>:
         set {_name} to {_t::2}
         set {_rodTag} to {_t::3}
         set {_matId} to {_t::4}
-        # 퀘스트(조합) 훅
-        set {조합완료이름::%{_p}%} to {_name}
-        execute console command "questcraftdone %{_p}%"
+        # 퀘스트(조합) 훅 → Java QuestManager.onCraft
+        execute console command "questhook craft %{_p}'s name% %{_name}%"
         # [낚싯대] 태그 결과 → 낚싯대 도감 (R00 초보자 낚싯대 등)
         if {_rodTag} is "1":
             execute console command "dogamrod %{_p}% %{_name}%"
@@ -67,7 +65,7 @@ command /craftmatdrop <player> <text>:
     executable by: console
     trigger:
         도감_재료(arg-1, arg-2)
-        퀘스트_재료(arg-1, arg-2)
+        execute console command "questhook material %arg-1% %arg-2%"
 
 # ===== 라이브 {레시피해금} → PlayerData 미러 동기 =====
 # Java가 GUI/상태 표시 전 호출 → 라이브 Skript 해금상태를 pdbackup exflag로 Java 캐시에 push.

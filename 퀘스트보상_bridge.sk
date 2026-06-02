@@ -1,0 +1,54 @@
+# =========================================
+# 퀘스트보상_bridge.sk — 퀘스트 보상 side-effect 브릿지 (thin)
+# 퀘스트 state/로직/훅은 Java QuestManager 권위. 보상 중 돈(fishpay)/경험치(FishingLevelManager)는 Java 직접.
+# 나머지 보상(칭호/등급해금/도감해금/페리메시지/재료지급)은 변수 권위가 아직 Skript라 이 브릿지로 위임.
+#   Java QuestManager.giveReward → questreward <player> <kind> <value>
+#   kind: title | grade | dex | ferry | material
+# (페리 권한 부여 자체는 Java /ferryperm 가 처리. 여기 ferry는 안내 메시지만.)
+# =========================================
+
+command /questreward <text> <text> <text>:
+    permission: op
+    executable by: console
+    trigger:
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            stop
+        set {_kind} to arg-2
+        set {_val} to arg-3
+        if {_kind} is "title":
+            set {보유칭호::%{_p}%::%{_val}%} to true
+            set {_tn} to {칭호데이터::%{_val}%::이름}
+            if {_tn} is not set:
+                set {_tn} to {_val}
+            message "&8[&d 퀘스트 &8] &e칭호 획득! &f[%{_tn}%&f]" to {_p}
+        else if {_kind} is "grade":
+            set {등급해금::%{_p}%::%{_val}%} to true
+            message "&8[&d 퀘스트 &8] &6%{_val}%등급 해금! &7이제 %{_val}%등급 물고기가 나타납니다." to {_p}
+            play sound "ui.toast.challenge_complete" with volume 0.7 to {_p}
+        else if {_kind} is "dex":
+            set {도감해금::%{_p}%} to true
+            message "&8[&d 퀘스트 &8] &6도감 해금! &7/메뉴에서 도감을 확인하세요." to {_p}
+        else if {_kind} is "ferry":
+            message "&8[&d 퀘스트 &8] &b페리 노선 해금! &f%{_val}%" to {_p}
+        else if {_kind} is "material":
+            # 재료 보상 — 포맷: "재료ID:수량" 또는 "재료ID:수량,재료ID:수량,..."
+            set {_matEntries::*} to split {_val} at ","
+            loop {_matEntries::*}:
+                set {_mr::*} to split loop-value at ":"
+                set {_matId} to {_mr::1}
+                set {_matCount} to {_mr::2} parsed as integer
+                if {_matCount} is not set:
+                    set {_matCount} to 1
+                set {_matData::*} to split {조합재료::%{_matId}%} at "|"
+                set {_matName} to {_matData::1}
+                set {_matItem} to {_matData::2} parsed as item type
+                if {_matItem} is set:
+                    set {_item} to {_matCount} of {_matItem}
+                    set name of {_item} to "&e%{_matName}%"
+                    set lore of {_item} to "&7%{_matData::3}%" and "" and "&8[조합 재료]" and "&8mat:%{_matId}%"
+                    if {_p} can hold {_item}:
+                        give {_item} to {_p}
+                    else:
+                        drop {_item} at {_p}'s location
+                    message "&8[&d 퀘스트 &8] &6재료 획득! &e%{_matName}% &fx%{_matCount}%" to {_p}

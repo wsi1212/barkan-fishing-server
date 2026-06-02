@@ -235,7 +235,8 @@ command /sellhook <text>:
             stop
         set {_count} to {_t::2} parsed as integer
         set {_money} to {_t::3} parsed as number
-        퀘스트_판매({_p}, {_count}, {_money})
+        # 퀘스트(판매)는 Java QuestManager.onSell
+        execute console command "questhook sell %{_p}'s name% %{_count}% %{_money}%"
         주간랭킹_판매({_p}, {_money})
         if {총판매::%{_p}%} is not set:
             set {총판매::%{_p}%} to 0

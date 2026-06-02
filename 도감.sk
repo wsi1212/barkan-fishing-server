@@ -31,8 +31,8 @@ function 도감_물고기(p: player, fishName: text, grade: text):
         set {_xp} to 300
     수집경험치추가({_p}, {_xp})
     message "&8[&d 도감 &8] &a새 물고기 등록! &f%{_fishName}% &8(수집 +%{_xp}%exp)" to {_p}
-    # 도감 완성도(dogam) 퀘스트 갱신
-    퀘스트_도감({_p})
+    # 도감 완성도(dogam) 퀘스트 갱신 → Java QuestManager.onDex
+    execute console command "questhook dex %{_p}'s name%"
 
 # --- 낚싯대 발견 (조합대.sk에서 호출) ---
 function 도감_낚싯대(p: player, rodName: text):

@@ -132,7 +132,8 @@ command /fishreward2 <text>:
                 set {도감최대::%{_fish}%::%{_p}%} to {_size}
                 set {최대낚은날짜::%{_fish}%::%{_p}%} to now
         # ===== 퀘스트/이펙트/주간랭킹 훅 =====
-        퀘스트_물고기({_p}, {_fish}, {_grade}, {_size}, {_quality})
+        # 퀘스트(물고기)는 Java QuestManager.onFish — questhook fish <player> <grade> <size> <quality> <fishName>
+        execute console command "questhook fish %{_p}'s name% %{_grade}% %{_size}% %{_quality}% %{_fish}%"
         캐시이펙트_낚시성공({_p}, {_grade})
         주간랭킹_물고기({_p}, {_fish}, {_grade}, {_size})
         # ===== 총낚시 + 등급 도전과제 =====
