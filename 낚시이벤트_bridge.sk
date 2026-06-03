@@ -92,7 +92,7 @@ command /fishreward2 <text>:
             send "&a낚시 경험치 +%{_exp}%exp" to {_p}
             play sound "entity.experience_orb.pickup" with volume 0.5 and pitch 1.2 to {_p}
         낚시경험치추가({_p}, {_exp})
-        reduceDurability({_p})
+        # 내구도 감소: Java FishingListener.reduceDurability(성공 catch 직후) 권위
         # ===== 콤보 =====
         if {낚시콤보::%{_p}%} is not set:
             set {낚시콤보::%{_p}%} to 0
@@ -160,7 +160,7 @@ command /fishfail <text>:
         if {_p} is not set:
             stop
         set {낚시콤보::%{_p}%} to 0
-        reduceDurability({_p})
+        # 내구도 감소: Java FishingListener.reduceDurability(실패 직후) 권위
         사이드바업데이트({_p})
         콤보네임태그({_p})
         칭호자동체크({_p})

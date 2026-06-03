@@ -10,41 +10,6 @@ on first join:
     set {추천코인::%player%} to 0
     set {캐시::%player%} to 0
     # 퀘스트 state는 Java QuestManager 권위. 첫 퀘스트는 상태 미설정(null)이어도 수락 가능 → 별도 세팅 불필요.
-    # ===== 스타터 장비 키트 (E등급) =====
-    # 낚싯대: 나뭇가지 (물리 아이템 지급 — 동적 lore)
-    set {_grade} to get_part_grade("낚싯대", "나뭇가지")
-    set {_color} to part_grade_color({_grade})
-    delete {_rodLore::*}
-    add "&7등급 &e: %{_color}%%{_grade}%" to {_rodLore::*}
-    set {_rodRaw} to get_part_stats_raw("낚싯대", "나뭇가지")
-    set {_rodPairs::*} to split {_rodRaw} at ","
-    loop {_rodPairs::*}:
-        set {_rkv::*} to split loop-value at ":"
-        set {_rdesc} to stat_type_desc({_rkv::1})
-        set {_rvt} to stat_value_text({_rkv::1}, {_rkv::2} parsed as number)
-        add "&7%{_rdesc}% &e: &f%{_rvt}%" to {_rodLore::*}
-    set {_rod} to 1 of fishing rod named "%{_color}%나뭇가지" with lore {_rodLore::*}
-    set {_rod} to unbreakable {_rod}
-    enchant {_rod} with lure 2
-    give player {_rod}
-    # 릴: 녹슨 릴
-    add "녹슨 릴" to {부품인벤::릴::%player%::*}
-    set {낚싯대부품::릴::%player%} to "녹슨 릴"
-    set {부품내구도::릴::%player%} to 40
-    # 줄: 삼베줄
-    add "삼베줄" to {부품인벤::줄::%player%::*}
-    set {낚싯대부품::줄::%player%} to "삼베줄"
-    set {부품내구도::줄::%player%} to 20
-    # 바늘: 구부러진 바늘
-    add "구부러진 바늘" to {부품인벤::바늘::%player%::*}
-    set {낚싯대부품::바늘::%player%} to "구부러진 바늘"
-    set {부품내구도::바늘::%player%} to 15
-    # 미끼: 지렁이 30개
-    set {부품인벤::미끼::%player%::지렁이} to 30
-    set {낚싯대부품::미끼::%player%} to "지렁이"
-    set {부품내구도::미끼::%player%} to 1
-    # 찌: 나무 찌
-    add "나무 찌" to {부품인벤::찌::%player%::*}
-    set {낚싯대부품::찌::%player%} to "나무 찌"
-    set {부품내구도::찌::%player%} to 30
-    message "&8[&6 장비 &8] &aE등급 스타터 장비 세트를 지급받았습니다!" to player
+    # ===== 스타터 장비 키트 → Java 이관 =====
+    # 장비/부품/내구/미끼는 Java PlayerData 권위(EquipmentManager.grantStarterKit, on join).
+    # 나뭇가지 낚싯대 + 녹슨릴/삼베줄/구부러진바늘/나무찌 장착 + 지렁이30 지급.
