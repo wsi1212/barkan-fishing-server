@@ -36,10 +36,4 @@ command /fishreward2 <text>:
         add 1 to {총낚시::%{_p}%}
         도전과제체크({_p}, "총낚시", "%{총낚시::%{_p}%}%")
         도전과제체크({_p}, "등급", {_grade})
-        set {_rank} to rankchange({_grade})
-        if {_rank} >= 6:
-            set {_gc} to part_grade_color({_grade})
-            loop all players:
-                if {차단낚시공지::%name of loop-player%} is not true:
-                    send "&6&l★ &7%{_p}'s name%&f님이 &6&l%{_fish}%&f 낚았습니다! &8(%{_gc}%%{_grade}%&8)" to loop-player
-            execute console command "cashfx brag %{_p}'s name%"
+        # A+ 서버공지 + 자랑이펙트 = Java FishingListener(차단낚시공지=PlayerData) 권위로 이관
