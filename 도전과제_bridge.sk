@@ -20,47 +20,12 @@ function 도전과제체크(p: player, type: text, value: text):
 # 칭호 보상은 Java AchievementManager가 TitleLogic.grantTitleWithMessage 직접 호출(/achtitle 제거).
 # 사이드바 갱신은 Java가 sidebarupdate 디스패치.
 
-# ===== 접속일수 카운터 + 접속 시 일괄 체크 =====
+# ===== 접속 시 일괄 체크 (Skript-only 카운터만 잔존) =====
+# 접속일수 카운터 + 접속일/보유금/레벨/지역/콤보/도감/등급 체크는 Java AchievementManager.onJoin 이관.
+# 총낚시/총판매는 아직 Skript 전용 변수({총낚시}/{총판매})라 여기 유지.
 on join:
-    if {접속일수::%player%} is not set:
-        set {접속일수::%player%} to 0
-    if {마지막접속날짜::%player%} is not set:
-        set {마지막접속날짜::%player%} to ""
-    set {_today} to "%now%"
-    set {_todayShort::*} to split {_today} at " "
-    set {_todayDate} to {_todayShort::1}
-    if {마지막접속날짜::%player%} is not {_todayDate}:
-        add 1 to {접속일수::%player%}
-        set {마지막접속날짜::%player%} to {_todayDate}
-    # 접속 시 도전과제 일괄 체크
     wait 30 ticks
-    도전과제체크(player, "접속일", "%{접속일수::%player%}%")
-    # 보유금: Java AchievementManager가 PlayerData.money 직접 read (돈 Java 권위) → 전달값 미사용
-    도전과제체크(player, "보유금", "0")
-    도전과제체크(player, "레벨", "%{낚시레벨::%player%}%")
-    # 지역 방문 수
-    set {_visitCount} to size of {방문지역::%player%::*}
-    if {_visitCount} > 0:
-        도전과제체크(player, "지역방문", "%{_visitCount}%")
-        # 개별 지역도 체크
-        loop {방문지역::%player%::*}:
-            도전과제체크(player, "지역", loop-value)
-    # 총 낚시 수
     if {총낚시::%player%} is set:
         도전과제체크(player, "총낚시", "%{총낚시::%player%}%")
-    # 총 판매 수
     if {총판매::%player%} is set:
         도전과제체크(player, "총판매", "%{총판매::%player%}%")
-    # 콤보
-    if {낚시최대콤보::%player%} is set:
-        도전과제체크(player, "콤보", "%{낚시최대콤보::%player%}%")
-    # 도감 수
-    set {_docCount} to 0
-    loop {도감최대::*}:
-        if loop-index contains "%player%":
-            add 1 to {_docCount}
-    if {_docCount} > 0:
-        도전과제체크(player, "도감", "%{_docCount}%")
-    # G등급
-    if {도감G등급::%player%} is true:
-        도전과제체크(player, "등급", "G")

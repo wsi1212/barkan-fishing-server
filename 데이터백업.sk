@@ -199,11 +199,12 @@ function 플레이어데이터백업(p: offline player):
     #   Java가 단독 write(PlayerData.extraNums) + push-back(pdrestoreex). 채집은 .sk 미이관이라 Skript 유지.
     # ★ 낚싯대강화*/낚싯대인챈트* 캐시변수 제거 — Java(Enhance/BlessingManager)가 강화레벨/축복레벨에서
     #   파생 계산해 pdrestoreex로 push-back. Skript는 더 이상 권위 아님 → backup 제거(클로버 차단).
-    loop "채집레벨", "채집경험치", "채집필요경험치", "총낚시", "총조합", "총판매", "접속일수", "주간접속일수", "주간일퀘완료수", "용암낚시", "칭호마지막레벨", "송금일일한도":
+    # 접속일수/마지막접속날짜 = Java AchievementManager.onJoin 권위 → backup 제거(클로버 차단).
+    loop "채집레벨", "채집경험치", "채집필요경험치", "총낚시", "총조합", "총판매", "주간접속일수", "주간일퀘완료수", "용암낚시", "칭호마지막레벨", "송금일일한도":
         set {_sv} to {%loop-value%::%{_p}%}
         if {_sv} is set:
             execute console command "pdbackup %{_n}% exnum %loop-value% %{_sv}%"
-    loop "낚시이름", "마지막접속날짜", "주간접속날짜", "일일퀘스트날짜", "주간퀘스트주차":
+    loop "낚시이름", "주간접속날짜", "일일퀘스트날짜", "주간퀘스트주차":
         set {_sv} to {%loop-value%::%{_p}%}
         if {_sv} is set:
             execute console command "pdbackup %{_n}% exstr %loop-value% %{_sv}%"
