@@ -17,7 +17,9 @@ command /낚시자바전체set <text>:
         else:
             delete {낚시자바전체}
 
-# 성공 보상: player§§fish§§grade§§size§§quality§§exp§§critPct§§sellBonus§§extra§§area§§isCrit
+# 성공 보상: 아이템생성/지급/exp/콤보/더블트리플/도감/questhook/cashfx/weekrank = Java FishingListener 권위.
+# 실패(/fishfail)도 Java 권위(콤보리셋/메시지). 여기 잔존: 길드포인트 + 총낚시 카운터 + A+ 공지(차단필터).
+# 페이로드: player§§fish§§grade
 command /fishreward2 <text>:
     permission: op
     executable by: console
@@ -28,105 +30,13 @@ command /fishreward2 <text>:
             stop
         set {_fish} to {_t::2}
         set {_grade} to {_t::3}
-        set {_size} to {_t::4} parsed as number
-        set {_quality} to {_t::5} parsed as integer
-        set {_exp} to {_t::6} parsed as number
-        set {_crit} to {_t::7} parsed as integer
-        set {_sell} to {_t::8} parsed as integer
-        set {_extra} to {_t::9} parsed as integer
-        set {_area} to {_t::10}
-        set {_isCrit} to false
-        if {_t::11} is "1":
-            set {_isCrit} to true
-        # ===== 아이템 생성 =====
-        set {_item} to cod named "&f%{_fish}%"
-        delete {_lore::*}
-        add "&8[물고기]" to {_lore::*}
-        add "&r" to {_lore::*}
-        add "&7등급 &e: &f%{_grade}%" to {_lore::*}
-        add "&7크기 &e: &f%{_size}%cm" to {_lore::*}
-        if {_isCrit} is true:
-            add "&6★ 크리티컬 &e크기+%{_crit}%%%" to {_lore::*}
-        if {_sell} > 0:
-            add "&e$ 판매보너스 &f+%{_sell}%%%" to {_lore::*}
-        add "&7신선도 &e: &a100%%" to {_lore::*}
-        add "&f%now%" to {_lore::*}
-        add "&8f:%unix timestamp of now%:0:%{_quality}%" to {_lore::*}
-        set lore of {_item} to {_lore::*}
-        set {_mid} to 물고기모델ID({_fish})
-        if {_mid} is not "":
-            apply custom model data to {_item}:
-                strings: {_mid}
-        # ===== 지급 또는 자동판매 =====
-        set {_empty} to 0
-        loop 36 times:
-            if slot (loop-iteration - 1) of {_p}'s inventory is air:
-                add 1 to {_empty}
-        if {_empty} < 1:
-            set {_price} to fishprice({_grade}, {_quality})
-            if {_sell} > 0:
-                add {_price} * {_sell} / 100 to {_price}
-            set {_price} to floor({_price})
-            # 돈 = Java PlayerData.money 권위 → moneyop add (콘솔, Java 등록)
-            execute console command "moneyop %{_p}'s name% add %{_price}%"
-            send "&8[&b 낚시 &8] &7인벤이 가득 차 &f%{_fish}%&7 자동 판매! &e+%{_price}%원" to {_p}
-        else:
-            give {_item} to {_p}
-            send "&8[&b 낚시 &8] &a%{_grade}%등급 &f%{_fish}% &7%{_size}%cm &a획득!" to {_p}
-            loop {_extra} times:
-                give {_item} to {_p}
-            if {_extra} >= 2:
-                send "&d&l★★★ 트리플 낚시! &e물고기 3마리!" to {_p}
-                도전과제체크({_p}, "트리플", "1")
-            else if {_extra} is 1:
-                send "&b&l★ 더블 낚시! &e같은 물고기를 한 마리 더 잡았다!" to {_p}
-                도전과제체크({_p}, "더블", "1")
-        if {_isCrit} is true:
-            도전과제체크({_p}, "크리티컬", "1")
-        # ===== 경험치 + 내구 =====
-        # 원본 낚시.sk catch 메시지/소리 복원 (Java 포팅 누락분)
-        if {_isCrit} is true:
-            send "&6낚시 경험치 +%{_exp}%exp &8(크리티컬!)" to {_p}
-            play sound "entity.player.levelup" with volume 0.5 and pitch 1.5 to {_p}
-        else:
-            send "&a낚시 경험치 +%{_exp}%exp" to {_p}
-            play sound "entity.experience_orb.pickup" with volume 0.5 and pitch 1.2 to {_p}
-        낚시경험치추가({_p}, {_exp})
-        # 내구도 감소: Java FishingListener.reduceDurability(성공 catch 직후) 권위
-        # ===== 콤보 =====
-        if {낚시콤보::%{_p}%} is not set:
-            set {낚시콤보::%{_p}%} to 0
-        add 1 to {낚시콤보::%{_p}%}
-        if {낚시최대콤보::%{_p}%} is not set:
-            set {낚시최대콤보::%{_p}%} to 0
-        if {낚시콤보::%{_p}%} > {낚시최대콤보::%{_p}%}:
-            set {낚시최대콤보::%{_p}%} to {낚시콤보::%{_p}%}
-        if {낚시콤보::%{_p}%} >= 5:
-            if mod({낚시콤보::%{_p}%}, 5) is 0:
-                send "&6&l%{낚시콤보::%{_p}%}% 콤보! &e연속 낚시 성공!" to {_p}
-        사이드바업데이트({_p})
-        execute console command "titledisplayupdate %{_p}'s name%"
-        execute console command "titleautocheck %{_p}'s name%"
-        도전과제체크({_p}, "콤보", "%{낚시콤보::%{_p}%}%")
-        # ===== 드롭/길드 =====
-        # (낚시대회 기록은 Java ContestManager.recordCatch가 직접 처리 — fishrank 제거)
-        # 재료 드롭 = Java FishingListener→CraftingManager.dropMaterials 권위(이중드롭 방지로 제거)
         if {길드::%name of {_p}%} is set:
             길드포인트적립({_p}, {_grade})
-        # G등급 칭호(신살자) = Java FishingListener gGradeCaught + titleautocheck 권위
-        # 도감 최대크기/첫물고기 기록 + 물고기 도감 발견 = Java FishingListener.recordFishCatch 권위
-        # ===== 퀘스트/이펙트/주간랭킹 훅 =====
-        # 퀘스트(물고기)는 Java QuestManager.onFish — questhook fish <player> <grade> <size> <quality> <fishName>
-        execute console command "questhook fish %{_p}'s name% %{_grade}% %{_size}% %{_quality}% %{_fish}%"
-        execute console command "cashfx success %{_p}'s name% %{_grade}%"
-        execute console command "weekrank fish %{_p}'s name% %{_grade}% %{_size}% %{_fish}%"
-        # ===== 총낚시 + 등급 도전과제 =====
         if {총낚시::%{_p}%} is not set:
             set {총낚시::%{_p}%} to 0
         add 1 to {총낚시::%{_p}%}
         도전과제체크({_p}, "총낚시", "%{총낚시::%{_p}%}%")
         도전과제체크({_p}, "등급", {_grade})
-        # ===== A등급(rank≥6) 이상 서버 공지 + 자랑 이펙트 =====
         set {_rank} to rankchange({_grade})
         if {_rank} >= 6:
             set {_gc} to part_grade_color({_grade})
@@ -134,22 +44,3 @@ command /fishreward2 <text>:
                 if {차단낚시공지::%name of loop-player%} is not true:
                     send "&6&l★ &7%{_p}'s name%&f님이 &6&l%{_fish}%&f 낚았습니다! &8(%{_gc}%%{_grade}%&8)" to loop-player
             execute console command "cashfx brag %{_p}'s name%"
-
-# 실패: player§§result(도주/대기)
-command /fishfail <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_t::*} to split arg-1 at "§§"
-        set {_p} to {_t::1} parsed as player
-        if {_p} is not set:
-            stop
-        set {낚시콤보::%{_p}%} to 0
-        # 내구도 감소: Java FishingListener.reduceDurability(실패 직후) 권위
-        사이드바업데이트({_p})
-        execute console command "titledisplayupdate %{_p}'s name%"
-        execute console command "titleautocheck %{_p}'s name%"
-        if {_t::2} is "대기":
-            send "&c시간 초과! 물고기가 도망갔습니다!" to {_p}
-        else:
-            send "&c물고기가 도망갔습니다!" to {_p}
