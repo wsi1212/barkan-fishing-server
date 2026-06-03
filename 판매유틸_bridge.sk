@@ -79,28 +79,3 @@ every 2 minutes:
                         set {_updated} to updateFreshnessLore({_item})
                         set slot loop-integer of loop-player's inventory to {_updated}
 
-# 판매 부수효과: player§§count§§money (Java가 MoneyBridge.add 후 호출)
-command /sellhook <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_t::*} to split arg-1 at "§§"
-        set {_p} to {_t::1} parsed as player
-        if {_p} is not set:
-            stop
-        set {_count} to {_t::2} parsed as integer
-        set {_money} to {_t::3} parsed as number
-        # 퀘스트(판매)는 Java QuestManager.onSell
-        execute console command "questhook sell %{_p}'s name% %{_count}% %{_money}%"
-        execute console command "weekrank sell %{_p}'s name% %{_money}%"
-        if {총판매::%{_p}%} is not set:
-            set {총판매::%{_p}%} to 0
-        add {_count} to {총판매::%{_p}%}
-        도전과제체크({_p}, "총판매", "%{총판매::%{_p}%}%")
-        도전과제체크({_p}, "보유금", "0")
-        사이드바업데이트({_p})
-
-# NPC 상점 상호작용 시 호출 (판매.sk opensellgui 이관 — Java SellGuiListener /상점으로 위임)
-#  판매.sk 삭제로 고아가 됐던 함수 복원 (NPC.sk:119가 호출).
-function opensellgui(p: player):
-    make {_p} execute command "상점"

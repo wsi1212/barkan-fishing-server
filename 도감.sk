@@ -1,8 +1,0 @@
-# ===== 도감 — Java(DexManager/MainDexGui) 권위. 잔존 shim =====
-# 발견/기록/GUI/카운트 = Java: FishingListener.recordFishCatch(물고기)·DexManager.discover*(낚싯대/부품/재료/
-#   지역, 조합/상점/RegionTracker가 직접)·MainDexGui(표시). 도감_낚싯대/부품/재료/지역 shim + /dogamrod 는
-#   마지막 호출처(조합대_bridge/부품상점_bridge/skill_bridge) 삭제로 데드 → 제거.
-# 도감_물고기 shim만 유지: 낚시훅_bridge(/낚시훅 dogam, 휴면 폴백)가 호출.
-
-function 도감_물고기(p: player, fishName: text, grade: text):
-    execute console command "dexdiscover %{_p}'s name% fish %{_grade}% %{_fishName}%"
