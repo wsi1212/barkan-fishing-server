@@ -8,33 +8,7 @@
 # 이 브릿지는 Java→Skript 단방향 write/위임만.
 # =========================================
 
-# ===== rod 레시피 결과 지급 (부품데이터 기반 낚싯대) =====
-# Java CraftingGui.craft → craftgive <player> <recipeId>
-# {조합법::%id%::결과부품이름} (미러)로 부품낚싯대생성 호출 + 지급 + 도감/퀘스트 훅.
-command /craftgive <player> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1
-        set {_id} to arg-2
-        set {_rodName} to {조합법::%{_id}%::결과부품이름}
-        if {_rodName} is not set:
-            # 미러에 없으면 일반 결과 아이템 사용 (안전망)
-            set {_rodName} to {조합법::%{_id}%::이름}
-        if {_rodName} is not set:
-            stop
-        set {_rod} to 부품낚싯대생성({_rodName})
-        if {_p} can hold {_rod}:
-            give {_rod} to {_p}
-        else:
-            drop {_rod} at {_p}'s location
-            message "&8[&6 조합대 &8] &7인벤토리가 가득 차 바닥에 떨어졌습니다!" to {_p}
-        message "&8[&6 조합대 &8] &a%{_rodName}% &a제작 완료!" to {_p}
-        play sound "entity.player.levelup" with volume 0.7 and pitch 1.5 to {_p}
-        # 퀘스트(조합) 훅 → Java QuestManager.onCraft
-        execute console command "questhook craft %{_p}'s name% %{_rodName}%"
-        # 낚싯대 도감 등록
-        도감_낚싯대({_p}, {_rodName})
+# rod 레시피 결과(낚싯대 생성/지급/도감/퀘스트)는 Java CraftingManager.giveRodResult 권위(/craftgive 제거).
 
 # ===== direct 레시피 제작 후 훅 (도감/퀘스트) =====
 # Java CraftingGui.craft(direct) → craftpost <player>§§<displayName>§§<rodTag 0|1>§§<matId>

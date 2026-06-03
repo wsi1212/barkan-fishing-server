@@ -125,44 +125,8 @@ command /regionparentsync <text> <text>:
 # ===== fish.json → Skript 동기화 브릿지 =====
 # Java FishLoader가 호출. 이 명령들이 모든 fish 변수를 채움.
 
-# 동기화 시작 시 모든 fish 변수 초기화
-command /fishsyncreset:
-    permission: op
-    executable by: console
-    trigger:
-        delete {물고기::*}
-        delete {물고기환경::*}
-        delete {지역물고기목록::*}
-        delete {환경물고기::*}
-
-# 물고기 정의: /fishdefsync <name> <min> <max> <grade> <time> <weather>
-command /fishdefsync <text> <text> <text> <text> <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {물고기::%arg-1%} to "%arg-1%|%arg-2%|%arg-3%|%arg-4%"
-        set {물고기환경::%arg-1%::시간} to arg-5
-        set {물고기환경::%arg-1%::날씨} to arg-6
-
-# 지역별 fish 할당: /regionfishsync <region> <sublist> <fish1,fish2,...>
-command /regionfishsync <text> <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        delete {지역물고기목록::%arg-1%::%arg-2%::*}
-        if arg-3 is not "없음":
-            loop split arg-3 at ",":
-                add loop-value to {지역물고기목록::%arg-1%::%arg-2%::*}
-
-# 환경 fish: /envfishsync <env> <fish1,fish2,...>
-command /envfishsync <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        delete {환경물고기::%arg-1%::*}
-        if arg-2 is not "없음":
-            loop split arg-2 at ",":
-                add loop-value to {환경물고기::%arg-1%::*}
+# fish 미러({물고기}/{물고기환경}/{지역물고기목록}/{환경물고기}) 제거: FishLoader가 fish.json 단독 권위,
+# syncToSkript no-op화 → fishsyncreset/fishdefsync/regionfishsync/envfishsync 명령 삭제됨.
 
 # ===== 길드 소유 지역 동기화 (Java → Skript) =====
 command /regionguildsync <text> <text>:
