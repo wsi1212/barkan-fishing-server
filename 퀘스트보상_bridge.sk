@@ -17,7 +17,7 @@ command /questreward <text> <text> <text>:
         set {_kind} to arg-2
         set {_val} to arg-3
         if {_kind} is "title":
-            set {보유칭호::%{_p}%::%{_val}%} to true
+            execute console command "titlegrant %{_p}'s name% %{_val}%"
             set {_tn} to {칭호데이터::%{_val}%::이름}
             if {_tn} is not set:
                 set {_tn} to {_val}

@@ -39,7 +39,7 @@ command /titleautocheck <text>:
         set {_p} to arg-1 parsed as player
         if {_p} is not set:
             stop
-        칭호자동체크({_p})
+        execute console command "titleautocheck %{_p}'s name%"
 
 # ===== on join: 밀린 레벨업 정산 + 낚시이름 등록 (낚시레벨.sk on join 이관) =====
 # PlayerData restore(pdrestore level) 후 Skript 캐시에 값이 들어오므로, 약간 지연 후 0 exp 정산.

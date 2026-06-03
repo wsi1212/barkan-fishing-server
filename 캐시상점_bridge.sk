@@ -72,9 +72,9 @@ command /cashbuy <text>:
             message "&a길드 부스터 활성화! &7(길드 시스템 연동 예정)" to {_p}
         else if {_tag} is "cosmetic:칭호":
             set {캐시외형::%{_p}%::%{_tag}%} to true
-            set {보유칭호::%{_p}%::프리미엄골드} to true
-            set {보유칭호::%{_p}%::프리미엄무지개} to true
-            set {보유칭호::%{_p}%::프리미엄불꽃} to true
+            execute console command "titlegrant %{_p}'s name% 프리미엄골드"
+            execute console command "titlegrant %{_p}'s name% 프리미엄무지개"
+            execute console command "titlegrant %{_p}'s name% 프리미엄불꽃"
             message "&d프리미엄 칭호 3종 해금! &7/칭호 에서 장착하세요!" to {_p}
         else if {_tag} contains "skin:":
             set {캐시외형::%{_p}%::%{_tag}%} to true

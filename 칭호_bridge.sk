@@ -37,75 +37,30 @@ command /titlesync <text>:
                 set {칭호데이터::%{_id}%::%{_f}%} to {_v}
 
 # ===========================================================================
-# Java(TitleGuiManager) → Skript 권위 변수 쓰기 시밍
-#   칭호 GUI/명령은 Java로 이관됐으나 {장착칭호}/{보유칭호}는 Skript 권위(퀘스트/도전과제/
-#   캐시상점 등 5파일이 직접 write). 따라서 Java는 아래 콘솔명령으로 위임만 한다.
-#   각 핸들러는 권위 변수 갱신 + 칭호태그업데이트() 호출 + PlayerData 미러 즉시 push.
+# 칭호 보유/장착/자동부여/태그/채팅 = Java TitleLogic 권위(칭호.sk 삭제).
+#   장착/부여/회수/표시갱신/자동체크 명령은 Java가 등록(titleequip/titlegrant/
+#   titlerevoke/titledisplayupdate/titleautocheck). 여기엔 채팅 포맷 shim만 둔다.
 # ===========================================================================
 
-# /titleequip <name> <titleId> — GUI에서 칭호 장착
-command /titleequip <text> <text>:
+# Java TitleLogic.pushChatPrefix → 채팅 프리픽스 미러. 장착/접속/레벨변동 시 갱신.
+command /titlechatpush <text> <text>:
     permission: op
     executable by: console
     trigger:
         set {_p} to arg-1 parsed as player
         if {_p} is not set:
             stop
-        if {보유칭호::%{_p}%::%arg-2%} is not true:
-            stop
-        set {장착칭호::%{_p}%} to arg-2
-        set {_name} to {칭호데이터::%arg-2%::이름}
-        if {_name} is not set:
-            set {_name} to arg-2
-        message "&8[&e 칭호 &8] &a%{_name}% &a칭호를 장착했습니다!" to {_p}
-        칭호태그업데이트({_p})
-        칭호미러푸시({_p})
-
-# /titlegrant <name> <titleId> — 어드민 칭호 부여
-command /titlegrant <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_target} to arg-1 parsed as player
-        if {_target} is not set:
-            stop
-        set {보유칭호::%{_target}%::%arg-2%} to true
-        message "&8[&e 칭호 &8] &a%{_target}'s name%에게 '%arg-2%' 칭호를 부여했습니다." to console
-        message "&8[&e 칭호 &8] &a새 칭호를 받았습니다! /칭호 에서 확인하세요." to {_target}
-        칭호미러푸시({_target})
-
-# /titlerevoke <name> <titleId> — 어드민 칭호 회수
-command /titlerevoke <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_target} to arg-1 parsed as player
-        if {_target} is not set:
-            stop
-        delete {보유칭호::%{_target}%::%arg-2%}
-        if {장착칭호::%{_target}%} is arg-2:
-            delete {장착칭호::%{_target}%}
-            칭호태그업데이트({_target})
-        message "&8[&e 칭호 &8] &c%{_target}'s name%에게서 '%arg-2%' 칭호를 회수했습니다." to console
-        칭호미러푸시({_target})
-
-# PlayerData(ownedTitles/equippedTitle) 즉시 미러 — GUI가 다음 열 때 최신값을 읽도록.
-# 데이터백업.sk의 정기 pdbackup title 과 동일 포맷.
-function 칭호미러푸시(p: player):
-    set {_n} to {_p}'s name
-    set {_title} to {장착칭호::%{_p}%}
-    if {_title} is not set:
-        set {_title} to "없음"
-    else:
-        replace all " " with "_" in {_title}
-    set {_ownedTitles} to ""
-    loop {보유칭호::%{_p}%::*}:
-        set {_tname} to loop-index
-        replace all " " with "_" in {_tname}
-        if {_ownedTitles} is "":
-            set {_ownedTitles} to {_tname}
+        if arg-2 is "없음":
+            delete {칭호채팅프리픽스::%{_p}%}
         else:
-            set {_ownedTitles} to "%{_ownedTitles}%||%{_tname}%"
-    if {_ownedTitles} is "":
-        set {_ownedTitles} to "없음"
-    execute console command "pdbackup %{_n}% title %{_title}% %{_ownedTitles}%"
+            set {_pre} to arg-2
+            replace all "_" with " " in {_pre}
+            set {칭호채팅프리픽스::%{_p}%} to {_pre}
+
+# 채팅 포맷(칭호 프리픽스). 길드.sk on chat(길드/지역 라우팅)과 공존.
+on chat:
+    set {_pre} to {칭호채팅프리픽스::%player%}
+    if {_pre} is set:
+        set chat format to "%{_pre}% &f%player's name%&7: &f%message%"
+    else:
+        set chat format to "&f%player's name%&7: &f%message%"

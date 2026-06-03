@@ -105,19 +105,15 @@ command /fishreward2 <text>:
             if mod({낚시콤보::%{_p}%}, 5) is 0:
                 send "&6&l%{낚시콤보::%{_p}%}% 콤보! &e연속 낚시 성공!" to {_p}
         사이드바업데이트({_p})
-        콤보네임태그({_p})
-        칭호자동체크({_p})
+        execute console command "titledisplayupdate %{_p}'s name%"
+        execute console command "titleautocheck %{_p}'s name%"
         도전과제체크({_p}, "콤보", "%{낚시콤보::%{_p}%}%")
         # ===== 드롭/길드 =====
         # (낚시대회 기록은 Java ContestManager.recordCatch가 직접 처리 — fishrank 제거)
         # 재료 드롭 = Java FishingListener→CraftingManager.dropMaterials 권위(이중드롭 방지로 제거)
         if {길드::%name of {_p}%} is set:
             길드포인트적립({_p}, {_grade})
-        # ===== G등급 도감 플래그 =====
-        if {_grade} is "G":
-            if {도감G등급::%{_p}%} is not true:
-                set {도감G등급::%{_p}%} to true
-                칭호자동체크({_p})
+        # G등급 칭호(신살자) = Java FishingListener gGradeCaught + titleautocheck 권위
         # 도감 최대크기/첫물고기 기록 + 물고기 도감 발견 = Java FishingListener.recordFishCatch 권위
         # ===== 퀘스트/이펙트/주간랭킹 훅 =====
         # 퀘스트(물고기)는 Java QuestManager.onFish — questhook fish <player> <grade> <size> <quality> <fishName>
@@ -151,8 +147,8 @@ command /fishfail <text>:
         set {낚시콤보::%{_p}%} to 0
         # 내구도 감소: Java FishingListener.reduceDurability(실패 직후) 권위
         사이드바업데이트({_p})
-        콤보네임태그({_p})
-        칭호자동체크({_p})
+        execute console command "titledisplayupdate %{_p}'s name%"
+        execute console command "titleautocheck %{_p}'s name%"
         if {_t::2} is "대기":
             send "&c시간 초과! 물고기가 도망갔습니다!" to {_p}
         else:

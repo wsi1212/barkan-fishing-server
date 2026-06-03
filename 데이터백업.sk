@@ -135,25 +135,7 @@ function 플레이어데이터백업(p: offline player):
     # ★ 낚싯대강화.sk → Java(Enhance/BlessingManager) 이관: 강화=rodenhance-rid.json(RID 권위),
     #   축복=PlayerData.blessings 권위. Java 단독 write + push-back(restore). backup 제거(클로버 차단).
 
-    # --- Title ---
-    set {_title} to {장착칭호::%{_p}%}
-    if {_title} is not set:
-        set {_title} to "없음"
-    else:
-        replace all " " with "_" in {_title}
-    # ★ 수정: 실제 보유칭호 키 순회(레지스트리 비의존). 키 순서 = 보유칭호::UUID::TITLE (게임 데이터와 일치).
-    #   기존엔 {칭호데이터::*}를 돌며 {보유칭호::TITLE::UUID}(잘못된 순서)를 확인해 항상 빈값이었음.
-    set {_ownedTitles} to ""
-    loop {보유칭호::%{_p}%::*}:
-        set {_tname} to loop-index
-        replace all " " with "_" in {_tname}
-        if {_ownedTitles} is "":
-            set {_ownedTitles} to {_tname}
-        else:
-            set {_ownedTitles} to "%{_ownedTitles}%||%{_tname}%"
-    if {_ownedTitles} is "":
-        set {_ownedTitles} to "없음"
-    execute console command "pdbackup %{_n}% title %{_title}% %{_ownedTitles}%"
+    # --- Title --- 칭호 보유/장착 = Java TitleLogic/PlayerData 권위. backup 제거.
 
     # --- Quests ---
     # 퀘스트 state(상태/진행/활성/일일/주간)는 Java QuestManager 권위(PlayerData가 직접 소유·영속).
@@ -354,24 +336,6 @@ command /pdrestoreex <text> <text> <text>:
             set {_kv::*} to split arg-3 at "::"
             set {플레이어축복::%{_kv::1}%::%{_p}%} to {_kv::2} parsed as number
             # 인챈트 캐시 push는 Java BlessingManager(blessingrefresh/onJoin)가 담당
-        else if arg-2 is "title":
-            # arg-3 = "equipped||owned1||owned2||..."
-            set {_parts::*} to split arg-3 at "||"
-            set {_equipped} to {_parts::1}
-            replace all "_" with " " in {_equipped}
-            if {_equipped} is "없음":
-                delete {장착칭호::%{_p}%}
-            else:
-                set {장착칭호::%{_p}%} to {_equipped}
-            set {_idx} to 0
-            loop {_parts::*}:
-                add 1 to {_idx}
-                if {_idx} > 1:
-                    if loop-value is not "없음":
-                        set {_tname} to loop-value
-                        replace all "_" with " " in {_tname}
-                        # ★ 수정: UUID::TITLE 순서 (게임 데이터와 일치). 기존 TITLE::UUID는 게임이 못 읽었음.
-                        set {보유칭호::%{_p}%::%{_tname}%} to true
         else if arg-2 is "quest":
             # arg-3 = "questId::status::obj1Idx::val||obj2Idx::val"
             set {_parts::*} to split arg-3 at "::"

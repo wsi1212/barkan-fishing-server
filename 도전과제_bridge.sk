@@ -17,22 +17,8 @@
 function 도전과제체크(p: player, type: text, value: text):
     execute console command "achcheck %{_p}'s name% %{_type}% %{_value}%"
 
-# ===== Java 수여 → 칭호 보상 처리 (Skript 권위 변수) =====
-# /achtitle <player> <titleId|없음>
-command /achtitle <text> <text>:
-    permission: op
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        if arg-2 is not "없음":
-            set {보유칭호::%{_p}%::%arg-2%} to true
-            set {_tn} to {칭호데이터::%arg-2%::이름}
-            if {_tn} is not set:
-                set {_tn} to arg-2
-            message "&8[&e ★ &8] &e칭호 획득! &f[%{_tn}%&f]" to {_p}
-        # 돈/사이드바 갱신 (Java가 돈을 MoneyBridge로 더했으므로 사이드바만 새로고침)
-        사이드바업데이트({_p})
+# 칭호 보상은 Java AchievementManager가 TitleLogic.grantTitleWithMessage 직접 호출(/achtitle 제거).
+# 사이드바 갱신은 Java가 sidebarupdate 디스패치.
 
 # ===== 접속일수 카운터 + 접속 시 일괄 체크 =====
 on join:
