@@ -2,77 +2,25 @@
 # 5종 도감: 물고기, 낚싯대, 부품, 재료, 지역
 # 첫 발견 시 수집레벨(지역은 탐험레벨) 경험치 지급
 
-# ===== 발견 함수 (외부에서 호출) =====
+# ===== 발견 함수 → Java DexManager 위임 (/dexdiscover) =====
+# 권위=PlayerData.dexDiscovery. 중복체크/수집exp/메시지/questhook dex 모두 Java DexManager가 처리.
+# 물고기 발견+기록(maxSize/날짜)은 Java FishingListener.recordFishCatch가 직접 처리.
+# 이 shim들은 미이관 .sk 호출처(조합대_bridge/부품상점_bridge/조합재료/skill_bridge) 호환용.
 
-# --- 물고기 발견 (낚시.sk에서 호출) ---
 function 도감_물고기(p: player, fishName: text, grade: text):
-    if {도감발견::물고기::%{_p}%::%{_fishName}%} is true:
-        stop
-    set {도감발견::물고기::%{_p}%::%{_fishName}%} to true
-    # 등급별 차등 수집exp
-    set {_xp} to 10
-    if {_grade} is "D":
-        set {_xp} to 15
-    else if {_grade} is "C":
-        set {_xp} to 20
-    else if {_grade} is "B":
-        set {_xp} to 30
-    else if {_grade} is "A":
-        set {_xp} to 50
-    else if {_grade} is "S":
-        set {_xp} to 80
-    else if {_grade} is "S+":
-        set {_xp} to 100
-    else if {_grade} is "M":
-        set {_xp} to 150
-    else if {_grade} is "L":
-        set {_xp} to 200
-    else if {_grade} is "G":
-        set {_xp} to 300
-    수집경험치추가({_p}, {_xp})
-    message "&8[&d 도감 &8] &a새 물고기 등록! &f%{_fishName}% &8(수집 +%{_xp}%exp)" to {_p}
-    # 도감 완성도(dogam) 퀘스트 갱신 → Java QuestManager.onDex
-    execute console command "questhook dex %{_p}'s name%"
+    execute console command "dexdiscover %{_p}'s name% fish %{_grade}% %{_fishName}%"
 
-# --- 낚싯대 발견 (조합대.sk에서 호출) ---
 function 도감_낚싯대(p: player, rodName: text):
-    if {도감발견::낚싯대::%{_p}%::%{_rodName}%} is true:
-        stop
-    set {도감발견::낚싯대::%{_p}%::%{_rodName}%} to true
-    수집경험치추가({_p}, 30)
-    message "&8[&d 도감 &8] &a새 낚싯대 등록! &f%{_rodName}% &8(수집 +30exp)" to {_p}
-    # Java 도감 즉시 반영 (다음 정기 백업 기다리지 않고 dexDiscovery 미러 push)
-    pd백업도감발견({_p}, name of {_p}, "낚싯대")
+    execute console command "dexdiscover %{_p}'s name% rod %{_rodName}%"
 
-# --- 부품 발견 (부품상점.sk에서 호출) ---
 function 도감_부품(p: player, partType: text, partName: text):
-    if {도감발견::부품::%{_p}%::%{_partType}%::%{_partName}%} is true:
-        stop
-    set {도감발견::부품::%{_p}%::%{_partType}%::%{_partName}%} to true
-    수집경험치추가({_p}, 15)
-    message "&8[&d 도감 &8] &a새 부품 등록! &f%{_partName}% &8(수집 +15exp)" to {_p}
-    # Java 도감 즉시 반영 (부품은 "type::name" 평탄화 백업)
-    pd백업도감발견({_p}, name of {_p}, "부품")
+    execute console command "dexdiscover %{_p}'s name% part %{_partType}% %{_partName}%"
 
-# --- 재료 발견 (조합재료.sk에서 호출) ---
 function 도감_재료(p: player, matId: text):
-    if {도감발견::재료::%{_p}%::%{_matId}%} is true:
-        stop
-    set {도감발견::재료::%{_p}%::%{_matId}%} to true
-    수집경험치추가({_p}, 20)
-    set {_matData::*} to split {조합재료::%{_matId}%} at "|"
-    message "&8[&d 도감 &8] &a새 재료 등록! &e%{_matData::1}% &8(수집 +20exp)" to {_p}
-    # Java 도감 즉시 반영
-    pd백업도감발견({_p}, name of {_p}, "재료")
+    execute console command "dexdiscover %{_p}'s name% material %{_matId}%"
 
-# --- 지역 발견 (탐험.sk 탐험_발견에서 자동 처리 → 여기선 도감 변수만 세팅) ---
 function 도감_지역(p: player, regionId: text):
-    if {도감발견::지역::%{_p}%::%{_regionId}%} is true:
-        stop
-    set {도감발견::지역::%{_p}%::%{_regionId}%} to true
-    # 탐험exp는 탐험_발견()에서 이미 지급하므로 여기선 도감 등록만
-    # Java 도감 즉시 반영
-    pd백업도감발견({_p}, name of {_p}, "지역")
+    execute console command "dexdiscover %{_p}'s name% region %{_regionId}%"
 
 # ===== [Java 이관] 도감 GUI(메인+5탭) + 카운트 함수 제거 =====
 # 5탭 도감 GUI(도감메인GUI/도감_낚싯대·부품·재료·지역GUI) 및 도감카운트_* 함수는
