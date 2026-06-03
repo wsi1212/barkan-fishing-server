@@ -1,4 +1,7 @@
-# ===== 길드 시스템 — Skript 브릿지 + 버프 + 채팅 + GUI =====
+# ===== 길드 시스템 — Java(BlockShip) 이관 후 잔존 브릿지 =====
+# 데이터/CRUD/GUI/채팅/포인트/버프/알림 = Java(GuildManager/Command/Gui/GuildChatListener) 권위.
+# 여기 남은 것: Java→Skript 미러 sync 수신자(잔존 호환) + 섬 텔포/월드보더(섬.sk가 {섬이전위치} 읽음) + on join(guildbr onjoin 위임).
+# 채팅(길드/지역/전체+칭호프리픽스)·채팅모드GUI·차단플래그·길드포인트적립·버프함수는 Java로 이관되어 삭제됨.
 
 # ===== 길드 리스트 동기화 (Java → Skript) =====
 command /guildlistsync <text> [<text>]:
@@ -41,290 +44,33 @@ command /guilddisband <text>:
     permission: op
     executable by: console
     trigger:
-        # 모든 플레이어의 길드 변수 정리
         loop all players:
             set {_lpn} to name of loop-player
             if {길드::%{_lpn}%} is arg-1:
                 delete {길드::%{_lpn}%}
-                delete {길드채팅모드::%loop-player%}
         delete {길드정보::%arg-1%::*}
-        # 길드 리스트에서 제거
         remove arg-1 from {길드목록::*}
         remove arg-1 from {길드리스트::*}
-        # 길드 섬 관련 변수 정리
         set {_islandId} to "길드섬_%arg-1%"
         delete {지역길드::%{_islandId}%}
         delete {길드섬중심X::%{_islandId}%}
         delete {길드섬중심Z::%{_islandId}%}
         delete {길드섬크기::%{_islandId}%}
-        # 섬/지역 리스트에서 제거
         remove {_islandId} from {섬리스트::*}
         remove {_islandId} from {지역리스트::*}
 
-# ===== 길드 생성/기부 비용 체크 =====
-# ★ 돈 = Java PlayerData.money 권위로 이관. 비용 체크+차감+생성/기부 확정 모두 Java GuildCommand가 직접 수행.
-#    (구 guildcreatecheck/guilddonatecheck Skript 브릿지 제거 — {돈} 의존 제거)
-
-# ===== 길드 채팅 토글 =====
-command /guildchattoggle <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        # "check" 모드: Skript 변수로 길드 확인
-        if arg-2 is "check":
-            if {길드::%name of {_p}%} is not set:
-                message "&c길드에 가입되어 있지 않습니다." to {_p}
-                stop
-        if {길드채팅모드::%{_p}%} is true:
-            set {길드채팅모드::%{_p}%} to false
-            message "&a전체 채팅 모드로 전환되었습니다." to {_p}
-            make console execute command "sidebarchatmode %name of {_p}% none"
-        else:
-            set {길드채팅모드::%{_p}%} to true
-            message "&b길드 채팅 모드로 전환되었습니다. (/채팅 으로 복귀)" to {_p}
-            make console execute command "sidebarchatmode %name of {_p}% guild"
-            # 최근 로그 20개 표시는 Java에서 처리
-
-on tab complete of "/채팅":
-    stop
-
-command /채팅:
-    aliases: /coxld
-    trigger:
-        채팅모드GUI(player)
-
-function 채팅모드GUI(p: player):
-    set {_gui} to chest inventory with 3 rows named "&0채팅 설정"
-    set {_pn} to name of {_p}
-    # 현재 모드 확인
-    set {_curMode} to "전체"
-    if {길드채팅모드::%{_p}%} is true:
-        set {_curMode} to "길드"
-    else if {지역채팅모드::%{_p}%} is true:
-        set {_curMode} to "지역"
-    # 배경
-    loop integers from 0 to 26:
-        set slot loop-integer of {_gui} to black stained glass pane named "&f"
-    # --- 행1: 채팅 모드 (슬롯 1, 4, 7) ---
-    if {_curMode} is "전체":
-        set slot 1 of {_gui} to lime stained glass pane named "&a&l전체 채팅 &7(현재)" with lore "&7모든 플레이어에게 보입니다"
-    else:
-        set slot 1 of {_gui} to white stained glass pane named "&f전체 채팅" with lore "&7모든 플레이어에게 보입니다" and "" and "&e클릭하여 전환"
-    # 지역 채팅
-    set {_cnt} to 0
-    loop all players:
-        if loop-player is not {_p}:
-            if loop-player's world is {_p}'s world:
-                if distance between {_p} and loop-player <= 500:
-                    add 1 to {_cnt}
-    if {_curMode} is "지역":
-        set slot 4 of {_gui} to lime stained glass pane named "&e&l지역 채팅 &7(현재)" with lore "&7반경 500블록 내 플레이어" and "&7주변: &f%{_cnt}%명" and "" and "&7전체 채팅이 안 보입니다"
-    else:
-        set slot 4 of {_gui} to orange stained glass pane named "&e지역 채팅" with lore "&7반경 500블록 내 플레이어" and "&7주변: &f%{_cnt}%명" and "" and "&e클릭하여 전환"
-    # 길드 채팅
-    if {길드::%{_pn}%} is set:
-        set {_gName} to {길드정보::%{길드::%{_pn}%}%::이름}
-        if {_gName} is not set:
-            set {_gName} to {길드::%{_pn}%}
-        if {_curMode} is "길드":
-            set slot 7 of {_gui} to lime stained glass pane named "&b&l길드 채팅 &7(현재)" with lore "&7길드: &f%{_gName}%" and "" and "&7전체 채팅이 안 보입니다"
-        else:
-            set slot 7 of {_gui} to cyan stained glass pane named "&b길드 채팅" with lore "&7길드: &f%{_gName}%" and "" and "&e클릭하여 전환"
-    else:
-        set slot 7 of {_gui} to gray stained glass pane named "&7길드 채팅" with lore "&c길드에 가입되어 있지 않습니다"
-    # --- 행3: 채팅 차단 토글 (슬롯 18,20,22,24,26) ---
-    # 슬롯 18: 전체 채팅 차단
-    if {차단전체채팅::%{_pn}%} is true:
-        set slot 18 of {_gui} to red stained glass pane named "&c전체 채팅 차단 &a[ON]" with lore "&7다른 플레이어 채팅 차단 중" and "&7(공지는 보입니다)" and "" and "&e클릭하여 해제"
-    else:
-        set slot 18 of {_gui} to green stained glass pane named "&a전체 채팅 수신 &7[OFF]" with lore "&7다른 플레이어 채팅 수신 중" and "" and "&e클릭하여 차단"
-    # 슬롯 20: 길드 채팅 차단
-    if {차단길드채팅::%{_pn}%} is true:
-        set slot 20 of {_gui} to red stained glass pane named "&c길드 채팅 차단 &a[ON]" with lore "&7길드원 채팅 차단 중" and "" and "&e클릭하여 해제"
-    else:
-        set slot 20 of {_gui} to green stained glass pane named "&a길드 채팅 수신 &7[OFF]" with lore "&7길드원 채팅 수신 중" and "" and "&e클릭하여 차단"
-    # 슬롯 22: 홍보 차단
-    if {차단홍보::%{_pn}%} is true:
-        set slot 22 of {_gui} to red stained glass pane named "&c홍보 차단 &a[ON]" with lore "&7길드 홍보 메시지 차단 중" and "" and "&e클릭하여 해제"
-    else:
-        set slot 22 of {_gui} to green stained glass pane named "&a홍보 수신 &7[OFF]" with lore "&7길드 홍보 메시지 수신 중" and "" and "&e클릭하여 차단"
-    # 슬롯 24: 팁 차단
-    if {차단팁::%{_pn}%} is true:
-        set slot 24 of {_gui} to red stained glass pane named "&c팁 차단 &a[ON]" with lore "&7서버 팁 메시지 차단 중" and "" and "&e클릭하여 해제"
-    else:
-        set slot 24 of {_gui} to green stained glass pane named "&a팁 수신 &7[OFF]" with lore "&7서버 팁 메시지 수신 중" and "" and "&e클릭하여 차단"
-    # 슬롯 26: 낚시 공지 차단
-    if {차단낚시공지::%{_pn}%} is true:
-        set slot 26 of {_gui} to red stained glass pane named "&c낚시 공지 차단 &a[ON]" with lore "&7S등급+ 낚시 공지 차단 중" and "" and "&e클릭하여 해제"
-    else:
-        set slot 26 of {_gui} to green stained glass pane named "&a낚시 공지 수신 &7[OFF]" with lore "&7S등급+ 낚시 공지 수신 중" and "" and "&e클릭하여 차단"
-    open {_gui} to {_p}
-
-on inventory click:
-    if player's current inventory's name is "&0채팅 설정":
-        cancel event
-        set {_ci} to index of clicked slot
-        if {_ci} is 1:
-            # 전체 채팅
-            set {길드채팅모드::%player%} to false
-            set {지역채팅모드::%player%} to false
-            close player's inventory
-            message "&a전체 채팅 모드로 전환되었습니다." to player
-            make console execute command "sidebarchatmode %name of player% none"
-            사이드바업데이트(player)
-        else if {_ci} is 4:
-            # 지역 채팅
-            set {_cnt} to 0
-            loop all players:
-                if loop-player is not player:
-                    if loop-player's world is player's world:
-                        if distance between player and loop-player <= 500:
-                            add 1 to {_cnt}
-            if {_cnt} is 0:
-                message "&c주변에 플레이어가 없습니다." to player
-                stop
-            # 지역채팅 ON인 사람 수
-            set {_chatCnt} to 0
-            loop all players:
-                if loop-player is not player:
-                    if {지역채팅모드::%loop-player%} is true:
-                        if loop-player's world is player's world:
-                            if distance between player and loop-player <= 500:
-                                add 1 to {_chatCnt}
-            set {길드채팅모드::%player%} to false
-            set {지역채팅모드::%player%} to true
-            close player's inventory
-            message "&e지역 채팅 모드로 전환되었습니다. &7(주변 %{_cnt}%명, 지역채팅 %{_chatCnt}%명)" to player
-            make console execute command "sidebarchatmode %name of player% region"
-            사이드바업데이트(player)
-        else if {_ci} is 7:
-            # 길드 채팅
-            set {_pn} to name of player
-            if {길드::%{_pn}%} is not set:
-                message "&c길드에 가입되어 있지 않습니다." to player
-                stop
-            set {지역채팅모드::%player%} to false
-            set {길드채팅모드::%player%} to true
-            close player's inventory
-            message "&b길드 채팅 모드로 전환되었습니다." to player
-            make console execute command "sidebarchatmode %name of player% guild"
-            사이드바업데이트(player)
-        # --- 차단 토글 ---
-        else if {_ci} is 18:
-            set {_pn} to name of player
-            if {차단전체채팅::%{_pn}%} is true:
-                delete {차단전체채팅::%{_pn}%}
-                message "&a전체 채팅 차단을 해제했습니다." to player
-            else:
-                set {차단전체채팅::%{_pn}%} to true
-                message "&c전체 채팅을 차단합니다. &7(공지는 보입니다)" to player
-            채팅모드GUI(player)
-        else if {_ci} is 20:
-            set {_pn} to name of player
-            if {차단길드채팅::%{_pn}%} is true:
-                delete {차단길드채팅::%{_pn}%}
-                message "&a길드 채팅 차단을 해제했습니다." to player
-            else:
-                set {차단길드채팅::%{_pn}%} to true
-                message "&c길드 채팅을 차단합니다." to player
-            채팅모드GUI(player)
-        else if {_ci} is 22:
-            set {_pn} to name of player
-            if {차단홍보::%{_pn}%} is true:
-                delete {차단홍보::%{_pn}%}
-                message "&a홍보 메시지 차단을 해제했습니다." to player
-            else:
-                set {차단홍보::%{_pn}%} to true
-                message "&c홍보 메시지를 차단합니다." to player
-            채팅모드GUI(player)
-        else if {_ci} is 24:
-            set {_pn} to name of player
-            if {차단팁::%{_pn}%} is true:
-                delete {차단팁::%{_pn}%}
-                make console execute command "tipblock %{_pn}% 0"
-                message "&a팁 메시지 차단을 해제했습니다." to player
-            else:
-                set {차단팁::%{_pn}%} to true
-                make console execute command "tipblock %{_pn}% 1"
-                message "&c팁 메시지를 차단합니다." to player
-            채팅모드GUI(player)
-        else if {_ci} is 26:
-            set {_pn} to name of player
-            if {차단낚시공지::%{_pn}%} is true:
-                delete {차단낚시공지::%{_pn}%}
-                message "&a낚시 공지 차단을 해제했습니다." to player
-            else:
-                set {차단낚시공지::%{_pn}%} to true
-                message "&c낚시 공지를 차단합니다." to player
-            채팅모드GUI(player)
-
-# ===== 채팅 처리 (길드 > 지역 > 전체) =====
-on chat:
-    # 1순위: 길드 채팅 모드
-    if {길드채팅모드::%player%} is true:
-        cancel event
-        set {_pn} to name of player
-        set {_guildId} to {길드::%{_pn}%}
-        if {_guildId} is not set:
-            set {길드채팅모드::%player%} to false
-            message "&c길드에 가입되어 있지 않습니다. 전체 채팅으로 복귀합니다." to player
-            stop
-        # 직급 표시
-        set {_role} to {길드역할::%{_pn}%}
-        if {_role} is "MASTER":
-            set {_roleTag} to "&6[길드장]"
-        else if {_role} is "VICE_MASTER":
-            set {_roleTag} to "&5[부길드장]"
-        else if {_role} is "OFFICER":
-            set {_roleTag} to "&b[간부]"
-        else:
-            set {_roleTag} to "&7[길드원]"
-        # 길드원 전체에게 전송 (차단 유저 제외)
-        loop all players:
-            set {_lpn} to name of loop-player
-            if {길드::%{_lpn}%} is {_guildId}:
-                if {차단길드채팅::%{_lpn}%} is not true:
-                    message "&b[길드] %{_roleTag}% &f%player's name%&7: &f%message%" to loop-player
-    # 2순위: 지역 채팅 모드
-    else if {지역채팅모드::%player%} is true:
-        cancel event
-        loop all players:
-            if loop-player's world is player's world:
-                if distance between player and loop-player <= 500:
-                    message "&e[지역] &f%player's name%&7: &f%message%" to loop-player
-    # 3순위: 전체 채팅
-    else:
-        # 길드 채팅 모드 + 전채챗 차단 유저에게는 전체 채팅 안 보이게
-        # (지역 채팅 유저는 전체 채팅도 봄)
-        loop all players:
-            if {길드채팅모드::%loop-player%} is true:
-                remove loop-player from chat recipients
-            else:
-                set {_lpn2} to name of loop-player
-                if {차단전체채팅::%{_lpn2}%} is true:
-                    remove loop-player from chat recipients
-
-
-# ===== 길드 섬 텔포 (위치저장 + tp + 월드보더) =====
+# ===== 길드 섬 텔포 (위치저장 + tp + 월드보더). {섬이전위치}는 섬.sk가 읽음 =====
 command /guildislandtp <text> <text> <integer> <integer> <integer> <integer>:
     permission: op
     executable by: console
     trigger:
-        # arg-1: player, arg-2: world, arg-3: cx, arg-4: cz, arg-5: borderSize, arg-6: islandSize
         set {_p} to arg-1 parsed as player
         if {_p} is not set:
             stop
-        # 현재 위치 저장
         set {섬이전위치::%{_p}%} to location of {_p}
-        # 텔포
         make {_p} execute command "execute in minecraft:%arg-2% run tp @s %arg-3% 65 %arg-4%"
-        # 1틱 후 월드보더 설정 (텔포 완료 대기)
         wait 1 tick
         execute console command "guildsetborder %arg-1% %arg-3% %arg-4% %arg-5%"
-        # 메시지
         send "&a길드 섬으로 이동했습니다! &7(크기: %arg-6%x%arg-6%)" to {_p}
         send "&7/스폰 으로 돌아가기" to {_p}
 
@@ -343,214 +89,11 @@ command /guildworldborder <text> <integer> <integer> <integer>:
     permission: op
     executable by: console
     trigger:
-        # arg-1: islandId, arg-2: centerX, arg-3: centerZ, arg-4: size
         set {길드섬중심X::%arg-1%} to arg-2
         set {길드섬중심Z::%arg-1%} to arg-3
         set {길드섬크기::%arg-1%} to arg-4
 
-# ===== 길드 목록/랭킹 GUI는 Java(GuildGui)로 이관됨 =====
-# guildlistgui/길드목록GUI/길드신청대기 on chat, guildrankgui/guildranksync/길드랭킹GUI 제거.
-# /길드 목록·랭킹 → GuildCommand가 GuildGui.openList/openRanking 직접 호출.
-# 신청은 GuildGui 목록 클릭 → "rlfem 신청 <id>"(메시지 없음) 위임.
-
-# ===== 길드 포인트 적립 (낚시.sk에서 호출) =====
-function 길드포인트적립(p: player, grade: text):
-    set {_gId} to {길드::%name of {_p}%}
-    if {_gId} is not set:
-        stop
-    # 등급별 낚시 포인트
-    set {_pts} to 1
-    if {_grade} is "D":
-        set {_pts} to 2
-    else if {_grade} is "C":
-        set {_pts} to 4
-    else if {_grade} is "B":
-        set {_pts} to 8
-    else if {_grade} is "A":
-        set {_pts} to 16
-    else if {_grade} is "S":
-        set {_pts} to 32
-    else if {_grade} is "S+":
-        set {_pts} to 64
-    else if {_grade} is "M":
-        set {_pts} to 128
-    else if {_grade} is "L":
-        set {_pts} to 256
-    else if {_grade} is "G":
-        set {_pts} to 512
-    # 포인트 부스트 적용
-    set {_boost} to 길드포인트보너스({_p})
-    if {_boost} > 0:
-        set {_pts} to floor({_pts} * (1 + {_boost} / 100))
-    # Java에 포인트 전달
-    make console execute command "guildbr points %{_gId}% %{_p}% %{_pts}%"
-
-# ===== 길드 버프 함수 (낚시.sk에서 호출) =====
-function 길드경험치보너스(p: player) :: number:
-    if {길드::%name of {_p}%} is not set:
-        return 0
-    set {_gId} to {길드::%name of {_p}%}
-    if {길드버프::%{_gId}%::경험치부스트} is set:
-        return {길드버프::%{_gId}%::경험치부스트}
-    return 0
-
-function 길드크기보너스(p: player) :: number:
-    if {길드::%name of {_p}%} is not set:
-        return 0
-    set {_gId} to {길드::%name of {_p}%}
-    if {길드버프::%{_gId}%::크기부스트} is set:
-        return {길드버프::%{_gId}%::크기부스트}
-    return 0
-
-function 길드등급업보너스(p: player) :: number:
-    if {길드::%name of {_p}%} is not set:
-        return 0
-    set {_gId} to {길드::%name of {_p}%}
-    if {길드버프::%{_gId}%::등급업부스트} is set:
-        return {길드버프::%{_gId}%::등급업부스트}
-    return 0
-
-function 길드포인트보너스(p: player) :: number:
-    if {길드::%name of {_p}%} is not set:
-        return 0
-    set {_gId} to {길드::%name of {_p}%}
-    if {길드버프::%{_gId}%::포인트부스트} is set:
-        return {길드버프::%{_gId}%::포인트부스트}
-    return 0
-
-# ===== 길드 버프 동기화 (Java → Skript) =====
-command /guildbuffsync <text> <text> <number>:
-    permission: op
-    executable by: console
-    trigger:
-        # arg-1: guildId, arg-2: buffId, arg-3: value(%)
-        set {길드버프::%arg-1%::%arg-2%} to arg-3
-
-# ===== 오프라인 수락 알림 저장 =====
-command /guildacceptpending <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_name} to arg-2
-        replace all "_" with " " in {_name}
-        set {길드가입대기::%arg-1%} to {_name}
-
-# ===== 오프라인 간부 승급/강등 알림 저장 =====
-command /guildrolependng <text> <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        # arg-1: player, arg-2: guildName, arg-3: 승급/강등
-        set {_name} to arg-2
-        replace all "_" with " " in {_name}
-        set {길드역할대기::%arg-1%::길드} to {_name}
-        set {길드역할대기::%arg-1%::타입} to arg-3
-
-# ===== 오프라인 추방 알림 저장 =====
-command /guildkickpending <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_name} to arg-2
-        replace all "_" with " " in {_name}
-        set {길드추방대기::%arg-1%} to {_name}
-
-# ===== 접속 시 길드 동기화 + 신청 알림 =====
+# ===== 접속 시 길드 동기화 + 신청/오프라인 알림 (Java GuildBridgeCommand.onjoin) =====
 on join:
     wait 3 seconds
-    # Java에서 멤버 동기화 + 신청 알림까지 한번에 처리
     make console execute command "guildbr onjoin %player%"
-    # 팁 차단 플래그를 Java(TipManager)로 push (팁.sk 이관)
-    set {_pn} to name of player
-    if {차단팁::%{_pn}%} is true:
-        make console execute command "tipblock %{_pn}% 1"
-    # 채팅모드를 Java(SidebarManager)로 push (사이드바.sk 이관)
-    if {길드채팅모드::%player%} is true:
-        make console execute command "sidebarchatmode %{_pn}% guild"
-    else if {지역채팅모드::%player%} is true:
-        make console execute command "sidebarchatmode %{_pn}% region"
-    else:
-        make console execute command "sidebarchatmode %{_pn}% none"
-    # 오프라인 중 길드 수락됐으면 알림
-    if {길드가입대기::%{_pn}%} is set:
-        message "" to player
-        message "&a&l[길드] &f%{길드가입대기::%{_pn}%}% &a길드에 가입되었습니다!" to player
-        message "" to player
-        delete {길드가입대기::%{_pn}%}
-    # 오프라인 중 간부 승급/강등 알림
-    if {길드역할대기::%{_pn}%::타입} is set:
-        set {_rType} to {길드역할대기::%{_pn}%::타입}
-        set {_rGuild} to {길드역할대기::%{_pn}%::길드}
-        if {_rType} is "승급":
-            message "" to player
-            message "&a&l[길드] &f%{_rGuild}% &a길드에서 간부로 승급되었습니다!" to player
-            message "" to player
-        else:
-            message "" to player
-            message "&c&l[길드] &f%{_rGuild}% &c길드에서 간부 직책이 해제되었습니다." to player
-            message "" to player
-        delete {길드역할대기::%{_pn}%::타입}
-        delete {길드역할대기::%{_pn}%::길드}
-    # 오프라인 중 추방됐으면 알림
-    if {길드추방대기::%{_pn}%} is set:
-        message "" to player
-        message "&c&l[길드] &f%{길드추방대기::%{_pn}%}% &c길드에서 추방되었습니다." to player
-        message "" to player
-        delete {길드추방대기::%{_pn}%}
-
-# ===== 신청 알림 메시지 (Java에서 호출, 클릭 가능 메시지) =====
-command /guildnotifyapps <text> <integer>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        message "" to {_p}
-        message "&6[길드] &e가입 신청 &f%arg-2%건&e이 대기 중입니다!" to {_p}
-        set {_btn} to text component from "  &e&l[신청 목록 확인]"
-        set hover event of {_btn} to hover event showing "&7클릭하여 신청 목록 열기"
-        set click event of {_btn} to click event to run command "/rlfem 신청목록"
-        send component {_btn} to {_p}
-        message "" to {_p}
-
-# ===== 신청목록 GUI는 Java(GuildGui)로 이관됨 =====
-# guildrenderappgui/guildappgui/guildappsync/길드신청목록GUI 제거.
-# /길드 신청목록 → GuildCommand가 GuildGui.openAppList 직접 호출 (getPendingApplications read).
-# guildnotifyapps(클릭→/rlfem 신청목록)는 KEEP — Java guildbr onjoin이 호출.
-
-# ===== 길드 홍보 (전체 서버 공지) =====
-command /guildpromote <text> <text> <text> <integer> <integer>:
-    permission: op
-    executable by: console
-    trigger:
-        # 1:길드ID 2:표시이름 3:소개 4:인원 5:최대인원
-        set {_name} to arg-2
-        replace all "_" with " " in {_name}
-        set {_desc} to arg-3
-        replace all "_" with " " in {_desc}
-        set {_btn} to text component from "&a&l  [클릭하여 가입 신청]"
-        set hover event of {_btn} to hover event showing "&7클릭하여 %{_name}% 길드에 신청"
-        set click event of {_btn} to click event to run command "/rlfem 신청 %arg-1%"
-        loop all players:
-            set {_lpn} to name of loop-player
-            if {차단홍보::%{_lpn}%} is not true:
-                message "" to loop-player
-                message "&6&l═══════════════════════════════" to loop-player
-                message "&e&l  [길드 홍보] &f%{_name}%" to loop-player
-                message "&7  %{_desc}%" to loop-player
-                message "&7  인원: &f%arg-4%&7/&f%arg-5%&7명" to loop-player
-                message "&6&l═══════════════════════════════" to loop-player
-                send component {_btn} to loop-player
-                message "" to loop-player
-        message "" to all players
-
-# ============================================================
-# ===== 길드 메뉴 GUI / 등급 관리 GUI는 Java(GuildGui)로 이관됨 =====
-# ============================================================
-# 제거: guildmenusync/guildmenubuff/guildmenumember/guildmenucost/guildmenugui/길드메뉴GUI + click,
-#       guildrolesync/guildrolesync6/guildrolegui/길드등급관리GUI + click.
-# /길드 (가입자) → GuildCommand.openGuildMenu → GuildGui.openMenu (GuildManager/GuildData read).
-# 메뉴 액션(버프/확장/섬확장/설정/해산/섬이동)은 GuildGui가 "rlfem <서브>" 위임,
-#   등급관리 진입은 GuildGui.openRoleManage 직접, 역할변경은 "guildbr setrole" 경로 재사용.
-# 채팅 토글 버튼은 "guildchattoggle <player> check" 위임(채팅모드는 Skript 권위 — 아래 채팅모드GUI 유지).

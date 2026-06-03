@@ -37,7 +37,7 @@ command /낚시훅 <text>:
             execute console command "weekrank fish %{_p}'s name% %{_t::3}% %{_t::4}% %{_t::5}%"
         else if {_type} is "guildpoint":
             # guildpoint§§player§§grade
-            길드포인트적립({_p}, {_t::3})
+            execute console command "guildaddpoints %{_p}'s name% %{_t::3}%"
         else if {_type} is "sidebar":
             사이드바업데이트({_p})
         else if {_type} is "combotag":

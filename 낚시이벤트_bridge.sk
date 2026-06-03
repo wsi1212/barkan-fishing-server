@@ -30,8 +30,7 @@ command /fishreward2 <text>:
             stop
         set {_fish} to {_t::2}
         set {_grade} to {_t::3}
-        if {길드::%name of {_p}%} is set:
-            길드포인트적립({_p}, {_grade})
+        execute console command "guildaddpoints %{_p}'s name% %{_grade}%"
         if {총낚시::%{_p}%} is not set:
             set {총낚시::%{_p}%} to 0
         add 1 to {총낚시::%{_p}%}

@@ -42,25 +42,5 @@ command /titlesync <text>:
 #   titlerevoke/titledisplayupdate/titleautocheck). 여기엔 채팅 포맷 shim만 둔다.
 # ===========================================================================
 
-# Java TitleLogic.pushChatPrefix → 채팅 프리픽스 미러. 장착/접속/레벨변동 시 갱신.
-command /titlechatpush <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        if arg-2 is "없음":
-            delete {칭호채팅프리픽스::%{_p}%}
-        else:
-            set {_pre} to arg-2
-            replace all "_" with " " in {_pre}
-            set {칭호채팅프리픽스::%{_p}%} to {_pre}
-
-# 채팅 포맷(칭호 프리픽스). 길드.sk on chat(길드/지역 라우팅)과 공존.
-on chat:
-    set {_pre} to {칭호채팅프리픽스::%player%}
-    if {_pre} is set:
-        set chat format to "%{_pre}% &f%player's name%&7: &f%message%"
-    else:
-        set chat format to "&f%player's name%&7: &f%message%"
+# 채팅 포맷(칭호 프리픽스) + 길드/지역 라우팅 = Java GuildChatListener 통합 권위.
+# /titlechatpush + on chat + {칭호채팅프리픽스} 제거(Java가 장착칭호에서 직접 프리픽스 생성).
