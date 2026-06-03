@@ -118,8 +118,8 @@ command /fishreward2 <text>:
         # ===== 퀘스트/이펙트/주간랭킹 훅 =====
         # 퀘스트(물고기)는 Java QuestManager.onFish — questhook fish <player> <grade> <size> <quality> <fishName>
         execute console command "questhook fish %{_p}'s name% %{_grade}% %{_size}% %{_quality}% %{_fish}%"
-        캐시이펙트_낚시성공({_p}, {_grade})
-        주간랭킹_물고기({_p}, {_fish}, {_grade}, {_size})
+        execute console command "cashfx success %{_p}'s name% %{_grade}%"
+        execute console command "weekrank fish %{_p}'s name% %{_grade}% %{_size}% %{_fish}%"
         # ===== 총낚시 + 등급 도전과제 =====
         if {총낚시::%{_p}%} is not set:
             set {총낚시::%{_p}%} to 0
@@ -133,7 +133,7 @@ command /fishreward2 <text>:
             loop all players:
                 if {차단낚시공지::%name of loop-player%} is not true:
                     send "&6&l★ &7%{_p}'s name%&f님이 &6&l%{_fish}%&f 낚았습니다! &8(%{_gc}%%{_grade}%&8)" to loop-player
-            캐시이펙트_자랑({_p})
+            execute console command "cashfx brag %{_p}'s name%"
 
 # 실패: player§§result(도주/대기)
 command /fishfail <text>:

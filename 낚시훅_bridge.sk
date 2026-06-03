@@ -29,12 +29,12 @@ command /낚시훅 <text>:
             도전과제체크({_p}, {_t::3}, {_t::4})
         else if {_type} is "fx_success":
             # fx_success§§player§§grade
-            캐시이펙트_낚시성공({_p}, {_t::3})
+            execute console command "cashfx success %{_p}'s name% %{_t::3}%"
         else if {_type} is "fx_brag":
-            캐시이펙트_자랑({_p})
+            execute console command "cashfx brag %{_p}'s name%"
         else if {_type} is "weekrank":
             # weekrank§§player§§grade§§size§§fish
-            주간랭킹_물고기({_p}, {_t::5}, {_t::3}, {_t::4} parsed as number)
+            execute console command "weekrank fish %{_p}'s name% %{_t::3}% %{_t::4}% %{_t::5}%"
         else if {_type} is "guildpoint":
             # guildpoint§§player§§grade
             길드포인트적립({_p}, {_t::3})

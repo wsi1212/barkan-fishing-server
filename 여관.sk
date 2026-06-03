@@ -1,7 +1,0 @@
-# ===== 여관 시스템 =====
-# BlockShip(Java)로 이관됨: 거점 데이터(PlayerData), /거점, 접속/리스폰 텔레포트, 거점설정.
-# 여기 남은 건 대화 엔진(NPC.sk)이 호출하는 브릿지 함수 하나뿐.
-
-# 대화 "여관설정" 액션 → Java InnManager.setHome 호출
-function 여관스폰설정(p: player, npcId: text):
-    make console execute command "skinnset %{_p}% %{_npcId}%"

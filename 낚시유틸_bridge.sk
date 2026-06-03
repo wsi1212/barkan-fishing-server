@@ -25,25 +25,3 @@ function rankchange(t: text) :: number:
         return 9
     else if {_t} is "G":
         return 10
-function num_to_grade(n: integer) :: text:
-    if {_n} is 1:
-        return "E"
-    else if {_n} is 2:
-        return "D"
-    else if {_n} is 3:
-        return "C"
-    else if {_n} is 4:
-        return "B"
-    else if {_n} is 5:
-        return "A"
-    else if {_n} is 6:
-        return "S"
-    else if {_n} is 7:
-        return "S+"
-    else if {_n} is 8:
-        return "M"
-    else if {_n} is 9:
-        return "L"
-    else if {_n} is 10:
-        return "G"
-    return "E"
