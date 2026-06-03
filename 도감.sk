@@ -1,38 +1,8 @@
-# ===== 도감 시스템 =====
-# 5종 도감: 물고기, 낚싯대, 부품, 재료, 지역
-# 첫 발견 시 수집레벨(지역은 탐험레벨) 경험치 지급
-
-# ===== 발견 함수 → Java DexManager 위임 (/dexdiscover) =====
-# 권위=PlayerData.dexDiscovery. 중복체크/수집exp/메시지/questhook dex 모두 Java DexManager가 처리.
-# 물고기 발견+기록(maxSize/날짜)은 Java FishingListener.recordFishCatch가 직접 처리.
-# 이 shim들은 미이관 .sk 호출처(조합대_bridge/부품상점_bridge/조합재료/skill_bridge) 호환용.
+# ===== 도감 — Java(DexManager/MainDexGui) 권위. 잔존 shim =====
+# 발견/기록/GUI/카운트 = Java: FishingListener.recordFishCatch(물고기)·DexManager.discover*(낚싯대/부품/재료/
+#   지역, 조합/상점/RegionTracker가 직접)·MainDexGui(표시). 도감_낚싯대/부품/재료/지역 shim + /dogamrod 는
+#   마지막 호출처(조합대_bridge/부품상점_bridge/skill_bridge) 삭제로 데드 → 제거.
+# 도감_물고기 shim만 유지: 낚시훅_bridge(/낚시훅 dogam, 휴면 폴백)가 호출.
 
 function 도감_물고기(p: player, fishName: text, grade: text):
     execute console command "dexdiscover %{_p}'s name% fish %{_grade}% %{_fishName}%"
-
-function 도감_낚싯대(p: player, rodName: text):
-    execute console command "dexdiscover %{_p}'s name% rod %{_rodName}%"
-
-function 도감_부품(p: player, partType: text, partName: text):
-    execute console command "dexdiscover %{_p}'s name% part %{_partType}% %{_partName}%"
-
-function 도감_재료(p: player, matId: text):
-    execute console command "dexdiscover %{_p}'s name% material %{_matId}%"
-
-function 도감_지역(p: player, regionId: text):
-    execute console command "dexdiscover %{_p}'s name% region %{_regionId}%"
-
-# ===== [Java 이관] 도감 GUI(메인+5탭) + 카운트 함수 제거 =====
-# 5탭 도감 GUI(도감메인GUI/도감_낚싯대·부품·재료·지역GUI) 및 도감카운트_* 함수는
-# Java(com.blockship.dex.MainDexGui)로 이관됨. Java 는 PlayerData(dexDiscovery/fishRecords) +
-# FishLoader/PartLoader/RecipeLoader/MaterialLoader/RegionManager 에서 직접 읽어 카운트/표시.
-# 발견 기록(도감_물고기/낚싯대/부품/재료/지역) write 함수는 위에 유지(여러 서브시스템이 호출).
-# 퀘스트 dogam 진행도 헬퍼(도감_지역발견수/표시/종집합/조상포함)는 Java QuestManager
-# (dexCount/regionDisplay/지역종집합/조상포함, L902~)로 이관됨 → 여기서 삭제.
-
-# ===== 브릿지 명령어 (조합대 → 도감, 파일 로드 순서 문제 우회) =====
-command /dogamrod <player> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        도감_낚싯대(arg-1, arg-2)
