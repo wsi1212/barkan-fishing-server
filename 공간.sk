@@ -1,54 +1,22 @@
 # =========================================
-#   공간.sk — 지역 sync 미러 브릿지 + 얇은 push-back 전용
-#
-#   지역 입장/퇴장 오케스트레이터(areaEnter/areaExit/레벨게이트/길드체크/알림/
-#   환경보너스/lava/on join/respawn/world change//월드)는 Java RegionTracker로 이관됨.
-#   여기 남은 것:
-#     - /setarea, /setlava : Java → Skript 얇은 push-back ({area}=장비/날씨시간이 읽음, {용암낚시}=백업)
-#     - Java RegionManager/WeatherManager/FishLoader → Skript 변수 동기화 미러 브릿지
-#       (메뉴/길드/지역별물고기/도감/날씨시간 등 미이관 .sk 가 소비 → 유지)
-#     - on rightclick (warped sign + 낚싯대 = 취소)
+#   공간.sk — Java(RegionManager/Tracker/WeatherManager) 이관 후 잔존 미러 브릿지
+#   지역 입장/퇴장/레벨게이트/알림/환경보너스/lava/area = Java RegionTracker 권위.
+#   데드 미러({area}/{용암낚시}/{지역표시이름}/{지역부모섬}/{지역날씨}/{서버날씨}/{지역제외날씨}) push 중단됨
+#   → setarea/setlava/regionsync/regionparentsync/regionweather*/지역잔재청소/날씨변수청소 삭제.
+#   잔존: regionresync(on load) + on rightclick + {지역리스트}/{섬리스트}/{지역길드} 미러(길드/메뉴가 읽음).
 # =========================================
 
-# /sk reload 시 plugin이 살아있으니 regionresync로 지역/fish 미러 데이터 복원.
-# (이전엔 지역별물고기.sk on load 에 있었음 — 해당 파일 Java 이관 후 삭제로 이리 이동)
+# /sk reload 시 regionresync로 지역/미러 데이터 복원 (Java RegionManager.syncRegionsToSkript).
 on load:
     execute console command "regionresync"
 
-# ===== {area} push-back (Java RegionTracker areaEnter/areaExit/world change 가 호출) =====
-# 날씨시간.sk(유효커스텀날씨)가 {area::%p%}를 읽음. (초음파탐지기 미리보기는 Java FishDetectorListener 로 이관)
-command /setarea <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        set {area::%{_p}%} to arg-2
-
-# ===== {용암낚시} push-back (Java RegionTracker lava enter/exit 가 호출) =====
-# 데이터백업.sk가 백업하는 변수. (1=용암지대 / 0=아님)
-command /setlava <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_p} to arg-1 parsed as player
-        if {_p} is not set:
-            stop
-        set {용암낚시::%{_p}%} to arg-2 parsed as number
-
+# warped sign + 낚싯대 우클릭 취소
 on rightclick:
     if clicked block is warped sign:
         if player's tool is fishing rod:
             cancel event
 
-# =========================================
-#   지역 관리는 Java 플러그인 (BlockShip)으로 이관
-#   /regionmanage — 지역 생성/삭제/설정/바이옴/파티클
-#   데이터: plugins/BlockShip/regions.json
-# =========================================
-
-# ===== 지역 리스트 동기화 (Java → Skript) =====
+# ===== 지역 리스트 동기화 (Java → Skript) — 길드.sk/메뉴.sk가 {지역리스트} 읽음 =====
 command /regionlistsync <text> [<text>]:
     permission: op
     executable by: console
@@ -58,54 +26,7 @@ command /regionlistsync <text> [<text>]:
         else if arg-1 is "add":
             add arg-2 to {지역리스트::*}
 
-# ===== Java RegionManager → Skript 변수 동기화 브릿지 =====
-# Java에서 "regionsync <id> <표시이름> <레벨제한>" 콘솔 명령어 전송
-command /regionsync <text> <text> <integer>:
-    permission: op
-    executable by: console
-    trigger:
-        set {_name} to arg-2
-        replace all "_" with " " in {_name}
-        set {지역표시이름::%arg-1%} to {_name}
-        set {지역레벨제한::%arg-1%} to arg-3
-
-command /regionweathersync <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {지역허용날씨::%arg-1%} to arg-2
-
-command /regionexcludesync <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        if arg-2 is "없음":
-            delete {지역제외날씨::%arg-1%}
-        else:
-            set {지역제외날씨::%arg-1%} to arg-2
-
-# 지역별 날씨 이벤트 (Java WeatherManager → Skript)
-command /regionweatherevent <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        if arg-1 is "전역":
-            if arg-2 is "해제":
-                delete {서버날씨}
-            else:
-                set {서버날씨} to arg-2
-        else:
-            if arg-2 is "해제":
-                delete {지역날씨::%arg-1%}
-            else:
-                set {지역날씨::%arg-1%} to arg-2
-        # 날씨 변경 시 전체 사이드바 갱신
-        loop all players:
-            사이드바업데이트(loop-player)
-
-# 물고기 등록 수 출력: Java RegionCommand 가 FishLoader 로 직접 계산(왕복 제거).
-
-# ===== 섬 리스트 동기화 (Java → Skript) =====
+# ===== 섬 리스트 동기화 (Java → Skript) — 길드.sk가 {섬리스트} 읽음 =====
 command /islandlistsync <text> [<text>]:
     permission: op
     executable by: console
@@ -115,20 +36,7 @@ command /islandlistsync <text> [<text>]:
         else if arg-1 is "add":
             add arg-2 to {섬리스트::*}
 
-# ===== 부모 섬 동기화 (Java → Skript) =====
-command /regionparentsync <text> <text>:
-    permission: op
-    executable by: console
-    trigger:
-        set {지역부모섬::%arg-1%} to arg-2
-
-# ===== fish.json → Skript 동기화 브릿지 =====
-# Java FishLoader가 호출. 이 명령들이 모든 fish 변수를 채움.
-
-# fish 미러({물고기}/{물고기환경}/{지역물고기목록}/{환경물고기}) 제거: FishLoader가 fish.json 단독 권위,
-# syncToSkript no-op화 → fishsyncreset/fishdefsync/regionfishsync/envfishsync 명령 삭제됨.
-
-# ===== 길드 소유 지역 동기화 (Java → Skript) =====
+# ===== 길드 소유 지역 동기화 (Java → Skript) — 길드.sk가 {지역길드} 읽음 =====
 command /regionguildsync <text> <text>:
     permission: op
     executable by: console
@@ -139,7 +47,6 @@ command /regionguildsync <text> <text>:
             set {지역길드::%arg-1%} to arg-2
 
 # ===== 지역 삭제 시 정리 (Java RegionManager.deleteRegion에서 호출) =====
-# 모든 지역 관련 Skript 변수 제거 — /지역 삭제 후 도감/날씨 잔재 제거
 command /regiondeletesync <text>:
     permission: op
     executable by: console
@@ -151,79 +58,11 @@ command /regiondeletesync <text>:
         delete {지역허용날씨::%arg-1%}
         delete {지역제외날씨::%arg-1%}
         delete {지역날씨::%arg-1%}
-        # 지역물고기목록의 모든 시간/날씨 서브키 정리
         delete {지역물고기목록::%arg-1%::*}
-        # 리스트에서도 제거 (중복 안전 처리)
         if {지역리스트::*} contains arg-1:
             remove arg-1 from {지역리스트::*}
         if {섬리스트::*} contains arg-1:
             remove arg-1 from {섬리스트::*}
-        # 모든 플레이어의 발견 기록은 보존(역사 기록), 단 방문 리스트만 제거
         loop all players:
             if {방문지역::%loop-player%::*} contains arg-1:
                 remove arg-1 from {방문지역::%loop-player%::*}
-
-# ===== 자식의 자식 잘못된 날씨 변수 청소 (op 수동) =====
-# Java cleanupInvalidActiveWeathers 와 짝 — Skript 변수도 청소
-command /날씨변수청소:
-    permission: op
-    trigger:
-        set {_cleaned} to 0
-        loop {지역날씨::*}:
-            set {_rid} to "%loop-index%"
-            # 자체 weather 보유 가능 여부 체크
-            if {섬리스트::*} contains {_rid}:
-                delete {지역날씨::%{_rid}%}
-                add 1 to {_cleaned}
-            else:
-                set {_pid} to {지역부모섬::%{_rid}%}
-                if {_pid} is set:
-                    if {섬리스트::*} does not contain {_pid}:
-                        # 자식의 자식 — 자체 weather 보유 불가
-                        delete {지역날씨::%{_rid}%}
-                        send "&8[&c 어드민 &8] &7삭제: &c{지역날씨::%{_rid}%} &7(부모 %{_pid}% 는 섬 아님)" to player
-                        add 1 to {_cleaned}
-        send "&8[&c 어드민 &8] &a%{_cleaned}%&7개 stale 날씨 변수 정리 완료." to player
-        loop all players:
-            사이드바업데이트(loop-player)
-
-# ===== 지역 잔재 일괄 청소 (op 수동 실행) =====
-# 현재 {지역리스트::*}/{섬리스트::*}에 있지만 Java에서 동기화 안 된 (= 표시이름 미등록) 항목 정리
-on tab complete of "/지역잔재청소":
-    set tab completions for position 1 to "확인", "실행"
-
-command /지역잔재청소 [<text>]:
-    permission: op
-    permission message: &c권한이 없습니다.
-    trigger:
-        if arg-1 is not set:
-            send "&8[&c 어드민 &8] &7사용법:" to player
-            send "&8  &e/지역잔재청소 확인 &7— 잔재 후보 목록 보기" to player
-            send "&8  &e/지역잔재청소 실행 &7— 잔재 일괄 제거" to player
-            stop
-        delete {_stale::*}
-        # 지역리스트에서 표시이름 미등록 항목 = Java가 sync 안 한 잔재
-        if {지역리스트::*} is set:
-            loop {지역리스트::*}:
-                if {지역표시이름::%loop-value%} is not set:
-                    add loop-value to {_stale::*}
-        if {섬리스트::*} is set:
-            loop {섬리스트::*}:
-                if {지역표시이름::%loop-value%} is not set:
-                    add loop-value to {_stale::*}
-        if size of {_stale::*} is 0:
-            send "&8[&c 어드민 &8] &a잔재 없음 — 모든 지역이 정상 동기화됨." to player
-            stop
-        send "&8[&c 어드민 &8] &7잔재 후보: &c%size of {_stale::*}%개" to player
-        loop {_stale::*}:
-            send "&8  - &f%loop-value%" to player
-        if arg-1 is "실행":
-            loop {_stale::*}:
-                make console execute command "regiondeletesync %loop-value%"
-            send "&8[&c 어드민 &8] &a%size of {_stale::*}%개 잔재 제거 완료." to player
-        else:
-            send "&8[&c 어드민 &8] &7제거하려면 &e/지역잔재청소 실행" to player
-
-# =========================================
-#   보트 시스템 → 보트.sk 으로 분리됨
-# =========================================
