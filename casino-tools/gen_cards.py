@@ -32,7 +32,7 @@ CX1, CY1 = CX0 + CARD_W, CY0 + CARD_H
 RADIUS = 6 * SS
 MID = C // 2
 
-STYLE_RP = "b"              # RP에 통합할 트럼프 스타일
+STYLE_RP = "a"              # RP에 통합할 트럼프 스타일 (2026-07-11 유저 확정: A 빅인덱스)
 
 RP = os.path.expanduser("~/development/barkan-resourcepack")
 STAGING = os.environ.get("CARD_STAGING", os.path.expanduser("~/Desktop/casino-cards-preview"))

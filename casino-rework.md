@@ -233,4 +233,5 @@
 
 ## 10. 진행 로그
 
-- **2026-07-11**: 계획 수립·유저 승인(§9 전부 확정). casino/ GUI WIP 커밋(기준선). **P0 착수** — 카드 텍스처 66종(트럼프 A/B 2스타일 + 화투 13 + 뒷면 2) `casino-tools/gen_cards.py`로 생성, RP `assets/barkan/{textures,models,items}/card/` 통합. RP 배포는 아직(디스플레이 코드와 함께).
+- **2026-07-11**: 계획 수립·유저 승인(§9 전부 확정). casino/ GUI WIP 커밋(기준선). **P0 착수** — 카드 텍스처 67종(트럼프 A/B 2스타일 + 화투 13 + 뒷면 2) `casino-tools/gen_cards.py`로 생성, RP `assets/barkan/{textures,models,items}/card/` 통합. RP 배포는 아직(디스플레이 코드와 함께).
+- **2026-07-11 (2)**: 트럼프 **스타일 A(빅 인덱스) 확정**, 카드 폭 0.3블록 확정. 칩 4종(천/만/십만/백만, elements 원반) `gen_chips.py` → RP 통합. **P0 자바 프레임워크 작성·컴파일 통과** (blockship 커밋: `casino/table/` 5클래스 — Registry/CardDisplayService/ChipRenderer/SeatService/Command). `/카지노테이블` OP 명령: 생성→좌석(서서)→존(상판 바라보고 shoe/board/pot)→`데모`(딜링→플립→칩→팟 슬라이드 수용 테스트)→철거. ★미배포 — 다음 dev 재시작 때 jar+RP 함께. 사운드는 바닐라 플레이스홀더(북페이지/노트블록), barkan ogg는 폴리시 단계에.
