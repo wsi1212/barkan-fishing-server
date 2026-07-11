@@ -74,23 +74,24 @@ def gen_wheel():
         d.pieslice([cx - r_ring, cy - r_ring, cx + r_ring, cy + r_ring], a0, a0 + step, fill=color)
     d.ellipse([cx - r_inner, cy - r_inner, cx + r_inner, cy + r_inner], fill=NAVY)
     d.ellipse([cx - r_inner + 4, cy - r_inner + 4, cx + r_inner - 4, cy + r_inner - 4], fill=(40, 44, 72, 255))
-    # 중앙 골드 허브 + 십자
-    d.ellipse([cx - 14, cy - 14, cx + 14, cy + 14], fill=GOLD)
+    # 중앙 골드 허브 + 얇은 십자(바늘) — 굵던 6px→2px, 짧게(반경 20). 유저 "바늘 너무 굵음"
+    d.ellipse([cx - 9, cy - 9, cx + 9, cy + 9], fill=GOLD)
     for ang in (0, 90):
         rad = math.radians(ang)
-        dx, dy = math.cos(rad) * 34, math.sin(rad) * 34
-        d.line([(cx - dx, cy - dy), (cx + dx, cy + dy)], fill=GOLD, width=6)
-    # 숫자 (섹터 중앙 반경, 방사 방향 회전)
-    font = ImageFont.truetype(FONT_BOLD, 17)
+        dx, dy = math.cos(rad) * 20, math.sin(rad) * 20
+        d.line([(cx - dx, cy - dy), (cx + dx, cy + dy)], fill=GOLD, width=2)
+    d.ellipse([cx - 4, cy - 4, cx + 4, cy + 4], fill=GOLD_DK)  # 중심 핀
+    # 숫자 (섹터 중앙 반경, 방사 방향 회전) — 크게(28)+검정 외곽선으로 대비(흰+흰=뭉개짐 수정)
+    font = ImageFont.truetype(FONT_BOLD, 28)
     for i, num in enumerate(WHEEL_ORDER):
         ang = -90 + i * step
         rad = math.radians(ang)
-        tx = cx + math.cos(rad) * 92
-        ty = cy + math.sin(rad) * 92
-        tile = Image.new("RGBA", (28, 22), (0, 0, 0, 0))
+        tx = cx + math.cos(rad) * 90
+        ty = cy + math.sin(rad) * 90
+        tile = Image.new("RGBA", (44, 34), (0, 0, 0, 0))
         td = ImageDraw.Draw(tile)
-        td.text((14, 11), str(num), font=font, fill=WHITE, anchor="mm",
-                stroke_width=1, stroke_fill=WHITE)
+        td.text((22, 17), str(num), font=font, fill=WHITE, anchor="mm",
+                stroke_width=3, stroke_fill=(16, 16, 20, 255))
         rotated = tile.rotate(-(ang + 90), expand=True, resample=Image.BICUBIC)
         img.alpha_composite(rotated, (int(tx - rotated.width / 2), int(ty - rotated.height / 2)))
     save(img, "casino/roulette_wheel.png")
