@@ -36,7 +36,8 @@ WHITE = (248, 246, 240, 255)
 
 
 def save(img, rel):
-    for base in (os.path.join(RP, "assets/barkan/textures"), os.path.join(STAGING, "tex")):
+    # ★텍스처는 minecraft:item/ 아래여야 아이템 아틀라스에 잡힘(모델/아이템 id는 barkan 유지).
+    for base in (os.path.join(RP, "assets/minecraft/textures/item"), os.path.join(STAGING, "tex")):
         path = os.path.join(base, rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         img.save(path)
@@ -95,7 +96,7 @@ def gen_wheel():
     save(img, "casino/roulette_wheel.png")
 
     write_model("casino/roulette_wheel", {
-        "textures": {"0": "barkan:casino/roulette_wheel", "particle": "#0"},
+        "textures": {"0": "minecraft:item/casino/roulette_wheel", "particle": "#0"},
         "elements": [{
             "from": [0, 0, 0], "to": [16, 1, 16],
             "faces": {
@@ -113,7 +114,7 @@ def gen_wheel():
     marker = Image.new("RGBA", (16, 16), GOLD)
     save(marker, "casino/gold.png")
     write_model("casino/roulette_marker", {
-        "textures": {"0": "barkan:casino/gold", "particle": "#0"},
+        "textures": {"0": "minecraft:item/casino/gold", "particle": "#0"},
         "elements": [
             {"from": [7, 0, 4], "to": [9, 1.5, 10],
              "faces": {f: {"uv": [0, 0, 4, 4], "texture": "#0"} for f in
@@ -206,7 +207,7 @@ def gen_slot_cabinet():
     BALL = face(2, 12.5, 4, 14.5)
 
     write_model("casino/slot_cabinet", {
-        "textures": {"0": "barkan:casino/slot_cabinet", "particle": "#0"},
+        "textures": {"0": "minecraft:item/casino/slot_cabinet", "particle": "#0"},
         "elements": [
             # 본체 12×24×8 (x2..14, y0..24, z4..12) — 남쪽(+z, south)이 정면
             {"from": [2, 0, 4], "to": [14, 24, 12],

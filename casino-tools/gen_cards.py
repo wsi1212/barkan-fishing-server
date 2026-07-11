@@ -306,14 +306,16 @@ def write_rp_json(card_id):
     os.makedirs(os.path.dirname(item), exist_ok=True)
     with open(model, "w") as f:
         json.dump({"parent": "minecraft:item/generated",
-                   "textures": {"layer0": f"barkan:card/{card_id}"}}, f, separators=(",", ":"))
+                   "textures": {"layer0": f"minecraft:item/card/{card_id}"}}, f, separators=(",", ":"))
     with open(item, "w") as f:
         json.dump({"model": {"type": "minecraft:model", "model": f"barkan:card/{card_id}"}},
                   f, separators=(",", ":"))
 
 
 def main():
-    rp_tex = os.path.join(RP, "assets/barkan/textures/card")
+    # ★텍스처는 minecraft:item/ 아래여야 아이템 아틀라스에 자동 포함됨(barkan:card/는 아틀라스 밖→missing).
+    #   모델/아이템 정의는 barkan:card/ 유지, layer0만 minecraft:item/card/를 가리킨다.
+    rp_tex = os.path.join(RP, "assets/minecraft/textures/item/card")
     ids = []
 
     # 트럼프 52장 — A/B 스테이징 + 선택 스타일 RP

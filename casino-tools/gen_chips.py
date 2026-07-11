@@ -103,12 +103,12 @@ MODEL = {
 def main():
     for cid, (label, color, dark) in CHIPS.items():
         tex = chip_texture(label, color, dark)
-        for base in (os.path.join(RP, "assets/barkan/textures/chip"),
+        for base in (os.path.join(RP, "assets/minecraft/textures/item/chip"),
                      os.path.join(STAGING, "chip")):
             os.makedirs(base, exist_ok=True)
             tex.save(os.path.join(base, f"{cid}.png"))
         model = json.loads(json.dumps(MODEL))
-        model["textures"]["0"] = f"barkan:chip/{cid}"
+        model["textures"]["0"] = f"minecraft:item/chip/{cid}"  # ★item/ 아래여야 아틀라스 포함
         mp = os.path.join(RP, f"assets/barkan/models/chip/{cid}.json")
         ip = os.path.join(RP, f"assets/barkan/items/chip/{cid}.json")
         os.makedirs(os.path.dirname(mp), exist_ok=True)
