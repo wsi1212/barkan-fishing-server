@@ -130,8 +130,10 @@ def gen_wheel():
     write_model("casino/roulette_marker", {
         "textures": {"0": "minecraft:item/casino/gold", "particle": "#0"},
         "elements": [
-            {"from": [6.5, 7.5, 2], "to": [9.5, 9.0, 8], "faces": F()},   # 몸통(북)
-            {"from": [7.25, 7.5, 8], "to": [8.75, 9.0, 11.5], "faces": F()},  # 뾰족한 팁(중심쪽)
+            # ★뒤집음: ItemDisplay가 z를 180° 돌려 렌더 → 팁을 모델 낮은 z(2~5.5)에 둬야
+            #   월드에서 팁이 안쪽(중심)을 향함. 두꺼운 몸통은 바깥.
+            {"from": [7.25, 7.5, 2], "to": [8.75, 9.0, 5.5], "faces": F()},   # 팁(좁음)
+            {"from": [6.5, 7.5, 5.5], "to": [9.5, 9.0, 11.5], "faces": F()},  # 몸통(넓음)
         ],
     })
 
