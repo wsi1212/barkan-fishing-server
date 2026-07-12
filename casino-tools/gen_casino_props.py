@@ -123,15 +123,15 @@ def gen_wheel():
     # 마커(골드 화살촉) — 단색 텍스처 재사용
     marker = Image.new("RGBA", (16, 16), GOLD)
     save(marker, "casino/gold.png")
+    # 마커=당첨 포인터. ★세로중앙(y7.5~9)이라 ItemDisplay가 엔티티 Y에 렌더(디스크에 안 묻힘).
+    #   중심(+z) 방향으로 뾰족한 화살표 — 마커는 휠 북쪽 림에 있고 당첨칸(중심쪽)을 가리킴.
+    F = lambda: {f: {"uv": [0, 0, 4, 4], "texture": "#0"} for f in
+                 ("up", "down", "north", "south", "west", "east")}
     write_model("casino/roulette_marker", {
         "textures": {"0": "minecraft:item/casino/gold", "particle": "#0"},
         "elements": [
-            {"from": [7, 0, 4], "to": [9, 1.5, 10],
-             "faces": {f: {"uv": [0, 0, 4, 4], "texture": "#0"} for f in
-                       ("up", "down", "north", "south", "west", "east")}},
-            {"from": [6.2, 0, 8.5], "to": [9.8, 1.5, 12],
-             "faces": {f: {"uv": [0, 0, 4, 4], "texture": "#0"} for f in
-                       ("up", "down", "north", "south", "west", "east")}},
+            {"from": [6.5, 7.5, 2], "to": [9.5, 9.0, 8], "faces": F()},   # 몸통(북)
+            {"from": [7.25, 7.5, 8], "to": [8.75, 9.0, 11.5], "faces": F()},  # 뾰족한 팁(중심쪽)
         ],
     })
 
