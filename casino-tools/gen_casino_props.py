@@ -81,17 +81,23 @@ def gen_wheel():
         dx, dy = math.cos(rad) * 20, math.sin(rad) * 20
         d.line([(cx - dx, cy - dy), (cx + dx, cy + dy)], fill=GOLD, width=2)
     d.ellipse([cx - 4, cy - 4, cx + 4, cy + 4], fill=GOLD_DK)  # 중심 핀
-    # 숫자 (섹터 중앙 반경, 방사 방향 회전) — 크게(28)+검정 외곽선으로 대비(흰+흰=뭉개짐 수정)
-    font = ImageFont.truetype(FONT_BOLD, 28)
+    # 숫자: ★2자리는 세로로 자릿수 쌓기 — 37칸 링에서 접선 폭이 칸(~16px)을 넘어 겹치던 문제 해결.
+    #   세로 쌓기면 접선 폭=1자리(≈13px<칸16px)라 안 겹치고, 반지름 방향으로 길어짐(링 폭 60px 여유).
+    #   흰 글자 + 검정 외곽선으로 빨강/검정 섹터 위에서 또렷.
+    font = ImageFont.truetype(FONT_BOLD, 19)
+    DH = 17  # 자리당 세로 간격
     for i, num in enumerate(WHEEL_ORDER):
         ang = -90 + i * step
         rad = math.radians(ang)
-        tx = cx + math.cos(rad) * 90
-        ty = cy + math.sin(rad) * 90
-        tile = Image.new("RGBA", (44, 34), (0, 0, 0, 0))
+        tx = cx + math.cos(rad) * 95
+        ty = cy + math.sin(rad) * 95
+        digits = str(num)
+        tw, th = 20, DH * len(digits) + 6
+        tile = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
         td = ImageDraw.Draw(tile)
-        td.text((22, 17), str(num), font=font, fill=WHITE, anchor="mm",
-                stroke_width=3, stroke_fill=(16, 16, 20, 255))
+        for j, ch in enumerate(digits):
+            td.text((tw // 2, 4 + DH // 2 + j * DH), ch, font=font, fill=WHITE,
+                    anchor="mm", stroke_width=2, stroke_fill=(16, 16, 20, 255))
         rotated = tile.rotate(-(ang + 90), expand=True, resample=Image.BICUBIC)
         img.alpha_composite(rotated, (int(tx - rotated.width / 2), int(ty - rotated.height / 2)))
     save(img, "casino/roulette_wheel.png")
