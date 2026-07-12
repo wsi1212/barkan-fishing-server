@@ -104,8 +104,10 @@ def gen_wheel():
 
     write_model("casino/roulette_wheel", {
         "textures": {"0": "minecraft:item/casino/roulette_wheel", "particle": "#0"},
+        # ★디스크를 모델 세로 중앙(7.5~8.5)에 둠 → ItemDisplay가 모델중심을 엔티티Y에 놓으므로
+        #   디스크가 엔티티 Y에 정확히 렌더(바닥이면 scale×중심오프셋만큼 아래로 내려가 떠 보였음).
         "elements": [{
-            "from": [0, 0, 0], "to": [16, 1, 16],
+            "from": [0, 7.5, 0], "to": [16, 8.5, 16],
             "faces": {
                 "up": {"uv": [0, 0, 16, 16], "texture": "#0"},
                 "down": {"uv": [16, 0, 0, 16], "texture": "#0"},
