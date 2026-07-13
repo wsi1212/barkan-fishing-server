@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """슬롯 배당표 벽 그림 (페인팅 시스템 — worldmap과 동일 방식).
 
+⚠️ 2026-07-13 폐기: 현재 prod/dev는 ChatGPT 아르데코 아트(수동, 1024×1536)를
+   slot_paytable.png에 직접 넣어 쓴다. 이 생성기를 실행하면 그 아트를 덮어쓰니 실행 금지.
+   (배당값 참고용으로만 남김 — SlotRules와 동기화 확인 시.)
+
+
 - RP 텍스처: assets/barkan/textures/painting/slot_paytable.png (고해상, painting 아틀라스)
 - 데이터팩: barkanmap/data/barkan/painting_variant/slot_paytable.json (asset_id + width/height)
 2블록 폭 × 3블록 높이 세로 패널. 심볼 아이콘 + 배수(트리플/페어), SlotRules 실제 값.
@@ -125,7 +130,7 @@ def build():
         ty += 46
 
     # 푸터
-    d.text((W // 2, H - 34), "모든 배수 원금 포함 · 회수율 93.9%",
+    d.text((W // 2, H - 34), "모든 배수 원금 포함",
            font=font(18, hangul=True), fill=DIM, anchor="mm")
 
     tex = os.path.join(RP, "assets/barkan/textures/painting/slot_paytable.png")
