@@ -7,8 +7,13 @@
       ],
       "env": {
         "AIBUILDER_URL": "http://127.0.0.1:25599",
+        "AIBUILDER_CAPTURE_URL": "http://127.0.0.1:25598",
         "AIBUILDER_TOKEN": ""
       }
+    },
+    "codegraph": {
+      "command": "/Users/user/.local/bin/codegraph",
+      "args": ["serve", "--mcp", "-p", "/Users/user/development/blockship-plugin"]
     }
   }
 }

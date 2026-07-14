@@ -1,0 +1,274 @@
+{
+ "world_origin_hint": "flatroom dev straight build",
+ "left_rotation_fix": [
+  0,
+  1,
+  0,
+  0
+ ],
+ "render_scale_multiplier": 1.0,
+ "segments": [
+  {
+   "seg": 0,
+   "item_model": "barkan:imugi_s/seg_00",
+   "pivot": [
+    120.5,
+    -31.0,
+    -132.0
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 39,
+   "elements": 45
+  },
+  {
+   "seg": 1,
+   "item_model": "barkan:imugi_s/seg_01",
+   "pivot": [
+    120.5,
+    -31.0,
+    -127.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 66,
+   "elements": 64
+  },
+  {
+   "seg": 2,
+   "item_model": "barkan:imugi_s/seg_02",
+   "pivot": [
+    120.5,
+    -31.0,
+    -123.5
+   ],
+   "scale": 3.096774193548387,
+   "blocks": 45,
+   "elements": 46
+  },
+  {
+   "seg": 3,
+   "item_model": "barkan:imugi_s/seg_03",
+   "pivot": [
+    120.5,
+    -31.0,
+    -120.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 40,
+   "elements": 38
+  },
+  {
+   "seg": 4,
+   "item_model": "barkan:imugi_s/seg_04",
+   "pivot": [
+    120.5,
+    -31.0,
+    -117.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 45,
+   "elements": 45
+  },
+  {
+   "seg": 5,
+   "item_model": "barkan:imugi_s/seg_05",
+   "pivot": [
+    120.5,
+    -31.0,
+    -114.5
+   ],
+   "scale": 3.096774193548387,
+   "blocks": 45,
+   "elements": 46
+  },
+  {
+   "seg": 6,
+   "item_model": "barkan:imugi_s/seg_06",
+   "pivot": [
+    120.5,
+    -31.0,
+    -111.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 40,
+   "elements": 38
+  },
+  {
+   "seg": 7,
+   "item_model": "barkan:imugi_s/seg_07",
+   "pivot": [
+    120.5,
+    -31.0,
+    -108.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 43,
+   "elements": 43
+  },
+  {
+   "seg": 8,
+   "item_model": "barkan:imugi_s/seg_08",
+   "pivot": [
+    120.5,
+    -31.0,
+    -105.5
+   ],
+   "scale": 3.096774193548387,
+   "blocks": 46,
+   "elements": 47
+  },
+  {
+   "seg": 9,
+   "item_model": "barkan:imugi_s/seg_09",
+   "pivot": [
+    120.5,
+    -31.0,
+    -102.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 3,
+   "elements": 3
+  },
+  {
+   "seg": 10,
+   "item_model": "barkan:imugi_s/seg_10",
+   "pivot": [
+    120.5,
+    -31.0,
+    -98.0
+   ],
+   "scale": 11.35483870967742,
+   "blocks": 275,
+   "elements": 454
+  }
+ ],
+ "extra_displays": [
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 10,
+   "pos": [
+    119.5,
+    -30.5,
+    -91.5
+   ],
+   "left_rotation": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "scale": 1.15
+  },
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 10,
+   "pos": [
+    121.5,
+    -30.5,
+    -91.5
+   ],
+   "left_rotation": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "scale": 1.15
+  }
+ ],
+ "aura_models": {
+  "green": {
+   "3": {
+    "item_model": "barkan:imugi_s/aura_03_green",
+    "scale": 9.290322580645162
+   },
+   "4": {
+    "item_model": "barkan:imugi_s/aura_04_green",
+    "scale": 3.6129032258064515
+   },
+   "5": {
+    "item_model": "barkan:imugi_s/aura_05_green",
+    "scale": 6.193548387096774
+   },
+   "6": {
+    "item_model": "barkan:imugi_s/aura_06_green",
+    "scale": 5.161290322580645
+   },
+   "9": {
+    "item_model": "barkan:imugi_s/aura_09_green",
+    "scale": 10.32258064516129
+   }
+  },
+  "red": {
+   "0": {
+    "item_model": "barkan:imugi_s/aura_00_red",
+    "scale": 3.6129032258064515
+   },
+   "1": {
+    "item_model": "barkan:imugi_s/aura_01_red",
+    "scale": 4.129032258064516
+   },
+   "2": {
+    "item_model": "barkan:imugi_s/aura_02_red",
+    "scale": 5.161290322580645
+   },
+   "5": {
+    "item_model": "barkan:imugi_s/aura_05_red",
+    "scale": 3.096774193548387
+   },
+   "6": {
+    "item_model": "barkan:imugi_s/aura_06_red",
+    "scale": 5.161290322580645
+   },
+   "7": {
+    "item_model": "barkan:imugi_s/aura_07_red",
+    "scale": 7.225806451612903
+   },
+   "8": {
+    "item_model": "barkan:imugi_s/aura_08_red",
+    "scale": 6.193548387096774
+   }
+  },
+  "purple": {
+   "0": {
+    "item_model": "barkan:imugi_s/aura_00_purple",
+    "scale": 3.6129032258064515
+   },
+   "1": {
+    "item_model": "barkan:imugi_s/aura_01_purple",
+    "scale": 4.129032258064516
+   },
+   "2": {
+    "item_model": "barkan:imugi_s/aura_02_purple",
+    "scale": 5.161290322580645
+   },
+   "3": {
+    "item_model": "barkan:imugi_s/aura_03_purple",
+    "scale": 9.290322580645162
+   },
+   "4": {
+    "item_model": "barkan:imugi_s/aura_04_purple",
+    "scale": 3.6129032258064515
+   },
+   "5": {
+    "item_model": "barkan:imugi_s/aura_05_purple",
+    "scale": 6.193548387096774
+   },
+   "6": {
+    "item_model": "barkan:imugi_s/aura_06_purple",
+    "scale": 5.161290322580645
+   },
+   "7": {
+    "item_model": "barkan:imugi_s/aura_07_purple",
+    "scale": 7.225806451612903
+   },
+   "8": {
+    "item_model": "barkan:imugi_s/aura_08_purple",
+    "scale": 6.193548387096774
+   },
+   "9": {
+    "item_model": "barkan:imugi_s/aura_09_purple",
+    "scale": 10.32258064516129
+   }
+  }
+ }
+}

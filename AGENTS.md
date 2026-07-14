@@ -28,23 +28,17 @@
 | **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
 | **배** | `ship/` (ShipManager·ShipFactory·ShipMover) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | BlockDisplay+Shulker, 프리셋 3종 |
 
-**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
-- **명령어 별칭 규칙 → 전역 훅이 강제** (`~/.claude/hooks/guard-security.py`, 두벌식 변환·초성 검출 내장): 한글 플레이어 명령엔 영타 별칭(두벌식) 부여, 자주 쓰는 건 초성도(선택). **OP 전용 명령(setPermission blockship.admin)엔 영타·초성 별칭 금지** — 위반 시 훅이 경고. (구 CLAUDE.md의 매핑표·초성 예시는 훅으로 이관됨)
+- **한글 명령어 영타 별칭 필수** (OP 전용 명령어는 제외): 한글→영타 매핑: ㅂ=q ㅈ=w ㄷ=e ㄱ=r ㅅ=t ㅛ=y ㅕ=u ㅑ=i ㅐ=o ㅔ=p ㅁ=a ㄴ=s ㅇ=d ㄹ=f ㅎ=g ㅗ=h ㅓ=j ㅏ=k ㅣ=l ㅋ=z ㅌ=x ㅊ=c ㅍ=v ㅠ=b ㅜ=n ㅡ=m
+- **초성 별칭은 자주 쓰는 핵심 명령어에만** (선택 — 영타와 달리 필수 아님): 한글 명령어의 초성으로 짧은 별칭을 부여. 예: 섬→`ㅅ`, 상점→`ㅅㅈ`, 판매→`ㅍㅁ`, 스폰→`ㅅㅍ`, 레벨→`ㄹㅂ`. 영타 별칭과 함께 `setAliases(List.of("영타", "초성"))`에 추가한다. **모든 명령어에 달지 말 것** — 플레이어가 반복해서 치는 명령어만. 초성끼리만 충돌 검사하고, 겹치면 한쪽만 부여(예: 수표·스폰 둘 다 `ㅅㅍ` → 스폰만).
 - **탭 자동완성 필수** (OP 전용 명령어는 제외): 인자가 있는 모든 명령어에 TabCompleter 구현
   - 인자가 **플레이어 닉네임**이면: 접속 중인 플레이어 이름 목록
   - 인자가 **숫자 (금액/수량/레벨 등)**이면: 자동완성 목록 **넣지 않음**. 대신 `<금액>`, `<수량>` 같은 도움말 텍스트만 표시
   - 인자가 **고정 선택지** (등급, 타입 등)이면: 가능한 값을 모두 나열
   - 자동완성 없이 명령어만 만드는 것은 금지
-
-### NPC 닉네임 색 규칙 (2026-07-08 신설, 위반 금지)
-NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★표시 이름 = **Citizens `saves.yml`의 `name` 필드**(BetterModel/BlockShip 아님) → 색 바꾸려면 saves.yml 편집(stop→편집→start). BlockShip 클릭 매칭은 **uncolored 이름 비교**라 색만 바꾸면 매칭 안 깨짐(이름 텍스트를 바꾸면 npc.json name도 같이 바꿔야 함).
-- **하늘색 `&b`** = 기능형 NPC (길드·상점·물고기판매·섬상점·대장간·요리사·유저마켓·드릴상점·페리·**일퀘/주간 게시판([퀘스트] 태그)**·여관·회복·말대여 등 GUI/기능 제공).
-- **초록색 `&a`** = 퀘스트(스토리·메인·튜토) 주는 NPC (태그 `[Q]` 또는 `[길잡이]`, 예: 할아버지·펠릭스·마르타·베티나·낚시꾼할아버지·동굴탐험가).
-- **하얀색 `&f`** = 대화만 하는 NPC (기능도 퀘스트도 없음).
-- ★함정: `[퀘스트]` 태그(디트리히·엔초)는 **일퀘 게시판=기능형(하늘)**, 퀘스트를 대화로 주는 건 `[Q]`(초록). 헷갈리지 말 것.
 
 ### 월드 이동 규칙
 - **`player.teleport()` (Java Bukkit API)로 cross-world(다른 월드로) 이동 불가** — Paper에서 작동 안 함. 같은 월드 내 이동은 가능.
@@ -79,7 +73,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 
 ## 주요 명령어
 - `/레벨` `/장비` `/강화` `/칭호` `/부품상점` `/판매` `/작물`
-- `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>` `/잠수` (잠수대 토글 — 10분 방치 시 자동)
+- `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>`
 - `/콤보 [n]` `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)

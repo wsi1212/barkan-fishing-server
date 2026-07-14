@@ -1,0 +1,190 @@
+{
+ "world_origin_hint": "flatroom prod build",
+ "left_rotation_fix": [
+  0,
+  1,
+  0,
+  0
+ ],
+ "render_scale_multiplier": 1.5,
+ "segments": [
+  {
+   "seg": 0,
+   "item_model": "barkan:imugi/seg_00",
+   "pivot": [
+    46.167,
+    -44.833,
+    -118.833
+   ],
+   "scale": 3.23,
+   "blocks": 37,
+   "elements": 43,
+   "dist_range": [
+    0,
+    5
+   ]
+  },
+  {
+   "seg": 1,
+   "item_model": "barkan:imugi/seg_01",
+   "pivot": [
+    49.792,
+    -48.458,
+    -113.792
+   ],
+   "scale": 3.48,
+   "blocks": 53,
+   "elements": 55,
+   "dist_range": [
+    6,
+    10
+   ]
+  },
+  {
+   "seg": 2,
+   "item_model": "barkan:imugi/seg_02",
+   "pivot": [
+    49.375,
+    -49.938,
+    -108.0
+   ],
+   "scale": 2.92,
+   "blocks": 49,
+   "elements": 46,
+   "dist_range": [
+    11,
+    15
+   ]
+  },
+  {
+   "seg": 3,
+   "item_model": "barkan:imugi/seg_03",
+   "pivot": [
+    47.761,
+    -50.065,
+    -103.065
+   ],
+   "scale": 2.72,
+   "blocks": 67,
+   "elements": 62,
+   "dist_range": [
+    16,
+    20
+   ]
+  },
+  {
+   "seg": 4,
+   "item_model": "barkan:imugi/seg_04",
+   "pivot": [
+    45.54,
+    -48.26,
+    -97.98
+   ],
+   "scale": 2.84,
+   "blocks": 62,
+   "elements": 57,
+   "dist_range": [
+    21,
+    25
+   ]
+  },
+  {
+   "seg": 5,
+   "item_model": "barkan:imugi/seg_05",
+   "pivot": [
+    45.455,
+    -45.545,
+    -92.909
+   ],
+   "scale": 4.37,
+   "blocks": 110,
+   "elements": 103,
+   "dist_range": [
+    26,
+    31
+   ]
+  },
+  {
+   "seg": 6,
+   "item_model": "barkan:imugi/seg_06",
+   "pivot": [
+    53.031,
+    -40.344,
+    -91.5
+   ],
+   "scale": 4.34,
+   "blocks": 96,
+   "elements": 92,
+   "dist_range": [
+    32,
+    36
+   ]
+  },
+  {
+   "seg": 7,
+   "item_model": "barkan:imugi/seg_07",
+   "pivot": [
+    53.5,
+    -35.978,
+    -99.022
+   ],
+   "scale": 3.67,
+   "blocks": 78,
+   "elements": 76,
+   "dist_range": [
+    37,
+    41
+   ]
+  },
+  {
+   "seg": 8,
+   "item_model": "barkan:imugi/seg_08",
+   "pivot": [
+    47.474,
+    -31.526,
+    -97.947
+   ],
+   "scale": 7.3,
+   "blocks": 213,
+   "elements": 386,
+   "dist_range": [
+    42,
+    51
+   ]
+  }
+ ],
+ "extra_displays": [
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 8,
+   "pos": [
+    46.5,
+    -30.5,
+    -91.5
+   ],
+   "left_rotation": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "scale": 2.0
+  },
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 8,
+   "pos": [
+    48.5,
+    -30.5,
+    -91.5
+   ],
+   "left_rotation": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "scale": 2.0
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/validate-sk.sh'",
+            "timeout": 10,
+            "statusMessage": ".sk 컨벤션 검증 중..."
+          }
+        ]
+      }
+    ]
+  }
+}
