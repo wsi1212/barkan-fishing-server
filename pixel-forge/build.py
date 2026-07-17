@@ -60,7 +60,7 @@ def main():
         json.dump(model, open(f"{mdl_dir}/{iid}.json", "w"), indent=1)
         # GUI 아이콘: 3D를 3/4뷰로 렌더 → 잘라내기 → 32px 스프라이트 (인벤 가독성)
         icon_raw = os.path.join(HERE, "out", iid + "_icon_raw.png")
-        render3d(f"{mdl_dir}/{iid}.json", f"{tex_dir}/{iid}.png", icon_raw, yaw=35, pitch=25, size=256)
+        render3d(f"{mdl_dir}/{iid}.json", f"{tex_dir}/{iid}.png", icon_raw, yaw=35, pitch=it.get("icon_pitch", 42), size=256)
         ic = Image.open(icon_raw).convert("RGBA")
         bb = ic.getbbox(); ic = ic.crop(bb) if bb else ic
         side = max(ic.size); sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
@@ -133,6 +133,17 @@ def main():
 """)
         print(f"  ✔ {iid}: {it['model']} ({len(model['elements'])} elem, ty={ty})")
     open(f"{BF}/configuration/forage_custom.yml", "w").write("\n".join(cfg))
+    # 채집 시스템용 종류 정의 (ForageManager가 읽음) — manifest 단일 소스
+    types = {}
+    for it in mf["items"]:
+        rarity = it.get("rarity", "흔함")
+        types[f"barkan:{g}_{pfx}{it['id']}"] = {
+            "name": it["name"], "region": it.get("region", "평원"), "rarity": rarity,
+            "cooldownSec": it.get("cooldownSec", 72000 if rarity == "희귀" else 5400)}
+    plug = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
+                              "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/forage-types.json")
+    json.dump(types, open(plug, "w"), ensure_ascii=False, indent=1)
+    print(f"forage-types.json: {len(types)}종 (흔함 1.5h / 희귀 20h)")
     print(f"OK — {len(mf['items'])}종. 다음: devrcon 'ce reload all'")
 
 if __name__ == "__main__":
