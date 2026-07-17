@@ -22,24 +22,28 @@ def sprout(k, leaves):
     for f, t, rr in leaves:
         k.box(f, t, Mat(G_SPROUT, var=0.8), rot=rr)
 
-def _arc_stalk(k, x, z, total_h, stalk_mat, head_mat, bend):
-    """다 자란 밀 줄기 = 고사리식 3분절 아치 + 끝에서 무게로 곧게 처지는 이삭(candy-cane).
+def _arc_stalk(k, x, z, total_h, stalk_mat, head_mat, axis, sgn):
+    """다 자란 밀 줄기 = 고사리식 3분절 아치 + 호를 따라 위로-바깥으로 살짝 끄덕이는 이삭.
     한 각도로 통째 기울이면 '삐딱한 막대'가 됨 — 분절마다 각을 키워야(0→22.5→45) 호가 생긴다.
-    각 분절은 이전 분절의 '회전 후' 끝점에서 이어붙임(체인). MC z회전: 끝점 = (x−sinθ·L, cosθ·L).
-    ★이삭은 회전 없이 끝점에서 수직 아래로 매달리게 = 줄기가 호로 넘어간 뒤 이삭만 아래로 떨어지는
-    '고개 숙인 밀' 실루엣(이삭을 줄기각 45°로 두면 위로 뻗어 '안 처진' 막대가 됨 — B안 채택).
-    bend=+1(−x로 휨)/−1(+x로 휨). MC 허용각 {0,22.5,45}만 사용."""
-    W = 0.55
-    segs = [(total_h * 0.46, 0.0), (total_h * 0.30, 22.5 * bend), (total_h * 0.22, 45.0 * bend)]
-    px, py = float(x), 0.0
+    ★이삭은 줄기 호를 '이어서' 위로-바깥 방향(45°)으로 뻗는다 = 밀의 가벼운 끄덕임.
+     (수직으로 툭 떨구면 벼/보리처럼 보임 — 유저 피드백 2026-07-18: '뭔가 쌀같냐')
+    ★단일 축 회전만 가능 → axis로 방향 분배: axis="z"=좌우(±x), axis="x"=앞뒤(±z). 8대를
+     중심 기준 바깥 4방향으로 배분해 사방 방사형(평면 부채살 아님).
+    체인 끝점: z회전→(x−sinθ·L,cosθ·L) / x회전→(z+sinθ·L,cosθ·L). MC 허용각 {0,22.5,45}만."""
+    W = 0.5
+    segs = [(total_h * 0.50, 0.0), (total_h * 0.30, 22.5 * sgn), (total_h * 0.20, 45.0 * sgn)]
+    px, py, pz = float(x), 0.0, float(z)
     for L, a in segs:
         r = math.radians(a)
         y0 = py - (0.5 if py > 0 else 0)                       # 관절 겹침 = 지터 틈 방지
-        k.box((px - W, y0, z - W), (px + W, py + L, z + W), stalk_mat,
-              rot=("z", a, [px, py, z]) if a else None)
-        px -= math.sin(r) * L; py += math.cos(r) * L          # 회전 후 끝점으로 전진
-    hl = total_h * 0.42; hw = 1.3                              # 이삭: 끝점에서 수직 아래로 매달림
-    k.box((px - hw, py - hl, z - hw), (px + hw, py + 0.6, z + hw), head_mat)
+        k.box((px - W, y0, pz - W), (px + W, py + L, pz + W), stalk_mat,
+              rot=(axis, a, [px, py, pz]) if a else None)
+        if axis == "z": px -= math.sin(r) * L; py += math.cos(r) * L
+        else:           pz += math.sin(r) * L; py += math.cos(r) * L
+    a = 45.0 * sgn; hl = total_h * 0.34; hw = 1.25             # 이삭: 호를 이어 위로-바깥 끄덕임(2단 테이퍼)
+    k.box((px - hw, py - 0.4, pz - hw), (px + hw, py + hl * 0.62, pz + hw), head_mat, rot=(axis, a, [px, py, pz]))
+    k.box((px - hw + 0.4, py + hl * 0.55, pz - hw + 0.4), (px + hw - 0.4, py + hl, pz + hw - 0.4),
+          head_mat, rot=(axis, a, [px, py, pz]))          # 끝 테이퍼 = 이삭 꼭지
 
 # ── 각 작물: fn(stage 0~4, kit) ──────────────────────────────
 def wheat(st, k):
@@ -61,11 +65,15 @@ def wheat(st, k):
             h = 9 + (i % 3)
             k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk if i % 2 else gold_st)
             k.box((x-1.1, h-0.6, z-1.1), (x+1.1, h+2.2, z+1.1), head_g if i % 2 else head_y)
-    else:           # 성숙 — 크고 빽빽한 황금밭, 이삭 무게로 고개 숙인 아치(고사리식 3분절)
+    else:           # 성숙 — 크고 빽빽한 황금밭, 사방으로 살짝 끄덕이는 아치(고사리식 3분절)
         for i, (x, z) in enumerate(POS):
             total_h = 13 + (i % 3) * 1.5                        # 13/14.5/16 = 크고 껑충
-            bend = 1 if x < 8 else -1                           # 중심 기준 바깥으로 부채살(꽃다발)
-            _arc_stalk(k, x, z, total_h, gold_st, head_y, bend)
+            dx, dz = x - 8, z - 8                               # 중심 기준 바깥 방향
+            if abs(dx) >= abs(dz):
+                axis, sgn = "z", (1 if dx < 0 else -1)         # 좌우로 휨(바깥쪽)
+            else:
+                axis, sgn = "x", (1 if dz > 0 else -1)         # 앞뒤로 휨(바깥쪽)
+            _arc_stalk(k, x, z, total_h, gold_st, head_y, axis, sgn)
 
 def carrot(st, k):
     leaf = Mat(G_LEAF, var=0.9)
