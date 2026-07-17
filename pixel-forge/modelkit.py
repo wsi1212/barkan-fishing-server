@@ -63,14 +63,15 @@ class Kit:
                   "south": (2, True), "north": (2, False)}
 
     def _face_covered(self, i, face):
-        """i번 박스의 face가 다른 무회전 박스에 완전히 덮이면 True. 회전 박스는 컬링 대상/제공자 모두 제외."""
-        f, t, _, _, rot = self.boxes[i]
+        """i번 박스의 face가 다른 무회전 박스에 완전히 덮이면 True. 회전 박스는 컬링 대상/제공자 모두 제외.
+        (허용오차 0.05 = 지터 ±0.015보다 넉넉히 — 지터 후에도 스택 컬링 유지)"""
+        f, t, _, _, rot = self._built[i]
         if rot: return False
         ax, positive = self._FACE_AXIS[face]
         plane = t[ax] if positive else f[ax]
         oa = [k for k in range(3) if k != ax]           # 면의 2D 축
-        e = 1e-6
-        for j, (f2, t2, _, _, rot2) in enumerate(self.boxes):
+        e = 0.05
+        for j, (f2, t2, _, _, rot2) in enumerate(self._built):
             if j == i or rot2: continue
             if not (f2[ax] - e <= plane <= t2[ax] + e): continue          # 그 평면을 관통/접촉
             if f2[ax] > plane - e and t2[ax] < plane + e: continue        # 두께 0 접촉 아님 보장
@@ -78,11 +79,26 @@ class Kit:
                 return True
         return False
 
+    def _jitter(self):
+        """★z-fight 원천 봉쇄(유저 지시 2026-07-18): 서로 다른 박스가 정확히 같은 x/z 평면을 공유할 수 없게
+        박스마다 결정적 미세 오프셋(±0.015, 시드 고정)을 x/z에 주입. y는 접지 보존을 위해 불변.
+        0.015블록(≈0.24px)은 육안 불가지만 깊이버퍼는 구분 → 교차/코플레너 z-fight 소멸."""
+        out = []
+        for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
+            rnd = random.Random(hash((self.seed, i, "jit")))
+            dx = (rnd.random() - 0.5) * 0.03
+            dz = (rnd.random() - 0.5) * 0.03
+            f2 = (f[0] + dx, f[1], f[2] + dz); t2 = (t[0] + dx, t[1], t[2] + dz)
+            rot2 = (rot[0], rot[1], [rot[2][0] + dx, rot[2][1], rot[2][2] + dz]) if rot else None
+            out.append((f2, t2, mat, cull, rot2))
+        return out
+
     # ── 빌드: 오토 아틀라스 + 모델 ──────────────
     def build(self, tex_ref):
         FACE_DIMS = {"up": (0, 2), "down": (0, 2), "north": (0, 1), "south": (0, 1), "west": (2, 1), "east": (2, 1)}
+        self._built = self._jitter()                   # ★코플레너 봉쇄: 박스별 x/z 미세 오프셋
         regions = []                                   # (박스i, 면, w px, h px)
-        for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
+        for i, (f, t, mat, cull, rot) in enumerate(self._built):
             dim = [t[k]-f[k] for k in range(3)]
             for face, (a, b) in FACE_DIMS.items():
                 if self._face_covered(i, face): continue   # ★선언(cull) 무시 — 증명된 면만 자동 제거
@@ -97,7 +113,7 @@ class Kit:
         im = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
         u, v = 16.0/W, 16.0/H
         els = []
-        for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
+        for i, (f, t, mat, cull, rot) in enumerate(self._built):
             faces = {}
             for bi, face, w, h, (px, py) in regions:
                 if bi != i: continue
