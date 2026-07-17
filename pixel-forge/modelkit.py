@@ -56,6 +56,26 @@ class Kit:
             self.box((cx-hw, y0+h*0.3, cz-hw), (cx+hw, y0+h*0.72, cz+hw), mat, rot=rr)                            # 최광폭 중단
             self.box((cx-hw+1.8, y0+h*0.72, cz-hw+1.8), (cx+hw-1.8, y0+h, cz+hw-1.8), mat, cull=("down",), rot=rr)  # 크라운
 
+    # ── 자동 컬링: "완전히 덮인" 면만 제거 (부분 덮임 컬링 = 투명 구멍의 원인이었음, 2026-07-17) ──
+    _FACE_AXIS = {"up": (1, True), "down": (1, False), "east": (0, True), "west": (0, False),
+                  "south": (2, True), "north": (2, False)}
+
+    def _face_covered(self, i, face):
+        """i번 박스의 face가 다른 무회전 박스에 완전히 덮이면 True. 회전 박스는 컬링 대상/제공자 모두 제외."""
+        f, t, _, _, rot = self.boxes[i]
+        if rot: return False
+        ax, positive = self._FACE_AXIS[face]
+        plane = t[ax] if positive else f[ax]
+        oa = [k for k in range(3) if k != ax]           # 면의 2D 축
+        e = 1e-6
+        for j, (f2, t2, _, _, rot2) in enumerate(self.boxes):
+            if j == i or rot2: continue
+            if not (f2[ax] - e <= plane <= t2[ax] + e): continue          # 그 평면을 관통/접촉
+            if f2[ax] > plane - e and t2[ax] < plane + e: continue        # 두께 0 접촉 아님 보장
+            if all(f2[k] - e <= f[k] and t2[k] + e >= t[k] for k in oa):  # 면 전체를 포함
+                return True
+        return False
+
     # ── 빌드: 오토 아틀라스 + 모델 ──────────────
     def build(self, tex_ref):
         FACE_DIMS = {"up": (0, 2), "down": (0, 2), "north": (0, 1), "south": (0, 1), "west": (2, 1), "east": (2, 1)}
@@ -63,7 +83,7 @@ class Kit:
         for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
             dim = [t[k]-f[k] for k in range(3)]
             for face, (a, b) in FACE_DIMS.items():
-                if face in cull: continue
+                if self._face_covered(i, face): continue   # ★선언(cull) 무시 — 증명된 면만 자동 제거
                 w = max(1, round(dim[a])); h = max(1, round(dim[b]))
                 regions.append([i, face, w, h, None])
         # 셸프 패킹 (여백 1px)
