@@ -8,27 +8,35 @@ Base: `plugins/CraftEngine/resources/barkan_furniture/`
 - textures→ `resourcepack/assets/barkan/textures/furniture/<group>/<id>.png`
 - config  → `configuration/<something>.yml` (top-level `items:`)
 
-## Model: cross (plants — mushrooms, flowers, herbs, bushes)
+## ⛔ Model: cross — BANNED
 
-Two crossed planes, sprite on both sides — the vanilla-flower look. Sprite reads standing up.
+Two crossed flat planes (vanilla-flower style) are **forbidden for our custom assets**
+(owner decision 2026-07-17): no volume, reads as cheap "X 종이". `pixel-forge/build.py`
+hard-fails on `model: cross`. Third-party sourced models that merely inherit
+`block/cross` but carry real `elements` (e.g. Actually 3D flowers) are fine — the ban is
+on flat 2-plane displays, not on the parent name.
 
-```json
-{
-  "textures": {"0": "barkan:furniture/<group>/<id>", "particle": "barkan:furniture/<group>/<id>"},
-  "elements": [
-    {"from":[0.8,0,8],"to":[15.2,16,8],"rotation":{"origin":[8,8,8],"axis":"y","angle":45,"rescale":true},"shade":false,
-     "faces":{"north":{"uv":[0,0,16,16],"texture":"#0"},"south":{"uv":[0,0,16,16],"texture":"#0"}}},
-    {"from":[8,0,0.8],"to":[8,16,15.2],"rotation":{"origin":[8,8,8],"axis":"y","angle":45,"rescale":true},"shade":false,
-     "faces":{"west":{"uv":[0,0,16,16],"texture":"#0"},"east":{"uv":[0,0,16,16],"texture":"#0"}}}],
-  "display": {"fixed": {"rotation":[0,0,0],"translation":[0,0,0],"scale":[1,1,1]}}
-}
+## Model: boxes (default — modelkit)
+
+Declare volume with `pixel-forge/modelkit.py`; the Kit guarantees the quality floor
+(per-face pixel noise + gradient + specular, auto-packed 1:1 UV atlas, bevel primitives,
+stack-face culling):
+
+```python
+from modelkit import Kit, Mat
+k = Kit(seed)
+k.rounded_box((4,0,4), (12,9,12), Mat("c0392b", spec=3))   # bevelled body
+k.box((7.5,9,7.5), (8.5,11.5,8.5), Mat("6b4a2a"))          # stem
+im, model = k.build("barkan:furniture/<group>/<id>")        # atlas PNG + model json
 ```
+Primitives: `box(f,t,mat,cull=)`, `rounded_box(f,t,mat,bevel=1)`, `dome(cx,y,cz,w,h,mat)`.
+`Mat(base_hex, spec=N, marks=[(fx,fy,rgba)], vgrad=)` — spots/speculars are material props.
 
-## Model: cuboid / drawn item (fruits, solid objects)
+## Model: voxel extrusion (sprite with depth)
 
-If you drew a proper item model (boxes) reuse its `elements`. If you only have a flat
-sprite and want a small standing item, a single thin plane also works. For item-style
-sources, bump `display.fixed.scale` (e.g. `[2,2,2]`) so a small item is visible.
+`sprite_to_voxel.py` — per-pixel-run extrusion of a finished sprite. Use when a drawn
+sprite already carries the detail. For item-style sources, bump `display.fixed.scale`
+(e.g. `[2,2,2]`) so a small item is visible.
 
 ## Grounding — the key formula
 

@@ -12,14 +12,7 @@ from lint_sprite import lint
 BF = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
                         "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/CraftEngine/resources/barkan_furniture")
 
-CROSS = lambda tex: {
-    "textures": {"0": tex, "particle": tex},
-    "elements": [
-        {"from": [0.8, 0, 8], "to": [15.2, 16, 8], "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": True}, "shade": False,
-         "faces": {"north": {"uv": [0, 0, 16, 16], "texture": "#0"}, "south": {"uv": [0, 0, 16, 16], "texture": "#0"}}},
-        {"from": [8, 0, 0.8], "to": [8, 16, 15.2], "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45, "rescale": True}, "shade": False,
-         "faces": {"west": {"uv": [0, 0, 16, 16], "texture": "#0"}, "east": {"uv": [0, 0, 16, 16], "texture": "#0"}}}],
-    "display": {"fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}}}
+# (X자 크로스 템플릿은 2026-07-17 유저 결정으로 삭제 — 평면 2장 금지, modelkit boxes가 기본)
 
 def main():
     mf = json.load(open(os.path.join(HERE, "manifest.json")))
@@ -37,7 +30,8 @@ def main():
             for w in lint(out_png, it.get("plant", False)): print(f"  ⚠ {iid}: {w}")
         tex_ref = f"barkan:furniture/{g}/{iid}"
         import shutil; shutil.copy(out_png, f"{tex_dir}/{iid}.png")
-        if it["model"] == "cross":   model = CROSS(tex_ref)
+        if it["model"] == "cross":
+            raise SystemExit(f"✗ {iid}: 'cross' 모델은 금지됨(유저 결정 2026-07-17) — X자 평면은 부피가 없어 퀄이 낮음. 'boxes'(modelkit)로 만들 것.")
         elif it["model"] == "voxel": model = voxelize(out_png, tex_ref)
         else:                        model = {"textures": {"0": tex_ref, "particle": tex_ref}, "elements": box_els,
                                               "display": {"fixed": {"rotation": [0,0,0], "translation": [0,0,0], "scale": [1,1,1]}}}

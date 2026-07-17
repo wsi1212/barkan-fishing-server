@@ -109,13 +109,15 @@ painter code in /tmp: the PNG survives but the source dies.
 
 ## Turning sprites into CraftEngine furniture
 
-Three model routes, per subject:
-- **cross** — flat plants (flowers, grass, herbs): sprite on two crossed planes.
-- **voxel** (`sprite_to_voxel.py`) — solid objects (fruit): per-pixel extrusion, real depth.
-- **boxes** — chunky props (pro-pack-style mushrooms): compose a few cuboids (cap box +
-  stem box + shelves) over a small painted atlas; `pixel-forge/painters.py` has
-  `voxel_mushroom()` as the pattern. This is what commercial Minecraft prop packs do —
-  prefer it over cross when the subject is a 3-D thing rather than a flat plant.
+Model routes, per subject — **the X-cross (two crossed flat planes) is BANNED** (owner
+decision, 2026-07-17: crossed planes have no volume and read as cheap; `build.py` hard-fails
+on `model: cross`). Everything placeable gets real volume:
+- **boxes** (default) — declare shapes with `pixel-forge/modelkit.py`: `Kit` + `Mat` +
+  `rounded_box`/`dome` primitives. The kit auto-paints every face with pixel noise +
+  gradient + specular, auto-packs a 1:1 atlas, and culls stacked faces. Quality lives in
+  the system, not per-item effort — a painter is 3-8 declaration lines.
+- **voxel** (`sprite_to_voxel.py`) — per-pixel extrusion of a finished sprite; use when a
+  drawn sprite already carries the detail and just needs depth.
 
 The grounding formula `translation_y = scale*(8 - y_min)/16`, config template, and
 `ce reload` deploy steps are in `references/craftengine.md`.

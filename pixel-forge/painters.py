@@ -1,122 +1,82 @@
-# 채집물 페인터 레지스트리 — 아이템 = 파라메트릭 함수(seed로 변형 생성).
-# 모든 색은 palette.ramp()에서. 광원 = top-left 고정 (STYLE 참조).
-import sys, os, random
-SKILL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".claude", "skills", "pixel-art", "scripts")
-sys.path.insert(0, SKILL)
+# 채집물 페인터 레지스트리 — modelkit 선언식.
+# 페인터 = 모양(박스/rounded_box/dome) + 재질(Mat) 선언 몇 줄. 노이즈 텍스처·1:1 UV·베벨·컬링은 Kit이 보장.
+# 팔레트 근거: refboard 추출(뮤트 톤) + palette.ramp 색조이동. 광원 top-left 고정.
+from modelkit import Kit, Mat
 from palette import ramp, rgba
-from PIL import Image, ImageDraw
 
-STYLE = {"light": "top-left", "canvas": 16, "margin": 1}
+WHITE = (242, 237, 226, 255)
 
-def C():
-    im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-    return im, ImageDraw.Draw(im)
+def _build(kit):
+    im, model = kit.build("_")                 # 텍스처 ref는 build.py가 바인딩
+    return im, model["elements"]
 
-def mushroom(base, spot="f2ede2", seed=0):
-    rnd = random.Random(seed)
-    r = ramp(base); st = ramp("d9caa2")
-    im, d = C()
-    d.pieslice((1, 2, 14, 12), 180, 360, fill=rgba(r[2]))
-    d.pieslice((1, 2, 10, 9), 180, 360, fill=rgba(r[3]))
-    d.pieslice((2, 2, 7, 6), 180, 360, fill=rgba(r[4]))
-    d.line((1, 7, 14, 7), fill=rgba(r[1]))
-    for x, y in [(11, 5), (12, 4)]: d.point((x, y), fill=rgba(r[1]))
-    spots = rnd.sample([(4, 4), (7, 3), (5, 6), (9, 4), (10, 6), (6, 5)], 3)
-    for x, y in spots: d.point((x, y), fill=rgba(spot))
-    d.rectangle((6, 8, 9, 14), fill=rgba(st[2]))
-    d.line((6, 8, 6, 14), fill=rgba(st[3]))
-    d.line((9, 8, 9, 14), fill=rgba(st[1]))
-    d.line((6, 14, 9, 14), fill=rgba(st[0]))
-    return im
+SPOTS = [(0.2, 0.2, WHITE), (0.65, 0.15, WHITE), (0.4, 0.55, WHITE), (0.85, 0.5, WHITE)]
+
+def fairy(base, seed=0):
+    """요정버섯: 돔 캡(점박이) + 원통 줄기."""
+    k = Kit(seed)
+    k.box((6, 0, 6), (10, 6, 10), Mat("d9caa2"), cull=("up",))
+    k.dome(8, 5, 8, 10, 6, Mat(base, spec=2, marks=SPOTS))
+    return _build(k)
+
+def table_mush(cap, stem, seed=0):
+    k = Kit(seed)
+    k.box((6, 0, 6), (10, 9, 10), Mat(stem), cull=("up",))
+    k.rounded_box((3, 8, 3), (13, 12, 13), Mat(cap, spec=2))
+    return _build(k)
+
+def shelf_mush(cap, stem, seed=0):
+    k = Kit(seed)
+    k.box((7, 0, 7), (9, 13, 9), Mat(stem))
+    k.rounded_box((3, 4, 6), (10, 7, 12), Mat(cap, spec=1))
+    k.rounded_box((5, 10, 4), (13, 14, 11), Mat(cap, spec=2))
+    return _build(k)
+
+def cluster_mush(cap, stem, seed=0):
+    k = Kit(seed); cm, sm = Mat(cap, spec=1), Mat(stem)
+    for (sx, sz, sh, cw) in [(4, 8, 6, 6), (8, 7, 9, 6), (12, 9, 5, 6)]:
+        k.box((sx-1, 0, sz-1), (sx+1, sh, sz+1), sm, cull=("up",))
+        k.rounded_box((sx-cw/2, sh-1, sz-cw/2), (sx+cw/2, sh+2, sz+cw/2), cm)
+    return _build(k)
+
+def magic_flower(petal, center, seed=0):
+    k = Kit(seed)
+    g = Mat("4e8f3a"); p = Mat(petal, spec=1); c = Mat(center, vgrad=False)
+    k.box((7, 0, 7), (9, 9, 9), g)                       # 줄기
+    k.box((9, 3, 7), (12, 5, 9), g)                      # 잎
+    k.box((6, 9, 6), (10, 12, 10), c)                    # 중심
+    for f, t in [((3, 9, 6), (6, 12, 10)), ((10, 9, 6), (13, 12, 10)),
+                 ((6, 9, 3), (10, 12, 6)), ((6, 9, 10), (10, 12, 13))]:
+        k.box(f, t, p)                                   # 사방 꽃잎
+    k.box((6, 12, 6), (10, 13, 10), p, cull=("down",))   # 윗꽃잎
+    return _build(k)
+
+def berry_bush(base="b8324a", seed=0):
+    k = Kit(seed)
+    k.box((7, 0, 7), (9, 8, 9), Mat("6b4a2a"))                       # 가지
+    k.rounded_box((5.5, 6.5, 5.5), (10.5, 10.5, 10.5), Mat("4e8f3a"))  # 잎뭉치
+    bm = Mat(base, spec=1)
+    for f, t in [((4, 4, 6), (7, 7, 9)), ((9, 4, 7), (12, 7, 10)), ((6, 1, 5), (9, 4, 8))]:
+        k.box(f, t, bm)                                  # 베리 3알
+    return _build(k)
 
 def apple(base="c0392b", seed=0):
-    r = ramp(base); lf = ramp("4e8f3a"); wd = ramp("6b4a2a")
-    im, d = C()
-    d.ellipse((3, 4, 13, 14), fill=rgba(r[2]))
-    d.ellipse((3, 4, 10, 11), fill=rgba(r[3]))
-    d.ellipse((9, 9, 13, 14), fill=rgba(r[1]))
-    for p in [(12, 12), (11, 13)]: d.point(p, fill=rgba(r[0]))
-    d.line((4, 12, 6, 13), fill=rgba(r[2]))
-    for p in [(5, 6), (6, 6), (5, 7)]: d.point(p, fill=(255, 241, 236, 255))
-    d.line((8, 2, 8, 4), fill=rgba(wd[1]))
-    d.polygon([(9, 2), (12, 1), (12, 4), (9, 4)], fill=rgba(lf[2])); d.line((9, 2, 11, 2), fill=rgba(lf[3]))
-    return im
+    k = Kit(seed)
+    k.rounded_box((4, 0, 4), (12, 9, 12), Mat(base, spec=3))          # 몸통(베벨)
+    k.box((7.5, 9, 7.5), (8.5, 11.5, 8.5), Mat("6b4a2a"))             # 꼭지
+    k.box((8.5, 10, 6.5), (12.5, 12, 8.5), Mat("4e8f3a"))             # 잎
+    return _build(k)
 
-def berry(base="b8324a", seed=0):
-    rnd = random.Random(seed)
-    r = ramp(base); g = ramp("4e8f3a"); wd = ramp("6b4a2a")
-    im, d = C()
-    d.line((8, 3, 8, 7), fill=rgba(wd[1]))
-    d.polygon([(8, 4), (11, 2), (13, 4), (10, 6)], fill=rgba(g[2])); d.line((9, 3, 11, 3), fill=rgba(g[3]))
-    pts = [(6, 9), (10, 9), (8, 12)] if seed == 0 else rnd.sample([(6, 9), (10, 9), (8, 12), (6, 12), (10, 12)], 3)
-    for cx, cy in pts:
-        d.ellipse((cx-2, cy-2, cx+2, cy+2), fill=rgba(r[2]))
-        d.ellipse((cx-2, cy-2, cx+1, cy+1), fill=rgba(r[3]))
-        d.ellipse((cx+1, cy+1, cx+2, cy+2), fill=rgba(r[0]))
-        d.point((cx-1, cy-1), fill=(255, 225, 225, 255))
-    return im
-
-def flower(petal="b9a8e0", center="7a4aa8", seed=0):
-    p = ramp(petal); g = ramp("4e8f3a"); ctr = ramp(center)
-    im, d = C()
-    d.line((8, 8, 8, 15), fill=rgba(g[2]))
-    d.polygon([(8, 12), (4, 11), (5, 14), (8, 13)], fill=rgba(g[2])); d.line((5, 12, 7, 13), fill=rgba(g[3]))
-    for dx, dy in [(0, -3), (-3, -1), (3, -1), (-2, 2), (2, 2)]:
-        cx, cy = 8+dx, 5+dy
-        d.ellipse((cx-2, cy-2, cx+1, cy+1), fill=rgba(p[3]))
-        d.ellipse((cx-1, cy, cx+1, cy+1), fill=rgba(p[1]))
-        d.point((cx-1, cy-2), fill=rgba(p[4]))
-    d.ellipse((6, 3, 9, 6), fill=rgba(ctr[2])); d.point((7, 4), fill=rgba(ctr[3]))
-    return im
-
-# ── 박스 조합형(청키 복셀) 버섯 — MCModels Foraging Pack 레퍼런스 방식 ──
-# 스프라이트가 아니라 (아틀라스 텍스처, 모델 elements)를 반환. 캡=넓은 박스, 줄기=좁은 박스.
-# 팔레트는 refboard에서 추출한 뮤트 톤(d6b151 황토·ad95bb 라벤더·ac9d57 황토줄기·aca289 크림).
-def _atlas(cap, stem):
-    r, st = ramp(cap), ramp(stem)
-    im, d = C()
-    d.rectangle((0, 0, 15, 3), fill=rgba(r[3]))            # cap top (밝음, 위를 봄)
-    for x, y in [(2, 1), (6, 2), (11, 1), (13, 2), (4, 3)]: d.point((x, y), fill=rgba(r[4]))
-    d.rectangle((0, 4, 15, 7), fill=rgba(r[2]))            # cap side
-    d.line((0, 7, 15, 7), fill=rgba(r[1]))
-    d.rectangle((0, 8, 15, 9), fill=rgba(r[1]))            # cap under (그늘)
-    d.rectangle((0, 10, 15, 15), fill=rgba(st[2]))         # stem
-    d.rectangle((0, 10, 1, 15), fill=rgba(st[3]))
-    d.rectangle((14, 10, 15, 15), fill=rgba(st[1]))
-    return im
-
-def _box(f, t, kind):
-    w = min(16, t[0]-f[0]); dz = min(16, t[2]-f[2]); h = min(6, t[1]-f[1])
-    top   = {"uv": [0, 0, w, min(4, dz)], "texture": "#0"}
-    side  = {"uv": [0, 4, w, 4+min(4, h)], "texture": "#0"} if kind == "cap" else {"uv": [0, 10, w, 10+min(6, h)], "texture": "#0"}
-    under = {"uv": [0, 8, w, 9], "texture": "#0"} if kind == "cap" else side
-    sz    = {"uv": [0, side["uv"][1], dz, side["uv"][3]], "texture": "#0"}
-    return {"from": list(f), "to": list(t),
-            "faces": {"up": top, "down": under, "north": side, "south": side, "west": sz, "east": sz}}
-
-def voxel_mushroom(shape, cap, stem, seed=0):
-    els = []
-    if shape == "table":                                    # 낮은 테이블캡 (ref 황토)
-        els = [_box((6, 0, 6), (10, 7, 10), "stem"), _box((3, 6, 3), (13, 10, 13), "cap")]
-    elif shape == "shelf":                                  # 2단 선반 (ref 라벤더)
-        els = [_box((7, 0, 7), (9, 13, 9), "stem"),
-               _box((3, 4, 6), (10, 7, 12), "cap"), _box((5, 10, 4), (13, 14, 11), "cap")]
-    elif shape == "cluster":                                # 3발 다발 (ref 상아)
-        els = [_box((3, 0, 7), (5, 6, 9), "stem"),  _box((1, 5, 5), (7, 8, 11), "cap"),
-               _box((7, 0, 6), (9, 9, 8), "stem"),  _box((5, 8, 4), (11, 12, 10), "cap"),
-               _box((11, 0, 8), (13, 5, 10), "stem"), _box((9, 4, 6), (15, 7, 12), "cap")]
-    return _atlas(cap, stem), els
-
-# id -> (함수, kwargs). build.py가 manifest의 painter 키로 찾음.
+# id -> (함수, kwargs). build.py가 manifest의 painter 키로 찾음. 전부 modelkit 3D.
 REGISTRY = {
-    "mush_red":     (mushroom, {"base": "c0392b"}),
-    "mush_blue":    (mushroom, {"base": "3a7ca5"}),
-    "mush_orange":  (mushroom, {"base": "d97a2b"}),
-    "herb_magic":   (flower,   {"petal": "b9a8e0", "center": "7a4aa8"}),
-    "berry_wild":   (berry,    {}),
-    "fruit_apple":  (apple,    {}),
-    # 레퍼런스 추출 팔레트 (refboard/paidpacks — 참조용)
-    "mush_table":   (voxel_mushroom, {"shape": "table",   "cap": "d6b151", "stem": "cfc39b"}),
-    "mush_shelf":   (voxel_mushroom, {"shape": "shelf",   "cap": "ad95bb", "stem": "ac9d57"}),
-    "mush_cluster": (voxel_mushroom, {"shape": "cluster", "cap": "e8e2d2", "stem": "aca289"}),
+    "mush_red":     (fairy, {"base": "c0392b"}),
+    "mush_blue":    (fairy, {"base": "3a7ca5"}),
+    "mush_orange":  (fairy, {"base": "d97a2b"}),
+    "herb_magic":   (magic_flower, {"petal": "b9a8e0", "center": "7a4aa8"}),
+    "berry_wild":   (berry_bush, {}),
+    "fruit_apple":  (apple, {}),
+    # 레퍼런스 추출 팔레트 (refboard/paidpacks)
+    "mush_table":   (table_mush, {"cap": "d6b151", "stem": "cfc39b"}),
+    "mush_shelf":   (shelf_mush, {"cap": "ad95bb", "stem": "ac9d57"}),
+    "mush_cluster": (cluster_mush, {"cap": "e8e2d2", "stem": "aca289"}),
 }
