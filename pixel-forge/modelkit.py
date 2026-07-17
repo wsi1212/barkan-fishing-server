@@ -66,8 +66,17 @@ class Kit:
                 self._paint(d, px, py, w, h, mat, face)
                 faces[face] = {"uv": [px*u, py*v, (px+w)*u, (py+h)*v], "texture": "#0"}
             els.append({"from": list(f), "to": list(t), "faces": faces})
+        # display 풀세트 — 판매팩 필수: GUI 아이콘(블록식 3/4뷰)·손·바닥 전부 정의 (fixed=CE 가구 배치용)
         model = {"textures": {"0": tex_ref, "particle": tex_ref}, "elements": els,
-                 "display": {"fixed": {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}}}
+                 "display": {
+                     "fixed":  {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]},
+                     "gui":    {"rotation": [30, 225, 0], "translation": [0, 0, 0], "scale": [0.625, 0.625, 0.625]},
+                     "ground": {"rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.25, 0.25, 0.25]},
+                     "head":   {"rotation": [0, 0, 0], "translation": [0, 14.25, 0], "scale": [1, 1, 1]},
+                     "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375]},
+                     "thirdperson_lefthand":  {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.375, 0.375, 0.375]},
+                     "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, 0, 0], "scale": [0.4, 0.4, 0.4]},
+                     "firstperson_lefthand":  {"rotation": [0, 225, 0], "translation": [0, 0, 0], "scale": [0.4, 0.4, 0.4]}}}
         return im, model
 
     def _paint(self, d, px, py, w, h, mat, face):
