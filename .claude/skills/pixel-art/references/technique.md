@@ -2,6 +2,38 @@
 
 Read this when shading feels flat or a sprite looks amateur and you can't say why.
 
+## Pro rulebook (Minecraft Style Guide + Faithful/Compliance guidelines — researched 2026-07-17)
+
+Sources: blockbench.net/wiki/guides/minecraft-style-guide, docs.faithfulpack.net texturing
+guidelines, Compliance texturing gist. The rules that actually moved our quality:
+
+- **Shape from the model, detail from the texture.** Round objects (pumpkin, melon,
+  barrel, cake) are SINGLE elements whose roundness is *painted*: edge columns of side
+  faces turn darker (form turn), corners shaded. Don't stack many boxes to fake a curve —
+  a couple of bevels + painted rounding reads better and stays "Minecraft".
+- **Banding is the #1 grid-reveal artifact**: shades lined up in straight rows/diagonals.
+  Break zone boundaries with per-column phase offset and (matte only) checker dithering.
+- **Material decides contrast** (Faithful rule): shiny = strong highlight/shadow contrast,
+  NO dithering, crisp zones + specular; matte/rough = compressed value range, dithering
+  allowed, never any sparkle. One gloss flag per material, not per item.
+- **Zone shading, not noise**: brightness is a function of position under one light
+  (top-left). Variation lives INSIDE a zone (±1 ramp step, clustered), never dark pixels
+  scattered into light zones ("rotten" look — owner feedback 2026-07-17).
+- **Contact AO + rim**: bottom row of side faces one step darker (ground contact); the top
+  of a stem under a cap darker (occlusion); top row of a lit side gets a subtle rim light.
+- **Directional grain**: stems/wood get column-locked variation (vertical streaks), not
+  blob noise.
+- **Marks are features, not noise**: spots as 2×2 (or 2×1 on low faces) blocks with
+  enforced spacing; skip on faces too small to read them.
+- **16×16 discipline, no mixels**: don't upscale textures for detail; keep 1 texture px =
+  1 model unit (no sub-pixel elements, no inflated boxes).
+- **Prohibited**: pillow shading (bright center/dark all edges), pancake shading
+  (highlight one side + shadow opposite ignoring form), unnecessary dithering, noise
+  without information, jaggies.
+
+All of the above are implemented systemically in `pixel-forge/modelkit.py` (`_paint` v3) —
+declare a `Mat` and the rules apply automatically.
+
 ## Form shading, worked
 
 The mistake is shading regions ("cap = red, make edges darker"). Instead shade the

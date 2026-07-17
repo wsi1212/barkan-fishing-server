@@ -12,9 +12,11 @@ class Mat:
     """재질 = 램프 + 성질.
     gloss: 광택 재질(과일 껍질 등)만 True — 스페큘러 패치+풀 명암폭. 무광(버섯갓/줄기/잎)은 절대 반짝이지 않음.
     var: 존 내 변주 강도(0~1). marks: 점무늬 [(fx,fy,rgba)] — 2×2 덩어리로 찍힘."""
-    def __init__(self, base, gloss=False, marks=None, var=1.0):
+    def __init__(self, base, gloss=False, marks=None, var=1.0, grain=None, ao_top=False):
         self.r = ramp(base) if isinstance(base, str) else base
         self.gloss = gloss; self.marks = marks or []; self.var = var
+        self.grain = grain      # "v"=세로 결(줄기/나무 — 컬럼 고정 변주)
+        self.ao_top = ao_top    # 위 요소(갓 등) 밑 그늘 — 윗행을 어둡게
 
 class Kit:
     def __init__(self, seed=0):
@@ -69,28 +71,55 @@ class Kit:
         return im, model
 
     def _paint(self, d, px, py, w, h, mat, face):
-        """존(zone) 기반 폼 셰이딩 — 랜덤 소금후추 금지.
-        픽셀 밝기 L = 위치의 함수(광원 top-left: 위·좌=밝음, 아래·우=어두움) →
-        램프 존으로 양자화. 변주는 2×2 덩어리 단위 ±1존(존 경계 디더링 효과)만 —
-        밝은 존에 어두운 픽셀이 절대 안 떨어짐(썩은 느낌의 원인 제거)."""
+        """존 기반 폼 셰이딩 v3 — 프로 규칙(MC Style Guide/Faithful) 반영:
+        · 밴딩 금지: 존 경계를 컬럼별 위상 오프셋 + (무광만) 체커 디더링으로 분산
+        · 재질 대비: 광택=고대비·디더 금지·코어섀도·스페큘러 / 무광=저대비·디더 허용
+        · 페인티드 라운딩: 측면 좌우 가장자리 컬럼에 명암 턴(둥근 건 텍스처가 만든다)
+        · 접촉 AO: 측면 바닥행 어둡게, ao_top 재질(줄기)은 윗행도(갓 그늘)
+        · grain="v": 컬럼 고정 변주 = 세로 결(줄기/가지)"""
         r = mat.r; n = len(r)
+        side = face not in ("up", "down")
+
+        def light(u, v, xx, yy, j):
+            if face == "up":     L = 0.80 - 0.12*v - 0.08*u
+            elif face == "down": L = 0.10
+            else:                L = 0.82 - 0.50*v - 0.18*u
+            if side and w >= 4:                                    # 페인티드 라운딩(형태 턴)
+                if xx == 0: L += 0.07
+                elif xx == w-1: L -= 0.13
+            if side and h >= 3:
+                if yy == h-1: L -= 0.11                            # 바닥 접촉 AO
+                elif yy == 0: L += (-0.14 if mat.ao_top else 0.05) # 갓 그늘 or 림라이트
+            if mat.gloss:                                          # 구형 코어섀도(우하단 웅덩이)
+                L -= max(0.0, (u+v)/2 - 0.55) * 0.5
+            return L + j
+
+        amp = (0.09 if mat.gloss else 0.16) * mat.var
         for yy in range(h):
             for xx in range(w):
                 u = xx/max(1, w-1); v = yy/max(1, h-1)
-                if face == "up":     L = 0.80 - 0.12*v - 0.08*u   # 하늘 향해 전체 밝음
-                elif face == "down": L = 0.10                     # 그늘
-                else:                L = 0.82 - 0.50*v - 0.18*u   # 세로 주도 그라데이션
-                j = random.Random(hash((self.seed, face, (px+xx)//2, (py+yy)//2))).random()
-                L += (j - 0.5) * 0.18 * mat.var                   # 덩어리 변주(±1존 이내)
+                if mat.grain == "v":                               # 세로 결: 컬럼 고정
+                    j = random.Random(hash((self.seed, face, px+xx))).random()
+                else:
+                    j = random.Random(hash((self.seed, face, (px+xx)//2, (py+yy)//2))).random()
+                L = light(u, v, xx, yy, (j-0.5)*amp)
                 idx = int(min(0.999, max(0.0, L)) * n)
-                if not mat.gloss: idx = max(1, min(n-2, idx))     # 무광=명암폭 압축, 극단값 금지
+                if not mat.gloss:
+                    idx = max(1, min(n-2, idx))
+                    if h >= 4 and yy+1 < h:                        # 무광: 존 경계 체커 디더
+                        L2 = light(u, (yy+1)/max(1, h-1), xx, yy+1, (j-0.5)*amp)
+                        i2 = max(1, min(n-2, int(min(0.999, max(0.0, L2)) * n)))
+                        if i2 != idx and (xx + yy) % 2 == 0: idx = i2
                 d.point((px+xx, py+yy), fill=rgba(r[idx]))
-        if mat.gloss and face != "down" and w >= 4 and h >= 3:    # 광택 재질만: 응집 스페큘러 패치
+        if mat.gloss and face != "down" and w >= 4 and h >= 3:     # 응집 스페큘러(광택 전용)
             sx, sy = px+1, py+1
             for dx, dy in ((0, 0), (1, 0), (0, 1)):
                 d.point((sx+dx, sy+dy), fill=rgba(r[n-1]))
             d.point((sx, sy), fill=(255, 244, 240, 255))
-        for mx, my, col in mat.marks:                             # 점무늬 = 2×2 덩어리(1px는 노이즈로 보임)
-            if face != "down" and w >= 5 and h >= 4:
-                bx = px + 1 + int(mx*(w-3)); by = py + 1 + int(my*(h-3))
-                d.rectangle((bx, by, bx+1, by+1), fill=col)
+        placed = []                                                # 점무늬: 간격 강제(뭉침=얼룩 방지)
+        for mx, my, col in mat.marks:
+            if face == "down" or w < 7 or h < 3: continue          # 좁은 면엔 무늬 생략
+            mh = 2 if h >= 6 else 1                                # 낮은 면은 2×1
+            bx = px + 1 + int(mx*(w-4)); by = py + 1 + int(my*max(0, h-2-mh))
+            if any(abs(bx-ox) < 4 and abs(by-oy) < 3 for ox, oy in placed): continue
+            d.rectangle((bx, by, bx+1, by+mh-1), fill=col); placed.append((bx, by))
