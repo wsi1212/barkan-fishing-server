@@ -344,3 +344,53 @@ REGISTRY.update({
     "desert_rose":   (desert_rose, {}),
     "frost_lotus":   (frost_lotus, {}),
 })
+
+# ═══════ 색칠놀이 린트 해소 — 도토리/서리열매/수정 2종 실루엣 분화 ═══════
+
+def acorn_real(seed=0):
+    """도토리: 진짜 도토리 2알(모자 쓴 알맹이, 제각각 기움) + 잔가지 (깊은 숲)."""
+    k = Kit(seed)
+    nut = Mat("b98a4e", var=0.7); cap = Mat("6e4f2e", var=0.8); twig = Mat("5c452c", var=0.7, grain="v")
+    k.box((4.5, 0, 6), (8.5, 4.5, 10), nut, rot=("z", 22.5))                   # 알맹이1(기움)
+    k.box((4.2, 4, 5.7), (8.8, 6, 10.3), cap, rot=("z", 22.5), cull=("down",)) # 모자1(챙 넓게)
+    k.box((6, 6, 7.4), (7, 7.2, 8.4), twig, rot=("z", 22.5))                   # 꼭지1
+    k.box((9, 0, 7), (12.5, 3.8, 10.5), nut, rot=("z", -22.5))                 # 알맹이2(반대 기움, 작음)
+    k.box((8.7, 3.4, 6.7), (12.8, 5.2, 10.8), cap, rot=("z", -22.5), cull=("down",))
+    k.box((3.5, 0, 9.5), (10, 1, 10.5), twig, rot=("y", -22.5))                # 떨어진 잔가지
+    return _build(k)
+
+def frost_mound(seed=0):
+    """서리열매: 서리 낀 낮은 둔덕 덤불 + 박힌 얼음 베리 + 고드름 (정상)."""
+    k = Kit(seed)
+    bush = Mat("9fb8ac", var=0.8); frost = Mat("dceef2", var=0.5); br = Mat("6fb8d8", gloss=True)
+    k.rounded_box((3, 0, 4), (13, 4.5, 12), bush)                              # 둔덕
+    k.box((4, 3.8, 5), (12, 5, 11), frost, cull=("down",), rot=("y", 22.5))    # 서리막
+    for f, t in [((4.5, 3.5, 5.5), (6.8, 5.8, 7.8)), ((8.5, 4, 7.5), (10.8, 6.3, 9.8)), ((6.5, 3.2, 9), (8.5, 5.2, 11))]:
+        k.box(f, t, br)                                                        # 박힌 베리 3알
+    k.box((11.5, 0, 6.5), (12.5, 3.5, 7.5), Mat("cfe4ec", gloss=True), rot=("z", -22.5))   # 얼음 스파이크
+    return _build(k)
+
+def blood_spikes(seed=0):
+    """핏빛수정초: 풀처럼 돋아난 낮은 삐죽 군집 (붉은사막, 희귀)."""
+    k = Kit(seed); c = Mat("b03030", gloss=True); d = Mat("7e1f1f", gloss=True)
+    for f, t, rr, m in [((3.5, 0, 6), (6, 5, 8.5), ("z", 22.5), c), ((6.5, 0, 7.5), (9, 7.5, 10), ("y", 45), c),
+                        ((9.5, 0, 5.5), (12, 4, 8), ("z", -22.5), d), ((5.5, 0, 4.5), (7.5, 3, 6.5), ("x", -22.5), d),
+                        ((8.5, 0, 9.5), (10.5, 2.6, 11.5), ("x", 22.5), c)]:
+        k.box(f, t, m, rot=rr)                                                 # 제각각 기운 삐죽 5개
+    return _build(k)
+
+def ame_spire(seed=0):
+    """자수정새싹: 큰 첨탑 하나 + 곁싹 둘 (동굴, 희귀) — 수직 위엄."""
+    k = Kit(seed); c = Mat("9a6fd8", gloss=True); d = Mat("6e4aa8", gloss=True)
+    k.box((6.5, 0, 6.5), (9.5, 9, 9.5), c, rot=("y", 45))                      # 본탑(45°=다이아 단면)
+    k.box((7.2, 9, 7.2), (8.8, 13.5, 8.8), c, rot=("y", 45), cull=("down",))   # 첨두
+    k.box((4.5, 0, 8.5), (6.3, 3.5, 10.3), d, rot=("y", 22.5))                 # 곁싹1
+    k.box((9.7, 0, 5.7), (11.2, 2.8, 7.2), d, rot=("y", -22.5))                # 곁싹2
+    return _build(k)
+
+REGISTRY.update({
+    "acorn_cluster": (acorn_real, {}),
+    "berry_frost":   (frost_mound, {}),
+    "crystal_blood": (blood_spikes, {}),
+    "crystal_ame":   (ame_spire, {}),
+})

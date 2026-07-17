@@ -14,8 +14,27 @@ BF = os.path.expanduser("~/Library/Application Support/feather/player-server/ser
 
 # (X자 크로스 템플릿은 2026-07-17 유저 결정으로 삭제 — 평면 2장 금지, modelkit boxes가 기본)
 
+COLOR_KEYS = {"base", "cap", "stem", "petal", "center", "spot", "glow"}
+
+def lint_shape_diversity(mf):
+    """색칠놀이 하드가드(유저 지시 2026-07-17): 같은 페인터를 색 파라미터만 바꿔 재사용하면 빌드 실패.
+    같은 종족이라도 실루엣이 달라야 함 — 변형은 seed(형태 변주)나 별도 페인터로."""
+    groups = {}
+    for it in mf["items"]:
+        fn, kw = REGISTRY[it["painter"]]
+        groups.setdefault(fn.__name__, []).append((it["id"], it["painter"], kw))
+    bad = []
+    for fname, uses in groups.items():
+        if len(uses) < 2: continue
+        shape_kw = [{k: v for k, v in kw.items() if k not in COLOR_KEYS} for _, _, kw in uses]
+        if all(sk == shape_kw[0] for sk in shape_kw):
+            bad.append(f"{fname}: " + ", ".join(u[0] for u in uses))
+    if bad:
+        raise SystemExit("✗ 색칠놀이 감지(같은 실루엣 + 색만 교체) — 실루엣을 분화하거나 형태 파라미터를 바꿀 것:\n  " + "\n  ".join(bad))
+
 def main():
     mf = json.load(open(os.path.join(HERE, "manifest.json")))
+    lint_shape_diversity(mf)
     g, pfx = mf["group"], mf["prefix"]
     mdl_dir = f"{BF}/resourcepack/assets/barkan/models/item/furniture/{g}"
     tex_dir = f"{BF}/resourcepack/assets/barkan/textures/furniture/{g}"
