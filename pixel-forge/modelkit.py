@@ -9,14 +9,16 @@ from palette import ramp, rgba
 from PIL import Image, ImageDraw
 
 class Mat:
-    """재질 = 램프 + 스타일. spec=스페큘러 픽셀 수(윗면·밝은면에)."""
-    def __init__(self, base, spec=0, marks=None, vgrad=True):
+    """재질 = 램프 + 성질.
+    gloss: 광택 재질(과일 껍질 등)만 True — 스페큘러 패치+풀 명암폭. 무광(버섯갓/줄기/잎)은 절대 반짝이지 않음.
+    var: 존 내 변주 강도(0~1). marks: 점무늬 [(fx,fy,rgba)] — 2×2 덩어리로 찍힘."""
+    def __init__(self, base, gloss=False, marks=None, var=1.0):
         self.r = ramp(base) if isinstance(base, str) else base
-        self.spec = spec; self.marks = marks or []; self.vgrad = vgrad
+        self.gloss = gloss; self.marks = marks or []; self.var = var
 
 class Kit:
     def __init__(self, seed=0):
-        self.boxes = []; self.rnd = random.Random(seed)
+        self.boxes = []; self.seed = seed; self.rnd = random.Random(seed)
 
     # ── 선언 API ──────────────────────────────
     def box(self, f, t, mat, cull=()):
@@ -67,18 +69,28 @@ class Kit:
         return im, model
 
     def _paint(self, d, px, py, w, h, mat, face):
-        """면 채색 — 노이즈+그라데이션 기본, 윗면 밝게/아랫면 어둡게, 스페큘러/무늬."""
-        r = mat.r
-        shades = {"up": [r[4], r[3], r[2]], "down": [r[1], r[0], r[0]]}.get(face, [r[3], r[2], r[1]])
+        """존(zone) 기반 폼 셰이딩 — 랜덤 소금후추 금지.
+        픽셀 밝기 L = 위치의 함수(광원 top-left: 위·좌=밝음, 아래·우=어두움) →
+        램프 존으로 양자화. 변주는 2×2 덩어리 단위 ±1존(존 경계 디더링 효과)만 —
+        밝은 존에 어두운 픽셀이 절대 안 떨어짐(썩은 느낌의 원인 제거)."""
+        r = mat.r; n = len(r)
         for yy in range(h):
-            tt = yy/max(1, h-1)
-            wts = (5 + (3 if mat.vgrad and tt < 0.35 and face not in ("up", "down") else 0),
-                   3, 2 + (3 if mat.vgrad and tt > 0.7 and face not in ("up", "down") else 0))
             for xx in range(w):
-                d.point((px+xx, py+yy), fill=rgba(self.rnd.choices(shades, weights=wts)[0]))
-        if mat.spec and face in ("up", "south", "north"):          # 좌상단 스페큘러
-            for k in range(min(mat.spec, w*h//4)):
-                d.point((px+1+(k % 2), py+1+(k // 2)), fill=rgba(r[4]))
-        for mx, my, col in mat.marks:                              # 점박이 등 무늬 (면 비율 좌표)
-            if face in ("up", "south", "north", "east", "west") and w > 2 and h > 2:
-                d.point((px + int(mx*(w-1)), py + int(my*(h-1))), fill=col)
+                u = xx/max(1, w-1); v = yy/max(1, h-1)
+                if face == "up":     L = 0.80 - 0.12*v - 0.08*u   # 하늘 향해 전체 밝음
+                elif face == "down": L = 0.10                     # 그늘
+                else:                L = 0.82 - 0.50*v - 0.18*u   # 세로 주도 그라데이션
+                j = random.Random(hash((self.seed, face, (px+xx)//2, (py+yy)//2))).random()
+                L += (j - 0.5) * 0.18 * mat.var                   # 덩어리 변주(±1존 이내)
+                idx = int(min(0.999, max(0.0, L)) * n)
+                if not mat.gloss: idx = max(1, min(n-2, idx))     # 무광=명암폭 압축, 극단값 금지
+                d.point((px+xx, py+yy), fill=rgba(r[idx]))
+        if mat.gloss and face != "down" and w >= 4 and h >= 3:    # 광택 재질만: 응집 스페큘러 패치
+            sx, sy = px+1, py+1
+            for dx, dy in ((0, 0), (1, 0), (0, 1)):
+                d.point((sx+dx, sy+dy), fill=rgba(r[n-1]))
+            d.point((sx, sy), fill=(255, 244, 240, 255))
+        for mx, my, col in mat.marks:                             # 점무늬 = 2×2 덩어리(1px는 노이즈로 보임)
+            if face != "down" and w >= 5 and h >= 4:
+                bx = px + 1 + int(mx*(w-3)); by = py + 1 + int(my*(h-3))
+                d.rectangle((bx, by, bx+1, by+1), fill=col)

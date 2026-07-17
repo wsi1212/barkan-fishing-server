@@ -15,25 +15,25 @@ SPOTS = [(0.2, 0.2, WHITE), (0.65, 0.15, WHITE), (0.4, 0.55, WHITE), (0.85, 0.5,
 def fairy(base, seed=0):
     """요정버섯: 돔 캡(점박이) + 원통 줄기."""
     k = Kit(seed)
-    k.box((6, 0, 6), (10, 6, 10), Mat("d9caa2"), cull=("up",))
-    k.dome(8, 5, 8, 10, 6, Mat(base, spec=2, marks=SPOTS))
+    k.box((6, 0, 6), (10, 6, 10), Mat("d9caa2", var=0.7), cull=("up",))
+    k.dome(8, 5, 8, 10, 6, Mat(base, marks=SPOTS))
     return _build(k)
 
 def table_mush(cap, stem, seed=0):
     k = Kit(seed)
     k.box((6, 0, 6), (10, 9, 10), Mat(stem), cull=("up",))
-    k.rounded_box((3, 8, 3), (13, 12, 13), Mat(cap, spec=2))
+    k.rounded_box((3, 8, 3), (13, 12, 13), Mat(cap))
     return _build(k)
 
 def shelf_mush(cap, stem, seed=0):
     k = Kit(seed)
     k.box((7, 0, 7), (9, 13, 9), Mat(stem))
-    k.rounded_box((3, 4, 6), (10, 7, 12), Mat(cap, spec=1))
-    k.rounded_box((5, 10, 4), (13, 14, 11), Mat(cap, spec=2))
+    k.rounded_box((3, 4, 6), (10, 7, 12), Mat(cap))
+    k.rounded_box((5, 10, 4), (13, 14, 11), Mat(cap))
     return _build(k)
 
 def cluster_mush(cap, stem, seed=0):
-    k = Kit(seed); cm, sm = Mat(cap, spec=1), Mat(stem)
+    k = Kit(seed); cm, sm = Mat(cap), Mat(stem)
     for (sx, sz, sh, cw) in [(4, 8, 6, 6), (8, 7, 9, 6), (12, 9, 5, 6)]:
         k.box((sx-1, 0, sz-1), (sx+1, sh, sz+1), sm, cull=("up",))
         k.rounded_box((sx-cw/2, sh-1, sz-cw/2), (sx+cw/2, sh+2, sz+cw/2), cm)
@@ -41,7 +41,7 @@ def cluster_mush(cap, stem, seed=0):
 
 def magic_flower(petal, center, seed=0):
     k = Kit(seed)
-    g = Mat("4e8f3a"); p = Mat(petal, spec=1); c = Mat(center, vgrad=False)
+    g = Mat("4e8f3a"); p = Mat(petal, var=0.8); c = Mat(center, var=0.6)
     k.box((7, 0, 7), (9, 9, 9), g)                       # 줄기
     k.box((9, 3, 7), (12, 5, 9), g)                      # 잎
     k.box((6, 9, 6), (10, 12, 10), c)                    # 중심
@@ -53,17 +53,17 @@ def magic_flower(petal, center, seed=0):
 
 def berry_bush(base="b8324a", seed=0):
     k = Kit(seed)
-    k.box((7, 0, 7), (9, 8, 9), Mat("6b4a2a"))                       # 가지
+    k.box((7, 0, 7), (9, 8, 9), Mat("6b4a2a", var=0.7))                       # 가지
     k.rounded_box((5.5, 6.5, 5.5), (10.5, 10.5, 10.5), Mat("4e8f3a"))  # 잎뭉치
-    bm = Mat(base, spec=1)
+    bm = Mat(base, gloss=True)
     for f, t in [((4, 4, 6), (7, 7, 9)), ((9, 4, 7), (12, 7, 10)), ((6, 1, 5), (9, 4, 8))]:
         k.box(f, t, bm)                                  # 베리 3알
     return _build(k)
 
 def apple(base="c0392b", seed=0):
     k = Kit(seed)
-    k.rounded_box((4, 0, 4), (12, 9, 12), Mat(base, spec=3))          # 몸통(베벨)
-    k.box((7.5, 9, 7.5), (8.5, 11.5, 8.5), Mat("6b4a2a"))             # 꼭지
+    k.rounded_box((4, 0, 4), (12, 9, 12), Mat(base, gloss=True))          # 몸통(베벨)
+    k.box((7.5, 9, 7.5), (8.5, 11.5, 8.5), Mat("6b4a2a", var=0.7))             # 꼭지
     k.box((8.5, 10, 6.5), (12.5, 12, 8.5), Mat("4e8f3a"))             # 잎
     return _build(k)
 
