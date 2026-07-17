@@ -51,7 +51,7 @@ def magic_flower(petal, center, seed=0):
     k.box((6, 12, 6), (10, 13, 10), p, cull=("down",))   # 윗꽃잎
     return _build(k)
 
-def berry_bush(base="b8324a", seed=0):
+def berry_bush(base="d12b47", seed=0):
     k = Kit(seed)
     k.box((7, 0, 7), (9, 8, 9), Mat("6b4a2a", var=0.7, grain="v"))                       # 가지
     k.rounded_box((5.5, 6.5, 5.5), (10.5, 10.5, 10.5), Mat("4e8f3a"))  # 잎뭉치
@@ -60,7 +60,7 @@ def berry_bush(base="b8324a", seed=0):
         k.box(f, t, bm)                                  # 베리 3알
     return _build(k)
 
-def apple(base="c0392b", seed=0):
+def apple(base="e11f2c", seed=0):
     k = Kit(seed)
     k.rounded_box((4, 0, 4), (12, 9, 12), Mat(base, gloss=True))          # 몸통(베벨)
     k.box((7.5, 9, 7.5), (8.5, 11.5, 8.5), Mat("6b4a2a", var=0.7, grain="v"))             # 꼭지
@@ -69,7 +69,7 @@ def apple(base="c0392b", seed=0):
 
 # id -> (함수, kwargs). build.py가 manifest의 painter 키로 찾음. 전부 modelkit 3D.
 REGISTRY = {
-    "mush_red":     (fairy, {"base": "c0392b"}),
+    "mush_red":     (fairy, {"base": "cf3f31"}),
     "mush_blue":    (fairy, {"base": "3a7ca5"}),
     "mush_orange":  (fairy, {"base": "d97a2b"}),
     "herb_magic":   (magic_flower, {"petal": "b9a8e0", "center": "7a4aa8"}),

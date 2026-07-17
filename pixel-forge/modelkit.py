@@ -83,6 +83,7 @@ class Kit:
         def light(u, v, xx, yy, j):
             if face == "up":     L = 0.80 - 0.12*v - 0.08*u
             elif face == "down": L = 0.10
+            elif mat.gloss:      L = 0.85 - 0.34*v - 0.14*u       # 광택: 밝음 유지(그림자는 코어풀이 담당 — 프로 사과 실측: 암부 ≤16%)
             else:                L = 0.82 - 0.50*v - 0.18*u
             if side and w >= 4:                                    # 페인티드 라운딩(형태 턴)
                 if xx == 0: L += 0.07
