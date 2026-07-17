@@ -2,7 +2,7 @@
 # 특수작물 모델 v3 — 5단계 성장(sprout/young/grown/tall/ripe) + 대형화(밀·당근·토마토) + 수박 4면 줄무늬.
 # 계약: barkan:item/furniture/crop/<eng>_<stage>.json (기존 sprout/grown/ripe 이름 보존 → 데이터 마이그레이션 불요,
 #       young/tall 신규). crops.yml에 cropmodel_<eng>_{young,tall} 아이템 자동 추가(멱등).
-import os, sys, json
+import os, sys, json, math
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", ".claude", "skills", "pixel-art", "scripts"))
@@ -47,7 +47,11 @@ def wheat(st, k):
             h = 11 + (i % 3)
             a = 22.5 if i % 3 == 0 else (-22.5 if i % 3 == 1 else 0)
             k.box((x-0.6, 0, z-0.6), (x+0.6, h, z+0.6), gold_st, rot=("z", a, [x, 0, z]) if a else None)   # 피벗=밑동(파묻힘 방지)
-            k.box((x-1.4, h-0.8, z-1.4), (x+1.4, h+2.8, z+1.4), head_y, rot=("z", 22.5, [x, h-0.8, z]))
+            # ★이삭은 "회전 후" 줄기 꼭짓점에 부착 (MC z회전: x' = x−sinθ·y, y' = cosθ·y) — 안 하면 허공에 뜸
+            r = math.radians(a)
+            ax = x - math.sin(r) * (h - 0.8); ay = math.cos(r) * (h - 0.8)
+            bow = a + (22.5 if a >= 0 else -22.5)
+            k.box((ax-1.4, ay, z-1.4), (ax+1.4, ay+3.6, z+1.4), head_y, rot=("z", bow, [ax, ay, z]))
 
 def carrot(st, k):
     leaf = Mat(G_LEAF, var=0.9)
