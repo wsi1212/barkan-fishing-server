@@ -22,6 +22,25 @@ def sprout(k, leaves):
     for f, t, rr in leaves:
         k.box(f, t, Mat(G_SPROUT, var=0.8), rot=rr)
 
+def _arc_stalk(k, x, z, total_h, stalk_mat, head_mat, bend):
+    """다 자란 밀 줄기 = 고사리식 3분절 아치 + 끝에서 무게로 곧게 처지는 이삭(candy-cane).
+    한 각도로 통째 기울이면 '삐딱한 막대'가 됨 — 분절마다 각을 키워야(0→22.5→45) 호가 생긴다.
+    각 분절은 이전 분절의 '회전 후' 끝점에서 이어붙임(체인). MC z회전: 끝점 = (x−sinθ·L, cosθ·L).
+    ★이삭은 회전 없이 끝점에서 수직 아래로 매달리게 = 줄기가 호로 넘어간 뒤 이삭만 아래로 떨어지는
+    '고개 숙인 밀' 실루엣(이삭을 줄기각 45°로 두면 위로 뻗어 '안 처진' 막대가 됨 — B안 채택).
+    bend=+1(−x로 휨)/−1(+x로 휨). MC 허용각 {0,22.5,45}만 사용."""
+    W = 0.55
+    segs = [(total_h * 0.46, 0.0), (total_h * 0.30, 22.5 * bend), (total_h * 0.22, 45.0 * bend)]
+    px, py = float(x), 0.0
+    for L, a in segs:
+        r = math.radians(a)
+        y0 = py - (0.5 if py > 0 else 0)                       # 관절 겹침 = 지터 틈 방지
+        k.box((px - W, y0, z - W), (px + W, py + L, z + W), stalk_mat,
+              rot=("z", a, [px, py, z]) if a else None)
+        px -= math.sin(r) * L; py += math.cos(r) * L          # 회전 후 끝점으로 전진
+    hl = total_h * 0.42; hw = 1.3                              # 이삭: 끝점에서 수직 아래로 매달림
+    k.box((px - hw, py - hl, z - hw), (px + hw, py + 0.6, z + hw), head_mat)
+
 # ── 각 작물: fn(stage 0~4, kit) ──────────────────────────────
 def wheat(st, k):
     stalk = Mat("7aa04e", var=0.8, grain="v"); gold_st = Mat("b8a04e", var=0.7, grain="v")
@@ -42,16 +61,11 @@ def wheat(st, k):
             h = 9 + (i % 3)
             k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk if i % 2 else gold_st)
             k.box((x-1.1, h-0.6, z-1.1), (x+1.1, h+2.2, z+1.1), head_g if i % 2 else head_y)
-    else:           # 성숙 — 크고 빽빽한 황금밭, 고개 숙임
+    else:           # 성숙 — 크고 빽빽한 황금밭, 이삭 무게로 고개 숙인 아치(고사리식 3분절)
         for i, (x, z) in enumerate(POS):
-            h = 11 + (i % 3)
-            a = 22.5 if i % 3 == 0 else (-22.5 if i % 3 == 1 else 0)
-            k.box((x-0.6, 0, z-0.6), (x+0.6, h, z+0.6), gold_st, rot=("z", a, [x, 0, z]) if a else None)   # 피벗=밑동(파묻힘 방지)
-            # ★이삭은 "회전 후" 줄기 꼭짓점에 부착 (MC z회전: x' = x−sinθ·y, y' = cosθ·y) — 안 하면 허공에 뜸
-            r = math.radians(a)
-            ax = x - math.sin(r) * (h - 0.8); ay = math.cos(r) * (h - 0.8)
-            bow = a + (22.5 if a >= 0 else -22.5)
-            k.box((ax-1.4, ay, z-1.4), (ax+1.4, ay+3.6, z+1.4), head_y, rot=("z", bow, [ax, ay, z]))
+            total_h = 13 + (i % 3) * 1.5                        # 13/14.5/16 = 크고 껑충
+            bend = 1 if x < 8 else -1                           # 중심 기준 바깥으로 부채살(꽃다발)
+            _arc_stalk(k, x, z, total_h, gold_st, head_y, bend)
 
 def carrot(st, k):
     leaf = Mat(G_LEAF, var=0.9)
