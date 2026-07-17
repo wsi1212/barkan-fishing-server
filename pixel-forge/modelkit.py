@@ -103,6 +103,7 @@ class Kit:
                 if bi != i: continue
                 self._paint(d, px, py, w, h, mat, face)
                 faces[face] = {"uv": [px*u, py*v, (px+w)*u, (py+h)*v], "texture": "#0"}
+            if not faces: continue   # 완전히 파묻힌 박스(전면 컬링) — 빈 faces 요소는 MC 클라가 모델 전체를 거부(체커)
             el = {"from": list(f), "to": list(t), "faces": faces}
             if rot: el["rotation"] = {"origin": rot[2], "axis": rot[0], "angle": rot[1]}
             els.append(el)
