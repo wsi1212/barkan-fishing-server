@@ -16,7 +16,9 @@ Plot: overworld, centered near (0, 200, 0), items 2 blocks apart along +x.
 import socket, struct, sys, time
 
 HOST, PORT, PW = "127.0.0.1", 25575, "devtest2026"
-BASE_X, Y, Z = 0, 200, 0
+# ★검증장은 castle_show(공허 전시월드) — 본월드 지역시스템(강/깊은물/날씨)과 충돌 방지 (2026-07-17 강 수몰 사고 후 이전)
+DIM = "minecraft:castle_show"
+BASE_X, Y, Z = 0, 200, 1000
 TAG = "pxverify"
 
 def rcon(cmds):
@@ -36,12 +38,12 @@ def rcon(cmds):
     s.close(); return outs
 
 def place(models):
-    cmds = [f"execute in minecraft:overworld run forceload add {BASE_X} {Z}"]
+    cmds = [f"execute in {DIM} run forceload add {BASE_X} {Z}"]
     for i, m in enumerate(models):
         x = BASE_X + i*2
-        cmds.append(f"execute in minecraft:overworld run setblock {x} {Y-1} {Z} minecraft:grass_block")
+        cmds.append(f"execute in {DIM} run setblock {x} {Y-1} {Z} minecraft:grass_block")
         cmds.append(
-            f'execute in minecraft:overworld run summon minecraft:item_display {x}.5 {Y}.5 {Z}.5 '
+            f'execute in {DIM} run summon minecraft:item_display {x}.5 {Y}.5 {Z}.5 '
             f'{{Tags:["{TAG}"],item_display:"fixed",transformation:{{scale:[1f,1f,1f]}},'
             f'item:{{id:"minecraft:paper",count:1,components:{{"minecraft:item_model":"{m}"}}}}}}')
     for o in rcon(cmds): print(" ", o or "(ok)")
@@ -51,9 +53,9 @@ def place(models):
 
 def clean():
     for o in rcon([
-        f"execute in minecraft:overworld run kill @e[type=minecraft:item_display,tag={TAG}]",
-        f"execute in minecraft:overworld run fill {BASE_X-2} {Y-1} {Z-2} {BASE_X+30} {Y-1} {Z+2} minecraft:air",
-        f"execute in minecraft:overworld run forceload remove {BASE_X} {Z}"]):
+        f"execute in {DIM} run kill @e[type=minecraft:item_display,tag={TAG}]",
+        f"execute in {DIM} run fill {BASE_X-2} {Y-1} {Z-2} {BASE_X+30} {Y-1} {Z+2} minecraft:air",
+        f"execute in {DIM} run forceload remove {BASE_X} {Z}"]):
         print(" ", o or "(ok)")
 
 if __name__ == "__main__":

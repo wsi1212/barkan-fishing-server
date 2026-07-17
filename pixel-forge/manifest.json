@@ -9,7 +9,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "깊은 숲"
     },
     {
       "id": "mushblue",
@@ -18,7 +19,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "동굴"
     },
     {
       "id": "mushorange",
@@ -27,7 +29,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "깊은 숲"
     },
     {
       "id": "herb",
@@ -36,7 +39,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "깊은 숲"
     },
     {
       "id": "berry",
@@ -45,7 +49,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "sweet_berry_bush",
-      "plant": true
+      "plant": true,
+      "region": "평원"
     },
     {
       "id": "fruit",
@@ -54,7 +59,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": false
+      "plant": false,
+      "region": "평원"
     },
     {
       "id": "mushtable",
@@ -63,7 +69,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "평원"
     },
     {
       "id": "mushshelf",
@@ -72,7 +79,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "늪지대"
     },
     {
       "id": "mushcluster",
@@ -81,7 +89,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "동굴"
     },
     {
       "id": "mushtall",
@@ -90,7 +99,8 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "늪지대"
     },
     {
       "id": "mushpink",
@@ -99,7 +109,178 @@
       "model": "boxes",
       "scale": 1.0,
       "sound": "grass",
-      "plant": true
+      "plant": true,
+      "region": "깊은 숲"
+    },
+    {
+      "id": "tuftgold",
+      "painter": "tuft_gold",
+      "name": "황금 이삭",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "평원"
+    },
+    {
+      "id": "daisy",
+      "painter": "flower_daisy",
+      "name": "흰들국화",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "평원"
+    },
+    {
+      "id": "fern",
+      "painter": "fern_green",
+      "name": "물결고사리",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "깊은 숲"
+    },
+    {
+      "id": "acorn",
+      "painter": "acorn_cluster",
+      "name": "도토리 다발",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "깊은 숲"
+    },
+    {
+      "id": "cattail",
+      "painter": "cattail",
+      "name": "부들",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "늪지대"
+    },
+    {
+      "id": "mushpoison",
+      "painter": "mush_poison",
+      "name": "독그늘버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "늪지대"
+    },
+    {
+      "id": "prickly",
+      "painter": "prickly_pear",
+      "name": "가시배 선인장",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "사막"
+    },
+    {
+      "id": "sage",
+      "painter": "sage_desert",
+      "name": "사막세이지",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "사막"
+    },
+    {
+      "id": "crystalblood",
+      "painter": "crystal_blood",
+      "name": "핏빛수정초",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "amethyst_block",
+      "plant": true,
+      "region": "붉은사막"
+    },
+    {
+      "id": "ember",
+      "painter": "flower_ember",
+      "name": "잿불꽃",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "붉은사막"
+    },
+    {
+      "id": "snowflower",
+      "painter": "flower_snow",
+      "name": "설화",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "정상"
+    },
+    {
+      "id": "frostberry",
+      "painter": "berry_frost",
+      "name": "서리열매",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "sweet_berry_bush",
+      "plant": true,
+      "region": "정상"
+    },
+    {
+      "id": "rosette",
+      "painter": "rosette_rock",
+      "name": "바위솔",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "절벽"
+    },
+    {
+      "id": "bellflower",
+      "painter": "flower_bell",
+      "name": "벼랑초롱꽃",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "절벽"
+    },
+    {
+      "id": "glowshroom",
+      "painter": "mush_glow",
+      "name": "야광버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "동굴"
+    },
+    {
+      "id": "crystalame",
+      "painter": "crystal_ame",
+      "name": "자수정새싹",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "amethyst_block",
+      "plant": true,
+      "region": "동굴"
+    },
+    {
+      "id": "watercress",
+      "painter": "watercress",
+      "name": "물냉이",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "강"
     }
   ]
 }

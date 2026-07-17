@@ -39,11 +39,14 @@ def main():
         sc = it.get("scale", 1.0)
         ymin = min(e["from"][1] for e in model["elements"])
         ty = round(sc * (8 - ymin) / 16, 3)
+        region = it.get("region", "평원"); matid = it["name"].replace(" ", "")
         cfg.append(f"""  barkan:{g}_{iid}:
     data:
       item_name: "<!i>{it['name']}"
       lore:
         - "<!i><dark_gray>[채집]</dark_gray>"
+        - "<!i><gray>서식지: <white>{region}</white></gray>"
+        - "<!i><dark_gray>mat:채집_{matid}</dark_gray>"
     model: barkan:item/furniture/{g}/{iid}
     behavior:
       type: furniture_item
