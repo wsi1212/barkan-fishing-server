@@ -112,10 +112,16 @@ def melon(stage, k):
     elif stage == 1:  # 덩굴 + 어린 멜론
         k.box((3.5, 0, 7.4), (9, 1.2, 8.6), vine, rot=("y", -22.5))
         k.rounded_box((7.5, 0, 6), (13, 5, 11.5), Mat("b8c86a", var=0.9, grain="v"), bevel=1)
-    else:             # 큰 수박 — 세로 결(줄무늬 느낌) + 진초록 상판
+    else:             # 큰 수박 — 진녹/연녹 교대 세로 슬랩 = 진짜 줄무늬 (양배추와 혼동 방지)
         k.box((2.5, 0, 6.4), (7, 1.2, 7.6), vine, rot=("y", 22.5))
-        k.rounded_box((4.5, 0, 4), (14, 9, 13.5), Mat("4e8f3a", var=1.0, grain="v"), bevel=1.6)
-        k.box((7.5, 8.6, 7), (10.5, 9.6, 10), Mat("2e6b34", var=0.8))                  # 꼭지판
+        dark = Mat("2e6b34", var=0.6, grain="v"); light = Mat("7fae52", var=0.6, grain="v")
+        x0 = 4.5
+        for i, w in enumerate([2.2, 1.6, 2.2, 1.6, 2.2]):                              # 줄무늬 5칸
+            k.box((x0, 0.8, 4.5), (x0 + w, 8.2, 13), dark if i % 2 == 0 else light)
+            x0 += w
+        k.box((5.2, 0, 5.2), (13.1, 0.8, 12.3), dark)                                  # 아랫굽
+        k.box((5.2, 8.2, 5.2), (13.1, 9.2, 12.3), dark)                                # 윗굽
+        k.box((8.4, 9.2, 8), (9.4, 10.8, 9), Mat("6b4a2a", var=0.7, grain="v"), rot=("z", 22.5))  # 꼭지 덩굴
 CROPS = {"wheat": wheat, "carrot": carrot, "potato": potato, "tomato": tomato,
          "cabbage": cabbage, "mushroom": mushroom, "melon": melon}
 STAGES = ["sprout", "grown", "ripe"]
