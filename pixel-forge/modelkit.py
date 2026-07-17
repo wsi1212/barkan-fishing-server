@@ -12,11 +12,13 @@ class Mat:
     """재질 = 램프 + 성질.
     gloss: 광택 재질(과일 껍질 등)만 True — 스페큘러 패치+풀 명암폭. 무광(버섯갓/줄기/잎)은 절대 반짝이지 않음.
     var: 존 내 변주 강도(0~1). marks: 점무늬 [(fx,fy,rgba)] — 2×2 덩어리로 찍힘."""
-    def __init__(self, base, gloss=False, marks=None, var=1.0, grain=None, ao_top=False):
+    def __init__(self, base, gloss=False, marks=None, var=1.0, grain=None, ao_top=False, stripe=None, stripe_w=2):
         self.r = ramp(base) if isinstance(base, str) else base
         self.gloss = gloss; self.marks = marks or []; self.var = var
         self.grain = grain      # "v"=세로 결(줄기/나무 — 컬럼 고정 변주)
         self.ao_top = ao_top    # 위 요소(갓 등) 밑 그늘 — 윗행을 어둡게
+        self.stripe = ramp(stripe) if isinstance(stripe, str) else stripe   # 세로 줄무늬 램프(수박 등) — 모든 측면+윗면
+        self.stripe_w = stripe_w
 
 class Kit:
     def __init__(self, seed=0):
@@ -150,6 +152,10 @@ class Kit:
                     j = random.Random(hash((self.seed, face, px+xx))).random()
                 else:
                     j = random.Random(hash((self.seed, face, (px+xx)//2, (py+yy)//2))).random()
+                # 줄무늬 재질(수박): down 뺀 전 면에 세로 밴드 — 밴드 안은 stripe 램프로 채색
+                rr = r
+                if mat.stripe and face != "down" and (xx // mat.stripe_w) % 2 == 1:
+                    rr = mat.stripe
                 L = light(u, v, xx, yy, (j-0.5)*amp)
                 idx = int(min(0.999, max(0.0, L)) * n)
                 if not mat.gloss:
@@ -158,7 +164,7 @@ class Kit:
                         L2 = light(u, (yy+1)/max(1, h-1), xx, yy+1, (j-0.5)*amp)
                         i2 = max(1, min(n-2, int(min(0.999, max(0.0, L2)) * n)))
                         if i2 != idx and (xx + yy) % 2 == 0: idx = i2
-                d.point((px+xx, py+yy), fill=rgba(r[idx]))
+                d.point((px+xx, py+yy), fill=rgba(rr[idx]))
         if mat.gloss and face != "down" and w >= 4 and h >= 3:     # 응집 스페큘러(광택 전용)
             sx, sy = px+1, py+1
             for dx, dy in ((0, 0), (1, 0), (0, 1)):

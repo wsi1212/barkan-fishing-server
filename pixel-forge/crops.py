@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# 특수작물 모델 v2 — X자 십자평면 전면 폐지(유저 지시 2026-07-17) → modelkit 박스 3D.
-# 계약 유지: barkan:item/furniture/crop/<eng>_<stage>.json 경로 그대로 덮어씀 (Java/crops.yml 무변경).
-# 7작물 × 3단계(sprout/grown/ripe), 작물·단계별 고유 실루엣 + 존 셰이딩 텍스처.
+# 특수작물 모델 v3 — 5단계 성장(sprout/young/grown/tall/ripe) + 대형화(밀·당근·토마토) + 수박 4면 줄무늬.
+# 계약: barkan:item/furniture/crop/<eng>_<stage>.json (기존 sprout/grown/ripe 이름 보존 → 데이터 마이그레이션 불요,
+#       young/tall 신규). crops.yml에 cropmodel_<eng>_{young,tall} 아이템 자동 추가(멱등).
 import os, sys, json
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -12,119 +12,194 @@ CE = os.path.expanduser("~/Library/Application Support/feather/player-server/ser
                         "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/CraftEngine/resources/barkan_furniture")
 MODELS = CE + "/resourcepack/assets/barkan/models/item/furniture/crop"
 TEX = CE + "/resourcepack/assets/barkan/textures/furniture/crop"
+CROPS_YML = CE + "/configuration/crops.yml"
 os.makedirs(TEX, exist_ok=True)
 
-G_SPROUT = "6fae52"   # 새싹 연두
-G_LEAF = "4e8f3a"     # 잎 초록
-SOIL = "6b4a2a"
+G_SPROUT = "6fae52"; G_LEAF = "4e8f3a"; SOIL = "6b4a2a"
 
 def sprout(k, leaves):
-    """공용 새싹 골격 — 작물별 잎 배치(leaves=[(f,t,rot)])가 실루엣을 가름."""
     k.box((7.4, 0, 7.4), (8.6, 3, 8.6), Mat(G_SPROUT, var=0.7, grain="v"))
     for f, t, rr in leaves:
         k.box(f, t, Mat(G_SPROUT, var=0.8), rot=rr)
 
-def wheat(stage, k):
-    if stage == 0:
+# ── 각 작물: fn(stage 0~4, kit) ──────────────────────────────
+def wheat(st, k):
+    stalk = Mat("7aa04e", var=0.8, grain="v"); gold_st = Mat("b8a04e", var=0.7, grain="v")
+    head_g = Mat("9ab86a", var=0.7); head_y = Mat("d8b23a", var=0.8)
+    POS = [(3.5, 6.5), (6, 9.5), (8.5, 6), (11, 9), (13, 6.5), (5, 4.5), (10, 12), (12.5, 11.5)]
+    if st == 0:
         sprout(k, [((6, 2, 7.5), (7.6, 4.5, 8.5), ("z", 22.5)), ((8.4, 2.5, 7.5), (10, 5, 8.5), ("z", -22.5))])
-    elif stage == 1:  # 녹색 이삭대 4줄기
-        st = Mat("7aa04e", var=0.8, grain="v")
-        for x, z, h, a in [(5, 7, 7, 22.5), (8, 8.5, 9, 0), (10.5, 6.5, 8, -22.5), (7, 6, 6, 0)]:
-            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), st, rot=("z", a) if a else None)
-            k.box((x-1, h-0.5, z-1), (x+1, h+2, z+1), Mat("9ab86a", var=0.7))
-    else:             # 황금 이삭 — 고개 숙임
-        st = Mat("b8a04e", var=0.7, grain="v"); hd = Mat("d8b23a", var=0.8)
-        for x, z, h, a in [(4.5, 7, 8, 22.5), (8, 8.5, 10, 0), (11.5, 6.5, 9, -22.5), (6.5, 5.5, 7, 0), (9.5, 10, 8, 22.5)]:
-            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), st, rot=("z", a) if a else None)
-            k.box((x-1.2, h-0.8, z-1.2), (x+1.2, h+2.6, z+1.2), hd, rot=("z", 22.5))   # 숙인 이삭
-def carrot(stage, k):
-    if stage == 0:
+    elif st == 1:   # 어린 줄기 4대
+        for x, z in POS[:4]:
+            k.box((x-0.5, 0, z-0.5), (x+0.5, 5, z+0.5), stalk)
+    elif st == 2:   # 줄기 6대 + 풋이삭
+        for i, (x, z) in enumerate(POS[:6]):
+            h = 7 + (i % 3)
+            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk)
+            k.box((x-1, h-0.5, z-1), (x+1, h+2, z+1), head_g)
+    elif st == 3:   # 빽빽 8대, 노랗게 물들기 시작
+        for i, (x, z) in enumerate(POS):
+            h = 9 + (i % 3)
+            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk if i % 2 else gold_st)
+            k.box((x-1.1, h-0.6, z-1.1), (x+1.1, h+2.2, z+1.1), head_g if i % 2 else head_y)
+    else:           # 성숙 — 크고 빽빽한 황금밭, 고개 숙임
+        for i, (x, z) in enumerate(POS):
+            h = 11 + (i % 3)
+            a = 22.5 if i % 3 == 0 else (-22.5 if i % 3 == 1 else 0)
+            k.box((x-0.6, 0, z-0.6), (x+0.6, h, z+0.6), gold_st, rot=("z", a) if a else None)
+            k.box((x-1.4, h-0.8, z-1.4), (x+1.4, h+2.8, z+1.4), head_y, rot=("z", 22.5))
+
+def carrot(st, k):
+    leaf = Mat(G_LEAF, var=0.9)
+    if st == 0:
         sprout(k, [((6.2, 2, 7.6), (7.8, 5, 8.4), ("z", 22.5)), ((8.2, 2, 7.6), (9.8, 5.2, 8.4), ("z", -22.5))])
-    elif stage == 1:  # 깃잎 부채
+    elif st == 1:   # 잎 3장
+        for x, a in [(6, 30), (8, 0), (10, -30)]:
+            k.box((x-0.6, 0, 7.5), (x+0.6, 5, 8.5), leaf, rot=("z", a, [8, 0.5, 8]))
+    elif st == 2:   # 부채 5장
         for x, a in [(4.5, 45), (6.5, 22.5), (8.5, 0), (10.5, -22.5), (12, -45)]:
-            k.box((x-0.7, 0, 7.4), (x+0.7, 7, 8.6), Mat(G_LEAF, var=0.9), rot=("z", a, [8, 0.5, 8]))
-    else:             # 깃잎 + 주황 어깨
-        for x, a in [(5, 30), (8, 0), (11, -30)]:
-            k.box((x-0.8, 0, 7.3), (x+0.8, 8, 8.7), Mat(G_LEAF, var=0.9), rot=("z", a, [8, 0.5, 8]))
-        for f, t in [((4.2, 0, 6.2), (6.8, 2.2, 8.8)), ((9.2, 0, 7.2), (11.8, 2, 9.8)), ((6.5, 0, 9), (9, 1.8, 11.5))]:
-            k.rounded_box(f, t, Mat("d97a2b", gloss=True), bevel=0.6)
-def potato(stage, k):
-    if stage == 0:
+            k.box((x-0.7, 0, 7.4), (x+0.7, 7, 8.6), leaf, rot=("z", a, [8, 0.5, 8]))
+    elif st == 3:   # 큰 부채 + 어깨 살짝
+        for x, a in [(4, 45), (6.3, 22.5), (8.5, 0), (10.7, -22.5), (13, -45)]:
+            k.box((x-0.8, 0, 7.3), (x+0.8, 9, 8.7), leaf, rot=("z", a, [8, 0.5, 8]))
+        k.rounded_box((6.8, 0, 6.8), (9.4, 1.6, 9.4), Mat("d97a2b", gloss=True), bevel=0.5)
+    else:           # 성숙 대형 — 잎 12높이 + 주황 어깨 3개 큼직
+        for x, a in [(3.5, 45), (6, 22.5), (8.5, 0), (11, -22.5), (13.5, -45), (7, 30), (10, -30)]:
+            k.box((x-0.9, 0, 7.2), (x+0.9, 12, 8.8), leaf, rot=("z", a, [8, 0.5, 8]))
+        for f, t in [((3.4, 0, 5.6), (6.8, 3, 9)), ((9, 0, 6.6), (12.6, 2.8, 10.2)), ((5.8, 0, 9.4), (9.2, 2.6, 12.8))]:
+            k.rounded_box(f, t, Mat("d97a2b", gloss=True), bevel=0.7)
+
+def potato(st, k):
+    bush = Mat(G_LEAF, var=0.9); bush2 = Mat("3f7a37", var=0.9)
+    if st == 0:
         sprout(k, [((6.4, 2.2, 7.5), (8, 4.4, 8.5), ("x", 22.5)), ((8, 2.6, 7.5), (9.6, 4.8, 8.5), ("x", -22.5))])
-    elif stage == 1:  # 낮은 잎덤불
-        k.rounded_box((3.5, 0, 4.5), (9.5, 4.5, 10.5), Mat(G_LEAF, var=0.9))
-        k.rounded_box((8, 0, 6.5), (12.5, 3.8, 11.5), Mat("3f7a37", var=0.9))
-    else:             # 덤불 + 흰꽃 + 흙두둑 감자
-        k.box((3, 0, 4), (13, 1.4, 12), Mat(SOIL, var=0.9))                           # 두둑
-        k.rounded_box((4, 1, 5), (10, 5.5, 11), Mat(G_LEAF, var=0.9))
-        k.rounded_box((8.5, 1, 6.5), (12.8, 4.6, 11.8), Mat("3f7a37", var=0.9))
-        for f, t in [((5.5, 5.5, 6.5), (7, 6.8, 8)), ((9.5, 4.6, 8.5), (11, 5.9, 10))]:
-            k.box(f, t, Mat("eeeae0", var=0.5))                                        # 흰꽃
-        k.box((11.4, 0, 4.8), (13.4, 1.6, 6.8), Mat("c9a86a", var=0.7))                # 삐져나온 감자
-def tomato(stage, k):
-    stick = Mat("8a6a44", var=0.7, grain="v")
-    if stage == 0:
+    elif st == 1:
+        k.rounded_box((5, 0, 5.5), (10, 3.2, 10.5), bush)
+    elif st == 2:
+        k.rounded_box((3.5, 0, 4.5), (9.5, 4.5, 10.5), bush)
+        k.rounded_box((8, 0, 6.5), (12.5, 3.8, 11.5), bush2)
+    elif st == 3:   # 두둑 + 덤불
+        k.box((3, 0, 4), (13, 1.4, 12), Mat(SOIL, var=0.9))
+        k.rounded_box((4, 1, 5), (10, 5.5, 11), bush)
+        k.rounded_box((8.5, 1, 6.5), (12.8, 4.6, 11.8), bush2)
+    else:           # 성숙 — 흰꽃 + 캐낸 감자
+        k.box((2.5, 0, 3.5), (13.5, 1.6, 12.5), Mat(SOIL, var=0.9))
+        k.rounded_box((3.5, 1, 4.5), (10, 6.5, 11), bush)
+        k.rounded_box((8.5, 1, 6), (13.3, 5.4, 12), bush2)
+        for f, t in [((5.5, 6.5, 6.5), (7, 7.8, 8)), ((9.5, 5.4, 8.5), (11, 6.7, 10))]:
+            k.box(f, t, Mat("eeeae0", var=0.5))
+        for f, t in [((11.6, 0, 4), (13.8, 1.8, 6.2)), ((2.2, 0, 8.8), (4.2, 1.6, 10.8))]:
+            k.rounded_box(f, t, Mat("c9a86a", var=0.7), bevel=0.5)
+
+def tomato(st, k):
+    stick = Mat("8a6a44", var=0.7, grain="v"); vine = Mat(G_LEAF, var=0.9)
+    if st == 0:
         k.box((7.6, 0, 7.6), (8.4, 6, 8.4), stick)
         sprout(k, [((6.4, 1.5, 7.5), (8, 3.5, 8.5), ("z", 22.5))])
-    elif stage == 1:  # 지지대 + 덩굴
+    elif st == 1:
+        k.box((7.6, 0, 7.6), (8.4, 9, 8.4), stick)
+        for y, a in [(2, 22.5), (5, -22.5)]:
+            k.box((6.2, y, 7.3), (9.8, y+1.8, 8.7), vine, rot=("y", a))
+    elif st == 2:
         k.box((7.6, 0, 7.6), (8.4, 12, 8.4), stick)
         for y, a in [(2, 22.5), (5.5, -22.5), (9, 22.5)]:
-            k.box((5.8, y, 7.2), (10.2, y+2, 8.8), Mat(G_LEAF, var=0.9), rot=("y", a))
-    else:             # + 빨간 알 3
-        k.box((7.6, 0, 7.6), (8.4, 12, 8.4), stick)
-        for y, a in [(2.5, 22.5), (6, -22.5), (9.5, 22.5)]:
-            k.box((5.8, y, 7.2), (10.2, y+2, 8.8), Mat(G_LEAF, var=0.9), rot=("y", a))
-        for f, t in [((4.8, 3, 6.6), (7.4, 5.6, 9.2)), ((9, 6.5, 7.4), (11.4, 8.9, 9.8)), ((5.6, 8.6, 6.4), (7.8, 10.8, 8.6))]:
+            k.box((5.8, y, 7.2), (10.2, y+2, 8.8), vine, rot=("y", a))
+    elif st == 3:   # 풋토마토(연녹 알)
+        k.box((7.6, 0, 7.6), (8.4, 14, 8.4), stick)
+        for y, a in [(2.5, 22.5), (6, -22.5), (9.5, 22.5), (12, -22.5)]:
+            k.box((5.6, y, 7.1), (10.4, y+2, 8.9), vine, rot=("y", a))
+        for f, t in [((5, 3.5, 6.8), (7.2, 5.7, 9)), ((9.2, 7, 7.4), (11.2, 9, 9.4))]:
+            k.rounded_box(f, t, Mat("9ab86a", gloss=True), bevel=0.5)
+    else:           # 성숙 대형 — 지지대 15 + 빨간 알 5개 큼직
+        k.box((7.6, 0, 7.6), (8.4, 15, 8.4), stick)
+        for y, a in [(2.5, 22.5), (6, -22.5), (9.5, 22.5), (12.5, -22.5)]:
+            k.box((5.4, y, 7,), (10.6, y+2.2, 9), vine, rot=("y", a))
+        for f, t in [((4.2, 2.6, 6.2), (7.4, 5.8, 9.4)), ((8.8, 5.8, 7), (12, 9, 10.2)),
+                     ((4.6, 8.4, 6.6), (7.4, 11.2, 9.4)), ((8.8, 11, 7.2), (11.4, 13.6, 9.8)),
+                     ((6, 13, 6.8), (8.2, 15.2, 9))]:
             k.rounded_box(f, t, Mat("d1372c", gloss=True), bevel=0.6)
-def cabbage(stage, k):
-    if stage == 0:
+
+def cabbage(st, k):
+    outer = Mat("7fae6e", var=0.8); core = Mat("9cc48a", var=0.7)
+    if st == 0:
         sprout(k, [((5.8, 1.5, 7.4), (7.9, 3.8, 8.6), ("z", 30)), ((8.1, 1.5, 7.4), (10.2, 3.8, 8.6), ("z", -30))])
-    elif stage == 1:  # 벌어진 잎 4방
-        c = Mat("7fae6e", var=0.8)
+    elif st == 1:
+        k.rounded_box((5.5, 0, 5.5), (10.5, 3, 10.5), core, bevel=0.8)
+    elif st == 2:
+        for f, t, rr in [((3.5, 0, 6), (7, 4, 10), ("z", 22.5)), ((9, 0, 6), (12.5, 4, 10), ("z", -22.5))]:
+            k.box(f, t, outer, rot=rr)
+        k.rounded_box((5.5, 0, 5.5), (10.5, 4, 10.5), core, bevel=1)
+    elif st == 3:
         for f, t, rr in [((2.8, 0, 5.5), (7, 5, 10.5), ("z", 22.5)), ((9, 0, 5.5), (13.2, 5, 10.5), ("z", -22.5)),
                          ((5.5, 0, 2.8), (10.5, 5, 7), ("x", -22.5)), ((5.5, 0, 9), (10.5, 5, 13.2), ("x", 22.5))]:
-            k.box(f, t, c, rot=rr)
-        k.rounded_box((6, 0, 6), (10, 3.5, 10), Mat("9cc48a", var=0.7))
-    else:             # 꽉 찬 구
-        c = Mat("7fae6e", var=0.8)
+            k.box(f, t, outer, rot=rr)
+        k.rounded_box((5, 0, 5), (11, 5.5, 11), core, bevel=1.2)
+    else:
         for f, t, rr in [((2.5, 0, 5.5), (6.5, 5.5, 10.5), ("z", 30)), ((9.5, 0, 5.5), (13.5, 5.5, 10.5), ("z", -30)),
                          ((5.5, 0, 2.5), (10.5, 5.5, 6.5), ("x", -30)), ((5.5, 0, 9.5), (10.5, 5.5, 13.5), ("x", 30))]:
-            k.box(f, t, c, rot=rr)
-        k.rounded_box((4.5, 0, 4.5), (11.5, 7.5, 11.5), Mat("9cc48a", var=0.7), bevel=1.4)
-def mushroom(stage, k):
-    cap = Mat("9a6f46", var=0.8); st = Mat("d9caa2", var=0.7, grain="v", ao_top=True)
-    if stage == 0:
-        k.box((7, 0, 7), (9, 2.5, 9), st)
+            k.box(f, t, outer, rot=rr)
+        k.rounded_box((4.5, 0, 4.5), (11.5, 7.5, 11.5), core, bevel=1.4)
+
+def mushroom(st, k):
+    cap = Mat("9a6f46", var=0.8); stem = Mat("d9caa2", var=0.7, grain="v", ao_top=True)
+    if st == 0:
+        k.box((7, 0, 7), (9, 2.5, 9), stem)
         k.dome(8, 2, 8, 5, 2.8, cap, layers=2)
-    elif stage == 1:
+    elif st == 1:
+        k.box((6.8, 0, 6.8), (9.2, 3.5, 9.2), stem)
+        k.dome(8, 3, 8, 6.5, 3, cap, layers=2)
+    elif st == 2:
         for x, z, h, w in [(5.5, 7, 3.5, 6), (10, 8.5, 5, 7)]:
-            k.box((x-1, 0, z-1), (x+1, h, z+1), st)
+            k.box((x-1, 0, z-1), (x+1, h, z+1), stem)
             k.dome(x, h-0.5, z, w, 3.2, cap)
+    elif st == 3:
+        for x, z, h, w in [(4.5, 7.5, 4, 6), (8.5, 8.5, 6.5, 7.5), (12, 6.5, 3, 5)]:
+            k.box((x-1, 0, z-1), (x+1, h, z+1), stem)
+            k.dome(x, h-0.5, z, w, 3.4, cap)
     else:
-        for x, z, h, w, rr in [(4.5, 7.5, 4, 6, ("z", 22.5)), (8.5, 8.5, 7, 8, None), (12, 6.5, 3.5, 5.5, ("z", -22.5))]:
-            k.box((x-1, 0, z-1), (x+1, h, z+1), st)
-            k.dome(x, h-0.5, z, w, 3.6, cap, rot=rr) if rr else k.dome(x, h-0.5, z, w, 3.6, cap)
-def melon(stage, k):
+        for x, z, h, w, rr in [(4.5, 7.5, 4.5, 6.5, ("z", 22.5)), (8.5, 8.5, 7.5, 8.5, None), (12, 6.5, 4, 6, ("z", -22.5))]:
+            k.box((x-1.1, 0, z-1.1), (x+1.1, h, z+1.1), stem)
+            if rr: k.dome(x, h-0.5, z, w, 3.8, cap, rot=rr)
+            else: k.dome(x, h-0.5, z, w, 3.8, cap)
+
+def melon(st, k):
     vine = Mat("5c8a4a", var=0.9)
-    if stage == 0:
+    striped = lambda: Mat("7fae52", var=0.6, grain="v", stripe="1e4020", stripe_w=2)   # 연녹 바탕 + 흑녹 줄(4면+윗면)
+    if st == 0:
         k.box((6, 0, 7.5), (10, 1.2, 8.5), vine, rot=("y", 22.5))
         sprout(k, [((8.5, 1, 7.5), (10.3, 3.4, 8.5), ("z", -22.5))])
-    elif stage == 1:  # 덩굴 + 어린 멜론
+    elif st == 1:   # 덩굴 뻗음
         k.box((3.5, 0, 7.4), (9, 1.2, 8.6), vine, rot=("y", -22.5))
-        k.rounded_box((7.5, 0, 6), (13, 5, 11.5), Mat("b8c86a", var=0.9, grain="v"), bevel=1)
-    else:             # 큰 수박 — 진녹/연녹 교대 세로 슬랩 = 진짜 줄무늬 (양배추와 혼동 방지)
-        k.box((2.5, 0, 6.4), (7, 1.2, 7.6), vine, rot=("y", 22.5))
-        dark = Mat("2e6b34", var=0.6, grain="v"); light = Mat("7fae52", var=0.6, grain="v")
-        x0 = 4.5
-        for i, w in enumerate([2.2, 1.6, 2.2, 1.6, 2.2]):                              # 줄무늬 5칸
-            k.box((x0, 0.8, 4.5), (x0 + w, 8.2, 13), dark if i % 2 == 0 else light)
-            x0 += w
-        k.box((5.2, 0, 5.2), (13.1, 0.8, 12.3), dark)                                  # 아랫굽
-        k.box((5.2, 8.2, 5.2), (13.1, 9.2, 12.3), dark)                                # 윗굽
-        k.box((8.4, 9.2, 8), (9.4, 10.8, 9), Mat("6b4a2a", var=0.7, grain="v"), rot=("z", 22.5))  # 꼭지 덩굴
+        k.box((7.5, 0, 6.4), (12.5, 1.2, 7.6), vine, rot=("y", 22.5))
+        sprout(k, [((10.5, 1, 6.6), (12.2, 3.2, 7.6), ("z", -22.5))])
+    elif st == 2:   # 어린 멜론(무늬 없음, 연녹)
+        k.box((3.5, 0, 7.4), (8, 1.2, 8.6), vine, rot=("y", -22.5))
+        k.rounded_box((7.5, 0, 6.5), (12.5, 4.5, 11.5), Mat("b8c86a", var=0.9, grain="v"), bevel=0.9)
+    elif st == 3:   # 중멜론 — 줄무늬 시작
+        k.box((2.8, 0, 7), (7.5, 1.2, 8.2), vine, rot=("y", -22.5))
+        k.rounded_box((6, 0, 5.2), (13, 6.5, 12.2), striped(), bevel=1.2)
+    else:           # 성숙 — 큰 수박, 4면+윗면 줄무늬 + 꼭지 덩굴
+        k.box((2.2, 0, 6.4), (6.5, 1.2, 7.6), vine, rot=("y", 22.5))
+        k.rounded_box((4.5, 0, 4), (14, 9.5, 13.5), striped(), bevel=1.6)
+        k.box((8.6, 9.5, 8), (9.6, 11.2, 9), Mat("6b4a2a", var=0.7, grain="v"), rot=("z", 22.5))
+
 CROPS = {"wheat": wheat, "carrot": carrot, "potato": potato, "tomato": tomato,
          "cabbage": cabbage, "mushroom": mushroom, "melon": melon}
-STAGES = ["sprout", "grown", "ripe"]
+STAGES = ["sprout", "young", "grown", "tall", "ripe"]   # ★기존 3이름 보존 + young/tall 신규
+
+def ensure_yml_items():
+    """crops.yml에 cropmodel_<eng>_{young,tall} 아이템 정의 멱등 추가."""
+    txt = open(CROPS_YML, encoding="utf-8").read()
+    add = []
+    for eng in CROPS:
+        for stg in ("young", "tall"):
+            iid = f"barkan:cropmodel_{eng}_{stg}"
+            if iid in txt: continue
+            add.append(f"  {iid}:\n    material: paper\n    model: barkan:item/furniture/crop/{eng}_{stg}\n")
+    if add:
+        # items: 섹션 끝(파일 끝)에 덧붙임 — crops.yml은 items 트리 하나로 구성돼 있음
+        open(CROPS_YML, "a", encoding="utf-8").write("\n" + "\n".join(add))
+    return len(add)
 
 def main():
     for eng, fn in CROPS.items():
@@ -135,8 +210,8 @@ def main():
             im, model = k.build(ref)
             im.save(f"{TEX}/{eng}_{stage}.png")
             json.dump(model, open(f"{MODELS}/{eng}_{stage}.json", "w"), indent=1)
-            print(f"  ✔ {eng}_{stage} ({len(model['elements'])} elem)")
-    print(f"OK — {len(CROPS)}작물 × 3단계 = {len(CROPS)*3}모델 (X자 폐지)")
+    added = ensure_yml_items()
+    print(f"OK — 7작물 × 5단계 = 35모델, crops.yml 아이템 +{added}")
 
 if __name__ == "__main__":
     main()
