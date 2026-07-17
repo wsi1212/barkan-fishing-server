@@ -109,6 +109,13 @@ painter code in /tmp: the PNG survives but the source dies.
 
 ## Turning sprites into CraftEngine furniture
 
+**Palette-swap ban (owner rule, 2026-07-17):** a new species must have a new SILHOUETTE —
+never reuse a painter with only color kwargs changed ("색칠놀이"). `pixel-forge/build.py`
+hard-fails when two manifest items share a painter and differ only in color params.
+Variants of the SAME species use `seed` (shape jitter), different species get their own
+shape function. Rotation (`rot=`) is the anti-boxiness tool: tilted caps, arched stems,
+hanging bells — use it so things stop looking like stacked squares.
+
 Model routes, per subject — **the X-cross (two crossed flat planes) is BANNED** (owner
 decision, 2026-07-17: crossed planes have no volume and read as cheap; `build.py` hard-fails
 on `model: cross`). Everything placeable gets real volume:

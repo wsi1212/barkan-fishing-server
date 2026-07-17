@@ -104,3 +104,25 @@ shulker peek animation grows/shrinks the collider and wedges players.
 
 Config/model/texture edits that don't add files → `ce reload config` (light, no client
 reload). New models/textures or a changed pack → `ce reload all` (regenerates pack).
+
+## GUI icons — 2D in inventory, 3D when placed (owner feedback 2026-07-17)
+
+A 3D prop rendered at the vanilla GUI angle (30/225) turns thin stems and layered caps
+into mush. The pro convention: **inventory shows a flat 2D icon, the 3D model appears only
+when placed/held**. CraftEngine supports the modern item-model definition, so the item's
+`model:` in the yml can be a `minecraft:select` on `minecraft:display_context`:
+
+```yaml
+model:
+  type: minecraft:select
+  property: minecraft:display_context
+  cases:
+    - when: gui
+      model: {type: minecraft:model, model: barkan:item/furniture/<group>/icon/<id>}
+  fallback: {type: minecraft:model, model: barkan:item/furniture/<group>/<id>}
+```
+
+The icon model is `item/generated` + a 32×32 sprite. Don't hand-draw 31 icons —
+`pixel-forge/build.py` auto-renders each 3D model (render_textured, yaw 35 / pitch 25),
+crops, downscales to 30px on a 32 canvas, and **binarizes alpha (>96)** so edges stay
+crisp. Regenerating models regenerates icons — zero extra authoring.

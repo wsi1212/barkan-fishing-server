@@ -9,6 +9,8 @@ sys.path.insert(0, SKILL); sys.path.insert(0, HERE)
 from painters import REGISTRY
 from sprite_to_voxel import voxelize
 from lint_sprite import lint
+from render_textured import render as render3d
+from PIL import Image
 BF = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
                         "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/CraftEngine/resources/barkan_furniture")
 
@@ -38,6 +40,7 @@ def main():
     g, pfx = mf["group"], mf["prefix"]
     mdl_dir = f"{BF}/resourcepack/assets/barkan/models/item/furniture/{g}"
     tex_dir = f"{BF}/resourcepack/assets/barkan/textures/furniture/{g}"
+    os.makedirs(f"{mdl_dir}/icon", exist_ok=True); os.makedirs(f"{tex_dir}/icon", exist_ok=True)
     os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
     cfg = [f"# pixel-forge 생성 — 직접 제작 채집물 (manifest.json이 단일 소스)\nitems:\n"]
     for it in mf["items"]:
@@ -55,6 +58,24 @@ def main():
         else:                        model = {"textures": {"0": tex_ref, "particle": tex_ref}, "elements": box_els,
                                               "display": {"fixed": {"rotation": [0,0,0], "translation": [0,0,0], "scale": [1,1,1]}}}
         json.dump(model, open(f"{mdl_dir}/{iid}.json", "w"), indent=1)
+        # GUI 아이콘: 3D를 3/4뷰로 렌더 → 잘라내기 → 32px 스프라이트 (인벤 가독성)
+        icon_raw = os.path.join(HERE, "out", iid + "_icon_raw.png")
+        render3d(f"{mdl_dir}/{iid}.json", f"{tex_dir}/{iid}.png", icon_raw, yaw=35, pitch=25, size=256)
+        ic = Image.open(icon_raw).convert("RGBA")
+        bb = ic.getbbox(); ic = ic.crop(bb) if bb else ic
+        side = max(ic.size); sq = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        sq.paste(ic, ((side-ic.width)//2, (side-ic.height)//2), ic)
+        ic = sq.resize((30, 30), Image.LANCZOS)
+        pad = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); pad.paste(ic, (1, 1), ic)
+        px = pad.load()
+        for yy in range(32):
+            for xx in range(32):
+                r_, g_, b_, a_ = px[xx, yy]
+                px[xx, yy] = (r_, g_, b_, 255 if a_ > 96 else 0)   # 알파 이진화 = 경계 크리스프
+        pad.save(f"{tex_dir}/icon/{iid}.png"); os.remove(icon_raw)
+        json.dump({"parent": "minecraft:item/generated",
+                   "textures": {"layer0": f"barkan:furniture/{g}/icon/{iid}"}},
+                  open(f"{mdl_dir}/icon/{iid}.json", "w"), indent=1)
         sc = it.get("scale", 1.0)
         ymin = min(e["from"][1] for e in model["elements"])
         ty = round(sc * (8 - ymin) / 16, 3)
@@ -68,7 +89,17 @@ def main():
         - "<!i><dark_gray>[채집]</dark_gray>"
         - "<!i><gray>서식지: <white>{region}</white>  <dark_gray>·</dark_gray>  등급: <{ncol}>{rarity}</{ncol}></gray>"
         - "<!i><dark_gray>mat:채집_{matid}</dark_gray>"
-    model: barkan:item/furniture/{g}/{iid}
+    model:
+      type: minecraft:select
+      property: minecraft:display_context
+      cases:
+        - when: gui
+          model:
+            type: minecraft:model
+            model: barkan:item/furniture/{g}/icon/{iid}
+      fallback:
+        type: minecraft:model
+        model: barkan:item/furniture/{g}/{iid}
     behavior:
       type: furniture_item
       rules:
