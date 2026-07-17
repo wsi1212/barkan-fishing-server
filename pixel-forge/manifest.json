@@ -1,0 +1,87 @@
+{
+  "group": "forage",
+  "prefix": "z_",
+  "items": [
+    {
+      "id": "mushred",
+      "painter": "mush_red",
+      "name": "붉은 요정버섯",
+      "model": "cross",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "mushblue",
+      "painter": "mush_blue",
+      "name": "푸른 요정버섯",
+      "model": "cross",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "mushorange",
+      "painter": "mush_orange",
+      "name": "주황 요정버섯",
+      "model": "cross",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "herb",
+      "painter": "herb_magic",
+      "name": "마법 약초",
+      "model": "cross",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "berry",
+      "painter": "berry_wild",
+      "name": "야생 베리",
+      "model": "cross",
+      "scale": 1.0,
+      "sound": "sweet_berry_bush",
+      "plant": true
+    },
+    {
+      "id": "fruit",
+      "painter": "fruit_apple",
+      "name": "붉은 열매",
+      "model": "voxel",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": false
+    },
+    {
+      "id": "mushtable",
+      "painter": "mush_table",
+      "name": "황금 갓버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "mushshelf",
+      "painter": "mush_shelf",
+      "name": "라벤더 선반버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "mushcluster",
+      "painter": "mush_cluster",
+      "name": "상아 다발버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    }
+  ]
+}
