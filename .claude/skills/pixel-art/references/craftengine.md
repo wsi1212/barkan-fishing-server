@@ -123,6 +123,33 @@ model:
 ```
 
 The icon model is `item/generated` + a 32×32 sprite. Don't hand-draw 31 icons —
-`pixel-forge/build.py` auto-renders each 3D model (render_textured, yaw 35 / pitch 25),
-crops, downscales to 30px on a 32 canvas, and **binarizes alpha (>96)** so edges stay
-crisp. Regenerating models regenerates icons — zero extra authoring.
+`pixel-forge/build.py` auto-renders each 3D model (render_textured), crops, downscales
+to 30px on a 32 canvas, **binarizes alpha (>96)**, then **selouts** (edge pixels darkened
+×0.55 — same-hue outline, the vanilla-sprite convention) so icons pop against slot
+backgrounds. Regenerating models regenerates icons — zero extra authoring.
+
+### Icon camera doctrine (2026-07-18 — after the worm's-eye incident)
+
+Every icon once shipped viewed from **below** because the renderer's pitch sign was
+assumed, not verified ("top-down fix" pitch 42 actually aimed at the underside). Rules,
+now enforced in code — never rely on eyeballing a lone render again:
+
+1. **Convention is pinned + self-tested.** `render_textured.py`: pitch = camera elevation,
+   **positive = bird's-eye**. `assert_camera_convention()` renders a red-top/blue-bottom
+   calibration plate at pitch +30 and hard-fails the build if the top face doesn't
+   dominate. Any future renderer edit that flips the math dies at build time.
+2. **Angle is chosen per shape, not one global number** — `auto_camera(elements)`,
+   grounded in vanilla's GUI transform (rotation [30,225,0] → 30° above horizon, the
+   3/4 view every player recognizes):
+   - flat (h < 0.45×footprint — moss mounds, half-buried truffles): 55° — the top
+     pattern IS the identity.
+   - tall (h > 1.7×footprint — cattails, crystal spires): 22° — steep angles foreshorten
+     height and stack the head onto the base; the side silhouette IS the identity.
+   - default: 30°; then **top-mass bias**: if area-weighted centroid sits in the top 60%+
+     (mushroom caps, flower heads) +8° to show the cap face; bottom-heavy −5°.
+   - yaw 35 (slight front bias; exact 45 reads as a symmetric diamond on organic shapes).
+   - clamp 18–58; per-item `icon_yaw`/`icon_pitch` in manifest.json for exceptions only.
+3. **Audit what is actually visible.** `render()` returns per-face-class pixel counts
+   ({up/down/side}) measured on the final composed image via an ID pass. build.py fails
+   any icon whose **down-faces exceed 25%** of visible pixels — a worm's-eye icon cannot
+   ship silently even if every other guard is bypassed.
