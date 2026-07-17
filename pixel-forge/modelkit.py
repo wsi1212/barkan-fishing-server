@@ -23,28 +23,44 @@ class Kit:
         self.boxes = []; self.seed = seed; self.rnd = random.Random(seed)
 
     # ── 선언 API ──────────────────────────────
-    def box(self, f, t, mat, cull=()):
-        """cull: 렌더 생략할 면들 ('down','up',...) — 스택 내부면 제거용."""
-        self.boxes.append((tuple(f), tuple(t), mat, set(cull)))
+    ANGLES = (-45.0, -22.5, 0.0, 22.5, 45.0)   # MC 요소 회전 허용값
 
-    def rounded_box(self, f, t, mat, bevel=1):
+    def box(self, f, t, mat, cull=(), rot=None):
+        """cull: 렌더 생략할 면들. rot: ("x"|"y"|"z", 각도[, origin]) — 각짐 해독제.
+        기울인 갓·휘는 줄기·매달린 꽃이 여기서 나온다. 각도는 ±22.5/±45로 스냅."""
+        if rot:
+            axis, ang = rot[0], min(self.ANGLES, key=lambda a: abs(a - rot[1]))
+            org = list(rot[2]) if len(rot) > 2 else [(f[i]+t[i])/2 for i in range(3)]
+            rot = (axis, ang, org)
+        self.boxes.append((tuple(f), tuple(t), mat, set(cull), rot))
+
+    def rounded_box(self, f, t, mat, bevel=1, rot=None):
         """베벨 스택: 아랫굽(인셋) + 몸통 + 윗굽(인셋) = 둥근 실루엣."""
         x0, y0, z0 = f; x1, y1, z1 = t; b = bevel
-        self.box((x0+b, y0, z0+b), (x1-b, y0+b, z1-b), mat, cull=("up",))
-        self.box((x0, y0+b, z0), (x1, y1-b, z1), mat)
-        self.box((x0+b, y1-b, z0+b), (x1-b, y1, z1-b), mat, cull=("down",))
+        org = [(x0+x1)/2, (y0+y1)/2, (z0+z1)/2]
+        rr = (rot[0], rot[1], org) if rot else None        # 스택 전체가 한 원점으로 같이 기울게
+        self.box((x0+b, y0, z0+b), (x1-b, y0+b, z1-b), mat, cull=("up",), rot=rr)
+        self.box((x0, y0+b, z0), (x1, y1-b, z1), mat, rot=rr)
+        self.box((x0+b, y1-b, z0+b), (x1-b, y1, z1-b), mat, cull=("down",), rot=rr)
 
-    def dome(self, cx, y0, cz, w, h, mat):
-        """돔 = 2단 캡 스택 (버섯갓/둥근머리)."""
+    def dome(self, cx, y0, cz, w, h, mat, layers=3, rot=None):
+        """돔 = 다단 캡 스택 (기본 3단 — 2단의 '네모 위 네모' 각짐 완화)."""
         hw = w/2
-        self.box((cx-hw, y0, cz-hw), (cx+hw, y0+h*0.6, cz+hw), mat)
-        self.box((cx-hw+1.5, y0+h*0.6, cz-hw+1.5), (cx+hw-1.5, y0+h, cz+hw-1.5), mat, cull=("down",))
+        org = [cx, y0+h/2, cz]
+        rr = (rot[0], rot[1], org) if rot else None
+        if layers <= 2:
+            self.box((cx-hw, y0, cz-hw), (cx+hw, y0+h*0.6, cz+hw), mat, rot=rr)
+            self.box((cx-hw+1.5, y0+h*0.6, cz-hw+1.5), (cx+hw-1.5, y0+h, cz+hw-1.5), mat, cull=("down",), rot=rr)
+        else:
+            self.box((cx-hw+0.8, y0, cz-hw+0.8), (cx+hw-0.8, y0+h*0.3, cz+hw-0.8), mat, cull=("up",), rot=rr)   # 밑단(살짝 인셋=오므림)
+            self.box((cx-hw, y0+h*0.3, cz-hw), (cx+hw, y0+h*0.72, cz+hw), mat, rot=rr)                            # 최광폭 중단
+            self.box((cx-hw+1.8, y0+h*0.72, cz-hw+1.8), (cx+hw-1.8, y0+h, cz+hw-1.8), mat, cull=("down",), rot=rr)  # 크라운
 
     # ── 빌드: 오토 아틀라스 + 모델 ──────────────
     def build(self, tex_ref):
         FACE_DIMS = {"up": (0, 2), "down": (0, 2), "north": (0, 1), "south": (0, 1), "west": (2, 1), "east": (2, 1)}
         regions = []                                   # (박스i, 면, w px, h px)
-        for i, (f, t, mat, cull) in enumerate(self.boxes):
+        for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
             dim = [t[k]-f[k] for k in range(3)]
             for face, (a, b) in FACE_DIMS.items():
                 if face in cull: continue
@@ -59,13 +75,15 @@ class Kit:
         im = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
         u, v = 16.0/W, 16.0/H
         els = []
-        for i, (f, t, mat, cull) in enumerate(self.boxes):
+        for i, (f, t, mat, cull, rot) in enumerate(self.boxes):
             faces = {}
             for bi, face, w, h, (px, py) in regions:
                 if bi != i: continue
                 self._paint(d, px, py, w, h, mat, face)
                 faces[face] = {"uv": [px*u, py*v, (px+w)*u, (py+h)*v], "texture": "#0"}
-            els.append({"from": list(f), "to": list(t), "faces": faces})
+            el = {"from": list(f), "to": list(t), "faces": faces}
+            if rot: el["rotation"] = {"origin": rot[2], "axis": rot[0], "angle": rot[1]}
+            els.append(el)
         # display 풀세트 — 판매팩 필수: GUI 아이콘(블록식 3/4뷰)·손·바닥 전부 정의 (fixed=CE 가구 배치용)
         model = {"textures": {"0": tex_ref, "particle": tex_ref}, "elements": els,
                  "display": {

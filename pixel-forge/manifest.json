@@ -10,7 +10,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "mushblue",
@@ -20,7 +21,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "동굴"
+      "region": "동굴",
+      "rarity": "흔함"
     },
     {
       "id": "mushorange",
@@ -30,7 +32,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "herb",
@@ -40,7 +43,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "berry",
@@ -50,7 +54,8 @@
       "scale": 1.0,
       "sound": "sweet_berry_bush",
       "plant": true,
-      "region": "평원"
+      "region": "평원",
+      "rarity": "흔함"
     },
     {
       "id": "fruit",
@@ -60,7 +65,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": false,
-      "region": "평원"
+      "region": "평원",
+      "rarity": "흔함"
     },
     {
       "id": "mushtable",
@@ -70,7 +76,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "평원"
+      "region": "평원",
+      "rarity": "흔함"
     },
     {
       "id": "mushshelf",
@@ -80,7 +87,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "늪지대"
+      "region": "늪지대",
+      "rarity": "흔함"
     },
     {
       "id": "mushcluster",
@@ -90,7 +98,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "동굴"
+      "region": "동굴",
+      "rarity": "흔함"
     },
     {
       "id": "mushtall",
@@ -100,7 +109,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "늪지대"
+      "region": "늪지대",
+      "rarity": "흔함"
     },
     {
       "id": "mushpink",
@@ -110,7 +120,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "tuftgold",
@@ -120,7 +131,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "평원"
+      "region": "평원",
+      "rarity": "흔함"
     },
     {
       "id": "daisy",
@@ -130,7 +142,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "평원"
+      "region": "평원",
+      "rarity": "흔함"
     },
     {
       "id": "fern",
@@ -140,7 +153,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "acorn",
@@ -150,7 +164,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "깊은 숲"
+      "region": "깊은 숲",
+      "rarity": "흔함"
     },
     {
       "id": "cattail",
@@ -160,7 +175,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "늪지대"
+      "region": "늪지대",
+      "rarity": "흔함"
     },
     {
       "id": "mushpoison",
@@ -170,7 +186,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "늪지대"
+      "region": "늪지대",
+      "rarity": "흔함"
     },
     {
       "id": "prickly",
@@ -180,7 +197,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "사막"
+      "region": "사막",
+      "rarity": "흔함"
     },
     {
       "id": "sage",
@@ -190,7 +208,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "사막"
+      "region": "사막",
+      "rarity": "흔함"
     },
     {
       "id": "crystalblood",
@@ -200,7 +219,8 @@
       "scale": 1.0,
       "sound": "amethyst_block",
       "plant": true,
-      "region": "붉은사막"
+      "region": "붉은사막",
+      "rarity": "희귀"
     },
     {
       "id": "ember",
@@ -210,7 +230,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "붉은사막"
+      "region": "붉은사막",
+      "rarity": "흔함"
     },
     {
       "id": "snowflower",
@@ -220,7 +241,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "정상"
+      "region": "정상",
+      "rarity": "흔함"
     },
     {
       "id": "frostberry",
@@ -230,7 +252,8 @@
       "scale": 1.0,
       "sound": "sweet_berry_bush",
       "plant": true,
-      "region": "정상"
+      "region": "정상",
+      "rarity": "흔함"
     },
     {
       "id": "rosette",
@@ -240,7 +263,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "절벽"
+      "region": "절벽",
+      "rarity": "흔함"
     },
     {
       "id": "bellflower",
@@ -250,7 +274,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "절벽"
+      "region": "절벽",
+      "rarity": "흔함"
     },
     {
       "id": "glowshroom",
@@ -260,7 +285,8 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "동굴"
+      "region": "동굴",
+      "rarity": "흔함"
     },
     {
       "id": "crystalame",
@@ -270,7 +296,8 @@
       "scale": 1.0,
       "sound": "amethyst_block",
       "plant": true,
-      "region": "동굴"
+      "region": "동굴",
+      "rarity": "희귀"
     },
     {
       "id": "watercress",
@@ -280,7 +307,41 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "강"
+      "region": "강",
+      "rarity": "흔함"
+    },
+    {
+      "id": "truffle",
+      "painter": "truffle",
+      "name": "트러플",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "rooted_dirt",
+      "plant": true,
+      "region": "깊은 숲",
+      "rarity": "희귀"
+    },
+    {
+      "id": "desertrose",
+      "painter": "desert_rose",
+      "name": "사막장미",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "amethyst_block",
+      "plant": true,
+      "region": "사막",
+      "rarity": "희귀"
+    },
+    {
+      "id": "frostlotus",
+      "painter": "frost_lotus",
+      "name": "서리연꽃",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true,
+      "region": "정상",
+      "rarity": "희귀"
     }
   ]
 }

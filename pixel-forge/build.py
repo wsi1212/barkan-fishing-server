@@ -40,12 +40,14 @@ def main():
         ymin = min(e["from"][1] for e in model["elements"])
         ty = round(sc * (8 - ymin) / 16, 3)
         region = it.get("region", "평원"); matid = it["name"].replace(" ", "")
+        rarity = it.get("rarity", "흔함")
+        ncol = {"흔함": "white", "희귀": "aqua", "전설": "gold"}.get(rarity, "white")
         cfg.append(f"""  barkan:{g}_{iid}:
     data:
-      item_name: "<!i>{it['name']}"
+      item_name: "<!i><{ncol}>{it['name']}</{ncol}>"
       lore:
         - "<!i><dark_gray>[채집]</dark_gray>"
-        - "<!i><gray>서식지: <white>{region}</white></gray>"
+        - "<!i><gray>서식지: <white>{region}</white>  <dark_gray>·</dark_gray>  등급: <{ncol}>{rarity}</{ncol}></gray>"
         - "<!i><dark_gray>mat:채집_{matid}</dark_gray>"
     model: barkan:item/furniture/{g}/{iid}
     behavior:

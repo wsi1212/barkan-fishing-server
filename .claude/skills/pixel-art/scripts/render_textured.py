@@ -23,12 +23,22 @@ def lerp2(a,b,c,dd,fu,fv):
     top=[a[i]+(b[i]-a[i])*fu for i in range(3)]; bot=[dd[i]+(c[i]-dd[i])*fu for i in range(3)]
     return [top[i]+(bot[i]-top[i])*fv for i in range(3)]
 
+def rot_pt(p, axis, ang, org):
+    a=math.radians(ang); c,s=math.cos(a),math.sin(a)
+    x,y,z=p[0]-org[0],p[1]-org[1],p[2]-org[2]
+    if axis=="x": y,z=y*c-z*s,y*s+z*c
+    elif axis=="y": x,z=x*c+z*s,-x*s+z*c
+    else: x,y=x*c-y*s,x*s+y*c
+    return (x+org[0],y+org[1],z+org[2])
+
 def render(model_path, tex_path, out, yaw=30, pitch=20, size=640):
     m=json.load(open(model_path)); tex=Image.open(tex_path).convert("RGBA")
     W,H=tex.size; sx,sy=W/16.0,H/16.0
     quads=[]
     for e in m["elements"]:
         cs=CORNERS(e["from"],e["to"])
+        if e.get("rotation"):
+            r=e["rotation"]; cs=[rot_pt(c,r["axis"],r["angle"],r["origin"]) for c in cs]
         for fn,fc in e.get("faces",{}).items():
             idx=FACE_IDX[fn]; poly=[cs[i] for i in idx]
             u0,v0,u1,v1=fc.get("uv",[0,0,16,16])

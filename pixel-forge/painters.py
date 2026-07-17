@@ -203,3 +203,144 @@ REGISTRY.update({
     # 강
     "watercress":    (watercress, {}),
 })
+
+# ═══════ 종별 실루엣 리워크 (2026-07-17: "색만 다르고 모양이 같다" 피드백) + 희귀종 ═══════
+# 회전(rot) 지원으로 각짐 탈피 — 기울인 갓, 아치 고사리, 매달린 종꽃.
+
+def squat_fairy(base, seed=0):
+    """뚱뚱 땅딸보 버섯: 낮고 넓은 갓을 살짝 기울임 (파랑)."""
+    k = Kit(seed)
+    k.box((5.5, 0, 5.5), (10.5, 4, 10.5), Mat("d9caa2", var=0.7, grain="v"), cull=("up",))
+    k.dome(8, 3, 8, 13, 5.5, Mat(base, marks=SPOTS), rot=("z", -22.5))
+    return _build(k)
+
+def slim_fairy(base, seed=0):
+    """홀쭉 낭창 버섯: 가는 키다리 줄기 + 작은 뾰족갓 틸트 (주황)."""
+    k = Kit(seed)
+    k.box((7, 0, 7), (9, 9, 9), Mat("d9caa2", var=0.7, grain="v"), cull=("up",))
+    k.box((7.6, 4, 6.2), (8.4, 8, 7.0), Mat("cfc39b", var=0.6, grain="v"), rot=("z", 22.5))   # 곁줄기
+    k.dome(8, 8.5, 8, 8, 5, Mat(base, marks=SPOTS[:2]), rot=("x", 22.5))
+    k.box((6.8, 12.5, 6.8), (9.2, 14.5, 9.2), Mat(base), rot=("x", 22.5))                     # 뾰족 꼭지
+    return _build(k)
+
+def poison_mush(base="7a5b9e", seed=0):
+    """독그늘버섯: 우산처럼 층층이 처진 갓 (위로 갈수록 좁아지는 3단 스커트, 늪)."""
+    k = Kit(seed); st = Mat("9a8f77", var=0.7, grain="v", ao_top=True)
+    cap = Mat(base, marks=[(0.25, 0.4, (184, 224, 138, 255)), (0.7, 0.3, (184, 224, 138, 255))])
+    k.box((6.5, 0, 6.5), (9.5, 6, 9.5), st)
+    k.box((2.5, 5.5, 2.5), (13.5, 7, 13.5), cap, cull=("up",))                 # 최하단 스커트(가장 넓음)
+    k.box((4, 7, 4), (12, 8.8, 12), cap)                                       # 중단
+    k.box((5.5, 8.8, 5.5), (10.5, 10.6, 10.5), cap, cull=("down",))            # 상단 봉우리
+    k.box((7, 10.6, 7), (9, 12, 9), cap, cull=("down",))                       # 꼭지
+    return _build(k)
+
+def glow_trio(base="3fbfae", seed=0):
+    """야광버섯: 제각각 기운 삼발 다발 (동굴) — 발광 팔레트."""
+    k = Kit(seed); st = Mat("bfd8cf", var=0.6, grain="v")
+    specs = [(4.5, 8, 6, 7, ("z", 22.5)), (8.5, 7.5, 9, 8.5, ("x", -22.5)), (11.5, 9, 4.5, 6, ("z", -22.5))]
+    for x, z, h, w, rr in specs:
+        k.box((x-1, 0, z-1), (x+1, h, z+1), st, cull=("up",))
+        k.dome(x, h-0.5, z, w, 3.5, Mat(base), layers=2, rot=rr)
+    return _build(k)
+
+def fern_arch(base="3f7a37", seed=0):
+    """물결고사리 v3: 완만한 아치 줄기 + 아래로 갈수록 긴 수평 깃잎(끝만 살짝 처짐) + 말린 새순."""
+    k = Kit(seed); g = Mat(base, var=0.9); gl = Mat("57944a", var=0.8); s = Mat("2e5d2a", var=0.7, grain="v")
+    k.box((7.5, 0, 7.6), (8.5, 6.5, 8.4), s)
+    k.box((7.8, 6.2, 7.6), (8.8, 10.5, 8.4), s, rot=("z", -22.5))               # 위쪽만 완만히 휨
+    for y, w in [(1.6, 5.0), (3.4, 4.2), (5.2, 3.2)]:                           # 아래가 긴 깃잎 = 고사리 실루엣
+        k.box((8-w-0.4, y, 7.5), (7.9, y+1.1, 8.5), g, rot=("z", -22.5, [7.9, y+0.5, 8]))   # 왼잎 끝처짐
+        k.box((8.1, y+0.7, 7.5), (8+w+0.4, y+1.8, 8.5), gl, rot=("z", 22.5, [8.1, y+1.2, 8]))  # 오른잎 끝처짐(엇갈림)
+    k.box((8.6, 9.2, 7.5), (10.8, 10.3, 8.5), g, rot=("z", -45))                # 휜 끝잎
+    k.box((10, 9.9, 7.4), (11.6, 11.5, 8.6), gl, rot=("z", -22.5))              # 말린 새순
+    return _build(k)
+
+def flower_flat(petal="eeeae0", center="d8b23a", seed=0):
+    """흰들국화: 활짝 핀 납작 꽃 — 수평 꽃잎 4장 + 노란 심 (평원)."""
+    k = Kit(seed); g = Mat("4e8f3a", var=0.8); p = Mat(petal, var=0.6); c = Mat(center, var=0.5)
+    k.box((7.5, 0, 7.5), (8.5, 7, 8.5), g)
+    k.box((9, 2.5, 7.5), (11, 4, 8.5), g, rot=("z", -22.5))                    # 잎
+    for f, t, rr in [((3, 7, 6.5), (8, 8.2, 9.5), ("z", 22.5)), ((8, 7, 6.5), (13, 8.2, 9.5), ("z", -22.5)),
+                     ((6.5, 7, 3), (9.5, 8.2, 8), ("x", -22.5)), ((6.5, 7, 8), (9.5, 8.2, 13), ("x", 22.5))]:
+        k.box(f, t, p, rot=rr)                                                 # 살짝 벌어진 꽃잎
+    k.box((6.8, 7.6, 6.8), (9.2, 9, 9.2), c)                                   # 심
+    return _build(k)
+
+def flower_cup(petal="d97a2b", center="5c3a28", seed=0):
+    """잿불꽃: 튤립형 컵 — 안으로 오므린 꽃잎 4면 + 이글대는 심 (붉은사막)."""
+    k = Kit(seed); g = Mat("6e5844", var=0.8, grain="v"); p = Mat(petal, var=0.7); c = Mat("e8b23a", gloss=True)
+    k.box((7.5, 0, 7.5), (8.5, 7, 8.5), g)
+    for f, t, rr in [((4.5, 7, 6.5), (7.5, 12, 9.5), ("z", 22.5)), ((8.5, 7, 6.5), (11.5, 12, 9.5), ("z", -22.5)),
+                     ((6.5, 7, 4.5), (9.5, 12, 7.5), ("x", -22.5)), ((6.5, 7, 8.5), (9.5, 12, 11.5), ("x", 22.5))]:
+        k.box(f, t, p, rot=rr)                                                 # 컵 꽃잎
+    k.box((7, 8, 7), (9, 11, 9), c)                                            # 불씨 심
+    return _build(k)
+
+def flower_star(petal="f0f2ee", center="a8c8d8", seed=0):
+    """설화: 눈결정 별꽃 — 십자+대각(45°) 꽃잎 8방 (정상)."""
+    k = Kit(seed); g = Mat("7a9a88", var=0.7, grain="v"); p = Mat(petal, var=0.5); c = Mat(center, var=0.5)
+    k.box((7.5, 0, 7.5), (8.5, 6, 8.5), g)
+    k.box((4.5, 6.5, 7.2), (11.5, 7.9, 8.8), p)                                # 가로 꽃잎
+    k.box((7.2, 6.5, 4.5), (8.8, 7.9, 11.5), p)                                # 세로 꽃잎
+    k.box((5.6, 6.7, 7.3), (10.4, 7.8, 8.7), p, rot=("y", 45))                 # 대각 꽃잎(짧게) = 육각 별
+    k.box((5.6, 6.7, 7.3), (10.4, 7.8, 8.7), p, rot=("y", -45))
+    k.box((7, 7.3, 7), (9, 8.9, 9), c)                                         # 심
+    return _build(k)
+
+def flower_bell(petal="6f8fd8", center="3a5aa8", seed=0):
+    """벼랑초롱꽃: 굽은 줄기 끝에 매달린 종 + 종추 (절벽)."""
+    k = Kit(seed); g = Mat("55755a", var=0.8, grain="v"); p = Mat(petal, var=0.7); c = Mat(center, var=0.6)
+    k.box((6, 0, 7.5), (7, 8, 8.5), g)
+    k.box((6.2, 7.5, 7.4), (7.2, 11, 8.4), g, rot=("z", -45))                  # 크게 휜 목
+    k.box((8, 10.2, 7.4), (10.5, 11.2, 8.4), g, rot=("z", -22.5))              # 처진 끝
+    k.box((8.7, 6.5, 6.6), (11.5, 10, 9.4), p, rot=("z", -22.5))               # 매달린 종 몸통
+    k.box((9.2, 5.2, 7.1), (11, 6.6, 8.9), p, rot=("z", 22.5))                 # 종 입구(벌어짐)
+    k.box((9.7, 4.4, 7.6), (10.5, 5.4, 8.4), c)                                # 종추
+    return _build(k)
+
+# ── 희귀종 ──
+def truffle(seed=0):
+    """트러플: 울퉁불퉁 검은 덩이 (깊은 숲 낙엽 밑, 희귀)."""
+    k = Kit(seed)
+    m = Mat("4a3a30", var=1.0, marks=[(0.3, 0.3, (30, 22, 18, 255)), (0.7, 0.55, (30, 22, 18, 255))])
+    d = Mat("3a2d24", var=0.9)
+    k.box((4.5, 0, 5), (10.5, 5, 11), m, rot=("y", 22.5))
+    k.box((7.5, 0.5, 4.5), (12, 4.2, 9), d, rot=("y", -22.5))
+    k.box((6, 4, 6.5), (10, 6.5, 10), d, rot=("y", 45))
+    lf = Mat("6a5636", var=0.9)
+    k.box((3.5, 0, 8.5), (6, 0.9, 11), lf, rot=("y", -22.5))                   # 낙엽 흔적
+    return _build(k)
+
+def desert_rose(seed=0):
+    """사막장미: 결정 꽃판이 교차한 로제트 (사막, 희귀) — 석고 결정."""
+    k = Kit(seed); p = Mat("d8a890", gloss=True); q = Mat("c08a72", gloss=True)
+    k.box((3.5, 0, 6), (12.5, 3.5, 10), p, rot=("y", 22.5))
+    k.box((3.5, 0.5, 6), (12.5, 4, 10), q, rot=("y", -45))
+    k.box((5, 1, 5.5), (11, 5.5, 9.5), p, rot=("y", -22.5))
+    k.box((6, 2, 6.5), (10, 7, 9.5), q, rot=("y", 45))                          # 중심 꽃판(높음)
+    return _build(k)
+
+def frost_lotus(seed=0):
+    """서리연꽃: 눈밭에 피는 얼음 연꽃 (정상, 희귀) — 벌어진 잎 + 빙심."""
+    k = Kit(seed); outer = Mat("cfe4ec", var=0.5); inner = Mat("eef6fa", var=0.4); core = Mat("7fc4e8", gloss=True)
+    for f, t, rr in [((2.5, 0, 6), (7, 5, 10), ("z", 22.5)), ((9, 0, 6), (13.5, 5, 10), ("z", -22.5)),
+                     ((6, 0, 2.5), (10, 5, 7), ("x", -22.5)), ((6, 0, 9), (10, 5, 13.5), ("x", 22.5))]:
+        k.box(f, t, outer, rot=rr)                                             # 바깥 잎(벌어짐)
+    k.box((5.5, 1, 5.5), (10.5, 5.5, 10.5), inner)                             # 안잎
+    k.box((6.8, 3, 6.8), (9.2, 7, 9.2), core)                                  # 얼음 심
+    return _build(k)
+
+REGISTRY.update({
+    "mush_blue":     (squat_fairy, {"base": "3a7ca5"}),
+    "mush_orange":   (slim_fairy,  {"base": "d97a2b"}),
+    "mush_poison":   (poison_mush, {}),
+    "mush_glow":     (glow_trio,   {}),
+    "fern_green":    (fern_arch,   {}),
+    "flower_daisy":  (flower_flat, {}),
+    "flower_ember":  (flower_cup,  {}),
+    "flower_snow":   (flower_star, {}),
+    "flower_bell":   (flower_bell, {}),
+    "truffle":       (truffle,     {}),
+    "desert_rose":   (desert_rose, {}),
+    "frost_lotus":   (frost_lotus, {}),
+})
