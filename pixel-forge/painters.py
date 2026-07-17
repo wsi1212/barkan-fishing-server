@@ -80,3 +80,21 @@ REGISTRY = {
     "mush_shelf":   (shelf_mush, {"cap": "ad95bb", "stem": "ac9d57"}),
     "mush_cluster": (cluster_mush, {"cap": "e8e2d2", "stem": "aca289"}),
 }
+
+def tall_mush(cap, stem, seed=0):
+    """톨캡: 긴 줄기 + 높은 원통캡 (ref 초록 버섯)."""
+    k = Kit(seed)
+    k.box((6.5, 0, 6.5), (9.5, 10, 9.5), Mat(stem, grain="v", ao_top=True))
+    k.rounded_box((4.5, 9, 4.5), (11.5, 15, 11.5), Mat(cap))
+    return _build(k)
+
+def double_mush(cap, stem, seed=0):
+    """2단캡: 아래 넓은 갓 + 위 좁은 갓 (ref 핑크 버섯)."""
+    k = Kit(seed)
+    k.box((6.5, 0, 6.5), (9.5, 7, 9.5), Mat(stem, grain="v", ao_top=True))
+    k.rounded_box((3, 6, 3), (13, 9.5, 13), Mat(cap))
+    k.rounded_box((5.5, 9.5, 5.5), (10.5, 13, 10.5), Mat(cap))
+    return _build(k)
+
+REGISTRY["mush_tallgreen"] = (tall_mush, {"cap": "8fae7a", "stem": "cfc39b"})
+REGISTRY["mush_pinkdouble"] = (double_mush, {"cap": "d99aa8", "stem": "d9caa2"})

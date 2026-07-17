@@ -82,6 +82,24 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true
+    },
+    {
+      "id": "mushtall",
+      "painter": "mush_tallgreen",
+      "name": "이끼 톨버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
+    },
+    {
+      "id": "mushpink",
+      "painter": "mush_pinkdouble",
+      "name": "분홍 겹버섯",
+      "model": "boxes",
+      "scale": 1.0,
+      "sound": "grass",
+      "plant": true
     }
   ]
 }
