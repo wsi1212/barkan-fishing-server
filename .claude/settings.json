@@ -1,4 +1,8 @@
 {
+  "enabledPlugins": {
+    "google-analytics@local-desktop-app-uploads": false,
+    "bizben-dynamodb@local-desktop-app-uploads": false
+  },
   "hooks": {
     "PostToolUse": [
       {
@@ -16,6 +20,13 @@
             "timeout": 15,
             "statusMessage": "밸런스 영향 분석 중...",
             "description": "밸런스 관련 변경 감지: 스탯 소비처/공급처 크로스체크"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/regen-docs-index.sh\"",
+            "timeout": 10,
+            "statusMessage": "docs-index 갱신 중...",
+            "description": "프로젝트 최상위 .md 편집 시 docs-index.md 자동 재생성"
           }
         ]
       }
