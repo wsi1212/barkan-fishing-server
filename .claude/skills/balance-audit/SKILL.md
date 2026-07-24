@@ -67,7 +67,12 @@ description: >-
 | 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md) |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
-| 채집/카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
+| 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
+| 카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
+
+**전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
+시급 32,489원/h를 공통 앵커로, 4개 경제(낚시/광질/농사/채집) 전 원재료에 골드가치 산출 완료
+(2026-07-25). 재계산: `scripts/cross_economy_values.py`.
 
 ### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
 1. 그 경제의 코드/JSON 위치를 파악(Agent로 조사 — 이 스킬이 아직 모르는 시스템일 확률 높음).
