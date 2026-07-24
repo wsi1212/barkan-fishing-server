@@ -60,6 +60,8 @@ pull.py를 함께 갱신할 것. (검증 기준일: 2026-07-24)
 | 강화 성공 계산 `base*(1+boost/100)` | 同 L543~552 | |
 | 레벨별 강화 스탯 증가표 | `JSON/enhance.json` (`order`,`table`) → `JAVA/enhance/EnhanceLoader.java` | 비용곡선과 별개 |
 | 부품 조각 분해수율·합성비용 | `JAVA/parts/PartFragmentManager.java` L51~95 | |
+| 내구도 감소·수리 | `JAVA/parts/EquipmentManager.java` `reduceDurability()`/`repairCost()` | 낚싯대만 내구無(`SLOTS`={릴,줄,바늘,미끼,찌}). 0=고장(수리대기), 2026-07-24 이전 버그로 파괴였음 |
+| 스탯 합산 시 내구도 게이트 | `JAVA/fishing/FishingBonuses.java` L100~108 | durability>0 아니면 해당 부품 스탯 미적용 |
 | 재료·드롭테이블 | `JSON/materials.json` (`materials`,`dropTables`) | |
 
 ---

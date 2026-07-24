@@ -500,6 +500,34 @@
         },
         "note": "등급업 캡폐지 후 실현치107%로 판매/더블 동률권 진입해 크리와 격차 확대→가격보너스로 66%까지 견인, 크기87%권 근접"
       }
+    },
+    "equipment_slot_rebalance_2026_07_25": {
+      "줄슬롯": {
+        "before_h": 3.55,
+        "after_h": 2.56,
+        "note": "크리조정 부수효과로 자동해소"
+      },
+      "낚싯대": {
+        "cut_pct": 15,
+        "before_h": 6.67,
+        "after_h": 5.67,
+        "changed_items": 10,
+        "reason": "주스탯 난이도가 stat_value모델에 미반영돼 과가격으로 나옴, 반영해도(6.15h) 격차 안줄어 실제 과가격 확정",
+        "note": "낚싯대만 내구도 없음(프리미엄 정당) — 완전동률 아닌 조금만 인하",
+        "backup": "parts.json.bak-20260725-rodcut-before/after"
+      },
+      "durability_bug_fix": {
+        "blockship_commit": "2d5b0c7",
+        "issue": "내구도0=파괴(재구매강제) 였으나 의도는 고장(수리대기)",
+        "fixed": true,
+        "files": [
+          "EquipmentManager.reduceDurability",
+          "FishingBonuses(durability게이트 신설)",
+          "WorkbenchGui",
+          "ProfileGui"
+        ]
+      },
+      "methodology_correction": "150casts/h 연속가정은 내구소모엔 과대추정(실제 훨씬느림, 사용자확인) — 재구매비 계산에 쓰지말것"
     }
   }
 }
