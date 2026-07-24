@@ -32,7 +32,7 @@
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
-- **명령어 별칭 규칙 → 전역 훅이 강제** (`~/.claude/hooks/guard-security.py`, 두벌식 변환·초성 검출 내장): 한글 플레이어 명령엔 영타 별칭(두벌식) 부여, 자주 쓰는 건 초성도(선택). **OP 전용 명령(setPermission blockship.admin)엔 영타·초성 별칭 금지** — 위반 시 훅이 경고. (구 CLAUDE.md의 매핑표·초성 예시는 훅으로 이관됨)
+- **명령어 별칭 규칙 → 전역 훅이 강제** (`~/.claude/hooks/guard-security.py`, 두벌식 변환·초성 검출 내장): 한글 플레이어 명령엔 영타 별칭(두벌식) 부여, 자주 쓰는 건 초성도(선택). **초성 별칭을 달면 그 초성의 영타(영키보드 로마자)도 함께** 부여(예 ㅅㅍ→tv·ㅅㅈ→tw·ㅅ→t, 한/영 안 바꿔도 먹히게 — 단 1~3자라 충돌 주의). **OP 전용 명령(setPermission blockship.admin)엔 영타·초성 별칭 금지** — 위반 시 훅이 경고. (구 CLAUDE.md의 매핑표·초성 예시는 훅으로 이관됨)
 - **탭 자동완성 필수** (OP 전용 명령어는 제외): 인자가 있는 모든 명령어에 TabCompleter 구현
   - 인자가 **플레이어 닉네임**이면: 접속 중인 플레이어 이름 목록
   - 인자가 **숫자 (금액/수량/레벨 등)**이면: 자동완성 목록 **넣지 않음**. 대신 `<금액>`, `<수량>` 같은 도움말 텍스트만 표시
@@ -99,7 +99,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
-- 이후 **서버 풀 재시작** (dev=feather UI 재시작 / prod=`sudo systemctl restart mcserver`)
+- 이후 **서버 풀 재시작** (dev=`~/dev-mc.sh restart` — RCON 25575, **feather 미사용** / prod=`sudo systemctl restart mcserver`)
 
 ### /textride 서브커맨드 (기존 명령어에 통합, 새 명령어 등록 불필요)
 - `/textride <player> <tag>` — Paper addPassenger (기존)
@@ -113,28 +113,36 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **Provider**: Oracle Cloud Infrastructure (Always Free)
 - **계정**: 가족 명의 (rhfipkk tenancy, ap-chuncheon-1)
 - **리전**: South Korea North (Chuncheon) — 한국 핑 5~10ms
-- **인스턴스**: `minecraft-server` (ID는 retry log 참조)
+- **인스턴스**: `minecraft-server` — OCID `ocid1.instance.oc1.ap-chuncheon-1.an4w4ljripxk3pacvlzpjj2sojj6c57romwttueidpff7jcyyvp7v6bwbvmq` (★인스턴스 재생성 시 OCID 바뀜 → 워치독 동적그룹 `mc-instance-dg` 매칭룰도 갱신 필요)
 - **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 힙 플래그. start.sh)
 - **OS**: Ubuntu 24.04 ARM64
-- **공인 IP**: `134.185.113.25` (Ephemeral — 인스턴스 재생성 시 변경됨)
+- **MC/Paper 버전**: prod 구동 = **Paper 1.21.10** (version_history.json 확인). BlockShip 빌드 타겟 = **1.21.4** (build.gradle.kts paperDevBundle 1.21.4, api-version '1.21') → **버전 드리프트 있음(작동중, Bukkit API 호환 범위 내·NMS 사용 파일 1개뿐)**. 패킷/NMS 오류 시 1순위 의심.
+- **ProtocolLib 5.4.0**: 지원 명시 범위는 1.21.4–1.21.8 → prod(1.21.10)에서 부팅 시 "not yet been tested" 경고 뜸(로드·리스너 등록은 정상). dev(Mac) 버전은 별도 확인 필요 — 패킷 작업 전 양쪽 버전 대조할 것.
+- **공인 IP**: `168.107.8.107` (Reserved 예약 IP — 인스턴스 재생성에도 불변. 2026-07-24 임시 IP 134.185.113.25에서 교체. 예약IP OCID: `ocid1.publicip.oc1.ap-chuncheon-1.amaaaaaaipxk3paarwjmvgd5ii3js5qes7jmsbyh5sy2holja6x4vhdust7a`)
+- **도메인**: `barkan.kro.kr` (내도메인.한국 무료 서브도메인, A레코드 → 168.107.8.107 예정)
 - **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
-- **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25`
+- **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107`
 - **OCI CLI 설정**: `~/.oci-family/config` (가족 계정용, OCI_CLI_CONFIG_FILE 환경변수로 지정)
 - **서버 경로**: `~/mcserver/` (인스턴스 안)
 - **Java**: Azul Zulu JDK 21 ARM (`/usr/lib/jvm/zulu21-ca-arm64`)
-- **방화벽**: 22 (SSH), 25565 (마크) 열림 (iptables + OCI Security List)
+- **방화벽 (2계층 — 외부 접근은 둘 다 통과해야 함)**: OCI Security List(외부 관문) + iptables(박스 내부)
+  - **외부 열림 포트**: `22`(SSH) · `25565`(마크) · `80`·`443`·`3000`(다른 서비스용, 예: LH cron) · icmp — OCI SL·iptables 양쪽에 존재
+  - **RCON `25575`**: enabled지만 **localhost 전용** — OCI SL에 없고 iptables 기본 REJECT라 외부에서 이중 차단
 
 ### Dev / Prod 분리 (옵션 C - 하이브리드)
-- **Mac (패더)** = dev: 본인이 개발/테스트하는 곳
+- **Mac** = dev: 본인이 개발/테스트하는 곳 (★**feather 미사용** — `~/dev-mc.sh start/stop/restart/cmd <명령>/log [N]`로 관리, RCON 25575 pw devtest2026. 서버파일은 옛 feather 폴더 경로에 있지만 실행/재시작은 dev-mc.sh)
 - **Oracle (춘천)** = prod: 베타 유저 접속하는 운영 서버
 - **유저 데이터(`world/` 등)는 환경별 별개** — sync 금지!
 - 코드(jar, 설정)만 dev → prod 동기화
+- **dev 코드 배포 한 줄**: `~/deploy-dev.sh` (BlockShip 빌드 → dev plugins/ 복사 → dev-mc.sh restart 자동)
+- **⚠️ dev 기동 느림(~83s, 타임아웃 90s 아슬아슬)**: 타임아웃 떠도 실패 아님(그냥 느림), 몇 초 더 기다리면 뜸. 곧바로 재시작하면 뜨는 중인 인스턴스가 `world/session.lock`을 잡은 채라 새 인스턴스가 죽고 **좀비 java 누적**(락만 잡고 25565 미리슨) — 감지: `ps aux|grep paper-1.21.10.jar` 2개 이상. 해결: `pkill -9 -f paper-1.21.10.jar` → 락 해제 확인 → `dev-mc.sh start` 1회.
+- **prod↔dev 데이터 동기화(수동, 기본 꺼짐)**: `~/mc-sync/mc-sync.sh` (launchd 자동 sync는 2026-07-05 해제 — dev의 플러그인 편집이 매일 덮여 유실된 사고 이후 수동 전환). `DATA_PATHS` 비어있어 **플러그인 데이터는 sync 안 됨**, 월드만 prod→dev 미러. `--dry-run`으로 미리 확인.
 
 ### 자동 sync (옵션 C)
 **BlockShip Java plugin** — 빌드 후 배포 스크립트
 - 위치: `~/deploy-blockship.sh`
 - 한 줄 실행: `~/deploy-blockship.sh`
-- 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 plugman reload
+- 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장.
 
 **전체 변경** — Git 백업
 - 이 폴더(설계 문서 + 설정)가 git repo
@@ -144,27 +152,47 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 ### 운영 명령어
 ```bash
 # 오라클 SSH 접속
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107
 
 # 마크 서버 콘솔 (tmux 세션)
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 -t 'tmux attach -t mc'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 -t 'tmux attach -t mc'
 # 분리: Ctrl+B, D
 
 # 마크 서버 재시작 (systemd)
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'sudo systemctl restart mcserver'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'sudo systemctl restart mcserver'
 
 # 로그 확인
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'tail -f ~/mcserver/logs/latest.log'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'tail -f ~/mcserver/logs/latest.log'
 
 # 플레이어 데이터 백업 (진행도 = 레벨/돈/장비/강화)
-scp -i ~/.ssh/oracle-mc.key -r ubuntu@134.185.113.25:~/mcserver/plugins/BlockShip/playerdata ~/Desktop/prod-playerdata-$(date +%Y%m%d)
+scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip/playerdata ~/Desktop/prod-playerdata-$(date +%Y%m%d)
 ```
 
-### 자동 백업 (오라클 cron, 시각=UTC / KST=+9h)
-- 19:00 UTC(04시 KST): `variables.csv` → `~/mcserver/backups/` **⚠️ 죽은 파일(Skript 제거됨, 6/4 동결) — playerdata 백업으로 교체 필요**
-- 20:00 UTC(05시 KST): 월드 폴더 tar.gz → `~/mcserver/backups/` (월드만, `plugins/`는 미포함)
-- 21:00 UTC(06시 KST): 오래된 백업 prune (변수 30일 / 월드 14일)
-- **⚠️ 실제 플레이어 진행도 `plugins/BlockShip/playerdata/*.json`는 현재 어떤 cron 백업에도 안 들어감 — 추가 필요**
+### 자동 백업 (오라클 cron, 시각=UTC / KST=+9h) — 2026-07-24 오프사이트 DR 전면 개편
+**2겹 백업**: 로컬(빠른 되돌리기) + 오프사이트(인스턴스 사망 대비 DR). 스크립트는 박스 `~/mcserver/scripts/`.
+- **오프사이트 → Oracle Object Storage 버킷 `mc-backups`** (instance principal 인증=박스에 OCI키 없음, 버전관리 ON):
+  - 19:00 `offsite-backup.sh` — BlockShip 폴더 전체(playerdata + 라이브 JSON) → `blockship/`, 원격 30개
+  - 20:30 `offsite-worlds.sh islands` — guild_world+island_world → `islands/`, 원격 5개
+  - 1·15일 22:00 `offsite-worlds.sh main` — world계열+flatroom+mine → `world/`, 원격 2개(격주)
+- **로컬 → `~/mcserver/backups/`** (`local-backup.sh <main|islands>`, 파일명 접두어 `localmain-`/`localislands-`):
+  - 20:00 main(본월드) 매일 3개 / 20:10 islands 매일 7개
+  - 21:00 구 `playerdata-*.tar.gz` prune(자동소멸, 신규생성 없음)
+- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성), 실패 시 Discord webhook 알림(`~/mcserver/scripts/discord-webhook.url` 있으면).
+- ★staging은 `~/mcserver/backups/offsite-stage/`로 격리(로컬 백업과 glob 충돌 방지 필수).
+- 상세·복원법: memory `project_offsite_backup_dr`. 복원 = Object Storage에서 `oci os object get`→tar 해제.
+
+### 프리즈 워치독 (2026-07-24 신설, 무인운영 자가복구)
+- systemd `mcserver`는 프로세스 death만 잡음(`Restart=always`). **메인스레드 프리즈(데드락/GC지옥)는 못잡아서** 외부 워치독 추가.
+- `~/mcserver/scripts/watchdog.sh` (cron `*/2`, flock): `rcon.py list` 2분간격 헬스체크 → **4회 연속 무응답(≈8분)=프리즈 판정→`systemctl restart mcserver`+Discord 알림**. 순간렉/저장/GC는 다음 체크 회복→카운터 리셋. 부팅유예 5분, 1시간 3회초과=크래시루프로 보고 재시작중단+🆘.
+- **★prod RCON 켜짐**: `enable-rcon=true`, 포트 25575, 비번=랜덤(server.properties). 외부는 iptables 기본 REJECT 차단, localhost만. `~/mcserver/scripts/rcon.py list`로 수동 확인/명령 가능. (dev RCON은 별개 pw devtest2026)
+- 상세: memory `project_offsite_backup_dr`.
+
+### 무인운영 자동화 추가분 (2026-07-24, 군입대 대비 자가복구 시리즈)
+- `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): RCON으로 접속자수 확인, **0명일 때만** `systemctl restart`(누수 정리)+디스코드 알림. 1명 이상이면 skip.
+- `~/mcserver/scripts/disk-guard.sh` (매시간): `df /` 사용률 85%⚠️경고 / 92%🔴면 가장 오래된 로컬 백업부터 삭제해 88% 아래로 확보(★라이브 데이터·오프사이트는 절대 안 건드림).
+- `~/mcserver/scripts/heartbeat.sh` (cron 5분): MC 포트 살아있으면 healthchecks.io로 핑 → 박스 자체가 죽거나 cron이 멈추면 **박스 밖에서** 침묵 감지, 25분 무응답 시 디스코드 알림(데드맨 스위치, 온박스 워치독의 사각 커버).
+- 로그: `watchdog.log`(프리즈워치독) · `ops.log`(nightly/diskguard) · `offsite.log` · `local.log`.
+- 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화).
 
 ### Resize 자동 재시도 (백그라운드)
 - 위치: `~/oracle-auto-retry/resize-retry.sh`
@@ -173,20 +201,10 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@134.185.113.25:~/mcserver/plugins/BlockShi
 - 성공: `~/oracle-auto-retry/SUCCESS-RESIZE.txt` 생성 + macOS 알림
 
 ## 리소스팩
-- GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack`
-- 로컬: `~/Library/Application Support/minecraft/resourcepacks/barkan-resourcepack.zip`
-- 빌드 폴더: `~/Downloads/barkan-resourcepack/`
+- **소스 위치(★2026-06-06 이후, Downloads 경로는 낡음): `~/development/barkan-resourcepack`** — `~/Downloads/barkan-resourcepack/`은 더 이상 존재하지 않음(TCC가 Downloads/Desktop 재귀읽기 차단해서 이동함).
+- GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)
 - 서버 자동 적용: `server.properties`에 GitHub Releases URL+SHA1 설정됨 (`require-resource-pack=true`)
-- **자동 배포**: `~/Downloads/barkan-resourcepack/deploy.sh` 실행 한 줄로 전체 자동화
-  - ZIP 생성 (로컬+배포) → Git 커밋+푸시 → GitHub Release 업로드 → SHA1 갱신 → server.properties 업데이트
-  - 서버 재시작하면 접속자에게 자동 적용
-- **수동 배포 절차** (deploy.sh 못 쓸 때):
-  1. `~/Downloads/barkan-resourcepack/` 내 파일 수정
-  2. `cd ~/Downloads/barkan-resourcepack && zip -r /tmp/barkan-resourcepack.zip . -x ".*" -x "deploy.sh"`
-  3. `gh release delete latest --repo wsi1212/minecraft-fish-resource-pack --yes`
-  4. `gh release create latest /tmp/barkan-resourcepack.zip --repo wsi1212/minecraft-fish-resource-pack --title "Latest"`
-  5. `shasum /tmp/barkan-resourcepack.zip` → server.properties의 `resource-pack-sha1` 업데이트
-  6. 서버 재시작
+- **배포: `~/deploy-rp.sh` 실행 한 줄** (zip 생성 → GitHub Release 업로드 → SHA1 갱신 → server.properties 업데이트) → 서버 재시작하면 접속자에게 자동 적용. zip 파일명은 반드시 `barkan-resourcepack.zip`.
 - **커스텀 사운드**: `assets/barkan/sounds.json`에 등록, `assets/barkan/sounds/weather/*.ogg`에 파일 배치
   - ogg (Vorbis) 형식만 지원, wav→ogg 변환: `ffmpeg -i input.wav -c:a libvorbis -q:a 5 output.ogg`
   - 페이드아웃: `ffmpeg -i input.wav -t 19 -af "afade=t=out:st=16:d=3" -c:a libvorbis -q:a 5 output.ogg`
