@@ -1,33 +1,79 @@
 ---
 name: balance-audit
 description: >-
-  Run a comprehensive, repeatable balance audit of the 바르칸 열도 fishing server across seven
-  dimensions — leveling/growth curve, economy (income vs sinks), RNG/grades, equipment/enhance/parts,
-  a per-stat real-value framework (원/h), cooking buffs (craft cost vs effect), and weather effects.
-  Use whenever the user wants to 밸런스 전수조사, 밸런스 감사, 밸런스 점검, check the balance, review the
-  economy/curve/drop-rates, audit money income vs sinks, weigh 요리/날씨 효과, judge whether 장비가
-  재료 대비 구린지, value individual stats (예: 도주감소 1% = 몇 가치, 행운 1% = 몇 가치), or ask
-  "밸런스 괜찮아?". Pulls authoritative numbers directly from BlockShip Java constants + runtime JSON
-  (NOT the drifting balance.md), snapshots them, computes deltas against the previous audit for
-  continuity, flags doc-vs-code drift, and writes a timestamped report. Invoke for periodic reviews
-  and after any content/tuning change.
+  Run a comprehensive, repeatable balance audit of the ENTIRE 바르칸 열도 server economy — not just
+  fishing. Covers multiple sub-economies as modular dimensions: 낚시(fishing: leveling/RNG/equipment/
+  enhance/cooking/weather/stat-values), 광질(mining/drill), 농사(farming/특수작물), and extensible to
+  more (채집/forage, 마켓/trade, 길드/guild) as they're added. Use whenever the user wants 밸런스
+  전수조사, 밸런스 감사, 서버 전체 밸런스 관리, check the balance of ANY economic system, review
+  income/sinks/drop-rates/growth-times for mining or farming or fishing, judge whether 장비/작물/광석이
+  재료 대비 구린지, value individual stats, or ask "밸런스 괜찮아?". Pulls authoritative numbers
+  directly from BlockShip Java constants + runtime JSON (NOT the drifting balance.md), snapshots them
+  per-economy, computes deltas against previous audits for continuity, flags doc-vs-code drift, and
+  writes timestamped per-economy reports. Invoke for periodic reviews, after any content/tuning
+  change, or when asked to audit a new economic system not yet covered.
 ---
 
-# 바르칸 밸런스 전수조사 (balance-audit)
+# 바르칸 서버 전체 밸런스 전수조사 (balance-audit)
 
 밸런스 감사는 매번 다르게 보면 쓸모가 없다. **같은 소스에서, 같은 지표를, 같은 포맷으로** 뽑아야
 감사 간 비교(연속성)가 성립한다. 이 스킬은 그 일관성을 강제한다.
 
-## 제1원칙 — 라이브 코드가 권위, balance.md는 파생물
+**★2026-07-25부터 범위가 낚시 하나에서 "서버 전체 경제"로 확장됨.** 사용자 지시: "서버 전체의
+밸런스를 관리하고 싶다". 서버엔 여러 독립 경제가 있고(낚시·광질·농사·채집·요리·카지노·마켓·길드…),
+각각 자기 수입원·소모처·시간단위(캐스트/h, 채굴사이클, 작물성장일 등)를 갖는다. 이 스킬은 **경제별
+모듈**로 구조화돼 있다 — 낚시가 첫 모듈이고, 광질·농사가 두 번째 확장(2026-07-25)이다. 새 경제를
+감사해 달라는 요청이 오면 이 스킬로 처리하고, "경제별 모듈 추가" 패턴(아래)을 따라 확장한다.
 
-밸런스 수치의 진짜 출처는 **BlockShip Java 상수 + 런타임 JSON**이다. `balance.md`(636줄)는 그걸
-사람이 옮겨 적은 문서라 **드리프트한다**. 감사할 때 balance.md의 숫자를 "정답"으로 믿지 말 것.
-balance.md는 오직 **"코드와 문서가 어긋났는가(drift)"를 잡는 대조 대상**으로만 쓴다.
+## 공통 원칙 (모든 경제에 적용)
 
-각 수치가 정확히 어디 사는지는 → [references/data-sources.md](references/data-sources.md)
-지표별 정상 범위·경보선·계산법 → [references/metrics.md](references/metrics.md)
+### 제1원칙 — 라이브 코드가 권위, balance.md는 파생물
+밸런스 수치의 진짜 출처는 **BlockShip Java 상수 + 런타임 JSON**이다. `balance.md`는 그걸 사람이
+옮겨 적은 문서라 **드리프트한다**(현재는 낚시 위주 — 광질/농사 문서화는 부실하거나 없을 수 있음).
+감사할 때 balance.md의 숫자를 "정답"으로 믿지 말 것. balance.md는 오직 **"코드와 문서가
+어긋났는가(drift)"를 잡는 대조 대상**으로만 쓴다.
 
-## 감사 루프 — 매번 이 순서대로
+### 제2원칙 — 공통 화폐는 원/h, 그러나 경제마다 "시간"의 의미가 다름
+낚시=캐스트/h(150 가정, ★단 소모품 마모 계산엔 과대추정이니 쓰지 말 것 — metrics.md 참조), 광질=
+드릴 사이클/h 또는 채굴 액션/h(경제별로 실제 메커니즘 확인 후 정의), 농사=성장일 기반(시간당이
+아니라 "사이클당" 단위가 더 자연스러울 수 있음 — 강제로 시간 단위에 끼워맞추지 말 것). **각
+경제의 자연스러운 처리량 단위를 코드에서 확인하고 그것부터 정의**하는 게 첫 스텝.
+
+### 제3원칙 — 캡 설계: 확률 자연포화 vs 임의 매직넘버
+새 경제에서도 인위적 캡을 만나면 낚시에서 확립한 원칙 적용: "확률이 100%에서 자연포화하는가 vs
+임의의 매직넘버인가". 후자만 재검토 대상(예외: 카지노류 하우스엣지 보호 캡은 존치).
+
+### 제4원칙 — 가격 ≠ 진짜 비용 (2026-07-25 낚싯대 사건에서 확립)
+어떤 아이템이든 "가격"이라는 필드가 있다고 그게 곧 진짜 획득비용이라 가정하지 말 것.
+`PartShopGui` 사례처럼 카테고리 최저사양 1개만 실제 상점가이고 나머지는 "레시피 해금비(보통
+가격×0.5, 1회성)"일 수 있으며, 진짜 반복비용은 **조합 재료**(다른 경제에서 옴 — 낚싯대 재료는
+광질에서 옴)에 있다. **재료가 어느 경제 소속인지 먼저 확인**하고, 크로스이코노미 비용이면 그
+경제의 감사가 먼저 있어야 정확한 값이 나온다(이게 광질/농사 확장을 촉발한 이유).
+
+각 경제의 데이터 위치·지표·경보선은 economy 하위 문서를 볼 것(아래 "경제별 모듈" 목록).
+
+## 경제별 모듈
+
+| 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
+|---|---|---|---|---|
+| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md) |
+| ⛏️ 광질(드릴) | 🚧 신설(2026-07-25) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | `audits/2026-07-25-mining.md` |
+| 🌾 농사(특수작물) | 🚧 신설(2026-07-25) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | `audits/2026-07-25-farming.md` |
+| 채집/카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
+
+### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
+1. 그 경제의 코드/JSON 위치를 파악(Agent로 조사 — 이 스킬이 아직 모르는 시스템일 확률 높음).
+2. `references/<economy>-data-sources.md` 신설 — 낚시의 data-sources.md와 같은 포맷(파일 위치 표).
+3. 그 경제의 자연스러운 처리량 단위 확립(제2원칙) → `scripts/pull_<economy>.py` 작성(낚시
+   pull.py를 참고하되 그 경제 전용 파서로).
+4. `references/<economy>-metrics.md` — 경보선·계산공식.
+5. `audits/<date>-<economy>.md` 리포트 (낚시 리포트와 같은 고정 포맷: 요약/델타/축별분석/드리프트/
+   조치권고).
+6. 이 SKILL.md의 "경제별 모듈" 표에 행 추가 + description frontmatter에 새 경제 키워드 추가.
+7. 크로스이코노미 재료가 있으면(예: 낚싯대가 광질 재료로 만들어짐) 그 사실을 양쪽 리포트에 상호
+   참조로 남길 것 — 한쪽만 감사하면 재료비용이 빠진 반쪽짜리 결론이 나온다(낚싯대 사건 교훈).
+
+## 낚시 경제 감사 루프 (기존, 매번 이 순서대로)
 
 ### 1. 스냅샷 추출 (기계, 결정론적)
 ```bash
