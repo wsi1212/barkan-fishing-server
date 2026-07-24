@@ -332,6 +332,47 @@
         "actual": 84,
         "claude_md": 131
       }
+    },
+    "g_grade_casts_with_pity": {
+      "mean": 6729,
+      "median": 6329,
+      "hours_150ph": 45,
+      "luck200_hours": 26,
+      "note": "피티 반영 실측. 초안 190476h는 flat-rate 오류로 철회"
+    },
+    "grade_casts_with_pity": {
+      "M": 213,
+      "L": 671,
+      "G": 6729,
+      "note": "평균 캐스트, luck0, 피티 반영"
+    },
+    "enhance_expected_cost_real": {
+      "+10": {
+        "money": 1823143,
+        "pearl": 76,
+        "attempts": 21
+      },
+      "+15": {
+        "money": 142563143,
+        "pearl": 956,
+        "attempts": 158
+      },
+      "+16": {
+        "money": 242563143,
+        "pearl": 1116,
+        "attempts": 178
+      },
+      "+18": {
+        "money": 27710896475,
+        "pearl": 44433,
+        "attempts": 5528
+      },
+      "+20": {
+        "money": 17243189029820,
+        "pearl": 27184235,
+        "attempts": 3357145
+      },
+      "note": "선형방정식 정확계산, down+체크포인트 반영, 주문서 없음"
     }
   }
 }
