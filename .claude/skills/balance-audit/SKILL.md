@@ -57,8 +57,8 @@ description: >-
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
 | 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md) |
-| ⛏️ 광질(드릴) | 🚧 신설(2026-07-25) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | `audits/2026-07-25-mining.md` |
-| 🌾 농사(특수작물) | 🚧 신설(2026-07-25) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | `audits/2026-07-25-farming.md` |
+| ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🔴 1건(섬광산 처리량 무제한) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
+| 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 채집/카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
 
 ### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
