@@ -44,8 +44,8 @@ pull.py를 함께 갱신할 것. (검증 기준일: 2026-07-24)
 | 수치 | 위치 | 비고 |
 |---|---|---|
 | 등급 base 확률 G0.0000035…D21.12, 게이트 | `JAVA/fishing/GradeRoller.java` `ROLL_ORDER[]` L33~42 | PRD pity math `roll()` L102~165 |
-| 등급업 총확률 캡 **40** | `JAVA/fishing/RewardMath.java` `gradeUpChance()` L62~63 | ★balance.md "30%"와 상충 — drift 후보 |
-| 콤보 보너스 step5 / 캡20% | 同 `comboBonusPct()` L94~95 | |
+| 등급업 총확률 (상한 없음, 2026-07-24 캡40 폐지) | `JAVA/fishing/RewardMath.java` `gradeUpChance()` L62~63 | roll()이 100%에서 자연 포화 |
+| 콤보 보너스 step5 (상한 없음, 2026-07-24 캡20% 폐지) | 同 `comboBonusPct()` L94~95 | |
 | 더블/트리플 캡 | 同 `extraFish()` L102~111 | 더블>100%는 트리플 0.5×로 스필 |
 | 슬롯 RTP 93.92% (하우스엣지 6.08%), BET_UNIT 1000 | `JAVA/casino/slot/SlotRules.java` L10~15 | `THEORETICAL_RTP_BPS=9392` |
 | 포커 레이크 5% | `JAVA/casino/table/PokerTableRuntime.java` `RAKE_BPS=500` L51 | |
@@ -75,7 +75,7 @@ balance.md는 하드코딩 값의 거의 완전한 미러 → 축마다 이중�
 | XP 벽 배수+base200 | `FishingLevelManager` (2곳) | §3.1 |
 | 등급 해금 30/45/60 | `RewardMath.levelBonus()` | §3.3/§7 |
 | 강화 SUCCESS/COST/DOWN/PEARL | `EnhanceManager` | §10.3 |
-| **등급업 캡** | `gradeUpChance()`=**40** | balance.md·CLAUDE.md=**30%** ← 확인 요망 |
+| ~~등급업 캡~~ | 2026-07-24 코드+balance.md 동시 폐지로 **해소** | 크리배율 캡(8)·콤보캡(20%)도 함께 폐지 |
 | 부품 수 | parts.json=**84** | §14="84종", CLAUDE.md="131" ← stale |
 
 **★참고**: 기존 가드 `scripts/.claude/hooks/balance-check.sh`는 `*.sk`/`balance.md` 편집만 감시하고

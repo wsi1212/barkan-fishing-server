@@ -405,8 +405,8 @@
         "등급업 (1%)": {
           "won_per_unit": 617.7,
           "normalized_per_unit": 1.901,
-          "max_magnitude": 40,
-          "max_contribution_won": 24708,
+          "max_magnitude": 56,
+          "max_contribution_won": 34591,
           "basis": "1% 캐스트 1티어↑, 분포가중 가격차"
         },
         "크기 (1%)": {
@@ -447,11 +447,32 @@
         "크리배율 (1점)": {
           "won_per_unit": 433.2,
           "normalized_per_unit": 1.333,
-          "max_magnitude": 7,
-          "max_contribution_won": 3032,
-          "basis": "크리율20%일때 size+10%/점 (캡8). ★크리율 낮으면 값↓"
+          "max_magnitude": 15,
+          "max_contribution_won": 6498,
+          "basis": "크리율20%일때 size+10%/점 (상한없음). ★크리율 낮으면 값↓"
         }
       }
+    },
+    "caps_removed_2026_07_24": {
+      "gradeUpChance_cap": {
+        "was": 40,
+        "now": "없음"
+      },
+      "critDamage_cap": {
+        "was": 8,
+        "now": "없음",
+        "realizable_max": 15
+      },
+      "comboBonusPct_cap": {
+        "was": 20,
+        "now": "없음"
+      },
+      "crit_max_contribution_normalized": {
+        "before": 0.08,
+        "after": 0.18
+      },
+      "blockship_commit": "efb0110",
+      "principle": "확률 자연포화 vs 임의 매직넘버 — 후자는 폐지, 카지노 하우스엣지 캡은 예외 존치"
     }
   }
 }
