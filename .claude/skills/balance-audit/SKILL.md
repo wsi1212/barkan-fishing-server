@@ -50,6 +50,14 @@ description: >-
 광질에서 옴)에 있다. **재료가 어느 경제 소속인지 먼저 확인**하고, 크로스이코노미 비용이면 그
 경제의 감사가 먼저 있어야 정확한 값이 나온다(이게 광질/농사 확장을 촉발한 이유).
 
+### 제5원칙 — "코드에 캡이 없다" ≠ "무제한" (2026-07-25 섬광산 사건에서 확립)
+어떤 메커니즘에 명시적 쿨타임/캡이 코드에 안 보인다고 바로 🔴(무제한 악용가능)로 단정하지 말 것.
+섬 광산 생성기 사례: `BlockBreakEvent`만 가로채고 파괴속도 제한이 없어 "처리량 무제한"이라 초안
+판정했으나, 실제로는 ①호퍼(자동수집) 개수 자체가 섬 레벨별로 캡됨 ②상점이 고티어 인챈트를 안 팔고
+③인챈트 테이블 자체도 특정 레벨 이상은 실측상 안 나옴 — **인접 시스템 3개가 암묵적으로 상한을
+만들고 있었다.** 교훈: 처리량/무제한성 관련 🔴·🟡 판정을 내리기 전에 **반드시 운영자에게 실측·체감을
+확인**할 것 — 코드 검토만으로 "안전장치 없음"을 결론내지 말 것(인접 시스템에 있을 수 있음).
+
 각 경제의 데이터 위치·지표·경보선은 economy 하위 문서를 볼 것(아래 "경제별 모듈" 목록).
 
 ## 경제별 모듈
@@ -57,7 +65,7 @@ description: >-
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
 | 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md) |
-| ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🔴 1건(섬광산 처리량 무제한) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
+| ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 채집/카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
 
