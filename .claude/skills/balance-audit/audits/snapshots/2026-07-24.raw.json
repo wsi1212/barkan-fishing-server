@@ -111,6 +111,20 @@
         "max": 50000,
         "min": 200
       },
+      "pearl_drop_chance": {
+        "강_상류": 4,
+        "정상": 8,
+        "바르칸": 3,
+        "붉은사막": 3,
+        "대양": 3,
+        "원양어선": 6,
+        "늪지대": 3,
+        "붉은호수": 3,
+        "물보라동굴": 3,
+        "깊은호수": 7,
+        "기억의연못": 5
+      },
+      "pearl_drop_max": 8,
       "afk_sweep_sec": 10,
       "afk_idle_sec": 600
     },
@@ -300,79 +314,23 @@
   },
   "warnings": [],
   "derived": {
-    "income_per_hour_approx": {
-      "early_S": 32165,
-      "mid_L": 32488,
-      "end_G": 32489,
-      "note": "150casts/h, qmult0.75, grade-base-price only (fish.json 개별가 미반영)"
+    "income_per_hour": {
+      "base": 32489,
+      "sell110": 68228,
+      "double110": 68228,
+      "note": "quality50, 150casts/h, 낚시판매만. 부품엔 판매/더블 0=강화에서만"
     },
-    "enhance_expected_cost_lower_bound": {
-      "+15": {
-        "money": 42046271,
-        "pearl": 214
-      },
-      "+16": {
-        "money": 142046271,
-        "pearl": 374
-      },
-      "+20": {
-        "money": 2106212938,
-        "pearl": 2399
-      },
-      "note": "down 무시 낙관 하한"
-    },
-    "g_grade_casts_per_catch": 28571429,
-    "g_grade_hours_at_150ph": 190476,
-    "drift": {
-      "grade_up_cap": {
-        "code": 40,
-        "doc_pct": 30
-      },
-      "part_count": {
-        "actual": 84,
-        "claude_md": 131
-      }
-    },
-    "g_grade_casts_with_pity": {
-      "mean": 6729,
-      "median": 6329,
-      "hours_150ph": 45,
-      "luck200_hours": 26,
-      "note": "피티 반영 실측. 초안 190476h는 flat-rate 오류로 철회"
-    },
-    "grade_casts_with_pity": {
-      "M": 213,
-      "L": 671,
-      "G": 6729,
-      "note": "평균 캐스트, luck0, 피티 반영"
-    },
-    "enhance_expected_cost_real": {
-      "+10": {
-        "money": 1823143,
-        "pearl": 76,
-        "attempts": 21
-      },
-      "+15": {
-        "money": 142563143,
-        "pearl": 956,
-        "attempts": 158
-      },
-      "+16": {
-        "money": 242563143,
-        "pearl": 1116,
-        "attempts": 178
-      },
-      "+18": {
-        "money": 27710896475,
-        "pearl": 44433,
-        "attempts": 5528
-      },
-      "+20": {
-        "money": 17243189029820,
-        "pearl": 27184235,
-        "attempts": 3357145
-      },
-      "note": "선형방정식 정확계산, down+체크포인트 반영, 주문서 없음"
+    "high_grade_income_negligible": true,
+    "enhance_plus15_reality": {
+      "money": 142563143,
+      "pearl": 956,
+      "hours_money_base": 4388,
+      "hours_money_sell110": 2090,
+      "hours_pearl_best8pct": 80,
+      "hours_pearl_common3pct": 212,
+      "roi_breakeven_hours": 3989,
+      "bottleneck": "money",
+      "note": "판매/더블은 강화에서만 나옴→+15=수입2배 투자. 완화=캐시주문서+비낚시수입"
     }
   }
 }

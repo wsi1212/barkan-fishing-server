@@ -168,6 +168,17 @@ def pull_economy():
     quests = read_json("quests.json")
     out["quest_rewards"] = summarize_quest_money(quests) if quests is not None else None
 
+    # 별빛진주 드롭율 (강화 핵심 재화 — 지역별 chance%)
+    mats = read_json("materials.json")
+    if mats is not None:
+        pearl = {}
+        for area, drops in (mats.get("dropTables") or {}).items():
+            for x in drops:
+                if x.get("matId") == "별빛진주":
+                    pearl[area] = x.get("chance")
+        out["pearl_drop_chance"] = pearl
+        out["pearl_drop_max"] = max(pearl.values()) if pearl else None
+
     # AFK 포인트 획득율
     afk = read_java("afk/AfkManager.java")
     m = re.search(r"SWEEP_SEC\s*=\s*(\d+)", afk)
