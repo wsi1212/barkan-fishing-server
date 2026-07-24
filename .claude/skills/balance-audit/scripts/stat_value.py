@@ -19,8 +19,20 @@ import argparse, json, os
 # 미니게임 1판 ≈ 24초 가정 → 150판/h. balance.md 기준.
 DEFAULT_CASTS = 150
 DEFAULT_QUALITY = 50  # 평균 품질 (FishItem.quality 기본 50)
+DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정). 크리배율 가치는 여기 비례.
+DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 8). 크리확률 가치는 여기 비례.
 
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
+
+# 실현 가능 최대 매그니튜드 (장비 best-single + 강화 최대, 캡 반영). 2026-07-24 데이터.
+# "per-1단위 값 × 상한"으로 스탯의 실제 천장 기여를 보여준다 (단위 스케일 왜곡 보정).
+MAX_MAGNITUDE = {
+    "판매보너스 (1%)": 110, "더블찬스 (1%)": 110, "트리플찬스 (1%)": 13,
+    "등급업 (1%)": 40,      # gradeUpChance 캡 40
+    "크기 (1%)": 100, "행운 (1점)": 100, "도주감소 (1%)": 50,
+    "크리확률 (1%)": 80, "크리배율 (1점)": 7,  # critDmg base1→캡8 = +7
+    "경험치 (1%)": 255,     # gear115 + enhance140
+}
 
 
 def load_snapshot(path):
@@ -51,7 +63,7 @@ def avg_catch_value(dist, price, quality):
     return sum(dist[g] * price.get(g, 0) * m for g in dist)
 
 
-def compute(snapshot, casts, quality):
+def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     raw = snapshot["raw"]
     prob = raw["rng"]["grade_base_prob"]
     price = raw["economy"]["grade_base_price"]
@@ -83,15 +95,14 @@ def compute(snapshot, casts, quality):
     price_per_quality = 0.005 / m  # 가격 상대증가율 per +1 quality
     V["크기 (1%)"] = (income * price_per_quality * 1.0, "+1%size≈+1quality (★어종편차 큼)")
 
-    # ── 크리 (배율캡8) ──────────────────────────
-    # 크리확률 +1%: +~1% 크리율. 크리시 size +critDmg×10% → quality → 가격.
-    # critDmg 기본1~캡8. 대표 critDmg=4 가정 → 크리시 size+40% ≈ quality+40 → 가격 +40×price_per_quality.
-    crit_dmg_ref = 4
-    crit_price_gain = (crit_dmg_ref * 10) * price_per_quality  # 크리 1회당 가격 상대증가
-    V["크리확률 (1%)"] = (income * 0.01 * crit_price_gain, f"+1%크리율×(critDmg{crit_dmg_ref} 크기+{crit_dmg_ref*10}%)")
-    # 크리배율 +1: 크리시 size +10%. 크리율(대표 20%=critChance) 가정.
-    crit_rate_ref = 0.20
-    V["크리배율 (1점)"] = (income * crit_rate_ref * (10 * price_per_quality), f"크리율{int(crit_rate_ref*100)}%×size+10% (캡8)")
+    # ── 크리 (★시너지·기준점 의존) ────────────────
+    # 크리 income기여 = income × 크리율 × critDmg×10% × price_per_quality. 두 스탯은 곱이라 시너지.
+    # 아래는 기준점(crit_rate, crit_dmg)에서의 편미분 = 그 지점 marginal. 기준점 바꾸면 값 변함.
+    crit_price_gain = (crit_dmg * 10) * price_per_quality  # 크리 1회당 가격 상대증가
+    V["크리확률 (1%)"] = (income * 0.01 * crit_price_gain,
+                       f"+1%크리율 × (critDmg{crit_dmg}일때 크기+{crit_dmg*10}%). ★critDmg 낮으면 값↓")
+    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_quality),
+                       f"크리율{int(crit_rate*100)}%일때 size+10%/점 (캡8). ★크리율 낮으면 값↓")
 
     # ── 손실방지 ────────────────────────────────
     # 도주감소 +1%: escapeBase -0.5% (÷2). escape=캐치 전손. 대표 도주율 맥락에서 0.5% 캐치 회수.
@@ -105,10 +116,12 @@ def compute(snapshot, casts, quality):
     s = sum(v for k, v in dist2.items() if k != "E")
     dist2["E"] = max(0, 1 - s)
     income2 = avg_catch_value(dist2, price, quality) * casts
-    V["행운 (1점)"] = (income2 - income, "등급확률+1%: 수입은 흔한 D/C 상향에서(희귀등급 기여≈0)+도감/경험치 별도")
+    V["행운 (1점)"] = (income2 - income, "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%")
 
-    # 경험치 +1%: 성장속도. 만렙시 0. 수입 무관 → progression 태그(수치는 income대비 참고).
-    V["경험치 (1%)"] = (0.0, "성장속도(만렙시0) — 수입환산 불가, progression")
+    # 경험치 +1%: 레벨링은 수입과 나란한 진행 트랙. +1%exp = +1% 레벨링 처리량.
+    # 병렬진행 휴리스틱: 레벨링 국면엔 진행 1%를 income 1%와 동가치로 본다 → 판매와 동률(1.0).
+    # 만렙 후엔 0. 단일 상수 불가라 '레벨링 값'을 기록하고 국면 태그를 단다.
+    V["경험치 (1%)"] = (income * 0.01, "★레벨링 국면: income 1%와 동가치(병렬진행). 만렙 후 0")
 
     return income, avg, dist, V
 
@@ -119,6 +132,8 @@ def main():
     ap.add_argument("--snapshot", default=None)
     ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
     ap.add_argument("--quality", type=int, default=DEFAULT_QUALITY)
+    ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE, help="기준 크리율(0~1), 크리배율 가치가 비례")
+    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~8), 크리확률 가치가 비례")
     args = ap.parse_args()
 
     snap_dir = os.path.join(skill, "audits", "snapshots")
@@ -129,22 +144,31 @@ def main():
         args.snapshot = os.path.join(snap_dir, args.snapshot)
 
     snap = load_snapshot(args.snapshot)
-    income, avg, dist, V = compute(snap, args.casts, args.quality)
+    income, avg, dist, V = compute(snap, args.casts, args.quality, args.crit_rate, args.crit_dmg)
 
-    print(f"기준: {args.casts}캐스트/h, 품질{args.quality}, 무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
+    print(f"기준: {args.casts}캐스트/h, 품질{args.quality}, 크리율{int(args.crit_rate*100)}%, 크리배율{args.crit_dmg}")
+    print(f"무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
     anchor = V["판매보너스 (1%)"][0]
-    print(f"{'스탯':<16}{'원/h':>10}{'정규화(판매1%=1.0)':>18}   근거")
-    print("─" * 78)
-    rows = sorted(V.items(), key=lambda kv: -kv[1][0])
+    print(f"{'스탯':<15}{'원/h/단위':>9}{'정규화':>7}{'상한':>6}{'최대기여원/h':>12}{'최대정규화':>10}   근거")
+    print("─" * 110)
+    # 정렬: 최대기여(실제 천장 영향) 기준
+    def maxcontrib(name, won):
+        return won * MAX_MAGNITUDE.get(name, 1)
+    rows = sorted(V.items(), key=lambda kv: -maxcontrib(kv[0], kv[1][0]))
     out = {}
     for name, (won, why) in rows:
         norm = won / anchor if anchor else 0
-        print(f"{name:<16}{won:>10,.0f}{norm:>16.2f}   {why}")
-        out[name] = {"won_per_hour": round(won, 1), "normalized": round(norm, 3), "basis": why}
+        mag = MAX_MAGNITUDE.get(name, 1)
+        mc = won * mag
+        mcnorm = mc / (anchor * MAX_MAGNITUDE["판매보너스 (1%)"]) if anchor else 0
+        print(f"{name:<15}{won:>9,.0f}{norm:>7.2f}{mag:>6}{mc:>12,.0f}{mcnorm:>10.2f}   {why}")
+        out[name] = {"won_per_unit": round(won, 1), "normalized_per_unit": round(norm, 3),
+                     "max_magnitude": mag, "max_contribution_won": round(mc), "basis": why}
 
     # JSON 출력(스냅샷 derived 병합용)
     result = {"income_per_hour": round(income), "avg_catch": round(avg, 1),
-              "casts": args.casts, "quality": args.quality, "anchor_won": round(anchor, 1),
+              "casts": args.casts, "quality": args.quality,
+              "crit_rate": args.crit_rate, "crit_dmg": args.crit_dmg, "anchor_won": round(anchor, 1),
               "stat_values": out}
     print("\n--- JSON ---")
     print(json.dumps(result, ensure_ascii=False, indent=2))

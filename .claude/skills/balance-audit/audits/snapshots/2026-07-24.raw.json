@@ -333,17 +333,18 @@
       "note": "판매/더블은 강화에서만 나옴→+15=수입2배 투자. 완화=캐시주문서+비낚시수입"
     },
     "stat_values_normalized": {
-      "트리플찬스1%": 2.0,
+      "note": "per-단위 정규화. 최대기여는 stat_values 참조",
+      "경험치1%": "1.00(레벨링)",
+      "판매/더블1%": 1.0,
       "등급업1%": 1.9,
-      "크리배율1점": 1.33,
-      "판매1%": 1.0,
-      "더블찬스1%": 1.0,
+      "트리플1%": 2.0,
       "크기1%": 0.67,
       "행운1점": 0.65,
       "도주감소1%": 0.5,
       "크리확률1%": 0.27,
-      "경험치1%": 0.0,
-      "anchor_won_per_pct": 324.9
+      "크리배율1점": 1.33,
+      "max_contribution_최강": "판매/더블/경험치(레벨링)",
+      "max_contribution_최약": "크리(확률0.19+배율0.08)"
     },
     "cooking_buff_value_won": {
       "잿불매운탕_등급업14": 1875,
@@ -370,6 +371,87 @@
       "신기루바늘A_등급업": 1.5,
       "정교한바늘B_크리": 2.3,
       "note": "S바르칸(10h)>A대상인(3.6h)=등급-가치역전. 크리부품 약함"
+    },
+    "stat_values": {
+      "income_per_hour": 32489,
+      "avg_catch": 216.6,
+      "casts": 150,
+      "quality": 50,
+      "crit_rate": 0.2,
+      "crit_dmg": 4,
+      "anchor_won": 324.9,
+      "stat_values": {
+        "경험치 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 255,
+          "max_contribution_won": 82848,
+          "basis": "★레벨링 국면: income 1%와 동가치(병렬진행). 만렙 후 0"
+        },
+        "판매보너스 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 110,
+          "max_contribution_won": 35738,
+          "basis": "income×1% (앵커)"
+        },
+        "더블찬스 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 110,
+          "max_contribution_won": 35738,
+          "basis": "+1% 확률로 +1마리(평균값)"
+        },
+        "등급업 (1%)": {
+          "won_per_unit": 617.7,
+          "normalized_per_unit": 1.901,
+          "max_magnitude": 40,
+          "max_contribution_won": 24708,
+          "basis": "1% 캐스트 1티어↑, 분포가중 가격차"
+        },
+        "크기 (1%)": {
+          "won_per_unit": 216.6,
+          "normalized_per_unit": 0.667,
+          "max_magnitude": 100,
+          "max_contribution_won": 21660,
+          "basis": "+1%size≈+1quality (★어종편차 큼)"
+        },
+        "행운 (1점)": {
+          "won_per_unit": 212.4,
+          "normalized_per_unit": 0.654,
+          "max_magnitude": 100,
+          "max_contribution_won": 21239,
+          "basis": "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%"
+        },
+        "트리플찬스 (1%)": {
+          "won_per_unit": 649.8,
+          "normalized_per_unit": 2.0,
+          "max_magnitude": 13,
+          "max_contribution_won": 8447,
+          "basis": "+1% 확률로 +2마리"
+        },
+        "도주감소 (1%)": {
+          "won_per_unit": 162.4,
+          "normalized_per_unit": 0.5,
+          "max_magnitude": 50,
+          "max_contribution_won": 8122,
+          "basis": "escapeBase-0.5%(÷2)=+0.5%캐치 (★도주율 높을때만)"
+        },
+        "크리확률 (1%)": {
+          "won_per_unit": 86.6,
+          "normalized_per_unit": 0.267,
+          "max_magnitude": 80,
+          "max_contribution_won": 6931,
+          "basis": "+1%크리율 × (critDmg4일때 크기+40%). ★critDmg 낮으면 값↓"
+        },
+        "크리배율 (1점)": {
+          "won_per_unit": 433.2,
+          "normalized_per_unit": 1.333,
+          "max_magnitude": 7,
+          "max_contribution_won": 3032,
+          "basis": "크리율20%일때 size+10%/점 (캡8). ★크리율 낮으면 값↓"
+        }
+      }
     }
   }
 }
