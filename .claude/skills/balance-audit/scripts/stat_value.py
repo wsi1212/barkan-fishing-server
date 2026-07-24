@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""
+stat_value.py — 스탯별 실질가치 산정 (공통화폐 = 원/h 환산).
+
+모든 스탯 1포인트가 "시간당 수입(원/h)"으로 얼마인지 라이브 수치에서 계산한다. 이 환산표가
+요리 버프·날씨·장비 가치를 평가하는 공통 잣대다. balance 변경 시 스냅샷만 새로 뽑으면 값이 갱신된다.
+
+핵심 원리:
+- 수입 앵커: 판매보너스 +1% = income×0.01. 다른 수입계 스탯을 여기 맞춰 환산.
+- ★수입가치 ≠ 직관가치: 행운의 수입가치는 '희귀등급'이 아니라 흔한 D/C 등급 확률 상향(E→D
+  질량이동)에서 나온다. 희귀등급(M/L/G) 자체는 수입 기여 ≈0 (fish.json 개별가 없음 → 가격=
+  grade×quality, G조차 6,700캐스트당 1마리). 행운의 추가 효용(도감/고등급 baseExp)은 별도.
+  이런 '어디서 가치가 나오나'를 표의 근거란에 명시한다 — 직관이 틀리기 쉬운 지점.
+
+사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--quality 50]
+"""
+import argparse, json, os
+
+# 미니게임 1판 ≈ 24초 가정 → 150판/h. balance.md 기준.
+DEFAULT_CASTS = 150
+DEFAULT_QUALITY = 50  # 평균 품질 (FishItem.quality 기본 50)
+
+GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
+
+
+def load_snapshot(path):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def qmult(quality):
+    """가격 품질배율 0.5 + q*0.5/100."""
+    return 0.5 + quality * 0.5 / 100.0
+
+
+def grade_distribution(prob, max_rank=9):
+    """등급 base 확률(%)로 캐스트당 등급 분포. E는 잔여."""
+    dist = {}
+    used = 0.0
+    for g in GRADE_ORDER[1:max_rank]:
+        p = prob.get(g, 0) / 100.0
+        dist[g] = p
+        used += p
+    dist["E"] = max(0.0, 1 - used)
+    return dist
+
+
+def avg_catch_value(dist, price, quality):
+    """캐스트당 평균 판매가 (품질배율 적용)."""
+    m = qmult(quality)
+    return sum(dist[g] * price.get(g, 0) * m for g in dist)
+
+
+def compute(snapshot, casts, quality):
+    raw = snapshot["raw"]
+    prob = raw["rng"]["grade_base_prob"]
+    price = raw["economy"]["grade_base_price"]
+    dist = grade_distribution(prob)
+    avg = avg_catch_value(dist, price, quality)
+    income = avg * casts  # 원/h (무버프)
+
+    m = qmult(quality)
+    V = {}  # stat -> (원/h per unit, 근거)
+
+    # ── 순수 수입계 ──────────────────────────────
+    # 판매 +1%: income×0.01
+    V["판매보너스 (1%)"] = (income * 0.01, "income×1% (앵커)")
+    # 더블 +1%: +0.01 추가물고기/캐스트 (같은 등급) = avg값
+    V["더블찬스 (1%)"] = (0.01 * avg * casts, "+1% 확률로 +1마리(평균값)")
+    # 트리플 +1%: +0.02 물고기(+2마리)
+    V["트리플찬스 (1%)"] = (0.02 * avg * casts, "+1% 확률로 +2마리")
+
+    # 등급업 +1%: 1% 캐스트가 1티어 상승 → 인접티어 가격차 기대값
+    # 분포 가중 평균 티어점프 가치
+    jump = 0.0
+    for i, g in enumerate(GRADE_ORDER[:-1]):
+        nxt = GRADE_ORDER[i + 1]
+        jump += dist.get(g, 0) * (price.get(nxt, 0) - price.get(g, 0)) * m
+    V["등급업 (1%)"] = (0.01 * jump * casts, "1% 캐스트 1티어↑, 분포가중 가격차")
+
+    # 크기 +1%: size×1.01 → quality 상승 → 가격. 어종편차 큼(중간밴드 근사).
+    # 중간밴드(q≈50, size≈range) 가정: +1%size ≈ +1 quality; +1 quality → mult +0.005 → 가격 +0.005/m
+    price_per_quality = 0.005 / m  # 가격 상대증가율 per +1 quality
+    V["크기 (1%)"] = (income * price_per_quality * 1.0, "+1%size≈+1quality (★어종편차 큼)")
+
+    # ── 크리 (배율캡8) ──────────────────────────
+    # 크리확률 +1%: +~1% 크리율. 크리시 size +critDmg×10% → quality → 가격.
+    # critDmg 기본1~캡8. 대표 critDmg=4 가정 → 크리시 size+40% ≈ quality+40 → 가격 +40×price_per_quality.
+    crit_dmg_ref = 4
+    crit_price_gain = (crit_dmg_ref * 10) * price_per_quality  # 크리 1회당 가격 상대증가
+    V["크리확률 (1%)"] = (income * 0.01 * crit_price_gain, f"+1%크리율×(critDmg{crit_dmg_ref} 크기+{crit_dmg_ref*10}%)")
+    # 크리배율 +1: 크리시 size +10%. 크리율(대표 20%=critChance) 가정.
+    crit_rate_ref = 0.20
+    V["크리배율 (1점)"] = (income * crit_rate_ref * (10 * price_per_quality), f"크리율{int(crit_rate_ref*100)}%×size+10% (캡8)")
+
+    # ── 손실방지 ────────────────────────────────
+    # 도주감소 +1%: escapeBase -0.5% (÷2). escape=캐치 전손. 대표 도주율 맥락에서 0.5% 캐치 회수.
+    V["도주감소 (1%)"] = (income * 0.005, "escapeBase-0.5%(÷2)=+0.5%캐치 (★도주율 높을때만)")
+
+    # ── 비수입 효용 (income≈0, 별도 평가) ─────────
+    # 행운 +1: 등급확률×(1+1/100). 희귀등급 수입기여≈0 → 수입가치 미미. 경험치(고등급 baseExp↑)+도감가치.
+    # 수입 델타: 분포를 1% 상향한 income 차이(거의 0)
+    dist2 = {g: p * (1.01 if g != "E" else 1) for g, p in dist.items()}
+    # 정규화
+    s = sum(v for k, v in dist2.items() if k != "E")
+    dist2["E"] = max(0, 1 - s)
+    income2 = avg_catch_value(dist2, price, quality) * casts
+    V["행운 (1점)"] = (income2 - income, "등급확률+1%: 수입은 흔한 D/C 상향에서(희귀등급 기여≈0)+도감/경험치 별도")
+
+    # 경험치 +1%: 성장속도. 만렙시 0. 수입 무관 → progression 태그(수치는 income대비 참고).
+    V["경험치 (1%)"] = (0.0, "성장속도(만렙시0) — 수입환산 불가, progression")
+
+    return income, avg, dist, V
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    skill = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ap.add_argument("--snapshot", default=None)
+    ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
+    ap.add_argument("--quality", type=int, default=DEFAULT_QUALITY)
+    args = ap.parse_args()
+
+    snap_dir = os.path.join(skill, "audits", "snapshots")
+    if args.snapshot is None:
+        snaps = sorted(f for f in os.listdir(snap_dir) if f.endswith(".raw.json") and "pending" not in f)
+        args.snapshot = os.path.join(snap_dir, snaps[-1])
+    elif not os.path.exists(args.snapshot):
+        args.snapshot = os.path.join(snap_dir, args.snapshot)
+
+    snap = load_snapshot(args.snapshot)
+    income, avg, dist, V = compute(snap, args.casts, args.quality)
+
+    print(f"기준: {args.casts}캐스트/h, 품질{args.quality}, 무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
+    anchor = V["판매보너스 (1%)"][0]
+    print(f"{'스탯':<16}{'원/h':>10}{'정규화(판매1%=1.0)':>18}   근거")
+    print("─" * 78)
+    rows = sorted(V.items(), key=lambda kv: -kv[1][0])
+    out = {}
+    for name, (won, why) in rows:
+        norm = won / anchor if anchor else 0
+        print(f"{name:<16}{won:>10,.0f}{norm:>16.2f}   {why}")
+        out[name] = {"won_per_hour": round(won, 1), "normalized": round(norm, 3), "basis": why}
+
+    # JSON 출력(스냅샷 derived 병합용)
+    result = {"income_per_hour": round(income), "avg_catch": round(avg, 1),
+              "casts": args.casts, "quality": args.quality, "anchor_won": round(anchor, 1),
+              "stat_values": out}
+    print("\n--- JSON ---")
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()

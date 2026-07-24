@@ -1,14 +1,16 @@
 ---
 name: balance-audit
 description: >-
-  Run a comprehensive, repeatable balance audit of the 바르칸 열도 fishing server across four
-  dimensions — leveling/growth curve, economy (income vs sinks), RNG/grades, and
-  equipment/enhance/parts. Use whenever the user wants to 밸런스 전수조사, 밸런스 감사, 밸런스 점검,
-  check the balance, review the economy/curve/drop-rates, audit money income vs sinks, or ask
-  "밸런스 괜찮아?" / "지금 밸런스 어때?". Pulls authoritative numbers directly from the BlockShip
-  Java constants + runtime JSON (NOT the drifting balance.md), snapshots them, computes deltas
-  against the previous audit for continuity, flags doc-vs-code drift, and writes a timestamped
-  report. Invoke it for periodic balance reviews and after any content/tuning change.
+  Run a comprehensive, repeatable balance audit of the 바르칸 열도 fishing server across seven
+  dimensions — leveling/growth curve, economy (income vs sinks), RNG/grades, equipment/enhance/parts,
+  a per-stat real-value framework (원/h), cooking buffs (craft cost vs effect), and weather effects.
+  Use whenever the user wants to 밸런스 전수조사, 밸런스 감사, 밸런스 점검, check the balance, review the
+  economy/curve/drop-rates, audit money income vs sinks, weigh 요리/날씨 효과, judge whether 장비가
+  재료 대비 구린지, value individual stats (예: 도주감소 1% = 몇 가치, 행운 1% = 몇 가치), or ask
+  "밸런스 괜찮아?". Pulls authoritative numbers directly from BlockShip Java constants + runtime JSON
+  (NOT the drifting balance.md), snapshots them, computes deltas against the previous audit for
+  continuity, flags doc-vs-code drift, and writes a timestamped report. Invoke for periodic reviews
+  and after any content/tuning change.
 ---
 
 # 바르칸 밸런스 전수조사 (balance-audit)
@@ -44,22 +46,32 @@ python3 .claude/skills/balance-audit/scripts/diff.py --auto <오늘>.raw.json
 - 직전 스냅샷 대비 바뀐 수치만 출력. "변경 없음"이면 튜닝이 안 들어간 것.
 - 첫 감사면 베이스라인이라 델타가 없다 — 그대로 진행.
 
-### 3. 파생 지표 계산 (Claude가 직접)
-스냅샷의 raw 상수만으로는 체감이 안 온다. metrics.md의 공식대로 아래를 계산해 스냅샷의
-`derived` 섹션에 적고 리포트에 넣는다 (pull.py가 누적경험치·강화 기대시도는 이미 계산해 둠):
-- **레벨 도달 시간** — 누적 경험치(스냅샷 `cumulative_xp`) ÷ 시간당 경험치(장비/버프 시나리오별). Lv.30/45/60/70/100.
-- **시간당 수입** — 등급 분포 × 등급 기본가 × 시간당 낚시 횟수. 초반/중반/종결급 3구간.
-- **강화 기대 비용** — +15/+20 도달 기대 시도(스냅샷 `enhance_expected_attempts`) × 단계별 COST/PEARL.
-- **수입/소모 균형** — 주요 소모처(강화·상점·업그레이드) 대비 시간당 수입으로 "몇 시간 벌어야 하나".
+### 3. 스탯 실질가치 산출 (공통 잣대)
+```bash
+python3 .claude/skills/balance-audit/scripts/stat_value.py
+```
+- 각 스탯 1단위를 원/h로 환산(판매1%=1.0 앵커). 요리·날씨·장비를 비교할 **공통 화폐**.
+- 상세·방법론·직관 교정: [references/stat-values.md](references/stat-values.md).
 
-### 4. 이슈 판정 (metrics.md 경보선 대조)
+### 4. 파생 지표 계산 (Claude가 직접)
+스냅샷 raw + 스탯가치로 아래를 계산해 스냅샷 `derived`에 적고 리포트에 넣는다:
+- **레벨 도달 시간** — 누적 경험치(`cumulative_xp`) ÷ 시간당 경험치(장비/버프 시나리오별).
+- **시간당 수입** — 등급 분포 × 등급 기본가 × 낚시 횟수 (★fish.json에 개별가 없음, grade×quality만).
+- **강화 기대 비용** — down+체크포인트 반영 선형방정식(metrics.md). 낙관 하한 아님.
+- **요리(F)** — 버프 스탯 × stat_value × 지속시간 = 버프가치(원). 티어·재료 대비 균형.
+- **날씨(G)** — 환경보너스 × stat_value = 날씨 원/h. 다운사이드(난이도/도주) 차감. 강도·빈도.
+- **장비(H)** — 부품 스탯가치(원/h) ÷ 가격 = 회수시간. 등급-가격-가치 정합성.
+- ★요리(DishSpecs.java)·날씨(env-bonuses.json+WeatherManager)·장비(parts.json)는 pull.py가
+  전량 파싱하진 않으므로, 값이 바뀌었으면 해당 소스를 재추출해 측정한다(data-sources.md 위치 참조).
+
+### 5. 이슈 판정 (metrics.md 경보선 대조)
 각 축을 metrics.md의 정상 범위와 대조해 이슈를 등급화한다:
 - 🔴 **치명** — 경제 붕괴(인플레·머니싱크 부재), 성장 벽이 이탈 유발, 확률 버그
 - 🟡 **주의** — 정상 범위 경계, 이전 감사 대비 큰 델타(±15%↑), 종결급 편중
 - 🟢 **관찰** — 사소한 편차, 다음 감사에서 추이 볼 것
 - ⚪ **드리프트** — 코드 값 ≠ balance.md 값. 값 자체는 정상이어도 문서를 고쳐야 함.
 
-### 5. 리포트 작성 (고정 포맷)
+### 6. 리포트 작성 (고정 포맷)
 `audits/<date>.md`에 아래 **고정 섹션 순서**로 쓴다 (포맷 고정 = 감사 간 비교 가능):
 
 ```markdown
@@ -77,6 +89,10 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 ## B. 경제 (수입/소모)
 ## C. RNG / 등급
 ## D. 장비 / 강화 / 부품
+## E. 스탯 실질가치 (stat_value.py 표 + 직관 교정)
+## F. 요리 (버프가치 원 vs 제작난이도)
+## G. 날씨 (환경보너스 원/h + 다운사이드 + 빈도)
+## H. 장비 스탯가치 vs 가격 (회수시간, 등급-가격 정합성)
 (각 축: 핵심 수치 표 + 파생 지표 + 이슈 등급 + 근거)
 
 ## 드리프트 (코드 vs balance.md)
