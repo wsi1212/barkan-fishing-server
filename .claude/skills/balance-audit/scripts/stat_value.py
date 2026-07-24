@@ -20,7 +20,8 @@ import argparse, json, os
 DEFAULT_CASTS = 150
 DEFAULT_QUALITY = 50  # 평균 품질 (FishItem.quality 기본 50)
 DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정). 크리배율 가치는 여기 비례.
-DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 8). 크리확률 가치는 여기 비례.
+DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 폐지). 크리확률 가치는 여기 비례.
+CRIT_PRICE_COEF = 0.06    # 2026-07-24 신설: 크리 시 판매가 직접 ×(1+critDmg×COEF). FishingListener.java 참조.
 
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
 
@@ -97,14 +98,15 @@ def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFA
     price_per_quality = 0.005 / m  # 가격 상대증가율 per +1 quality
     V["크기 (1%)"] = (income * price_per_quality * 1.0, "+1%size≈+1quality (★어종편차 큼)")
 
-    # ── 크리 (★시너지·기준점 의존) ────────────────
-    # 크리 income기여 = income × 크리율 × critDmg×10% × price_per_quality. 두 스탯은 곱이라 시너지.
-    # 아래는 기준점(crit_rate, crit_dmg)에서의 편미분 = 그 지점 marginal. 기준점 바꾸면 값 변함.
-    crit_price_gain = (crit_dmg * 10) * price_per_quality  # 크리 1회당 가격 상대증가
-    V["크리확률 (1%)"] = (income * 0.01 * crit_price_gain,
-                       f"+1%크리율 × (critDmg{crit_dmg}일때 크기+{crit_dmg*10}%). ★critDmg 낮으면 값↓")
-    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_quality),
-                       f"크리율{int(crit_rate*100)}%일때 size+10%/점 (상한없음). ★크리율 낮으면 값↓")
+    # ── 크리 (★시너지·기준점 의존, 2026-07-24부터 size경로+직접가격보너스 2갈래) ──
+    # size경로: income × 크리율 × critDmg×10% × price_per_quality (기존, XP에도 기여)
+    # 직접경로: income × 크리율 × critDmg×CRIT_PRICE_COEF (신설, FishingListener 판매가 직접배수)
+    # 두 경로 합 = 크리 1회당 가격 상대증가. 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
+    crit_gain_per_dmg = crit_dmg * 10 * price_per_quality + crit_dmg * CRIT_PRICE_COEF
+    V["크리확률 (1%)"] = (income * 0.01 * crit_gain_per_dmg,
+                       f"+1%크리율×(critDmg{crit_dmg}: 크기경로+직접가격+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
+    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_quality + CRIT_PRICE_COEF),
+                       f"크리율{int(crit_rate*100)}%: size+10%/점 + 판매가직접+6%/점 (상한없음)")
 
     # ── 손실방지 ────────────────────────────────
     # 도주감소 +1%: escapeBase -0.5% (÷2). escape=캐치 전손. 대표 도주율 맥락에서 0.5% 캐치 회수.

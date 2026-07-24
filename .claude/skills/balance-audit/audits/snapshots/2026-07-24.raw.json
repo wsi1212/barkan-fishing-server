@@ -423,6 +423,20 @@
           "max_contribution_won": 21239,
           "basis": "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%"
         },
+        "크리확률 (1%)": {
+          "won_per_unit": 164.6,
+          "normalized_per_unit": 0.507,
+          "max_magnitude": 80,
+          "max_contribution_won": 13169,
+          "basis": "+1%크리율×(critDmg4: 크기경로+직접가격+24%). ★critDmg 낮으면 값↓"
+        },
+        "크리배율 (1점)": {
+          "won_per_unit": 823.1,
+          "normalized_per_unit": 2.533,
+          "max_magnitude": 15,
+          "max_contribution_won": 12346,
+          "basis": "크리율20%: size+10%/점 + 판매가직접+6%/점 (상한없음)"
+        },
         "트리플찬스 (1%)": {
           "won_per_unit": 649.8,
           "normalized_per_unit": 2.0,
@@ -436,20 +450,6 @@
           "max_magnitude": 50,
           "max_contribution_won": 8122,
           "basis": "escapeBase-0.5%(÷2)=+0.5%캐치 (★도주율 높을때만)"
-        },
-        "크리확률 (1%)": {
-          "won_per_unit": 86.6,
-          "normalized_per_unit": 0.267,
-          "max_magnitude": 80,
-          "max_contribution_won": 6931,
-          "basis": "+1%크리율 × (critDmg4일때 크기+40%). ★critDmg 낮으면 값↓"
-        },
-        "크리배율 (1점)": {
-          "won_per_unit": 433.2,
-          "normalized_per_unit": 1.333,
-          "max_magnitude": 15,
-          "max_contribution_won": 6498,
-          "basis": "크리율20%일때 size+10%/점 (상한없음). ★크리율 낮으면 값↓"
         }
       }
     },
@@ -473,6 +473,33 @@
       },
       "blockship_commit": "efb0110",
       "principle": "확률 자연포화 vs 임의 매직넘버 — 후자는 폐지, 카지노 하우스엣지 캡은 예외 존치"
+    },
+    "crit_rebalance_2026_07_24": {
+      "stage1_cap_removal": {
+        "crit_max_contrib": 0.18,
+        "specialized_build_pct": 39
+      },
+      "stage2_direct_price_bonus": {
+        "coef": 0.06,
+        "blockship_commit": "ca25655",
+        "crit_max_contrib": "0.35-0.37",
+        "specialized_build_pct": 66,
+        "equipment_payback_before_after": {
+          "고속릴": [
+            5.2,
+            2.7
+          ],
+          "정교한바늘": [
+            6.5,
+            3.4
+          ],
+          "PE합사줄": [
+            7.4,
+            3.9
+          ]
+        },
+        "note": "등급업 캡폐지 후 실현치107%로 판매/더블 동률권 진입해 크리와 격차 확대→가격보너스로 66%까지 견인, 크기87%권 근접"
+      }
     }
   }
 }
