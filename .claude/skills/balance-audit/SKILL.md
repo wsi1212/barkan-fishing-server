@@ -81,7 +81,7 @@ description: >-
 | 🏘️ 마켓/랭킹/여관/송금/길드/스킬트리/카지노/아이스박스 | ✅ 완료(2026-07-25) — 🟢 대부분 정상, 송금 이중과금 1건 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목6 |
 | 🎁 부품/낚싯대 레시피비용 곡선 + 히든장비 | ✅ 완료(2026-07-25) — 🔴 히든 낚싯대 8종 획득불가 버그 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목1·2 |
 | 📜 퀘스트/도전과제 보상 + 마을별 난이도분포 | ✅ 완료(2026-07-25) — 🟡 콘텐츠 갭 다수(수치문제 아님) | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목3·5 |
-| ⚙️ 드릴 최종값(광맥밀도 의존) | ✅ 티어배치 오류 발견·수정(2단계=광산/철광석, 3단계=레드_로드/자수정) — 정확한 원/h는 광산 얇은/보통 단계 물리배치 후 재계산 필요 | [mining-data-sources.md](references/mining-data-sources.md) | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목4·조치완료3 |
+| ⚙️ 드릴 최종값 | ✅ 완료(2026-07-25) — 티어배치 오류 발견·수정(2단계=광산/철광석, 3단계=레드_로드/자수정), 밀도는 사용자 확인상 충분 | [mining-data-sources.md](references/mining-data-sources.md) | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목4·조치완료3 |
 
 **전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
 시급 32,489원/h를 공통 앵커로, 4개 경제(낚시/광질/농사/채집) 전 원재료에 골드가치 산출 완료
