@@ -77,6 +77,7 @@ description: >-
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
 | 🪤 통발(trap) | ✅ 완료(2026-07-25) — 🟢 1건 발견·즉시수정(붉은사막 가격역전) | [trap-data-sources.md](references/trap-data-sources.md) | (audits 문서에 통합) | [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
+| 🐉 이무기 보스(boss/ImugiBattle) | 🟡 절반만(재료 신설, 전투밸런스 미감사) | — | — | [audits/2026-07-25-imugi-yeouiju.md](audits/2026-07-25-imugi-yeouiju.md) |
 | 카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
 
 **전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
