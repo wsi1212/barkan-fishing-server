@@ -23,6 +23,12 @@ DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정)
 DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 폐지). 크리확률 가치는 여기 비례.
 CRIT_PRICE_COEF = 0.06    # 2026-07-24 신설: 크리 시 판매가 직접 ×(1+critDmg×COEF). FishingListener.java 참조.
 
+# ── 2026-07-25 신설: 난이도/도주감소는 미니게임 성공확률(존폭/도주율)을 통해서만 수입에 기여 ──
+# MinigameManager.java 틱로직 Monte Carlo 포팅(반응속도250ms+핑40ms=6틱) 실측치를 하드코딩.
+# 계단식 S자곡선이라 선형 근사 불가 — 상세: audits/2026-07-25-difficulty-stat-value.md
+DIFFICULTY_WON_PER_POINT = 790   # rodBonus 0→12 구간 평균 한계가치(비선형, 등급문턱에서 몰림)
+ESCAPE_REDUCTION_WON_PER_POINT = 10.5  # rodBonus=6 고정, escape_reduction 0→20 실측 한계가치
+
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
 
 # 실현 가능 최대 매그니튜드 (장비 best-single + 강화 최대). 2026-07-24 데이터.
@@ -35,6 +41,7 @@ MAX_MAGNITUDE = {
     "크기 (1%)": 100, "행운 (1점)": 100, "도주감소 (1%)": 50,
     "크리확률 (1%)": 80, "크리배율 (1점)": 15,  # 캡8 폐지: 장비5+강화10 = 실현가능 15
     "경험치 (1%)": 255,     # gear115 + enhance140
+    "난이도 (1점)": 12,     # 낚싯대 전용 스탯(다른 카테고리엔 없음): 바르칸낚싯대 base8 + 강화max4
 }
 
 
@@ -108,9 +115,15 @@ def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFA
     V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_quality + CRIT_PRICE_COEF),
                        f"크리율{int(crit_rate*100)}%: size+10%/점 + 판매가직접+6%/점 (상한없음)")
 
-    # ── 손실방지 ────────────────────────────────
-    # 도주감소 +1%: escapeBase -0.5% (÷2). escape=캐치 전손. 대표 도주율 맥락에서 0.5% 캐치 회수.
-    V["도주감소 (1%)"] = (income * 0.005, "escapeBase-0.5%(÷2)=+0.5%캐치 (★도주율 높을때만)")
+    # ── 미니게임 성공확률 (2026-07-25, MinigameManager Monte Carlo 실측 — 선형근사 아님) ──
+    # 난이도: rodBonus가 zoneWidth를 직접 넓혀 존폭 자체를 키움(1차 방어선). 등급별 S자곡선이라
+    # "1점당 원/h"는 근사 평균일 뿐 — 실제로는 등급 문턱(B/A/S) 근처에서 몰아서 오르는 계단식.
+    V["난이도 (1점)"] = (DIFFICULTY_WON_PER_POINT,
+                      "미니게임 존폭 확장(반응250ms+핑40ms 기준 Monte Carlo). S등급조차 최대투자(12)로 65%뿐, M/L/G는 인간반응속도로 불가")
+    # 도주감소 +1%: 미스가 난 '다음'에만 escapeBase를 floor(÷2)만큼 낮추는 2차 방어선이라
+    # 난이도보다 훨씬 약함(실측 1/70~1/100) — 기존 income×0.005 손짐작을 대체.
+    V["도주감소 (1%)"] = (ESCAPE_REDUCTION_WON_PER_POINT,
+                       "미스 후에만 발동하는 2차방어선+floor(÷2) 감쇠 (★실측, 기존 손짐작 대비 대폭하향)")
 
     # ── 비수입 효용 (income≈0, 별도 평가) ─────────
     # 행운 +1: 등급확률×(1+1/100). 희귀등급 수입기여≈0 → 수입가치 미미. 경험치(고등급 baseExp↑)+도감가치.
