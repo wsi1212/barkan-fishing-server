@@ -72,7 +72,7 @@ description: >-
 
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
-| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 2026-07-25 재실측 + 전면 리밸런싱(난이도 재분배+RNG상향+골드곡선) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md) |
+| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md) |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
