@@ -78,7 +78,10 @@ description: >-
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
 | 🪤 통발(trap) | ✅ 완료(2026-07-25) — 🟢 1건 발견·즉시수정(붉은사막 가격역전) | [trap-data-sources.md](references/trap-data-sources.md) | (audits 문서에 통합) | [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
 | 🐉 이무기 보스(boss/ImugiBattle) | 🟡 절반만(재료 신설, 전투밸런스 미감사) | — | — | [audits/2026-07-25-imugi-yeouiju.md](audits/2026-07-25-imugi-yeouiju.md) |
-| 카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
+| 🏘️ 마켓/랭킹/여관/송금/길드/스킬트리/카지노/아이스박스 | ✅ 완료(2026-07-25) — 🟢 대부분 정상, 송금 이중과금 1건 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목6 |
+| 🎁 부품/낚싯대 레시피비용 곡선 + 히든장비 | ✅ 완료(2026-07-25) — 🔴 히든 낚싯대 8종 획득불가 버그 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목1·2 |
+| 📜 퀘스트/도전과제 보상 + 마을별 난이도분포 | ✅ 완료(2026-07-25) — 🟡 콘텐츠 갭 다수(수치문제 아님) | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목3·5 |
+| ⚙️ 드릴 최종값(광맥밀도 의존, 티어3 자원無) | 🟡 구조적 문제 확인·수치는 밀도실측 필요 | [mining-data-sources.md](references/mining-data-sources.md) | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목4 |
 
 **전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
 시급 32,489원/h를 공통 앵커로, 4개 경제(낚시/광질/농사/채집) 전 원재료에 골드가치 산출 완료
