@@ -58,6 +58,14 @@ description: >-
 만들고 있었다.** 교훈: 처리량/무제한성 관련 🔴·🟡 판정을 내리기 전에 **반드시 운영자에게 실측·체감을
 확인**할 것 — 코드 검토만으로 "안전장치 없음"을 결론내지 말 것(인접 시스템에 있을 수 있음).
 
+### 제6원칙 — "데이터에 있다" ≠ "실제로 존재한다" (2026-07-25 통발/붉은사막 사건에서 확립)
+어떤 지역/콘텐츠가 시스템 정의(TrapSpecs.java, fish.json 등)에 등록돼 있다고 실제 게임에 존재한다고
+가정하지 말 것. 통발 12개 지역 중 6개가 `regions.json`에서 좌표 `pos1=pos2=[0,0,0]`인 스텁이거나
+아예 미등록이었다 — 상점은 이 지역들의 레시피를 팔고 있었지만 설치가 불가능했다. **"지역"을 참조하는
+모든 분석(밸런스 수치 포함)은 반드시 regions.json에서 좌표 존재 여부를 먼저 대조**하고, 스텁 지역은
+"미구현 콘텐츠"로 분리해 표기할 것 — 안 그러면 존재하지도 않는 콘텐츠의 수치로 잘못된 결론(예:
+깊은호수가 진짜 있는 것처럼 "2.4배 불균형"이라 판정)을 내리게 된다.
+
 각 경제의 데이터 위치·지표·경보선은 economy 하위 문서를 볼 것(아래 "경제별 모듈" 목록).
 
 ## 경제별 모듈
@@ -68,6 +76,7 @@ description: >-
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
+| 🪤 통발(trap) | ✅ 완료(2026-07-25) — 🟢 1건 발견·즉시수정(붉은사막 가격역전) | [trap-data-sources.md](references/trap-data-sources.md) | (audits 문서에 통합) | [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
 | 카지노/요리/마켓/길드 | 미착수 (요리·카지노는 낚시 감사에 일부 편입됨) | — | — | — |
 
 **전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
