@@ -1,73 +1,100 @@
 #!/usr/bin/env bash
 # =====================================================================
-# 바르칸 prod 데일리 리포트 + 예방적 새벽 재시작 (cron 21:00 UTC = 06:00 KST)
-#   그날 모든 백업(19:00~20:45)이 끝난 뒤 실행 → 하루치를 한 메시지로 통합 발송:
-#     · 예방 재시작 결과(0명이면 실행, 접속중이면 skip)
-#     · 백업 성공 목록(.backup-status 누적분)
-#     · 헬스 스냅샷(디스크·MC업타임·접속자)
+# 바르칸 prod 데일리 유지보수 (cron 21:00 UTC = 06:00 KST)
+#   ① 스테이징 자동배포: ~/mcserver/staging/ 의 jar/설정을 재시작 직전 적용
+#      (낮에 올려두면 Mac 꺼져있어도 6시에 자동 반영)
+#   ② 무조건 재시작(누수정리): 접속자 있으면 인게임 카운트다운 예고 후, 0명이면 즉시
+#   ③ 데일리 리포트: 배포결과 + 백업 성공목록 + 헬스 스냅샷을 한 메시지로
 #   ★실패 백업은 각 스크립트가 이미 즉시 개별 🔴 발송(여기 요약과 별개).
-# env: DRY=1(재시작 안 함) / RESTART_CMD / STATUS_FILE / WEBHOOK_FILE
+# env: PREVIEW=1(발송·배포·재시작 없이 메시지 출력) / DRY=1(재시작·배포 실제로 안 함)
+#      WARN_SECS(카운트다운 초, 기본60) / RESTART_CMD / STATUS_FILE / WEBHOOK_FILE / STAGING
 # =====================================================================
 set -uo pipefail
 DIR=~/mcserver/scripts
 STATUS_FILE=${STATUS_FILE:-$HOME/mcserver/backups/.backup-status}
 WEBHOOK_FILE=${WEBHOOK_FILE:-$DIR/discord-webhook.url}
 RESTART_CMD=${RESTART_CMD:-sudo systemctl restart mcserver}
+STAGING=${STAGING:-$HOME/mcserver/staging}
+PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
+JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
+WARN_SECS=${WARN_SECS:-60}
+DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
 LABEL="[바르칸 prod]"
 log(){ echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) [daily] $*"; }
 notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE")
   p=$(python3 -c "import json,sys;print(json.dumps({'content':sys.argv[1]}))" "$1")
   curl -sf -m 10 -H 'Content-Type: application/json' -d "$p" "$u" >/dev/null 2>&1 || true; }
+rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 
 today=$(date -u +%Y-%m-%d)
 
-# --- 접속자 수 (RCON) ---
-out=$("$DIR/rcon.py" list 2>/dev/null); rc=$?
-if [ $rc -eq 0 ]; then
-  n=$(printf '%s' "$out" | grep -oE 'are [0-9]+' | grep -oE '[0-9]+' | head -1); n=${n:-0}
-else
-  n=-1
+# --- 접속자 수 ---
+out=$("$DIR/rcon.py" list 2>/dev/null) && \
+  n=$(printf '%s' "$out" | grep -oE 'are [0-9]+' | grep -oE '[0-9]+' | head -1) || n=-1
+n=${n:-0}
+
+# --- ① 스테이징 배포 감지(+적용) ---
+shopt -s nullglob
+deploy_lines=""
+for j in "$STAGING"/*.jar; do
+  bn=$(basename "$j")
+  deploy_lines+="🚀 ${bn}"$'\n'
+  if [ "$DRYRUN" = "0" ]; then
+    mkdir -p "$JARBAK"
+    [ -f "$PLUGINS/$bn" ] && cp -f "$PLUGINS/$bn" "$JARBAK/${bn}.bak-$(date -u +%Y%m%d-%H%M%S)"
+    mv -f "$j" "$PLUGINS/$bn"; log "배포 jar 적용: $bn"
+  else log "DRY: would deploy jar $bn"; fi
+done
+if [ -d "$STAGING/BlockShip" ] && [ -n "$(ls -A "$STAGING/BlockShip" 2>/dev/null)" ]; then
+  cnt=$(find "$STAGING/BlockShip" -type f | wc -l | tr -d ' ')
+  deploy_lines+="🚀 BlockShip 설정 ${cnt}개 갱신"$'\n'
+  if [ "$DRYRUN" = "0" ]; then cp -rf "$STAGING/BlockShip/." "$PLUGINS/BlockShip/"; rm -rf "$STAGING/BlockShip"; log "배포 설정 ${cnt}개 적용"
+  else log "DRY: would deploy $cnt config files"; fi
+fi
+[ -z "$deploy_lines" ] && deploy_summary="배포 없음" || deploy_summary=$(printf '%s' "$deploy_lines")
+
+# --- ② 카운트다운 예고 (접속자 있을 때만) ---
+if [ "$n" -gt 0 ] && [ "$WARN_SECS" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
+  rcon "say [서버] 정기 점검 재시작이 ${WARN_SECS}초 후 시작됩니다. 안전한 곳에서 대기해 주세요."
+  s=$WARN_SECS
+  for m in 30 10 5; do
+    if [ "$s" -gt "$m" ]; then sleep $((s-m)); s=$m; rcon "say [서버] ${m}초 후 재시작합니다..."; fi
+  done
+  sleep "$s"
+  rcon "say [서버] 재시작합니다. 잠시 후 다시 접속해 주세요."
 fi
 
-# --- 재시작 결정 ---
-do_restart=0
-if   [ "$n" -eq 0 ]; then restart_line="🔄 예방 재시작: 실행 (접속 0명)"; do_restart=1
-elif [ "$n" -gt 0 ]; then restart_line="⏭️ 예방 재시작: 건너뜀 (${n}명 접속중)"
-else                      restart_line="⚠️ 예방 재시작: 건너뜀 (RCON 무응답 — 워치독 담당)"
-fi
+# --- 저장 플러시 (서버 응답할 때) ---
+[ "$n" -ge 0 ] && [ "$DRYRUN" = "0" ] && { rcon "save-all flush"; sleep 3; }
 
 # --- 백업 성공 목록 ---
-if [ -s "$STATUS_FILE" ]; then
-  bcount=$(grep -c . "$STATUS_FILE"); backups=$(cat "$STATUS_FILE")
-else
-  bcount=0; backups="⚠️ 성공 기록 없음 (전부 실패했거나 안 돎 — 실패 시 개별 🔴 확인)"
-fi
+if [ -s "$STATUS_FILE" ]; then bcount=$(grep -c . "$STATUS_FILE"); backups=$(cat "$STATUS_FILE")
+else bcount=0; backups="⚠️ 성공 기록 없음 (전부 실패했거나 안 돎 — 실패 시 개별 🔴 확인)"; fi
 
 # --- 헬스 스냅샷 ---
 disk=$(df / | awk 'NR==2{print $5}')
-np=$([ "$n" -ge 0 ] && echo "${n}명" || echo "무응답")
+np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재시작)')" || echo "무응답")
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
-if [ "$started" -gt 0 ]; then uph=$(( ( $(date +%s) - started ) / 3600 )); upl="${uph}h"; else upl="?"; fi
+[ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
 msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
-$restart_line
+🔄 정기 재시작 실행
+$deploy_summary
 
 📦 백업 ${bcount}건 성공
 $backups
 
 💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
 
-# PREVIEW=1 : 발송·재시작·파일비움 없이 메시지만 출력 (테스트용)
+# --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
 
 notify "$msg"
-> "$STATUS_FILE"                       # 리포트 후 비움
-log "리포트 발송 (백업 ${bcount}건, 접속 ${np})"
+> "$STATUS_FILE"
+log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 없음 || echo 있음), 백업 ${bcount}건, 접속 ${np})"
 
-# --- 예방 재시작 실행 ---
-if [ "$do_restart" = "1" ]; then
-  if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; exit 0; fi
-  eval "$RESTART_CMD"
-  log "restarted"
-fi
+# --- ③ 재시작 (무조건) ---
+if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; exit 0; fi
+eval "$RESTART_CMD"
+log "restarted"
