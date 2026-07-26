@@ -177,7 +177,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - **로컬 → `~/mcserver/backups/`** (`local-backup.sh <main|islands>`, 파일명 접두어 `localmain-`/`localislands-`):
   - 20:00 main(본월드) 매일 3개 / 20:10 islands 매일 7개
   - 21:00 구 `playerdata-*.tar.gz` prune(자동소멸, 신규생성 없음)
-- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적→`backup-summary.sh`(cron 23:00 UTC)가 하루 1회 📦 요약 한 번에 발송(노이즈 최소화). webhook=`~/mcserver/scripts/discord-webhook.url`.
+- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST)가 **데일리 리포트** 🌅(예방재시작 결과+백업 성공목록+헬스 스냅샷)로 하루 1회 통합 발송(노이즈 최소화). ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. webhook=`~/mcserver/scripts/discord-webhook.url`.
 - tar는 라이브 서버 파일이 읽는중 바뀌면 exit 1(경고, 아카이브 유효)을 냄 → `tar||fail` 금지, `--warning=no-file-changed`+rc≥2만 치명+`gzip -t` 무결성검증으로 성공판정(2026-07-24 본월드 백업 오탐 사고 후 수정).
 - ★staging은 `~/mcserver/backups/offsite-stage/`로 격리(로컬 백업과 glob 충돌 방지 필수).
 - 상세·복원법: memory `project_offsite_backup_dr`. 복원 = Object Storage에서 `oci os object get`→tar 해제.
