@@ -15,6 +15,7 @@ BUCKET=mc-backups
 SRC=~/mcserver/plugins/BlockShip
 STAGE=~/mcserver/backups/offsite-stage
 WEBHOOK_FILE=~/mcserver/scripts/discord-webhook.url
+STATUS_FILE=~/mcserver/backups/.backup-status   # 성공 기록 누적 → 23:00 요약이 한 번에 발송
 LABEL="[바르칸 prod]"
 KEEP_REMOTE=30     # 원격 보관 개수 (일 1회면 30일)
 KEEP_LOCAL=7       # 로컬 staging 보관 개수
@@ -71,5 +72,6 @@ done
 # 5) 로컬 staging 정리 (최신 KEEP_LOCAL개만)
 ls -1t "$STAGE"/blockship-*.tar.gz 2>/dev/null | tail -n +$((KEEP_LOCAL+1)) | xargs -r rm -f
 
-notify "🟢" "백업 완료: $NAME ($SIZE) → Object Storage (원격 ${KEEP_REMOTE}개 보관)"
+# 성공은 즉시 알림 안 하고 상태파일에 누적 (23:00 요약이 한 번에 발송). 실패만 즉시 개별 알림.
+echo "🟢 playerdata 오프사이트 ($SIZE)" >> "$STATUS_FILE"
 echo "OK: $NAME ($SIZE) uploaded to $BUCKET/$REMOTE"

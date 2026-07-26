@@ -14,6 +14,7 @@ GROUP="${1:-}"
 ROOT=~/mcserver
 STAGE=~/mcserver/backups
 WEBHOOK_FILE=~/mcserver/scripts/discord-webhook.url
+STATUS_FILE=~/mcserver/backups/.backup-status   # 성공 기록 누적 → 23:00 요약이 한 번에 발송
 LABEL="[바르칸 prod]"
 TMUX_SESSION=mc
 
@@ -61,4 +62,6 @@ gzip -t "$LOCAL" 2>/dev/null || fail "아카이브 무결성 실패 (gzip -t)"
 # 보관 개수 초과분 삭제 (최신 KEEP개만)
 ls -1t "$STAGE"/${PREFIX}-*.tar.gz 2>/dev/null | tail -n +$((KEEP+1)) | xargs -r rm -f
 
+# 성공은 상태파일에 누적 (23:00 요약이 한 번에 발송). 실패만 즉시 개별 알림.
+echo "🟢 ${HUMAN} ($(du -h "$LOCAL"|cut -f1))" >> "$STATUS_FILE"
 echo "OK: $NAME ($(du -h "$LOCAL"|cut -f1)) local, keep $KEEP"
