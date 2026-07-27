@@ -86,7 +86,8 @@
    └─ export/stats-latest.db (매일 05:30 KST VACUUM INTO — 백업·조회용 일관 사본)
    ▼
 [소비]
-   ├─ 인게임 /통계 (OP, 비동기 읽기)                       §10-1
+   ├─ 인게임 /통계 (OP, 비동기 읽기 — 운영 점검용 최소 UI)  §10-1
+   ├─ 웹 어드민 대시보드 statsweb (박스 상주, Tailscale)    §10-5 ← 열람 메인 UI
    ├─ stats-lab/ Python 툴킷 (Mac, scp/ssh pull)          §10-2
    ├─ 데일리 Discord 리포트 1줄 (nightly-restart.sh)       §10-4
    └─ 월간 아카이브 → OCI Object Storage mc-backups/telemetry/  §11
@@ -269,7 +270,7 @@ CREATE TABLE live_sessions (            -- 크래시 복원용 (§4-5)
 | cur | 권위 필드 | 계측 지점 | 비고 |
 |---|---|---|---|
 | `money` | `PlayerData.money` | **`MoneyBridge.op/set/addOffline`** 내부에서 `Telemetry.money(...)` | after = 반영 후 잔액 |
-| `money`(카지노) | 〃 | **`CasinoLedger.applyNet` 2개 오버로드 + `reserve`/`settle`/`settleStack`/`refundOrphan`** | reason=`casino`, detail에 net/라운드. MoneyBridge 우회 경로라 필수 |
+| `money`(카지노) | 〃 | **§6-5에서 우회 자체를 정리** — MoneyBridge 신설 `applyVerified`로 수렴시켜 원장 자동 편입 | reason=`casino`, detail에 net/라운드 |
 | `cash` | `PlayerData.cash` | 콜사이트 계측: `CashShopGui#buy`, `/캐시지급`(BlockShipPlugin:1526) | **겸사 수정: `addCash`에 `Num.clampMoney` 가드 추가** (현재 raw `+=`, 돈흐름 조사 발견) |
 | `coin` | `PlayerData.recommendCoins` | 콜사이트: `CashShopGui#buy`, `/추천코인지급`, `IslandSubmitManager#grantCoins` | |
 | `afkp` | `extraNums[잠수포인트]` | `AfkManager#accruePoints`(적립) / `#spendPoints`(사용) + `AfkShopGui` 환불 | |
@@ -289,6 +290,23 @@ CREATE TABLE live_sessions (            -- 크래시 복원용 (§4-5)
 
 ### 6-4. 아이템 지급 이벤트 (`item.give`, P1)
 전 인벤토리 추적은 하지 않는다(노이즈·비용 과다). **"시스템이 아이템을 창조하는 지점"**만 계측 — 돈흐름 조사가 전수 확보한 지점들: `QuestManager#giveReward`(rewardItems/Material/Key 포함), `CraftingManager#give*`/`rollMaterials`/`giveMaterial`, `WetTreasureChestManager#give*`, `ImugiBattle#dropReward`, `CollectibleManager#milestone`, `CheckCommand`(수표 발행), 각 상점 지급(상점 구매 이벤트에 fold), `AfkShopGui`, `CashShopGui`, OP 지급 명령(`/작물지급` 등 — cmd.use로도 잡히지만 명시). ctx: `{src, items:[{id,n}]}`.
+
+### 6-5. 카지노 MoneyBridge 우회 정리 (Phase 0 필수 — 계측이 아니라 구조 수정)
+현황(돈흐름 조사): `CasinoLedger`가 `PlayerData.setMoney` **직접 호출 10곳**(45, 52, 129, 132, 213, 215, 240, 241, 253, 254행 부근)으로 MoneyBridge를 우회한다. 이유는 MoneyBridge에 없는 기능 — 정산 후 `saveNowVerified` 실패 시 `setMoney(before)`로 되돌리는 **검증-롤백(2단 커밋)** — 을 자체 구현했기 때문. 이대로 두면 "돈 초크포인트=MoneyBridge"라는 안전망 1호의 전제가 영구히 깨진 채 유지된다.
+
+**작업(권장안 A — 검증-롤백을 MoneyBridge의 공식 기능으로 승격)**:
+1. `MoneyBridge`에 신설 (온라인/오프라인 2오버로드 — 카지노 정산은 uuid 기반 오프라인 지급 가능):
+   ```java
+   public boolean applyVerified(Player p, long delta, String reason, String detail)
+   public boolean applyVerified(UUID uuid, String name, long delta, String reason, String detail)
+   // before 스냅샷 → setMoney(clamp(before+delta)) → pdm.saveNowVerified(...)
+   // → 실패 시 setMoney(before) 후 false. 성공/실패 모두 Telemetry.money 기록
+   //   (롤백은 r=reason+".rollback"으로 별도 행 — 실패도 원장에 남는다)
+   ```
+2. `CasinoLedger`의 `setMoney` 직접 호출 10곳을 전부 이 API로 치환. 자체 `safeAdd`(포화덧셈 중복 구현)는 `Num.addSat`으로 통일.
+3. 레거시 예치 경로(`reserve`/`settle`/`settleStack`/`refundOrphan` — 슬롯 크래시 복구용 잔존, §14-2)도 동일 치환. 구조상 치환이 정말 불가능한 지점만 차선안 B(직접 `Telemetry.money` 후킹 + "공인 제2관문" 주석 명시)로 남긴다.
+4. **완료 판정**: 전 소스 `\.setMoney\(` grep 결과가 PlayerData 내부 + MoneyBridge + (B 선택 시) 주석 달린 CasinoLedger 지점 외 **0건**.
+- 회귀 위험 관리: 카지노 정산은 실돈이다. dev에서 슬롯·블랙잭·룰렛 각각 승/패 양쪽을 재현해 잔액 정합·verified 저장 로그를 확인한 뒤 커밋(물리 테이블 검증은 카지노 리워크 메모리의 forceload 주의사항 참조). 앞으로 유사한 "특수 요구 때문에 우회" 상황이 오면 우회 대신 MoneyBridge에 기능을 추가하는 것이 규약(§7 문안에 반영됨).
 
 ---
 
@@ -316,6 +334,8 @@ CREATE TABLE live_sessions (            -- 크래시 복원용 (§4-5)
 ### 텔레메트리 계측 규약 (신규 시스템 필수, stats-system-plan.md가 설계 전거)
 - 돈 변동은 반드시 MoneyBridge의 reason 있는 오버로드 사용 (deprecated 무-reason 금지).
   캐시/코인/잠수P/길드금고는 Telemetry.money(cur=...)를 직접 호출.
+- PlayerData.setMoney 직접 호출 금지 — 검증-롤백 등 특수 요구가 있으면 우회하지 말고
+  MoneyBridge에 기능(applyVerified류)을 추가할 것 (카지노 우회 사건의 교훈, §6-5).
 - 새 시스템을 만들면: ① TeleTypes에 이벤트 타입 등록(설명+소속시스템) ② 핵심 행위 지점에
   Telemetry.log 1줄 ③ 고빈도(분당 수십회↑) 행위는 개별 이벤트 대신 분단위 집계 이벤트로.
 - 새 GUI는 커스텀 InventoryHolder 관례 유지(자동 태깅 안전망의 전제).
@@ -600,6 +620,19 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 - 일요일엔 커버리지 사각지대 건수 1줄 추가. 실패해도 리포트 본문은 정상 발송(|| true).
 - 스크립트 원본은 이 레포 `oracle-ops-scripts/nightly-restart.sh`도 함께 갱신(미러 유지).
 
+### 10-5. 웹 어드민 대시보드 (Phase 5) — 통계 열람의 메인 UI
+마크 채팅/인벤 GUI는 표·차트·기간 비교에 부적합하다. 인게임 `/통계`는 운영 점검(큐 상태·킬스위치·오늘 요약)용 최소 UI로 남기고, **탐색·시각화는 전부 웹**에서 한다.
+
+**배치(권장): 오라클 박스 상주 + Tailscale 전용 노출 — 공개 인터넷 비노출.**
+- 박스에 tailscale 설치(§14-14) 후 대시보드를 `127.0.0.1` + tailscale 인터페이스에만 바인드. 접속은 tailnet에 이미 있는 Mac·폰(폰 원격 개발 파이프라인 참조)에서 `http://<박스-tailscale명>:8080`.
+- 이 선택의 이유: ① 어드민 페이지를 공인 IP+도메인에 걸면 자격증명·TLS·봇 스캔·취약점 대응이 전부 운영 부담이 된다 — 무인운영(군입대 대비) 기간에 특히. ② Tailscale이면 인증·HTTPS 구현이 통째로 불필요하고 공격면이 0. ③ 폰에서도 접속돼 도메인의 실익(외부 접근)이 이미 충족.
+- 차선(공개가 꼭 필요해질 때): 포트 3000(OCI SL·iptables 이미 개방) + Caddy 리버스프록시(basic auth + 자동 HTTPS) → `barkan.kro.kr:3000`. ★80/443은 "다른 서비스용" 예약이라 점유 전 확인. 이 경우에도 read-only 원칙은 동일.
+
+**스택**: Python **FastAPI + uvicorn** 단일 프로세스(`~/mcserver/statsweb/`, venv), 프론트는 정적 HTML + Chart.js(파일 동봉, CDN 미의존 — 폰/오프라인에서도 렌더). stats-lab의 `queries.py`(쿡북 C1–C9)를 **웹과 CLI가 공유하는 모듈**로 패키지화 — 쿼리 정의는 한 곳에만 존재.
+- DB 접근: **read-only** (`sqlite3.connect("file:...?mode=ro", uri=True)`), stats.db + 최근 2개월 events DB ATTACH. WAL이라 게임 writer와 무경합. **쓰기 엔드포인트 0개** — 킬스위치 등 조작은 인게임 명령만. 웹이 털려도 서버 조작 불가.
+- 페이지 구성(= 구현 우선순위): ① 홈(오늘/7일 KPI + 수집 헬스) ② 성장곡선(C1: 레벨 도달시간 백분위 vs intended-curve) ③ 경제(C6: 일별 순발행 스택차트 + reason별 표 + 자산분포) ④ 장비(C3·C5: 가격 vs 실측성능 산점, 구매 0 품목) ⑤ 생산(C4: 작물 ROI + 채집/통발/광질) ⑥ 퀘스트(C2: 원/분 랭킹) ⑦ 카지노(C8: 실현 RTP) ⑧ RNG(C9: 명목 vs 실측) ⑨ 유저 상세(검색 → day_player 타임라인 + 최근 이벤트) ⑩ 커버리지/사각지대.
+- 운영: systemd `statsweb.service` (`Restart=always`, `MemoryMax=512M`, `Nice=10`), 로그 `~/mcserver/logs/statsweb.log`. **게임·수집과 완전 독립** — 죽어도 무영향이므로 프리즈 워치독에 안 묶고, 데일리 리포트 헬스 줄에 up/down 한 단어만 추가.
+
 ---
 
 ## 11. 운영: 백업·보존·아카이브
@@ -645,6 +678,7 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 | **디스크 용량** | 위 표 + 로컬 3개월 보존 = 베타 기준 <1GB, 성장기 ~2.7GB. 여유 32GB, disk-guard 85% 경보 존재 | 안전 |
 | **백업 크기** | 일일 BlockShip tar: telemetry/events 제외로 **증가분은 stats.db+export(수~수십 MB)뿐**. 오프사이트 쿼터는 §11 체크로 방어 | 통제됨 |
 | **부팅 시간** | 스키마 체크+카탈로그 해시(gzip 포함) ≈ 50–200ms(writer 스레드, onEnable 블로킹은 스레드 기동뿐) | 무시 |
+| **웹 대시보드(statsweb)** | 별도 프로세스: 유휴 RAM 60–80MB, 조회 시 일시 CPU(대부분 롤업 조회라 ms 단위). `MemoryMax=512M`·`Nice=10` 상한 | MC 힙(16G)·틱과 완전 격리, 24GB 박스에서 무시 수준 |
 
 ### 12-3. 리스크와 방어
 | 리스크 | 방어 |
@@ -670,7 +704,7 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 1. `plugin.yml`에 libraries 추가. `com.blockship.telemetry` 패키지 9클래스(§4-1) 작성.
 2. onEnable 배선(PlayerDataManager 직전), onDisable flush. `telemetry.json` 기본 생성.
 3. §8-1 전부: 세션/게이지/cmd.use/gui.open/srv.start·stop/death.
-4. §6: MoneyBridge reason 오버로드+StackWalker 폴백, CasinoLedger 6지점, cash/coin/afkp/guild 콜사이트, `addCash` clamp 수정, FishingLevelManager·SkillManager src 오버로드, level.up.
+4. §6: MoneyBridge reason 오버로드+StackWalker 폴백, **카지노 우회 정리(§6-5: applyVerified 신설 + CasinoLedger setMoney 10곳 치환 + grep 0건 판정)**, cash/coin/afkp/guild 콜사이트, `addCash` clamp 수정, FishingLevelManager·SkillManager src 오버로드, level.up.
 5. `TelemetryCommand` 최소(상태/끄기/켜기).
 - **수용 기준**: dev에서 접속→낚시테스트→판매→재접속 시나리오 후 `ev` 테이블에 sess/money/xp/level 행 확인. §12-4의 1·2·3 통과. `./gradlew build` 클린.
 
@@ -692,6 +726,13 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 ### Phase 4 — 스냅샷·롤업·분석·운영·규약
 17. CatalogSnapshot(코드 상수 덤프 포함) + srv.start 해시. 18. player/guild_snapshot, day_type/day_player 롤업+캐치업, VACUUM INTO export. 19. `/통계` 전체 서브커맨드 + 커버리지 감사. 20. stats-lab/(pull.sh, queries.py 쿡북 C1–C9, report.py, intended-curve.json). 21. box: telemetry-archive.sh+cron, offsite-backup.sh --exclude(box 실물+이 레포 oracle-ops-scripts/ 미러 동시 수정), nightly-restart.sh 리포트 1줄. 22. blockship-plugin/CLAUDE.md 규약 문안(§7) 추가. 23. TeleTypes에 §8 전 타입 등록 확인(누락=커버리지 감사가 자기 자신을 잡는지 테스트).
 - **수용 기준**: `/통계 오늘` 정상 출력. PREVIEW=1 데일리 리포트에 📊 줄 포함. pull.sh로 Mac에서 C1 실행 성공. 커버리지에 미등록 GUI 하나 일부러 만들어 검출되는지 확인.
+
+### Phase 5 — 웹 어드민 대시보드 (§10-5)
+24. 박스에 tailscale 설치·인증(★운영자 1회 개입 필요 — 로그인 URL 승인). 차선안(3000+Caddy) 선택 시 기존 3000 포트 사용처 충돌 확인부터.
+25. `~/mcserver/statsweb/` FastAPI 앱 + 정적 프론트(Chart.js 동봉). `queries.py`를 stats-lab과 공유 모듈로 패키지화.
+26. systemd `statsweb.service` 등록(Restart=always, MemoryMax=512M, Nice=10), 데일리 리포트 헬스 줄에 상태 1단어 추가.
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치).
+- **수용 기준**: tailnet의 Mac·폰에서 홈/경제/장비 페이지 렌더 확인. **공인 IP:8080 접속 불가 검증**(비노출 확인). `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화.
 
 ### 커밋·배포 규칙 (기존 규칙 재확인)
 - blockship-plugin: Phase 단위 커밋(자동, 질문 불필요). jar 배포는 dev 먼저(`~/deploy-dev.sh`), **prod는 명시 요청 시에만**(접속자 0/운영자 단독 예외는 기존 메모리 규칙 따름). 서버 재시작 필수(plugman reload 금지).
@@ -716,6 +757,8 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 | 11 | 부품 총수 드리프트: parts.json 실측 86종 (CLAUDE.md "131"·balance-audit "84"는 stale) — 발견 시 문서 갱신 | 카탈로그 스냅샷이 이 드리프트를 영구 종식 |
 | 12 | 통발 TR02 레시피 잔존(recipes 13 vs TrapSpecs 12) 등 §조사 드리프트 3건 | 카탈로그 스냅샷에 그대로 찍히므로 분석 시 주석 필요 |
 | 13 | xerial sqlite-jdbc 최신 안정판 + aarch64(oracle)·apple silicon(dev) 네이티브 동봉 확인 | 양쪽 환경 부팅 |
+| 14 | 오라클 박스는 현재 tailnet 미가입(Mac·폰만 있음) — tailscale 설치 시 운영자 로그인 승인 1회 필요. 차선(공개 3000) 선택 시 3000 포트의 기존 용도("다른 서비스용, 예: LH cron") 충돌 여부 | Phase 5 배치 방식 확정 |
+| 15 | `CasinoLedger.applyNet`이 uuid 기반 오프라인 정산을 실제로 수행하는지(호출 시그니처 2종 확인됨) — applyVerified 오프라인 오버로드의 saveData 경로 검증 | §6-5 치환 정확성 |
 
 ---
 
