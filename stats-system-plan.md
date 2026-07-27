@@ -87,7 +87,7 @@
    ▼
 [소비]
    ├─ 인게임 /통계 (OP, 비동기 읽기 — 운영 점검용 최소 UI)  §10-1
-   ├─ 웹 어드민 대시보드 statsweb (박스 상주, Tailscale)    §10-5 ← 열람 메인 UI
+   ├─ 웹 어드민 대시보드 statsweb (Discord OAuth, 다중 어드민) §10-5 ← 열람 메인 UI, Phase 6에 운영콘솔 §10-6
    ├─ stats-lab/ Python 툴킷 (Mac, scp/ssh pull)          §10-2
    ├─ 데일리 Discord 리포트 1줄 (nightly-restart.sh)       §10-4
    └─ 월간 아카이브 → OCI Object Storage mc-backups/telemetry/  §11
@@ -257,6 +257,12 @@ CREATE TABLE guild_snapshot (
 
 CREATE TABLE live_sessions (            -- 크래시 복원용 (§4-5)
   uuid TEXT PRIMARY KEY, name TEXT, start_ts INTEGER, last_seen INTEGER, afk_s INTEGER
+);
+
+CREATE TABLE audit_log (                -- 웹 콘솔 운영 액션 감사 (Phase 6, §10-6 — statsweb이 기록)
+  id INTEGER PRIMARY KEY, ts INTEGER NOT NULL,
+  actor_discord TEXT NOT NULL, actor_name TEXT,
+  action TEXT NOT NULL, target TEXT, args TEXT, result TEXT
 );
 ```
 
@@ -623,15 +629,33 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 ### 10-5. 웹 어드민 대시보드 (Phase 5) — 통계 열람의 메인 UI
 마크 채팅/인벤 GUI는 표·차트·기간 비교에 부적합하다. 인게임 `/통계`는 운영 점검(큐 상태·킬스위치·오늘 요약)용 최소 UI로 남기고, **탐색·시각화는 전부 웹**에서 한다.
 
-**배치(권장): 오라클 박스 상주 + Tailscale 전용 노출 — 공개 인터넷 비노출.**
-- 박스에 tailscale 설치(§14-14) 후 대시보드를 `127.0.0.1` + tailscale 인터페이스에만 바인드. 접속은 tailnet에 이미 있는 Mac·폰(폰 원격 개발 파이프라인 참조)에서 `http://<박스-tailscale명>:8080`.
-- 이 선택의 이유: ① 어드민 페이지를 공인 IP+도메인에 걸면 자격증명·TLS·봇 스캔·취약점 대응이 전부 운영 부담이 된다 — 무인운영(군입대 대비) 기간에 특히. ② Tailscale이면 인증·HTTPS 구현이 통째로 불필요하고 공격면이 0. ③ 폰에서도 접속돼 도메인의 실익(외부 접근)이 이미 충족.
-- 차선(공개가 꼭 필요해질 때): 포트 3000(OCI SL·iptables 이미 개방) + Caddy 리버스프록시(basic auth + 자동 HTTPS) → `barkan.kro.kr:3000`. ★80/443은 "다른 서비스용" 예약이라 점유 전 확인. 이 경우에도 read-only 원칙은 동일.
+**배치(권장, 2026-07-27 갱신): 공개 HTTPS + Discord OAuth — 다중 어드민 열람 + 통합 콘솔(§10-6) 확장 전제.**
+당초 1인 열람 전제로 Tailscale 전용을 권장했으나, ①어드민 여러 명이 봐야 하고 ②추후 밴 등 운영 기능을 통합할 방침이며 ③박스 실사 결과 **Caddy가 이미 80/443에서 구동 중**(`lh-bizben.duckdns.org`→localhost:3000 프록시. cloudflared는 설치만 되고 inactive, 3000은 기존 node 서비스 점유)이라 권장안을 변경한다.
+- **노출**: 기존 Caddy에 사이트 블록 1개만 추가:
+  ```
+  barkan.kro.kr {
+      handle_path /admin/* { reverse_proxy 127.0.0.1:8080 }
+      # 루트는 향후 서버 소개 페이지용으로 예약
+  }
+  ```
+  도메인은 MC용으로 확보한 barkan.kro.kr 재사용 — MC는 25565, 웹은 443이라 충돌 없음. 인증서는 Caddy가 Let's Encrypt 자동 발급. kro.kr은 sub-subdomain 불가 전제로 경로(`/admin`) 방식. statsweb은 **127.0.0.1:8080 바인드**(3000 점유 중). ★기존 lh-bizben 블록은 절대 수정하지 않고 블록 추가만, 적용은 `systemctl reload caddy`(무중단).
+- **인증: Discord OAuth2 + 허용 ID 목록** — "아이디/비번 시스템을 만들지 않는" 답. 어드민은 전원 디스코드에 있으므로(서버 운영 알림이 이미 Discord 기반) 로그인은 "Discord로 로그인" 버튼 1개. 성공 시 Discord user id가 `admins.json`(id→닉·역할)에 있으면 세션 쿠키 발급, 없으면 거부. **비번 저장·회원가입·재설정 flow가 통째로 없고**, 사람별 식별·즉시 회수(목록에서 한 줄 삭제)가 되므로 미래 밴 콘솔의 "누가 실행했나" 감사 요건을 처음부터 충족한다.
+- 구현 규모: authlib(또는 수동 OAuth2 — Discord flow 단순) 기준 ~100줄. 전 라우트 세션 필수(예외 /login, /callback, /healthz), 쿠키 Secure+HttpOnly+SameSite=Lax, 로그인 실패 rate limit(Caddy 또는 앱단).
+- **운영자 1회 작업**(Phase 5 시작 시, 합계 ~10분): ① barkan.kro.kr A레코드 실설정 확인(§14-14) ② Discord Developer Portal 앱 생성 + redirect `https://barkan.kro.kr/admin/callback` 등록 ③ client id/secret을 박스 `statsweb/.env`에 ④ admins.json에 어드민 Discord ID 기입.
+- 대안(어드민 1~2명 + 전원 설치 감수 시): Tailscale 노드 공유(각자 무료 계정으로 박스 공유 수락, 공개 노출 0). 단 브라우저만으로 접속 불가(클라이언트 설치 필수)라 다중 어드민에겐 마찰이 크고, 통합 콘솔 단계에선 어차피 신원 기반 인증이 필요 — **처음부터 Discord OAuth로 가는 것을 권장.**
 
 **스택**: Python **FastAPI + uvicorn** 단일 프로세스(`~/mcserver/statsweb/`, venv), 프론트는 정적 HTML + Chart.js(파일 동봉, CDN 미의존 — 폰/오프라인에서도 렌더). stats-lab의 `queries.py`(쿡북 C1–C9)를 **웹과 CLI가 공유하는 모듈**로 패키지화 — 쿼리 정의는 한 곳에만 존재.
 - DB 접근: **read-only** (`sqlite3.connect("file:...?mode=ro", uri=True)`), stats.db + 최근 2개월 events DB ATTACH. WAL이라 게임 writer와 무경합. **쓰기 엔드포인트 0개** — 킬스위치 등 조작은 인게임 명령만. 웹이 털려도 서버 조작 불가.
 - 페이지 구성(= 구현 우선순위): ① 홈(오늘/7일 KPI + 수집 헬스) ② 성장곡선(C1: 레벨 도달시간 백분위 vs intended-curve) ③ 경제(C6: 일별 순발행 스택차트 + reason별 표 + 자산분포) ④ 장비(C3·C5: 가격 vs 실측성능 산점, 구매 0 품목) ⑤ 생산(C4: 작물 ROI + 채집/통발/광질) ⑥ 퀘스트(C2: 원/분 랭킹) ⑦ 카지노(C8: 실현 RTP) ⑧ RNG(C9: 명목 vs 실측) ⑨ 유저 상세(검색 → day_player 타임라인 + 최근 이벤트) ⑩ 커버리지/사각지대.
 - 운영: systemd `statsweb.service` (`Restart=always`, `MemoryMax=512M`, `Nice=10`), 로그 `~/mcserver/logs/statsweb.log`. **게임·수집과 완전 독립** — 죽어도 무영향이므로 프리즈 워치독에 안 묶고, 데일리 리포트 헬스 줄에 up/down 한 단어만 추가.
+
+### 10-6. 통합 어드민 콘솔로의 확장 (Phase 6 — 설계 확정, 구현은 통계 안정화 후)
+운영자 방침: 통계 열람을 시작으로 밴 등 운영 기능을 같은 페이지에 통합한다. statsweb을 처음부터 그 골격으로 짓는다(인증·역할·감사가 Phase 5에 이미 깔림).
+- **역할 2단**: `viewer`(전 어드민 — 통계 열람 전부) / `admin`(운영 액션 실행). admins.json의 역할 필드로 관리, 승격은 파일 수정(=운영자만 가능).
+- **쓰기 액션 4원칙**: ① 사전 정의된 액션 카탈로그만(임의 콘솔 명령 전달 **절대 금지**) ② 전 액션 CSRF 토큰 ③ 실행 전 확인 다이얼로그 ④ 성공/실패 무관 `audit_log` 기록.
+- **실행 경로 = 로컬 RCON**: 박스 RCON이 이미 localhost 전용으로 켜져 있고(25575, `~/mcserver/scripts/rcon.py`) statsweb과 같은 박스라 **새로 여는 포트가 0개**. 1차 액션 카탈로그: `ban/pardon/kick <player> <사유>` · `whitelist add/remove` · 공지 1줄(say) · 온라인 목록 조회. 후보(2차): 머니/아이템 지급(콘솔 브릿지 `moneyop` 경유 — 텔레메트리 원장에 자동 기록됨), 날씨/이벤트 토글.
+- **조회 확장**: playerdata JSON 뷰어(read-only), banned-players.json 목록, 텔레메트리 유저 타임라인 교차 링크(밴 검토 화면에서 "최근 행적 보기" → §10-5 ⑨).
+- 밴 등 제재 실행 시 텔레메트리에도 `admin.action`(P0) 이벤트로 미러 — 게임 데이터와 운영 액션이 한 타임라인에 놓인다. audit_log DDL은 §5-2에 포함.
 
 ---
 
@@ -728,11 +752,18 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 - **수용 기준**: `/통계 오늘` 정상 출력. PREVIEW=1 데일리 리포트에 📊 줄 포함. pull.sh로 Mac에서 C1 실행 성공. 커버리지에 미등록 GUI 하나 일부러 만들어 검출되는지 확인.
 
 ### Phase 5 — 웹 어드민 대시보드 (§10-5)
-24. 박스에 tailscale 설치·인증(★운영자 1회 개입 필요 — 로그인 URL 승인). 차선안(3000+Caddy) 선택 시 기존 3000 포트 사용처 충돌 확인부터.
-25. `~/mcserver/statsweb/` FastAPI 앱 + 정적 프론트(Chart.js 동봉). `queries.py`를 stats-lab과 공유 모듈로 패키지화.
-26. systemd `statsweb.service` 등록(Restart=always, MemoryMax=512M, Nice=10), 데일리 리포트 헬스 줄에 상태 1단어 추가.
-27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치).
-- **수용 기준**: tailnet의 Mac·폰에서 홈/경제/장비 페이지 렌더 확인. **공인 IP:8080 접속 불가 검증**(비노출 확인). `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화.
+24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할).
+25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10).
+26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉).
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가.
+- **수용 기준**: 어드민 2개 계정으로 로그인 성공 + 목록 밖 Discord 계정 거부 확인. 미로그인 접근 전 라우트 /login 리다이렉트. `https://barkan.kro.kr/admin` 인증서 정상. **기존 lh-bizben.duckdns.org 서비스 무영향 확인.** `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화.
+
+### Phase 6 — 통합 어드민 콘솔 (§10-6, 통계 안정화 후 착수)
+28. 역할 2단(viewer/admin) 분기 + 전 쓰기 액션 CSRF + `audit_log` 기록 공통 래퍼.
+29. 로컬 RCON 액션 카탈로그(ban/pardon/kick/whitelist/say/list) + 실행 전 확인 다이얼로그. **임의 명령 전달 경로 금지**(코드 리뷰 체크포인트).
+30. playerdata·밴목록 read-only 뷰어 + 유저 타임라인 교차 링크.
+31. `admin.action`(P0) 텔레메트리 미러 + TeleTypes 등록.
+- **수용 기준**: viewer 계정에 액션 버튼 비노출+API 직접 호출도 403. dev에서 테스트 밴 → audit_log·admin.action 기록 → pardon까지 왕복 확인.
 
 ### 커밋·배포 규칙 (기존 규칙 재확인)
 - blockship-plugin: Phase 단위 커밋(자동, 질문 불필요). jar 배포는 dev 먼저(`~/deploy-dev.sh`), **prod는 명시 요청 시에만**(접속자 0/운영자 단독 예외는 기존 메모리 규칙 따름). 서버 재시작 필수(plugman reload 금지).
@@ -757,8 +788,9 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 | 11 | 부품 총수 드리프트: parts.json 실측 86종 (CLAUDE.md "131"·balance-audit "84"는 stale) — 발견 시 문서 갱신 | 카탈로그 스냅샷이 이 드리프트를 영구 종식 |
 | 12 | 통발 TR02 레시피 잔존(recipes 13 vs TrapSpecs 12) 등 §조사 드리프트 3건 | 카탈로그 스냅샷에 그대로 찍히므로 분석 시 주석 필요 |
 | 13 | xerial sqlite-jdbc 최신 안정판 + aarch64(oracle)·apple silicon(dev) 네이티브 동봉 확인 | 양쪽 환경 부팅 |
-| 14 | 오라클 박스는 현재 tailnet 미가입(Mac·폰만 있음) — tailscale 설치 시 운영자 로그인 승인 1회 필요. 차선(공개 3000) 선택 시 3000 포트의 기존 용도("다른 서비스용, 예: LH cron") 충돌 여부 | Phase 5 배치 방식 확정 |
+| 14 | barkan.kro.kr A레코드가 실제로 168.107.8.107을 가리키는지(CLAUDE.md상 "예정" 표기) — 미설정이면 내도메인.한국에서 운영자 1회 설정. kro.kr sub-subdomain 불가 전제로 `/admin` 경로 방식 채택 | Phase 5 도메인·인증서 |
 | 15 | `CasinoLedger.applyNet`이 uuid 기반 오프라인 정산을 실제로 수행하는지(호출 시그니처 2종 확인됨) — applyVerified 오프라인 오버로드의 saveData 경로 검증 | §6-5 치환 정확성 |
+| 16 | Caddy 실사(2026-07-27): 80/443에 구동 중, 사이트 블록은 lh-bizben.duckdns.org(→3000 node)뿐, cloudflared는 inactive 잔존물(사용 안 함). 블록 추가 후 reload가 기존 서비스를 안 끊는지 | Phase 5 안전 배포 |
 
 ---
 
