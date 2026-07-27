@@ -194,7 +194,8 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 서버는 클라 크래시 진짜 원인(DecoderException 등)을 모름 — 그건 유저 로컬 `disconnect-*.txt`에만 있음. 대신 **"접속 후 15초 이내 끊김"**을 크래시 의심 신호로 자동 포착 → 유저 수동제보 없이도 먼저 인지.
 - `~/mcserver/scripts/crash-watch.py` (cron `*/2`, flock, 상태 `.crash-watch-state.json`에 오프셋/최근접속시각/알림쿨다운 영속): 로그에서 접속↔`lost connection` 페어링, 짧으면 Discord ⚡알림(위치 포함). 같은 유저 재알림 쿨다운 10분.
 - 실전검증(2026-07-27 마리/잉그리드 오진 사고): 과거 7건의 lost connection 중 실제 급끊김(크래시성) 6건을 정확히 잡아냄, 정상 3분 세션 뒤 끊긴 1건은 올바르게 제외.
-- ★진짜 원인은 ViaVersion/ViaBackwards가 최신 클라(26.2) 미지원 낡은 스냅샷(5.11.1-SNAPSHOT)이었던 것으로 판명 — 정식 5.11.0(1.8~26.2 지원)로 교체 후 해결. NPC 모델부착(NpcAnimator)은 무관했음(오진, 원복 완료). 향후 이런 "클라 최신버전 vs Via 구버전" 드리프트가 재발 원인 1순위.
+- ★진짜 원인은 ViaVersion/ViaBackwards가 최신 클라(26.2) 미지원 낡은 스냅샷(5.11.1-SNAPSHOT)이었던 것으로 판명 — 정식 5.11.0(1.8~26.2 지원)로 교체 후 해결. NPC 모델부착(NpcAnimator)은 무관했음(오진, 원복 완료). 향후 이런 "클라 최신버전 vs Via 구버전" 드리프트가 재발 원인 1순위. 수정 전/후 로그 대조로 해결 검증 완료(수정후 정상 5분+ 세션 확인).
+- **패킷 블랙박스**(`com.blockship.diagnostics.PacketBlackbox`, ProtocolLib): 급끊김(15초 이내)이면 직전 엔티티 패킷(ENTITY_METADATA·EQUIPMENT·SPAWN_ENTITY·ENTITY_DESTROY) 40개를 `plugins/BlockShip/packet-blackbox/`에 덤프. crash-watch.py가 찾아서 Discord에 **파일 첨부**로 자동 전송(멀티파트, payload_json+file). 실전 검증 완료(3초 급끊김 테스트→덤프→Discord 첨부 확인).
 
 ### 무인운영 자동화 추가분 (2026-07-24, 군입대 대비 자가복구 시리즈)
 - `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): RCON으로 접속자수 확인, **0명일 때만** `systemctl restart`(누수 정리)+디스코드 알림. 1명 이상이면 skip.

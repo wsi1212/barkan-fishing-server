@@ -13,9 +13,12 @@ DIR = f"{HOME}/mcserver/scripts"
 LOG = os.environ.get("CW_LOG", f"{HOME}/mcserver/logs/latest.log")
 STATE_FILE = os.environ.get("CW_STATE", f"{DIR}/.crash-watch-state.json")
 WEBHOOK_FILE = os.environ.get("CW_WEBHOOK", f"{DIR}/discord-webhook.url")
+# PacketBlackbox(Java)가 급끊김 시 남기는 패킷 이력 덤프 — 여기서 찾아 Discord에 첨부 전송.
+DUMP_DIR = os.environ.get("CW_DUMPDIR", f"{HOME}/mcserver/plugins/BlockShip/packet-blackbox")
 LABEL = "[바르칸 prod]"
 FAST_THRESHOLD = int(os.environ.get("CW_THRESHOLD", "15"))  # 초 — 접속 후 이 안에 끊기면 크래시 의심
 COOLDOWN = int(os.environ.get("CW_COOLDOWN", "600"))        # 초 — 같은 플레이어 재알림 최소 간격
+DUMP_MATCH_WINDOW = 60                                       # 초 — 덤프 파일명 타임스탬프 매칭 허용오차
 
 JOIN_RE = re.compile(r"^\[(\d{2}):(\d{2}):(\d{2})\].*: (\S+)\[.*logged in with entity id \d+ at \(\[?([^\],]+)\]?[, ]*([-\d.]+)[, ]*([-\d.]+)[, ]*([-\d.]+)\)")
 DISC_RE = re.compile(r"^\[(\d{2}):(\d{2}):(\d{2})\].*: (\S+) lost connection: (.+)$")
@@ -34,18 +37,46 @@ def load(path, default):
         return default
 
 
-def notify(msg):
+def notify(msg, file_path=None):
     if not os.path.exists(WEBHOOK_FILE) or os.path.getsize(WEBHOOK_FILE) == 0:
         return
     url = open(WEBHOOK_FILE).read().strip()
-    payload = json.dumps({"content": msg})
     try:
-        subprocess.run(
-            ["curl", "-sf", "-m", "10", "-H", "Content-Type: application/json", "-d", payload, url],
-            capture_output=True, timeout=15,
-        )
+        if file_path and os.path.exists(file_path):
+            # 파일 첨부는 payload_json + file 필드로 멀티파트 전송(JSON-only curl -d 로는 첨부 불가).
+            subprocess.run(
+                ["curl", "-sf", "-m", "20",
+                 "-F", f"payload_json={json.dumps({'content': msg})}",
+                 "-F", f"file=@{file_path}", url],
+                capture_output=True, timeout=25,
+            )
+        else:
+            payload = json.dumps({"content": msg})
+            subprocess.run(
+                ["curl", "-sf", "-m", "10", "-H", "Content-Type: application/json", "-d", payload, url],
+                capture_output=True, timeout=15,
+            )
     except Exception:
         pass
+
+
+def find_dump(name, around_epoch):
+    """PacketBlackbox가 남긴 '{name}-{epochMillis}.txt' 덤프 중 around_epoch에 가장 가까운 것을 찾는다."""
+    if not os.path.isdir(DUMP_DIR):
+        return None
+    prefix = f"{name}-"
+    best, best_diff = None, None
+    for fn in os.listdir(DUMP_DIR):
+        if not fn.startswith(prefix) or not fn.endswith(".txt"):
+            continue
+        try:
+            ms = int(fn[len(prefix):-4])
+        except ValueError:
+            continue
+        diff = abs(ms / 1000.0 - around_epoch)
+        if diff <= DUMP_MATCH_WINDOW and (best_diff is None or diff < best_diff):
+            best, best_diff = fn, diff
+    return os.path.join(DUMP_DIR, best) if best else None
 
 
 def main():
@@ -82,10 +113,16 @@ def main():
             if 0 <= elapsed <= FAST_THRESHOLD:
                 last_alert = state["last_alert"].get(name, 0)
                 if now - last_alert >= COOLDOWN:
-                    notify(
+                    dump = find_dump(name, disc_t)
+                    msg = (
                         f"{LABEL} ⚡ 빠른 접속끊김 감지: {name} — 접속 {elapsed:.0f}초 만에 끊김"
-                        f" (클라 크래시 의심, 위치 {j['loc']}). 재현되면 클라 disconnect 로그 확인 요청."
+                        f" (클라 크래시 의심, 위치 {j['loc']})."
                     )
+                    if dump:
+                        msg += " 직전 패킷 이력 첨부됨(끊기기 전 엔티티 관련 패킷)."
+                    else:
+                        msg += " 재현되면 클라 disconnect 로그 확인 요청."
+                    notify(msg, file_path=dump)
                     state["last_alert"][name] = now
 
     json.dump(state, open(STATE_FILE, "w"))
