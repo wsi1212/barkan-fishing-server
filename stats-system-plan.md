@@ -106,14 +106,13 @@
 | Prometheus/Influx/Grafana | 대시보드 | 박스에 상주 서비스 추가(24GB RAM이지만 무인운영 관리대상 증가), 이벤트 소급조회(Q10)에 부적합 — **게이지가 아니라 원장이 필요** |
 | ClickHouse 등 OLAP | 대규모 | 38명 서버에 과잉. 단 스키마를 export 친화(JSONL 덤프 제공)로 설계해 10배 성장 시 이관 경로 확보 |
 
-### 3-2. 의존성 추가 방법
-`plugin.yml`에 Paper 라이브러리 로더 사용(재부팅 시 Maven Central에서 받아 `libraries/` 캐시, jar 비대화 없음):
-```yaml
-libraries:
-  - org.xerial:sqlite-jdbc:3.46.1.3   # 구현 시 Maven Central 최신 안정판 확인, aarch64 네이티브 포함 버전
+### 3-2. 의존성 추가 방법 — 확정: shadowJar shading (2026-07-27 구현 시 결정)
+당초 Paper 라이브러리 로더(부팅 시 Maven Central 다운로드)와 shading 두 안을 검토했으나, **shading으로 확정**했다. 이유: ①부팅 시 외부 네트워크 의존이 생기면 dev 오프라인 작업·오라클 박스 일시 단절 시 기동 실패 리스크 ②이미 shadow 9.0.0-beta4가 구성돼 있고 relocate 불필요(Paper 플러그인 클래스로더 격리) ③결정론적 단일 jar가 무인운영 원칙에 더 부합.
+```kotlin
+// build.gradle.kts dependencies { }
+implementation("org.xerial:sqlite-jdbc:3.53.2.1")  // Maven Central 확인(2026-07-27): 최신 안정판. aarch64/apple-silicon 네이티브 동봉 fat jar
 ```
-- 폴백: 만약 라이브러리 로더가 문제되면 shadowJar shading으로 전환(이미 shadow 9.0.0-beta4 구성됨. relocate 불필요 — Paper 플러그인 클래스로더는 격리됨).
-- 드라이버 로드: `Class.forName("org.sqlite.JDBC")` 후 `DriverManager.getConnection("jdbc:sqlite:" + path)`.
+`compileOnly`가 아닌 `implementation`이라야 shadowJar가 runtimeClasspath로 포함해 shading한다. 드라이버 로드: `Class.forName("org.sqlite.JDBC")` 후 `DriverManager.getConnection("jdbc:sqlite:" + path)`.
 
 ### 3-3. 파일 레이아웃과 PRAGMA
 - `telemetry/events-YYYY-MM.db` — **KST 기준 월**별 원본 이벤트. 월 전환 시 writer가 파일 교체(구 파일은 아카이브 대상).
@@ -725,7 +724,11 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 ## 13. 구현 로드맵 (Sonnet 5 작업 지시)
 
 ### Phase 0 — 코어 파이프라인 + 원장 (최우선, 이것만으로도 Q6·Q7 절반 해결)
-1. `plugin.yml`에 libraries 추가. `com.blockship.telemetry` 패키지 9클래스(§4-1) 작성.
+**✅ 완료 (2026-07-27, blockship-plugin 커밋 9cbb5de) — dev 배포·실측검증 완료, prod 미배포.**
+검증 결과: sess.start/end(크래시 합성 kill -9 실측 확인)·money.txn(reason태깅 실측)·xp.txn·cmd.use·
+gui.open(안전망2, 도감GUI 자동포착 확인)·gauge.online·srv.start/stop 전부 dev에서 정상 동작 확인.
+아래 항목은 원래 계획 그대로 두되, 실제로는 이미 구현됨(다음 세션은 Phase 1부터 시작할 것).
+1. `build.gradle.kts`에 sqlite-jdbc implementation 추가(§3-2, shading 확정). `com.blockship.telemetry` 패키지 9클래스(§4-1) 작성.
 2. onEnable 배선(PlayerDataManager 직전), onDisable flush. `telemetry.json` 기본 생성.
 3. §8-1 전부: 세션/게이지/cmd.use/gui.open/srv.start·stop/death.
 4. §6: MoneyBridge reason 오버로드+StackWalker 폴백, **카지노 우회 정리(§6-5: applyVerified 신설 + CasinoLedger setMoney 10곳 치환 + grep 0건 판정)**, cash/coin/afkp/guild 콜사이트, `addCash` clamp 수정, FishingLevelManager·SkillManager src 오버로드, level.up.
