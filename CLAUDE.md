@@ -118,6 +118,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **OS**: Ubuntu 24.04 ARM64
 - **MC/Paper 버전**: prod 구동 = **Paper 1.21.10** (version_history.json 확인). BlockShip 빌드 타겟 = **1.21.4** (build.gradle.kts paperDevBundle 1.21.4, api-version '1.21') → **버전 드리프트 있음(작동중, Bukkit API 호환 범위 내·NMS 사용 파일 1개뿐)**. 패킷/NMS 오류 시 1순위 의심.
 - **ProtocolLib 5.4.0**: 지원 명시 범위는 1.21.4–1.21.8 → prod(1.21.10)에서 부팅 시 "not yet been tested" 경고 뜸(로드·리스너 등록은 정상). dev(Mac) 버전은 별도 확인 필요 — 패킷 작업 전 양쪽 버전 대조할 것.
+- **ViaVersion/ViaBackwards 5.11.0**(정식, 2026-07-27 교체 — 이전 5.11.1-SNAPSHOT 개발버전이 최신 클라(26.2) 미지원해 접속끊김 유발했음, 상세는 「클라이언트 크래시 자동감지」 참조). Hangar 다운로드: `https://hangar.papermc.io/api/v1/projects/<ViaVersion|ViaBackwards>/versions/<버전>/PAPER/download`.
 - **공인 IP**: `168.107.8.107` (Reserved 예약 IP — 인스턴스 재생성에도 불변. 2026-07-24 임시 IP 134.185.113.25에서 교체. 예약IP OCID: `ocid1.publicip.oc1.ap-chuncheon-1.amaaaaaaipxk3paarwjmvgd5ii3js5qes7jmsbyh5sy2holja6x4vhdust7a`)
 - **도메인**: `barkan.kro.kr` (내도메인.한국 무료 서브도메인, A레코드 → 168.107.8.107 예정)
 - **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
@@ -188,6 +189,12 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - `~/mcserver/scripts/watchdog.sh` (cron `*/2`, flock): `rcon.py list` 2분간격 헬스체크 → **4회 연속 무응답(≈8분)=프리즈 판정→`systemctl restart mcserver`+Discord 알림**. 순간렉/저장/GC는 다음 체크 회복→카운터 리셋. 부팅유예 5분, 1시간 3회초과=크래시루프로 보고 재시작중단+🆘.
 - **★prod RCON 켜짐**: `enable-rcon=true`, 포트 25575, 비번=랜덤(server.properties). 외부는 iptables 기본 REJECT 차단, localhost만. `~/mcserver/scripts/rcon.py list`로 수동 확인/명령 가능. (dev RCON은 별개 pw devtest2026)
 - 상세: memory `project_offsite_backup_dr`.
+
+### 클라이언트 크래시 자동감지 (2026-07-27 신설)
+- 서버는 클라 크래시 진짜 원인(DecoderException 등)을 모름 — 그건 유저 로컬 `disconnect-*.txt`에만 있음. 대신 **"접속 후 15초 이내 끊김"**을 크래시 의심 신호로 자동 포착 → 유저 수동제보 없이도 먼저 인지.
+- `~/mcserver/scripts/crash-watch.py` (cron `*/2`, flock, 상태 `.crash-watch-state.json`에 오프셋/최근접속시각/알림쿨다운 영속): 로그에서 접속↔`lost connection` 페어링, 짧으면 Discord ⚡알림(위치 포함). 같은 유저 재알림 쿨다운 10분.
+- 실전검증(2026-07-27 마리/잉그리드 오진 사고): 과거 7건의 lost connection 중 실제 급끊김(크래시성) 6건을 정확히 잡아냄, 정상 3분 세션 뒤 끊긴 1건은 올바르게 제외.
+- ★진짜 원인은 ViaVersion/ViaBackwards가 최신 클라(26.2) 미지원 낡은 스냅샷(5.11.1-SNAPSHOT)이었던 것으로 판명 — 정식 5.11.0(1.8~26.2 지원)로 교체 후 해결. NPC 모델부착(NpcAnimator)은 무관했음(오진, 원복 완료). 향후 이런 "클라 최신버전 vs Via 구버전" 드리프트가 재발 원인 1순위.
 
 ### 무인운영 자동화 추가분 (2026-07-24, 군입대 대비 자가복구 시리즈)
 - `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): RCON으로 접속자수 확인, **0명일 때만** `systemctl restart`(누수 정리)+디스코드 알림. 1명 이상이면 skip.
