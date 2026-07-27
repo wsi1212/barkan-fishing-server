@@ -12,4 +12,4 @@ out=$("$DIR/rcon.py" list 2>/dev/null) || exit 0
 n=$(printf '%s' "$out" | grep -oE 'are [0-9]+' | grep -oE '[0-9]+' | head -1); n=${n:-0}
 [ "$n" -eq 0 ] && exit 0
 
-"$DIR/rcon.py" "say [서버] 정기 점검 재시작까지 ${MINUTES}분 남았습니다. 안전한 곳으로 이동해 주세요." >/dev/null 2>&1
+"$DIR/rcon.py" "say [서버] 서버 재부팅까지 ${MINUTES}분 남았습니다 (정기 점검 06:00~06:10). 안전한 곳으로 이동해 주세요." >/dev/null 2>&1
