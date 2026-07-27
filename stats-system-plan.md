@@ -723,8 +723,14 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 
 ## 13. 구현 로드맵 (Sonnet 5 작업 지시)
 
+> **★2026-07-28 저녁 업데이트**: 아래 Phase 0~4 각각의 "prod 미배포" 문구는 그 항목을 완료한
+> **시점** 기준 기록이다 — 이후 같은 날 밤 `~/deploy-blockship.sh`로 전체 blockship-plugin이
+> **prod에 실배치 완료**되었고(0명 접속 시점, git status 클린 확인 후), 부팅 로그에서 텔레메트리
+> 초기화·player_snapshot(19명)·guild_snapshot(1길드)·export까지 무예외로 정상 동작 확인했다.
+> 지금은 dev/prod 둘 다 최신 코드가 돌고 있다. Phase 5(statsweb)도 같은 밤 prod 실배치 완료.
+
 ### Phase 0 — 코어 파이프라인 + 원장 (최우선, 이것만으로도 Q6·Q7 절반 해결)
-**✅ 완료 (2026-07-27, blockship-plugin 커밋 9cbb5de) — dev 배포·실측검증 완료, prod 미배포.**
+**✅ 완료 (2026-07-27, blockship-plugin 커밋 9cbb5de) — dev 배포·실측검증 완료, prod 미배포(당시 기준 — 이후 prod 배치됨, 위 업데이트 참조).**
 검증 결과: sess.start/end(크래시 합성 kill -9 실측 확인)·money.txn(reason태깅 실측)·xp.txn·cmd.use·
 gui.open(안전망2, 도감GUI 자동포착 확인)·gauge.online·srv.start/stop 전부 dev에서 정상 동작 확인.
 아래 항목은 원래 계획 그대로 두되, 실제로는 이미 구현됨(다음 세션은 Phase 1부터 시작할 것).
@@ -787,24 +793,39 @@ offsite-backup.sh --exclude, nightly-restart.sh 📊 줄+일요일 리마인더)
 - **수용 기준**: `/통계 오늘` 정상 출력. PREVIEW=1 데일리 리포트에 📊 줄 포함. pull.sh로 Mac에서 C1 실행 성공. 커버리지에 미등록 GUI 하나 일부러 만들어 검출되는지 확인.
 
 ### Phase 5 — 웹 어드민 대시보드 (§10-5)
-**✅ 코드/로컬검증 완료 (2026-07-28, 이 scripts 레포 `statsweb/`) — ★prod 미배치(운영자 1회 작업 미완료라 배치 불가).**
-검증: FastAPI 앱(app.py) + Discord OAuth2(auth.py) + SVG 차트 4종(charts.py, Chart.js 대신 —
-이 환경에서 외부 JS 파일을 새로 내려받을 수 없어 CDN 미의존 요건을 서버사이드 SVG로 충족, 동일하게
-자체완결·오프라인 렌더) + 페이지 ①~⑩ 전부(listing.html 공용 템플릿 재사용) 구현.
-stats-lab/queries.py를 `set_data_dir()`로 리팩터해 웹·CLI 공유 모듈화(§10-5 요건). 로컬에서
-forged 세션 쿠키(TestClient)로 인증가드+10개 라우트 전부 실제 콘텐츠 렌더 확인(리다이렉트
-따라가기 끄고 status 200 직접 확인 — 첫 시도에서 자동 리다이렉트 추적 때문에 오탐 있었음, 재검증
-완료), SVG 차트 4종 실데이터+합성데이터로 렌더 확인, home_kpis 등 신규 쿼리 정상 동작 확인.
-Discord OAuth는 authorize URL 조립 로직만 검증(실제 토큰 교환은 진짜 앱 credential 필요 — 이
-환경에서 왕복 불가, 코드는 표준 플로우 그대로 구현). systemd 유닛+Caddy 스니펫은
-oracle-ops-scripts/ 미러에 로컬 파일로만 준비(운영자 체크리스트 = `statsweb/README.md`).
-**★실제 오라클 박스 배치(Discord 앱 생성·admins.json 채우기·systemd/Caddy 적용)는 사람만 할 수
-있는 사전작업(계정/DNS/비밀값)이 남아있어 미수행 — 별도 명시 요청 및 운영자 작업 완료 후.**
-24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할).
-25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10).
-26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉 → 실제로는 서버사이드 SVG로 대체, 위 검증 노트 참조).
-27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가(nightly-restart.sh 반영은 별도 — 현재는 📊 통계요약 줄만 추가됨, Phase4-11 참조).
-- **수용 기준**: 어드민 2개 계정으로 로그인 성공 + 목록 밖 Discord 계정 거부 확인. 미로그인 접근 전 라우트 /login 리다이렉트. `https://barkan.kro.kr/admin` 인증서 정상. **기존 lh-bizben.duckdns.org 서비스 무영향 확인.** `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화. ※실제 Discord 계정 로그인/인증서/systemd 자동재기동 항목은 prod 배치 후에만 검증 가능 — 이번 세션은 로컬 인증가드 로직까지만.
+**✅ 완료 + prod 실배치 완료 (2026-07-28) — 유저가 Discord client id/secret+본인 Discord ID 제공,
+운영자 사전작업 전부 마치고 오라클 박스에 실제 설치·실로그인까지 검증됨.**
+
+구현: FastAPI 앱(app.py) + Discord OAuth2(auth.py) + SVG 차트 4종(charts.py — Chart.js 대신
+서버사이드 SVG로 대체, 이 환경에서 외부 JS 파일을 새로 받을 수 없어서인데 결과는 동일하게
+CDN 미의존·자체완결) + 페이지 ①~⑩ 전부. stats-lab/queries.py를 `set_data_dir()`로 리팩터해
+웹·CLI 공유 모듈화.
+
+**prod 실배치 과정에서 실사용 중 잡힌 버그 2개**(로컬 forged-세션 테스트로는 못 잡았던 것들 —
+실제 브라우저로 Discord 로그인 왕복해보고서야 드러남):
+1. Caddy가 `barkan.kro.kr/admin/*` → `127.0.0.1:8080/*`로 프리픽스를 벗겨 프록시(`handle_path`)
+   하는데 앱 자체는 이를 몰라 절대경로 링크·리다이렉트가 `/admin` 밖으로 새던 문제 → `BASE_PATH`
+   환경변수 도입 + 템플릿/redirect 전부 프리픽스 적용.
+2. `stats.db`가 아직 없을 때(텔레메트리 미배포 상태로 먼저 로그인 시도) `queries.py`가
+   `sys.exit()`로 서버 프로세스 자체를 죽여 500 에러 → `StatsDataUnavailable` 예외로 바꾸고
+   전역 예외 핸들러로 `no_data.html` 표시.
+
+**추가로 이번 배치 세션에서 얹은 기능(계획 이후 확장)**: OP(관리자) 행동 자동 제외 — 유저 요청으로
+`Telemetry.log()`가 모든 이벤트에 `ctx.op`(그 순간 OP였는지)를 자동 태깅하고, `day_player`
+롤업(RollupJob.java)과 `queries.py`의 C1~C6·C8·C9가 op=1 이벤트를 집계에서 제외(day_type/C7
+이용률은 예외 — OP 사용도 유효한 신호라 그대로 둠). dev에서 OP 계정으로 실제 명령 실행 →
+`ctx.op:1` 태깅 확인 + C6 집계에서 제외 확인까지 실측.
+
+**HTTPS 관련**: 최초 배치 시점에 kro.kr(공용 무료 서브도메인) 전체에 걸린 Let's Encrypt
+rate limit(주 50건)에 걸려 인증서 발급이 일시 대기 상태였음 — 그 사이 임시로 Caddy를
+`http://barkan.kro.kr`로, `.env`의 `DISCORD_REDIRECT_URI`도 http로 낮춰 로그인 흐름 자체를
+먼저 검증했고, rate limit 해제 시각 이후 https로 원복 예정(별도 확인).
+
+24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할). — **전부 완료**.
+25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10). — **완료, 실행 확인**.
+26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉 → 실제로는 서버사이드 SVG로 대체). — **완료, 실로그인 성공 확인**.
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가는 아직 미반영(현재는 📊 통계요약 줄만 있음, Phase4-11 참조) — 후순위.
+- **수용 기준**: 어드민 로그인 성공(wsi1212 Discord 계정으로 실제 승인→콜백→대시보드 진입 확인) + 목록 밖 계정 거부는 코드상 보장(`auth.resolve_admin`이 admins.json에 없으면 거부, 실계정으로 재현은 안 함). 미로그인 접근 시 /login 리다이렉트 확인. **기존 lh-bizben.duckdns.org 서비스 무영향 확인**(변경 전후 응답 동일). 대시보드 조회 중 게임 서버는 별도 프로세스라 mspt 무관. ※HTTPS 인증서/systemd 자동재기동(kill 후 재기동)은 아직 미실측 — 인증서는 rate limit 해제 후, 재기동은 필요 시.
 
 ### Phase 6 — 통합 어드민 콘솔 (§10-6, 통계 안정화 후 착수)
 28. 역할 2단(viewer/admin) 분기 + 전 쓰기 액션 CSRF + `audit_log` 기록 공통 래퍼.
