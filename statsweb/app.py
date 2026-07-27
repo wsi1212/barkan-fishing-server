@@ -39,6 +39,23 @@ app.add_middleware(SessionMiddleware, secret_key=os.environ.get("SESSION_SECRET"
 
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates"))
 
+# Caddy가 barkan.kro.kr/admin/* → 127.0.0.1:8080/* 로 프리픽스를 벗겨서 프록시하므로(handle_path),
+# 이 앱 자체는 자기가 /admin 밑에서 서빙되는 걸 모른다. 그래서 앱이 내보내는 절대경로 링크·리다이렉트는
+# 전부 BASE_PATH를 붙여야 브라우저가 다시 /admin/* 으로 들어와 Caddy 라우팅을 통과한다.
+# 로컬 개발(prefix 없음)은 .env에 BASE_PATH를 비워두면 된다.
+BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
+templates.env.globals["base_path"] = BASE_PATH
+
+
+def redirect(path: str) -> RedirectResponse:
+    return RedirectResponse(BASE_PATH + path)
+
+
+@app.exception_handler(queries.StatsDataUnavailable)
+async def stats_unavailable_handler(request: Request, exc: queries.StatsDataUnavailable):
+    return templates.TemplateResponse(request, "no_data.html",
+                                       {"user": request.session.get("admin"), "active": "", "error": str(exc)})
+
 
 def _health_badge(date_str):
     if not date_str:
@@ -67,7 +84,7 @@ def _money_fmt(v):
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, error: str = ""):
     if request.session.get("admin"):
-        return RedirectResponse("/")
+        return redirect("/")
     return templates.TemplateResponse(request, "login.html", {"request": request, "error": error})
 
 
@@ -75,38 +92,38 @@ def login_page(request: Request, error: str = ""):
 def login_discord(request: Request):
     state = auth.new_state()
     request.session["oauth_state"] = state
-    return RedirectResponse(auth.build_authorize_url(state))
+    return RedirectResponse(auth.build_authorize_url(state))  # 외부(Discord) 절대 URL — BASE_PATH 붙이면 안 됨
 
 
 @app.get("/logout")
 def logout(request: Request):
     request.session.clear()
-    return RedirectResponse("/login")
+    return redirect("/login")
 
 
 @app.get("/callback")
 async def callback(request: Request, code: str = "", state: str = "", error: str = ""):
     if error:
-        return RedirectResponse(f"/login?error={error}")
+        return redirect(f"/login?error={error}")
     if state != request.session.get("oauth_state"):
-        return RedirectResponse("/login?error=state_mismatch")
+        return redirect("/login?error=state_mismatch")
     token = await auth.exchange_code(code)
     if not token:
-        return RedirectResponse("/login?error=token_exchange_failed")
+        return redirect("/login?error=token_exchange_failed")
     user = await auth.fetch_discord_user(token)
     if not user:
-        return RedirectResponse("/login?error=user_fetch_failed")
+        return redirect("/login?error=user_fetch_failed")
     admin = auth.resolve_admin(user.get("id"))
     if not admin:
-        return RedirectResponse("/login?error=not_an_admin")
+        return redirect("/login?error=not_an_admin")
     request.session["admin"] = admin
-    return RedirectResponse("/")
+    return redirect("/")
 
 
 def guard(request: Request):
     admin = _require_admin(request)
     if not admin:
-        return None, RedirectResponse("/login")
+        return None, redirect("/login")
     return admin, None
 
 

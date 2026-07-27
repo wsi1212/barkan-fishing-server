@@ -54,21 +54,21 @@
 <div class="layout">
   <nav class="side">
     <div class="brand">🎣 바르칸 통계</div>
-    <a href="/" class="{{ 'active' if active=='home' else '' }}">① 홈</a>
-    <a href="/growth" class="{{ 'active' if active=='growth' else '' }}">② 성장곡선</a>
-    <a href="/economy" class="{{ 'active' if active=='economy' else '' }}">③ 경제</a>
-    <a href="/equipment" class="{{ 'active' if active=='equipment' else '' }}">④ 장비</a>
-    <a href="/production" class="{{ 'active' if active=='production' else '' }}">⑤ 생산</a>
-    <a href="/quests" class="{{ 'active' if active=='quests' else '' }}">⑥ 퀘스트</a>
-    <a href="/casino" class="{{ 'active' if active=='casino' else '' }}">⑦ 카지노</a>
-    <a href="/rng" class="{{ 'active' if active=='rng' else '' }}">⑧ RNG</a>
-    <a href="/user" class="{{ 'active' if active=='user' else '' }}">⑨ 유저 상세</a>
-    <a href="/coverage" class="{{ 'active' if active=='coverage' else '' }}">⑩ 커버리지</a>
+    <a href="{{ base_path }}/" class="{{ 'active' if active=='home' else '' }}">① 홈</a>
+    <a href="{{ base_path }}/growth" class="{{ 'active' if active=='growth' else '' }}">② 성장곡선</a>
+    <a href="{{ base_path }}/economy" class="{{ 'active' if active=='economy' else '' }}">③ 경제</a>
+    <a href="{{ base_path }}/equipment" class="{{ 'active' if active=='equipment' else '' }}">④ 장비</a>
+    <a href="{{ base_path }}/production" class="{{ 'active' if active=='production' else '' }}">⑤ 생산</a>
+    <a href="{{ base_path }}/quests" class="{{ 'active' if active=='quests' else '' }}">⑥ 퀘스트</a>
+    <a href="{{ base_path }}/casino" class="{{ 'active' if active=='casino' else '' }}">⑦ 카지노</a>
+    <a href="{{ base_path }}/rng" class="{{ 'active' if active=='rng' else '' }}">⑧ RNG</a>
+    <a href="{{ base_path }}/user" class="{{ 'active' if active=='user' else '' }}">⑨ 유저 상세</a>
+    <a href="{{ base_path }}/coverage" class="{{ 'active' if active=='coverage' else '' }}">⑩ 커버리지</a>
   </nav>
   <main>
     <div class="topbar">
       <div></div>
-      <div class="userinfo">{% if user %}{{ user.name }} ({{ user.role }}) · <a href="/logout">로그아웃</a>{% endif %}</div>
+      <div class="userinfo">{% if user %}{{ user.name }} ({{ user.role }}) · <a href="{{ base_path }}/logout">로그아웃</a>{% endif %}</div>
     </div>
     {% block content %}{% endblock %}
   </main>

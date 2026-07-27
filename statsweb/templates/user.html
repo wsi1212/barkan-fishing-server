@@ -2,7 +2,7 @@
 {% block title %}유저 상세{% endblock %}
 {% block content %}
 <h1 style="font-size:18px; margin-bottom:16px;">⑨ 유저 상세</h1>
-<form method="get" action="/user" style="margin-bottom:20px;">
+<form method="get" action="{{ base_path }}/user" style="margin-bottom:20px;">
   <input type="text" name="name" placeholder="닉네임" value="{{ name or '' }}">
   <button type="submit">조회</button>
 </form>

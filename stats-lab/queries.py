@@ -39,9 +39,14 @@ def set_data_dir(path):
         else os.path.join(DATA_DIR, "stats-latest.db")
 
 
+class StatsDataUnavailable(Exception):
+    """stats.db/events db가 아직 없을 때(텔레메트리 미배포·롤업 전 등) — CLI는 종료 메시지로,
+    statsweb은 친절한 '데이터 없음' 페이지로 각자 다르게 처리하도록 sys.exit() 대신 예외로 던진다."""
+
+
 def _stats_conn():
     if not os.path.exists(STATS_DB):
-        sys.exit(f"stats.db 사본이 없습니다: {STATS_DB} — pull.sh로 먼저 받아오세요.")
+        raise StatsDataUnavailable(f"stats.db 사본이 없습니다: {STATS_DB} — pull.sh로 먼저 받아오세요.")
     c = sqlite3.connect(STATS_DB)
     c.row_factory = sqlite3.Row
     return c
@@ -69,7 +74,7 @@ def _conn_with_events(months=None):
         c.execute(f"ATTACH DATABASE ? AS {alias}", (path,))
         aliases.append(alias)
     if not aliases:
-        sys.exit("ATTACH할 events-YYYY-MM.db가 data/ 에 없습니다 — pull.sh 확인.")
+        raise StatsDataUnavailable("ATTACH할 events-YYYY-MM.db가 data/ 에 없습니다 — pull.sh 확인.")
     return c, aliases
 
 
@@ -305,7 +310,10 @@ def main():
 
     months = args.months.split(",") if args.months else None
     fn = COOKBOOK[args.query]
-    rows = fn(months) if fn.__code__.co_argcount > 0 and "months" in fn.__code__.co_varnames else fn()
+    try:
+        rows = fn(months) if fn.__code__.co_argcount > 0 and "months" in fn.__code__.co_varnames else fn()
+    except StatsDataUnavailable as e:
+        sys.exit(str(e))
 
     if args.json:
         print(json.dumps(rows, ensure_ascii=False, indent=2))
