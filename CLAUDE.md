@@ -179,7 +179,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - **로컬 → `~/mcserver/backups/`** (`local-backup.sh <main|islands>`, 파일명 접두어 `localmain-`/`localislands-`):
   - 20:00 main(본월드) 매일 3개 / 20:10 islands 매일 7개
   - 21:00 구 `playerdata-*.tar.gz` prune(자동소멸, 신규생성 없음)
-- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작(접속중이면 인게임 카운트다운 예고 후) ③데일리 리포트** 🌅(배포결과+백업 성공목록+헬스)로 하루 1회 통합 발송(노이즈 최소화). ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`.
+- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작 ③데일리 리포트** 🌅(배포결과+백업 성공목록+헬스)로 하루 1회 통합 발송(노이즈 최소화). 재시작 사전예고는 `restart-warning.sh <30|10|5|1>`(각각 05:30/05:50/05:55/05:59 KST 별도 cron, 접속자 0명이면 조용히 스킵)이 담당 — nightly-restart.sh 자체는 재시작 직전 즉시 알림 1회만. ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`.
 - tar는 라이브 서버 파일이 읽는중 바뀌면 exit 1(경고, 아카이브 유효)을 냄 → `tar||fail` 금지, `--warning=no-file-changed`+rc≥2만 치명+`gzip -t` 무결성검증으로 성공판정(2026-07-24 본월드 백업 오탐 사고 후 수정).
 - ★staging은 `~/mcserver/backups/offsite-stage/`로 격리(로컬 백업과 glob 충돌 방지 필수).
 - 상세·복원법: memory `project_offsite_backup_dr`. 복원 = Object Storage에서 `oci os object get`→tar 해제.
@@ -198,7 +198,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - **패킷 블랙박스**(`com.blockship.diagnostics.PacketBlackbox`, ProtocolLib): 급끊김(15초 이내)이면 직전 엔티티 패킷(ENTITY_METADATA·EQUIPMENT·SPAWN_ENTITY·ENTITY_DESTROY) 40개를 `plugins/BlockShip/packet-blackbox/`에 덤프. crash-watch.py가 찾아서 Discord에 **파일 첨부**로 자동 전송(멀티파트, payload_json+file). 실전 검증 완료(3초 급끊김 테스트→덤프→Discord 첨부 확인).
 
 ### 무인운영 자동화 추가분 (2026-07-24, 군입대 대비 자가복구 시리즈)
-- `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): RCON으로 접속자수 확인, **0명일 때만** `systemctl restart`(누수 정리)+디스코드 알림. 1명 이상이면 skip.
+- `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): staging 자동배포+**무조건** `systemctl restart`(누수 정리, 접속자 있어도 실행)+디스코드 데일리 리포트. 사전예고(30/10/5/1분 전 인게임 방송)는 `restart-warning.sh`가 별도 cron으로 담당(2026-07-27 신설).
 - `~/mcserver/scripts/disk-guard.sh` (매시간): `df /` 사용률 85%⚠️경고 / 92%🔴면 가장 오래된 로컬 백업부터 삭제해 88% 아래로 확보(★라이브 데이터·오프사이트는 절대 안 건드림).
 - `~/mcserver/scripts/heartbeat.sh` (cron 5분): MC 포트 살아있으면 healthchecks.io로 핑 → 박스 자체가 죽거나 cron이 멈추면 **박스 밖에서** 침묵 감지, 25분 무응답 시 디스코드 알림(데드맨 스위치, 온박스 워치독의 사각 커버).
 - 로그: `watchdog.log`(프리즈워치독) · `ops.log`(nightly/diskguard) · `offsite.log` · `local.log`.

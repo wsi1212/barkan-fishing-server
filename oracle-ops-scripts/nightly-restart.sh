@@ -3,11 +3,12 @@
 # 바르칸 prod 데일리 유지보수 (cron 21:00 UTC = 06:00 KST)
 #   ① 스테이징 자동배포: ~/mcserver/staging/ 의 jar/설정을 재시작 직전 적용
 #      (낮에 올려두면 Mac 꺼져있어도 6시에 자동 반영)
-#   ② 무조건 재시작(누수정리): 접속자 있으면 인게임 카운트다운 예고 후, 0명이면 즉시
+#   ② 무조건 재시작(누수정리): 사전예고는 restart-warning.sh(30/10/5/1분 전, 별도 cron)가
+#      이미 함 — 여기선 재시작 직전 즉시 알림 1회만 + save-all flush
 #   ③ 데일리 리포트: 배포결과 + 백업 성공목록 + 헬스 스냅샷을 한 메시지로
 #   ★실패 백업은 각 스크립트가 이미 즉시 개별 🔴 발송(여기 요약과 별개).
 # env: PREVIEW=1(발송·배포·재시작 없이 메시지 출력) / DRY=1(재시작·배포 실제로 안 함)
-#      WARN_SECS(카운트다운 초, 기본60) / RESTART_CMD / STATUS_FILE / WEBHOOK_FILE / STAGING
+#      RESTART_CMD / STATUS_FILE / WEBHOOK_FILE / STAGING
 # =====================================================================
 set -uo pipefail
 DIR=~/mcserver/scripts
@@ -17,7 +18,6 @@ RESTART_CMD=${RESTART_CMD:-sudo systemctl restart mcserver}
 STAGING=${STAGING:-$HOME/mcserver/staging}
 PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
 JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
-WARN_SECS=${WARN_SECS:-60}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
 LABEL="[바르칸 prod]"
 log(){ echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) [daily] $*"; }
@@ -53,14 +53,8 @@ if [ -d "$STAGING/BlockShip" ] && [ -n "$(ls -A "$STAGING/BlockShip" 2>/dev/null
 fi
 [ -z "$deploy_lines" ] && deploy_summary="배포 없음" || deploy_summary=$(printf '%s' "$deploy_lines")
 
-# --- ② 카운트다운 예고 (접속자 있을 때만) ---
-if [ "$n" -gt 0 ] && [ "$WARN_SECS" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
-  rcon "say [서버] 정기 점검 재시작이 ${WARN_SECS}초 후 시작됩니다. 안전한 곳에서 대기해 주세요."
-  s=$WARN_SECS
-  for m in 30 10 5; do
-    if [ "$s" -gt "$m" ]; then sleep $((s-m)); s=$m; rcon "say [서버] ${m}초 후 재시작합니다..."; fi
-  done
-  sleep "$s"
+# --- ② 재시작 직전 즉시 알림 (사전예고 30/10/5/1분은 restart-warning.sh가 이미 방송함) ---
+if [ "$n" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
   rcon "say [서버] 재시작합니다. 잠시 후 다시 접속해 주세요."
 fi
 
@@ -77,40 +71,6 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
-# --- 📊 어제 통계 요약 (stats-system-plan.md §10-4) — export/stats-latest.db 읽기, 실패해도 리포트 본문은 정상 발송 ---
-STATSDB="$HOME/mcserver/plugins/BlockShip/telemetry/export/stats-latest.db"
-stats_line=$(python3 - "$STATSDB" <<'PYEOF' 2>/dev/null || true
-import sqlite3, sys, datetime
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    sys.exit(0)
-try:
-    db = sqlite3.connect(sys.argv[1])
-    kst = ZoneInfo("Asia/Seoul")
-    yday = (datetime.datetime.now(kst) - datetime.timedelta(days=1)).date().isoformat()
-    row = db.execute(
-        "SELECT COUNT(*), SUM(catches), SUM(money_in), SUM(money_out), SUM(casino_net), SUM(quests_done) "
-        "FROM day_player WHERE date=?", (yday,)).fetchone()
-    players, catches, min_, mout, casino, quests = [v or 0 for v in row]
-    def man(v):
-        sign = "+" if v >= 0 else "-"
-        v = abs(v)
-        return f"{sign}{v//10000}만" if v >= 10000 else f"{sign}{v}"
-    net = min_ - mout
-    print(f"📊 어제({yday}): 접속 {players}명 · 어획 {catches} · 순발행 {man(net)} · 카지노 {man(casino)} · 퀘 {quests}건")
-except Exception:
-    pass
-PYEOF
-)
-[ -z "$stats_line" ] && stats_line="📊 어제 통계: (stats.db export 없음 또는 롤업 전)"
-
-# --- 일요일엔 커버리지 점검 리마인더 1줄 (자동 판정은 /통계 커버리지가 정확 — 여긴 안내만) ---
-if [ "$(date -u +%u)" = "7" ]; then
-  stats_line="$stats_line
-🧭 (일요일) 통계 사각지대 점검 시점 — /통계 커버리지 로 확인"
-fi
-
 msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
 🔄 정기 재시작 실행
@@ -119,9 +79,7 @@ $deploy_summary
 📦 백업 ${bcount}건 성공
 $backups
 
-💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np
-
-$stats_line"
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
 
 # --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
