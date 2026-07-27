@@ -78,9 +78,16 @@ def _conn_with_events(months=None):
     return c, aliases
 
 
+# 관리자(OP) 테스트/디버그 행동을 실제 유저 통계에서 제외(§7 규약 확장, 2026-07-28) — Telemetry.log()가
+# 모든 이벤트에 ctx.op을 자동 태깅(RollupJob.java도 day_player 집계에 동일 필터 적용). C7(이용률)은
+# 예외 — OP의 명령 사용도 "이 기능이 살아있다"는 유효 신호라 여긴 필터하지 않는다(day_type 직접 조회라
+# _union_ev를 안 거침 — 그대로 둘 것).
+NOT_OP = "(json_extract(ctx,'$.op') IS NULL OR json_extract(ctx,'$.op') != 1)"
+
+
 def _union_ev(aliases):
-    """여러 월 DB의 ev 테이블을 UNION ALL로 합친 서브쿼리 SQL 문자열."""
-    return " UNION ALL ".join(f"SELECT * FROM {a}.ev" for a in aliases)
+    """여러 월 DB의 ev 테이블을 UNION ALL로 합친 서브쿼리 SQL 문자열. OP 행동은 여기서 일괄 제외."""
+    return " UNION ALL ".join(f"SELECT * FROM {a}.ev WHERE {NOT_OP}" for a in aliases)
 
 
 # ── C1: 성장곡선 백분위 ─────────────────────────────────────────
