@@ -736,6 +736,14 @@ gui.open(안전망2, 도감GUI 자동포착 확인)·gauge.online·srv.start/sto
 - **수용 기준**: dev에서 접속→낚시테스트→판매→재접속 시나리오 후 `ev` 테이블에 sess/money/xp/level 행 확인. §12-4의 1·2·3 통과. `./gradlew build` 클린.
 
 ### Phase 1 — 낚시 버티컬 (Q1·Q3·Q9)
+**✅ 완료 (2026-07-28, blockship-plugin 커밋 b7768b0) — dev 배포·부분 실측검증 완료, prod 미배포.**
+검증: fish.cast·dex.discover는 dev에서 실제 이벤트로 확인(DB 조회). enh.attempt/part.*/tree.*/
+fish.chest/contest.*/fish.result는 컴파일 통과 + 정밀 변수추적으로 코드 정확성 확인했으나,
+**fish.result(실제 캐치 완주)는 헤드리스 테스트봇의 낚싯대 우클릭 한계로 dev에서 실측 못 함**
+(project_dev_test_bot_control.md에 기존 문서화된 제약 — PlayerInteractEvent 기반 캐스팅은
+봇으로 bite 상태까지 못 감). 다음 세션이 실캐릭터로 낚시 1회만 해보면 fish.result/loadout
+테이블까지 전부 검증 가능. ★부수: dev world (90~130, y63~64, 90~130)에 테스트용 돌바닥+
+호수 생성됨 — 정리 필요시 별도 처리.
 6. `fish.cast` 신규 리스너, `fish.blocked`.
 7. **GradeRoller.Result에 진단 필드 추가**(base/luckMult/pity/finalP/spec — 시그니처 확장, 호출부 1곳).
 8. `fish.result` 조립(§8-2 ctx 전체) + loadout 해시 사전. onMinigameDone(도주)·finishCatchReward(성공) 두 지점에서 하나의 빌더로.
