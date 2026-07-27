@@ -101,6 +101,16 @@ def load_targets():
     t["작물"] = ids_from("crop/CropSpecs.java", r'new Spec\("([^"]+)"')
     t["요리"] = ids_from("cooking/DishSpecs.java", r'(?:buff|submit|heal)\("([^"]+)"')
     t["통발"] = ids_from("trap/TrapSpecs.java", r'new Spec\("([^"]+)"')
+
+    # 지역 — 도감 「지역」 탭에 실제로 노출되는 지역만(자기 물고기 있는 비섬 지역, MainDexGui.regionDexList
+    # 필터 미러). 길드섬/개인섬은 도감에 안 뜨므로 제외.
+    regions = json.load(open(os.path.join(PLUG, "regions.json"), encoding="utf-8"))
+    OWN_SUBS = {"기본", "낮", "낮맑음", "낮비", "밤", "밤맑음", "밤비", "통발"}
+    def has_own_fish(rid):
+        subs = fish["regions"].get(rid, {})
+        return any(k in OWN_SUBS and v for k, v in subs.items())
+    t["지역"] = {rid: (r.get("displayName") or rid) for rid, r in regions.items()
+                if not rid.startswith("길드섬_") and not rid.startswith("개인섬_") and has_own_fish(rid)}
     return t
 
 
