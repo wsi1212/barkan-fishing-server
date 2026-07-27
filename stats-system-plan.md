@@ -751,6 +751,11 @@ fish.chest/contest.*/fish.result는 컴파일 통과 + 정밀 변수추적으로
 - **수용 기준**: 낚시 50회 시뮬 후 C3 쿼리가 로드아웃별 행을 반환. prd.p 필드 존재. 도주 행에 combo 리셋 전 값.
 
 ### Phase 2 — 경제·진행 (Q2·Q6·Q8)
+**✅ 완료 (2026-07-28, blockship-plugin 커밋 5ece5bb) — dev 배포·부분 실측검증 완료, prod 미배포.**
+검증: quest.reset.daily/weekly+assign.weekly, region.enter/leave(dur_s), ach.grant+money.txn(reason
+일치) 실이벤트 확인. casino.round는 CasinoLedger.applyNet 내부에서 money.txn과 같은 net을 기록하도록
+설계해 정합성이 코드 구조상 보장됨(실측은 카지노 테이블 셋업 필요해 미실시). 나머지(마켓/카지노join/
+칭호/이동계열)는 컴파일 통과+정밀 변수추적, 라이브 미검증. 다음 세션은 Phase 3부터.
 10. sell.fish/icebox/market/trade/check/xfer/salepost. 11. casino.join/round/escrow. 12. quest 라이프사이클(accept ts 메모리 맵)+npc.talk+ach+coll. 13. region enter/leave/blocked, weather, ferry/portal/pad/water/zip/horse/door/scroll/inn/boss/nav/afk, title/profile/cashshop/shop.
 - **수용 기준**: 카지노 1라운드→casino.round net과 money.txn 잔액 일치. 퀘스트 수락→완료 dur_s 기록.
 
