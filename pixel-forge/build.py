@@ -13,6 +13,36 @@ from render_textured import render as render3d, auto_camera, assert_camera_conve
 from PIL import Image
 BF = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
                         "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/CraftEngine/resources/barkan_furniture")
+# 아이템 한줄 설명(세계관 플레이버) 단일 소스 — BlockShip이 물고기/부품/재료에 쓰는 것과 같은 파일.
+# 채집물 lore는 CraftEngine이 소유하므로 여기서 읽어 yml에 굽는다(원문은 item-flavor.json 한 곳에만 존재).
+FLAVOR_JSON = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
+                                 "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/item-flavor.json")
+FLAVOR_WRAP = 30   # ItemFlavor.WRAP 과 동일하게 유지할 것
+
+
+def load_flavor(category):
+    try:
+        return json.load(open(FLAVOR_JSON, encoding="utf-8")).get(category, {}) or {}
+    except Exception:
+        return {}
+
+
+def flavor_lore(flavor, name):
+    """설명 → CE lore 줄 리스트(회색, 이탤릭 해제). 없으면 빈 리스트."""
+    text = (flavor.get(name) or "").strip()
+    if not text:
+        return []
+    lines, cur = [], ""
+    for word in text.split():
+        if not cur:
+            cur = word
+        elif len(cur) + 1 + len(word) <= FLAVOR_WRAP:
+            cur += " " + word
+        else:
+            lines.append(cur); cur = word
+    if cur:
+        lines.append(cur)
+    return [f'        - "<!i><gray>{l}</gray>"' for l in lines]
 
 # (X자 크로스 템플릿은 2026-07-17 유저 결정으로 삭제 — 평면 2장 금지, modelkit boxes가 기본)
 
@@ -36,6 +66,7 @@ def lint_shape_diversity(mf):
 
 def main():
     mf = json.load(open(os.path.join(HERE, "manifest.json")))
+    flavor = load_flavor("채집")
     lint_shape_diversity(mf)
     assert_camera_convention()   # pitch 양수=조감 회귀 방지 (2026-07-18 벌레시점 아이콘 사고)
     g, pfx = mf["group"], mf["prefix"]
@@ -98,12 +129,15 @@ def main():
         region = it.get("region", "평원"); matid = it["name"].replace(" ", "")
         rarity = it.get("rarity", "흔함")
         ncol = {"흔함": "white", "희귀": "aqua", "전설": "gold"}.get(rarity, "white")
+        # 세계관 한줄 설명 — [채집] 태그 바로 아래, 서식지/등급 위 (BlockShip 아이템 lore 규약과 동일 순서)
+        desc = flavor_lore(flavor, it["name"])
+        desc_block = ("\n".join(desc) + "\n        - \"\"\n") if desc else ""
         cfg.append(f"""  barkan:{g}_{iid}:
     data:
       item_name: "<!i><{ncol}>{it['name']}</{ncol}>"
       lore:
         - "<!i><dark_gray>[채집]</dark_gray>"
-        - "<!i><gray>서식지: <white>{region}</white>  <dark_gray>·</dark_gray>  등급: <{ncol}>{rarity}</{ncol}></gray>"
+{desc_block}        - "<!i><gray>서식지: <white>{region}</white>  <dark_gray>·</dark_gray>  등급: <{ncol}>{rarity}</{ncol}></gray>"
         - "<!i><dark_gray>mat:채집_{matid}</dark_gray>"
     model:
       type: minecraft:select
@@ -160,6 +194,9 @@ def main():
                               "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/forage-types.json")
     json.dump(types, open(plug, "w"), ensure_ascii=False, indent=1)
     print(f"forage-types.json: {len(types)}종 (흔함 1.5h / 희귀 20h)")
+    missing = [it["name"] for it in mf["items"] if not (flavor.get(it["name"]) or "").strip()]
+    if missing:
+        print(f"  ⚠ 한줄 설명 없음 {len(missing)}종 (item-flavor.json '채집'): " + ", ".join(missing))
     print(f"OK — {len(mf['items'])}종. 다음: devrcon 'ce reload all'")
 
 if __name__ == "__main__":
