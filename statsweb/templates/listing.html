@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">{{ page_title }}</h1>
+{% if page_note %}<p style="color:var(--muted); font-size:13px; margin-top:-8px;">{{ page_note }}</p>{% endif %}
+{% for sec in sections %}
+<div class="panel">
+  <h2>{{ sec.heading }}</h2>
+  {% if sec.chart_svg %}
+  <div>{{ sec.chart_svg | safe }}</div>
+  {% endif %}
+  {% if sec.table_cols %}
+  <table>
+    <thead><tr>{% for c in sec.table_cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for row in sec.table_rows %}
+      <tr>{% for c in sec.table_cols %}<td>{{ row.get(c, '') }}</td>{% endfor %}</tr>
+      {% else %}
+      <tr><td colspan="{{ sec.table_cols|length }}" style="color:var(--muted)">데이터 없음</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

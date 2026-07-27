@@ -1,0 +1,16 @@
+# Caddy 설정 추가 스니펫 (stats-system-plan.md §10-5)
+#
+# ★기존 lh-bizben.duckdns.org 블록은 절대 수정하지 않는다 — 이 블록만 Caddyfile에 추가.
+# 적용: 이 내용을 /etc/caddy/Caddyfile (또는 conf.d 하위 파일)에 append 후
+#       sudo systemctl reload caddy   (무중단 — 기존 연결 안 끊김)
+#
+# barkan.kro.kr은 MC 접속용으로 이미 확보된 도메인 재사용. MC=25565(UDP/TCP 별도),
+# 웹=443이라 포트 충돌 없음. kro.kr은 서브-서브도메인 불가 전제라 경로(/admin) 방식 사용.
+# statsweb은 127.0.0.1:8080 바인드(3000은 기존 lh-bizben 프록시 대상 node 서비스가 점유 중).
+
+barkan.kro.kr {
+    handle_path /admin/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+    # 루트(/)는 향후 서버 소개 페이지용으로 예약 — 지금은 아무 핸들러도 없음(404).
+}

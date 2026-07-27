@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}유저 상세{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">⑨ 유저 상세</h1>
+<form method="get" action="/user" style="margin-bottom:20px;">
+  <input type="text" name="name" placeholder="닉네임" value="{{ name or '' }}">
+  <button type="submit">조회</button>
+</form>
+
+{% if error %}<div class="panel"><p style="color:var(--neg)">{{ error }}</p></div>{% endif %}
+
+{% if rows %}
+<div class="panel">
+  <h2>{{ name }} — 최근 7일</h2>
+  <table>
+    <thead><tr><th>날짜</th><th>플레이타임</th><th>캐스트</th><th>어획</th><th>최고등급</th><th>순액</th><th>퀘</th><th>제작</th><th>제출</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td>{{ r.date }}</td><td>{{ (r.playtime_s // 60) }}분</td><td>{{ r.casts }}</td><td>{{ r.catches }}</td>
+        <td>{{ r.best_grade or '-' }}</td><td>{{ r.money_in - r.money_out }}</td>
+        <td>{{ r.quests_done }}</td><td>{{ r.crafts }}</td><td>{{ r.submits }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% if events %}
+<div class="panel">
+  <h2>최근 이벤트(이번 달, 최대 30건)</h2>
+  <table>
+    <thead><tr><th>시각</th><th>타입</th><th>내용</th></tr></thead>
+    <tbody>
+    {% for e in events %}
+      <tr><td>{{ e.time }}</td><td>{{ e.type }}</td><td style="white-space:normal">{{ e.ctx }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

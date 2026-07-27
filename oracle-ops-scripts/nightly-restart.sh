@@ -77,6 +77,40 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
+# --- 📊 어제 통계 요약 (stats-system-plan.md §10-4) — export/stats-latest.db 읽기, 실패해도 리포트 본문은 정상 발송 ---
+STATSDB="$HOME/mcserver/plugins/BlockShip/telemetry/export/stats-latest.db"
+stats_line=$(python3 - "$STATSDB" <<'PYEOF' 2>/dev/null || true
+import sqlite3, sys, datetime
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    sys.exit(0)
+try:
+    db = sqlite3.connect(sys.argv[1])
+    kst = ZoneInfo("Asia/Seoul")
+    yday = (datetime.datetime.now(kst) - datetime.timedelta(days=1)).date().isoformat()
+    row = db.execute(
+        "SELECT COUNT(*), SUM(catches), SUM(money_in), SUM(money_out), SUM(casino_net), SUM(quests_done) "
+        "FROM day_player WHERE date=?", (yday,)).fetchone()
+    players, catches, min_, mout, casino, quests = [v or 0 for v in row]
+    def man(v):
+        sign = "+" if v >= 0 else "-"
+        v = abs(v)
+        return f"{sign}{v//10000}만" if v >= 10000 else f"{sign}{v}"
+    net = min_ - mout
+    print(f"📊 어제({yday}): 접속 {players}명 · 어획 {catches} · 순발행 {man(net)} · 카지노 {man(casino)} · 퀘 {quests}건")
+except Exception:
+    pass
+PYEOF
+)
+[ -z "$stats_line" ] && stats_line="📊 어제 통계: (stats.db export 없음 또는 롤업 전)"
+
+# --- 일요일엔 커버리지 점검 리마인더 1줄 (자동 판정은 /통계 커버리지가 정확 — 여긴 안내만) ---
+if [ "$(date -u +%u)" = "7" ]; then
+  stats_line="$stats_line
+🧭 (일요일) 통계 사각지대 점검 시점 — /통계 커버리지 로 확인"
+fi
+
 msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
 🔄 정기 재시작 실행
@@ -85,7 +119,9 @@ $deploy_summary
 📦 백업 ${bcount}건 성공
 $backups
 
-💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np
+
+$stats_line"
 
 # --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi

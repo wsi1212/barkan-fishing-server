@@ -1,0 +1,31 @@
+[Unit]
+# 바르칸 통계 웹 대시보드 (stats-system-plan.md §10-5). BlockShip/게임 서버와 완전 독립 —
+# 죽어도 게임에 무영향이므로 프리즈 워치독에 안 묶는다.
+Description=Barkan Stats Web Dashboard (FastAPI/uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mcserver/statsweb
+EnvironmentFile=/home/ubuntu/mcserver/statsweb/.env
+ExecStart=/home/ubuntu/mcserver/statsweb/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8080
+Restart=always
+RestartSec=5
+MemoryMax=512M
+Nice=10
+StandardOutput=append:/home/ubuntu/mcserver/logs/statsweb.log
+StandardError=append:/home/ubuntu/mcserver/logs/statsweb.log
+
+[Install]
+WantedBy=multi-user.target
+
+# ── 설치 안내(로컬 템플릿 — 실제 오라클 박스 설치는 별도 명시 요청 시에만) ──
+# 1) rsync statsweb/ 통째로 ~/mcserver/statsweb/ 로 업로드
+# 2) cd ~/mcserver/statsweb && python3 -m venv venv && venv/bin/pip install -r requirements.txt
+# 3) cp .env.example .env 후 값 채우기(Discord client id/secret, SESSION_SECRET 재생성,
+#    STATSLAB_DATA_DIR=/home/ubuntu/mcserver/plugins/BlockShip/telemetry)
+# 4) cp admins.json.example admins.json 후 실제 어드민 Discord ID 기입
+# 5) sudo cp statsweb.service /etc/systemd/system/statsweb.service
+# 6) sudo systemctl daemon-reload && sudo systemctl enable --now statsweb
+# 7) Caddy 설정에 caddy-barkan-admin-snippet.txt 블록 추가 후 sudo systemctl reload caddy

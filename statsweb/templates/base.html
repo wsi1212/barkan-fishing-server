@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}바르칸 통계{% endblock %} — 바르칸 통계</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --border: #2a2e38; --text: #e6e8ec; --muted: #9aa1ac;
+    --accent: #5b9dff; --pos: #4caf6d; --neg: #e05a5a; --s0:#5b9dff; --s1:#4caf6d; --s2:#e0a95a;
+    --s3:#c15be0; --s4:#5be0d3; --s5:#e05a8a;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family: -apple-system, "Malgun Gothic", sans-serif; }
+  a { color: var(--accent); text-decoration:none; }
+  .layout { display:flex; min-height:100vh; }
+  nav.side { width:200px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--border); padding:16px 0; }
+  nav.side .brand { font-weight:700; padding:0 16px 16px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+  nav.side a { display:block; padding:8px 16px; color:var(--muted); font-size:14px; }
+  nav.side a.active, nav.side a:hover { color:var(--text); background:#1e222b; }
+  main { flex:1; padding:24px; max-width:1100px; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .kpi-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  .kpi { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 16px; min-width:130px; }
+  .kpi .v { font-size:22px; font-weight:700; }
+  .kpi .l { font-size:12px; color:var(--muted); }
+  .panel { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:20px; overflow-x:auto; }
+  .panel h2 { margin-top:0; font-size:15px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  th { color:var(--muted); font-weight:600; }
+  tr:hover td { background:#1c2029; }
+  .chart-title { fill:var(--muted); font-size:11px; }
+  .chart-axis { stroke:var(--border); stroke-width:1; }
+  .chart-bar-pos { fill:var(--pos); }
+  .chart-bar-neg { fill:var(--neg); }
+  .chart-label { fill:var(--muted); font-size:10px; }
+  .chart-tick { fill:var(--muted); font-size:10px; }
+  .chart-legend { fill:var(--muted); font-size:10px; }
+  .chart-line { stroke:var(--accent); stroke-width:2; }
+  .chart-dot { fill:var(--accent); }
+  .chart-series-0 { fill:var(--s0); } .chart-series-1 { fill:var(--s1); } .chart-series-2 { fill:var(--s2); }
+  .chart-series-3 { fill:var(--s3); } .chart-series-4 { fill:var(--s4); } .chart-series-5 { fill:var(--s5); }
+  .chart-empty { color:var(--muted); font-size:13px; padding:24px; text-align:center; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; }
+  .badge.ok { background:#1e3a2a; color:var(--pos); }
+  .badge.warn { background:#3a2a1e; color:var(--s2); }
+  input[type=text] { background:#0c0e12; border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:6px; }
+  button { background:var(--accent); border:none; color:#0a0e14; font-weight:600; padding:8px 14px; border-radius:6px; cursor:pointer; }
+  .userinfo { font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="side">
+    <div class="brand">🎣 바르칸 통계</div>
+    <a href="/" class="{{ 'active' if active=='home' else '' }}">① 홈</a>
+    <a href="/growth" class="{{ 'active' if active=='growth' else '' }}">② 성장곡선</a>
+    <a href="/economy" class="{{ 'active' if active=='economy' else '' }}">③ 경제</a>
+    <a href="/equipment" class="{{ 'active' if active=='equipment' else '' }}">④ 장비</a>
+    <a href="/production" class="{{ 'active' if active=='production' else '' }}">⑤ 생산</a>
+    <a href="/quests" class="{{ 'active' if active=='quests' else '' }}">⑥ 퀘스트</a>
+    <a href="/casino" class="{{ 'active' if active=='casino' else '' }}">⑦ 카지노</a>
+    <a href="/rng" class="{{ 'active' if active=='rng' else '' }}">⑧ RNG</a>
+    <a href="/user" class="{{ 'active' if active=='user' else '' }}">⑨ 유저 상세</a>
+    <a href="/coverage" class="{{ 'active' if active=='coverage' else '' }}">⑩ 커버리지</a>
+  </nav>
+  <main>
+    <div class="topbar">
+      <div></div>
+      <div class="userinfo">{% if user %}{{ user.name }} ({{ user.role }}) · <a href="/logout">로그아웃</a>{% endif %}</div>
+    </div>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# pull.sh가 여기에 stats-latest.db / events-YYYY-MM.db를 받아온다 — 플레이어 데이터라 커밋 금지.
+*.db
+*.db-wal
+*.db-shm
+!.gitignore

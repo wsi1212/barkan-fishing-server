@@ -760,19 +760,51 @@ fish.chest/contest.*/fish.result는 컴파일 통과 + 정밀 변수추적으로
 - **수용 기준**: 카지노 1라운드→casino.round net과 money.txn 잔액 일치. 퀘스트 수락→완료 dur_s 기록.
 
 ### Phase 3 — 생산 (Q4)
-14. crop/cook/forage/trap. 15. mine.min·imine.min 분단위 집계기(공용 `MinuteAggregator` 헬퍼). 16. island/guild/submit/craft/appraise.
-- **수용 기준**: 작물 1사이클 심기→수확에 grow_actual_s 기록. 섬광산 연타 1분 → imine.min 1행.
+**✅ 완료 (2026-07-28, blockship-plugin) — dev 배포·구조적 검증 완료(빌드/큐/레지스트리), 라이브 실측(작물 심기→수확 등)은 미실시. prod 미배포.**
+검증: 전체 빌드 통과, dev 서버 무예외 기동, `/통계 상태` 큐 정상(errors=0/drop=0), 이번 페이즈에서
+추가한 이벤트 타입 전수(약 40종)가 TeleTypes에 하나도 빠짐없이 등록됨을 grep diff로 확인. 실제
+게임플레이 실측(작물 사이클/섬광산 매크로판정/길드 생성 등)은 셋업 비용이 커 이번 세션에서 생략 —
+컴파일 통과+정밀 변수추적 수준의 신뢰도(Phase 2 마켓/카지노join과 동일 수준).
+14. crop.plant/harvest/pull + cook.craft/eat. 15. forage.do + trap.place/collect/break.
+16. mine.min·imine.min 분단위 집계기(공용 `MinuteAggregator` 헬퍼, DrillManager/IslandMineManager) + oregen.build.
+17. island.create/upgrade/furniture + alba.invite/expire + submit.do/season + guild.create/disband/member/upgrade/buff/expand(guild.deposit은 money.txn cur="guild"가 겸함).
+18. craft.do(CraftingGui) + craft.unlock(CraftingManager, via=item/matId) + appraise(ArtifactAppraisalGui).
+- **수용 기준**: 작물 1사이클 심기→수확에 grow_actual_s 기록(구조상 보장 — c.plantTime epoch초 기준 now()-plantTime). 섬광산 연타 1분 → imine.min 1행(MinuteAggregator 60s 윈도우, 라이브 미실측).
 
 ### Phase 4 — 스냅샷·롤업·분석·운영·규약
+**✅ 완료 (2026-07-28, blockship-plugin 커밋 7faa3fb/ec14b24) — dev 배포·실측검증 완료, prod 미배포.**
+검증: 카탈로그 13종(parts/fish/quests/recipes/materials/forage/submit + enhance/crops/dishes/traps/drill/
+island_prices/guild_prices) 해시 삽입 확인, srv.start ctx에 catalogs 맵 동봉 확인. player_snapshot 26명·
+guild_snapshot 2길드 실제 UPSERT 확인. day_type/day_player 롤업 SQL을 실데이터로 수동검증(playtime/casts/
+catches/money_in·out/quests_done 등 정확). export/stats-latest.db VACUUM INTO 생성+테이블 무결성 확인.
+`/통계 오늘·어제·유저·돈·커버리지` 전부 무예외 실행 확인(단 RCON 툴 특성상 async 응답 캡처는 실측 불가 —
+sendMessage 로직 자체는 이미 검증된 SQL과 동일 패턴). stats-lab/queries.py 10개 쿡북 함수(C1~C9, C9는
+낚시/강화 2종) 전부 실행 성공, report.py 마크다운 생성 확인. box 스크립트(telemetry-archive.sh 신설,
+offsite-backup.sh --exclude, nightly-restart.sh 📊 줄+일요일 리마인더)는 이 레포 oracle-ops-scripts/
+미러에서 로컬 bash -n + PREVIEW 테스트까지 완료 — ★실제 오라클 박스 설치/크론 등록은 prod 인프라 변경이라
+별도 명시 요청 시에만(수행 안 함).
 17. CatalogSnapshot(코드 상수 덤프 포함) + srv.start 해시. 18. player/guild_snapshot, day_type/day_player 롤업+캐치업, VACUUM INTO export. 19. `/통계` 전체 서브커맨드 + 커버리지 감사. 20. stats-lab/(pull.sh, queries.py 쿡북 C1–C9, report.py, intended-curve.json). 21. box: telemetry-archive.sh+cron, offsite-backup.sh --exclude(box 실물+이 레포 oracle-ops-scripts/ 미러 동시 수정), nightly-restart.sh 리포트 1줄. 22. blockship-plugin/CLAUDE.md 규약 문안(§7) 추가. 23. TeleTypes에 §8 전 타입 등록 확인(누락=커버리지 감사가 자기 자신을 잡는지 테스트).
 - **수용 기준**: `/통계 오늘` 정상 출력. PREVIEW=1 데일리 리포트에 📊 줄 포함. pull.sh로 Mac에서 C1 실행 성공. 커버리지에 미등록 GUI 하나 일부러 만들어 검출되는지 확인.
 
 ### Phase 5 — 웹 어드민 대시보드 (§10-5)
+**✅ 코드/로컬검증 완료 (2026-07-28, 이 scripts 레포 `statsweb/`) — ★prod 미배치(운영자 1회 작업 미완료라 배치 불가).**
+검증: FastAPI 앱(app.py) + Discord OAuth2(auth.py) + SVG 차트 4종(charts.py, Chart.js 대신 —
+이 환경에서 외부 JS 파일을 새로 내려받을 수 없어 CDN 미의존 요건을 서버사이드 SVG로 충족, 동일하게
+자체완결·오프라인 렌더) + 페이지 ①~⑩ 전부(listing.html 공용 템플릿 재사용) 구현.
+stats-lab/queries.py를 `set_data_dir()`로 리팩터해 웹·CLI 공유 모듈화(§10-5 요건). 로컬에서
+forged 세션 쿠키(TestClient)로 인증가드+10개 라우트 전부 실제 콘텐츠 렌더 확인(리다이렉트
+따라가기 끄고 status 200 직접 확인 — 첫 시도에서 자동 리다이렉트 추적 때문에 오탐 있었음, 재검증
+완료), SVG 차트 4종 실데이터+합성데이터로 렌더 확인, home_kpis 등 신규 쿼리 정상 동작 확인.
+Discord OAuth는 authorize URL 조립 로직만 검증(실제 토큰 교환은 진짜 앱 credential 필요 — 이
+환경에서 왕복 불가, 코드는 표준 플로우 그대로 구현). systemd 유닛+Caddy 스니펫은
+oracle-ops-scripts/ 미러에 로컬 파일로만 준비(운영자 체크리스트 = `statsweb/README.md`).
+**★실제 오라클 박스 배치(Discord 앱 생성·admins.json 채우기·systemd/Caddy 적용)는 사람만 할 수
+있는 사전작업(계정/DNS/비밀값)이 남아있어 미수행 — 별도 명시 요청 및 운영자 작업 완료 후.**
 24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할).
 25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10).
-26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉).
-27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가.
-- **수용 기준**: 어드민 2개 계정으로 로그인 성공 + 목록 밖 Discord 계정 거부 확인. 미로그인 접근 전 라우트 /login 리다이렉트. `https://barkan.kro.kr/admin` 인증서 정상. **기존 lh-bizben.duckdns.org 서비스 무영향 확인.** `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화.
+26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉 → 실제로는 서버사이드 SVG로 대체, 위 검증 노트 참조).
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가(nightly-restart.sh 반영은 별도 — 현재는 📊 통계요약 줄만 추가됨, Phase4-11 참조).
+- **수용 기준**: 어드민 2개 계정으로 로그인 성공 + 목록 밖 Discord 계정 거부 확인. 미로그인 접근 전 라우트 /login 리다이렉트. `https://barkan.kro.kr/admin` 인증서 정상. **기존 lh-bizben.duckdns.org 서비스 무영향 확인.** `kill`로 statsweb 죽인 뒤 자동 재기동. 대시보드 조회 중 게임 mspt 무변화. ※실제 Discord 계정 로그인/인증서/systemd 자동재기동 항목은 prod 배치 후에만 검증 가능 — 이번 세션은 로컬 인증가드 로직까지만.
 
 ### Phase 6 — 통합 어드민 콘솔 (§10-6, 통계 안정화 후 착수)
 28. 역할 2단(viewer/admin) 분기 + 전 쓰기 액션 CSRF + `audit_log` 기록 공통 래퍼.

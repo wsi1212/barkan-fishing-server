@@ -39,7 +39,13 @@ fail(){ echo "FAIL: $1" >&2; notify "🔴" "백업 실패: $1"; exit 1; }
 mkdir -p "$STAGE"
 
 # 1) tar 생성
-tar --warning=no-file-changed -czf "$LOCAL" -C "$(dirname "$SRC")" "$(basename "$SRC")" 2>/dev/null
+#    telemetry 원본(events-*.db)/spill 파일은 제외(stats-system-plan.md §11) — 매일 용량이 크고
+#    로컬 3개월 보존 + 월간 telemetry-archive.sh가 따로 버킷에 아카이브한다. stats.db(export/
+#    stats-latest.db 포함)는 소량·영구가치라 그대로 포함.
+tar --warning=no-file-changed \
+  --exclude='BlockShip/telemetry/events-*' \
+  --exclude='BlockShip/telemetry/spill-*' \
+  -czf "$LOCAL" -C "$(dirname "$SRC")" "$(basename "$SRC")" 2>/dev/null
 rc=$?
 # tar rc: 0=성공, 1=읽는 중 파일 변경(라이브 서버 정상, 아카이브 유효), 2+=치명
 [ "$rc" -ge 2 ] && fail "tar 치명 오류 (rc=$rc)"

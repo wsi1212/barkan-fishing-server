@@ -1,0 +1,4 @@
+{
+  "_comment": "실제 파일명은 admins.json (이 .example 확장자를 지운 사본). key=Discord 유저 ID(숫자 문자열, 디스코드 설정→고급→개발자모드 켜고 프로필 우클릭→ID복사). role: viewer(통계 열람만) | admin(Phase 6 운영액션까지).",
+  "123456789012345678": { "name": "wsi1212", "role": "admin" }
+}

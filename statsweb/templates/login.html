@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><title>바르칸 통계 — 로그인</title>
+<style>
+  body { margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+    background:#0f1115; color:#e6e8ec; font-family:-apple-system, "Malgun Gothic", sans-serif; }
+  .card { background:#171a21; border:1px solid #2a2e38; border-radius:12px; padding:40px; text-align:center; }
+  .card h1 { margin:0 0 8px; font-size:20px; }
+  .card p { color:#9aa1ac; font-size:13px; margin-bottom:24px; }
+  a.btn { display:inline-block; background:#5865F2; color:#fff; padding:12px 24px; border-radius:8px; font-weight:600; }
+  .err { color:#e05a5a; font-size:13px; margin-top:16px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎣 바르칸 통계</h1>
+    <p>어드민만 열람 가능 — Discord 계정으로 로그인하세요.</p>
+    <a class="btn" href="/login/discord">Discord로 로그인</a>
+    {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  </div>
+</body>
+</html>

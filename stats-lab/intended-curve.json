@@ -1,0 +1,19 @@
+{
+  "_comment": "C1(성장곡선) 목표 대조표 — stats-system-plan.md §10-2. 확실한 앵커만 채움; 중간 레벨은 balance-audit 스킬의 실제 XP공식 시뮬레이션으로 보강 필요(현재는 미확정 null).",
+  "source": "balance.md §3.1 + CLAUDE.md 핵심수치(2026-03-29 70Lv 엔드게임 재설계 changelog 기준). ★balance.md §15.1 구간표는 그 이전 구버전 수치라 폐기 — 앵커는 최신 changelog만 인용.",
+  "assumption_hours_per_day": 3,
+  "xp_wall_multipliers": {
+    "1-14": 1.04,
+    "15-24": 1.08,
+    "25-39": 1.05,
+    "40-49": 1.09,
+    "50-59": 1.06,
+    "60+": 1.10
+  },
+  "anchors": [
+    { "level": 1, "cum_hours": 0 },
+    { "level": 60, "cum_hours": null, "note": "G/S등급+S장비 해금컷 — 정확한 누적시간 미확정" },
+    { "level": 70, "cum_hours": 46, "note": "엔드게임 진입(15일 × 일평균 3h 가정)" },
+    { "level": 100, "cum_hours": 517, "note": "하드코어 만렙(172일 × 일평균 3h 가정)" }
+  ]
+}

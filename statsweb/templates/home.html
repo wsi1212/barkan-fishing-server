@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}홈{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">① 홈 — 오늘/7일 KPI</h1>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="v">{{ today.players if today else 0 }}명</div><div class="l">오늘 접속</div></div>
+  <div class="kpi"><div class="v">{{ today_playtime_h }}h</div><div class="l">오늘 플레이타임</div></div>
+  <div class="kpi"><div class="v">{{ today.catches if today else 0 }}</div><div class="l">오늘 어획</div></div>
+  <div class="kpi"><div class="v">{{ today_net_str }}</div><div class="l">오늘 순발행</div></div>
+  <div class="kpi"><div class="v">{{ today_casino_str }}</div><div class="l">오늘 카지노 net</div></div>
+  <div class="kpi"><div class="v">{{ today.quests_done if today else 0 }}</div><div class="l">오늘 퀘스트 완료</div></div>
+</div>
+
+<div class="panel">
+  <h2>최근 {{ days }}일 접속자 수</h2>
+  <div>{{ players_chart | safe }}</div>
+</div>
+
+<div class="panel">
+  <h2>최근 {{ days }}일 순발행(money_in − money_out)</h2>
+  <div>{{ net_chart | safe }}</div>
+</div>
+
+<div class="panel">
+  <h2>수집 헬스</h2>
+  <table>
+    <tr><th>항목</th><th>최근 실행일</th><th>상태</th></tr>
+    <tr><td>플레이어/길드 스냅샷</td><td>{{ health.last_player_snapshot_date or '-' }}</td>
+        <td>{{ health_badge(health.last_player_snapshot_date) | safe }}</td></tr>
+    <tr><td>일별 롤업</td><td>{{ health.last_rollup_date or '-' }}</td>
+        <td>{{ health_badge(health.last_rollup_date) | safe }}</td></tr>
+    <tr><td>stats.db export</td><td>{{ health.last_export_date or '-' }}</td>
+        <td>{{ health_badge(health.last_export_date) | safe }}</td></tr>
+  </table>
+</div>
+{% endblock %}
