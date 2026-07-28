@@ -8,6 +8,10 @@ set -uo pipefail
 DIR=~/mcserver/scripts
 MINUTES="${1:?usage: restart-warning.sh <30|10|5|1>}"
 
+# 오늘 밤 스킵 마커 있으면 예고 방송 자체를 안 함(실제 재시작 없을 거라 방송이 거짓말이 됨).
+# 마커 삭제(소모)는 nightly-restart.sh(06:00, 제일 마지막)가 담당 — 여기선 확인만.
+[ -f "$DIR/.skip-nightly-once" ] && exit 0
+
 out=$("$DIR/rcon.py" list 2>/dev/null) || exit 0
 n=$(printf '%s' "$out" | grep -oE 'are [0-9]+' | grep -oE '[0-9]+' | head -1); n=${n:-0}
 [ "$n" -eq 0 ] && exit 0

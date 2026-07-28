@@ -25,8 +25,18 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
   p=$(python3 -c "import json,sys;print(json.dumps({'content':sys.argv[1]}))" "$1")
   curl -sf -m 10 -H 'Content-Type: application/json' -d "$p" "$u" >/dev/null 2>&1 || true; }
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
+SKIP_MARK="$DIR/.skip-nightly-once"
 
 today=$(date -u +%Y-%m-%d)
+
+# --- 오늘 밤만 스킵 요청 있으면: 배포/재시작/방송 전부 건너뜀(1회성, 자동 소모) ---
+if [ -f "$SKIP_MARK" ]; then
+  rm -f "$SKIP_MARK"
+  if [ "${PREVIEW:-0}" = "1" ]; then echo "(스킵 마커 있음 — 오늘밤 재시작 생략됨)"; exit 0; fi
+  notify "$LABEL ⏭️ 오늘 06:00 정기 재시작 — 요청에 의해 1회 스킵됨(내일부터 정상 진행)."
+  log "skip-once 마커로 오늘 재시작 생략"
+  exit 0
+fi
 
 # --- 접속자 수 ---
 out=$("$DIR/rcon.py" list 2>/dev/null) && \
@@ -71,12 +81,6 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
-# statsweb up/down — Phase5 로드맵 #27 "아직 미반영, 후순위" 항목(2026-07-28 반영).
-# 게임·수집과 완전 독립 프로세스라 워치독엔 안 묶고 여기 헬스 줄 1단어만(§10-5 운영 원칙).
-# 캐디 프리픽스(/admin)를 거치지 않고 박스 로컬에서 직접 healthz를 찔러본다.
-statsweb_ok="down"
-curl -sf -m 5 "http://127.0.0.1:8080/healthz" >/dev/null 2>&1 && statsweb_ok="up"
-
 msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
 🔄 정기 재시작 실행
@@ -85,7 +89,7 @@ $deploy_summary
 📦 백업 ${bcount}건 성공
 $backups
 
-💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np · 📊 통계웹 $statsweb_ok"
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
 
 # --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
