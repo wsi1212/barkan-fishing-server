@@ -71,6 +71,12 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
+# statsweb up/down — Phase5 로드맵 #27 "아직 미반영, 후순위" 항목(2026-07-28 반영).
+# 게임·수집과 완전 독립 프로세스라 워치독엔 안 묶고 여기 헬스 줄 1단어만(§10-5 운영 원칙).
+# 캐디 프리픽스(/admin)를 거치지 않고 박스 로컬에서 직접 healthz를 찔러본다.
+statsweb_ok="down"
+curl -sf -m 5 "http://127.0.0.1:8080/healthz" >/dev/null 2>&1 && statsweb_ok="up"
+
 msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
 🔄 정기 재시작 실행
@@ -79,7 +85,7 @@ $deploy_summary
 📦 백업 ${bcount}건 성공
 $backups
 
-💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np · 📊 통계웹 $statsweb_ok"
 
 # --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
