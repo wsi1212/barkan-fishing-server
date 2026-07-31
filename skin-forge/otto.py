@@ -13,7 +13,8 @@ DESIGN SPEC  (그리기 전에 전부 선언 — 이 표가 품질의 근본 레
   팔레트     셔츠=바랜 청록(항구 물색) / 앞치마=소금기 낀 가죽 / 장화=젖은 진갈색
              / 바지=캔버스 회갈 / 악센트=놋쇠(버클 1곳 + 파우치 잠금 1곳, 그 이상 금지)
   비대칭     왼팔만 소매 걷음 · 오른 허벅지에 비늘칼 파우치 · 앞치마 왼쪽 아래 헝겊 패치
-  얼굴       그을린 피부, 짧은 회갈 머리+구레나룻, 짧은 수염, 회청색 눈, 눈가 주름
+  얼굴       그을린 피부, 짧은 회갈 머리+구레나룻, 짧은 수염, 회청색 눈(안쪽 응시=기본),
+             눈가 주름, 코 없음(기본)
   정체 모티프 가슴 로고 없음(장인은 로고를 안 붙인다) — 정체성은 앞치마 재단 + 파우치로
 """
 import pathlib
@@ -50,8 +51,8 @@ def build():
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED, part_x=5)
     g.beard(s, P['beard'], style='full', y=5, seed=SEED, ragged=False)  # cheeks stay clear
     g.wrinkles(s, P['skin'], crow=True, forehead=False)   # cap covers the forehead
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=-1, brow=P['hair'][1], brow_y=3)
-    g.nose(s, P['skin'], y=5, w=2)
+    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    #   gaze=0 = 양쪽 홍채 안쪽(기본값). 코는 생략이 기본 — 오토는 캐릭터성이 없어 안 넣음
     g.mouth(s, P['skin'], y=6, w=2, color=P['beard'][1])  # mouth line inside the moustache
     g.cap(s, P['shirt'], crown=3, band=P['boot'], seed=SEED)  # knit fisherman's cap
     for x in (0, 7):                                        # sideburns under the cap
