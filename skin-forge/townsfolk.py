@@ -252,6 +252,22 @@ VARIANTS = {
                    garb='robe', cloth='moss', under='linen', legs='moss',
                    boot='boot', head='hood', headc='moss', prop='herbs'),
 
+    '3': dict(file='grandpa', cid=3, label='할아버지 — 튜토리얼 길잡이',
+              # "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
+              # ★새 플레이어가 서버에서 처음 만나는 NPC. 구스킨은 분홍 만화 얼굴 +
+              #   연보라 머리였다. 따뜻하고 기억에 남아야 하므로 마을에서 유일하게
+              #   붉은 니트 모자를 씌운다(멀리서도 '그 할아버지'로 식별)
+              skin='c2a184', hair='9a938a', beard='full', age=True,
+              garb='tunic', cloth='oat', under='canvas', legs='grey', boot='boot',
+              head='cap', headc='rust', prop='shawl', shawl='teal', roll=8),
+    '146': dict(file='chief', cid=146, label='촌장',
+                # ★구스킨은 바닐라 주민(빌리저) 텍스처 — 사람이 아니라 몹으로 읽힌다.
+                #   마을에서 가장 격식 있는 평민: 긴 코트 + 놋쇠 직위 사슬 + 마을 장부
+                skin='c39a72', hair='9a938a', beard='full', age=True,
+                garb='coat', cloth='leather_d', under='oat', legs='charcoal',
+                boot='boot_d', head='coif', headc='grey', prop='book',
+                accent='brass'),
+
     '75': dict(file='rina', cid=75, label='리나 — 어부 지망 소녀',
                # "저도 언젠가 훌륭한 어부가 되고 싶어요" → 어른 옷을 줄여 입은 소녀
                female=True, child=True, skin='d0a57f', hair='7a5f3a',

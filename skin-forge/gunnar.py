@@ -34,7 +34,8 @@ SEED = 132
 P = dict(
     skin=ramp('c39a72'),
     hair=ramp('5a4636'),                  # 짧은 갈색
-    coat=ramp('2b3a52'),                  # 짙은 네이비 오일스킨
+    # ★기본 spread(0.62)면 [3]~[4]가 밝은 파랑으로 튄다 — 마을은 전부 뮤트다
+    coat=ramp('2b3a52', spread=0.42),     # 짙은 네이비 오일스킨
     shirt=ramp('a9a294'),                 # 바랜 흰 셔츠
     rope=ramp('9b8355'),                  # 마 밧줄
     scarf=ramp('6b4f4a'),                 # 목수건
