@@ -27,12 +27,16 @@ from skinlib import Skin, ramp            # noqa: E402
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 45
 # 값 뒤 인라인 주석은 쉼표를 삼켜 구문오류를 낸다 — 주석은 줄 위에
+# ★2026-08-01 리워크: 로브 4대 결함(짧은 소매·가로 띠·판때기 자락·침침한 단색) 제거.
+#   가운을 한 단 밝게 올리고(3d3a5c→474468) 양피지 안감을 칼라·앞섶·커프에 노출한다.
 P = dict(
     skin=ramp('c2a184'),
-    hair=ramp('a8a49c'),
-    gown=ramp('3d3a5c'),
-    cape=ramp('2a2841'),
-    lining=ramp('9a9488'),
+    # ★백발: 기본 spread로 램프를 뽑으면 위쪽이 클리핑돼 뒤통수가 형광 줄무늬가 된다.
+    #   해법은 strands를 끄는 게 아니라(그러면 회색 돌덩이가 된다) 램프를 좁히는 것.
+    hair=ramp('948f86', spread=0.30),
+    gown=ramp('474468'),
+    cape=ramp('2e2b47'),
+    lining=ramp('a8a08e'),
     scroll=ramp('bfb49a'),
     brass=ramp('a8863a'),
     iris=ramp('4a4a58'),
@@ -43,6 +47,8 @@ def build():
     s = Skin()
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
+    # ★백발에 strands=True를 쓰면 램프 상단이 클리핑돼 뒤통수가 형광 줄무늬가 된다.
+    #   단일 톤으로 깔고 반스텝 그레인으로만 결을 준다.
     g.hair(s, P['hair'], fringe=1, back=7, seed=SEED)
     g.beard(s, P['hair'], style='full', y=5, seed=SEED, ragged=False)
     g.wrinkles(s, P['skin'], brow_y=2, crow=True)
@@ -52,31 +58,24 @@ def build():
     for part in ('arm_r', 'arm_l'):
         s.form_fill(part, P['skin'], 0, 11, base_idx=3, top=True, bottom=True)
     g.tunic(s, P['gown'], y0=0, y1=11, collar=True, seed=SEED, grain=0.07, hem=False)
-    g.robe(s, P['gown'], y0=0, seed=SEED, hem_row=11, sleeve_to=9)
-    g.hands(s, P['skin'], rows=2)
     # robe()는 다리 outer만 채운다 — base를 안 채우면 다리에 구멍이 뚫린다
     g.pants(s, P['gown'], y0=0, y1=11, seed=SEED)
+    g.robe(s, P['gown'], y0=0, seed=SEED, hem_row=11, sleeve_to=10, lining=P['lining'])
+    g.hands(s, P['skin'], rows=1)
 
-    # 어깨 케이프: 학위 복식. 목~가슴 상단을 덮고 등으로 내려간다
-    s.form_fill('body', P['cape'], 0, 4, layer='outer', base_idx=3, top=True)
-    s.f('body', 'back', 'outer').rect(0, 0, 7, 7, P['cape'][2])
-    s.f('body', 'back', 'outer').row(7, P['cape'][1])
-    s.f('body', 'front', 'outer').row(4, P['cape'][1])
-    s.f('body', 'front', 'outer').row(3, P['lining'][3], 2, 5)
-    s.f('body', 'left', 'outer').rect(0, 0, 3, 7, P['cape'][2])
-    s.f('body', 'left', 'outer').row(7, P['cape'][1])
-    s.speckle('body', P['cape'], 0, 4, layer='outer', density=0.08, seed=SEED)
-    for part in ('arm_r', 'arm_l'):
-        s.form_fill(part, P['cape'], 0, 2, layer='outer', base_idx=3)
-        s.hem(part, 2, P['cape'], layer='outer', base_idx=3)
+    # 학위 케이프: 앞은 어깨 곡선으로 끝나고 뒤로 길게 흐른다(가로 직선 금지)
+    g.mantle(s, P['cape'], front=4, back=10, seed=SEED, lining=P['lining'],
+             clasp=P['brass'], sleeve=3)
 
+    # 소지품은 전부 세로 요소로 — 허리를 두르는 놋쇠 띠(구버전)는 몸을 두 동강 냈다
+    # 두루마리는 어두운 가운 위에서 쉽게 형광 막대가 된다 — 중간값으로 깔고
+    # 빛나는 픽셀은 왼쪽 모서리 한 줄만
     fr = s.f('body', 'front', 'outer')
-    fr.rect(6, 6, 7, 9, P['scroll'][3])
-    fr.row(6, P['scroll'][4], 6, 7)
-    fr.row(9, P['scroll'][1], 6, 7)
-    fr.px(6, 8, P['brass'][4])
-    s.band('body', 5, 5, P['brass'][2], layer='outer')
-    for y in (8, 9):
+    fr.rect(6, 6, 7, 10, P['scroll'][1])
+    fr.col(6, P['scroll'][2], 6, 10)
+    fr.row(10, P['gown'][0], 6, 7)
+    fr.px(6, 8, P['brass'][3])
+    for y in (8, 9):                                     # 오른소매 잉크 얼룩(비대칭)
         s.f('arm_r', 'front', 'outer').px(1, y, P['cape'][1])
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'archivist.png'))

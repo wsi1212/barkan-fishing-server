@@ -24,25 +24,33 @@ import garments as g                      # noqa: E402
 from skinlib import Skin, ramp            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
+# ★2026-08-01 리워크: 로브 4대 결함 제거(짧은 소매·몸통 가로 띠·판때기 자락·침침한 단색).
+#   가운을 한 단 밝게(3d3a5c→474468), 양피지 안감을 칼라·앞섶·커프에 1px 노출,
+#   케이프 앞 옷단은 직선 대신 어깨 곡선(mantle)으로 끝낸다. 45 대사서와 같은 팔레트.
 L = dict(
-    gown=ramp('3d3a5c'),
-    cape=ramp('2a2841'),
-    lining=ramp('9a9488'),
+    gown=ramp('474468'),
+    cape=ramp('2e2b47'),
+    lining=ramp('a8a08e'),
     apron=ramp('a89c85'),
     ink=ramp('2b2f4a'),
     brass=ramp('a8863a'),
     iron=ramp('8a8e93'),
     scroll=ramp('bfb49a'),
 )
+# cape = (앞 곡선 옷단 높이, 등 자락 길이). 계급 사다리가 실루엣으로 읽혀야 한다.
 VARIANTS = {
-    '50': dict(name='subarchivist', cid=50, cape=6, hood=False, gaze=-1,
-               skin='c2a184', hair='6b6154', beard='mutton', prop='ledger', ink=2),
-    '47': dict(name='vaultkeeper', cid=47, cape=4, hood=True, gaze=0,
-               skin='a8845f', hair='3f3128', beard='full', prop='keys', ink=1),
-    '46': dict(name='scribe', cid=46, cape=0, hood=False, gaze=0,
-               skin='c9a480', hair='4a3d2f', beard='goatee', prop='quill', ink=5),
-    '67': dict(name='apprentice', cid=67, cape=0, hood=False, gaze=0,
-               skin='d0a97f', hair='7a5f3a', beard=None, prop='none', ink=7),
+    '50': dict(name='subarchivist', cid=50, cape=(3, 8), hood=False, gaze=-1,
+               skin='c2a184', hair='6b6154', beard='mutton', prop='ledger', ink=2,
+               sleeve=10, roll=False),
+    '47': dict(name='vaultkeeper', cid=47, cape=(2, 11), hood=True, gaze=0,
+               skin='a8845f', hair='3f3128', beard='full', prop='keys', ink=1,
+               sleeve=10, roll=False),
+    '46': dict(name='scribe', cid=46, cape=None, hood=False, gaze=0,
+               skin='c9a480', hair='4a3d2f', beard='goatee', prop='quill', ink=5,
+               sleeve=9, roll=False),
+    '67': dict(name='apprentice', cid=67, cape=None, hood=False, gaze=0,
+               skin='d0a97f', hair='7a5f3a', beard=None, prop='none', ink=7,
+               sleeve=10, roll=True),
 }
 
 
@@ -64,35 +72,32 @@ def build(v):
     for part in ('arm_r', 'arm_l'):
         s.form_fill(part, skin, 0, 11, base_idx=3, top=True, bottom=True)
     g.tunic(s, L['gown'], y0=0, y1=11, collar=True, seed=seed, grain=0.07, hem=False)
-    g.robe(s, L['gown'], y0=0, seed=seed, hem_row=11, sleeve_to=9)
     g.pants(s, L['gown'], y0=0, y1=11, seed=seed)
-    g.hands(s, skin, rows=2)
-    s.f('body', 'front', 'outer').row(0, L['lining'][3], 2, 5)      # 안감 칼라
+    g.robe(s, L['gown'], y0=0, seed=seed, hem_row=11, sleeve_to=v['sleeve'],
+           lining=L['lining'])
+    g.hands(s, skin, rows=1)
 
-    if v['cape']:                                                    # 계급 = 케이프 길이
-        s.form_fill('body', L['cape'], 0, v['cape'] - 2, layer='outer', base_idx=3, top=True)
-        s.f('body', 'back', 'outer').rect(0, 0, 7, v['cape'], L['cape'][2])
-        s.f('body', 'back', 'outer').row(v['cape'], L['cape'][1])
-        s.f('body', 'front', 'outer').row(v['cape'] - 2, L['cape'][1])
-        for part in ('arm_r', 'arm_l'):
-            s.form_fill(part, L['cape'], 0, 2, layer='outer', base_idx=3)
-            s.hem(part, 2, L['cape'], layer='outer', base_idx=3)
+    if v['cape']:                                        # 계급 = 케이프 등자락 길이
+        front, back = v['cape']
+        g.mantle(s, L['cape'], front=front, back=back, seed=seed, lining=L['lining'],
+                 clasp=L['brass'] if back >= 8 else None, sleeve=2)
     if v['prop'] == 'ledger':                                        # 겨드랑이 장부
-        f = s.f('body', 'front', 'outer'); f.rect(6, 6, 7, 9, L['scroll'][3])
-        f.row(6, L['scroll'][4], 6, 7); f.row(9, L['scroll'][1], 6, 7)
-        s.band('body', 5, 5, L['brass'][2], layer='outer')
+        # 어두운 가운 위의 밝은 소품은 쉽게 형광 막대가 된다 — 중간값 + 모서리 한 줄
+        f = s.f('body', 'front', 'outer'); f.rect(6, 6, 7, 10, L['scroll'][1])
+        f.col(6, L['scroll'][2], 6, 10); f.row(10, L['gown'][0], 6, 7)
     elif v['prop'] == 'keys':                                        # ★금서고 열쇠 꾸러미
+        # 가로 띠(구버전 s.band)는 로브 흐름을 끊는다 — 열쇠고리만 세로로 매단다
         f = s.f('body', 'front', 'outer')
         for x, y in ((6, 7), (7, 8), (6, 9)):
             f.px(x, y, L['iron'][4])
         f.px(7, 7, L['iron'][2]); f.px(6, 8, L['iron'][1])
-        s.band('body', 6, 6, L['iron'][2], layer='outer')
+        f.px(6, 6, L['iron'][2]); f.px(6, 10, L['iron'][1])
     elif v['prop'] == 'quill':                                       # 앞치마 + 깃펜
         g.apron(s, L['apron'], bib=(2, 5), bib_y=(2, 6), waist=7, hem=11,
                 wrap=1, straps=True, tie=True, seed=seed)
         f = s.f('body', 'front', 'outer')
         f.px(6, 4, L['lining'][4]); f.px(6, 5, L['lining'][3]); f.px(6, 6, L['ink'][1])
-    if v['prop'] in ('quill', 'none'):                               # 소매 걷음(노동자)
+    if v['roll']:                                        # 막내만 한쪽 소매를 걷는다
         s.clear_rows('arm_r', 8, 11, layer='outer')
         s.hem('arm_r', 7, L['gown'], layer='outer', base_idx=3, lip=False)
     # ★잉크 얼룩 — 계급이 낮을수록 많다. 이 세트의 개인차이자 서사
