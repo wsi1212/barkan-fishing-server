@@ -90,20 +90,37 @@ def build(v):
     g.tunic(s, U['leather'], y0=0, y1=11, collar=True, seed=seed, grain=0.05, hem=False)
     g.sleeves(s, U['leather'], y0=0, y1=9, seed=seed, grain=0.05)
     g.hands(s, skin, rows=2)
-    g.pants(s, U['leather'], y0=0, y1=7, seed=seed)
-    g.boots(s, U['steel'], rows=4, toe=True, cuff=True)          # 강철 그리브
-    for part in ('leg_r', 'leg_l'):
-        g.scuff(s, part, U['steel'], 8, 11, layer='base', seed=seed, n=2)
-    for i, part in enumerate(('arm_r', 'arm_l')):                # 강철 팔보호대
-        end = 3 if (seed + i) % 2 == 0 else 2                    # 길이도 개인차
-        s.form_fill(part, U['steel'], 0, end, layer='outer', base_idx=3)
-        s.hem(part, end, U['steel'], layer='outer', base_idx=3)
-        g.scuff(s, part, U['steel'], 0, end, seed=seed + i, n=2)
+    g.pants(s, U['leather'], y0=0, y1=8, seed=seed)   # 부츠(9~11) 위 base를 비우면 구멍
+    # ★다리: 허벅지(퀴스)-무릎(폴린)-정강이(그리브)-발(사바톤)
+    for i, part in enumerate(('leg_r', 'leg_l')):
+        # 퀴스(4~6) + 그리브(9~11), 사이(7~8)는 사슬
+        g.limb_plate(s, part, U['steel'], U['mail'], joints=(4, 7, 9, 12), end=11,
+                     layer='outer', seed=seed + i)
+    g.boots(s, U['steel'], rows=3, toe=True, cuff=True)
+    # ★팔: 어깨(폴드론)-상완-팔꿈치(쿠터)-전완(뱀브레이스)로 판이 나뉜다.
+    #   통짜로 칠하면 파이프를 씌운 것처럼 보인다.
+    for i, part in enumerate(('arm_r', 'arm_l')):
+        # 어깨 폴드론(0~2) + 전완 뱀브레이스(6~8), 사이(3~5)는 사슬 노출
+        g.limb_plate(s, part, U['steel'], U['mail'], joints=(0, 3, 6 + i, 9), end=8,
+                     layer='outer', seed=seed + i, trim=U['gold'] if v['rank'] else None)
 
-    g.cuirass(s, U['steel'], y0=0, y1=8, seed=seed)
-    g.tabard(s, U['tabard'], y0=1, hem=11, panel=(1, 6), layer='outer', seed=seed)
-    s.motif('body', CREST, 3, 3, U['gold'], layer='outer', shade=False)  # 왕실 문장
-    g.belt(s, U['leather'], y=9, accent=U['steel'], layer='outer')
+    # ★판금 해부: 목가리개 → 흉갑(능선·리벳) → 파울드(허리 판) + 속 사슬
+    #   기존 정교한 스킨과 비교했을 때 부족했던 게 톤이 아니라 '부품 수'였다.
+    g.plate_armour(s, U['steel'], U['mail'], y_gorget=0, y_breast=(1, 6),
+                   y_fauld=(7, 9), layer='outer', seed=seed, trim=U['gold'])
+    # 타바드가 좁으면 갑옷 회색이 지배해 '기사'가 아니라 '고철'로 보인다.
+    # 기준으로 삼은 궁정상인·전령은 색면이 몸통을 덮는다 — 어깨부터 옷단까지 넓게.
+    g.tabard(s, U['tabard'], y0=1, hem=11, panel=(0, 7), layer='outer', seed=seed,
+             accent=U['gold'])
+    for fn in ('front', 'back'):                                 # ★타바드 금 테두리
+        fa = s.f('body', fn, 'outer')
+        # 사방을 금테로 두르면 타바드가 아니라 '가슴에 건 액자'가 된다(실측).
+        # 트림은 옷단(아래)에만 — 실제 타바드도 그렇다.
+        fa.row(11, U['gold'][3], 0, 7)
+        fa.row(10, U['tabard'][1], 0, 7)
+    s.motif('body', CREST, 3, 4, U['gold'], layer='outer', shade=False)
+    s.f('body', 'front', 'outer').row(6, U['tabard'][1], 1, 6)   # 타바드 접힘 그림자  # 왕실 문장
+    g.belt(s, U['leather'], y=10, accent=U['gold'], layer='outer')
 
     # ---- 개인 변주
     g.helm(s, U['mail'] if v['helm'] == 'coif' else U['steel'], style=v['helm'],
