@@ -13,7 +13,9 @@ DESIGN SPEC
   나이/체격  50대, 말을 다루는 단단한 체구
   실루엣     승마 복장: 가죽 저킨 + 무릎 위 승마부츠 + ★어깨에 걸친 굴레(고삐 가죽끈)
              + 한쪽 장갑만 착용(말을 잡는 손). 위병의 판금 실루엣과 확실히 다르게
-  팔레트     갈색 가죽 주력 + ★진홍 트림(왕실 소속) + 놋쇠 버클 한 곳
+  팔레트     갈색 가죽 + 오트밀 리넨 + 놋쇠 버클 한 곳
+             ★진홍 트림 폐기 — 갈색 저킨에 붉은 트림을 두르니 '군복'으로 읽혔다(유저 지적).
+               마구간지기는 병사가 아니다. 소속은 색이 아니라 일(굴레·솔)로 드러내면 된다
   비대칭     굴레가 한쪽 어깨 + 오른 허리 솔 주머니 + ★왼손만 장갑
   얼굴       눈동자 안쪽(기본) · 코 없음(기본) · 짧은 수염 · 챙 없는 가죽 모자
 """
@@ -25,7 +27,7 @@ from skinlib import Skin, ramp            # noqa: E402
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 121
 P = dict(skin=ramp('bd9068'), hair=ramp('5f5145'), jerkin=ramp('7a5a3a'),
-         crimson=ramp('8f2b32'), boot=ramp('4a3a2b'), brass=ramp('b08d3c'),
+         linen=ramp('b5a98d'), boot=ramp('4a3a2b'), brass=ramp('b08d3c'),
          rein=ramp('5c4630'), iris=ramp('4a3a2c'))
 
 
@@ -38,10 +40,10 @@ def build():
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
     g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
     g.mouth(s, P['skin'], y=6, w=2, color=P['hair'][1])
-    g.cap(s, P['boot'], crown=2, brim=False, band=P['crimson'], seed=SEED)   # 가죽 모자
+    g.cap(s, P['boot'], crown=2, brim=False, seed=SEED)   # 가죽 모자(밴드 없음)
 
-    g.tunic(s, P['crimson'], y0=0, y1=11, collar=True, seed=SEED, grain=0.06, hem=False)
-    g.sleeves(s, P['crimson'], y0=0, y1=9, seed=SEED, grain=0.06)
+    g.tunic(s, P['linen'], y0=0, y1=11, collar=True, seed=SEED, grain=0.07, hem=False)
+    g.sleeves(s, P['linen'], y0=0, y1=9, seed=SEED, grain=0.07)
     g.hands(s, P['skin'], rows=2)
     g.pants(s, P['jerkin'], y0=0, y1=6, seed=SEED)
     g.boots(s, P['boot'], rows=6, toe=True, cuff=True)          # 무릎 위 승마부츠
@@ -53,7 +55,6 @@ def build():
     s.form_fill('arm_l', P['boot'], 8, 11, layer='outer', base_idx=3)          # ★왼손만 장갑
     s.band('arm_l', 8, 8, P['boot'][4], layer='outer')
     g.belt(s, P['boot'], y=9, accent=P['brass'], layer='outer')
-    s.f('body', 'front', 'outer').row(0, P['crimson'][3], 2, 5)                # 진홍 칼라 트림
 
     g.bandolier(s, P['rein'], front_x=2, layer='outer')                        # 어깨 굴레
     f = s.f('body', 'front', 'outer')
