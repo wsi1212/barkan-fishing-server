@@ -29,16 +29,16 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
 U = dict(                                  # 제복 팔레트(전원 공유)
-    steel=ramp('7d8896'),                  # 차가운 회청 강철
-    tabard=ramp('8f2b32'),                 # 진홍 왕실색
-    leather=ramp('35302a'),                # 검은 가죽
-    gold=ramp('c2a13f'),
-    mail=ramp('5f6772'),                   # 사슬(강철보다 어둡게)
+    steel=ramp_lit('7d8896'),                  # 차가운 회청 강철
+    tabard=ramp_lit('8f2b32'),                 # 진홍 왕실색
+    leather=ramp_lit('35302a'),                # 검은 가죽
+    gold=ramp_lit('c2a13f'),
+    mail=ramp_lit('5f6772'),                   # 사슬(강철보다 어둡게)
 )
 
 CREST = ['.#.',

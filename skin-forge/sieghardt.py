@@ -22,7 +22,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 117
@@ -31,16 +31,16 @@ P = dict(
     skin=ramp('b07a52'),
     hair=ramp('3a2f28'),
     beard=ramp('4a3d33'),
-    shirt=ramp('a89880'),
+    shirt=ramp_lit('a89880'),
     # 어두운 가죽에 기본 spread를 쓰면 [4](허리끈·옷단)가 밝은 황갈로 튀어
     # 앞치마 한가운데를 크림색 띠가 가로지른다
-    apron=ramp('45362a', spread=0.40),
-    bracer=ramp('6b4f36'),
-    pants=ramp('4f4a42'),
-    boot=ramp('352c24'),
-    ember=ramp('c4703a'),
-    brass=ramp('b08d3c'),
-    soot=ramp('3c3630'),
+    apron=ramp_lit('45362a', spread=0.40),
+    bracer=ramp_lit('6b4f36'),
+    pants=ramp_lit('4f4a42'),
+    boot=ramp_lit('352c24'),
+    ember=ramp_lit('c4703a'),
+    brass=ramp_lit('b08d3c'),
+    soot=ramp_lit('3c3630'),
     iris=ramp('4a3a2c'),
 )
 

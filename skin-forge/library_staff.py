@@ -21,21 +21,21 @@ SET ARCHITECTURE (위병 세트와 같은 구조: 제복 통일, 사람 구분)
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 # ★2026-08-01 리워크: 로브 4대 결함 제거(짧은 소매·몸통 가로 띠·판때기 자락·침침한 단색).
 #   가운을 한 단 밝게(3d3a5c→474468), 양피지 안감을 칼라·앞섶·커프에 1px 노출,
 #   케이프 앞 옷단은 직선 대신 어깨 곡선(mantle)으로 끝낸다. 45 대사서와 같은 팔레트.
 L = dict(
-    gown=ramp('474468'),
-    cape=ramp('2e2b47'),
-    lining=ramp('a8a08e'),
-    apron=ramp('a89c85'),
-    ink=ramp('2b2f4a'),
-    brass=ramp('a8863a'),
-    iron=ramp('8a8e93'),
-    scroll=ramp('bfb49a'),
+    gown=ramp_lit('474468'),
+    cape=ramp_lit('2e2b47'),
+    lining=ramp_lit('a8a08e'),
+    apron=ramp_lit('a89c85'),
+    ink=ramp_lit('2b2f4a'),
+    brass=ramp_lit('a8863a'),
+    iron=ramp_lit('8a8e93'),
+    scroll=ramp_lit('bfb49a'),
 )
 # cape = (앞 곡선 옷단 높이, 등 자락 길이). 계급 사다리가 실루엣으로 읽혀야 한다.
 VARIANTS = {

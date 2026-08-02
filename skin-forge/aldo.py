@@ -21,13 +21,13 @@ DESIGN SPEC
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 95
-P = dict(skin=ramp('cf9d78'), hair=ramp('4f3a2a'), vest=ramp('b08a34'),
-         shirt=ramp('c9bda1'), hat=ramp('6b5433'), teal=ramp('2f7d78'),
-         brass=ramp('b08d3c'), boot=ramp('4a3a2b'), iris=ramp('4a3a2c'))
+P = dict(skin=ramp('cf9d78'), hair=ramp('4f3a2a'), vest=ramp_lit('b08a34'),
+         shirt=ramp_lit('c9bda1'), hat=ramp_lit('6b5433'), teal=ramp_lit('2f7d78'),
+         brass=ramp_lit('b08d3c'), boot=ramp_lit('4a3a2b'), iris=ramp('4a3a2c'))
 
 
 def build():

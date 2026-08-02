@@ -24,7 +24,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 69
@@ -32,12 +32,12 @@ SEED = 69
 P = dict(
     skin=ramp('c6996f'),
     hair=ramp('47372a'),
-    kirtle=ramp('55707a'),
+    kirtle=ramp_lit('55707a'),
     # 삼베는 커틀과 명도를 2단 이상 벌린다 — 붙으면 하체가 한 덩어리가 된다
-    apron=ramp('8a7f66'),
-    scarf=ramp('9a8446'),
-    chemise=ramp('aca699'),
-    scale=ramp('98a0a4'),
+    apron=ramp_lit('8a7f66'),
+    scarf=ramp_lit('9a8446'),
+    chemise=ramp_lit('aca699'),
+    scale=ramp_lit('98a0a4'),
     lip=ramp('9b5a52'),
     iris=ramp('4a5a5f'),
 )

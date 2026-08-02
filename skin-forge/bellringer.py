@@ -21,14 +21,14 @@ DESIGN SPEC
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 48
-P = dict(skin=ramp('bd9068'), hair=ramp('a9a49a'), tunic=ramp('7a6f61'),
+P = dict(skin=ramp('bd9068'), hair=ramp('a9a49a'), tunic=ramp_lit('7a6f61'),
          # 목도리는 튜닉(회갈)과 값·색상 둘 다 벌려야 보인다
-         scarf=ramp('3a4a52'), rope=ramp('9b8355'), glove=ramp('5c4a38'),
-         cap=ramp('5f5348'), iris=ramp('4a4a3f'))
+         scarf=ramp_lit('3a4a52'), rope=ramp_lit('9b8355'), glove=ramp_lit('5c4a38'),
+         cap=ramp_lit('5f5348'), iris=ramp('4a4a3f'))
 
 
 def build():

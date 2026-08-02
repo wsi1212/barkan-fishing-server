@@ -31,7 +31,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 74
@@ -39,11 +39,11 @@ SEED = 74
 P = dict(
     skin=ramp('bd9068'),                  # 늙고 볕에 그은 피부
     hair=ramp('b0aca0'),                  # 흰머리 (클리핑 안 되게 밝은 회색 베이스)
-    cloak=ramp('6b6b45'),                 # 탁한 올리브카키 = 늪 이끼
-    tunic=ramp('968a78'),                 # 바랜 갈회 (망토보다 밝아야 앞섶이 열린 게 보임)
-    herb=ramp('5c2f40'),                  # ★말린 약초의 적자색. 밝은 단계를 쓰면
+    cloak=ramp_lit('6b6b45'),                 # 탁한 올리브카키 = 늪 이끼
+    tunic=ramp_lit('968a78'),                 # 바랜 갈회 (망토보다 밝아야 앞섶이 열린 게 보임)
+    herb=ramp_lit('5c2f40'),                  # ★말린 약초의 적자색. 밝은 단계를 쓰면
     #                                       가슴에 분홍 리본을 단 꼴이 된다 — 어두운 단계만
-    shoe=ramp('4a3f33'),
+    shoe=ramp_lit('4a3f33'),
     iris=ramp('5a6b5f'),                  # 흐린 회녹
 )
 

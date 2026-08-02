@@ -28,7 +28,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 44
@@ -37,15 +37,15 @@ P = dict(
     skin=ramp('c9a077'),
     hair=ramp('6b5f52'),
     beard=ramp('7a6e5f'),
-    royal=ramp('9c2f38'),
-    cloak=ramp('6e1f2a'),
+    royal=ramp_lit('9c2f38'),
+    cloak=ramp_lit('6e1f2a'),
     # 어민은 흰 모피지만 순백(ffffff)으로 잡으면 램프 위가 클리핑돼 8x8에서 번진다
-    ermine=ramp('c2bcac'),
-    fleck=ramp('34302c'),
-    gold=ramp('c2a13f'),
-    gem=ramp('2f4a7a'),
-    hose=ramp('35313a'),
-    boot=ramp('3f332a'),
+    ermine=ramp_lit('c2bcac'),
+    fleck=ramp_lit('34302c'),
+    gold=ramp_lit('c2a13f'),
+    gem=ramp_lit('2f4a7a'),
+    hose=ramp_lit('35313a'),
+    boot=ramp_lit('3f332a'),
     iris=ramp('4a5a6b'),
 )
 

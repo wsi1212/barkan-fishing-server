@@ -17,12 +17,12 @@ DESIGN SPEC
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 122
-P = dict(skin=ramp('d3a884'), hair=ramp('5f4636'), robe=ramp('8794a3'),
-         linen=ramp('bfb9a8'), bag=ramp('6b5440'), sage=ramp('6f8a5c'),
+P = dict(skin=ramp('d3a884'), hair=ramp('5f4636'), robe=ramp_lit('8794a3'),
+         linen=ramp_lit('bfb9a8'), bag=ramp_lit('6b5440'), sage=ramp_lit('6f8a5c'),
          lip=ramp('9b5a52'), iris=ramp('4a5a6b'))
 
 

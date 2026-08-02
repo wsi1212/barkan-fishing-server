@@ -31,7 +31,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 102
@@ -40,10 +40,10 @@ P = dict(
     skin=ramp('b58a63'),                  # 40년 강가 = 볕에 그은 가죽 같은 피부
     hair=ramp('a8a49a'),                  # 흰머리. ★베이스를 너무 밝게(dedbd2) 잡으면
     #                                       램프 위쪽이 ffffff로 클리핑돼 번진다
-    straw=ramp('c2a34e'),                 # 밀짚
-    shirt=ramp('a3977a'),                 # 바랜 누런 리넨 (피부·흰머리와 값 분리)
-    pants=ramp('5c6b72'),                 # 흐린 청회 (강물색, 마을에서 아무도 안 씀)
-    leather=ramp('5f4530'),               # 낡은 멜빵 (셔츠 위에서 읽히게 진하게)
+    straw=ramp_lit('c2a34e'),                 # 밀짚
+    shirt=ramp_lit('a3977a'),                 # 바랜 누런 리넨 (피부·흰머리와 값 분리)
+    pants=ramp_lit('5c6b72'),                 # 흐린 청회 (강물색, 마을에서 아무도 안 씀)
+    leather=ramp_lit('5f4530'),               # 낡은 멜빵 (셔츠 위에서 읽히게 진하게)
     iris=ramp('4f5d4a'),                  # 흐린 녹갈
 )
 

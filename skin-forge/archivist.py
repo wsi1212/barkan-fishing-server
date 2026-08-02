@@ -22,7 +22,7 @@ DESIGN SPEC
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 45
@@ -34,11 +34,11 @@ P = dict(
     # ★백발: 기본 spread로 램프를 뽑으면 위쪽이 클리핑돼 뒤통수가 형광 줄무늬가 된다.
     #   해법은 strands를 끄는 게 아니라(그러면 회색 돌덩이가 된다) 램프를 좁히는 것.
     hair=ramp('948f86', spread=0.30),
-    gown=ramp('474468'),
-    cape=ramp('2e2b47'),
-    lining=ramp('a8a08e'),
-    scroll=ramp('bfb49a'),
-    brass=ramp('a8863a'),
+    gown=ramp_lit('474468'),
+    cape=ramp_lit('2e2b47'),
+    lining=ramp_lit('a8a08e'),
+    scroll=ramp_lit('bfb49a'),
+    brass=ramp_lit('a8863a'),
     iris=ramp('4a4a58'),
 )
 

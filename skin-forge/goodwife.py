@@ -24,7 +24,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 66
@@ -32,13 +32,13 @@ SEED = 66
 P = dict(
     skin=ramp('cfa47e'),
     hair=ramp('4f3b2a'),
-    kirtle=ramp('8f5744'),
+    kirtle=ramp_lit('8f5744'),
     # 슈미즈·앞치마·커틀 셋의 명도를 확실히 벌린다 — 첫 빌드에서 앞치마(5c5548)가
     # 커틀(8f5744)과 같은 명도라 상체가 통째로 벽돌 덩어리가 됐다
-    linen=ramp('a8aca6'),
+    linen=ramp_lit('a8aca6'),
     # c9bfa8은 램프 [4]가 fff5ea(거의 흰색)라 앞치마가 옷 전체를 삼킨다
-    apron=ramp('9a8f7c'),
-    iron=ramp('8a8e93'),
+    apron=ramp_lit('9a8f7c'),
+    iron=ramp_lit('8a8e93'),
     lip=ramp('9b5a52'),
     iris=ramp('4a3a2c'),
 )

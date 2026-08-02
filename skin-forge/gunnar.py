@@ -26,7 +26,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 132
@@ -35,13 +35,13 @@ P = dict(
     skin=ramp('c39a72'),
     hair=ramp('5a4636'),                  # 짧은 갈색
     # ★기본 spread(0.62)면 [3]~[4]가 밝은 파랑으로 튄다 — 마을은 전부 뮤트다
-    coat=ramp('2b3a52', spread=0.42),     # 짙은 네이비 오일스킨
-    shirt=ramp('a9a294'),                 # 바랜 흰 셔츠
-    rope=ramp('9b8355'),                  # 마 밧줄
-    scarf=ramp('6b4f4a'),                 # 목수건
-    brass=ramp('b08d3c'),                 # 호루라기
-    capband=ramp('6e5a25'),               # 캡 밴드는 놋쇠를 어둡게 — 밝게 두면 금관처럼 보인다
-    boot=ramp('3a2f26'),
+    coat=ramp_lit('2b3a52', spread=0.42),     # 짙은 네이비 오일스킨
+    shirt=ramp_lit('a9a294'),                 # 바랜 흰 셔츠
+    rope=ramp_lit('9b8355'),                  # 마 밧줄
+    scarf=ramp_lit('6b4f4a'),                 # 목수건
+    brass=ramp_lit('b08d3c'),                 # 호루라기
+    capband=ramp_lit('6e5a25'),               # 캡 밴드는 놋쇠를 어둡게 — 밝게 두면 금관처럼 보인다
+    boot=ramp_lit('3a2f26'),
     iris=ramp('3f5a6b'),                  # 바다빛 회청
 )
 

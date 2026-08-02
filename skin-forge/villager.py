@@ -19,18 +19,18 @@ DESIGN SPEC
 import pathlib, sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 68
 P = dict(
     skin=ramp('c49a72'),
     hair=ramp('5a4a38'),
-    tunic=ramp('b0a488'),
-    vest=ramp('6e5a42'),
-    hood=ramp('8a8072'),
-    sack=ramp('9b8f74'),
-    boot=ramp('4a3d2e'),
+    tunic=ramp_lit('b0a488'),
+    vest=ramp_lit('6e5a42'),
+    hood=ramp_lit('8a8072'),
+    sack=ramp_lit('9b8f74'),
+    boot=ramp_lit('4a3d2e'),
     iris=ramp('4a4034'),
 )
 

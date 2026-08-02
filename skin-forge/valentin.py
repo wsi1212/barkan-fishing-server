@@ -31,7 +31,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 58
@@ -40,18 +40,18 @@ SEED = 58
 P = dict(
     skin=ramp('c39a72'),
     hair=ramp('4a4034'),
-    grey=ramp('8a8378'),
+    grey=ramp_lit('8a8378'),
     # ★기본 spread(0.62)로 초록을 뽑으면 [4]가 민트로 튀어 '벨벳'이 아니라
     #   '체육복'이 되고, 그레인 얼룩이 곰팡이처럼 보인다 — 램프를 좁힌다.
-    velvet=ramp('24483c', spread=0.44),
-    toque=ramp('1b3830', spread=0.44),
+    velvet=ramp_lit('24483c', spread=0.44),
+    toque=ramp_lit('1b3830', spread=0.44),
     # 담비 모피를 회백으로 잡으면 턱 밑에서 수염과 뭉쳐 '흰 수염'으로 읽힌다(실측)
-    fur=ramp('7a7166'),
-    shirt=ramp('c8bda4'),
-    hose=ramp('35323d'),
-    boot=ramp('4a3a2c'),
-    gold=ramp('b9973c'),
-    ledger=ramp('7d5f45'),
+    fur=ramp_lit('7a7166'),
+    shirt=ramp_lit('c8bda4'),
+    hose=ramp_lit('35323d'),
+    boot=ramp_lit('4a3a2c'),
+    gold=ramp_lit('b9973c'),
+    ledger=ramp_lit('7d5f45'),
     iris=ramp('4a4033'),
 )
 

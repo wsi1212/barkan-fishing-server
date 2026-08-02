@@ -27,7 +27,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 57
@@ -38,16 +38,16 @@ P = dict(
     hair=ramp('9a938a', spread=0.30),
     # ★요리사의 신호는 '어두운 몸통 위의 큰 밝은 앞치마'다. 튜닉과 앞치마가 한 단
     #   차이밖에 안 나면 전체가 올리브 한 덩어리 = 군복으로 읽힌다(실측 v2·v3).
-    tunic=ramp('3a4038'),
+    tunic=ramp_lit('3a4038'),
     # 리넨 램프는 기본 spread면 [4]가 fff7ec(거의 흰색)까지 올라간다
-    linen=ramp('b8ae98', spread=0.45),
-    coif=ramp('c4bca8', spread=0.40),
-    steel=ramp('8a8e93'),
-    brass=ramp('b08d3c', spread=0.45),
-    grease=ramp('6b5a3f'),
+    linen=ramp_lit('b8ae98', spread=0.45),
+    coif=ramp_lit('c4bca8', spread=0.40),
+    steel=ramp_lit('8a8e93'),
+    brass=ramp_lit('b08d3c', spread=0.45),
+    grease=ramp_lit('6b5a3f'),
     # 어두운 가죽에 기본 spread를 쓰면 [0]이 0a0906 = 사실상 검정 외곽선이 된다
-    boot=ramp('4a3d2e', spread=0.42),
-    pants=ramp('3f3a33'),
+    boot=ramp_lit('4a3d2e', spread=0.42),
+    pants=ramp_lit('3f3a33'),
     iris=ramp('4a5a4a'),
 )
 

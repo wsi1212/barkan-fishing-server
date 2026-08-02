@@ -191,7 +191,7 @@ VARIANTS = {
                head=None, prop='book'),
     '72': dict(file='marie', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
-               female=True, skin='cfa47e', hair='6b4a2f',
+               female=True, skin='cfa47e', hair='241f1c',
                garb='kirtle', cloth='olive', under='linen', extra='canvas',
                legs='olive', boot='boot', head=None, prop='tools',
                apron=True, roll=6, braid=True),
@@ -247,7 +247,7 @@ VARIANTS = {
     '28': dict(file='felix', cid=28, label='펠릭스 — 대장간 견습',
                # "여긴 대장간이에요. 좋은 장비가 좋은 어부를 만들죠!" → 젊고 들뜬 견습.
                #   군터9(마스터)보다 앞치마가 작고 그을음이 적어야 계급이 읽힌다
-               skin='c39a72', hair='6b5540', child=False,
+               skin='c39a72', hair='8f4a24', child=False,
                garb='apron', cloth='canvas', under='oat', extra='leather',
                legs='canvas', boot='boot', head=None, prop='tools', roll=5,
                patch='leg_l'),
@@ -289,7 +289,7 @@ VARIANTS = {
               # ★모래색 코트+가죽 캡+파우치는 '사냥꾼'으로 읽힌다(유저 지적).
               #   가게를 지키는 사람은 앞치마와 장부로 말한다 — 모자를 벗기고
               #   와인색 조끼 위에 상점 앞치마를 두른다
-              skin='c39a72', hair='5a4636', beard='mutton',
+              skin='c39a72', hair='a89a6f', beard='mutton',
               garb='apron', cloth='madder', under='linen', extra='oat',
               legs='canvas', boot='boot', head=None, prop='ledger',
               accent='brass', roll=7),
@@ -317,7 +317,7 @@ VARIANTS = {
                sleeved=True),
     '141': dict(file='ludwig', cid=141, label='루드비히 — 여관 주인',
                 # "이 마을에서 하룻밤 쉬어가시겠어요?" → 술잔과 앞치마, 넉넉한 체구
-                skin='c99a70', hair='6b5540', beard='mutton',
+                skin='c99a70', hair='241f1c', beard='mutton',
                 garb='apron', cloth='wine', under='linen', extra='cream',
                 legs='charcoal', boot='boot', head=None, prop='tankard', roll=6),
     # ── 신규: 스폰마을 회복 NPC (아직 서버에 없음 — 스킨 선제작) ──────────────

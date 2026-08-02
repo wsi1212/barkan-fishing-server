@@ -23,7 +23,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 14
@@ -32,12 +32,12 @@ P = dict(
     skin=ramp('b9825e'),                  # tanned
     hair=ramp('6f6154'),                  # grey-brown
     beard=ramp('6d5c48'),                 # mid brown: darker than skin, lighter than hair
-    shirt=ramp('4f6f6a'),                 # washed harbour teal
-    apron=ramp('8d6c3e'),                 # salt-stained leather: must out-value the
+    shirt=ramp_lit('4f6f6a'),                 # washed harbour teal
+    apron=ramp_lit('8d6c3e'),                 # salt-stained leather: must out-value the
     #                                       trousers or the whole lower body reads as one mass
-    pants=ramp('5f574c'),                 # canvas
-    boot=ramp('4a3a2e'),                  # wet leather
-    brass=ramp('b08d3c'),
+    pants=ramp_lit('5f574c'),                 # canvas
+    boot=ramp_lit('4a3a2e'),                  # wet leather
+    brass=ramp_lit('b08d3c'),
     iris=ramp('4a6070'),
 )
 

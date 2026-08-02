@@ -28,7 +28,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 82
@@ -37,12 +37,12 @@ P = dict(
     skin=ramp('c99a70'),
     hair=ramp('3f3128'),                  # 검은 갈색
     beard=ramp('55443a'),                 # 손질된 수염(머리보다 한 단 밝게)
-    doublet=ramp('6e2f3a'),               # 버건디 벨벳
-    cloak=ramp('4a1f2a'),                 # 더 짙은 와인 = 어깨 망토·모자
-    shirt=ramp('c4b89c'),                 # 크림 셔츠
-    gold=ramp('c2a13f'),
-    hose=ramp('4a4238'),                  # 짙은 회갈 호스(다리)
-    boot=ramp('3c2f26'),
+    doublet=ramp_lit('6e2f3a'),               # 버건디 벨벳
+    cloak=ramp_lit('4a1f2a'),                 # 더 짙은 와인 = 어깨 망토·모자
+    shirt=ramp_lit('c4b89c'),                 # 크림 셔츠
+    gold=ramp_lit('c2a13f'),
+    hose=ramp_lit('4a4238'),                  # 짙은 회갈 호스(다리)
+    boot=ramp_lit('3c2f26'),
     iris=ramp('4a3a2c'),
 )
 

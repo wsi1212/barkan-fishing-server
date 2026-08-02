@@ -29,7 +29,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 70
@@ -38,12 +38,12 @@ P = dict(
     skin=ramp('c39a72'),                  # weathered fair
     hair=ramp('7d7468'),                  # salt-and-pepper
     beard=ramp('8f8578'),                 # 피부보다 어둡고 머리보다 밝게
-    shirt=ramp('8f8574'),                 # linen (조끼보다 눈에 덜 띄어야 한다)
-    vest=ramp('2f4a3a'),                  # 낚시사 길드 딥 포레스트 그린
-    pants=ramp('6b655a'),                 # charcoal canvas (장화와 2단 이상 벌린다)
-    leather=ramp('6b4f36'),               # bandolier / bracer
-    boot=ramp('3a2f26'),                  # 너무 어두우면 램프 하단이 순수검정처럼 된다
-    brass=ramp('b08d3c'),
+    shirt=ramp_lit('8f8574'),                 # linen (조끼보다 눈에 덜 띄어야 한다)
+    vest=ramp_lit('2f4a3a'),                  # 낚시사 길드 딥 포레스트 그린
+    pants=ramp_lit('6b655a'),                 # charcoal canvas (장화와 2단 이상 벌린다)
+    leather=ramp_lit('6b4f36'),               # bandolier / bracer
+    boot=ramp_lit('3a2f26'),                  # 너무 어두우면 램프 하단이 순수검정처럼 된다
+    brass=ramp_lit('b08d3c'),
     iris=ramp('5b4a33'),                  # hazel
 )
 

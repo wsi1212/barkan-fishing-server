@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 79
@@ -34,10 +34,10 @@ P = dict(
     skin=ramp('9b6f45'),                  # 사막 볕에 그은 피부
     hair=ramp('3d3229'),                  # 검은 갈색 (순수검정 금지)
     beard=ramp('55483a'),                 # 수염은 머리보다 한 단 밝게 (턱이 검은 막대가 됨)
-    robe=ramp('b8ae95'),                  # 모래빛 토브 (현자의 흰 토브와 구분)
-    scarf=ramp('c9b98f'),                 # 밝은 모래 두건 (무늬 없음)
-    sash=ramp('3f7a74'),                  # ★오아시스 청록 — 유일한 악센트
-    leather=ramp('6b4f36'),               # 물주머니 끈
+    robe=ramp_lit('b8ae95'),                  # 모래빛 토브 (현자의 흰 토브와 구분)
+    scarf=ramp_lit('c9b98f'),                 # 밝은 모래 두건 (무늬 없음)
+    sash=ramp_lit('3f7a74'),                  # ★오아시스 청록 — 유일한 악센트
+    leather=ramp_lit('6b4f36'),               # 물주머니 끈
     iris=ramp('4a3524'),                  # 짙은 갈색
 )
 

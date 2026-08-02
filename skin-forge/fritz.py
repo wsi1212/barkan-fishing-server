@@ -24,7 +24,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 120
@@ -32,13 +32,13 @@ SEED = 120
 P = dict(
     skin=ramp('c9a077'),
     hair=ramp('5a4634'),
-    tunic=ramp('4a5a6b'),
-    linen=ramp('b8ae96'),
-    hose=ramp('4a4a3c'),
-    leather=ramp('6b5440'),
-    boot=ramp('3f342a'),
-    brass=ramp('b08d3c'),
-    ink=ramp('2b2f4a'),
+    tunic=ramp_lit('4a5a6b'),
+    linen=ramp_lit('b8ae96'),
+    hose=ramp_lit('4a4a3c'),
+    leather=ramp_lit('6b5440'),
+    boot=ramp_lit('3f342a'),
+    brass=ramp_lit('b08d3c'),
+    ink=ramp_lit('2b2f4a'),
     iris=ramp('4a4034'),
 )
 

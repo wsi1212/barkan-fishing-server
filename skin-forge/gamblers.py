@@ -22,28 +22,30 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
 P = dict(
-    burgundy=ramp('6b2b38', spread=0.46),
-    gold=ramp('a8863a', spread=0.48),
-    cream=ramp('c2b9a2', spread=0.44),
-    charcoal=ramp('403e49', spread=0.38),
+    # 큰손의 정장은 짙은 벨벳이어야 '돈 많은 사람'으로 읽힌다(밝은 자주는 싸 보인다)
+    burgundy=ramp_lit('4a1c26', spread=0.46),
+    gold=ramp_lit('a8863a', spread=0.48),
+    cream=ramp_lit('c2b9a2', spread=0.44),
+    charcoal=ramp_lit('403e49', spread=0.38),
     # 6개 테이블 색(진홍·암청·녹·자주·황토·구리) 어디와도 안 겹치는 색이라야
     # 손님이 딜러로 오인되지 않는다
-    sharpvest=ramp('4a3340', spread=0.44),
-    ash=ramp('6b6870', spread=0.44),
-    dingy=ramp('a89e88', spread=0.44),
-    maroon=ramp('6e3038', spread=0.44),
-    plum=ramp('5f4054', spread=0.44),
-    oat=ramp('9a8f78', spread=0.48),
-    leather=ramp('5a4433', spread=0.44),
-    shoe=ramp('3a3641', spread=0.36),
-    brass=ramp('b08d3c', spread=0.48),
-    ivory=ramp('c4bba4', spread=0.45),
-    ember=ramp('c4703a', spread=0.48),
+    sharpvest=ramp_lit('4a3340', spread=0.44),
+    # 몰락한 도박꾼 — 한때 좋았던 정장의 색이 다 빠진 상태. 세트에서 가장 밝다
+    ash=ramp_lit('c0bcb0', spread=0.44),
+    dingy=ramp_lit('a89e88', spread=0.44),
+    maroon=ramp_lit('6e3038', spread=0.44),
+    plum=ramp_lit('5f4054', spread=0.44),
+    oat=ramp_lit('9a8f78', spread=0.48),
+    leather=ramp_lit('5a4433', spread=0.44),
+    shoe=ramp_lit('3a3641', spread=0.36),
+    brass=ramp_lit('b08d3c', spread=0.48),
+    ivory=ramp_lit('c4bba4', spread=0.45),
+    ember=ramp_lit('c4703a', spread=0.48),
 )
 
 

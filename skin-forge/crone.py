@@ -28,7 +28,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 77
@@ -36,9 +36,9 @@ SEED = 77
 P = dict(
     skin=ramp('a87b52'),                  # 사막 볕에 마른 노인 피부
     hair=ramp('a9a49a'),                  # 흰머리 (숄 아래 조금)
-    shawl=ramp('35406b'),                 # ★인디고 숄
-    robe=ramp('6b5a45'),                  # 짙은 흙갈 로브
-    berry=ramp('8f3a33'),                 # ★가시배 열매의 붉은색 — 유일한 악센트
+    shawl=ramp_lit('35406b'),                 # ★인디고 숄
+    robe=ramp_lit('6b5a45'),                  # 짙은 흙갈 로브
+    berry=ramp_lit('8f3a33'),                 # ★가시배 열매의 붉은색 — 유일한 악센트
     iris=ramp('4a3a2c'),
 )
 

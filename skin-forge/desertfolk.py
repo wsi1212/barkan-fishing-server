@@ -25,12 +25,12 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
 C = dict(
-    ecru='c0b193', linen='ada08a', sand='b09a72', dune='97835f',
+    ecru='d8cbb0', linen='c6bba2', sand='b09a72', dune='97835f',
     terra='9c5a3c', clay='7d4a33', ochre='a8783a', mustard='8f7434',
     indigo='3a4a6b', indigo_d='2b3750', teal='3f6058', olive='585c3c',
     umber='6b5233', umber_d='4a3826', charcoal='3c352c', ash='6e675c',
@@ -39,8 +39,12 @@ C = dict(
 
 
 def R(key, spread=0.52):
-    """사막 색을 램프로. 표백 리넨 계열은 spread를 안 좁히면 위가 흰색으로 클리핑된다."""
-    return ramp(C[key], spread=spread)
+    """사막 색을 램프로. 표백 리넨 계열은 spread를 안 좁히면 위가 흰색으로 클리핑된다.
+
+    2026-08-03: ramp_lit으로 교체 — form_fill(base_idx=3)이 앞면을 한 단 위로 칠해
+    선언한 색보다 밝고 흐리게 렌더되던 문제(전 마을 공통, "다 파스텔톤" 지적)를 보정한다.
+    """
+    return ramp_lit(C[key], spread=spread)
 
 
 # garb: thobe(긴 통옷) / thobe_bisht(통옷+겉옷) / apron(앞치마 직군) / veil_robe(여성)
@@ -48,7 +52,7 @@ def R(key, spread=0.52):
 VARIANTS = {
     # ── 기능 NPC (&b) ────────────────────────────────────────────────────
     '10': dict(file='farid', cid=10, label='파리드 — 잡화 상점',
-               skin='9c7146', hair='2f2721', beard='full',
+               skin='9c7146', hair='241f1c', beard='full',
                garb='thobe_bisht', cloth='ecru', over='indigo', sash='terra',
                head='turban_big', headc='ecru', prop='pouch', accent='brass'),
     '12': dict(file='hasan', cid=12, label='하산 — 대장간',
@@ -58,12 +62,12 @@ VARIANTS = {
                head='cloth', headc='clay', prop='tools', roll=4, soot=True),
     '15': dict(file='kasim', cid=15, label='카심 — 물고기 판매',
                # 오아시스 어물전. 스폰 어물전(가죽+청록)과 달리 표백 리넨 + 방수천
-               skin='a87a4e', hair='2f2721', beard='goatee',
+               skin='a87a4e', hair='241f1c', beard='goatee',
                garb='apron', cloth='ecru', over='teal', legs='sand',
                head='turban', headc='linen', prop='scales', roll=6),
     '16': dict(file='jamal', cid=16, label='자말 — 길드 접수',
                # 마을에서 가장 격식. 짙은 인디고 비슈트 + 금 트림 한 줄
-               skin='9c7146', hair='2f2721', beard='full',
+               skin='9c7146', hair='241f1c', beard='full',
                garb='thobe_bisht', cloth='linen', over='indigo_d', sash='ochre',
                head='turban_big', headc='indigo', prop='ledger', accent='brass',
                trim=True),
@@ -82,54 +86,54 @@ VARIANTS = {
                trim=True),
     '78': dict(file='safir', cid=78, label='사피르 — 감정사',
                # appraisal. 물건을 들여다보는 사람 — 손저울과 확대경
-               skin='9c7146', hair='3f3128', beard='goatee',
+               skin='9c7146', hair='a89a6f', beard='goatee',
                garb='thobe_bisht', cloth='ecru', over='ochre', sash='umber',
                head='turban', headc='ochre', prop='scaleset', accent='brass'),
     '79': dict(file='yusef', cid=79, label='유세프 — 오아시스 어장 관리',
                # "오아시스 어장을 관리하고 있소" → 걷어붙인 통옷 + 그물
-               skin='8f6339', hair='2f2721', beard='full',
+               skin='a89055', hair='2f2721', beard='full',
                garb='thobe', cloth='teal', sash='sand', legs='sand',
                head='cloth', headc='ecru', prop='net', roll=5),
     '80': dict(file='karim', cid=80, label='카림 — 대장장이(노장)',
                # "모래 위의 대장간을 지키오" → 흰 수염 + 낡은 가죽 앞치마
-               skin='9c7146', hair='9a938a', beard='full', age=True,
+               skin='6b4a30', hair='9a938a', beard='full', age=True,
                garb='apron', cloth='ash', over='umber_d', legs='charcoal',
                head='cloth', headc='umber', prop='tools', roll=4, soot=True,
                patch='leg_r'),
     '81': dict(file='halil', cid=81, label='할릴 — 지하수로 안내인',
                # "사막의 지하수로를 아는 이는 드물지" → 밧줄과 등불, 젖은 옷자락
-               skin='8f6339', hair='3f3128', beard='stubble',
+               skin='8f6339', hair='a89a6f', beard='stubble',
                garb='thobe', cloth='olive', sash='umber', legs='olive',
                head='turban', headc='dune', prop='lantern', roll=7),
     '114': dict(file='fatima', cid=114, label='파티마 — 직조공',
                 # "직물에 물고기 무늬를 새기는 게 제 특기죠" → 무늬 있는 옷 + 실타래
-                female=True, skin='b98a5c', hair='3f2f24',
+                female=True, skin='b98a5c', hair='4a2f22',
                 garb='veil_robe', cloth='terra', over='mustard', sash='ecru',
                 head='veil', headc='mustard', prop='yarn', pattern=True),
     '115': dict(file='omar', cid=115, label='오마르 — 대상(카라반) 대장',
                 # "대상이 사막을 건너려면 든든한 양식이 필요하지" → 두꺼운 겉옷 + 물주머니
-                skin='8f6339', hair='2f2721', beard='full',
+                skin='9c6b3f', hair='2f2721', beard='full',
                 garb='thobe_bisht', cloth='sand', over='clay', sash='indigo',
                 head='turban_big', headc='sand', prop='waterskin'),
     '116': dict(file='nur', cid=116, label='누르 — 향료상',
                 # "좋은 향과 좋은 생선은 닮은 점이 있어요" → 향료병. 색을 조금 쓴다
-                female=True, skin='b98a5c', hair='2f2721',
+                female=True, skin='b98a5c', hair='4a2f22',
                 garb='veil_robe', cloth='plum', over='copper', sash='ecru',
                 head='veil', headc='plum', prop='vials', accent='brass'),
 
     # ── 일반 주민 ────────────────────────────────────────────────────────
     '111': dict(file='rashid', cid=111, label='라시드 — 주민',
-                skin='a87a4e', hair='3f3128', beard='stubble',
+                skin='a87a4e', hair='241f1c', beard='stubble',
                 garb='thobe', cloth='dune', sash='clay', legs='dune',
                 head='cloth', headc='linen', prop=None, roll=8),
     '112': dict(file='amira', cid=112, label='아미라 — 주민',
                 # "사막의 밤은 낮보다 아름답답니다" → 저녁의 인디고
-                female=True, skin='c09468', hair='3f2f24',
+                female=True, skin='c98a72', hair='241f1c',
                 garb='veil_robe', cloth='indigo_d', over=None, sash='ecru',
                 head='veil', headc='indigo', prop='pouch'),
     '113': dict(file='yunus', cid=113, label='유누스 — 우물지기',
                 # "이 우물이 마르면 마을이 마릅니다" → 젖은 소매 + 두레박 밧줄
-                skin='9c7146', hair='4a3a2a', beard='goatee',
+                skin='9c7146', hair='4a2f22', beard='goatee',
                 garb='thobe', cloth='ecru', sash='teal', legs='linen',
                 head='cloth', headc='teal', prop='rope', roll=6),
 }

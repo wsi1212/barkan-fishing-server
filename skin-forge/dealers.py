@@ -28,19 +28,19 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
 U = dict(
     # 순백 셔츠는 램프 위가 클리핑돼 8x8에서 번진다 — 한 단 내린 흰색
-    shirt=ramp('c6bfae', spread=0.42),
-    jacket=ramp('26242a', spread=0.38),    # 검정 재킷. [0]이 사실상 검정이 되지 않게 좁힌다
-    trouser=ramp('2b2930', spread=0.38),
-    shoe=ramp('221f24', spread=0.34),
-    brass=ramp('b08d3c', spread=0.48),
-    ivory=ramp('c4bba4', spread=0.45),     # 상아 칩·주사위·카드
-    visor=ramp('2f6b4a', spread=0.44),     # 딜러 바이저(초록 셀룰로이드 챙)
+    shirt=ramp_lit('c6bfae', spread=0.42),
+    jacket=ramp_lit('26242a', spread=0.38),    # 검정 재킷. [0]이 사실상 검정이 되지 않게 좁힌다
+    trouser=ramp_lit('2b2930', spread=0.38),
+    shoe=ramp_lit('221f24', spread=0.34),
+    brass=ramp_lit('b08d3c', spread=0.48),
+    ivory=ramp_lit('c4bba4', spread=0.45),     # 상아 칩·주사위·카드
+    visor=ramp_lit('2f6b4a', spread=0.44),     # 딜러 바이저(초록 셀룰로이드 챙)
 )
 TABLE = dict(
     roulette='8f2f38', holdem='2f3f5c', seotda='35563f',
@@ -49,29 +49,29 @@ TABLE = dict(
 
 VARIANTS = {
     '31': dict(file='d_roulette1', cid=31, table='roulette', prop='ball',
-               skin='a87a4e', hair='2f2721', beard='goatee', visor=True),
+               skin='c98a72', hair='241f1c', beard='goatee', visor=True),
     '35': dict(file='d_threecard1', cid=35, table='threecard', prop='cards',
-               skin='b98a5c', hair='2f2721', beard='stubble', visor=False),
+               skin='b98a5c', hair='a89a6f', beard='stubble', visor=False),
     '40': dict(file='d_threecard2', cid=40, table='threecard', prop='chips',
-               female=True, skin='c09468', hair='3f2f24', beard=None, visor=False),
+               female=True, skin='e0bcae', hair='3f2f24', beard=None, visor=False),
     '32': dict(file='d_holdem1', cid=32, table='holdem', prop='chips',
-               skin='8f6339', hair='241d18', beard='full', visor=True),
+               skin='6b4a30', hair='241d18', beard='full', visor=True),
     '41': dict(file='d_holdem2', cid=41, table='holdem', prop='cards',
-               female=True, skin='cfa47e', hair='4f3b2a', beard=None, visor=False),
+               female=True, skin='cfa47e', hair='c2a052', beard=None, visor=False),
     '33': dict(file='d_seotda1', cid=33, table='seotda', prop='cards',
                skin='9c7146', hair='9a938a', beard='mutton', visor=True, age=True),
     '42': dict(file='d_seotda2', cid=42, table='seotda', prop='dice',
-               skin='a87a4e', hair='2f2721', beard='stubble', visor=False),
+               skin='a89055', hair='2f2721', beard='stubble', visor=False),
     '34': dict(file='d_blackjack1', cid=34, table='blackjack', prop='cards',
                skin='b98a5c', hair='3f3128', beard='goatee', visor=False),
     '38': dict(file='d_blackjack2', cid=38, table='blackjack', prop='chips',
-               female=True, skin='b98a5c', hair='2f2721', beard=None, visor=True),
+               female=True, skin='b98a5c', hair='8f4a24', beard=None, visor=True),
     '39': dict(file='d_blackjack3', cid=39, table='blackjack', prop='dice',
-               skin='8f6339', hair='6b6154', beard='full', visor=False, age=True),
+               skin='9c6b3f', hair='6b6154', beard='full', visor=False, age=True),
     '36': dict(file='d_slot1', cid=36, table='slot', prop='chips',
-               skin='c09468', hair='4a3a2a', beard=None, visor=False),
+               skin='c09468', hair='a05a2a', beard=None, visor=False),
     '37': dict(file='d_slot2', cid=37, table='slot', prop='ball',
-               female=True, skin='a87a4e', hair='3f2f24', beard=None, visor=True),
+               female=True, skin='a87a4e', hair='b8b2a6', beard=None, visor=True),
 }
 
 
@@ -96,7 +96,7 @@ def tuxedo(s, v, seed):
       조끼를 몸통 전체에 두르면 '색 튜닉'이 되고, 색을 아예 빼면 테이블 구분이 죽는다.
     """
     jk, sh = U['jacket'], U['shirt']
-    vest = ramp(TABLE[v['table']], spread=0.46)
+    vest = ramp_lit(TABLE[v['table']], spread=0.46)
 
     # 재킷: 4면 + 어깨. 뒤는 무늬 없이 통짜(정장의 등판은 매끈하다)
     s.form_fill('body', jk, 0, 11, layer='outer', base_idx=3, top=True)
@@ -164,7 +164,7 @@ def build(v):
 
     # 소품 — 같은 테이블 2~3인을 가르는 마지막 축
     fb = s.f('body', 'front', 'outer')
-    tab = ramp(TABLE[v['table']], spread=0.46)
+    tab = ramp_lit(TABLE[v['table']], spread=0.46)
     p = v['prop']
     if p == 'cards':                                     # 부채꼴로 쥔 카드
         fb.rect(6, 4, 7, 7, U['ivory'][4])

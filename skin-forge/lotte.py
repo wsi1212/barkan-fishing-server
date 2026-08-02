@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, ramp            # noqa: E402
+from skinlib import Skin, ramp, ramp_lit            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = 119
@@ -34,11 +34,11 @@ P = dict(
     skin=ramp('d0a57f'),
     hair=ramp('6b4a2f'),
     # 기본 spread면 [3]~[4]가 마젠타로 튄다 — 서버 팔레트는 전부 뮤트다
-    kirtle=ramp('4e2d47', spread=0.44),
-    linen=ramp('c4bcaa'),
-    net=ramp('8a8378'),
-    leather=ramp('3a3129'),
-    brass=ramp('b9973c'),
+    kirtle=ramp_lit('4e2d47', spread=0.44),
+    linen=ramp_lit('c4bcaa'),
+    net=ramp_lit('8a8378'),
+    leather=ramp_lit('3a3129'),
+    brass=ramp_lit('b9973c'),
     lip=ramp('9b5a52'),
     iris=ramp('4a5a3f'),
 )
