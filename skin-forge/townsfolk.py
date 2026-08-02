@@ -213,10 +213,13 @@ VARIANTS = {
                legs='grey', boot='boot', head='kerchief', headc='oat',
                prop='scales', apron=True, roll=6),
     '7': dict(file='klaus', cid=7, label='클라우스 — 잡화 상점',
-              # 잡화상. 물건을 잔뜩 달고 다닌다
+              # ★모래색 코트+가죽 캡+파우치는 '사냥꾼'으로 읽힌다(유저 지적).
+              #   가게를 지키는 사람은 앞치마와 장부로 말한다 — 모자를 벗기고
+              #   와인색 조끼 위에 상점 앞치마를 두른다
               skin='c39a72', hair='5a4636', beard='mutton',
-              garb='coat', cloth='sand', under='oat', legs='canvas', boot='boot',
-              head='cap', headc='leather', prop='pouch', accent='brass'),
+              garb='apron', cloth='wine', under='linen', extra='oat',
+              legs='canvas', boot='boot', head=None, prop='ledger',
+              accent='brass', roll=7),
     '8': dict(file='bruno', cid=8, label='브루노 — 섬상점',
               # 섬으로 배를 대는 사람. 항해 쪽 어휘(밧줄)로 클라우스와 갈린다
               skin='a87a4e', hair='3f3128', beard='full',
@@ -299,13 +302,25 @@ def head(s, v, seed):
     if v.get('braid'):
         g.ponytail(s, hair, x0=3, w=2, y0=0, y1=5)
     hd = v.get('head')
+    # ★맨머리 NPC의 hat 레이어를 비워두면 인게임에서 '모자를 안 씌운 것'처럼 보인다
+    #   (유저 지적, 2026-08-02). 실제 유저 스킨은 거의 전부 머리카락에 겉레이어를 쓴다.
+    if hd is None:
+        g.hair_volume(s, hair, fringe=fringe, back=8, seed=seed)
     if hd == 'cap':
+        g.hair_volume(s, hair, fringe=fringe, back=8, seed=seed)
         g.cap(s, R(v['headc']), crown=3, brim=False, seed=seed)
     elif hd == 'kerchief':
-        g.headscarf(s, R(v['headc']), rows=2, tail=False, seed=seed)
+        # ★tail=False면 매끈한 돔이 되어 '겨울 니트 비니'로 읽힌다(유저 지적).
+        #   뒤로 늘어뜨린 자락 + 관자놀이에 드러난 앞머리가 있어야 '천'으로 보이고,
+        #   여성 NPC의 성별도 그때 읽힌다.
+        g.headscarf(s, R(v['headc']), rows=2, tail=True, seed=seed)
+        fo = s.f('head', 'front', 'outer')
+        fo.rect(0, 2, 0, 3, hair[3]); fo.rect(7, 2, 7, 3, hair[3])
+        fo.px(0, 4, hair[2]); fo.px(7, 4, hair[2])
     elif hd == 'hood':
         g.hood(s, R(v['headc']), opening=5, seed=seed)
     elif hd == 'coif':
+        g.hair_volume(s, hair, fringe=fringe, back=8, seed=seed)
         g.cap(s, R(v['headc']), crown=4, brim=False, seed=seed)
 
 

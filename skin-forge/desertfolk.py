@@ -76,7 +76,7 @@ VARIANTS = {
     '76': dict(file='nadia', cid=76, label='나디아 — 사막마을 촌장',
                # "오아시스를 지키는 일, 도와주시겠소?" → 마을 최고 권위. 여성.
                #   ★구스킨은 검정+시안 발광(트론)이었다
-               female=True, age=True, skin='a87a4e', hair='4a3a2a',
+               female=True, age=True, skin='a87a4e', hair='8a8378',
                garb='veil_robe', cloth='indigo_d', over='indigo', sash='ochre',
                head='veil', headc='indigo_d', prop='ledger', accent='brass',
                trim=True),
@@ -166,7 +166,7 @@ def head_cloth(s, r, seed=0):
     s.f('head', 'right', 'outer').px(1, 2, r[2])
 
 
-def veil(s, r, seed=0):
+def veil(s, r, seed=0, hair=None):
     """여성 두건 — 머리부터 목까지 감싸고 어깨로 내려온다.
 
     ★스폰마을 kerchief는 정수리만 덮지만 사막 베일은 뺨과 목을 감싼다.
@@ -180,6 +180,11 @@ def veil(s, r, seed=0):
         f.rect(x, 2, x, 7, r[2])
     f.row(1, r[1])
     s.f('head', 'top', 'outer').fill(r[4])
+    if hair is not None:
+        # 베일이 머리카락을 전부 덮으면 나이가 얼굴에만 남는다 — 관자놀이에
+        # 몇 픽셀 드러내야 흰머리(=연륜)가 실루엣에서도 읽힌다(유저 지적: 촌장이 젊어 보임)
+        f.px(1, 2, hair[3]); f.px(6, 2, hair[3])
+        f.px(1, 3, hair[2]); f.px(6, 3, hair[2])
     b = s.f('body', 'back', 'outer')                     # 어깨로 내려온 자락
     b.rect(1, 0, 6, 3, r[2]); b.row(3, r[1], 1, 6)
     s.f('body', 'top', 'outer').rect(1, 0, 6, 3, r[3])
@@ -194,7 +199,7 @@ def build_head(s, v, seed):
         g.beard(s, hair, style=v['beard'], y=6 if v['beard'] == 'mutton' else 5,
                 seed=seed, ragged=False)
     if v.get('age'):
-        g.wrinkles(s, skin, crow=True, forehead=False)
+        g.wrinkles(s, skin, crow=True, forehead=True)
     g.eyes(s, 'c9c4b8', ramp('3f3226'), y=4, gaze=0, brow=hair[1], brow_y=3)
     f = s.f('head', 'front')
     if v.get('female'):
@@ -206,12 +211,16 @@ def build_head(s, v, seed):
         for x, y in ((1, 5), (6, 2)):
             f.px(x, y, mix(f.get(x, y), R('charcoal')[2], 0.5))
     hd = v.get('head')
+    if hd == 'cloth' or hd is None:
+        # 머리수건은 이마 2행만 덮으므로 나머지 머리카락에 겉레이어 볼륨이 필요하다.
+        # 없으면 '모자를 안 씌운 것'처럼 납작해 보인다(유저 지적)
+        g.hair_volume(s, hair, fringe=2, back=8, seed=seed)
     if hd in ('turban', 'turban_big'):
         turban(s, R(v['headc']), big=(hd == 'turban_big'), seed=seed)
     elif hd == 'cloth':
         head_cloth(s, R(v['headc']), seed=seed)
     elif hd == 'veil':
-        veil(s, R(v['headc']), seed=seed)
+        veil(s, R(v['headc']), seed=seed, hair=hair)
 
 
 def build_body(s, v, seed):

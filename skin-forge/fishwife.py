@@ -55,6 +55,11 @@ def build():
     f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])   # 속눈썹/눈꼬리
     f.rect(3, 6, 4, 6, P['lip'][2])                      # 입술
     g.headscarf(s, P['scarf'], rows=2, tail=True, seed=SEED)
+    # ★두건이 머리카락을 전부 덮으면 여성으로 안 읽힌다(유저 지적: 남자처럼 보임).
+    #   관자놀이에 앞머리를 드러내야 성별과 '천을 두른 것'이 동시에 읽힌다
+    fo = s.f('head', 'front', 'outer')
+    fo.rect(0, 2, 0, 4, P['hair'][3]); fo.rect(7, 2, 7, 4, P['hair'][3])
+    fo.px(0, 5, P['hair'][2]); fo.px(7, 5, P['hair'][2])
 
     # ---- base: 슈미즈 → 커틀
     g.tunic(s, P['chemise'], y0=0, y1=11, collar=True, seed=SEED, grain=0.06, hem=False)
