@@ -51,7 +51,10 @@ def build():
     g.hair(s, P['hair'], fringe=1, back=6, seed=SEED)
     g.beard(s, P['beard'], style='full', y=5, seed=SEED, ragged=False)
     g.wrinkles(s, P['skin'], crow=True, forehead=False)      # 두건이 이마를 덮음
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='long')
+    g.face_marks(s, P['skin'], kind='ruddy', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['hazel']), y=4, gaze=0, iris_idx=1)
+    g.brow(s, P['hair'][1], y=3)
     g.mouth(s, P['skin'], y=6, w=2, color=P['hair'][1])
     g.headscarf(s, P['scarf'], rows=3, tail=True, seed=SEED, cord=P['leather'])
 

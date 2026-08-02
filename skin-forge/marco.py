@@ -61,7 +61,10 @@ def build():
     s.f('head', 'front').rect(2, 6, 5, 6, P['beard'][2])     # 다듬은 콧수염
     s.f('head', 'front').px(3, 6, P['beard'][3])
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='narrow')
+    g.face_marks(s, P['skin'], kind='mole', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['hazel']), y=3, gaze=0, iris_idx=1)
+    g.brow(s, P['hair'][1], y=2)
     g.cap(s, P['cloak'], crown=2, brim=False, seed=SEED)     # 챙 없는 벨벳 모자
 
     # ---- 몸: 크림 셔츠 → 버건디 더블릿 → 한쪽 어깨 망토

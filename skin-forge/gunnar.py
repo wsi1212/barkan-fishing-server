@@ -54,7 +54,10 @@ def build():
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED, part_x=2)
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='square')
+    g.face_marks(s, P['skin'], kind='scar', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['blue']), y=5, gaze=0, iris_idx=1)
+    g.brow(s, P['hair'][1], y=4)
     g.mouth(s, P['skin'], y=6, w=2)
     g.cap(s, P['coat'], crown=2, brim=True, band=P['capband'], seed=SEED)  # 항만장 캡
 

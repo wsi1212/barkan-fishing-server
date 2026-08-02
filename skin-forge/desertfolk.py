@@ -54,27 +54,32 @@ VARIANTS = {
     '10': dict(file='farid', cid=10, label='파리드 — 잡화 상점',
                skin='9c7146', hair='241f1c', beard='full',
                garb='thobe_bisht', cloth='ecru', over='indigo', sash='terra',
-               head='turban_big', headc='ecru', prop='pouch', accent='brass'),
+               head='turban_big', headc='ecru', prop='pouch', accent='brass',
+               eye_y=4, iris='dark', jaw='oval', marks='mole'),
     '12': dict(file='hasan', cid=12, label='하산 — 대장간',
                # ★80 카림(노장 대장장이)과 갈라야 한다: 하산=젊은 현역, 맨팔에 그을음
                skin='8f6339', hair='241d18', beard='stubble',
                garb='apron', cloth='dune', over='umber_d', legs='umber',
-               head='cloth', headc='clay', prop='tools', roll=4, soot=True),
+               head='cloth', headc='clay', prop='tools', roll=4, soot=True,
+               eye_y=5, iris='brown', jaw='square', brow_w=2, marks='scar'),
     '15': dict(file='kasim', cid=15, label='카심 — 물고기 판매',
                # 오아시스 어물전. 스폰 어물전(가죽+청록)과 달리 표백 리넨 + 방수천
                skin='a87a4e', hair='241f1c', beard='goatee',
                garb='apron', cloth='ecru', over='teal', legs='sand',
-               head='turban', headc='linen', prop='scales', roll=6),
+               head='turban', headc='linen', prop='scales', roll=6,
+               eye_y=4, iris='hazel', jaw='long'),
     '16': dict(file='jamal', cid=16, label='자말 — 길드 접수',
                # 마을에서 가장 격식. 짙은 인디고 비슈트 + 금 트림 한 줄
                skin='9c7146', hair='241f1c', beard='full',
                garb='thobe_bisht', cloth='linen', over='indigo_d', sash='ochre',
                head='turban_big', headc='indigo', prop='ledger', accent='brass',
-               trim=True),
+               trim=True,
+               eye_y=3, iris='dark', jaw='narrow', brow_a=1),
     '142': dict(file='rashid_inn', cid=142, label='라시드 — 여관 주인',
                 skin='a87a4e', hair='4a3a2a', beard='mutton',
                 garb='apron', cloth='terra', over='ecru', legs='umber',
-                head='cloth', headc='ecru', prop='tankard', roll=6),
+                head='cloth', headc='ecru', prop='tankard', roll=6,
+               eye_y=4, iris='amber', jaw='square', cheek=True, mouth_w=3),
 
     # ── 퀘스트 NPC (&a[Q]) ───────────────────────────────────────────────
     '76': dict(file='nadia', cid=76, label='나디아 — 사막마을 촌장',
@@ -83,59 +88,70 @@ VARIANTS = {
                female=True, age=True, skin='a87a4e', hair='8a8378',
                garb='veil_robe', cloth='indigo_d', over='indigo', sash='ochre',
                head='veil', headc='indigo_d', prop='ledger', accent='brass',
-               trim=True),
+               trim=True,
+               eye_y=4, iris='grey', jaw='long', socket=True, brow_a=1),
     '78': dict(file='safir', cid=78, label='사피르 — 감정사',
                # appraisal. 물건을 들여다보는 사람 — 손저울과 확대경
                skin='9c7146', hair='a89a6f', beard='goatee',
                garb='thobe_bisht', cloth='ecru', over='ochre', sash='umber',
-               head='turban', headc='ochre', prop='scaleset', accent='brass'),
+               head='turban', headc='ochre', prop='scaleset', accent='brass',
+               eye_y=3, iris='green', jaw='narrow', marks='mole'),
     '79': dict(file='yusef', cid=79, label='유세프 — 오아시스 어장 관리',
                # "오아시스 어장을 관리하고 있소" → 걷어붙인 통옷 + 그물
                skin='a89055', hair='2f2721', beard='full',
                garb='thobe', cloth='teal', sash='sand', legs='sand',
-               head='cloth', headc='ecru', prop='net', roll=5),
+               head='cloth', headc='ecru', prop='net', roll=5,
+               eye_y=5, iris='brown', jaw='square', marks='ruddy'),
     '80': dict(file='karim', cid=80, label='카림 — 대장장이(노장)',
                # "모래 위의 대장간을 지키오" → 흰 수염 + 낡은 가죽 앞치마
                skin='6b4a30', hair='9a938a', beard='full', age=True,
                garb='apron', cloth='ash', over='umber_d', legs='charcoal',
                head='cloth', headc='umber', prop='tools', roll=4, soot=True,
-               patch='leg_r'),
+               patch='leg_r',
+               eye_y=4, iris='grey', jaw='long', socket=True, brow_w=2, marks='sunken'),
     '81': dict(file='halil', cid=81, label='할릴 — 지하수로 안내인',
                # "사막의 지하수로를 아는 이는 드물지" → 밧줄과 등불, 젖은 옷자락
                skin='8f6339', hair='a89a6f', beard='stubble',
                garb='thobe', cloth='olive', sash='umber', legs='olive',
-               head='turban', headc='dune', prop='lantern', roll=7),
+               head='turban', headc='dune', prop='lantern', roll=7,
+               eye_y=5, iris='hazel', jaw='oval', marks='freckles'),
     '114': dict(file='fatima', cid=114, label='파티마 — 직조공',
                 # "직물에 물고기 무늬를 새기는 게 제 특기죠" → 무늬 있는 옷 + 실타래
                 female=True, skin='b98a5c', hair='4a2f22',
                 garb='veil_robe', cloth='terra', over='mustard', sash='ecru',
-                head='veil', headc='mustard', prop='yarn', pattern=True),
+                head='veil', headc='mustard', prop='yarn', pattern=True,
+               eye_y=4, iris='amber', jaw='oval', cheek=True),
     '115': dict(file='omar', cid=115, label='오마르 — 대상(카라반) 대장',
                 # "대상이 사막을 건너려면 든든한 양식이 필요하지" → 두꺼운 겉옷 + 물주머니
                 skin='9c6b3f', hair='2f2721', beard='full',
                 garb='thobe_bisht', cloth='sand', over='clay', sash='indigo',
-                head='turban_big', headc='sand', prop='waterskin'),
+                head='turban_big', headc='sand', prop='waterskin',
+               eye_y=4, iris='dark', jaw='square', brow_w=2, marks='scar'),
     '116': dict(file='nur', cid=116, label='누르 — 향료상',
                 # "좋은 향과 좋은 생선은 닮은 점이 있어요" → 향료병. 색을 조금 쓴다
                 female=True, skin='b98a5c', hair='4a2f22',
                 garb='veil_robe', cloth='plum', over='copper', sash='ecru',
-                head='veil', headc='plum', prop='vials', accent='brass'),
+                head='veil', headc='plum', prop='vials', accent='brass',
+               eye_y=3, iris='green', jaw='narrow', cheek=True),
 
     # ── 일반 주민 ────────────────────────────────────────────────────────
     '111': dict(file='rashid', cid=111, label='라시드 — 주민',
                 skin='a87a4e', hair='241f1c', beard='stubble',
                 garb='thobe', cloth='dune', sash='clay', legs='dune',
-                head='cloth', headc='linen', prop=None, roll=8),
+                head='cloth', headc='linen', prop=None, roll=8,
+               eye_y=5, iris='brown', jaw='oval', marks='freckles'),
     '112': dict(file='amira', cid=112, label='아미라 — 주민',
                 # "사막의 밤은 낮보다 아름답답니다" → 저녁의 인디고
                 female=True, skin='c98a72', hair='241f1c',
                 garb='veil_robe', cloth='indigo_d', over=None, sash='ecru',
-                head='veil', headc='indigo', prop='pouch'),
+                head='veil', headc='indigo', prop='pouch',
+               eye_y=4, iris='hazel', jaw='narrow', cheek=True),
     '113': dict(file='yunus', cid=113, label='유누스 — 우물지기',
                 # "이 우물이 마르면 마을이 마릅니다" → 젖은 소매 + 두레박 밧줄
                 skin='9c7146', hair='4a2f22', beard='goatee',
                 garb='thobe', cloth='ecru', sash='teal', legs='linen',
-                head='cloth', headc='teal', prop='rope', roll=6),
+                head='cloth', headc='teal', prop='rope', roll=6,
+               eye_y=5, iris='blue', jaw='long', marks='ruddy'),
 }
 
 
@@ -200,11 +216,22 @@ def build_head(s, v, seed):
     g.ears(s, skin, y=4)
     g.hair(s, hair, fringe=2, back=7 if v.get('female') else 6, seed=seed)
     if v.get('beard'):
-        g.beard(s, hair, style=v['beard'], y=6 if v['beard'] == 'mutton' else 5,
+        g.beard(s, hair, style=v['beard'], y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)
     if v.get('age'):
         g.wrinkles(s, skin, crow=True, forehead=True)
-    g.eyes(s, 'c9c4b8', ramp('3f3226'), y=4, gaze=0, brow=hair[1], brow_y=3)
+    # ★얼굴 개인차 (2026-08-03) — 전 마을 공통 처방. 눈높이·눈동자색·턱선·눈썹·표식을
+    #   사람마다 달리한다. 이걸 안 하면 옷을 아무리 갈라도 '다 비슷하다'가 남는다.
+    eye_y = v.get('eye_y', 4)
+    g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
+    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
+           gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2)
+    g.brow(s, hair[1], y=eye_y - 1, weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
+    if sum(1 for x in (1, 2, 5, 6)
+           if max(s.f('head', 'front').get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError(f"{v.get('file', v.get('name'))}: 눈이 지워졌다 (eye_y={eye_y})")
     f = s.f('head', 'front')
     if v.get('female'):
         f.px(0, 4, skin[1]); f.px(7, 4, skin[1])
@@ -212,7 +239,9 @@ def build_head(s, v, seed):
     else:
         g.mouth(s, skin, y=6, w=2)
     if v.get('soot'):
-        for x, y in ((1, 5), (6, 2)):
+        # ★그을음 자리는 눈 아래여야 한다 — 고정 5행이면 eye_y=5인 사람의 눈을 덮는다
+        #   (실측: 하산의 왼쪽 눈이 그을음에 지워졌다)
+        for x, y in ((1, min(6, eye_y + 1)), (6, 2)):
             f.px(x, y, mix(f.get(x, y), R('charcoal')[2], 0.5))
     hd = v.get('head')
     if hd == 'cloth' or hd is None:

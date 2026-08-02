@@ -52,20 +52,24 @@ VARIANTS = {
     '60': dict(name='lothar', cid=60, label='성문 위병 로타르',
                helm='nasal', plume=True, cloak=True, rank=True,
                skin='b58a63', hair='6b6154', beard='mutton', age=True,
-               extra='pauldron'),         # 고참 성문지기: 개방투구+붉은깃 + 망토 + 금 견장
+               extra='pauldron',
+               eye_y=4, iris='grey', jaw='square', brow_w=2, marks='scar'),         # 고참 성문지기: 개방투구+붉은깃 + 망토 + 금 견장
     #                              ★면갑(closed)은 눈을 가려 대화 NPC엔 부적합 — 개방형으로
     '61': dict(name='kurt', cid=61, label='성문 위병 쿠르트',
                helm='coif', plume=False, cloak=True, rank=True,
                skin='c39a72', hair='4a3d2f', beard='full', age=False,
-               extra='scabbard'),         # 성문지기: 사슬 두건 + 망토 + 허리 검집
+               extra='scabbard',
+               eye_y=5, iris='brown', jaw='square', brow_a=1),         # 성문지기: 사슬 두건 + 망토 + 허리 검집
     '62': dict(name='dieter', cid=62, label='거리 위병 디터',
                helm=None, plume=False, cloak=False, rank=False,
                skin='a8794f', hair='2f2721', beard='stubble', age=False,
-               extra='armband'),          # 순찰: 맨머리(가벼운 복장) + 팔 완장
+               extra='armband',
+               eye_y=3, iris='blue', jaw='narrow'),          # 순찰: 맨머리(가벼운 복장) + 팔 완장
     '63': dict(name='oswald', cid=63, label='거리 위병 오스발트',
                helm='kettle', plume=False, cloak=False, rank=False,
                skin='cba585', hair='8a7a55', beard=None, age=False,
-               extra='kneepatch'),        # 신참: 챙 넓은 철모 + 수염 없음 + 무릎 패치
+               extra='kneepatch',
+               eye_y=4, iris='hazel', jaw='long', marks='ruddy'),        # 신참: 챙 넓은 철모 + 수염 없음 + 무릎 패치
 }
 
 
@@ -83,7 +87,18 @@ def build(v):
         g.beard(s, ramp(v['hair']), style=v['beard'], y=5 if v['beard'] != 'mutton' else 6,
                 seed=seed, ragged=False)
     g.wrinkles(s, skin, crow=True, forehead=v['age'] and v['helm'] is None)
-    g.eyes(s, 'c9c4b8', ramp('3f4a52'), y=4, gaze=0, brow=hair[2], brow_y=3)
+    # ★얼굴 개인차 (2026-08-03) — 전 마을 공통 처방. 눈높이·눈동자색·턱선·눈썹·표식을
+    #   사람마다 달리한다. 이걸 안 하면 옷을 아무리 갈라도 '다 비슷하다'가 남는다.
+    eye_y = v.get('eye_y', 4)
+    g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
+    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
+           gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2)
+    g.brow(s, hair[1], y=eye_y - 1, weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
+    if sum(1 for x in (1, 2, 5, 6)
+           if max(s.f('head', 'front').get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError(f"{v.get('file', v.get('name'))}: 눈이 지워졌다 (eye_y={eye_y})")
     g.mouth(s, skin, y=6, w=2)
 
     # ---- 제복(전원 동일)

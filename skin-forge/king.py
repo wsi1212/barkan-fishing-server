@@ -106,7 +106,9 @@ def build():
             fa.px(x, y, mix(fa.get(x, y), P['beard'][4], 0.55))
     g.beard(s, P['beard'], style='full', y=5, seed=SEED, ragged=False)
     g.wrinkles(s, P['skin'], brow_y=2, crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='long')
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['blue']), y=3, gaze=0, iris_idx=1, socket=P['skin'][1])
+    g.brow(s, P['hair'][1], y=2)
     g.mouth(s, P['skin'], y=6, w=2)
     crown(s)
 

@@ -66,7 +66,9 @@ def build():
     g.hair(s, P['hair'], fringe=2, back=7, seed=SEED, part_x=4)   # 앞머리는 이마까지만
     g.beard(s, P['beard'], style='long', y=5, seed=SEED, ragged=True)
     g.wrinkles(s, P['skin'], crow=True, forehead=True)            # 노학자 = 주름 둘 다
-    g.eyes(s, 'cdc8bd', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='long')
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['grey']), y=3, gaze=0, iris_idx=1, socket=P['skin'][1])
+    g.brow(s, P['hair'][1], y=2)
     g.mouth(s, P['skin'], y=6, w=2, color=P['beard'][1])
 
     # ---- ★base 레이어 속옷을 먼저 깐다.

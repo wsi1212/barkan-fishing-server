@@ -38,7 +38,10 @@ def build():
     s.f('head', 'front').rect(2, 6, 5, 6, P['hair'][2])          # 손질된 콧수염
     s.f('head', 'front').px(3, 6, P['hair'][3])
     s.f('head', 'front').px(1, 5, P['skin'][4]); s.f('head', 'front').px(6, 5, P['skin'][4])
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='oval')
+    g.face_marks(s, P['skin'], kind='mole', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['hazel']), y=4, gaze=0, iris_idx=1)
+    g.brow(s, P['hair'][1], y=3)
     g.cap(s, P['hat'], crown=2, brim=True, band=P['teal'], seed=SEED)
     s.f('head', 'right', 'outer').rect(5, 0, 6, 1, P['teal'][4])  # ★깃털(한쪽만)
     s.f('head', 'right', 'outer').px(6, 0, P['teal'][2])

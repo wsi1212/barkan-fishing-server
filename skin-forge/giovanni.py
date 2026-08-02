@@ -36,9 +36,12 @@ def build():
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED, part_x=1)
-    g.beard(s, P['hair'], style='stubble', y=5, seed=SEED)
+    g.beard(s, P['hair'], style='stubble', y=6, seed=SEED)
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=-1, brow=P['hair'][2], brow_y=3)  # 곁눈질
+    g.face_shape(s, P['skin'], jaw='square')
+    g.face_marks(s, P['skin'], kind='scar', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['dark']), y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=4)  # 곁눈질
     s.f('head', 'front').px(1, 5, P['skin'][1]); s.f('head', 'front').px(6, 5, P['skin'][1])
     g.mouth(s, P['skin'], y=6, w=2)
 

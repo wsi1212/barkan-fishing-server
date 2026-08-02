@@ -41,16 +41,20 @@ L = dict(
 VARIANTS = {
     '50': dict(name='subarchivist', cid=50, cape=(3, 8), hood=False, gaze=-1,
                skin='c2a184', hair='6b6154', beard='mutton', prop='ledger', ink=2,
-               sleeve=10, roll=False),
+               sleeve=10, roll=False,
+               eye_y=4, iris='grey', jaw='long', socket=True, brow_w=2),
     '47': dict(name='vaultkeeper', cid=47, cape=(2, 11), hood=True, gaze=0,
                skin='a8845f', hair='3f3128', beard='full', prop='keys', ink=1,
-               sleeve=10, roll=False),
+               sleeve=10, roll=False,
+               eye_y=3, iris='dark', jaw='narrow', brow_a=1),
     '46': dict(name='scribe', cid=46, cape=None, hood=False, gaze=0,
                skin='c9a480', hair='4a3d2f', beard='goatee', prop='quill', ink=5,
-               sleeve=9, roll=False),
+               sleeve=9, roll=False,
+               eye_y=5, iris='green', jaw='oval', marks='freckles'),
     '67': dict(name='apprentice', cid=67, cape=None, hood=False, gaze=0,
                skin='d0a97f', hair='7a5f3a', beard=None, prop='none', ink=7,
-               sleeve=10, roll=True),
+               sleeve=10, roll=True,
+               eye_y=5, iris='blue', jaw='narrow', marks='mole'),
 }
 
 
@@ -61,10 +65,21 @@ def build(v):
     g.ears(s, skin, y=4)
     g.hair(s, hair, fringe=2, back=6, seed=seed)
     if v['beard']:
-        g.beard(s, hair, style=v['beard'], y=6 if v['beard'] == 'mutton' else 5,
+        g.beard(s, hair, style=v['beard'], y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)
     g.wrinkles(s, skin, crow=True, forehead=not v['hood'])
-    g.eyes(s, 'c9c4b8', ramp('4a4a58'), y=4, gaze=v['gaze'], brow=hair[2], brow_y=3)
+    # ★얼굴 개인차 (2026-08-03) — 전 마을 공통 처방. 눈높이·눈동자색·턱선·눈썹·표식을
+    #   사람마다 달리한다. 이걸 안 하면 옷을 아무리 갈라도 '다 비슷하다'가 남는다.
+    eye_y = v.get('eye_y', 4)
+    g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
+    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
+           gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2)
+    g.brow(s, hair[1], y=eye_y - 1, weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
+    if sum(1 for x in (1, 2, 5, 6)
+           if max(s.f('head', 'front').get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError(f"{v.get('file', v.get('name'))}: 눈이 지워졌다 (eye_y={eye_y})")
     g.mouth(s, skin, y=6, w=2)
     if v['hood']:
         g.hood(s, L['cape'], opening=5, seed=seed)

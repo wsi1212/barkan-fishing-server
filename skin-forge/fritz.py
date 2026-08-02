@@ -49,7 +49,10 @@ def build():
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=3, back=6, seed=SEED, part_x=2)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='narrow')
+    g.face_marks(s, P['skin'], kind='mole', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['brown']), y=3, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=2)
     g.mouth(s, P['skin'], y=6, w=2)
 
     # ---- base: 리넨 속옷 → 호스 → 장화

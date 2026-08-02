@@ -49,29 +49,41 @@ TABLE = dict(
 
 VARIANTS = {
     '31': dict(file='d_roulette1', cid=31, table='roulette', prop='ball',
-               skin='c98a72', hair='241f1c', beard='goatee', visor=True),
+               skin='c98a72', hair='241f1c', beard='goatee', visor=True,
+               eye_y=4, iris='dark', jaw='narrow', brow_a=1),
     '35': dict(file='d_threecard1', cid=35, table='threecard', prop='cards',
-               skin='b98a5c', hair='a89a6f', beard='stubble', visor=False),
+               skin='b98a5c', hair='a89a6f', beard='stubble', visor=False,
+               eye_y=5, iris='grey', jaw='square', marks='scar'),
     '40': dict(file='d_threecard2', cid=40, table='threecard', prop='chips',
-               female=True, skin='e0bcae', hair='3f2f24', beard=None, visor=False),
+               female=True, skin='e0bcae', hair='3f2f24', beard=None, visor=False,
+               eye_y=4, iris='green', jaw='oval', cheek=True),
     '32': dict(file='d_holdem1', cid=32, table='holdem', prop='chips',
-               skin='6b4a30', hair='241d18', beard='full', visor=True),
+               skin='6b4a30', hair='241d18', beard='full', visor=True,
+               eye_y=3, iris='amber', jaw='narrow', brow_a=1),
     '41': dict(file='d_holdem2', cid=41, table='holdem', prop='cards',
-               female=True, skin='cfa47e', hair='c2a052', beard=None, visor=False),
+               female=True, skin='cfa47e', hair='c2a052', beard=None, visor=False,
+               eye_y=4, iris='hazel', jaw='oval', marks='mole'),
     '33': dict(file='d_seotda1', cid=33, table='seotda', prop='cards',
-               skin='9c7146', hair='9a938a', beard='mutton', visor=True, age=True),
+               skin='9c7146', hair='9a938a', beard='mutton', visor=True, age=True,
+               eye_y=4, iris='grey', jaw='long', socket=True),
     '42': dict(file='d_seotda2', cid=42, table='seotda', prop='dice',
-               skin='a89055', hair='2f2721', beard='stubble', visor=False),
+               skin='a89055', hair='2f2721', beard='stubble', visor=False,
+               eye_y=5, iris='brown', jaw='square', brow_w=2),
     '34': dict(file='d_blackjack1', cid=34, table='blackjack', prop='cards',
-               skin='b98a5c', hair='3f3128', beard='goatee', visor=False),
+               skin='b98a5c', hair='3f3128', beard='goatee', visor=False,
+               eye_y=4, iris='blue', jaw='narrow'),
     '38': dict(file='d_blackjack2', cid=38, table='blackjack', prop='chips',
-               female=True, skin='b98a5c', hair='8f4a24', beard=None, visor=True),
+               female=True, skin='b98a5c', hair='8f4a24', beard=None, visor=True,
+               eye_y=5, iris='dark', jaw='square', marks='ruddy'),
     '39': dict(file='d_blackjack3', cid=39, table='blackjack', prop='dice',
-               skin='9c6b3f', hair='6b6154', beard='full', visor=False, age=True),
+               skin='9c6b3f', hair='6b6154', beard='full', visor=False, age=True,
+               eye_y=3, iris='hazel', jaw='oval', brow_a=-1),
     '36': dict(file='d_slot1', cid=36, table='slot', prop='chips',
-               skin='c09468', hair='a05a2a', beard=None, visor=False),
+               skin='c09468', hair='a05a2a', beard=None, visor=False,
+               eye_y=4, iris='green', jaw='narrow', marks='freckles'),
     '37': dict(file='d_slot2', cid=37, table='slot', prop='ball',
-               female=True, skin='a87a4e', hair='b8b2a6', beard=None, visor=True),
+               female=True, skin='a87a4e', hair='b8b2a6', beard=None, visor=True,
+               eye_y=5, iris='amber', jaw='long', socket=True),
 }
 
 
@@ -139,11 +151,22 @@ def build(v):
     g.hair(s, hair, fringe=2, back=7 if v.get('female') else 5, seed=seed,
            part_x=3 if v.get('female') else None)
     if v.get('beard'):
-        g.beard(s, hair, style=v['beard'], y=6 if v['beard'] == 'mutton' else 5,
+        g.beard(s, hair, style=v['beard'], y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)
     if v.get('age'):
         g.wrinkles(s, skin, crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', ramp('3f3226'), y=4, gaze=0, brow=hair[1], brow_y=3)
+    # ★얼굴 개인차 (2026-08-03) — 전 마을 공통 처방. 눈높이·눈동자색·턱선·눈썹·표식을
+    #   사람마다 달리한다. 이걸 안 하면 옷을 아무리 갈라도 '다 비슷하다'가 남는다.
+    eye_y = v.get('eye_y', 4)
+    g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
+    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
+           gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2)
+    g.brow(s, hair[1], y=eye_y - 1, weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
+    if sum(1 for x in (1, 2, 5, 6)
+           if max(s.f('head', 'front').get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError(f"{v.get('file', v.get('name'))}: 눈이 지워졌다 (eye_y={eye_y})")
     f = s.f('head', 'front')
     if v.get('female'):
         f.px(0, 4, skin[1]); f.px(7, 4, skin[1])

@@ -40,8 +40,11 @@ def build():
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED)
-    g.beard(s, P['hair'], style='stubble', y=5, seed=SEED)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.beard(s, P['hair'], style='stubble', y=6, seed=SEED)
+    g.face_shape(s, P['skin'], jaw='oval')
+    g.face_marks(s, P['skin'], kind='mole', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['brown']), y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=4)
     g.mouth(s, P['skin'], y=6, w=2)
     g.headscarf(s, P['hood'], rows=2, tail=False, seed=SEED)      # 헝겊 두건
 

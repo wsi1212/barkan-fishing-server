@@ -37,7 +37,10 @@ def build():
     g.beard(s, P['beard'], style='goatee', y=5, seed=SEED)
     s.f('head', 'front').rect(2, 6, 5, 6, P['beard'][2])
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='square')
+    g.face_marks(s, P['skin'], kind='scar', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['dark']), y=4, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=3)
     g.cap(s, P['doublet'], crown=2, brim=False, seed=SEED)
 
     g.tunic(s, P['shirt'], y0=0, y1=11, collar=True, seed=SEED, grain=0.06, hem=False)

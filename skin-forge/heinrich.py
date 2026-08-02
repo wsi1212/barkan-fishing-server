@@ -55,9 +55,12 @@ def build():
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=1, back=5, seed=SEED)      # 모자 밑 옆머리만
-    g.beard(s, P['hair'], style='goatee', y=5, seed=SEED)  # 흰 염소수염
+    g.beard(s, P['hair'], style='goatee', y=6, seed=SEED)  # 흰 염소수염
     g.wrinkles(s, P['skin'], crow=True, forehead=False)    # 모자가 이마를 덮음
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='oval')
+    g.face_marks(s, P['skin'], kind='freckles', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['brown']), y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=4)
     g.mouth(s, P['skin'], y=6, w=2)                        # 코는 기본대로 생략
     g.cap(s, P['straw'], crown=2, brim='round', seed=SEED)  # 밀짚모자: 챙은 한 바퀴 (밴드 없음:
     #   2행짜리 crown에 가죽밴드를 넣으면 모자가 아니라 머리띠로 읽힌다)

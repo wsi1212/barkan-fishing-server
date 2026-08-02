@@ -102,7 +102,9 @@ def build():
             fa.px(x, y, mix(fa.get(x, y), P['grey'][3], 0.6))
     g.beard(s, P['hair'], style='full', y=6, seed=SEED, ragged=False)
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='narrow')
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['grey']), y=3, gaze=0, iris_idx=1, socket=P['skin'][1])
+    g.brow(s, P['hair'][1], y=2)
     g.mouth(s, P['skin'], y=6, w=2)
     g.cap(s, P['toque'], crown=3, brim=False, seed=SEED)  # 궁정 벨벳 토크
 

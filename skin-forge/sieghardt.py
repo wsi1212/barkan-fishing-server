@@ -54,7 +54,10 @@ def build():
     g.hair(s, P['hair'], fringe=1, back=5, seed=SEED)    # 화덕 앞이라 짧게 민다
     g.beard(s, P['beard'], style='full', y=5, seed=SEED)
     g.wrinkles(s, P['skin'], crow=True, forehead=True)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='square')
+    g.face_marks(s, P['skin'], kind='scar', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['dark']), y=4, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=3)
     g.mouth(s, P['skin'], y=6, w=2)
     fh = s.f('head', 'front')                            # 그을음 — 대장장이의 서명
     for x, y in ((1, 5), (6, 2), (5, 5)):

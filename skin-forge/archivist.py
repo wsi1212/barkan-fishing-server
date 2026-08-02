@@ -52,7 +52,9 @@ def build():
     g.hair(s, P['hair'], fringe=1, back=7, seed=SEED)
     g.beard(s, P['hair'], style='full', y=5, seed=SEED, ragged=False)
     g.wrinkles(s, P['skin'], brow_y=2, crow=True)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='narrow')
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['blue']), y=3, gaze=0, iris_idx=1, socket=P['skin'][1])
+    g.brow(s, P['hair'][1], y=2)
     g.mouth(s, P['skin'], y=6, w=2, color=P['hair'][1])
 
     for part in ('arm_r', 'arm_l'):

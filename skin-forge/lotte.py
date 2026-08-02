@@ -50,7 +50,10 @@ def build():
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=5, seed=SEED, part_x=3)
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][2], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='oval')
+    g.face_marks(s, P['skin'], kind='freckles', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['green']), y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=4)
     f = s.f('head', 'front')
     f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])   # 속눈썹/눈꼬리
     f.rect(3, 6, 4, 6, P['lip'][2])                      # 입술

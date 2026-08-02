@@ -57,7 +57,10 @@ def build():
     g.hair(s, P['hair'], fringe=1, back=6, seed=SEED)
     g.beard(s, P['hair'], style='stubble', y=4, seed=SEED)   # 성긴 흰 수염
     g.wrinkles(s, P['skin'], brow_y=2, crow=True)            # 후드는 이마를 덜 가림
-    g.eyes(s, 'c9c4b8', P['iris'], y=4, gaze=0, brow=P['hair'][1], brow_y=3)
+    g.face_shape(s, P['skin'], jaw='long')
+    g.face_marks(s, P['skin'], kind='ruddy', seed=SEED)
+    g.eyes(s, 'c9c4b8', ramp(g.IRIS['blue']), y=4, gaze=0, iris_idx=1)
+    g.brow(s, P['hair'][1], y=3)
     g.mouth(s, P['skin'], y=6, w=2)
 
     # ---- 몸: 낡은 튜닉 → 후드 망토
