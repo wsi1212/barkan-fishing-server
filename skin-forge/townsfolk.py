@@ -46,7 +46,8 @@ C = dict(
     pitch='23211f', soot='2c2823', walnut='33241a', ink='232c3a',
     moss_d='2f3a28', olive_d='2f3327',
     # (2) 진짜 밝음 — 표백 리넨/밀가루. 요리·제빵·방앗간·학자에만
-    chalk='d6d2c6', cream='cfc7b0', bone='c0b89f',
+    # ★LIT_COMP가 한 단 내리므로 흰 계열은 선언값을 그만큼 올려 둔다
+    chalk='e6e2d6', cream='ded7c2', bone='d0c9b0',
     # (3) 시대 염료 — '원색 금지'의 예외가 아니라 실재한 천연염료다. 비싼 물건이라
     #     소수에게만 주면 오히려 '이 사람은 좀 산다'가 읽힌다(가수·길드·전령·상단)
     madder='9c3a2c',      # 꼭두서니 빨강
@@ -66,16 +67,37 @@ SKIN = dict(
 )
 
 
-def R(key, spread=0.55):
-    """마을 색을 램프로. ★기본 spread(0.62)는 밝은 색에서 위가 클리핑된다.
+# ── 렌더 보정 (2026-08-03 v3, "다 파스텔톤" 지적) ──────────────────────────
+# 실측: 옛 NameMC 원본 34명 = 채도평균 0.43·명도평균 0.43 / 우리 v2 = 0.33·0.56.
+# 즉 우리 옷은 원본보다 ★밝고 흐리다 = 파스텔. 원인은 팔레트가 아니라 렌더 규약이다:
+#   garments가 쓰는 form_fill(base_idx=3)은 앞면을 ramp[2](선언한 색)가 아니라
+#   ramp[3](한 단 위)으로 칠한다 → 선언값보다 명도 +spread/4, 게다가 ramp()가 위로
+#   갈수록 채도를 깎는다(sat=0.16) → 모든 옷이 자동으로 밝고 흐려진다.
+# 대응: 램프를 한 단 내려서 ★선언한 hex가 앞면에 그대로 나오게 하고, 위로 가며 깎이는
+# 채도만큼 미리 얹는다. 팔레트 hex를 안 건드리고 마을 전체가 원본 대비로 내려온다.
+# (garments.py의 base_idx를 고치는 게 근본이지만 그건 전 마을 143명 재빌드가 걸린다)
+LIT_COMP = True     # 앞면 = 선언색 (끄면 v2 동작)
+SAT_LIFT = 1.22     # 램프 상단 채도 손실 + 뮤트 과다 보정
 
-    2026-08-03: 고정 spread로는 팔레트 양끝을 못 쓴다 — chalk(0.84)는 위가 순백으로
-    잘리고(실측: helmut 순백 56px = audit ERROR), pitch(0.14)는 아래가 검정으로 잘린다.
-    램프 양끝이 [0.06, 0.95] 안에 들어오도록 명도에 맞춰 spread를 깎는다. 부수효과로
-    어두운 옷은 밝기 보정을 덜 받아 ★실제로 더 어두워진다(다양성 게이트에 유리).
+
+def R(key, spread=0.55):
+    """마을 색을 램프로. ★spread를 명도에 맞춰 자동으로 좁힌다(양끝 클리핑 방지) +
+    앞면에 선언색이 그대로 나오도록 한 단 내리고 채도를 보정한다.
+
+    2026-08-03(1차): 고정 spread로는 팔레트 양끝을 못 쓴다 — chalk(0.84)는 위가
+    순백으로 잘리고(실측: helmut 순백 56px = audit ERROR), pitch(0.14)는 아래가
+    검정으로 잘린다. 램프 양끝이 [0.06, 0.95] 안에 들어오도록 spread를 깎는다.
+    2026-08-03(2차): 위 LIT_COMP/SAT_LIFT 보정 추가.
     """
-    v = colorsys.rgb_to_hsv(*[int(C[key][i:i + 2], 16) / 255 for i in (0, 2, 4)])[2]
-    return ramp(C[key], spread=min(spread, 2 * (0.95 - v), 2 * (v - 0.06)))
+    h, s, v = colorsys.rgb_to_hsv(*[int(C[key][i:i + 2], 16) / 255 for i in (0, 2, 4)])
+    sp = min(spread, 2 * (0.95 - v), 2 * (v - 0.06))
+    if LIT_COMP:
+        v = max(0.06, v - sp / 4)          # ramp[3]이 원래 선언값이 되도록 한 단 내림
+        s = min(1.0, s * SAT_LIFT + 0.04)  # 램프가 위로 가며 깎는 채도만큼 미리 얹음
+        sp = min(sp, 2 * (0.95 - v), 2 * (v - 0.06))
+    r, g_, b = colorsys.hsv_to_rgb(h, s, v)
+    return ramp('%02x%02x%02x' % (round(r * 255), round(g_ * 255), round(b * 255)),
+                spread=sp)
 
 
 # ── 변주 표 ────────────────────────────────────────────────────────────────
@@ -325,7 +347,9 @@ VARIANTS = {
     '75': dict(file='rina', cid=75, label='리나 — 어부 지망 소녀',
                # "저도 언젠가 훌륭한 어부가 되고 싶어요" → 어른 옷을 줄여 입은 소녀
                female=True, child=True, skin='d0a57f', hair='7a5f3a',
-               garb='kirtle', cloth='slate', under='linen', legs='slate', boot='boot',
+               # ★브리기테108(슬레이트 커틀)과 쌍둥이가 돼서 어부색으로 바꾼다 —
+               #   어부 지망 소녀가 어른 어부 옷을 줄여 입은 것으로 읽힌다
+               garb='kirtle', cloth='teal', under='linen', legs='canvas', boot='boot',
                head=None, prop='basket', braid=True, patch='leg_r'),
 }
 
