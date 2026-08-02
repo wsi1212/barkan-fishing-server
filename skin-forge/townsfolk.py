@@ -466,16 +466,23 @@ def head(s, v, seed):
            seed=seed, part_x=v.get('part', 3 if v.get('female') else None))
     g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
     if v.get('beard'):
+        # ★수염 시작 행은 눈보다 반드시 아래여야 한다 — 눈 높이를 사람마다 다르게
+        #   한 뒤로 eye_y=5인 사람은 고정값 5와 충돌해 눈이 지워졌다(실측 3명)
         g.beard(s, ramp(v['hair']), style=v['beard'],
-                y=6 if v['beard'] == 'mutton' else 5, seed=seed, ragged=False)
+                y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
+                seed=seed, ragged=False)
     if v.get('age'):
         g.wrinkles(s, skin, crow=True, forehead=v.get('head') is None)
     eye_y = v.get('eye_y', 4)
+    # ★표식(흉터·주근깨)을 눈보다 먼저 찍는다 — 나중에 찍으면 흉터가 흰자를 덮어
+    #   눈이 반쯤 사라진다(실측: 랄프의 흉터가 오른쪽 눈을 지웠다)
+    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
     g.eyes(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
-           y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None)
+           y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey')
+           else 2)
     g.brow(s, hair[2] if not v.get('age') else hair[3], y=eye_y - 1,
            weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
-    g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
     f = s.f('head', 'front')
     if v.get('female'):
         f.px(0, 4, skin[1]); f.px(7, 4, skin[1])         # 속눈썹/눈꼬리
@@ -489,6 +496,13 @@ def head(s, v, seed):
     #   PNG만 보고 눈 행을 추정하는 방식은 후드 챙·머리 하이라이트에 오탐이 났다.
     if v.get('head') in ('hood', 'coif') and v.get('eye_y', 4) < 4:
         raise ValueError(f"{v['file']}: {v['head']}는 3행까지 덮는다 — eye_y를 4 이상으로")
+
+    # ★눈이 살아 있는지 빌드 시점에 확인한다. 눈썹·모자·수염이 눈 행을 덮는 사고가
+    #   반복됐고(굵은 눈썹 5명 소실), 렌더를 눈으로 훑는 것만으로는 놓친다.
+    fchk = s.f('head', 'front')
+    if sum(1 for x in (1, 2, 5, 6) if max(fchk.get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError(f"{v['file']}: 눈이 지워졌다 (eye_y={eye_y}) — "
+                         f"눈썹 두께/모자/수염이 눈 행을 덮는지 확인")
 
     hd = v.get('head')
     # ★맨머리 NPC의 hat 레이어를 비워두면 인게임에서 '모자를 안 씌운 것'처럼 보인다
