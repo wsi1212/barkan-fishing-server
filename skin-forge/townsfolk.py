@@ -111,31 +111,36 @@ VARIANTS = {
                 # "짐이 무거워도 이 일이 좋아" → 등짐꾼. 소매 없는 튜닉 + 어깨 짐받이
                 skin=SKIN['deep'], hair='4a3a2a', beard='stubble',
                 garb='jerkin', cloth='leather', under='oat', legs='canvas', boot='boot',
-                head=None, prop='sack', roll=2, patch='leg_r'),
+                head=None, prop='sack', roll=2, patch='leg_r',
+                surface=('patchwork', 'seams'), surfc='canvas'),
     '133': dict(file='feder', cid=133, label='페더 — 그물 손질',
                 # "그물 손질은 손끝 감각이 전부지" → 어망 수선공. 그물을 어깨에 건다
                 skin=SKIN['olive'], hair='6b6154', beard='full', age=True,
                 garb='tunic', cloth='teal', under='oat', legs='grey', boot='boot',
-                head='cap', headc='teal_d', prop='net', roll=3),
+                head='cap', headc='teal_d', prop='net', roll=3,
+                surface='stripe_h', surfc='oat'),
     '106': dict(file='dirk', cid=106, label='디르크 — 부두 관리',
                 # "부두 관리가 제 일입니다" → 관리자. 마을에서 가장 갖춰 입은 축
                 # ★도란73(상단)과 코트+캡+염소수염이 겹쳐 사실상 쌍둥이였다(픽셀차 9.2).
                 #   대청 파랑 관복 + 흑발로 갈라 놓는다(도란은 녹청).
                 skin='c39a72', hair='241f1c', beard='goatee',
                 garb='coat', cloth='woad', under='linen', legs='ink', boot='boot_d',
-                head='cap', headc='woad', prop='ledger', accent='brass'),
+                head='cap', headc='woad', prop='ledger', accent='brass',
+                surface=('placket', 'buttons'), surfc='brass'),
     '139': dict(file='walter', cid=139, label='발터 — 야경꾼',
                 # "밤에도 누군가는 항구를 지켜야지" → 후드 망토 + 등불
                 # ★마을의 '가장 어두운 사람' 자리 — 야경꾼이라 명분도 맞는다
                 skin='b0855e', hair='4f4a42', beard='full', age=True,
                 garb='coat', cloth='pitch', under='canvas', legs='soot',
                 boot='boot_d', head='hood', headc='pitch', prop='lantern',
-                accent='iron'),
+                accent='iron',
+                surface='seams', surfc='iron'),
     '104': dict(file='wolfgang', cid=104, label='볼프강 — 목수',
                 # "이 마을 목재는 다 내 손을 거쳐 갔지" → 톱밥 앞치마 + 연장
                 skin='b57f52', hair='5a4636', beard='mutton',
                 garb='apron', cloth='oat', under='oat', extra='leather',
-                legs='canvas', boot='boot', head=None, prop='tools', roll=4),
+                legs='canvas', boot='boot', head=None, prop='tools', roll=4,
+                surface='pocket', surfc='canvas'),
     '107': dict(file='helmut', cid=107, label='헬무트 — 방앗간',
                 # "밀가루 먼지 마실 날이 없어요" → 온몸에 하얀 가루. 자루를 진다
                 # ★마을의 '가장 밝은 사람' 자리 — 밀가루를 뒤집어쓰는 직업이라 명분도 맞는다
@@ -143,7 +148,8 @@ VARIANTS = {
                 # ★모자까지 흰색으로 하면 머리와 몸통이 한 덩어리가 된다(1패스 자기비평).
                 #   모자는 밀가루 안 묻은 낡은 캔버스로 눌러 얼굴선을 살린다
                 garb='tunic', cloth='cream', under='oat', legs='canvas', boot='boot',
-                head='cap', headc='sand', prop='sack', roll=3, dust=True),
+                head='cap', headc='sand', prop='sack', roll=3, dust=True,
+                surface='stripe_v', surfc='sand'),
 
     # ── 여성 주민 ────────────────────────────────────────────────────────
     '103': dict(file='gretchen', cid=103, label='그레첸 — 빵집',
@@ -152,12 +158,14 @@ VARIANTS = {
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
                 garb='kirtle', cloth='rust', under='linen', extra='chalk',
                 legs='rust', boot='boot', head='kerchief', headc='linen',
-                prop='basket', apron=True),
+                prop='basket', apron=True,
+                surface=('pocket', 'trim'), surfc='rust'),
     '105': dict(file='inga', cid=105, label='잉가 — 물 긷는 여인',
                 # "물 길으러 나왔어요" → 가장 소박한 차림. 금속 0곳
                 female=True, skin='c99a70', hair='4f3b2a',
                 garb='kirtle', cloth='moss', under='oat', legs='moss', boot='boot',
-                head=None, prop='pouch', braid=True),
+                head=None, prop='pouch', braid=True,
+                surface='seams', surfc='oat'),
     '136': dict(file='mia', cid=136, label='미아 — 생선 손질',
                 # "생선은 손질이 반이랍니다" → 방수 앞치마 + 걷은 소매 + 비늘
                 # 방수 앞치마는 타르를 먹인 검정이 실물에 맞다 — 어물전 3인(헬가·그레타)과
@@ -165,21 +173,24 @@ VARIANTS = {
                 female=True, skin='cfa47e', hair='241f1c',
                 garb='kirtle', cloth='teal_d', under='linen', extra='pitch',
                 legs='teal_d', boot='boot', head='kerchief', headc='teal',
-                prop='scales', apron=True, roll=5),
+                prop='scales', apron=True, roll=5,
+                surface='pocket', surfc='teal'),
     '138': dict(file='frieda', cid=138, label='프리다 — 항구 가수',
                 # "항구엔 늘 노랫거리가 있죠" → 마을에서 유일하게 색을 좀 쓴다
                 # ★그 '색을 쓴다'가 말뿐이었다(와인색=채도 0.28). 꼭두서니 빨강 + 웰드
                 #   노랑 숄로 실제 유채색 자리를 준다 — 무대에 서는 사람이니 명분도 맞다
                 female=True, skin=SKIN['ruddy'], hair='5a4230',
                 garb='kirtle', cloth='madder', under='linen', legs='madder', boot='boot',
-                head=None, prop='shawl', shawl='weld', braid=True),
+                head=None, prop='shawl', shawl='weld', braid=True,
+                surface=('lacing', 'trim'), surfc='weld'),
 
     # ── 아이 / 젊은이 ────────────────────────────────────────────────────
     '137': dict(file='leo', cid=137, label='레오 — 부두 아이',
                 # "갈매기들이 자꾸 생선을 훔쳐가요!" → 헐렁한 물려받은 옷, 맨발
                 skin='d2a878', hair='8a6a3f', child=True,
                 garb='tunic', cloth='teal', under='oat', legs='canvas', boot=None,
-                head=None, prop=None, roll=4, patch='leg_l'),
+                head=None, prop=None, roll=4, patch='leg_l',
+                surface='patchwork', surfc='oat'),
     # ── 퀘스트를 주는 주민 (&a[Q]) ────────────────────────────────────────
     '71': dict(file='sergan', cid=71, label='세르간 — 은퇴한 학자',
                # "나는 은퇴한 학자일세. 이 물길의 옛이야기를 좇지"
@@ -188,75 +199,87 @@ VARIANTS = {
                # ★가운을 바랜 흰색으로 — 마을에서 '밝은 사람' 한 자리를 학자가 맡는다
                skin='c2a184', hair='9a938a', beard='full', age=True,
                garb='robe', cloth='bone', under='oat', legs='canvas', boot='boot',
-               head=None, prop='book'),
+               head=None, prop='book',
+                surface='trim', surfc='leather'),
     '72': dict(file='marie', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
                female=True, skin='cfa47e', hair='241f1c',
                garb='kirtle', cloth='olive', under='linen', extra='canvas',
                legs='olive', boot='boot', head=None, prop='tools',
-               apron=True, roll=6, braid=True),
+               apron=True, roll=6, braid=True,
+                surface='pocket', surfc='canvas'),
     '73': dict(file='doran', cid=73, label='도란 — 상단 바르칸 지부',
                # "상단 바르칸 지부의 도란이라 하오" → 마르코82(상단마을)의 하급 동료.
                #   버건디는 마르코 몫이니 여기는 짙은 청록 + 놋쇠 한 곳
                skin='b98a5c', hair='3f3128', beard='goatee',
                garb='coat', cloth='verdigris', under='linen', legs='charcoal',
                boot='boot_d', head='cap', headc='verdigris', prop='pouch',
-               accent='brass'),
+               accent='brass',
+                surface=('placket', 'buttons'), surfc='brass'),
     '108': dict(file='brigitte', cid=108, label='브리기테 — 직조공',
                 # "옷감을 짜는 게 제 일이에요" → 실타래와 부드러운 옷감
                 # 적발 — 마을에 없던 머리색. 실타래를 다루는 사람이라 색이 붙어도 안 튄다
                 female=True, skin='d0a57f', hair='8f4a24',
                 garb='kirtle', cloth='slate', under='linen', legs='slate',
-                boot='boot', head='kerchief', headc='oat', prop='yarn'),
+                boot='boot', head='kerchief', headc='oat', prop='yarn',
+                surface='check', surfc='oat'),
     '109': dict(file='siegfried', cid=109, label='지그프리트 — 사냥꾼',
                 # "사냥이든 낚시든, 실력은 눈으로 봐야 알지" → 후드 + 가죽 + 화살통
                 skin='b0855e', hair='4a3a2a', beard='stubble',
                 garb='jerkin', cloth='moss_d', under='canvas', legs='leather_d',
-                boot='boot_d', head='hood', headc='moss_d', prop='quiver', sleeved=True),
+                boot='boot_d', head='hood', headc='moss_d', prop='quiver', sleeved=True,
+                surface='seams', surfc='leather'),
     '110': dict(file='astrid', cid=110, label='아스트리드 — 20년 장사꾼',
                 # "장사 20년, 단골들이 물고기를 찾는답니다" → 억센 상인 여성
                 female=True, age=True, skin='c99a70', hair='7a6e5f',
                 garb='kirtle', cloth='rust', under='oat', extra='rust',
                 legs='rust', boot='boot', head='kerchief', headc='mustard',
-                prop='ledger', apron=True),
+                prop='ledger', apron=True,
+                surface='stripe_v', surfc='oat'),
     '135': dict(file='sven', cid=135, label='스벤 — 낚싯배 선장',
                 # "낚싯배를 몰려면 실력부터 보여야지" → 방수 코트 + 선장 모자 + 밧줄
                 skin=SKIN['ruddy'], hair='6b6154', beard='full', age=True,
                 garb='coat', cloth='ink', under='teal', legs='pitch',
                 boot='boot_d', head='cap', headc='ink', prop='rope',
-                accent='brass'),
+                accent='brass',
+                surface=('buttons', 'trim'), surfc='brass'),
     '140': dict(file='rudi', cid=140, label='루디 — 전령',
                 # "소식을 전하는 게 제 일인데, 배가 고파서 원..." → 마르고 젊다.
                 #   달리기 좋은 짧은 튜닉 + 어깨 가방. 왕도 전령149의 화려함과 반대
                 skin='c39a72', hair='4a3d2f',
                 garb='tunic', cloth='weld', under='oat', legs='canvas',
-                boot='boot', head='cap', headc='canvas', prop='satchel', roll=6),
+                boot='boot', head='cap', headc='canvas', prop='satchel', roll=6,
+                surface='placket', surfc='canvas'),
     '29': dict(file='marta', cid=29, label='마르타 — 시장 안내',
                # "싱싱한 건 제값 쳐주는 게 시장 인심이죠" → 활기찬 시장 상인
                female=True, skin='d3a884', hair='6b4a2f',
                # 앞치마는 크림이 아니라 표백 흰색이어야 금색 드레스와 값이 갈린다
                garb='kirtle', cloth='weld', under='linen', extra='chalk',
                legs='weld', boot='boot', head=None, prop='basket',
-               apron=True, braid=True),
+               apron=True, braid=True,
+                surface='stripe_v', surfc='linen'),
     '30': dict(file='bettina', cid=30, label='베티나 — 요리 안내',
                # "이 주방에선 잡은 걸로 근사한 요리를 만든답니다" → 주방 보조
                female=True, skin='cfa47e', hair='4f3b2a',
                garb='kirtle', cloth='moss', under='linen', extra='chalk',
                legs='moss', boot='boot', head='kerchief', headc='chalk',
-               prop='ladle', apron=True),
+               prop='ladle', apron=True,
+                surface='pocket', surfc='moss'),
     '28': dict(file='felix', cid=28, label='펠릭스 — 대장간 견습',
                # "여긴 대장간이에요. 좋은 장비가 좋은 어부를 만들죠!" → 젊고 들뜬 견습.
                #   군터9(마스터)보다 앞치마가 작고 그을음이 적어야 계급이 읽힌다
                skin='c39a72', hair='8f4a24', child=False,
                garb='apron', cloth='canvas', under='oat', extra='leather',
                legs='canvas', boot='boot', head=None, prop='tools', roll=5,
-               patch='leg_l'),
+               patch='leg_l',
+                surface='patchwork', surfc='canvas'),
     '17': dict(file='ingrid', cid=17, label='잉그리드 — 길드 접수',
                # 길드 GUI 담당. 마을에서 가장 격식 있는 여성 — 장부와 인장
                # 대청 파랑 — 마을에서 가장 격식 있는 여성이라 비싼 염료가 명분이 된다
                female=True, skin='d0a57f', hair='4f3b2a',
                garb='kirtle', cloth='woad', under='linen', legs='ink',
-               boot='boot_d', head=None, prop='ledger', accent='brass'),
+               boot='boot_d', head=None, prop='ledger', accent='brass',
+                surface=('trim', 'buttons'), surfc='brass'),
 
     # ── 기능 NPC (&b) ────────────────────────────────────────────────────
     '9': dict(file='gunter', cid=9, label='군터 — 마을 대장간',
@@ -266,25 +289,29 @@ VARIANTS = {
               skin='b57f52', hair='8a8378', beard='full', age=True,
               garb='apron', cloth='canvas', under='oat', extra='soot',
               legs='grey', boot='boot_d', head='kerchief', headc='rust',
-              prop='tools', roll=4, patch='leg_r'),
+              prop='tools', roll=4, patch='leg_r',
+                surface='patchwork', surfc='leather'),
     '21': dict(file='franz', cid=21, label='프란츠 — 마을 요리',
                # ★왕실 요리장 그레고르57과 갈라야 한다: 그레고르=올리브+코이프+노장.
                #   프란츠는 젊고 소박 — 오트 튜닉 + 리넨 앞치마 + 맨머리 + 국자
                skin='c39a72', hair='4a3d2f', beard='stubble',
                garb='apron', cloth='teal', under='linen', extra='chalk',
-               legs='canvas', boot='boot', head=None, prop='ladle', roll=5),
+               legs='canvas', boot='boot', head=None, prop='ladle', roll=5,
+                surface='pocket', surfc='teal'),
     '6': dict(file='helga', cid=6, label='헬가 — 물고기 판매',
               # 오토14·그레타13과 한 어물전. 공통=방수 가죽 앞치마+비늘 / 개인=색과 나이
               female=True, skin='c99a70', hair='5a4230',
               garb='kirtle', cloth='slate', under='oat', extra='leather',
               legs='slate', boot='boot', head='kerchief', headc='mustard',
-              prop='scales', apron=True, roll=6),
+              prop='scales', apron=True, roll=6,
+                surface='stripe_h', surfc='mustard'),
     '13': dict(file='greta', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
                female=True, age=True, skin='c2a184', hair='9a938a',
                garb='kirtle', cloth='grey', under='oat', extra='leather',
                legs='grey', boot='boot', head='kerchief', headc='oat',
-               prop='scales', apron=True, roll=6),
+               prop='scales', apron=True, roll=6,
+                surface='check', surfc='oat'),
     '7': dict(file='klaus', cid=7, label='클라우스 — 잡화 상점',
               # ★모래색 코트+가죽 캡+파우치는 '사냥꾼'으로 읽힌다(유저 지적).
               #   가게를 지키는 사람은 앞치마와 장부로 말한다 — 모자를 벗기고
@@ -292,41 +319,48 @@ VARIANTS = {
               skin='c39a72', hair='a89a6f', beard='mutton',
               garb='apron', cloth='madder', under='linen', extra='oat',
               legs='canvas', boot='boot', head=None, prop='ledger',
-              accent='brass', roll=7),
+              accent='brass', roll=7,
+                surface='placket', surfc='oat'),
     '8': dict(file='bruno', cid=8, label='브루노 — 섬상점',
               # 섬으로 배를 대는 사람. 항해 쪽 어휘(밧줄)로 클라우스와 갈린다
               skin='a87a4e', hair='3f3128', beard='full',
               garb='coat', cloth='teal', under='canvas', legs='navy',
-              boot='boot_d', head=None, prop='rope'),
+              boot='boot_d', head=None, prop='rope',
+                surface='stripe_h', surfc='canvas'),
     '18': dict(file='raimund', cid=18, label='라이문트 — 유저마켓',
                # 경매·중개. 장부와 놋쇠 한 곳
                skin='b98a5c', hair='4a3d2f', beard='goatee',
                garb='coat', cloth='wine', under='linen', legs='charcoal',
-               boot='boot_d', head=None, prop='ledger', accent='brass'),
+               boot='boot_d', head=None, prop='ledger', accent='brass',
+                surface='buttons', surfc='brass'),
     '19': dict(file='dietrich', cid=19, label='디트리히 — 일감 게시판',
                # ★[퀘스트] 태그지만 게시판=기능형이다(대사로 퀘스트를 주는 [Q]가 아님).
                #   왕도 프리츠120과 같은 '관청 서기' 어휘를 쓰되 색으로 갈린다
                skin='c39a72', hair='6b5540',
                garb='tunic', cloth='olive_d', under='linen', legs='charcoal',
-               boot='boot', head='cap', headc='olive_d', prop='satchel', roll=7),
+               boot='boot', head='cap', headc='olive_d', prop='satchel', roll=7,
+                surface='placket', surfc='linen'),
     '43': dict(file='oskar', cid=43, label='오스카 — 말 대여',
                # 마부. 가죽 저킨 + 밧줄. 왕도 알브레히트121과 색으로 갈린다
                skin='b0855e', hair='4a3a2a', beard='stubble',
                garb='jerkin', cloth='walnut', under='oat', legs='leather',
                boot='boot_d', head='cap', headc='leather', prop='rope',
-               sleeved=True),
+               sleeved=True,
+                surface='seams', surfc='leather'),
     '141': dict(file='ludwig', cid=141, label='루드비히 — 여관 주인',
                 # "이 마을에서 하룻밤 쉬어가시겠어요?" → 술잔과 앞치마, 넉넉한 체구
                 skin='c99a70', hair='241f1c', beard='mutton',
                 garb='apron', cloth='wine', under='linen', extra='cream',
-                legs='charcoal', boot='boot', head=None, prop='tankard', roll=6),
+                legs='charcoal', boot='boot', head=None, prop='tankard', roll=6,
+                surface='quilt', surfc='wine'),
     # ── 신규: 스폰마을 회복 NPC (아직 서버에 없음 — 스킨 선제작) ──────────────
     'healer': dict(file='healer', cid=901, label='회복 NPC(신규) — 마을 약초사',
                    # ★왕도 회복 힐데122와 갈라야 한다: 힐데=회청 로브+흰 코이프+여성.
                    #   마을은 남성 노인 약초사 — 세이지 로브 + 약초 다발 + 붕대 감은 손
                    skin='bd8f61', hair='9a938a', beard='full', age=True,
                    garb='robe', cloth='moss', under='linen', legs='moss',
-                   boot='boot', head='hood', headc='moss', prop='herbs'),
+                   boot='boot', head='hood', headc='moss', prop='herbs',
+                surface='trim', surfc='linen'),
 
     '3': dict(file='grandpa', cid=3, label='할아버지 — 튜토리얼 길잡이',
               # "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
@@ -335,14 +369,16 @@ VARIANTS = {
               #   붉은 니트 모자를 씌운다(멀리서도 '그 할아버지'로 식별)
               skin='c2a184', hair='9a938a', beard='full', age=True,
               garb='tunic', cloth='oat', under='canvas', legs='grey', boot='boot',
-              head='cap', headc='rust', prop='shawl', shawl='teal', roll=8),
+              head='cap', headc='rust', prop='shawl', shawl='teal', roll=8,
+                surface='quilt', surfc='rust'),
     '146': dict(file='chief', cid=146, label='촌장',
                 # ★구스킨은 바닐라 주민(빌리저) 텍스처 — 사람이 아니라 몹으로 읽힌다.
                 #   마을에서 가장 격식 있는 평민: 긴 코트 + 놋쇠 직위 사슬 + 마을 장부
                 skin='c39a72', hair='9a938a', beard='full', age=True,
                 garb='coat', cloth='ink', under='oat', legs='charcoal',
                 boot='boot_d', head='coif', headc='grey', prop='book',
-                accent='brass'),
+                accent='brass',
+                surface=('trim', 'buttons'), surfc='brass'),
 
     '75': dict(file='rina', cid=75, label='리나 — 어부 지망 소녀',
                # "저도 언젠가 훌륭한 어부가 되고 싶어요" → 어른 옷을 줄여 입은 소녀
@@ -350,7 +386,8 @@ VARIANTS = {
                # ★브리기테108(슬레이트 커틀)과 쌍둥이가 돼서 어부색으로 바꾼다 —
                #   어부 지망 소녀가 어른 어부 옷을 줄여 입은 것으로 읽힌다
                garb='kirtle', cloth='teal', under='linen', legs='canvas', boot='boot',
-               head=None, prop='basket', braid=True, patch='leg_r'),
+               head=None, prop='basket', braid=True, patch='leg_r',
+                surface='patchwork', surfc='linen'),
 }
 
 
@@ -587,11 +624,64 @@ def props(s, v, seed):
             fh.px(x, y, mix(fh.get(x, y), R('flour')[4], 0.45))
 
 
+def surface(s, v, seed):
+    """옷 위의 무늬·재봉 디테일 (2026-08-03 신설).
+
+    왜: 색을 고친 뒤에도 "옷 무늬가 다 비슷하다"는 지적을 받았다. 실측해 보니 무늬가
+    비슷한 게 아니라 ★아예 없었다 — garments.py 함수 40개가 전부 옷의 '형태'였고
+    표면 어휘(stripe/check/panel/trim/quilt/button/lacing/seam) 사용 횟수는 0.
+    모든 옷이 단색 면 + 그레인 노이즈 + 같은 자리 주름 두 줄이었다.
+
+    규칙: 한 사람당 최대 2개, 배역에 명분이 있을 때만 — 직조공은 자기가 짠 격자천,
+    짐꾼·아이는 기운 조각천, 뱃사람은 가로줄, 관리·상단은 앞섶 패널과 단추,
+    앞치마 직군은 주머니.
+    """
+    kinds = v.get('surface')
+    if not kinds:
+        return
+    if isinstance(kinds, str):
+        kinds = (kinds,)
+    r2 = R(v.get('surfc', 'linen'))
+    L = 'outer'
+    roll = v.get('roll', 8)
+    for k in kinds:
+        if k == 'stripe_v':
+            g.stripes(s, 'body', r2, axis='v', period=4, y0=0, y1=10, layer=L,
+                      offset=seed % 3)
+        elif k == 'stripe_h':
+            g.stripes(s, 'body', r2, axis='h', period=3, y0=1, y1=10, layer=L,
+                      offset=seed % 2)
+            for part in ('arm_r', 'arm_l'):
+                g.stripes(s, part, r2, axis='h', period=3, y0=0, y1=roll, layer=L,
+                          offset=seed % 2)
+        elif k == 'check':
+            g.check(s, 'body', r2, period=2, y0=0, y1=10, layer=L)
+        elif k == 'placket':
+            g.placket(s, r2, x=(3, 4), y0=0, y1=9, layer=L)
+        elif k == 'buttons':
+            g.buttons(s, r2, x=4, ys=(2, 4, 6), layer=L)
+        elif k == 'trim':
+            g.trim(s, r2, rows=(0,), layer=L)
+            for part in ('arm_r', 'arm_l'):
+                g.trim(s, r2, part=part, rows=(roll,), layer=L)
+        elif k == 'quilt':
+            g.quilt(s, 'body', r2, y0=1, y1=9, layer=L)
+        elif k == 'lacing':
+            g.lacing(s, r2, x=(3, 4), y0=1, y1=6, layer=L)
+        elif k == 'seams':
+            g.seams(s, 'body', r2, y0=0, y1=10, layer=L)
+        elif k == 'patchwork':
+            g.patchwork(s, 'body', r2, n=2, seed=seed, y0=2, y1=10, layer=L)
+        elif k == 'pocket':
+            g.pocket(s, r2, x=(1, 3), y=(7, 9), layer=L)
+
+
 def build(v):
     s = Skin()
     seed = v['cid']
     head(s, v, seed)
     body(s, v, seed)
+    surface(s, v, seed)     # ★무늬는 옷 다음, 소품 앞 — 소품 위에 줄무늬가 얹히면 안 된다
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tf_{v['file']}.png"))
