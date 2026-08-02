@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 """사막 도박장 딜러 12인 세트 — 룰렛·홀덤·섯다·블랙잭·쓰리카드·슬롯.
 
-구스킨 실태
-  ★12명 전원 현대 검정 턱시도 + 흰 셔츠 + 붉은 나비넥타이. 라스베가스 딜러다.
-    게다가 실제로 3쌍이 완전 동일 텍스처였다(31=40, 32=36, 37=41).
-  카지노는 사막마을 시설이므로 오아시스 도박장으로 읽혀야 한다.
+★설계 판단 정정 (2026-08-02)
+  1차에서 "카지노가 사막마을에 있으니 사막 팔레트"라며 페즈+조끼로 갈아입혔는데,
+  유저 지적으로 되돌린다. 원칙을 잘못 적용했다 —
+      **지역이 아니라 업장이 톤을 정한다.**
+  그레고르57(중세 왕성 주방)에게서 현대 셰프복을 벗긴 건 장소와 충돌해서였지만,
+  카지노는 룰렛·홀덤·슬롯머신이 있는 '의도적으로 현대 장르인 시설'이다.
+  그 안의 정장 딜러는 충돌이 아니라 정합이고, 무엇보다 ★턱시도는 '딜러'를
+  즉시 읽히게 하는 가장 강한 기호다. 옷은 그 사람의 직업을 말해야 한다.
 
-SET ARCHITECTURE (위병·도서관 세트와 같은 원리)
-  ★제복은 통일, 사람은 구분. 딜러 열둘이 각자 다른 옷이면 업장이 아니고,
-    픽셀까지 같으면 복붙이다.
-      공통(제복)  흰 리넨 셔츠 + 조끼 + 허리 새시 + 페즈(또는 터번) + 소매 걷음
-      변주①테이블 ★조끼·새시 색 = 게임 종류. 손님이 색만 보고 테이블을 찾는다
-        룰렛=진홍 / 홀덤=암청 / 섯다=녹 / 블랙잭=자주 / 쓰리카드=황토 / 슬롯=구리
-      변주②사람  성별 · 수염 · 나이 · 머리쓰개(페즈/터번/맨머리) · 소품(카드/칩/주사위)
+SET ARCHITECTURE
+  공통(하우스 제복)  흰 드레스 셔츠 + 검정 재킷 + 검정 나비타이 + ★소매 가터(크루피어의
+                     상징) + 검정 바지. 옆·뒤는 통째로 검정이라 실루엣은 완전한 정장
+  변주①테이블  ★정면 조끼 색 = 게임 종류. 검정 재킷 라펠이 액자처럼 감싸므로
+               멀리서도 색이 또렷하고, 옆에서 보면 그냥 정장이다
+                 룰렛=진홍 / 홀덤=암청 / 섯다=녹 / 블랙잭=자주 / 쓰리카드=황토 / 슬롯=구리
+  변주②사람    성별 · 수염 · 나이 · 딜러 바이저(초록 챙) 유무 · 소품(카드/칩/주사위/구슬)
+  같은 테이블 2~3인은 ②로만 갈린다 → audit는 --uniform-set으로 돈다.
 
-  같은 테이블 2~3인은 색이 같으므로 ②로만 갈린다 → audit는 --uniform-set으로 돈다.
+구스킨 문제였던 것: 12명이 텍스처 9개뿐(31=40, 32=36, 37=41 완전 동일).
+  정장 느낌은 되살리되 그 중복만 제거한다.
 """
 import pathlib
 import sys
@@ -26,96 +32,112 @@ from skinlib import Skin, ramp            # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
-U = dict(                                  # 제복 공통(전원 공유)
-    shirt=ramp('bdb49c', spread=0.48),     # 흰 리넨 — 순백은 램프가 클리핑된다
-    trouser=ramp('4a4238', spread=0.5),
-    boot=ramp('3f342a', spread=0.45),
-    brass=ramp('b08d3c', spread=0.5),
-    ivory=ramp('c4bba4', spread=0.45),     # 상아 칩·주사위
+U = dict(
+    # 순백 셔츠는 램프 위가 클리핑돼 8x8에서 번진다 — 한 단 내린 흰색
+    shirt=ramp('c6bfae', spread=0.42),
+    jacket=ramp('26242a', spread=0.38),    # 검정 재킷. [0]이 사실상 검정이 되지 않게 좁힌다
+    trouser=ramp('2b2930', spread=0.38),
+    shoe=ramp('221f24', spread=0.34),
+    brass=ramp('b08d3c', spread=0.48),
+    ivory=ramp('c4bba4', spread=0.45),     # 상아 칩·주사위·카드
+    visor=ramp('2f6b4a', spread=0.44),     # 딜러 바이저(초록 셀룰로이드 챙)
 )
-# 테이블 색 — 이 세트의 1차 변주축
 TABLE = dict(
-    roulette=('8f2f38', 'crimson'), holdem=('2f3f5c', 'navy'),
-    seotda=('35563f', 'green'), blackjack=('54304a', 'plum'),
-    threecard=('8a6a2c', 'ochre'), slot=('96552f', 'copper'),
+    roulette='8f2f38', holdem='2f3f5c', seotda='35563f',
+    blackjack='54304a', threecard='8a6a2c', slot='96552f',
 )
 
 VARIANTS = {
     '31': dict(file='d_roulette1', cid=31, table='roulette', prop='ball',
-               skin='a87a4e', hair='2f2721', beard='goatee', head='fez'),
-    '40': dict(file='d_threecard2', cid=40, table='threecard', prop='cards',
-               skin='9c7146', hair='3f3128', beard=None, head='turban'),
+               skin='a87a4e', hair='2f2721', beard='goatee', visor=True),
     '35': dict(file='d_threecard1', cid=35, table='threecard', prop='cards',
-               skin='b98a5c', hair='2f2721', beard='stubble', head='fez'),
+               skin='b98a5c', hair='2f2721', beard='stubble', visor=False),
+    '40': dict(file='d_threecard2', cid=40, table='threecard', prop='chips',
+               female=True, skin='c09468', hair='3f2f24', beard=None, visor=False),
     '32': dict(file='d_holdem1', cid=32, table='holdem', prop='chips',
-               skin='8f6339', hair='241d18', beard='full', head='fez'),
+               skin='8f6339', hair='241d18', beard='full', visor=True),
     '41': dict(file='d_holdem2', cid=41, table='holdem', prop='cards',
-               female=True, skin='c09468', hair='3f2f24', beard=None, head='veilcap'),
+               female=True, skin='cfa47e', hair='4f3b2a', beard=None, visor=False),
     '33': dict(file='d_seotda1', cid=33, table='seotda', prop='cards',
-               skin='9c7146', hair='4a3a2a', beard='mutton', head='turban', age=True),
+               skin='9c7146', hair='9a938a', beard='mutton', visor=True, age=True),
     '42': dict(file='d_seotda2', cid=42, table='seotda', prop='dice',
-               skin='a87a4e', hair='2f2721', beard='stubble', head=None),
+               skin='a87a4e', hair='2f2721', beard='stubble', visor=False),
     '34': dict(file='d_blackjack1', cid=34, table='blackjack', prop='cards',
-               skin='b98a5c', hair='3f3128', beard='goatee', head='fez'),
+               skin='b98a5c', hair='3f3128', beard='goatee', visor=False),
     '38': dict(file='d_blackjack2', cid=38, table='blackjack', prop='chips',
-               female=True, skin='b98a5c', hair='2f2721', beard=None, head='veilcap'),
+               female=True, skin='b98a5c', hair='2f2721', beard=None, visor=True),
     '39': dict(file='d_blackjack3', cid=39, table='blackjack', prop='dice',
-               skin='8f6339', hair='9a938a', beard='full', head='turban', age=True),
+               skin='8f6339', hair='6b6154', beard='full', visor=False, age=True),
     '36': dict(file='d_slot1', cid=36, table='slot', prop='chips',
-               skin='c09468', hair='4a3a2a', beard=None, head='fez'),
+               skin='c09468', hair='4a3a2a', beard=None, visor=False),
     '37': dict(file='d_slot2', cid=37, table='slot', prop='ball',
-               female=True, skin='a87a4e', hair='3f2f24', beard=None, head='veilcap'),
+               female=True, skin='a87a4e', hair='3f2f24', beard=None, visor=True),
 }
 
 
-def fez(s, r, seed=0):
-    """페즈 — 짧은 원통 모자. 술(tassel)이 뒤로 늘어진다.
+def visor(s, r, seed=0):
+    """딜러 바이저 — 초록 셀룰로이드 챙 + 이마 밴드.
 
-    ★얼굴을 절대 침범하지 않는 3행짜리 모자라 딜러처럼 '얼굴이 보여야 하는'
-      직군에 맞는다. 술은 뒤통수 outer로만 내려 정면 실루엣을 어지럽히지 않는다.
+    ★모자가 아니라 '챙'이라 머리 위(top면)를 덮지 않는다. 이마 1행 밴드 + 그 아래
+      1행이 챙이며, 눈(y4)은 절대 침범하지 않는다.
     """
     for fname in ('front', 'right', 'left', 'back'):
-        f = s.f('head', fname, 'outer')
-        f.rect(0, 0, 7, 2, r[3])
-        f.row(0, r[4])
-        f.row(2, r[1])                                   # 모자 아랫단 그림자
-    s.f('head', 'top', 'outer').fill(r[4])
-    bk = s.f('head', 'back', 'outer')                    # 술
-    bk.rect(3, 3, 4, 5, r[2]); bk.row(5, r[1], 3, 4)
-
-
-def veilcap(s, r, seed=0):
-    """여성 딜러의 머릿수건 — 페즈와 같은 색이되 뒤통수와 목까지 감싼다."""
-    for fname in ('right', 'left', 'back'):
-        s.f('head', fname, 'outer').rect(0, 0, 7, 6, r[3])
+        s.f('head', fname, 'outer').row(2, r[2])         # 이마 밴드
     f = s.f('head', 'front', 'outer')
-    f.rect(0, 0, 7, 1, r[3])
-    for x in (0, 7):
-        f.rect(x, 2, x, 6, r[2])
-    f.row(1, r[1])
-    s.f('head', 'top', 'outer').fill(r[4])
+    f.row(3, r[3])                                       # 챙(반투명 초록)
+    f.px(0, 3, r[1]); f.px(7, 3, r[1])
+    f.px(3, 2, r[4]); f.px(4, 2, r[1])                   # 밴드 조임쇠
 
 
-def turban(s, r, seed=0):
-    for i in range(2):
-        tone = r[4] if i % 2 == 0 else r[2]
-        for fname in ('front', 'right', 'left', 'back'):
-            s.f('head', fname, 'outer').row(i, tone)
-    s.f('head', 'top', 'outer').fill(r[3])
-    bk = s.f('head', 'back', 'outer')
-    bk.rect(2, 2, 5, 3, r[3]); bk.row(3, r[1], 2, 5)
+def tuxedo(s, v, seed):
+    """하우스 제복 — 옆·뒤는 통째로 검정 재킷, 앞만 흰 셔츠 + 게임색 조끼.
+
+    ★이 재단이 요점이다: 실루엣은 완전한 정장인데 정면에서만 테이블 색이 읽힌다.
+      조끼를 몸통 전체에 두르면 '색 튜닉'이 되고, 색을 아예 빼면 테이블 구분이 죽는다.
+    """
+    jk, sh = U['jacket'], U['shirt']
+    vest = ramp(TABLE[v['table']], spread=0.46)
+
+    # 재킷: 4면 + 어깨. 뒤는 무늬 없이 통짜(정장의 등판은 매끈하다)
+    s.form_fill('body', jk, 0, 11, layer='outer', base_idx=3, top=True)
+    s.speckle('body', jk, 0, 11, layer='outer', density=0.06, seed=seed)
+    s.folds('body', 2, 10, jk, layer='outer', cols=(2, 5), face='back', seed=seed)
+
+    f = s.f('body', 'front', 'outer')
+    # 흰 셔츠 가슴판 + 게임색 조끼 (x2~5). 라펠(x1·x6)은 검정으로 남겨 액자를 만든다
+    f.rect(2, 0, 5, 0, sh[4])                            # 칼라
+    f.rect(2, 1, 5, 8, vest[3])                          # 조끼
+    f.col(2, vest[2], 1, 8); f.col(5, vest[4], 1, 8)     # 조끼 앞단 두께
+    f.row(8, vest[1], 2, 5)                              # 조끼 밑단
+    for y in (3, 5, 7):                                  # 놋쇠 단추
+        f.px(4, y, U['brass'][4]); f.px(4, y + 1, vest[1])
+    f.px(2, 1, sh[3]); f.px(5, 1, sh[3])                 # 칼라 끝
+    f.rect(3, 1, 4, 1, jk[1])                            # ★검정 나비타이
+    f.px(3, 2, jk[0]); f.px(4, 2, jk[2])
+    for x in (1, 6):                                     # 라펠 실크(한 단 밝게)
+        f.col(x, jk[4], 0, 5)
+
+    # 소매: ★검정 재킷 소매 + 손목에 흰 셔츠 커프 1행.
+    #   몸통은 재킷인데 팔만 흰 셔츠면 '재킷 입은 몸 + 셔츠 팔'로 어긋난다(실측 v1).
+    #   정장은 어깨부터 손목까지 한 벌로 이어져야 한다.
+    for i, part in enumerate(('arm_r', 'arm_l')):
+        s.form_fill(part, jk, 0, 9, layer='outer', base_idx=3)
+        s.speckle(part, jk, 0, 9, layer='outer', density=0.05, seed=seed + i)
+        s.folds(part, 2, 8, jk, layer='outer', cols=(1,), seed=seed + i * 3)
+        s.hem(part, 9, jk, layer='outer', base_idx=3)
+        s.band(part, 10, 10, sh[4], layer='outer')                # 드러난 셔츠 커프
+        s.band(part, 9 + i, 9 + i, jk[1], layer='outer')          # 커프 접힘(좌우 비대칭)
 
 
 def build(v):
     s = Skin()
     seed = v['cid']
     skin, hair = ramp(v['skin']), ramp(v['hair'])
-    tab = ramp(TABLE[v['table']][0], spread=0.46)
 
-    # ---- 얼굴: 제복이 같으니 여기서 사람을 가른다
     g.head_base(s, skin, seed=seed)
     g.ears(s, skin, y=4)
-    g.hair(s, hair, fringe=2, back=7 if v.get('female') else 6, seed=seed)
+    g.hair(s, hair, fringe=2, back=7 if v.get('female') else 5, seed=seed,
+           part_x=3 if v.get('female') else None)
     if v.get('beard'):
         g.beard(s, hair, style=v['beard'], y=6 if v['beard'] == 'mutton' else 5,
                 seed=seed, ragged=False)
@@ -128,51 +150,31 @@ def build(v):
         f.rect(3, 6, 4, 6, ramp('8f5248')[2])
     else:
         g.mouth(s, skin, y=6, w=2)
-    hd = v.get('head')
-    if hd == 'fez':
-        fez(s, tab, seed)
-    elif hd == 'veilcap':
-        veilcap(s, tab, seed)
-    elif hd == 'turban':
-        turban(s, U['ivory'], seed)
+    if v.get('visor'):
+        visor(s, U['visor'], seed)
 
-    # ---- 제복: 흰 리넨 셔츠(소매 걷음) → 조끼 → 새시 → 바지
-    g.tunic(s, U['shirt'], y0=0, y1=11, collar=True, seed=seed, grain=0.06, hem=False)
-    g.sleeves(s, U['shirt'], y0=0, y1=8, seed=seed, grain=0.06)
-    for part in ('arm_r', 'arm_l'):                      # 걷어붙인 아래는 맨팔
-        s.form_fill(part, skin, 9, 11, base_idx=3)
-        s.hem(part, 8, U['shirt'], base_idx=3)
-    s.clear_rows('arm_l', 7, 8, layer='base')            # 왼팔만 한 단 더(비대칭)
-    s.form_fill('arm_l', skin, 7, 8, base_idx=3)
-    s.hem('arm_l', 6, U['shirt'], base_idx=3)
-    g.hands(s, skin, rows=2)
+    # base: 셔츠 → 바지 → 구두 (base 6면 전부 불투명하게)
+    g.tunic(s, U['shirt'], y0=0, y1=11, collar=True, seed=seed, grain=0.05, hem=False)
+    g.sleeves(s, U['shirt'], y0=0, y1=11, seed=seed, grain=0.05)
+    g.hands(s, skin, rows=1)
     g.pants(s, U['trouser'], y0=0, y1=7, seed=seed)
-    g.boots(s, U['boot'], rows=4, toe=True, cuff=False)
+    g.boots(s, U['shoe'], rows=4, toe=True, cuff=False)
 
-    # ★조끼: 앞을 두 패널로 갈라 가운데로 흰 셔츠가 보여야 '조끼'다.
-    #   통짜로 덮으면 셔츠가 사라져 그냥 색 튜닉이 된다.
-    g.vest(s, tab, y0=0, hem=8, gap=1, seed=seed, buttons=U['brass'])
-    s.hem('body', 8, tab, layer='outer', base_idx=3)
-    s.folds('body', 2, 7, tab, layer='outer', cols=(1, 6), seed=seed)
-    s.folds('body', 2, 7, tab, layer='outer', cols=(2, 5), face='back', seed=seed + 3)
+    tuxedo(s, v, seed)
 
-    # 허리 새시 — 조끼와 같은 색 계열이되 한 단 짙게(가로 요소는 이것 하나뿐)
-    s.band('body', 9, 9, tab[2], layer='outer')
-    s.band('body', 10, 10, tab[1], layer='outer')
-    s.f('body', 'front', 'outer').px(5, 11, tab[2])      # 늘어뜨린 끝(비대칭)
-
-    # ---- 소품: 같은 테이블 2~3인을 가르는 마지막 축
+    # 소품 — 같은 테이블 2~3인을 가르는 마지막 축
     fb = s.f('body', 'front', 'outer')
+    tab = ramp(TABLE[v['table']], spread=0.46)
     p = v['prop']
-    if p == 'cards':                                     # 손에 쥔 카드 두 장
+    if p == 'cards':                                     # 부채꼴로 쥔 카드
         fb.rect(6, 4, 7, 7, U['ivory'][4])
         fb.col(6, U['ivory'][2], 4, 7); fb.row(7, tab[1], 6, 7)
         fb.px(7, 5, tab[3])
     elif p == 'chips':                                   # 쌓인 칩
         for i, y in enumerate((4, 5, 6)):
             fb.rect(6, y, 7, y, U['ivory'][4] if i % 2 else tab[3])
-        fb.row(7, tab[1], 6, 7)
-    elif p == 'dice':                                    # 주사위 두 알
+        fb.row(7, U['jacket'][1], 6, 7)
+    elif p == 'dice':
         fb.rect(6, 5, 7, 6, U['ivory'][4])
         fb.px(6, 5, U['ivory'][1]); fb.px(7, 6, U['ivory'][1])
     elif p == 'ball':                                    # 룰렛 구슬 / 슬롯 손잡이
