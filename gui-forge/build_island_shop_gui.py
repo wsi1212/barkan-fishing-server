@@ -36,7 +36,17 @@ G = (204, 164, 60, 255)   # cca43c 금색 레일
 HI = (236, 200, 98, 255)  # ecc862 밝은 금색 하이라이트
 D = (22, 38, 45, 255)     # 16262d 어두운 채움 / 베벨(우·하)
 N = (40, 66, 78, 255)     # 28424e 측면 레일 안쪽 남색
+DK = (12, 22, 27, 255)    # 0c161b 슬롯 셀 음각 그림자 (D보다 한 단 더 어둡게)
 CLEAR = (0, 0, 0, 0)
+
+# 슬롯 칸까지 프레임 톤 음각으로 칠할지. True면 바닐라 generic_54의 회색 셀이
+# 완전히 가려져 GUI 전체가 커스텀이 된다(글리프가 창 전면을 불투명하게 덮음).
+# 아이템 아이콘(z=150)·호버 하이라이트·라벨 텍스트는 여전히 위에 그려진다.
+PAINT_SLOTS = True
+
+# 슬롯 좌상단 좌표 — 텍스처 구멍은 (sx-1, sy-1)에서 18x18
+SLOT_X = [8 + c * 18 for c in range(9)]
+SLOT_Y = [18 + r * 18 for r in range(6)] + [139, 157, 175] + [197]
 
 
 def row_fill(px, y, inner):
@@ -95,6 +105,21 @@ def row_rails(px, y):
     px[175, y] = D
 
 
+def slot_cell(px, sx, sy):
+    """슬롯 한 칸(18x18)을 음각 홈으로 — 위·좌 그림자 / 아래·우 하이라이트."""
+    for y in range(sy - 1, sy + 17):
+        for x in range(sx - 1, sx + 17):
+            px[x, y] = D
+    for x in range(sx - 1, sx + 17):
+        px[x, sy - 1] = DK
+        px[x, sy + 16] = N
+    for y in range(sy - 1, sy + 17):
+        px[sx - 1, y] = DK
+        px[sx + 16, y] = N
+    px[sx - 1, sy + 16] = D   # 베벨이 꺾이는 대각 모서리
+    px[sx + 16, sy - 1] = D
+
+
 def main():
     src = Image.open(SRC).convert("RGBA")
     if src.size != (W, H_OLD):
@@ -128,6 +153,12 @@ def main():
 
     # y214~221: 원본 하단띠(y125~132, 금선+다이아 장식 포함)를 창 맨아래로 이주
     out.paste(src.crop((0, 125, W, 133)), (0, 214))
+
+    # 슬롯 칸 — 투명으로 남긴 창 영역을 정확히 메운다(컨테이너 6행 + 인벤 3행 + 핫바)
+    if PAINT_SLOTS:
+        for sy in SLOT_Y:
+            for sx in SLOT_X:
+                slot_cell(px, sx, sy)
 
     out.save(OUT)
     print(f"저장: {OUT} ({W}x{H_NEW})")
