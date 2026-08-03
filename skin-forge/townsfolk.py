@@ -423,7 +423,9 @@ VARIANTS = {
               # ★새 플레이어가 서버에서 처음 만나는 NPC. 구스킨은 분홍 만화 얼굴 +
               #   연보라 머리였다. 따뜻하고 기억에 남아야 하므로 마을에서 유일하게
               #   붉은 니트 모자를 씌운다(멀리서도 '그 할아버지'로 식별)
-              skin='c2a184', hair='9a938a', beard='full', age=True,
+              # ★인게임에서 얼굴이 너무 밝다는 지적(2026-08-03) — 학자 세르간·어물전
+              #   그레타와 같은 살색이었다. 평생 배를 탄 노인이라 한 단 그을린 톤으로.
+              skin='ab8055', hair='9a938a', beard='full', age=True,
               garb='tunic', cloth='oat', under='canvas', legs='grey', boot='boot',
               head='cap', headc='rust', prop='shawl', shawl='teal', roll=8,
                 surface='quilt', surfc='rust',
