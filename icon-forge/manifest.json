@@ -1,0 +1,14 @@
+{
+  "group": "barkan_icon",
+  "items": [
+    {"id": "rod_twig",      "name": "나뭇가지",        "category": "tool",  "painter": "rod-twig",      "seed": 1},
+    {"id": "rod_bamboo",    "name": "대나무 막대기",   "category": "tool",  "painter": "rod-bamboo",    "seed": 1},
+    {"id": "rod_desert",    "name": "사막 낚싯대",     "category": "tool",  "painter": "rod-desert",    "seed": 1},
+    {"id": "rod_dawn",      "name": "여명의 낚싯대",   "category": "tool",  "painter": "rod-dawn",      "seed": 1,
+     "fx": {"fire_aura": {"base": "e2612c", "frames": 4, "density": 5, "y_max": 10}}},
+    {"id": "rod_barkan",    "name": "바르칸 낚싯대",   "category": "tool",  "painter": "rod-barkan",    "seed": 1},
+    {"id": "bait_firefly",  "name": "반딧불이 미끼",   "category": "prop",  "painter": "bait-firefly",  "seed": 1,
+     "fx": {"glow": {"base": "ffd94a", "alpha": 70, "sparkles": 2}}},
+    {"id": "skill_manseon", "name": "만선(낚시특성)",  "category": "badge", "painter": "skill-manseon", "seed": 1}
+  ]
+}

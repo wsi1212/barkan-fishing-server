@@ -83,6 +83,7 @@ CELL_IN = (10, 18, 22, 255)
 CELL_SH = (4, 9, 11, 255)
 CELL_HL = (20, 44, 46, 255)
 PANEL_LUM = 16                         # 패널 배경 밝기 — 메달리온 키잉 기준
+MED_SIZE = 12                          # 메달리온 크기 (GUI px) — 아이콘 원형 테두리 안에 들어가는 크기
 
 TILES = [  # (파일명, char, GUI 좌상단, GUI 크기)
     ("level_hub_tl.png", "", (0, 0), (SEAM_X_G, SEAM_Y_G)),
@@ -198,10 +199,14 @@ def main():
             slot_cell(px, gsx, gsy)
         slot_cell(px, gsx, HOTBAR_Y)
 
-    med = medallion_sprite(src, 18 * SCALE)        # 아이콘 칸(18x18)에 꽉 채움
+    # ★메달리온은 아이템 아이콘 영역(16x16)에 맞춘다 — 칸 전체(18x18)로 찍으면 아이콘의
+    #   자체 원형 테두리 밖으로 메달리온 링이 삐져나온다.
+    med = medallion_sprite(src, MED_SIZE * SCALE)
+    inset = (18 - MED_SIZE) // 2
     for s in ICON_SLOTS:
-        gx = SLOT_X[s - 9] - 1
-        out.alpha_composite(med, (gx * SCALE, (ICON_ROW_Y - 1) * SCALE))
+        gx = SLOT_X[s - 9] - 1 + inset
+        gy = ICON_ROW_Y - 1 + inset
+        out.alpha_composite(med, (gx * SCALE, gy * SCALE))
 
     for name, ch, (gx, gy), (gw, gh) in TILES:
         tile = out.crop((gx * SCALE, gy * SCALE, (gx + gw) * SCALE, (gy + gh) * SCALE))
