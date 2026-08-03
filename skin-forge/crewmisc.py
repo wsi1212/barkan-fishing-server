@@ -110,10 +110,10 @@ V = {
     '148': dict(file='harbourmaster', cid=148, label='항구장',
                 # ★구스킨은 사람이 반 얼어 있었다. 항구를 관리하는 사람 = 코트 + 장부 + 모자
                 skin='c39a72', hair='241f1c', beard='mutton',
-                garb='coat', cloth='brine', under='linen', legs='tar',
-                boot='boot_d', head='cap', headc='navy', prop='ledger',
+                garb='coat', cloth='crimson', under='linen', legs='tar',
+                boot='boot_d', head='cap', headc='crimson', prop='ledger',
                 accent='brass',
-               eye_y=3, iris='dark', jaw='narrow', brow_a=1, surface=('placket', 'buttons'), surfc='brass', bootrows=5),
+               eye_y=5, iris='dark', jaw='square', brow_w=2, marks='ruddy', brow_a=1, surface=('placket', 'buttons'), layer2='vest', l2c='tar', surfc='brass', bootrows=5),
     '149': dict(file='herald', cid=149, label='전령',
                 # ★구스킨은 마스크 + 배 선장 옷. 전령은 왕실 제복이다 —
                 #   왕도 팔레트(진홍+금)의 짧은 튜닉 + 어깨 가방. 얼굴은 반드시 보인다
