@@ -57,7 +57,8 @@ SX_PANEL = (100, 1202)                 # 패널 내부 가로 (청록 이너보�
 SY_PANEL = (100, 1107)                 # 패널 내부 세로 (9-slice 안쪽 사각형)
 MEDALLION = (558, 114, 748, 339)       # 3번(중앙) 메달리온 크롭
 MED_BAND = (119, 349)                  # 메달리온이 걸친 세로 구간 (별 스파이크 포함)
-CLEAN_ROWS = (95, 116)                 # 메달리온 위쪽 깨끗한 패널 행 — 지우기용 색 소스
+ANCHOR_TOP = (108, 118)                # 메달리온 바로 위 깨끗한 행 (지우기 채움 위쪽 앵커)
+ANCHOR_BOT = (350, 362)                # 메달리온 바로 아래 깨끗한 행 (아래쪽 앵커)
 # ★메달리온 사이를 타일링하면 안 된다: 원본 간격 224px < 메달리온 폭 186px라
 #   "빈 구간"이 33px(x972~1004)뿐이고, 넓게 잡으면 옆 메달리온을 물어 격자로 복제된다.
 
@@ -92,32 +93,31 @@ TILES = [  # (파일명, char, GUI 좌상단, GUI 크기)
 
 
 def erase_medallions(src):
-    """상단 패널의 메달리온 5개를 지운다 — 위쪽 깨끗한 행들의 열별 평균색으로 밴드를 덮는다.
-    열별로 채우니 패널의 좌우 비네팅이 유지되고 반복 패턴이 생기지 않는다."""
+    """상단 패널의 메달리온 5개를 지운다 — 밴드 위/아래 깨끗한 행의 색을 세로 보간해 덮는다.
+
+    ★열별로 채워야 패널의 좌우 비네팅이 유지된다. 다만 한쪽 앵커만 쓰면(1차 시안) 채운
+      영역이 주변보다 밝은 사각 블록으로 도드라지므로 위·아래를 잇는 세로 그라데이션으로 채운다.
+    ★인접 열끼리의 미세한 차이는 세로 줄무늬로 보이므로 앵커 색을 가로로 평활화한다.
+    """
     out = src.copy()
     px = out.load()
     y0, y1 = MED_BAND
-    r0, r1 = CLEAN_ROWS
-    n = r1 - r0
-    cols = []
-    for x in range(SX_PANEL[0], SX_PANEL[1]):
-        acc = [0, 0, 0]
-        for y in range(r0, r1):
-            c = px[x, y]
-            for i in range(3):
-                acc[i] += c[i]
-        cols.append([v / n for v in acc])
-    # 인접 열끼리 미세하게 달라 세로 줄무늬가 생기므로 가로로 평활화한다 (±R열 이동평균).
-    R = 24
-    sm = []
-    for i in range(len(cols)):
-        lo, hi = max(0, i - R), min(len(cols), i + R + 1)
-        w = hi - lo
-        sm.append(tuple(int(sum(cols[j][k] for j in range(lo, hi)) / w + 0.5) for k in range(3)))
-    for i, x in enumerate(range(SX_PANEL[0], SX_PANEL[1])):
-        col = (sm[i][0], sm[i][1], sm[i][2], 255)
+    xs = range(SX_PANEL[0], SX_PANEL[1])
+
+    def anchor(rows):
+        r0, r1 = rows
+        raw = [[sum(px[x, y][i] for y in range(r0, r1)) / (r1 - r0) for i in range(3)] for x in xs]
+        R = 24                                    # ±24열 이동평균
+        return [[sum(raw[j][i] for j in range(max(0, k - R), min(len(raw), k + R + 1)))
+                 / (min(len(raw), k + R + 1) - max(0, k - R)) for i in range(3)]
+                for k in range(len(raw))]
+
+    top, bot = anchor(ANCHOR_TOP), anchor(ANCHOR_BOT)
+    span = y1 - y0
+    for k, x in enumerate(xs):
         for y in range(y0, y1):
-            px[x, y] = col
+            t = (y - y0) / span
+            px[x, y] = tuple(int(top[k][i] * (1 - t) + bot[k][i] * t + 0.5) for i in range(3)) + (255,)
     return out
 
 
