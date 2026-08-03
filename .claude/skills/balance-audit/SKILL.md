@@ -72,7 +72,8 @@ description: >-
 
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
-| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md) |
+| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md), ★[audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) (수입공식 오류 — 앵커 32,489원/h는 **폐기 대기**) |
+| 🔱 작살(harpoon) | 🔴 **미모델링 발견(2026-08-03)** — 등급 롤 우회(어종 균등)+quality 70~100 고정+한계비용 0. 낚시 모듈은 rod만 다뤘음 | (미작성 — HarpoonManager/HarpoonListener) | (미작성) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
@@ -128,7 +129,7 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
 ### 4. 파생 지표 계산 (Claude가 직접)
 스냅샷 raw + 스탯가치로 아래를 계산해 스냅샷 `derived`에 적고 리포트에 넣는다:
 - **레벨 도달 시간** — 누적 경험치(`cumulative_xp`) ÷ 시간당 경험치(장비/버프 시나리오별).
-- **시간당 수입** — 등급 분포 × 등급 기본가 × 낚시 횟수 (★fish.json에 개별가 없음, grade×quality만).
+- **시간당 수입** — 등급 분포 × 등급 기본가 × 크기점수 배율 × 낚시 횟수 (★fish.json에 개별가 없음).
 - **강화 기대 비용** — down+체크포인트 반영 선형방정식(metrics.md). 낙관 하한 아님.
 - **요리(F)** — 버프 스탯 × stat_value × 지속시간 = 버프가치(원). 티어·재료 대비 균형.
 - **날씨(G)** — 환경보너스 × stat_value = 날씨 원/h. 다운사이드(난이도/도주) 차감. 강도·빈도.
