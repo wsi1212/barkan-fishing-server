@@ -44,7 +44,7 @@ VARIANTS = {
                sleeve=10, roll=False,
                eye_y=4, iris='grey', jaw='long', socket=True, brow_w=2),
     '47': dict(name='vaultkeeper', cid=47, cape=(2, 11), hood=True, gaze=0,
-               skin='a8845f', hair='3f3128', beard='full', prop='keys', ink=1,
+               skin='c99e72', hair='3f3128', beard='full', prop='keys', ink=1,
                sleeve=10, roll=False,
                eye_y=3, iris='dark', jaw='narrow', brow_a=1),
     '46': dict(name='scribe', cid=46, cape=None, hood=False, gaze=0,

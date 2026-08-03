@@ -27,7 +27,7 @@ V = {
     # ── 은빛 갈매기호 승무원 (계급이 옷의 격식으로 읽혀야 한다) ──────────────
     '55': dict(file='isabella', cid=55, label='이자벨라 — 선장',
                # "내 배에 오른 이상, 내 규칙을 따르도록" → ★여성 선장. 배에서 가장 갖춤
-               female=True, skin='c99a70', hair='3f2f24',
+               female=True, skin='b58b65', hair='3f2f24',
                garb='coat', cloth='navy', under='linen', legs='tar',
                boot='boot_d', head='cap', headc='tar', prop='ledger',
                accent='brass',
@@ -53,7 +53,7 @@ V = {
                eye_y=4, iris='brown', jaw='oval', surface='pocket', surfc='brine', layer2='suspenders', l2c='leather'),
     '53': dict(file='pino', cid=53, label='피노 — 갑판원(신참)',
                # "히익! 노, 놀랐잖아요..." → 가장 어리고 옷이 헐렁하다
-               skin='e0bcae', hair='6b5540', child=True,
+               skin='c2a397', hair='6b5540', child=True,
                garb='tunic', cloth='oat', under='linen', legs='canvas',
                boot='boot', head=None, prop='rope', roll=5, patch='leg_r',
                eye_y=5, iris='blue', jaw='narrow', fringe=3, marks='freckles', surface='seams', surfc='oat', bootrows=2),
@@ -82,7 +82,7 @@ V = {
                eye_y=4, iris='dark', jaw='square', brow_w=2, marks='scar', surface='seams', surfc='iron', layer2='gloves', l2c='leather_d', bootrows=6),
     '4': dict(file='ferry_captain', cid=4, label='페리선장',
               # ★24 로렌초와 텍스처가 완전히 겹쳐 있었다. 감청 코트 + 선장 모자
-              skin='c98a72', hair='6b6154', beard='full', age=True,
+              skin='b57c67', hair='6b6154', beard='full', age=True,
               garb='coat', cloth='navy', under='linen', legs='brine',
               boot='boot_d', head='cap', headc='navy', prop='rope',
               accent='brass',
@@ -96,20 +96,20 @@ V = {
                eye_y=4, iris='hazel', jaw='long', fringe=0, socket=True, surface='trim', surfc='leather'),
     '65': dict(file='peddler', cid=65, label='행상인',
                # ★구스킨은 바이킹 상남자. 봇짐장수는 커다란 등짐과 잡동사니로 말한다
-               skin='c39a72', hair='c2a052', beard='goatee',
+               skin='b08b67', hair='c2a052', beard='goatee',
                garb='tunic', cloth='mustard', under='oat', legs='canvas',
                boot='boot', head='cap', headc='leather', prop='sack', roll=6,
                eye_y=5, iris='amber', jaw='oval', mouth_w=3, surface='patchwork', surfc='mustard', layer2='suspenders', l2c='leather'),
     '147': dict(file='sage', cid=147, label='현자',
                 # ★"내가 아는 그 현자가 아닌가?" → 현자는 긴 수염 + 회백 가운 + 지팡이다.
                 #   왕도 대사서45(잉크 남보라)와 달리 색을 완전히 뺀 은둔자
-                skin='c2a184', hair='a8a49c', beard='full', age=True,
+                skin='cfab8d', hair='a8a49c', beard='full', age=True,
                 garb='robe', cloth='chalk', under='linen', legs='grey',
                 boot='boot', head='hood', headc='grey', prop='book',
                eye_y=4, iris='grey', jaw='long', fringe=0, socket=True, brow_w=2, surface='trim', surfc='sage'),
     '148': dict(file='harbourmaster', cid=148, label='항구장',
                 # ★구스킨은 사람이 반 얼어 있었다. 항구를 관리하는 사람 = 코트 + 장부 + 모자
-                skin='c39a72', hair='241f1c', beard='mutton',
+                skin='b58f6a', hair='241f1c', beard='mutton',
                 garb='coat', cloth='crimson', under='linen', legs='tar',
                 boot='boot_d', head='cap', headc='crimson', prop='ledger',
                 accent='brass',
@@ -117,14 +117,14 @@ V = {
     '149': dict(file='herald', cid=149, label='전령',
                 # ★구스킨은 마스크 + 배 선장 옷. 전령은 왕실 제복이다 —
                 #   왕도 팔레트(진홍+금)의 짧은 튜닉 + 어깨 가방. 얼굴은 반드시 보인다
-                skin='c9a077', hair='8f4a24',
+                skin='ba946e', hair='8f4a24',
                 garb='tunic', cloth='crimson', under='linen', legs='tar',
                 boot='boot_d', head='cap', headc='crimson', prop='satchel',
                 roll=7, accent='gold',
                eye_y=4, iris='green', jaw='oval', surface='trim', surfc='gold', layer2='tabard', l2c='crimson'),
     '151': dict(file='rosa_garden', cid=151, label='정원사 로자',
                 # "이 근처에 핀 노란 꽃들이 좀 신경 쓰여서" → 흙 묻은 앞치마 + 꽃
-                female=True, age=True, skin='c99a70', hair='8a8378',
+                female=True, age=True, skin='b58b65', hair='8a8378',
                 garb='kirtle', cloth='sage', under='linen', extra='canvas',
                 legs='sage', boot='boot', head='kerchief', headc='mustard',
                 prop='bloom', apron=True, roll=6,

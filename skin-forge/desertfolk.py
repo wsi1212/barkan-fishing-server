@@ -142,7 +142,7 @@ VARIANTS = {
                eye_y=5, iris='brown', jaw='oval', marks='freckles'),
     '112': dict(file='amira', cid=112, label='아미라 — 주민',
                 # "사막의 밤은 낮보다 아름답답니다" → 저녁의 인디고
-                female=True, skin='c98a72', hair='241f1c',
+                female=True, skin='ba806a', hair='241f1c',
                 garb='veil_robe', cloth='indigo_d', over=None, sash='ecru',
                 head='veil', headc='indigo', prop='pouch',
                eye_y=4, iris='hazel', jaw='narrow', cheek=True),

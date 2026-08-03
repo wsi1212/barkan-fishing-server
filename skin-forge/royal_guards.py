@@ -57,7 +57,7 @@ VARIANTS = {
     #                              ★면갑(closed)은 눈을 가려 대화 NPC엔 부적합 — 개방형으로
     '61': dict(name='kurt', cid=61, label='성문 위병 쿠르트',
                helm='coif', plume=False, cloak=True, rank=True,
-               skin='c39a72', hair='4a3d2f', beard='full', age=False,
+               skin='b58f6a', hair='4a3d2f', beard='full', age=False,
                extra='scabbard',
                eye_y=5, iris='brown', jaw='square', brow_a=1),         # 성문지기: 사슬 두건 + 망토 + 허리 검집
     '62': dict(name='dieter', cid=62, label='거리 위병 디터',
@@ -67,7 +67,7 @@ VARIANTS = {
                eye_y=3, iris='blue', jaw='narrow'),          # 순찰: 맨머리(가벼운 복장) + 팔 완장
     '63': dict(name='oswald', cid=63, label='거리 위병 오스발트',
                helm='kettle', plume=False, cloak=False, rank=False,
-               skin='cba585', hair='8a7a55', beard=None, age=False,
+               skin='b59377', hair='8a7a55', beard=None, age=False,
                extra='kneepatch',
                eye_y=4, iris='hazel', jaw='long', marks='ruddy'),        # 신참: 챙 넓은 철모 + 수염 없음 + 무릎 패치
 }

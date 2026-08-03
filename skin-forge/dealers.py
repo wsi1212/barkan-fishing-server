@@ -58,7 +58,7 @@ VARIANTS = {
                female=True, skin='e0bcae', hair='3f2f24', beard=None, visor=False,
                eye_y=4, iris='green', jaw='oval', cheek=True),
     '32': dict(file='d_holdem1', cid=32, table='holdem', prop='chips',
-               skin='6b4a30', hair='241d18', beard='full', visor=True,
+               skin='946642', hair='241d18', beard='full', visor=True,
                eye_y=3, iris='amber', jaw='narrow', brow_a=1),
     '41': dict(file='d_holdem2', cid=41, table='holdem', prop='cards',
                female=True, skin='cfa47e', hair='c2a052', beard=None, visor=False,
