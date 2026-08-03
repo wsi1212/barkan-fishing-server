@@ -73,6 +73,11 @@ def main():
     print(f"소스 {src.size} / 추정 배경색 #{k[0]:02x}{k[1]:02x}{k[2]:02x}")
 
     keyed = key_out(src, k)
+    # 스필 제거: 프린지 보정만으로는 반투명 경계에 배경색 성분이 조금 남는다.
+    # 고해상도 단계에서 알파를 2px 침식하면 스필 픽셀이 통째로 날아간다
+    # (1254px 기준 0.16%라 실루엣 변화는 안 보인다).
+    r_, g_, b_, a_ = keyed.split()
+    keyed = Image.merge("RGBA", (r_, g_, b_, a_.filter(ImageFilter.MinFilter(5))))
     bbox = keyed.getbbox()
     if bbox:
         keyed = keyed.crop(bbox)                        # 투명 여백 제거 → 아이콘이 칸을 꽉 채움

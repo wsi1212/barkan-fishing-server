@@ -46,9 +46,16 @@ SCALE = 2                              # 2배 해상도
 GW, GH = 176, 168                      # GUI px (27칸 창)
 TW, TH = GW * SCALE, GH * SCALE         # 352 x 336 텍스처
 
-FRAME_G = 7                            # 프레임 링 두께 (GUI px) = 슬롯 격자 시작 x7
+FRAME_G = 7                            # 좌·우·하 프레임 두께 (GUI px) = 슬롯 격자 시작 x7
 FRAME_T = FRAME_G * SCALE              # 14 텍스처 px
-CORNER_SRC = 100                       # 소스 모서리 블록 (여백 29 + 나무 프레임 71)
+TOP_G = 17                             # ★상단 밴드 = 17px (첫 슬롯 행 y17까지)
+TOP_T = TOP_G * SCALE                  # 34 텍스처 px
+CORNER_SRC = 100                       # 소스 모서리 블록 가로 (여백 29 + 나무 프레임 71)
+TOP_SRC = 103                          # 상단 밴드 소스 높이 = 여백+나무+갭+패널 청록보더(89~90)
+# ★상단만 두껍게 잡는 이유: 컨테이너 첫 슬롯 행은 항상 y17에서 시작한다. 상단 밴드를 7px로
+#   두면 패널 보더가 y6에 놓여 슬롯 위에 10px 빈 줄이 생긴다(유저 지적). 밴드를 17px로
+#   잡고 소스의 보더(y89~90)를 밴드 끝에 오게 하면 보더가 슬롯 행에 붙는다.
+#   103/17 ≈ 6.1 vs 가로 100/7 ≈ 7.1 → 세로로 18% 늘어나지만 모서리 전단은 없다.
 
 SEAM_X_G, SEAM_Y_G = 97, 83            # 타일 이음선 (GUI px)
 
@@ -63,9 +70,9 @@ ANCHOR_BOT = (350, 362)                # 메달리온 바로 아래 깨끗한 �
 #   "빈 구간"이 33px(x972~1004)뿐이고, 넓게 잡으면 옆 메달리온을 물어 격자로 복제된다.
 
 # ── 패널 내부 세로 밴드: (GUI y0, GUI y1, 소스 y0, 소스 y1) 끝 포함 ──
+# 상단 여백 밴드는 없다 — 패널 내부가 첫 슬롯 행(y17)에서 바로 시작한다.
 INNER_V = [
-    (7, 16, 100, 118),      # 상단 패널 위쪽 여백
-    (17, 70, 119, 409),     # 컨테이너 3행 (메달리온 지운 패널)
+    (17, 70, 91, 409),      # 컨테이너 3행 (메달리온 지운 패널)
     (71, 74, 410, 452),     # 패널 하단 청록 보더 + 나무 구분바
     (75, 83, 453, 470),     # 갭
     (84, 160, 471, 1107),   # 하단 패널 (인벤 3행 + 홈 + 핫바)
@@ -123,25 +130,24 @@ def erase_medallions(src):
 
 
 def build_frame(src, out):
-    """9-slice 프레임 링 — 모서리는 등비(100x100 → 14x14), 변은 한 축만 늘린다."""
+    """프레임 링 — 모서리 블록은 통째로 축소해 둥근 모서리·금속 브래킷을 지키고,
+    변은 한 축만 늘린다. 상단만 17px(TOP_T)로 두꺼워 패널 보더가 슬롯 행에 붙는다."""
     sw, sh = src.size
-    c, t = CORNER_SRC, FRAME_T
-    corners = [
-        ((0, 0, c, c), (0, 0)),                          # 좌상
-        ((sw - c, 0, sw, c), (TW - t, 0)),               # 우상
-        ((0, sh - c, c, sh), (0, TH - t)),               # 좌하
-        ((sw - c, sh - c, sw, sh), (TW - t, TH - t)),    # 우하
+    c, t, tt, ts = CORNER_SRC, FRAME_T, TOP_T, TOP_SRC
+    blocks = [
+        # (소스 박스, 대상 박스)
+        ((0, 0, c, ts), (0, 0, t, tt)),                          # 좌상 모서리
+        ((sw - c, 0, sw, ts), (TW - t, 0, TW, tt)),              # 우상
+        ((0, sh - c, c, sh), (0, TH - t, t, TH)),                # 좌하
+        ((sw - c, sh - c, sw, sh), (TW - t, TH - t, TW, TH)),    # 우하
+        ((c, 0, sw - c, ts), (t, 0, TW - t, tt)),                # 상단 변
+        ((c, sh - c, sw - c, sh), (t, TH - t, TW - t, TH)),      # 하단 변
+        ((0, ts, c, sh - c), (0, tt, t, TH - t)),                # 좌측 변
+        ((sw - c, ts, sw, sh - c), (TW - t, tt, TW, TH - t)),    # 우측 변
     ]
-    for box, pos in corners:
-        out.paste(src.crop(box).resize((t, t), Image.LANCZOS), pos)
-    # 가로 변 (모서리 사이) — 가로로만 늘림
-    for sy0, sy1, ty in ((0, c, 0), (sh - c, sh, TH - t)):
-        strip = src.crop((c, sy0, sw - c, sy1)).resize((TW - 2 * t, t), Image.LANCZOS)
-        out.paste(strip, (t, ty))
-    # 세로 변 — 세로로만 늘림
-    for sx0, sx1, tx in ((0, c, 0), (sw - c, sw, TW - t)):
-        strip = src.crop((sx0, c, sx1, sh - c)).resize((t, TH - 2 * t), Image.LANCZOS)
-        out.paste(strip, (tx, t))
+    for sbox, tbox in blocks:
+        w, h = tbox[2] - tbox[0], tbox[3] - tbox[1]
+        out.paste(src.crop(sbox).resize((w, h), Image.LANCZOS), (tbox[0], tbox[1]))
 
 
 def build_inner(src, out):
