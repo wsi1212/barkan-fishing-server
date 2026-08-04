@@ -30,9 +30,9 @@ ITEMS = os.path.join(RP, "assets/barkan/items/barkan_icon")
 
 CELL = 36                     # 2배 좌표에서 칸 한 칸
 CX0, CY0 = 14, 34             # 격자 원점 (2배)
-RAIL_SCALE = 1.125            # 16 * 1.125 = 18 = 칸 피치
-NODE_SCALE = 1.125            # 노드도 같은 배율 — 원반 18 + 레일 18 = 중심간격 36을
-                              # 빈틈·겹침 없이 정확히 채운다. 1.25는 너무 커 보였다.
+# ★레일은 반드시 1.125 — 타일이 칸 1개(GUI 18px)를 담고 있으므로 16*1.125=18 이면 내용이
+#   원본과 1:1로 맞는다. 1.45로 늘렸더니 선이 굵어지고 인접 타일과 간격이 안 맞아 끊겼다.
+RAIL_SCALE = 1.125
 
 # 역할 → (col, row).  A 아트(근원 + 4계열)에서 필요한 모양이 전부 나온다.
 #   row1 = ┌(버스 시작)  row2 = ┼(근원이 왼쪽에서 진입)  row3 = ├  row4 = └(버스 끝)
@@ -45,22 +45,25 @@ PIECES = {
     "bus_bottom": (1, 4),
 }
 
-KEY_LO, KEY_HI = 32, 62       # 이 밝기 구간에서 알파를 0→255로 (패널 벽면은 lum~24)
+DIFF_GAIN = 9                 # 배경과의 차이를 알파로 환산할 때의 이득
 
 
-def key_rail(tile):
-    """패널 배경(어두운 벽면)을 빼고 레일만 남긴다. 금테·시안코어 둘 다 보존."""
+def key_rail(tile, clean):
+    """레일만 남긴다 — **배경 차분** 방식.
+
+    ★밝기 임계값(lum>32)으로 자르던 방식은 실패했다: 선의 어두운 양끝(안티에일리어싱)이
+      임계 아래라 날아가서 타일 경계마다 선이 끊겼다.
+      대신 **같은 칸의 노드 없는 행(row0) 픽셀**을 배경 기준으로 삼아 차분한다.
+      배경과 다른 만큼만 알파를 주니 선의 흐린 끝까지 온전히 남고, 벽면 노이즈는 0이 된다.
+    """
     tile = tile.convert("RGBA")
-    px = tile.load()
+    px, cp = tile.load(), clean.convert("RGB").load()
     for y in range(tile.height):
         for x in range(tile.width):
             r, g, b, _ = px[x, y]
-            lum = (r * 2 + g * 5 + b) // 8
-            if lum <= KEY_LO:
-                px[x, y] = (0, 0, 0, 0)
-            else:
-                a = 255 if lum >= KEY_HI else int(255 * (lum - KEY_LO) / (KEY_HI - KEY_LO))
-                px[x, y] = (r, g, b, a)
+            br, bg_, bb = cp[x, y]
+            d = abs(r - br) + abs(g - bg_) + abs(b - bb)
+            px[x, y] = (r, g, b, min(255, d * DIFF_GAIN))
     return tile
 
 
@@ -84,27 +87,13 @@ def write_item_json(icon_id, gui_scale):
         json.dump(body, f, ensure_ascii=False)
 
 
-def scale_node_icons():
-    """스킬 노드 아이콘도 칸 피치에 맞춰 확대.
-
-    ★`skill_hub_*` 는 제외 — /레벨 허브 GUI 아트에 맞춰진 아이콘이라 키우면 링 밖으로
-      삐져나온다(예전에 메달리온에서 같은 문제를 겪었다).
-    """
-    n = 0
-    for f in sorted(os.listdir(TEX)):
-        if not (f.startswith("skill_") and f.endswith(".png")) or f.startswith("skill_hub_"):
-            continue
-        write_item_json(f[:-4], NODE_SCALE)
-        n += 1
-    return n
-
-
 def main():
     art = Image.open(SRC_ART).convert("RGB")
     os.makedirs(ITEMS, exist_ok=True)
     for name, (col, row) in PIECES.items():
         x0, y0 = CX0 + CELL * col, CY0 + CELL * row
-        tile = key_rail(art.crop((x0, y0, x0 + CELL, y0 + CELL)))
+        clean = art.crop((x0, CY0, x0 + CELL, CY0 + CELL))     # 같은 열의 row0 = 배경 기준
+        tile = key_rail(art.crop((x0, y0, x0 + CELL, y0 + CELL)), clean)
         for state, im in (("lit", tile), ("dim", dim(tile))):
             iid = f"tree_rail_{name}_{state}"
             im.save(os.path.join(TEX, iid + ".png"))
@@ -118,7 +107,7 @@ def main():
                     os.remove(p)
     print(f"레일 {len(PIECES)}종 × 점등/소등 = {len(PIECES)*2}개, {CELL}px, gui scale {RAIL_SCALE}")
     print("  " + ", ".join(PIECES))
-    print(f"노드 아이콘 {scale_node_icons()}개 gui scale {NODE_SCALE} (skill_hub_* 제외)")
+    print("  (노드 아이콘 배율은 icon-forge/register_icons.py 담당)")
 
 
 if __name__ == "__main__":
