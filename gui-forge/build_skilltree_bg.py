@@ -148,6 +148,9 @@ def main():
     NODE_R = 21                                    # 소켓 반경(스파이크 포함) — 칸 반폭 18보다 크게
     RAIL_H = 9                                     # 레일 띠 반높이
     RAIL_X = (gx0 + 10, gx0 + C * 9 - 10)          # 패널 테두리는 건드리지 않는다
+    # ★삭제 범위를 패널 경계로 반드시 clamp한다. 반경 21이 칸 반폭 18보다 커서
+    #   row4는 구분 밴드 위쪽을, col0은 좌측 프레임을 파먹었다(실제로 밴드 상단이 톱니가 됐다).
+    PX0, PY0, PX1, PY1 = gx0, gy0, gx0 + C * 9, gy0 + C * 5
     for row in range(1, 5):
         cy = gy0 + C * row + C // 2                # 칸 중심 y
         dy = C * row                               # row0 로부터의 세로 오프셋
@@ -158,7 +161,7 @@ def main():
             cx = gx0 + C * col + C // 2
             for y in range(cy - NODE_R, cy + NODE_R + 1):
                 for x in range(cx - NODE_R, cx + NODE_R + 1):
-                    if not (0 <= x < art.width and 0 <= y < art.height):
+                    if not (PX0 <= x < PX1 and PY0 <= y < PY1):
                         continue
                     if (x - cx) ** 2 + (y - cy) ** 2 <= NODE_R * NODE_R:
                         art.putpixel((x, y), src.getpixel((x, y - dy)))
