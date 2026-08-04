@@ -137,6 +137,18 @@ def main():
     if art.size != (GW * 2, GH * 2):
         raise SystemExit(f"원본 아트가 2배(352x408)가 아님: {art.size}")
 
+    # ⓞ 좌우 검은 여백 제거 — **가로로만 늘려** 프레임을 창 폭에 맞춘다.
+    #   측정: 원본 프레임이 좌 8px / 우 9px(2배) 안쪽에 있다. 창은 176 GUI px인데 프레임이
+    #   168px만 덮으니 나머지가 남는다. 시도해보고 버린 것:
+    #     · 투명 → 바닐라 generic_54(밝은 회색)가 글리프 **아래** 깔려 흰 띠가 비친다
+    #     · 엣지 클램프(행마다 최근접 픽셀) → 프레임 바깥 경계가 세로로 불규칙해 **가로 줄무늬**
+    #     · 미러링 → 모서리 리벳이 두 개로 복제된다
+    #   → 여백을 crop하고 가로만 5% 늘린다. 세로는 손대지 않으니 구분 밴드·인벤 행 정렬이
+    #     그대로고, 가로 이동은 가장자리에서 최대 4 GUI px라 눈에 안 띈다.
+    ML, MR = 8, 9                                  # 측정된 좌/우 여백 (2배)
+    art = art.crop((ML, 0, art.width - MR, art.height)).resize(
+        (GW * 2, GH * 2), Image.LANCZOS)
+
     # ① 노드 소켓·연결선만 **국소 삭제**한다 (2배 좌표)
     #   ★row0 밴드를 통째로 스탬프하는 방식은 실패했다(2회): 원본의 패널 테두리·프레임 석재는
     #     세로로 불규칙해서 4번 찍으면 테두리가 점선이 되고 석재 캡이 반복된다.
@@ -169,50 +181,7 @@ def main():
     # ② 정수배 확대 (원본 2배 → SCALE배)
     im = art.resize((W, H), Image.NEAREST) if SCALE != 2 else art
 
-    # ③ 창 가장자리의 검은 여백을 프레임으로 메운다 (**엣지 클램프**)
-    #   측정: 원본 프레임이 좌 8px / 우 9px(2배) 안쪽으로 들어가 있고 모서리는 둥글다.
-    #   창은 176 GUI px인데 프레임이 168px만 덮으니 나머지가 검정으로 남는다.
-    #   ★투명으로 만들면 안 된다 — 상자 GUI는 바닐라 generic_54(밝은 회색)가 글리프 **아래**
-    #     깔려 있어 투명 자리에 흰 띠가 비쳐 나온다(실제로 그렇게 터졌다).
-    #   ★가로로 늘리는 것도 안 된다 — 슬롯 격자와 프레임 두께가 어긋난다.
-    #   → 바깥 띠(MARGIN) 안에서만, 같은 행/열의 가장 가까운 프레임 픽셀을 끌어와 채운다.
-    #     프레임 바깥쪽 마감이 몇 px 늘어나는 것뿐이라 나뭇결·석재에선 보이지 않는다.
-    im = im.convert("RGBA")
-    px = im.load()
-    W_, H_ = im.size
-    MARGIN = 8 * SCALE // 2                        # 원본 여백(2배 9px)보다 넉넉히
-    def is_dark(x, y):
-        return sum(px[x, y][:3]) <= 24
-    for y in range(H_):                            # 1차: 가로 클램프 (좌우 여백)
-        for x in range(MARGIN):
-            if is_dark(x, y):
-                sx = x
-                while sx < W_ and is_dark(sx, y):
-                    sx += 1
-                if sx < W_:
-                    px[x, y] = px[sx, y]
-        for x in range(W_ - 1, W_ - MARGIN - 1, -1):
-            if is_dark(x, y):
-                sx = x
-                while sx >= 0 and is_dark(sx, y):
-                    sx -= 1
-                if sx >= 0:
-                    px[x, y] = px[sx, y]
-    for x in range(W_):                            # 2차: 세로 클램프 (남은 모서리)
-        for y in range(MARGIN):
-            if is_dark(x, y):
-                sy = y
-                while sy < H_ and is_dark(x, sy):
-                    sy += 1
-                if sy < H_:
-                    px[x, y] = px[x, sy]
-        for y in range(H_ - 1, H_ - MARGIN - 1, -1):
-            if is_dark(x, y):
-                sy = y
-                while sy >= 0 and is_dark(x, sy):
-                    sy -= 1
-                if sy >= 0:
-                    px[x, y] = px[x, sy]
+    # ③ (여백 처리는 ①보다 앞에서 이미 끝났다 — 아래 주석 참조)
 
     # ④ 플레이어 인벤 36칸 음각
     px = im.load()
