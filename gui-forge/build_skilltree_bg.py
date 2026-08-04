@@ -137,26 +137,62 @@ def main():
     if art.size != (GW * 2, GH * 2):
         raise SystemExit(f"원본 아트가 2배(352x408)가 아님: {art.size}")
 
-    # ① 트리 패널의 노드·선을 깨끗한 벽면으로 덮는다 (2배 좌표)
-    #   ★가로로 타일링하면 벽면의 좌우 명암 기울기가 되풀이돼 세로 이음선이 보인다(1차 시도).
-    #     **같은 x에서 세로로만** 복사하면 가로 방향 정보가 원본 그대로라 이음선이 안 생긴다.
-    #     원본은 row0(첫 계열 행 위 여백)만 노드·선이 없다 — 측정 확인.
-    #     좌우 테두리 발광(x14~19 / x333~337)도 세로로 이어지는 것이라 같이 복사돼야 맞다.
-    px0, py0 = 7 * 2, 17 * 2                       # 슬롯 격자 원점
-    band = art.crop((px0, py0, px0 + 18 * 2 * 9, py0 + 18 * 2))
-    for r in range(1, 5):
-        art.paste(band, (px0, py0 + 18 * 2 * r))
+    # ① 노드 소켓·연결선만 **국소 삭제**한다 (2배 좌표)
+    #   ★row0 밴드를 통째로 스탬프하는 방식은 실패했다(2회): 원본의 패널 테두리·프레임 석재는
+    #     세로로 불규칙해서 4번 찍으면 테두리가 점선이 되고 석재 캡이 반복된다.
+    #     → 지울 곳(소켓 원 + 레일 띠)만 골라, **같은 x의 row0 픽셀**로 채운다.
+    #       x가 보존되니 테두리·장식·벽면 노이즈는 원본 그대로 남는다.
+    C = 18 * 2                                     # 2배에서 칸 한 칸
+    gx0, gy0 = 7 * 2, 17 * 2                       # 슬롯 격자 원점
+    src = art.copy()
+    NODE_R = 21                                    # 소켓 반경(스파이크 포함) — 칸 반폭 18보다 크게
+    RAIL_H = 9                                     # 레일 띠 반높이
+    RAIL_X = (gx0 + 10, gx0 + C * 9 - 10)          # 패널 테두리는 건드리지 않는다
+    for row in range(1, 5):
+        cy = gy0 + C * row + C // 2                # 칸 중심 y
+        dy = C * row                               # row0 로부터의 세로 오프셋
+        for x in range(RAIL_X[0], RAIL_X[1]):      # 레일 띠
+            for y in range(cy - RAIL_H, cy + RAIL_H + 1):
+                art.putpixel((x, y), src.getpixel((x, y - dy)))
+        for col in range(0, 9, 2):                 # 노드 소켓 (짝수 열)
+            cx = gx0 + C * col + C // 2
+            for y in range(cy - NODE_R, cy + NODE_R + 1):
+                for x in range(cx - NODE_R, cx + NODE_R + 1):
+                    if not (0 <= x < art.width and 0 <= y < art.height):
+                        continue
+                    if (x - cx) ** 2 + (y - cy) ** 2 <= NODE_R * NODE_R:
+                        art.putpixel((x, y), src.getpixel((x, y - dy)))
 
     # ② 정수배 확대 (원본 2배 → SCALE배)
     im = art.resize((W, H), Image.NEAREST) if SCALE != 2 else art
 
-    # ③ 플레이어 인벤 36칸 음각
+    # ③ 프레임 바깥(둥근 모서리 밖)을 투명하게 — 원본은 RGB라 그 자리가 검정으로 남는다.
+    #    네 모서리에서 "거의 검정"만 flood fill. 패널 안쪽 어두운 벽면은 모서리와 연결되지
+    #    않으므로 절대 안 지워진다(임계값만 쓰면 패널까지 날아간다).
+    im = im.convert("RGBA")
+    px = im.load()
+    W_, H_ = im.size
+    for sx, sy in ((0, 0), (W_ - 1, 0), (0, H_ - 1), (W_ - 1, H_ - 1)):
+        if sum(px[sx, sy][:3]) > 24:
+            continue
+        stack, seen = [(sx, sy)], set()
+        while stack:
+            x, y = stack.pop()
+            if (x, y) in seen or not (0 <= x < W_ and 0 <= y < H_):
+                continue
+            seen.add((x, y))
+            if sum(px[x, y][:3]) > 24:
+                continue
+            px[x, y] = (0, 0, 0, 0)
+            stack += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+
+    # ④ 플레이어 인벤 36칸 음각
     px = im.load()
     for cy in INV_CELL_Y + [HOTBAR_Y]:
         for c in range(CELL_N):
             slot_cell(px, CELL_X0 + CELL_W * c, cy)
 
-    # ④ 타일 분할 + 폰트 프로바이더·글리프 문자열 산출
+    # ⑤ 타일 분할 + 폰트 프로바이더·글리프 문자열 산출
     os.makedirs(OUTDIR, exist_ok=True)
     for f in os.listdir(OUTDIR):
         if f.startswith("tree_bg_"):

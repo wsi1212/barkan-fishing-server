@@ -26,7 +26,11 @@ TEX = os.path.join(RP, "assets/minecraft/textures/item/barkan_icon")
 ITEMS = os.path.join(RP, "assets/barkan/items/barkan_icon")
 MODELS = os.path.join(RP, "assets/barkan/models/barkan_icon")
 
-GUI_SCALE = 1.125        # 16 * 1.125 = 18 = 슬롯 피치 → 인접 레일과 노드가 맞물린다
+# ★1.125(18px = 슬롯 피치)는 너무 소심했다 — 아이템 기본 16px 대비 2px 차이라 인게임에서
+#   노드와 선이 여전히 떨어져 보였다. /도감 물고기가 1.2~2.0을 쓰는 선례가 있다.
+#   레일은 노드 칸을 확실히 물도록 더 크게 준다.
+GUI_SCALE = 1.25         # 노드 (16 → 20px)
+RAIL_SCALE = 1.45        # 레일 (16 → 23.2px) — 양옆 노드 칸을 2.6px씩 물어 끊김 없이 이어진다
 PREFIXES = ("skill_", "tree_rail_")
 NO_SCALE = ("skill_hub_",)   # /레벨 허브 아트에 맞춰진 아이콘 — 키우면 링 밖으로 삐져나온다
 
@@ -44,7 +48,8 @@ def model_def(icon_id):
     body = {"parent": "minecraft:item/generated",
             "textures": {"layer0": f"minecraft:item/barkan_icon/{icon_id}"}}
     if not icon_id.startswith(NO_SCALE):
-        body["display"] = {"gui": {"scale": [GUI_SCALE] * 3}}
+        sc = RAIL_SCALE if icon_id.startswith("tree_rail_") else GUI_SCALE
+        body["display"] = {"gui": {"scale": [sc] * 3}}
     return body
 
 
@@ -78,7 +83,7 @@ def main():
             print("  ⛔", b)
         sys.exit(1 if bad else 0)
     print(f"등록 완료 {len(ids)}개 (items/ + models/ 각각)")
-    print(f"  gui scale {GUI_SCALE} — 단 {', '.join(NO_SCALE)} 제외")
+    print(f"  gui scale 노드 {GUI_SCALE} / 레일 {RAIL_SCALE} — 단 {', '.join(NO_SCALE)} 제외")
 
 
 if __name__ == "__main__":
