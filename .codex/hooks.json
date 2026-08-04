@@ -1,5 +1,32 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/no-bold-format.py'",
+            "statusMessage": "볼드 포맷 코드 검사"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/guard-plugman-reload.py'",
+            "statusMessage": "plugman reload 차단 검사"
+          },
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/hooks/guard-live-jar.py'",
+            "statusMessage": "라이브 jar 덮어쓰기 차단 검사"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
@@ -9,6 +36,25 @@
             "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/validate-sk.sh'",
             "timeout": 10,
             "statusMessage": ".sk 컨벤션 검증 중..."
+          },
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/balance-check.sh'",
+            "timeout": 15,
+            "statusMessage": "밸런스 영향 분석 중...",
+            "description": "밸런스 관련 변경 감지: 스탯 소비처/공급처 크로스체크"
+          },
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/regen-docs-index.sh'",
+            "timeout": 10,
+            "statusMessage": "docs-index 갱신 중...",
+            "description": "프로젝트 최상위 .md 편집 시 docs-index.md 자동 재생성"
+          },
+          {
+            "type": "command",
+            "command": "'/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/.codex/hooks/guard-security.py'",
+            "statusMessage": "경제/동시성 보안 검사"
           }
         ]
       }

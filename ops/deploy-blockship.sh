@@ -36,12 +36,14 @@ echo ""
 echo "▶ 로컬 마크 서버에도 배포 (dev)"
 cp "$LOCAL_JAR" "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"
 echo "  ✓ 로컬 패더 plugins/ 에 복사됨"
-
-echo ""
-echo "▶ 오라클 서버에 SCP 업로드"
-scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
-  "$LOCAL_JAR" \
-  "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PLUGINS/"
+# ★jar만 복사하고 dev를 안 재시작하면 dev도 lazy-load CNFE 지뢰가 된다(prod와 같은 원리).
+#   dev가 돌고 있으면 즉시 재시작해서 중간 상태를 남기지 않는다.
+if pgrep -f "paper-1\.21\..*\.jar" >/dev/null 2>&1; then
+  echo "  · dev 가동 중 → 재시작 (jar만 갈아두면 CNFE 지뢰)"
+  ~/dev-mc.sh restart || echo "  ⚠ dev 재시작 실패 — 수동으로 ~/dev-mc.sh restart 할 것"
+else
+  echo "  · dev 미가동 → 다음 기동 때 적용됨"
+fi
 
 echo ""
 echo "▶ 오라클에 JSON 데이터 업로드 (Java 소유 이관 데이터)"
@@ -78,15 +80,29 @@ if [ "$REJECTED" -gt 0 ]; then
   exit 1
 fi
 
+# ★jar 업로드는 반드시 JSON 검증 통과 **후**에. 2026-08-03 사고: 예전엔 jar을 이 지점보다
+#   먼저 scp하고 그 뒤 JSON 게이트에서 exit 1 → 라이브 jar만 갈린 채 재시작이 안 돼서
+#   lazy-load NoClassDefFoundError가 터진다(/칭호·계단앉기 등 전방위 고장). 순서를 바꿔 원천 차단한다.
+echo ""
+echo "▶ 오라클 서버에 jar SCP 업로드 (JSON 검증 통과 후)"
+scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+  "$LOCAL_JAR" \
+  "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PLUGINS/"
+
 echo ""
 echo "▶ 오라클 BlockShip 적용 — 전체 재시작 (★plugman reload 금지: 클래스로더 손상 NoClassDefFoundError)"
 echo "  현재 접속자 확인 후 진행 권장. 5초 후 재시작합니다 (Ctrl+C로 취소)..."
 sleep 5
-ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
   "$REMOTE_USER@$REMOTE_HOST" \
-  "sudo systemctl restart mcserver && echo '✓ prod 재시작 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"
+  "sudo systemctl restart mcserver && echo '✓ prod 재시작 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"; then
+  echo ""
+  echo "🔴 재시작 실패! jar은 이미 교체됐으니 지금 상태는 lazy-load CNFE 지뢰다."
+  echo "   지금 수동 재시작할 것: ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST 'sudo systemctl restart mcserver'"
+  exit 1
+fi
 
 echo ""
 echo "✅ 배포 완료"
-echo "  - 로컬 패더(dev): plugins/ 복사됨 — jar 교체라 dev도 재시작해야 적용 (plugman 금지)"
+echo "  - 로컬 패더(dev): plugins/ 복사 + (가동중이면) 자동 재시작 완료"
 echo "  - 오라클(prod): systemctl restart 로 적용 중 (접속자 없을 때 돌리는 게 안전)"

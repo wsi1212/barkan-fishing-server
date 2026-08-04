@@ -17,7 +17,7 @@
 | **장비/부품** | `parts/` (EquipmentManager·PartLoader·FragmentForgeGui) | 131종, 분해·조각 합성, 포맷:`이름\|등급\|가격\|내구\|스탯\|레벨제한\|출처` |
 | **강화** | `enhance/EnhanceManager` (EnhanceLoader) | 강화=낚싯대별(`/강화`) — 축복 시스템은 2026-06-13 전면 폐지 |
 | **버프(구 도핑)** | `playerdata/DopingManager`·`DopingTable` | 일시 낚시버프 1종 활성. `/도핑상점` 폐지 → **요리 먹기로 전환**(`cooking/`). apply 엔진·보너스표를 요리(DishSpecs)가 위임 재사용, `/도핑`=활성버프 확인 |
-| **판매** | `economy/SellCommand`·`SellGuiListener` | 품질배율 0.3~1.0, 신선도 감소 |
+| **판매** | `economy/SellCommand`·`SellGuiListener` | 등급기본가×(0.5+크기점수×0.5/100), 판매보너스·신선도 반영 |
 | **칭호** | `title/` (TitleManager·TitleLogic·FishDisplayManager) | TextDisplay(addPassenger), 채팅 포맷 |
 | **퀘스트** | `quest/` (QuestManager·QuestGui·QuestCatalogGui) | 일일/주간/메인, 쉬운건 타이틀 표시 |
 | **NPC/대화** | `npc/` (NpcManager·NpcDialogueManager, data/) | NPC 우클릭 대화, 퀘스트 수락/완료 |
@@ -98,6 +98,9 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`
 - 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
+  - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
+  - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
+  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=`~/dev-mc.sh restart` — RCON 25575, **feather 미사용** / prod=`sudo systemctl restart mcserver`)
 

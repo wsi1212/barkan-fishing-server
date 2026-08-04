@@ -17,7 +17,7 @@
 | **장비/부품** | `parts/` (EquipmentManager·PartLoader·FragmentForgeGui) | 131종, 분해·조각 합성, 포맷:`이름\|등급\|가격\|내구\|스탯\|레벨제한\|출처` |
 | **강화** | `enhance/EnhanceManager` (EnhanceLoader) | 강화=낚싯대별(`/강화`) — 축복 시스템은 2026-06-13 전면 폐지 |
 | **버프(구 도핑)** | `playerdata/DopingManager`·`DopingTable` | 일시 낚시버프 1종 활성. `/도핑상점` 폐지 → **요리 먹기로 전환**(`cooking/`). apply 엔진·보너스표를 요리(DishSpecs)가 위임 재사용, `/도핑`=활성버프 확인 |
-| **판매** | `economy/SellCommand`·`SellGuiListener` | 품질배율 0.3~1.0, 신선도 감소 |
+| **판매** | `economy/SellCommand`·`SellGuiListener` | 등급기본가×(0.5+크기점수×0.5/100), 판매보너스·신선도 반영 |
 | **칭호** | `title/` (TitleManager·TitleLogic·FishDisplayManager) | TextDisplay(addPassenger), 채팅 포맷 |
 | **퀘스트** | `quest/` (QuestManager·QuestGui·QuestCatalogGui) | 일일/주간/메인, 쉬운건 타이틀 표시 |
 | **NPC/대화** | `npc/` (NpcManager·NpcDialogueManager, data/) | NPC 우클릭 대화, 퀘스트 수락/완료 |
@@ -39,6 +39,13 @@
   - 인자가 **숫자 (금액/수량/레벨 등)**이면: 자동완성 목록 **넣지 않음**. 대신 `<금액>`, `<수량>` 같은 도움말 텍스트만 표시
   - 인자가 **고정 선택지** (등급, 타입 등)이면: 가능한 값을 모두 나열
   - 자동완성 없이 명령어만 만드는 것은 금지
+
+### NPC 닉네임 색 규칙 (2026-07-08 신설, 위반 금지)
+NPC 머리 위 표시 이름의 색코드는 역할별로 통일한다. ★표시 이름은 Citizens `saves.yml`의 `name` 필드다(BetterModel/BlockShip 아님). 색만 바꾸면 BlockShip의 uncolored 이름 매칭은 깨지지 않지만, 이름 텍스트를 바꾸면 `npc.json`도 함께 바꾼다.
+- 하늘색 `&b`: 기능형 NPC(길드·상점·판매·섬상점·대장간·요리사·마켓·드릴상점·페리·일퀘/주간 게시판·여관·회복·말대여)
+- 초록색 `&a`: 스토리·메인·튜토리얼 퀘스트를 주는 NPC(`[Q]`, `[길잡이]`)
+- 하얀색 `&f`: 대화만 하는 NPC
+- `[퀘스트]` 태그는 일퀘 게시판 기능형(`&b`), `[Q]`는 대화형 퀘스트 NPC(`&a`)다.
 
 ### 월드 이동 규칙
 - **`player.teleport()` (Java Bukkit API)로 cross-world(다른 월드로) 이동 불가** — Paper에서 작동 안 함. 같은 월드 내 이동은 가능.
@@ -92,6 +99,9 @@
 - 빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`
 - 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
+  - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
+  - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
+  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=feather UI 재시작 / prod=`sudo systemctl restart mcserver`)
 
@@ -110,9 +120,9 @@
 - **인스턴스**: `minecraft-server` (ID는 retry log 참조)
 - **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 힙 플래그. start.sh)
 - **OS**: Ubuntu 24.04 ARM64
-- **공인 IP**: `134.185.113.25` (Ephemeral — 인스턴스 재생성 시 변경됨)
+- **공인 IP**: `168.107.8.107` (Ephemeral — 인스턴스 재생성 시 변경됨)
 - **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
-- **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25`
+- **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107`
 - **OCI CLI 설정**: `~/.oci-family/config` (가족 계정용, OCI_CLI_CONFIG_FILE 환경변수로 지정)
 - **서버 경로**: `~/mcserver/` (인스턴스 안)
 - **Java**: Azul Zulu JDK 21 ARM (`/usr/lib/jvm/zulu21-ca-arm64`)
@@ -138,20 +148,20 @@
 ### 운영 명령어
 ```bash
 # 오라클 SSH 접속
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107
 
 # 마크 서버 콘솔 (tmux 세션)
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 -t 'tmux attach -t mc'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 -t 'tmux attach -t mc'
 # 분리: Ctrl+B, D
 
 # 마크 서버 재시작 (systemd)
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'sudo systemctl restart mcserver'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'sudo systemctl restart mcserver'
 
 # 로그 확인
-ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25 'tail -f ~/mcserver/logs/latest.log'
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'tail -f ~/mcserver/logs/latest.log'
 
 # 플레이어 데이터 백업 (진행도 = 레벨/돈/장비/강화)
-scp -i ~/.ssh/oracle-mc.key -r ubuntu@134.185.113.25:~/mcserver/plugins/BlockShip/playerdata ~/Desktop/prod-playerdata-$(date +%Y%m%d)
+scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip/playerdata ~/Desktop/prod-playerdata-$(date +%Y%m%d)
 ```
 
 ### 자동 백업 (오라클 cron, 시각=UTC / KST=+9h)
@@ -185,3 +195,9 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@134.185.113.25:~/mcserver/plugins/BlockShi
   - ogg (Vorbis) 형식만 지원, wav→ogg 변환: `ffmpeg -i input.wav -c:a libvorbis -q:a 5 output.ogg`
   - 페이드아웃: `ffmpeg -i input.wav -t 19 -af "afade=t=out:st=16:d=3" -c:a libvorbis -q:a 5 output.ogg`
 - 상세: [resourcepack.md](resourcepack.md)
+
+## Codex 이식 메모
+
+- 이 프로젝트의 Codex 전용 실행 설정은 `.codex/config.toml`, `.codex/hooks.json`, `.codex/hooks/`에 있다.
+- 상세 운영 규칙과 최신 변경 기록은 `CLAUDE.md`에도 남아 있으므로, 이 문서에 없는 서버 운영·워치독·클라이언트 크래시 대응 세부사항이 필요한 작업에서는 `CLAUDE.md`의 해당 절을 함께 읽는다.
+- Claude 전용 명칭은 Codex 대응물로 해석한다: `CLAUDE_PROJECT_DIR`는 현재 프로젝트 루트, `claude-in-chrome`는 사용 가능한 브라우저 제어 도구, `mcp__minecraft-ai-builder__*`는 `minecraft-ai-builder` MCP 서버 도구다.
