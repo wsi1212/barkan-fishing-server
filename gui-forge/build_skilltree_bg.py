@@ -166,25 +166,50 @@ def main():
     # ② 정수배 확대 (원본 2배 → SCALE배)
     im = art.resize((W, H), Image.NEAREST) if SCALE != 2 else art
 
-    # ③ 프레임 바깥(둥근 모서리 밖)을 투명하게 — 원본은 RGB라 그 자리가 검정으로 남는다.
-    #    네 모서리에서 "거의 검정"만 flood fill. 패널 안쪽 어두운 벽면은 모서리와 연결되지
-    #    않으므로 절대 안 지워진다(임계값만 쓰면 패널까지 날아간다).
+    # ③ 창 가장자리의 검은 여백을 프레임으로 메운다 (**엣지 클램프**)
+    #   측정: 원본 프레임이 좌 8px / 우 9px(2배) 안쪽으로 들어가 있고 모서리는 둥글다.
+    #   창은 176 GUI px인데 프레임이 168px만 덮으니 나머지가 검정으로 남는다.
+    #   ★투명으로 만들면 안 된다 — 상자 GUI는 바닐라 generic_54(밝은 회색)가 글리프 **아래**
+    #     깔려 있어 투명 자리에 흰 띠가 비쳐 나온다(실제로 그렇게 터졌다).
+    #   ★가로로 늘리는 것도 안 된다 — 슬롯 격자와 프레임 두께가 어긋난다.
+    #   → 바깥 띠(MARGIN) 안에서만, 같은 행/열의 가장 가까운 프레임 픽셀을 끌어와 채운다.
+    #     프레임 바깥쪽 마감이 몇 px 늘어나는 것뿐이라 나뭇결·석재에선 보이지 않는다.
     im = im.convert("RGBA")
     px = im.load()
     W_, H_ = im.size
-    for sx, sy in ((0, 0), (W_ - 1, 0), (0, H_ - 1), (W_ - 1, H_ - 1)):
-        if sum(px[sx, sy][:3]) > 24:
-            continue
-        stack, seen = [(sx, sy)], set()
-        while stack:
-            x, y = stack.pop()
-            if (x, y) in seen or not (0 <= x < W_ and 0 <= y < H_):
-                continue
-            seen.add((x, y))
-            if sum(px[x, y][:3]) > 24:
-                continue
-            px[x, y] = (0, 0, 0, 0)
-            stack += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+    MARGIN = 8 * SCALE // 2                        # 원본 여백(2배 9px)보다 넉넉히
+    def is_dark(x, y):
+        return sum(px[x, y][:3]) <= 24
+    for y in range(H_):                            # 1차: 가로 클램프 (좌우 여백)
+        for x in range(MARGIN):
+            if is_dark(x, y):
+                sx = x
+                while sx < W_ and is_dark(sx, y):
+                    sx += 1
+                if sx < W_:
+                    px[x, y] = px[sx, y]
+        for x in range(W_ - 1, W_ - MARGIN - 1, -1):
+            if is_dark(x, y):
+                sx = x
+                while sx >= 0 and is_dark(sx, y):
+                    sx -= 1
+                if sx >= 0:
+                    px[x, y] = px[sx, y]
+    for x in range(W_):                            # 2차: 세로 클램프 (남은 모서리)
+        for y in range(MARGIN):
+            if is_dark(x, y):
+                sy = y
+                while sy < H_ and is_dark(x, sy):
+                    sy += 1
+                if sy < H_:
+                    px[x, y] = px[x, sy]
+        for y in range(H_ - 1, H_ - MARGIN - 1, -1):
+            if is_dark(x, y):
+                sy = y
+                while sy >= 0 and is_dark(x, sy):
+                    sy -= 1
+                if sy >= 0:
+                    px[x, y] = px[x, sy]
 
     # ④ 플레이어 인벤 36칸 음각
     px = im.load()
