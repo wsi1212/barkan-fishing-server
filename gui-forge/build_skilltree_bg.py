@@ -137,18 +137,6 @@ def main():
     if art.size != (GW * 2, GH * 2):
         raise SystemExit(f"원본 아트가 2배(352x408)가 아님: {art.size}")
 
-    # ⓞ 좌우 검은 여백 제거 — **가로로만 늘려** 프레임을 창 폭에 맞춘다.
-    #   측정: 원본 프레임이 좌 8px / 우 9px(2배) 안쪽에 있다. 창은 176 GUI px인데 프레임이
-    #   168px만 덮으니 나머지가 남는다. 시도해보고 버린 것:
-    #     · 투명 → 바닐라 generic_54(밝은 회색)가 글리프 **아래** 깔려 흰 띠가 비친다
-    #     · 엣지 클램프(행마다 최근접 픽셀) → 프레임 바깥 경계가 세로로 불규칙해 **가로 줄무늬**
-    #     · 미러링 → 모서리 리벳이 두 개로 복제된다
-    #   → 여백을 crop하고 가로만 5% 늘린다. 세로는 손대지 않으니 구분 밴드·인벤 행 정렬이
-    #     그대로고, 가로 이동은 가장자리에서 최대 4 GUI px라 눈에 안 띈다.
-    ML, MR = 8, 9                                  # 측정된 좌/우 여백 (2배)
-    art = art.crop((ML, 0, art.width - MR, art.height)).resize(
-        (GW * 2, GH * 2), Image.LANCZOS)
-
     # ① 노드 소켓·연결선만 **국소 삭제**한다 (2배 좌표)
     #   ★row0 밴드를 통째로 스탬프하는 방식은 실패했다(2회): 원본의 패널 테두리·프레임 석재는
     #     세로로 불규칙해서 4번 찍으면 테두리가 점선이 되고 석재 캡이 반복된다.
@@ -166,9 +154,16 @@ def main():
     for row in range(1, 5):
         cy = gy0 + C * row + C // 2                # 칸 중심 y
         dy = C * row                               # row0 로부터의 세로 오프셋
-        for x in range(RAIL_X[0], RAIL_X[1]):      # 레일 띠
+        for x in range(RAIL_X[0], RAIL_X[1]):      # 노드 사이 가로 레일 띠
             for y in range(cy - RAIL_H, cy + RAIL_H + 1):
                 art.putpixel((x, y), src.getpixel((x, y - dy)))
+        # ★레일 열(홀수)은 **칸 전체**를 지운다 — 가로 띠만 지우면 버스 세로선이 행 사이에
+        #   그대로 남는다(col1에 잔여 408px 확인). 그 칸엔 벽면 말고 아무것도 없어야 한다.
+        for col in range(1, 9, 2):
+            cx = gx0 + C * col
+            for y in range(gy0 + C * row, gy0 + C * (row + 1)):
+                for x in range(max(PX0, cx), min(PX1, cx + C)):
+                    art.putpixel((x, y), src.getpixel((x, y - dy)))
         for col in range(0, 9, 2):                 # 노드 소켓 (짝수 열)
             cx = gx0 + C * col + C // 2
             for y in range(cy - NODE_R, cy + NODE_R + 1):
@@ -178,10 +173,25 @@ def main():
                     if (x - cx) ** 2 + (y - cy) ** 2 <= NODE_R * NODE_R:
                         art.putpixel((x, y), src.getpixel((x, y - dy)))
 
+    # ①-b 좌우 검은 여백 제거 (★반드시 삭제 **뒤**에)
+    #   스트레치를 먼저 하면 삭제 원의 좌표가 7px 어긋나 소켓이 남고 벽면을 파먹는다.
+    #   원래 좌우 벽면 찢어짐이 이 순서 오류였다.
+    # 좌우 검은 여백 제거 — **가로로만 늘려** 프레임을 창 폭에 맞춘다.
+    #   측정: 원본 프레임이 좌 8px / 우 9px(2배) 안쪽에 있다. 창은 176 GUI px인데 프레임이
+    #   168px만 덮으니 나머지가 남는다. 시도해보고 버린 것:
+    #     · 투명 → 바닐라 generic_54(밝은 회색)가 글리프 **아래** 깔려 흰 띠가 비친다
+    #     · 엣지 클램프(행마다 최근접 픽셀) → 프레임 바깥 경계가 세로로 불규칙해 **가로 줄무늬**
+    #     · 미러링 → 모서리 리벳이 두 개로 복제된다
+    #   → 여백을 crop하고 가로만 5% 늘린다. 세로는 손대지 않으니 구분 밴드·인벤 행 정렬이
+    #     그대로고, 가로 이동은 가장자리에서 최대 4 GUI px라 눈에 안 띈다.
+    ML, MR = 8, 9                                  # 측정된 좌/우 여백 (2배)
+    art = art.crop((ML, 0, art.width - MR, art.height)).resize(
+        (GW * 2, GH * 2), Image.LANCZOS)
+
     # ② 정수배 확대 (원본 2배 → SCALE배)
     im = art.resize((W, H), Image.NEAREST) if SCALE != 2 else art
 
-    # ③ (여백 처리는 ①보다 앞에서 이미 끝났다 — 아래 주석 참조)
+
 
     # ④ 플레이어 인벤 36칸 음각
     px = im.load()

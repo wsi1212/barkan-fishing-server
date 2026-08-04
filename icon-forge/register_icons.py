@@ -26,10 +26,12 @@ TEX = os.path.join(RP, "assets/minecraft/textures/item/barkan_icon")
 ITEMS = os.path.join(RP, "assets/barkan/items/barkan_icon")
 MODELS = os.path.join(RP, "assets/barkan/models/barkan_icon")
 
-# ★1.125(18px = 슬롯 피치)는 너무 소심했다 — 아이템 기본 16px 대비 2px 차이라 인게임에서
-#   노드와 선이 여전히 떨어져 보였다. /도감 물고기가 1.2~2.0을 쓰는 선례가 있다.
-#   레일은 노드 칸을 확실히 물도록 더 크게 준다.
-GUI_SCALE = 1.25         # 노드 (16 → 20px)
+# ★노드·레일 모두 **1.125** — 16 * 1.125 = 18 = 슬롯 피치. 칸 하나에 딱 들어온다.
+#   1.25(20px)는 칸(18px)을 넘어서 아이콘이 잘려 보였다.
+#   노드 18 + 레일 18 = 노드 중심간격 36을 빈틈·겹침 없이 정확히 채운다.
+#   (예전에 1.125가 안 먹는 것처럼 보인 건 items/·models/ 등록이 틀려 배율이 아예
+#    적용되지 않았기 때문이다 — 그 사고 이후 register_icons.py 로 일원화)
+GUI_SCALE = 1.125        # 노드
 # ★레일은 1.125 고정 — 타일이 칸 1개(GUI 18px)를 담아 16*1.125=18 이면 원본과 1:1이다.
 #   1.45로 늘렸더니 선이 굵어지고 인접 타일과 간격이 어긋나 끊겨 보였다.
 RAIL_SCALE = 1.125
