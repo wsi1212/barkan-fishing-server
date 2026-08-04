@@ -220,7 +220,13 @@ VARIANTS = {
                garb='robe', cloth='bone', under='oat', legs='canvas', boot='boot',
                head=None, prop='book',
                 surface='trim', surfc='leather',
-                eye_y=4, iris='grey', jaw='long', fringe=0, socket=True, brow_w=2),
+                # ★눈이 3행짜리 덩어리로 보였다(2026-08-04 지적). 백발이라 눈썹색이
+                #   hair[3]=c2bbb5 → 흰자 c9c4b8와 RGB 총차 19(=같은 색)로 붙어버려
+                #   눈썹 2행 + 눈 1행이 하나로 읽혔다. 눈썹을 1행으로 줄이고 짙은 회색을
+                #   직접 지정 → 그 1행이 눈꺼풀 구실을 해서 눈이 2×2로 읽힌다.
+                #   (socket은 눈썹 y와 같은 행이라 항상 덮여 무의미했으므로 제거)
+                eye_y=4, iris='grey', jaw='long', fringe=0,
+                brow_w=1, brow_c='5b544c'),
     '72': dict(file='marie', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
                female=True, skin='cfa47e', hair='241f1c',
@@ -483,7 +489,10 @@ def head(s, v, seed):
            y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
            iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey')
            else 2)
-    g.brow(s, hair[2] if not v.get('age') else hair[3], y=eye_y - 1,
+    # ★brow_c = 눈썹색 직접 지정. 백발(age=True→hair[3])은 흰자와 색이 겹쳐 눈썹이
+    #   눈에 붙어 보이는데, 그 사람만 짙은 색으로 떼어내려면 예외구가 필요하다.
+    g.brow(s, ramp(v['brow_c'])[2] if v.get('brow_c')
+           else (hair[2] if not v.get('age') else hair[3]), y=eye_y - 1,
            weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
     f = s.f('head', 'front')
     if v.get('female'):
