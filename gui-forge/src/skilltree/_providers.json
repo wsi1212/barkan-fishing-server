@@ -1,0 +1,110 @@
+[
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r0c0.png",
+    "ascent": 13,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r0c1.png",
+    "ascent": 13,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r0c2.png",
+    "ascent": 13,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r1c0.png",
+    "ascent": -38,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r1c1.png",
+    "ascent": -38,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r1c2.png",
+    "ascent": -38,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r2c0.png",
+    "ascent": -89,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r2c1.png",
+    "ascent": -89,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r2c2.png",
+    "ascent": -89,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r3c0.png",
+    "ascent": -140,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r3c1.png",
+    "ascent": -140,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  },
+  {
+    "type": "bitmap",
+    "file": "barkan:gui/tree_bg_r3c2.png",
+    "ascent": -140,
+    "height": 51,
+    "chars": [
+      ""
+    ]
+  }
+]

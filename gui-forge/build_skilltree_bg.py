@@ -6,18 +6,18 @@
   (기존: 레이아웃별 3장 × 4타일 = 글리프 12개 → 이제 4개)
   레이아웃 변경·새 숙련 추가에 아트 작업이 0이 된다.
 
-좌표는 전부 2배(캔버스 352x408 = GUI 176x204). GUI 기하 그대로 유도한 값:
-  · 좌우 프레임 x0~13 / x338~351      (GUI 7px)
-  · 상단 프레임 y0~13                  (GUI 상단 여유는 17px이나 밴드는 7px만)
-  · 트리 패널(9x5 슬롯) y34~213        (= 5행 x 36)
-  · 구분 밴드 y214~241                 (GUI 107~120)
-  · 인벤 3행 y242~349 / 여백 y350~357 / 핫바 y358~393
-  · 하단 프레임 y394~407
+## 해상도 = GUI x SCALE (4배 = 704x816)
+2배(352x408)면 GUI 스케일 3에서 1.5배 확대돼 흐렸다. 4배면 스케일 3에서 0.75배 축소,
+스케일 4에서 정확히 1:1 → 손실 없음.
+★폰트 아틀라스 256px 제한 때문에 4배는 4타일로 안 되고 **3열 x 4행 = 12타일**이다.
+  열 GUI 59/59/58 (텍스처 236/236/232) · 행 GUI 51 x4 (텍스처 204) — 전부 256 이하.
+좌표는 GUI 기하에서 SCALE 배로 유도한다(하드코딩 금지 — 배율 바꿀 때 어긋난다).
 
 프레임 배율은 하나로 통일한다(s = 14 / frame_left 폭) — 조각마다 다른 배율을 쓰면
 모서리와 변의 두께가 어긋나 이음선이 보인다.
 하단 모서리만 **아래 14px로 잘라 쓴다**: 원래 크기(28px)로 놓으면 핫바 첫 칸을 덮는다.
 """
+import json
 import os
 
 from PIL import Image
@@ -26,19 +26,35 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "src", "skilltree")
 OUTDIR = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/textures/gui")
 
-W, H = 352, 408
-SIDE = 14                          # 좌우/상하 프레임 두께 (2배)
-PANEL = (14, 34, 338, 214)         # 트리 패널 (x0,y0,x1,y1)
-DIVIDER = (214, 242)               # 구분 밴드 y구간
-INV_CELL_Y = [242, 278, 314]       # 인벤 3행 칸 top — 36px 간격
-HOTBAR_Y = 358
-CELL_X0, CELL_W, CELL_N = 14, 36, 9
+SCALE = 4                          # GUI 배율
+GW, GH = 176, 204                  # GUI 창 크기
+W, H = GW * SCALE, GH * SCALE
+SIDE = 7 * SCALE                   # 프레임 두께 (GUI 7px — 슬롯 격자가 x7부터라 고정값)
+DIVIDER = (107 * SCALE, 121 * SCALE)          # 구분 밴드 (GUI 107~120)
+INV_CELL_Y = [121 * SCALE, 139 * SCALE, 157 * SCALE]
+HOTBAR_Y = 179 * SCALE
+CELL_X0, CELL_W, CELL_N = 7 * SCALE, 18 * SCALE, 9
 # 청록 하이라이트는 격자 와이어처럼 보였다 → 바닐라처럼 무채색 베벨로
 CELL_IN, CELL_SH, CELL_HL = (10, 16, 20, 255), (4, 7, 9, 255), (44, 54, 60, 255)
-WALL_TILE = 400                    # 벽면 텍스처를 이 크기로 줄여 타일링 (격자 눈이 커지지 않게)
+WALL_TILE = 100 * SCALE            # 벽면 텍스처 타일 크기 (배율에 비례 — 격자 눈 크기 유지)
 
-TILES = [("tl", (0, 0, 194, 214)), ("tr", (194, 0, 352, 214)),
-         ("bl", (0, 214, 194, 408)), ("br", (194, 214, 352, 408))]
+# 타일 격자 — GUI 좌표 경계(합이 정확히 176 / 204 여야 한다)
+COL_GUI = [59, 59, 58]
+ROW_GUI = [51, 51, 51, 51]
+
+
+def tile_boxes():
+    """(이름, 텍스처box, GUI폭, GUI높이, GUI좌상단) 목록."""
+    out, gy = [], 0
+    for r, gh in enumerate(ROW_GUI):
+        gx = 0
+        for c, gw in enumerate(COL_GUI):
+            out.append((f"r{r}c{c}",
+                        (gx * SCALE, gy * SCALE, (gx + gw) * SCALE, (gy + gh) * SCALE),
+                        gw, gh, (gx, gy)))
+            gx += gw
+        gy += gh
+    return out
 
 
 def load(name):
@@ -157,11 +173,27 @@ def main():
         for c in range(CELL_N):
             slot_cell(px, CELL_X0 + CELL_W * c, cy)
 
-    # ⑤ 4타일 분할 (폰트 아틀라스 256px 제한)
+    # ⑤ 타일 분할 + 폰트 프로바이더·글리프 문자열 산출
     os.makedirs(OUTDIR, exist_ok=True)
-    for suf, box in TILES:
-        im.crop(box).save(os.path.join(OUTDIR, f"tree_bg_{suf}.png"))
-    print(f"tree_bg_* 4타일 저장 (프레임 배율 {s:.4f})")
+    tiles = tile_boxes()
+    providers, glyph, code = [], [], 0xE606
+    for i, (name, box, gw, gh, (gx, gy)) in enumerate(tiles):
+        crop = im.crop(box)
+        assert max(crop.size) <= 256, f"{name} {crop.size} — 폰트 아틀라스 256px 초과"
+        crop.save(os.path.join(OUTDIR, f"tree_bg_{name}.png"))
+        ch = chr(code + i)
+        providers.append({"type": "bitmap", "file": f"barkan:gui/tree_bg_{name}.png",
+                          "ascent": 13 - gy, "height": gh, "chars": [ch]})
+        # 행 시작이면 복귀 오프셋, 그 외엔 -1 (advance = round(폭)+1 이라 1px 겹침 보정)
+        glyph.append("\\uf801" if i == 0 else ("\\uf803" if gx == 0 else "\\uf802"))
+        glyph.append(f"\\u{ord(ch):04x}")
+    with open(os.path.join(HERE, "src", "skilltree", "_providers.json"), "w", encoding="utf-8") as f:
+        json.dump(providers, f, ensure_ascii=False, indent=2)
+    with open(os.path.join(HERE, "src", "skilltree", "_glyph.txt"), "w", encoding="utf-8") as f:
+        f.write("".join(glyph))
+    print(f"tree_bg_* {len(tiles)}타일 저장 ({SCALE}배, 프레임 배율 {s:.4f})")
+    print(f"  타일 크기: {set(t[1][2]-t[1][0] for t in tiles)} x {set(t[1][3]-t[1][1] for t in tiles)}")
+    print(f"  프로바이더/글리프 → src/skilltree/_providers.json, _glyph.txt")
     im.save(os.path.join(HERE, "src", "skilltree", "_preview_full.png"))
     return im
 
