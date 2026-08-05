@@ -3,7 +3,8 @@
 """창(작살) 빌드 카탈로그 생성기 — parts.json / recipes.json 재생성.
 
 ★수치를 바꿀 땐 이 파일을 고쳐 다시 돌린다. 손으로 JSON을 만지지 말 것.
-   사용법: python3 gen_spear_builds.py <BlockShip 데이터 폴더>
+   사용법: python3 gen_spear_builds.py <BlockShip 데이터 폴더> [--shops]
+           --shops = npc.json 마을 상점(클라우스=스폰, 파리드=사막)에 작살 레시피 배분까지 갱신
 
 ────────────────────────────────────────────────────────────────────────────
 설계 (balance.md 준수 — 2026-08-03 사다리 개편)
@@ -40,6 +41,8 @@
 import json, shutil, sys, os
 
 SRC = sys.argv[1]
+# --shops = npc.json 상점 NPC의 shopItems에 그 마을 작살 레시피를 배분(마을 상점에서 레시피 구매).
+WRITE_SHOPS = "--shops" in sys.argv[2:]
 
 # ── balance.md §17 등급 게이트 = 밴드 하한 ───────────────────────────────────
 GRADE_LEVEL = {"E": 1, "D": 5, "C": 10, "B": 20, "A": 40, "S": 60}
@@ -189,13 +192,21 @@ LEGACY = {
     "다이아 작살":     ("A", 780000,   260, "수중호흡:30,수영속도:26,공격력:4", 40,  "대장간"),
     "네더라이트 작살": ("G", 40000000, 320, "수중호흡:70,수영속도:45,공격력:8", 100, "대장간"),
 }
+#  ★id는 HP90+ 예약대역을 쓴다 — 카탈로그가 HP02부터 순번을 먹으므로 낮은 번호를 쓰면 카탈로그
+#    레시피를 덮어써 그 작살이 영구 미획득이 된다(2026-08-05 실제 사고: HP30/31/32가 모래바람·
+#    독전갈·대상단 작살을 지워 사막 A 3종이 제작 불가였다). main()의 충돌 검사가 재발을 막는다.
 LEGACY_RECIPES = [
-    ("HP30", "강철 작살", "",       [("단단한자루", 10), ("강철심", 18), ("강화철괴", 18), ("진주", 12)]),
-    ("HP31", "다이아 작살", "왕도", [("단단한자루", 20), ("강철심", 40), ("강화다이아몬드", 24),
+    ("HP90", "강철 작살", "",       [("단단한자루", 10), ("강철심", 18), ("강화철괴", 18), ("진주", 12)]),
+    ("HP91", "다이아 작살", "왕도", [("단단한자루", 20), ("강철심", 40), ("강화다이아몬드", 24),
                                      ("별빛진주", 8), ("압축흑정석", 30)]),
-    ("HP32", "네더라이트 작살", "", [("단단한자루", 32), ("네더라이트주괴", 8), ("강화네더라이트파편", 24),
+    ("HP92", "네더라이트 작살", "", [("단단한자루", 32), ("네더라이트주괴", 8), ("강화네더라이트파편", 24),
                                      ("바르칸핵", 2), ("용비늘", 4), ("별빛진주", 24)]),
 ]
+# ── 레시피 해금 규약 ─────────────────────────────────────────────────────────
+#  낚싯대·부품과 동일 모델(gen_rod_builds.py / gen_part_builds.py):
+#    상점 NPC가 있는 마을(스폰=클라우스, 사막=파리드) → locked=true, 그 마을 상점에서 레시피 구매로 해금.
+#    상점이 없는 마을(상단·왕도·전역) → locked=false, 그 마을 대장간에서 바로 제작(해금 경로가 없으니까).
+SHOP_VILLAGES = ("스폰", "사막")
 
 # ── 등급별 공통 제작 재료 ────────────────────────────────────────────────────
 COMMON = {
@@ -385,8 +396,10 @@ def main():
     cats["작살"] = ["HP01"]
 
     def put(rid, name, village, ingredients):
+        if rid in recs:
+            raise SystemExit(f"레시피 id 충돌: {rid} ({name}) — 이미 {recs[rid]['resultPartName']}가 쓰고 있다")
         recs[rid] = {"id": rid, "category": "작살", "displayName": name,
-                     "locked": False, "resultMode": "part", "drillTier": 0,
+                     "locked": village in SHOP_VILLAGES, "resultMode": "part", "drillTier": 0,
                      "village": village, "resultPartType": "작살", "resultPartName": name,
                      "ingredients": ingredients}
         cats["작살"].append(rid)
@@ -403,7 +416,47 @@ def main():
         put(rid, name, village, [ing(m, q) for m, q in ings])
 
     json.dump(R, open(rec_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"recipes.json: 작살 레시피 {len(cats['작살'])}개")
+    locked_n = sum(1 for v in recs.values() if v.get("resultPartType") == "작살" and v["locked"])
+    print(f"recipes.json: 작살 레시피 {len(cats['작살'])}개 (해금필요 {locked_n}개 = 상점 판매분)")
+
+    # ── NPC 상점 목록 (--shops) ──
+    #   상점 NPC가 어느 마을 것인지는 <b>기존 shopItems의 출처</b>로 판정한다 — 작살이 아직
+    #   안 들어간 상태에서도 붙일 수 있어야 하므로(부품 생성기처럼 자기 이름으로 매칭하면 첫 실행에 못 붙는다).
+    if WRITE_SHOPS:
+        npc_path = os.path.join(SRC, "npc.json")
+        N = json.load(open(npc_path, encoding="utf-8"))
+        shutil.copy(npc_path, npc_path + ".bak-spearshops")
+        npcs = N["npcs"] if isinstance(N, dict) and "npcs" in N else N
+        entries = npcs.items() if isinstance(npcs, dict) else [(x.get("id"), x) for x in npcs]
+
+        origin_of = {}                     # 부품/낚싯대 이름 → 출처(마을)
+        for cat_name, table in parts.items():
+            for nm, spec in table.items():
+                origin_of[nm] = spec.split("|")[6]
+        all_spears = set(parts["작살"])
+        want = {v: [c[0] for c in catalog if c[7] == v and c[1] != "S"
+                    and not c[6].startswith("히든")] for v in SHOP_VILLAGES}
+        vil_of_origin = {"스폰마을": "스폰", "사막마을": "사막"}
+
+        hit = 0
+        for _, v in entries:
+            si = v.get("shopItems")
+            if not si:
+                continue
+            # 기존 취급품의 출처 최다수 = 그 상점의 마을
+            tally = {}
+            for nm in si:
+                vil = vil_of_origin.get(origin_of.get(nm, ""))
+                if vil:
+                    tally[vil] = tally.get(vil, 0) + 1
+            if not tally:
+                continue
+            vil = max(tally, key=tally.get)
+            v["shopItems"] = [x for x in si if x not in all_spears] + want[vil]
+            hit += 1
+            print(f"  {v.get('name', '?')} ← {vil} 작살 {len(want[vil])}종")
+        json.dump(N, open(npc_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        print(f"npc.json: 상점 {hit}곳 작살 목록 갱신")
 
     # 감사용 표 — 등급 → 레벨 사다리로 출력
     print(f"\n{'등급':<3}{'Lv':>4}{'가격':>8}  {'출처':<10}{'이름':<16} 점수   스탯")
