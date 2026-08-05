@@ -356,7 +356,13 @@ def save_models(rows):
         image = p.finish()
         target = tex / f"{iid}.png"
         image.save(target)
-        model = {"parent": "minecraft:item/generated", "textures": {"layer0": f"minecraft:item/barkan_icon/{iid}"}}
+        # ★낚싯대는 부모가 item/generated(평면 아이콘용, 손모양 없음)라서 마크 기본
+        #   낚싯대처럼 앞으로 들지 않고 평평하게 들렸다. 진짜 낚싯대는 item/handheld_rod
+        #   (→item/handheld) 를 부모로 써서 3인칭/1인칭 들기 각도가 정의돼 있다
+        #   (1.21.11 클라이언트 jar에서 실측: thirdperson rotation.y=90 등).
+        #   텍스처만 우리 걸로 바꾸고 부모는 유지해 각도를 물려받는다.
+        parent = "minecraft:item/handheld_rod" if row["kind"] == "낚싯대" else "minecraft:item/generated"
+        model = {"parent": parent, "textures": {"layer0": f"minecraft:item/barkan_icon/{iid}"}}
         (models / f"{iid}.json").write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
         definition = {"model": {"type": "minecraft:model", "model": f"barkan:barkan_icon/{iid}"}}
         (items / f"{iid}.json").write_text(json.dumps(definition, ensure_ascii=False), encoding="utf-8")
