@@ -135,32 +135,6 @@ def fill_black_corners(art):
     return art
 
 
-def make_corners_transparent(im):
-    """실증 테스트: 둥근 프레임 바깥 검은 모서리를 진짜 투명(alpha=0)으로 뚫는다.
-
-    ★이전 시도(엣지 클램프/미러링/nearest-fill)는 전부 '채워서 안 보이게' 였다.
-      이번엔 사용자가 "이 자리는 지워도 바닐라 회색 안 샌다"고 반박해서, 주장 대신
-      실제로 뚫어 배포해 눈으로 확인한다. 좌표는 원본(1114x1412)의 작은 모서리 크롭
-      (95x95, fill_black_corners와 동일 범위)만 대상 — 남색 패널은 절대 안 건드린다.
-    """
-    W_, H_ = im.size
-    BOX = 110                                      # 조립된 최종 이미지 좌표 기준
-    px = im.load()
-
-    def lum(c):
-        return (c[0] * 2 + c[1] * 5 + c[2]) // 8
-
-    for bx, by, dx, dy in ((0, 0, 1, 1), (W_ - BOX, 0, -1, 1),
-                          (0, H_ - BOX, 1, -1), (W_ - BOX, H_ - BOX, -1, -1)):
-        for yy in range(BOX):
-            y = by + yy if dy > 0 else by + BOX - 1 - yy
-            for xx in range(BOX):
-                x = bx + xx if dx > 0 else bx + BOX - 1 - xx
-                if lum(px[x, y][:3]) < 15:
-                    px[x, y] = (0, 0, 0, 0)
-    return im
-
-
 def slot_cell(px, x0, y0):
     """인벤 칸 음각. 4면 동일 톤 — 비대칭 베벨은 착시로 여백처럼 보였다(위 CELL_GRID 참조)."""
     n = CELLG * SCALE
@@ -185,7 +159,6 @@ def main():
 
     erase_nodes(art)
     im = piecewise_scale(art)
-    make_corners_transparent(im)
 
     px = im.load()
     for gy in INV_ROWS_Y + [HOTBAR_Y]:
