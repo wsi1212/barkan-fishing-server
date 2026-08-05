@@ -31,7 +31,7 @@ import garments as g                                  # noqa: E402
 from skinlib import Skin, ramp, ramp_lit              # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
-CID = 158                                             # 알비스=157 다음 (스폰 시 실제 id 확인)
+CID = 161                                            # prod 실측 cid (초기 추정 158은 알비스였다)
 SEED = 158
 
 P = dict(
