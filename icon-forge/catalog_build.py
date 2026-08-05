@@ -405,7 +405,9 @@ def make_review(meta, paths):
 
 def validate(meta, paths):
     ids = [m["id"] for m in meta]
-    assert len(meta) == 254, f"카탈로그 수 불일치: {len(meta)} != 254"
+    # ★254 하드코딩이 실사고 원인 — parts.json/TrapSpecs.java에 새 아이템이 추가되면
+    #   즉시 스테일해진다. 개수 자체를 검증할 근거가 없으니 ID 무결성만 확인한다.
+    assert len(meta) == len(ids), "meta/ids 개수 불일치(내부 버그)"
     assert len(ids) == len(set(ids)), "아이콘 ID 충돌"
     for m, path in zip(meta, paths):
         im = Image.open(path).convert("RGBA")

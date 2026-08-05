@@ -135,19 +135,42 @@ def fill_black_corners(art):
     return art
 
 
-def slot_cell(px, x0, y0):
-    """인벤 칸 음각. 4면 동일 톤 — 비대칭 베벨은 착시로 여백처럼 보였다(위 CELL_GRID 참조)."""
+def fill_cell(px, x0, y0):
+    """칸 내부만 채운다 — 테두리는 draw_grid_lines()가 **경계당 한 번만** 그린다.
+
+    ★이전엔 칸마다 자기 4면에 독립적으로 2px 테두리를 그렸다. 인접한 두 칸이 만나는
+      경계에서는 그게 합쳐져 4px(2+2)가 되는데, 창틀에 붙은 바깥 경계는 이웃이 없어
+      2px뿐이다. 내부 격자선이 바깥 테두리보다 두 배 두꺼워지는 비일관성이 실제
+      게임에서 '깨져 보인다'는 제보로 확인됐다(스킬 선택 화면과 비교해서 확실히 드러남).
+      경계선을 좌표당 정확히 한 번만 긋도록 분리한다.
+    """
     n = CELLG * SCALE
     for y in range(y0, y0 + n):
         for x in range(x0, x0 + n):
             px[x, y] = CELL_IN
-    for k in range(SCALE // 2):
-        for x in range(x0, x0 + n):
-            px[x, y0 + k] = CELL_GRID
-            px[x, y0 + n - 1 - k] = CELL_GRID
-        for y in range(y0, y0 + n):
-            px[x0 + k, y] = CELL_GRID
-            px[x0 + n - 1 - k, y] = CELL_GRID
+
+
+def draw_grid_lines(px, cols_x, rows_y, cell_px):
+    """세로선은 각 열 경계마다, 가로선은 각 행 경계마다 **정확히 한 번씩만** 긋는다.
+
+    rows_y: 서로 이어진(칸 사이 빈틈 없는) 행 top y 좌표 리스트 — 이 블록 안에서만
+    가로선을 잇는다. 인벤 3행과 핫바처럼 사이에 갭이 있는 블록은 따로 호출한다.
+    """
+    t = max(1, SCALE // 2)
+    x_lines = cols_x + [cols_x[-1] + cell_px]
+    y_lines = rows_y + [rows_y[-1] + cell_px]
+    x0, x1 = cols_x[0], cols_x[-1] + cell_px
+    y0, y1 = rows_y[0], rows_y[-1] + cell_px
+    for lx in x_lines:
+        for k in range(t):
+            x = lx - t // 2 + k
+            for y in range(y0, y1):
+                px[x, y] = CELL_GRID
+    for ly in y_lines:
+        for k in range(t):
+            y = ly - t // 2 + k
+            for x in range(x0, x1):
+                px[x, y] = CELL_GRID
 
 
 def main():
@@ -163,7 +186,11 @@ def main():
     px = im.load()
     for gy in INV_ROWS_Y + [HOTBAR_Y]:
         for c in range(COLS):
-            slot_cell(px, (GRID_X + CELLG * c) * SCALE, gy * SCALE)
+            fill_cell(px, (GRID_X + CELLG * c) * SCALE, gy * SCALE)
+    cell_px = CELLG * SCALE
+    cols_x = [(GRID_X + CELLG * c) * SCALE for c in range(COLS)]
+    draw_grid_lines(px, cols_x, [y * SCALE for y in INV_ROWS_Y], cell_px)   # 인벤 3행
+    draw_grid_lines(px, cols_x, [HOTBAR_Y * SCALE], cell_px)                # 핫바(별도 블록)
 
     os.makedirs(OUTDIR, exist_ok=True)
     for f in os.listdir(OUTDIR):
