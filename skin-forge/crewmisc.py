@@ -87,6 +87,33 @@ V = {
               boot='boot_d', head='cap', headc='navy', prop='rope',
               accent='brass',
                eye_y=4, iris='blue', jaw='square', marks='ruddy', surface=('buttons', 'trim'), surfc='brass', bootrows=5),
+    # ── 도입부 뱃사람 (★게임에서 처음 만나는 NPC) ──────────────────────────
+    '160': dict(file='sailor', cid=160, label='선원 — 도입부 배(2908,65,-3162)',
+                # "다 왔다, 꼬맹아. / 곧 바르칸 항구에 닿을 거다."
+                # ★모든 플레이어의 첫 NPC다 — 8초 안에 '뱃사람'으로 읽혀야 한다.
+                #   지금까지 스킨이 아예 없어서(skinName=None) 기본 스티브로 서 있었다.
+                # 차별화: 승무원 8명이 안 쓴 축만 골랐다
+                #   머리   머릿수건 — cap(이자벨라·엔리코·페리선장) hood(니코) 없음(마테오·조반니·피노) 뿐이었다
+                #   재단   wrap(교차 여밈) — 이 그룹 미사용 (coat/jerkin/apron/tunic만 있었다)
+                #   무늬   lacing(앞 끈) — 미사용
+                #   소품   노(oar) — rope는 이미 3명, net은 낚시꾼할아버지
+                # 팔레트: 승무원 공통 소금빛(brine)을 몸에 써서 '한 배 사람'으로 묶고,
+                #   유일한 유채색은 벽돌빛 머릿수건. crimson은 이자벨라 새시 몫이라 rust로 뺀다.
+                # 억센 중년 — "꼬맹아"라 부르는 말투. age=True는 페리선장·할아버지 몫이라 안 쓰고
+                #   턱수염 대신 짧은 구레나룻(stubble)+굵은 눈썹+햇볕에 튼 볼로 나이를 낸다.
+                skin='a97a4f', hair='4a3a2c', beard='stubble',
+                # ★바지를 tar(2f2c28)로 뒀더니 검정 부츠와 뭉쳐 하반신이 한 덩어리였다(1차).
+                #   deck(카키)로 올려 셔츠(감청)-바지(카키)-부츠(검정) 3단 값이 갈리게 한다.
+                garb='wrap', cloth='brine', under='canvas', legs='deck',
+                boot='boot_d', head=None, bandana='rust', prop='coil',
+                roll=5, sleeved=True,
+                # ★surface='lacing'도 폐기했다(2차): wrap이 이미 교차 여밈 실루엣을 주는데
+                #   끈을 겹치니 가슴이 검은 픽셀 얼룩이 됐다. 무늬를 더하는 대신 <b>깨끗한
+                #   도형 한 겹</b>(허리 새시)을 얹는다 — 반다나와 같은 벽돌빛으로 묶어
+                #   "붉은 천 두 곳"이 이 사람의 표식이 된다.
+                layer2='sash', l2c='rust',
+                eye_y=4, iris='grey', jaw='square', brow_w=2, socket=True,
+                marks='ruddy', bootrows=6),
     '64': dict(file='pilgrim', cid=64, label='순례자',
                # "먼 길을 걸어 왕도의 대도서관을 보러 왔소" → 낡은 여행 로브 + 후드
                skin='b0855e', hair='7a6e5f', beard='full', age=True,
@@ -141,6 +168,29 @@ V = {
 _orig_props = tf.props
 
 
+def bandana(s, r, seed=0):
+    """뱃사람 반다나 — 정수리만 두르고 뒤에서 묶는다.
+
+    ★garments.headscarf를 쓰면 안 된다(1차 실패): 그건 사막 두건이라 뺨까지 늘어지고
+      등으로 꼬리가 내려가서, 머리가 통째로 벽돌색 상자가 되고 이마가 사라졌다.
+      반다나는 <b>2행만</b> 덮어 이마를 남기는 게 정체성이다 — 덮는 면적이 곧 옷의 종류다.
+    """
+    import random
+    rnd = random.Random(seed + 7)
+    s.f('head', 'top', 'outer').fill(r[3])
+    for x in range(8):                                   # 정수리 접힘 — 단색이면 플라스틱
+        if rnd.random() < 0.45:
+            s.f('head', 'top', 'outer').col(x, r[2], 0, 3)
+    for fname in ('front', 'right', 'left', 'back'):
+        f = s.f('head', fname, 'outer')
+        f.rect(0, 0, 7, 1, r[3] if fname == 'front' else r[2])
+        f.row(1, r[1])                                   # 아래 테두리 = 천이 접힌 선
+    bk = s.f('head', 'back', 'outer')                    # 뒤통수 매듭 + 짧은 끝단
+    bk.rect(3, 2, 4, 2, r[3])
+    bk.px(2, 3, r[2]); bk.px(5, 3, r[2])
+    bk.px(3, 3, r[1])
+
+
 def props(s, v, seed):
     f = s.f('body', 'front', 'outer')
     p = v.get('prop')
@@ -148,6 +198,20 @@ def props(s, v, seed):
         f.rect(6, 5, 7, 8, tf.R('leather')[3])
         f.px(6, 5, tf.R('brass')[4]); f.px(7, 8, tf.R('brass')[2])
         f.col(6, tf.R('leather')[4], 6, 8)
+        return
+    if p == 'coil':                                      # 도입부 선원 — 가슴에 걸친 밧줄 코일
+        # ★두 번 실패하고 정한 위치·색이다.
+        #   1차 긴 노(oar): 8x12 가슴에 대각 자루를 얹으면 대각선이 평평해져
+        #      '베이지색 수직 띠'로 읽힌다 → 이 해상도의 소품은 컴팩트한 덩어리뿐.
+        #   2차 밝은 밧줄(sand)을 허리(y6~8)에: roll=5라 그 높이의 팔은 맨살인데
+        #      밧줄이 같은 살구색이라 팔의 일부로 보였다.
+        #   → 결론: <b>어두운 밧줄</b>을 <b>소매가 아직 천인 높이(y3~5)</b>에 둔다.
+        #      그러면 위(감청 셔츠)·아래(벽돌 새시)·옆(어두운 소매) 전부와 값이 갈린다.
+        rope = tf.R('leather'); hi = tf.R('sand'); dk = tf.R('walnut')
+        f.rect(5, 3, 7, 5, rope[2])                      # 코일 덩어리
+        f.px(5, 3, hi[3]); f.px(7, 5, dk[1])             # 광원(좌상)·그늘(우하)
+        f.px(6, 4, dk[0])                                # 가운데 구멍 = '감긴 것'의 핵심
+        f.px(5, 5, hi[2]); f.px(7, 3, rope[3])           # 감긴 결 2점
         return
     if p == 'bloom':                                     # 정원사의 꽃다발
         for i, x in enumerate((5, 6, 7)):
@@ -163,6 +227,8 @@ def build(v):
     s = Skin()
     seed = v['cid']
     tf.head(s, v, seed)
+    if v.get('bandana'):                  # ★사막 두건이 아닌 뱃사람 반다나 (위 bandana() 주석 참고)
+        bandana(s, tf.R(v['bandana']), seed)
     tf.body(s, v, seed)
     tf.extra_cut(s, v, seed)    # 조끼·멜빵·새시 — 실루엣 한 겹
     tf.surface(s, v, seed)      # 옷 무늬 (소품보다 먼저)
