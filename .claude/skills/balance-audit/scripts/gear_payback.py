@@ -93,7 +93,12 @@ def main():
                     growth_val += v * vals[stage][GROWTH_KEY[k]]
                 elif k not in OTHER:
                     unknown.append(k)
-            payback = price / inc_val if inc_val > 0 else float("inf")
+            # ★2026-08-05 릴 재배정 — 릴의 신규 주스탯은 경험치(성장)다. 순수 income 회수시간으로
+            #   재면 경험치는 GROWTH_KEY라 0으로 잡혀 "철제 릴"류가 전부 최악으로 나온다(실측:
+            #   숙련 릴 0.52h ↔ 철제 릴 19.83h, 릴C<D 역전까지). 미끼가 행운 자리를 내주고도 이미
+            #   inc+growth 결합으로 다루듯, 릴도 같은 원칙 적용 — 경험치가 릴의 실제 설계 가치다.
+            eff = (inc_val + growth_val) if cat == "릴" else inc_val
+            payback = price / eff if eff > 0 else float("inf")
             rows.append(dict(cat=cat, name=name, grade=grade, price=price, lv=lv, stage=stage,
                              inc=inc_val, growth=growth_val, payback=payback, unknown=unknown))
 
