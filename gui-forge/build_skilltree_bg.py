@@ -65,9 +65,12 @@ H_BANDS = [((0, 56), (0, 7)), ((56, 1060), (7, 169)), ((1060, 1114), (169, 176))
 
 # 소켓·레일을 덮을 깨끗한 패널 텍스처 (측정: 최대 밝기 23 = 완전 무장식)
 CLEAN_BOX = (300, 100, 900, 210)
-# 지울 영역 (원본 좌표) — 소켓 4행 + 레일 + 근원. 모서리 필리그리는 피한다.
-#   여유를 넉넉히 — 소켓 스파이크·레일 끝·잡티까지 확실히 덮는다(모서리 필리그리는 보존).
-ERASE = [(210, 210, 1015, 845), (78, 340, 240, 540)]
+# 지울 영역 (원본 좌표) — 소켓 4행 + 레일 + 근원.
+#   ★1차값은 추정이었다: 4행 소켓 링이 y899까지 뻗어 있는데 ERASE가 845에서 끊겨
+#     54px가 안 지워진 채 남아 "링 아래가 잘린 것처럼" 보였다(실제 버그 재현·확인).
+#     전 방향 재측정: 1행 상단 y224 · 4행 하단 y899 · 근원 좌측 x60 · 4열 우측 x1050.
+#     여유(margin) 20px씩 더 줘서 안테리어싱 테두리까지 확실히 덮는다.
+ERASE = [(190, 200, 1070, 920), (35, 335, 260, 560)]
 
 CELL_IN, CELL_SH, CELL_HL = (10, 16, 20, 255), (4, 7, 9, 255), (44, 54, 60, 255)
 
@@ -110,6 +113,56 @@ def piecewise_scale(art):
     return out
 
 
+def fill_black_corners(art):
+    """⑥ 둥근 프레임 바깥의 검은 모서리를 **원본 좌표**에서 채운다.
+
+    ★처음엔 조립된(스케일된) 이미지에서 sum<=24 임계값으로 찾았다가 실패했다 — 남색 패널
+      자체의 밝기도 sum~15~24라 패널 전체(216000여 픽셀)를 오검출해 망칠 뻔했다.
+      순수 (0,0,0)만 매칭해도 실패했다 — 실제 모서리는 완전한 (0,0,0)이 아니라 (1,1,0) 등
+      미세하게 다른 near-black이라 못 잡았다.
+    → 밝기 임계값으로 찾지 않는다. **원본(1114x1412)의 작은 모서리 크롭(70x70)** 안에서만
+      작업한다. 크롭 자체가 남색 패널에서 공간적으로 멀리 떨어져 있어 임계값이 아무리
+      느슨해도 패널을 건드릴 수 없다 — 안전한 건 색이 아니라 위치다.
+      측정: 원본에서 대각선 검은 길이 좌상36/우상39/좌하28/우하29px. BOX 95로 여유.
+    """
+    W_, H_ = art.size
+    BOX = 95
+    corners = [(0, 0, 1, 1), (W_ - BOX, 0, -1, 1), (0, H_ - BOX, 1, -1), (W_ - BOX, H_ - BOX, -1, -1)]
+    for bx, by, dx, dy in corners:
+        crop = art.crop((bx, by, bx + BOX, by + BOX))
+        px = crop.load()
+
+        def lum(c):
+            return (c[0] * 2 + c[1] * 5 + c[2]) // 8
+
+        cx, cy = (0 if dx > 0 else BOX - 1), (0 if dy > 0 else BOX - 1)
+        for y in range(BOX):
+            yy = cy + dy * y if dy > 0 else y
+            for x in range(BOX):
+                xx = cx + dx * x if dx > 0 else x
+                # 실제 좌표는 위 계산이 헷갈리니 코너 앵커 기준으로 다시 표현
+                ax = x if dx > 0 else BOX - 1 - x
+                ay = y if dy > 0 else BOX - 1 - y
+                if lum(px[ax, ay][:3]) >= 22:
+                    continue
+                sx = ax
+                while 0 <= sx + dx < BOX and lum(px[sx + dx, ay][:3]) < 22:
+                    sx += dx
+                cand = px[sx + dx, ay] if 0 <= sx + dx < BOX and lum(px[sx + dx, ay][:3]) >= 22 else None
+                sy = ay
+                while 0 <= sy + dy < BOX and lum(px[ax, sy + dy][:3]) < 22:
+                    sy += dy
+                cand2 = px[ax, sy + dy] if 0 <= sy + dy < BOX and lum(px[ax, sy + dy][:3]) >= 22 else None
+                if cand and cand2:
+                    px[ax, ay] = cand if abs(sx - ax) < abs(sy - ay) else cand2
+                elif cand:
+                    px[ax, ay] = cand
+                elif cand2:
+                    px[ax, ay] = cand2
+        art.paste(crop, (bx, by))
+    return art
+
+
 def slot_cell(px, x0, y0):
     """인벤 칸 음각. 베벨 두께는 배율 파생 (2로 박으면 4배에서 절반이 된다)."""
     n = CELLG * SCALE
@@ -133,6 +186,7 @@ def main():
         f"원본 크기 {art.size} 가 측정 경계와 다르다"
 
     erase_nodes(art)
+    fill_black_corners(art)
     im = piecewise_scale(art)
 
     px = im.load()
