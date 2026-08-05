@@ -133,7 +133,10 @@ def tuxedo(s, v, seed):
     #   몸통은 재킷인데 팔만 흰 셔츠면 '재킷 입은 몸 + 셔츠 팔'로 어긋난다(실측 v1).
     #   정장은 어깨부터 손목까지 한 벌로 이어져야 한다.
     for i, part in enumerate(('arm_r', 'arm_l')):
-        s.form_fill(part, jk, 0, 9, layer='outer', base_idx=3)
+        # ★top=True 필수 — 어깨 윗면(어깨 캡)까지 재킷을 덮는다. 빼먹으면 그 면만 투명해
+        #   위에서 내려다볼 때 검정 소매에 구멍이 뚫려 밝은 셔츠가 드러난다(2026-08-04 지적).
+        #   딜러는 테이블 뒤에 서서 플레이어가 항상 내려다보는 각도라 가장 잘 보이는 면이다.
+        s.form_fill(part, jk, 0, 9, layer='outer', base_idx=3, top=True)
         s.speckle(part, jk, 0, 9, layer='outer', density=0.05, seed=seed + i)
         s.folds(part, 2, 8, jk, layer='outer', cols=(1,), seed=seed + i * 3)
         s.hem(part, 9, jk, layer='outer', base_idx=3)

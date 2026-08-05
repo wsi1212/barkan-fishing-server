@@ -70,7 +70,7 @@ def suit(s, jacket, shirt, y_hem=10, lapel=True, seed=0, sleeve_to=9,
             face='back', seed=seed + 3)
     s.hem('body', y_hem, jacket, layer='outer', base_idx=3)
     for i, part in enumerate(('arm_r', 'arm_l')):
-        s.form_fill(part, jacket, 0, sleeve_to, layer='outer', base_idx=3)
+        s.form_fill(part, jacket, 0, sleeve_to, layer='outer', base_idx=3, top=True)  # ★top=True: 어깨 캡 누락 시 위에서 볼 때 구멍
         s.speckle(part, jacket, 0, sleeve_to, layer='outer',
                   density=0.12 if rumpled else 0.06, seed=seed + i)
         s.hem(part, sleeve_to, jacket, layer='outer', base_idx=3)
@@ -214,7 +214,7 @@ def build_addict():
     s.folds('body', 2, 9, car, layer='outer', cols=(2, 5), face='back', seed=SEED)
     s.hem('body', 10, car, layer='outer', base_idx=3)
     for i, part in enumerate(('arm_r', 'arm_l')):
-        s.form_fill(part, car, 0, 8 + i, layer='outer', base_idx=3)
+        s.form_fill(part, car, 0, 8 + i, layer='outer', base_idx=3, top=True)  # ★top=True: 어깨 캡 누락 시 위에서 볼 때 구멍
         s.hem(part, 8 + i, car, layer='outer', base_idx=3)
     g.patch(s, 'leg_l', 'front', P['oat'], x=1, y=5, w=2, h=2, layer='outer')
 
