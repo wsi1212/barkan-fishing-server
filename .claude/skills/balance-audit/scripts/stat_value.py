@@ -1,194 +1,235 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 stat_value.py — 스탯별 실질가치 산정 (공통화폐 = 원/h 환산).
 
-모든 스탯 1포인트가 "시간당 수입(원/h)"으로 얼마인지 라이브 수치에서 계산한다. 이 환산표가
-요리 버프·날씨·장비 가치를 평가하는 공통 잣대다. balance 변경 시 스냅샷만 새로 뽑으면 값이 갱신된다.
+★2026-08-05 전면 교체. 구 버전의 두 가지 근본 오류를 제거했다:
+  1) **등급 base 확률을 flat rate로 썼다** — 피티(PRD)를 무시해 수입을 실제의 1/3~1/16로
+     과소집계했다. 이제 `price_ladder.mc`와 같은 GradeRoller 충실복제 몬테카를로를 쓴다.
+  2) **캐스트/h를 150으로 하드코딩했다** — 근거 없는 값이었다. 이제 prod 텔레메트리 실측
+     확정치(포획 220/h, 활성 사이클 16.2초, 완주율 85% → 캐스트 259/h)를 쓴다.
 
-핵심 원리:
-- 수입 앵커: 판매보너스 +1% = income×0.01. 다른 수입계 스탯을 여기 맞춰 환산.
-- ★수입가치 ≠ 직관가치: 행운의 수입가치는 '희귀등급'이 아니라 흔한 D/C 등급 확률 상향(E→D
-  질량이동)에서 나온다. 희귀등급(M/L/G) 자체는 수입 기여 ≈0 (fish.json 개별가 없음 → 가격=
-  grade×크기점수, G조차 6,700캐스트당 1마리). 행운의 추가 효용(도감/고등급 baseExp)은 별도.
-  이런 '어디서 가치가 나오나'를 표의 근거란에 명시한다 — 직관이 틀리기 쉬운 지점.
+또 하나 구조적 변경: **스탯가치는 단일 숫자가 아니다.** 구간마다 낚시 시급이 4배 차이나므로
+같은 스탯 1점의 원/h 값도 4배 차이난다. 그래서 초반/중반/종결 3구간을 병기한다.
 
-사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--size-score 50]
+산출 방식 (항목별로 가장 정확한 방법을 골라 씀):
+  · 완전 선형(판매보너스·더블·트리플·경험치) → 해석해
+  · 가격 공식 경유(크기·크리) → 해석해 (price = grade × (0.5 + sizeScore/200))
+  · 롤 확률 경유(행운·등급업) → 몬테카를로 유한차분(공통난수 CRN)
+  · 미니게임 경유(난이도·도주감소) → minigame_sim 성공률 델타 × 등급분포 × 가격
+
+사용법: python3 stat_value.py [--stage 초반|중반|종결] [--all-stages]
 """
-import argparse, json, os
+import argparse, importlib.util, json, os, sys
 
-# 미니게임 1판 ≈ 24초 가정 → 150판/h. balance.md 기준.
-DEFAULT_CASTS = 150
-DEFAULT_SIZE_SCORE = 50  # 평균 크기점수 (FishItem.sizeScore 기본 50)
-DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정). 크리배율 가치는 여기 비례.
-DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 폐지). 크리확률 가치는 여기 비례.
-CRIT_PRICE_COEF = 0.06    # 2026-07-24 신설: 크리 시 판매가 직접 ×(1+critDmg×COEF). FishingListener.java 참조.
+HERE = os.path.dirname(os.path.abspath(__file__))
+SKILL = os.path.dirname(HERE)
 
-# ── 2026-07-25 신설: 난이도/도주감소는 미니게임 성공확률(존폭/도주율)을 통해서만 수입에 기여 ──
-# MinigameManager.java 틱로직 Monte Carlo 포팅(반응속도250ms+핑40ms=6틱) 실측치를 하드코딩.
-# 계단식 S자곡선이라 선형 근사 불가 — 상세: audits/2026-07-25-difficulty-stat-value.md
-DIFFICULTY_WON_PER_POINT = 790   # rodBonus 0→12 구간 평균 한계가치(비선형, 등급문턱에서 몰림)
-ESCAPE_REDUCTION_WON_PER_POINT = 10.5  # rodBonus=6 고정, escape_reduction 0→20 실측 한계가치
 
+def _load(name):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, name + ".py"))
+    m = importlib.util.module_from_spec(spec)
+    saved, sys.argv = sys.argv, [name]
+    spec.loader.exec_module(m)
+    sys.argv = saved
+    return m
+
+
+PL = _load("price_ladder")
+MG = _load("minigame_sim")
+
+PRICE = PL.PRICE
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
 
-# 실현 가능 최대 매그니튜드 (장비 best-single + 강화 최대). 2026-07-24 데이터.
-# ★2026-07-24: 등급업/크리배율/콤보 하드캡 전면 폐지(구식 인위적 상한 — balance-audit이 크리를
-# 최약체로 만드는 원인으로 지목해 제거됨). 이제 "상한"은 캡이 아니라 장비+강화 실현가능 최대치.
-# "per-1단위 값 × 상한"으로 스탯의 실제 천장 기여를 보여준다 (단위 스케일 왜곡 보정).
+# ── 실측 파라미터 (2026-08-05 prod 텔레메트리) ─────────────────────────────
+CATCH_PER_HOUR = 220          # 포획/h — 활성 사이클 16.2초
+COMPLETION = 0.85             # 캐스트→포획 완주율 실측(82~85%)
+CASTS_PER_HOUR = CATCH_PER_HOUR / COMPLETION   # ≈ 259 시도/h
+SIZE_SCORE = 65.6             # 실측 평균 크기점수
+REACT_TICKS = MG.ms_to_ticks(250 + 40)         # 반응 250ms + 핑 40ms = 6틱
+
+DEFAULT_CRIT_RATE = 0.20      # 기준 크리율(크리배율 가치가 여기 비례)
+DEFAULT_CRIT_DMG = 4          # 기준 크리배율(크리확률 가치가 여기 비례)
+CRIT_PRICE_COEF = 0.06        # FishingListener: 크리 시 판매가 ×(1+critDmg×0.06)
+
+STAGES = {  # 구간 → (풀, 레벨)
+    "초반": (set("EDCBA"), 7),
+    "중반": (set("EDCBAS"), 30),
+    "종결": (set("EDCBASMLG"), 65),
+}
+
+# 실현 가능 최대 매그니튜드 (장비 best-single + 강화 최대). 2026-08-05 재확인.
 MAX_MAGNITUDE = {
     "판매보너스 (1%)": 110, "더블찬스 (1%)": 110, "트리플찬스 (1%)": 13,
-    "등급업 (1%)": 56,      # 캡 폐지 후 실현가능 최대(balance.md §9 종결세팅 합계)
-    "크기 (1%)": 100, "행운 (1점)": 100, "도주감소 (1%)": 50,
-    "크리확률 (1%)": 80, "크리배율 (1점)": 15,  # 캡8 폐지: 장비5+강화10 = 실현가능 15
-    "경험치 (1%)": 255,     # gear115 + enhance140
-    "난이도 (1점)": 12,     # 낚싯대 전용 스탯(다른 카테고리엔 없음): 바르칸낚싯대 base8 + 강화max4
+    "등급업 (1%)": 56, "크기 (1%)": 100, "행운 (1점)": 100, "도주감소 (1%)": 50,
+    "크리확률 (1%)": 80, "크리배율 (1점)": 15, "경험치 (1%)": 255, "난이도 (1점)": 12,
 }
 
 
-def load_snapshot(path):
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+def size_mult(size_score):
+    """가격 크기점수 배율 = 0.5 + sizeScore/200 (FishItem)."""
+    return 0.5 + size_score / 200.0
 
 
-def size_score_mult(size_score):
-    """가격 크기점수 배율 0.5 + size_score*0.5/100."""
-    return 0.5 + size_score * 0.5 / 100.0
+def grade_dist(pool, level, luck=0, n=400_000, seed=20260805):
+    """피티 반영 등급 분포 (GradeRoller 충실복제)."""
+    import random
+    rnd = random.Random(seed)
+    mg = 6
+    if level >= 30: mg = 7
+    if level >= 45: mg = 8
+    if level >= 60: mg = 9
+    lm = (100.0 + luck) / 100.0
+    pity = {k: 0 for k in "GLMSABCD"}
+    cnt = {}
+    for _ in range(n):
+        g = "E"
+        for gr, base, gate in PL.ROLL:
+            if g != "E": break
+            if gate > 0 and mg < gate: continue
+            if gr not in pool: continue
+            if rnd.random() < base * lm * (1 + pity[gr]) / 100.0:
+                g = gr; pity[gr] = 0
+        for k in pity:
+            if k != g: pity[k] += 1
+        cnt[g] = cnt.get(g, 0) + 1
+    return {g: cnt.get(g, 0) / n for g in GRADE_ORDER}
 
 
-def grade_distribution(prob, max_rank=9):
-    """등급 base 확률(%)로 캐스트당 등급 분포. E는 잔여."""
-    dist = {}
-    used = 0.0
-    for g in GRADE_ORDER[1:max_rank]:
-        p = prob.get(g, 0) / 100.0
-        dist[g] = p
-        used += p
-    dist["E"] = max(0.0, 1 - used)
-    return dist
+def success_rates(rod_bonus, escape_reduction, trials=4000):
+    """등급별 미니게임 성공률 (minigame_sim, 반응 250ms+핑 40ms)."""
+    return {g: MG.simulate_catch(g, rod_bonus, escape_reduction, REACT_TICKS, trials, seed=7)
+            for g in GRADE_ORDER}
 
 
-def avg_catch_value(dist, price, size_score):
-    """캐스트당 평균 판매가 (크기점수 배율 적용)."""
-    m = size_score_mult(size_score)
-    return sum(dist[g] * price.get(g, 0) * m for g in dist)
+def income_of(dist, size_score=SIZE_SCORE, sell_bonus=0.0):
+    """시간당 수입 = 포획/h × Σ P(g)×가격(g).
+
+    ★성공률을 여기 곱하면 **이중계상**이다. 실측 220 포획/h는 미니게임 실패·도주를 이미 포함한
+    값(캐스트 259회 중 220회 성공)이고, 실측 등급분포도 '잡힌 물고기'의 분포다. 운영자 실측
+    3세션의 원/마리(605~679원)와 이 식이 정합한다. 성공률은 난이도·도주감소의 **상대 델타**를
+    구할 때만 쓴다(아래 success_gain).
+    """
+    m = size_mult(size_score) * (1 + sell_bonus / 100.0)
+    per_catch = sum(dist[g] * PRICE[g] * m for g in GRADE_ORDER)
+    return per_catch * CATCH_PER_HOUR, per_catch
 
 
-def compute(snapshot, casts, size_score, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
-    raw = snapshot["raw"]
-    prob = raw["rng"]["grade_base_prob"]
-    price = raw["economy"]["grade_base_price"]
-    dist = grade_distribution(prob)
-    avg = avg_catch_value(dist, price, size_score)
-    income = avg * casts  # 원/h (무버프)
+def success_gain(dist, base_succ, new_succ):
+    """미니게임 성공률 개선이 '성공 매출'을 몇 % 늘리는지 (비율만 씀).
 
-    m = size_score_mult(size_score)
-    V = {}  # stat -> (원/h per unit, 근거)
+    minigame_sim의 절대 성공률은 반응 250ms 가정이라 실측보다 비관적이다(A 11% 등).
+    절대값을 income에 곱하면 실측과 안 맞으므로, **개선 비율**만 취해 절대 편향을 상쇄한다.
+    """
+    b = sum(dist[g] * PRICE[g] * base_succ[g] for g in GRADE_ORDER)
+    n = sum(dist[g] * PRICE[g] * new_succ[g] for g in GRADE_ORDER)
+    return (n / b - 1.0) if b else 0.0
 
-    # ── 순수 수입계 ──────────────────────────────
-    # 판매 +1%: income×0.01
+
+def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
+    pool, level = STAGES[stage]
+    dist = grade_dist(pool, level)
+    succ = success_rates(0, 0)                 # 기준 = 스탯 0 (나뭇가지) — 델타 산출 전용
+    income, per_catch = income_of(dist)
+    m = size_mult(SIZE_SCORE)
+    avg_catch = per_catch
+    caught_per_h = CATCH_PER_HOUR
+
+    V = {}
+
+    # ── 선형 (해석해) ────────────────────────────────────────────────
     V["판매보너스 (1%)"] = (income * 0.01, "income×1% (앵커)")
-    # 더블 +1%: +0.01 추가물고기/캐스트 (같은 등급) = avg값
-    V["더블찬스 (1%)"] = (0.01 * avg * casts, "+1% 확률로 +1마리(평균값)")
-    # 트리플 +1%: +0.02 물고기(+2마리)
-    V["트리플찬스 (1%)"] = (0.02 * avg * casts, "+1% 확률로 +2마리")
+    V["더블찬스 (1%)"] = (0.01 * avg_catch * caught_per_h, "+1% 확률로 +1마리(같은 등급·크기)")
+    V["트리플찬스 (1%)"] = (0.02 * avg_catch * caught_per_h, "+1% 확률로 +2마리")
+    V["경험치 (1%)"] = (income * 0.01, "★레벨링 국면: income 1%와 동가치(병렬진행). 만렙 후 0")
 
-    # 등급업 +1%: 1% 캐스트가 1티어 상승 → 인접티어 가격차 기대값
-    # 분포 가중 평균 티어점프 가치
+    # ── 가격 공식 경유 (해석해) ──────────────────────────────────────
+    # +1% 크기 ≈ +1 크기점수 → 가격 상대증가 = 0.005/m
+    price_per_score = 0.005 / m
+    V["크기 (1%)"] = (income * price_per_score, "+1%size≈+1크기점수 (★어종편차 큼)")
+
+    # 크리: size경로(+critDmg×10 점) + 직접경로(판매가 ×(1+critDmg×0.06))
+    crit_gain = crit_dmg * 10 * price_per_score + crit_dmg * CRIT_PRICE_COEF
+    V["크리확률 (1%)"] = (income * 0.01 * crit_gain,
+                       f"+1%크리율×(critDmg{crit_dmg}: 크기경로+판매가직접+{crit_dmg*6}%)")
+    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_score + CRIT_PRICE_COEF),
+                       f"크리율{int(crit_rate*100)}% 가정: 1점당 size+10 & 판매가+6%")
+
+    # ── 롤 확률 경유 (MC 유한차분, CRN) ──────────────────────────────
+    # 행운: luckMult=(100+luck)/100 → 피티와 곱이라 실효는 √로 압축된다. delta=10으로 재고 ÷10.
+    d_luck = grade_dist(pool, level, luck=10)
+    inc_luck, _ = income_of(d_luck)
+    V["행운 (1점)"] = ((inc_luck - income) / 10.0,
+                     "MC 유한차분(+10 ÷10). ★피티가 base를 √로 압축해 실효가 낮다")
+
+    # 등급업: 1% 캐스트가 1티어 상승 → 분포가중 인접티어 가격차
     jump = 0.0
     for i, g in enumerate(GRADE_ORDER[:-1]):
         nxt = GRADE_ORDER[i + 1]
-        jump += dist.get(g, 0) * (price.get(nxt, 0) - price.get(g, 0)) * m
-    V["등급업 (1%)"] = (0.01 * jump * casts, "1% 캐스트 1티어↑, 분포가중 가격차")
+        jump += dist.get(g, 0) * (PRICE[nxt] - PRICE[g]) * m
+    V["등급업 (1%)"] = (0.01 * jump * CATCH_PER_HOUR, "1% 포획이 1티어↑, 분포가중 인접티어 가격차")
 
-    # 크기 +1%: size×1.01 → 크기점수 상승 → 가격. 어종편차 큼(중간밴드 근사).
-    # 중간밴드(score≈50, size≈range) 가정: +1%size ≈ +1 score; +1 score → mult +0.005 → 가격 +0.005/m
-    price_per_size_score = 0.005 / m  # 가격 상대증가율 per +1 크기점수
-    V["크기 (1%)"] = (income * price_per_size_score * 1.0, "+1%size≈+1크기점수 (★어종편차 큼)")
+    # ── 미니게임 경유 (성공률 개선 '비율' × income) ──────────────────
+    # 난이도: rodBonus가 zoneWidth를 넓혀 성공률을 올린다. 등급별 S자라 구간 평균으로 근사.
+    g_diff = success_gain(dist, succ, success_rates(6, 0))
+    V["난이도 (1점)"] = (income * g_diff / 6.0,
+                      "존폭 확장 → 성공매출 +%(rodBonus 0→6 ÷6). 등급문턱에서 몰리는 계단식")
+    # 도주감소: 미스 '다음'에만 escapeBase를 floor(÷2) 낮추는 2차 방어선
+    g_esc = success_gain(dist, succ, success_rates(0, 20))
+    V["도주감소 (1%)"] = (income * g_esc / 20.0,
+                       "미스 후에만 발동+floor(÷2) 감쇠 → 성공매출 +%(0→20 ÷20)")
 
-    # ── 크리 (★시너지·기준점 의존, 2026-07-24부터 size경로+직접가격보너스 2갈래) ──
-    # size경로: income × 크리율 × critDmg×10% × price_per_size_score (기존, XP에도 기여)
-    # 직접경로: income × 크리율 × critDmg×CRIT_PRICE_COEF (신설, FishingListener 판매가 직접배수)
-    # 두 경로 합 = 크리 1회당 가격 상대증가. 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
-    crit_gain_per_dmg = crit_dmg * 10 * price_per_size_score + crit_dmg * CRIT_PRICE_COEF
-    V["크리확률 (1%)"] = (income * 0.01 * crit_gain_per_dmg,
-                       f"+1%크리율×(critDmg{crit_dmg}: 크기경로+직접가격+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
-    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_size_score + CRIT_PRICE_COEF),
-                       f"크리율{int(crit_rate*100)}%: size+10%/점 + 판매가직접+6%/점 (상한없음)")
+    return dict(income=income, per_catch=per_catch, avg_catch=avg_catch,
+                caught_per_h=caught_per_h, dist=dist, succ=succ, V=V)
 
-    # ── 미니게임 성공확률 (2026-07-25, MinigameManager Monte Carlo 실측 — 선형근사 아님) ──
-    # 난이도: rodBonus가 zoneWidth를 직접 넓혀 존폭 자체를 키움(1차 방어선). 등급별 S자곡선이라
-    # "1점당 원/h"는 근사 평균일 뿐 — 실제로는 등급 문턱(B/A/S) 근처에서 몰아서 오르는 계단식.
-    V["난이도 (1점)"] = (DIFFICULTY_WON_PER_POINT,
-                      "미니게임 존폭 확장(반응250ms+핑40ms 기준 Monte Carlo). S등급조차 최대투자(12)로 65%뿐, M/L/G는 인간반응속도로 불가")
-    # 도주감소 +1%: 미스가 난 '다음'에만 escapeBase를 floor(÷2)만큼 낮추는 2차 방어선이라
-    # 난이도보다 훨씬 약함(실측 1/70~1/100) — 기존 income×0.005 손짐작을 대체.
-    V["도주감소 (1%)"] = (ESCAPE_REDUCTION_WON_PER_POINT,
-                       "미스 후에만 발동하는 2차방어선+floor(÷2) 감쇠 (★실측, 기존 손짐작 대비 대폭하향)")
 
-    # ── 비수입 효용 (income≈0, 별도 평가) ─────────
-    # 행운 +1: 등급확률×(1+1/100). 희귀등급 수입기여≈0 → 수입가치 미미. 경험치(고등급 baseExp↑)+도감가치.
-    # 수입 델타: 분포를 1% 상향한 income 차이(거의 0)
-    dist2 = {g: p * (1.01 if g != "E" else 1) for g, p in dist.items()}
-    # 정규화
-    s = sum(v for k, v in dist2.items() if k != "E")
-    dist2["E"] = max(0, 1 - s)
-    income2 = avg_catch_value(dist2, price, size_score) * casts
-    V["행운 (1점)"] = (income2 - income, "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%")
-
-    # 경험치 +1%: 레벨링은 수입과 나란한 진행 트랙. +1%exp = +1% 레벨링 처리량.
-    # 병렬진행 휴리스틱: 레벨링 국면엔 진행 1%를 income 1%와 동가치로 본다 → 판매와 동률(1.0).
-    # 만렙 후엔 0. 단일 상수 불가라 '레벨링 값'을 기록하고 국면 태그를 단다.
-    V["경험치 (1%)"] = (income * 0.01, "★레벨링 국면: income 1%와 동가치(병렬진행). 만렙 후 0")
-
-    return income, avg, dist, V
+def print_stage(stage, r, anchor_name="판매보너스 (1%)"):
+    V = r["V"]
+    anchor = V[anchor_name][0]
+    print(f"\n{'='*112}")
+    print(f"[{stage}]  수입 {r['income']:,.0f}원/h  ·  포획 {CATCH_PER_HOUR}/h (실측) "
+          f"·  포획당 평균 {r['avg_catch']:,.0f}원")
+    print(f"  등급분포: " + " ".join(f"{g}{r['dist'][g]*100:.2f}%" for g in GRADE_ORDER if r['dist'][g] > 0.0001))
+    print(f"  미니게임 성공률(스탯0, 델타산출용): " + " ".join(f"{g}{r['succ'][g]*100:.0f}%" for g in GRADE_ORDER))
+    print("=" * 112)
+    print(f"{'스탯':<15}{'원/h/단위':>11}{'정규화':>8}{'상한':>6}{'최대기여':>13}{'최대정규화':>11}   근거")
+    print("─" * 112)
+    rows = sorted(V.items(), key=lambda kv: -(kv[1][0] * MAX_MAGNITUDE.get(kv[0], 1)))
+    out = {}
+    for name, (won, why) in rows:
+        mag = MAX_MAGNITUDE.get(name, 1)
+        mc = won * mag
+        norm = won / anchor if anchor else 0
+        mcn = mc / (anchor * MAX_MAGNITUDE[anchor_name]) if anchor else 0
+        print(f"{name:<15}{won:>11,.0f}{norm:>8.2f}{mag:>6}{mc:>13,.0f}{mcn:>11.2f}   {why}")
+        out[name] = {"won_per_unit": round(won, 1), "normalized": round(norm, 3),
+                     "max_magnitude": mag, "max_contribution_won": round(mc), "basis": why}
+    return out
 
 
 def main():
     ap = argparse.ArgumentParser()
-    skill = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    ap.add_argument("--snapshot", default=None)
-    ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
-    ap.add_argument("--size-score", type=int, default=DEFAULT_SIZE_SCORE)
-    ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE, help="기준 크리율(0~1), 크리배율 가치가 비례")
-    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~8), 크리확률 가치가 비례")
+    ap.add_argument("--stage", default=None, choices=list(STAGES))
+    ap.add_argument("--all-stages", action="store_true")
+    ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE)
+    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG)
+    ap.add_argument("--json", action="store_true", help="스냅샷 derived 병합용 JSON 출력")
     args = ap.parse_args()
 
-    snap_dir = os.path.join(skill, "audits", "snapshots")
-    if args.snapshot is None:
-        snaps = sorted(f for f in os.listdir(snap_dir) if f.endswith(".raw.json") and "pending" not in f)
-        args.snapshot = os.path.join(snap_dir, snaps[-1])
-    elif not os.path.exists(args.snapshot):
-        args.snapshot = os.path.join(snap_dir, args.snapshot)
-
-    snap = load_snapshot(args.snapshot)
-    income, avg, dist, V = compute(snap, args.casts, args.size_score, args.crit_rate, args.crit_dmg)
-
-    print(f"기준: {args.casts}캐스트/h, 크기점수{args.size_score}, 크리율{int(args.crit_rate*100)}%, 크리배율{args.crit_dmg}")
-    print(f"무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
-    anchor = V["판매보너스 (1%)"][0]
-    print(f"{'스탯':<15}{'원/h/단위':>9}{'정규화':>7}{'상한':>6}{'최대기여원/h':>12}{'최대정규화':>10}   근거")
-    print("─" * 110)
-    # 정렬: 최대기여(실제 천장 영향) 기준
-    def maxcontrib(name, won):
-        return won * MAX_MAGNITUDE.get(name, 1)
-    rows = sorted(V.items(), key=lambda kv: -maxcontrib(kv[0], kv[1][0]))
-    out = {}
-    for name, (won, why) in rows:
-        norm = won / anchor if anchor else 0
-        mag = MAX_MAGNITUDE.get(name, 1)
-        mc = won * mag
-        mcnorm = mc / (anchor * MAX_MAGNITUDE["판매보너스 (1%)"]) if anchor else 0
-        print(f"{name:<15}{won:>9,.0f}{norm:>7.2f}{mag:>6}{mc:>12,.0f}{mcnorm:>10.2f}   {why}")
-        out[name] = {"won_per_unit": round(won, 1), "normalized_per_unit": round(norm, 3),
-                     "max_magnitude": mag, "max_contribution_won": round(mc), "basis": why}
-
-    # JSON 출력(스냅샷 derived 병합용)
-    result = {"income_per_hour": round(income), "avg_catch": round(avg, 1),
-              "casts": args.casts, "size_score": args.size_score,
-              "crit_rate": args.crit_rate, "crit_dmg": args.crit_dmg, "anchor_won": round(anchor, 1),
-              "stat_values": out}
-    print("\n--- JSON ---")
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    stages = list(STAGES) if (args.all_stages or args.stage is None) else [args.stage]
+    print(f"기준: 포획 {CATCH_PER_HOUR}/h · 완주율 {COMPLETION:.0%} → 시도 {CASTS_PER_HOUR:.0f}/h · "
+          f"크기점수 {SIZE_SCORE} · 크리율 {args.crit_rate:.0%} · 크리배율 {args.crit_dmg}")
+    print("★구 버전(flat 확률 + 150캐스트)과 비교 불가 — 2026-08-05 전면 교체")
+    result = {}
+    for s in stages:
+        r = compute(s, args.crit_rate, args.crit_dmg)
+        result[s] = {"income_per_hour": round(r["income"]), "avg_catch": round(r["avg_catch"], 1),
+                     "stat_values": print_stage(s, r)}
+    if args.json:
+        print("\n--- JSON ---")
+        print(json.dumps({"casts_per_hour": round(CASTS_PER_HOUR, 1),
+                          "catch_per_hour": CATCH_PER_HOUR, "size_score": SIZE_SCORE,
+                          "stages": result}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
