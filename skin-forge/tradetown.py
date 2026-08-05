@@ -217,6 +217,7 @@ def build(v):
     tf.body(s, v, seed)
     tf.extra_cut(s, v, seed)    # 조끼·멜빵·새시 — 실루엣 한 겹
     tf.surface(s, v, seed)      # 옷 무늬 (소품보다 먼저)
+    tf.feminize(s, v, seed)     # ★여성 실루엣·옆머리 — 옷 다음, 소품 앞
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tt_{v['file']}.png"))

@@ -832,6 +832,31 @@ def surface(s, v, seed):
             g.pocket(s, r2, x=(1, 3), y=(7, 9), layer=L)
 
 
+def feminize(s, v, seed):
+    """여성 NPC 실루엣·얼굴 패스. 남성/아이에겐 아무 일도 하지 않는다.
+
+    ★2026-08-05 오너 지적("근본적인 원인 중 하나가 여자스킨이 없어")에 대한 처방.
+      그때까지 female=True가 하던 일은 뒷머리 1행 + 가르마 + 속눈썹 2px + 입술색뿐이라
+      여성 31명이 남성 몸에 치마만 입은 꼴이었다. 지오메트리가 남녀 동일한 모델에서
+      성별은 '칠해서' 만들어야 하고, 그 패스가 여기다.
+    ★옆머리(locks) 게이팅 — 1차에 "머리에 아무것도 안 쓴 사람만"으로 잡았더니 여성 13명 중
+      12명이 제외됐다(7명 두건·5명 braid). 옆머리는 이 해상도에서 성별을 만드는 가장 강한
+      신호라 그렇게 좁히면 처방 자체가 무효다. 지금은 <b>머리가 실제로 안 보이는 경우만</b> 끈다:
+        None/kerchief/cap → 옆머리 O (두건·모자는 천 아래 3행부터 시작해 위로 안 뜨게)
+        hood/coif         → 옆머리 X (머리를 통째로 감싼다)
+      braid는 배제 사유가 아니다 — 뒤로 묶은 머리와 얼굴 옆 머리는 실제로 공존한다.
+    ★아이(child)는 제외 — 체형 성별 신호를 아이에게 넣지 않는다.
+    """
+    if not v.get('female') or v.get('child'):
+        return
+    g.female_form(s, seed=seed)
+    head = v.get('head')
+    g.female_face(s, ramp(v['hair']), ramp(v['skin']),
+                  eye_y=v.get('eye_y', 4),
+                  locks=head not in ('hood', 'coif'),
+                  lock_y0=3 if head in ('kerchief', 'cap') else 1)
+
+
 def build(v):
     s = Skin()
     seed = v['cid']
@@ -839,6 +864,7 @@ def build(v):
     body(s, v, seed)
     extra_cut(s, v, seed)   # ★조끼·멜빵·새시 — 무늬보다 실루엣이 먼저 읽힌다
     surface(s, v, seed)     # ★무늬는 옷 다음, 소품 앞 — 소품 위에 줄무늬가 얹히면 안 된다
+    feminize(s, v, seed)    # ★여성 실루엣 — 반드시 옷·무늬 다음(옷이 덮으면 무효), 소품 앞
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tf_{v['file']}.png"))

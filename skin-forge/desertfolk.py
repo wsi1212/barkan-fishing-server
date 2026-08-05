@@ -370,11 +370,30 @@ def build_props(s, v, seed):
         g.patch(s, v['patch'], 'front', R('umber'), x=1, y=5, w=2, h=2, layer='outer')
 
 
+
+def feminize(s, v, seed):
+    """여성 실루엣·옆머리 패스 — townsfolk.feminize와 같은 처방(이 모듈은 townsfolk를
+    import하지 않아 중복 정의한다).
+
+    ★2026-08-05 오너 지적("근본적인 원인 중 하나가 여자스킨이 없어"): 그때까지 female=True가
+      하던 일은 속눈썹 2px + 입술색뿐이라 여성 NPC가 남성 몸에 옷만 갈아입은 꼴이었다.
+      바닐라 모델은 남녀 지오메트리가 같으므로 성별은 '칠해서' 만들어야 한다.
+    ★반드시 옷을 다 그린 뒤 호출 — 먼저 부르면 옷이 덮어 무효다.
+    """
+    if not v.get('female') or v.get('child'):
+        return
+    g.female_form(s, seed=seed)
+    hd = v.get('head')
+    g.female_face(s, ramp(v['hair']), ramp(v['skin']), eye_y=v.get('eye_y', 4),
+                  locks=hd not in ('veil',),
+                  lock_y0=3 if hd in ('turban', 'turban_big', 'cloth') else 1)
+
 def build(v):
     s = Skin()
     seed = v['cid']
     build_head(s, v, seed)
     build_body(s, v, seed)
+    feminize(s, v, seed)     # ★여성 패스 — 옷 다음, 소품 앞
     build_props(s, v, seed)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"df_{v['file']}.png"))
