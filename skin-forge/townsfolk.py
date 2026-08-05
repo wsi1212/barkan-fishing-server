@@ -500,7 +500,11 @@ def head(s, v, seed):
         f.rect(3, v.get('mouth_y', 6), 4, v.get('mouth_y', 6),
                ramp(v.get('lip', '9b5a52'))[2])          # 입술
     else:
-        g.mouth(s, skin, y=v.get('mouth_y', 6), w=v.get('mouth_w', 2))
+        # ★수염이 있으면 입을 더 어둡게 — 기본 skin[1]은 수염 톤과 명도가 붙어 입이
+        #   사라진다(2026-08-05 선원 실측: 그루터기 886145 옆의 입 816037이 안 보였다).
+        #   수염 속의 입은 '어두운 틈'이라 머리색을 절반 섞은 값이 맞다.
+        g.mouth(s, skin, y=v.get('mouth_y', 6), w=v.get('mouth_w', 2),
+                color=g.mix(skin[1], hair[1], 0.5) if v.get('beard') else None)
     if v.get('braid'):
         g.ponytail(s, hair, x0=3, w=2, y0=0, y1=5)
     # ★모자가 눈을 덮으면 안 된다(스킬 하드룰). eye_y를 아는 여기서 검사한다 —
