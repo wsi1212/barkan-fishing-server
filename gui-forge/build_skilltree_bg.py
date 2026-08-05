@@ -115,52 +115,15 @@ def piecewise_scale(art):
 
 
 def fill_black_corners(art):
-    """⑥ 둥근 프레임 바깥의 검은 모서리를 **원본 좌표**에서 채운다.
+    """(★현재 미사용 — main()에서 호출 안 함)
 
-    ★처음엔 조립된(스케일된) 이미지에서 sum<=24 임계값으로 찾았다가 실패했다 — 남색 패널
-      자체의 밝기도 sum~15~24라 패널 전체(216000여 픽셀)를 오검출해 망칠 뻔했다.
-      순수 (0,0,0)만 매칭해도 실패했다 — 실제 모서리는 완전한 (0,0,0)이 아니라 (1,1,0) 등
-      미세하게 다른 near-black이라 못 잡았다.
-    → 밝기 임계값으로 찾지 않는다. **원본(1114x1412)의 작은 모서리 크롭(70x70)** 안에서만
-      작업한다. 크롭 자체가 남색 패널에서 공간적으로 멀리 떨어져 있어 임계값이 아무리
-      느슨해도 패널을 건드릴 수 없다 — 안전한 건 색이 아니라 위치다.
-      측정: 원본에서 대각선 검은 길이 좌상36/우상39/좌하28/우하29px. BOX 95로 여유.
+    둥근 프레임 바깥의 검은 모서리를 nearest-fill로 채워보려 했으나, **우상단 모서리에는
+    원본 프레임 장식(해골 모티프, 은색/구리색)이 있다.** 이 함수가 그 장식의 밝은 픽셀을
+    소스로 집어 프레임 바깥 검은 영역까지 끌고 나가 버려서, 게임에서 보면 해골 장식 일부가
+    프레임 밖으로 스며나온 회색 돌기처럼 보였다(실사고 스크린샷 확인).
+    작은 검은 삼각 모서리를 그대로 두는 편이 이 부작용보다 훨씬 낫다 — 그래서 호출을 뺐다.
+    함수는 참고용으로 남겨둔다.
     """
-    W_, H_ = art.size
-    BOX = 95
-    corners = [(0, 0, 1, 1), (W_ - BOX, 0, -1, 1), (0, H_ - BOX, 1, -1), (W_ - BOX, H_ - BOX, -1, -1)]
-    for bx, by, dx, dy in corners:
-        crop = art.crop((bx, by, bx + BOX, by + BOX))
-        px = crop.load()
-
-        def lum(c):
-            return (c[0] * 2 + c[1] * 5 + c[2]) // 8
-
-        cx, cy = (0 if dx > 0 else BOX - 1), (0 if dy > 0 else BOX - 1)
-        for y in range(BOX):
-            yy = cy + dy * y if dy > 0 else y
-            for x in range(BOX):
-                xx = cx + dx * x if dx > 0 else x
-                # 실제 좌표는 위 계산이 헷갈리니 코너 앵커 기준으로 다시 표현
-                ax = x if dx > 0 else BOX - 1 - x
-                ay = y if dy > 0 else BOX - 1 - y
-                if lum(px[ax, ay][:3]) >= 22:
-                    continue
-                sx = ax
-                while 0 <= sx + dx < BOX and lum(px[sx + dx, ay][:3]) < 22:
-                    sx += dx
-                cand = px[sx + dx, ay] if 0 <= sx + dx < BOX and lum(px[sx + dx, ay][:3]) >= 22 else None
-                sy = ay
-                while 0 <= sy + dy < BOX and lum(px[ax, sy + dy][:3]) < 22:
-                    sy += dy
-                cand2 = px[ax, sy + dy] if 0 <= sy + dy < BOX and lum(px[ax, sy + dy][:3]) >= 22 else None
-                if cand and cand2:
-                    px[ax, ay] = cand if abs(sx - ax) < abs(sy - ay) else cand2
-                elif cand:
-                    px[ax, ay] = cand
-                elif cand2:
-                    px[ax, ay] = cand2
-        art.paste(crop, (bx, by))
     return art
 
 
@@ -187,7 +150,6 @@ def main():
         f"원본 크기 {art.size} 가 측정 경계와 다르다"
 
     erase_nodes(art)
-    fill_black_corners(art)
     im = piecewise_scale(art)
 
     px = im.load()
