@@ -1,113 +1,211 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 cross_economy_values.py — 전 경제(낚시·광질·농사·채집) 원재료에 골드 가치를 매기는 통합 모델.
 
+★2026-08-05 전면 재작성. 바뀐 것 두 가지:
+  1) **앵커가 단일 상수가 아니다.** 구 버전은 `ANCHOR_WON_PER_HOUR = 32489` 하나로 전 경제를
+     환산했는데, 그 값 자체가 틀렸고(피티 미반영 + 150캐스트/h 가정 → 실측의 1/3~1/16)
+     애초에 **구간마다 낚시 시급이 4배 차이**나서 단일 상수가 성립하지 않는다.
+     이제 낚시 시급을 구간별로 뽑아(price_ladder.stage_table) **활동의 레벨 게이트에 맞는
+     앵커**를 권장값으로 표시하고, 3개 앵커 전부를 병기한다.
+  2) **드랍 분포를 실제 가중치로 계산한다.** 구 버전은 섬광산 드랍을 손으로 적은 qty로
+     계산했는데, 스냅샷에 실제 weight/qty_min/qty_max가 있다(pull_mining.py).
+
 핵심 원칙: "시간"의 의미는 경제마다 다르다.
-- 능동 경제(낚시/드릴채굴/채집): 플레이어가 그 시간 동안 다른 걸 못 함 → 기회비용 = 낚시 시급(앵커).
-- 반능동(섬광산): 클릭 기반이나 바닐라 도구티어+호퍼캡으로 이미 안전하게 제약(운영자 확인) →
-  같은 앵커를 쓰되 "느긋한 채굴" 가정(광클 아님).
-- 수동 경제(농사): 성장시간 동안 플레이어는 자유(다른 활동 가능) → growSec 자체는 비용이 아니다.
-  진짜 비용은 "플롯 슬롯"(유한하고 돈으로 사야 함) 점유 기회비용.
+- 능동 경제(낚시/드릴채굴/채집): 그 시간 동안 다른 걸 못 함 → 기회비용 = 그 구간의 낚시 시급.
+- 반능동(섬광산): 클릭 기반이나 도구티어+호퍼캡으로 제약(운영자 확인) → 같은 앵커, 느긋한 채굴 가정.
+- 수동 경제(농사): 성장시간 동안 플레이어는 자유 → growSec는 비용이 아니다. 진짜 비용은
+  "플롯 슬롯"(유한하고 돈으로 사야 함) 점유 기회비용.
 
-앵커: 낚시 무버프 시급 32,489원/h = 9.0247원/초 (stat_value.py 기본 시나리오와 동일 소스).
+사용법: python3 cross_economy_values.py [--anchor 초반|중반|종결]
 """
-import json
+import argparse, importlib.util, json, os, sys
 
-ANCHOR_WON_PER_HOUR = 32489
-ANCHOR_WON_PER_SEC = ANCHOR_WON_PER_HOUR / 3600  # 9.0247
+HERE = os.path.dirname(os.path.abspath(__file__))
+SKILL = os.path.dirname(HERE)
 
-print("=" * 78)
-print(f"공통 앵커: 낚시 무버프 시급 {ANCHOR_WON_PER_HOUR:,}원/h = {ANCHOR_WON_PER_SEC:.4f}원/초")
-print("=" * 78)
 
-# ── 1. 광질 — 드릴채굴 (능동, breakTicks=활동시간, T1기준 표준 인건비) ──────
-print("\n### 광질 — 드릴채굴 (능동, T1 기준 breakTicks=활동시간)")
-drill_ores = [
-    ("얇은 흑정석 광맥", 30, "흑정석", 1),
-    ("흑정석 광맥", 50, "흑정석", 1.5),   # 1~2개 평균
-    ("풍부한 흑정석 광맥", 80, "흑정석", 2),  # 1~3개 평균
-    ("얇은 자수정 광맥", 40, "자수정", 1),
-    ("자수정 광맥", 60, "자수정", 1.5),
-    ("자수정 정동", 90, "자수정", 2),
-    ("자수정 군집", 70, "자수정", 1.5),
-]
-mineral_unit_values = {}
-for label, ticks, drop, qty in drill_ores:
-    sec = ticks / 20
-    won = sec * ANCHOR_WON_PER_SEC
-    per_unit = won / qty
-    print(f"  {label:<14} {sec:>5.1f}초 → 블록당 {won:>6.1f}원 → {drop} 1개당 {per_unit:>6.1f}원")
-    mineral_unit_values.setdefault(drop, []).append(per_unit)
+def _load_price_ladder():
+    spec = importlib.util.spec_from_file_location("price_ladder", os.path.join(HERE, "price_ladder.py"))
+    m = importlib.util.module_from_spec(spec)
+    saved, sys.argv = sys.argv, ["price_ladder"]
+    spec.loader.exec_module(m)
+    sys.argv = saved
+    return m
 
-for k in list(mineral_unit_values):
-    mineral_unit_values[k] = sum(mineral_unit_values[k]) / len(mineral_unit_values[k])
-print(f"\n  → 흑정석 평균단가 {mineral_unit_values['흑정석']:.1f}원/개, 자수정 평균단가 {mineral_unit_values['자수정']:.1f}원/개")
 
-# 압축흑정석 = 흑정석9개 조합 (조합 자체는 무료, 재료비만)
-compressed_bg = mineral_unit_values['흑정석'] * 9
-print(f"  압축흑정석(흑정석9 조합) 재료가치 = {compressed_bg:.0f}원")
+PL = _load_price_ladder()
+_STAGES = {r["grade"]: r for r in PL.stage_table()}
 
-# ── 2. 광질 — 섬광산 (반능동, 가정: 블록당 1.5초 느긋한 채굴 — 광클 아님, 운영자 확인 반영) ──
-print("\n### 광질 — 섬광산 (반능동, ★가정: 블록당 1.5초 — 도구상한+실측으로 광클 불가 확인됨)")
-ASSUMED_SEC_PER_BLOCK = 1.5
-island_ores = [
-    ("돌", "cobblestone", 1), ("석탄", "coal", 1), ("철", "raw_iron", 1),
-    ("구리", "raw_copper", 3), ("금", "raw_gold", 1), ("청금석", "lapis_lazuli", 6),
-    ("다이아몬드", "diamond", 1), ("에메랄드", "emerald", 1),
-]
-island_unit_values = {}
-won_per_block = ASSUMED_SEC_PER_BLOCK * ANCHOR_WON_PER_SEC
-for label, drop, qty in island_ores:
-    per_unit = won_per_block / qty
-    island_unit_values[label] = per_unit
-    print(f"  {label:<8}({drop:<12}) 평균{qty}개/블록 → {per_unit:>6.1f}원/개")
-
-# 강화X = 바닐라 원석 16개 압축
-print("\n  강화계열(원석×16 압축) 재료가치:")
-for name, base in [("강화철괴", island_unit_values["철"]), ("강화금괴", island_unit_values["금"]),
-                    ("강화다이아몬드", island_unit_values["다이아몬드"]), ("강화에메랄드", island_unit_values["에메랄드"]),
-                    ("강화청금석", island_unit_values["청금석"]), ("강화석탄", island_unit_values["석탄"])]:
-    print(f"    {name}: {base*16:.0f}원")
-
-# ── 3. 농사 — 크롭 (수동, 슬롯 임대료 모델) ──────────────────────────────
-print("\n### 농사 — 크롭 (수동, ★슬롯 임대료 모델: growSec는 비용 아님)")
-print("  방법: 슬롯 1개의 '가치'는 그 슬롯이 낼 수 있는 최선의 산출(밀=9.00개/h)에 준한다고 가정")
-print("  (합리적 농부라면 최고효율 작물로 슬롯을 채우므로, 슬롯의 기회비용=밀 재배 포기분)")
-print("  단, 작물별 개/h가 다르므로 '작물 하나의 가치' = 슬롯임대료 ÷ 그 작물의 개/h")
-crops = [("밀", 1200, 3), ("당근", 1800, 2), ("감자", 2700, 2), ("토마토", 3600, 2),
-         ("양배추", 1500, 2), ("버섯", 2400, 3), ("수박", 86400, 4)]
-# 슬롯임대료 추정: 5레벨(32칸) 총 810,000원을 "슬롯-생애가치"로 보고, 생애를 밀 300회 수확(약 100h)으로 가정
-# → 슬롯당 부담 810,000/32 = 25,312.5원 ì 100h = 253.1원/h (근사, 명시적 가정)
-SLOT_LIFETIME_HOURS = 100  # ★가정치 — 명시. 실측 대체 가능(플레이어 평균 사용기간 확인 시)
-slot_won_per_hour = (810000 / 32) / SLOT_LIFETIME_HOURS
-print(f"  슬롯당 시간가치 가정: {slot_won_per_hour:.1f}원/h (★가정: 슬롯비용 25,312.5원 ÷ {SLOT_LIFETIME_HOURS}h 수명)")
-for name, sec, qty in crops:
-    per_h = qty * 3600 / sec
-    slot_cost_per_batch = slot_won_per_hour * sec / 3600
-    per_unit = slot_cost_per_batch / qty
-    print(f"  {name:<6} {qty}개/{sec/60:.0f}분 ({per_h:.2f}개/h) → 1개당 슬롯비용 {per_unit:>6.2f}원")
-
-# ── 4. 채집 (능동, 8스윙 행동시간 + 희귀도 배율) ────────────────────────
-print("\n### 채집 (능동, 8스윙×평균1.2초=행동시간, 희귀는 쿨타임비 배율 적용)")
-SWINGS = 8
-AVG_SWING_SEC = 1.2  # (0.35~2초 구간 중간값 가정)
-action_sec = SWINGS * AVG_SWING_SEC
-action_won = action_sec * ANCHOR_WON_PER_SEC
-print(f"  1회 채집 행동시간 {action_sec:.1f}초 → 행동가치 {action_won:.1f}원 (흔함 기준선)")
-common_cd, rare_cd = 5400, 72000
-scarcity_mult = rare_cd / common_cd
-print(f"  희귀 쿨타임비(20h/1.5h)={scarcity_mult:.2f}배 → 희귀 채집물 가치 ≈ {action_won*scarcity_mult:.0f}원")
-print(f"  ★가정 명시: 행동시간은 확정(코드), 노드밀도(실제 시간당 몇 회 가능한지)는 서버빌드 데이터라 미지수.")
-print(f"  위 값은 '행동당 최소가치'(floor) — 실제 개/h는 밀도에 따라 이보다 낮아질 수 있음(대기시간 포함 시).")
-
-print("\n" + "=" * 78)
-print("전체 요약 (개당 원화가치)")
-print("=" * 78)
-summary = {
-    "흑정석": mineral_unit_values['흑정석'], "자수정": mineral_unit_values['자수정'],
-    "압축흑정석": compressed_bg,
-    **{k: v for k, v in island_unit_values.items()},
-    "채집(흔함, floor)": action_won, "채집(희귀, floor)": action_won * scarcity_mult,
+# 구간 앵커 — 낚시 시급(원/h). ★단일 상수 금지. price_ladder와 같은 소스에서 파생된다.
+ANCHORS = {
+    "초반": _STAGES["D"]["won_h"],   # Lv5~9   스폰도시 풀
+    "중반": _STAGES["B"]["won_h"],   # Lv20~39 강/붉은사막 풀
+    "종결": _STAGES["S"]["won_h"],   # Lv60~70 늪지대 전등급 풀
 }
-for k, v in sorted(summary.items(), key=lambda x: -x[1]):
-    print(f"  {k:<16} {v:>8.1f}원")
+
+# 활동별 권장 앵커 — 그 콘텐츠의 레벨 게이트로 결정한다(코드 실측).
+RECOMMENDED = {
+    "드릴 T1 (흑정석)": "중반",     # 레벨 게이트 없음(3,000원 구매) — 실사용은 중반
+    "드릴 T2 (철광석)": "중반",     # DrillShopGui.T2_LEVEL = 15
+    "드릴 T3 (자수정)": "중반",     # DrillShopGui.T3_LEVEL = 30 (B구간 20~39 안)
+    "섬광산": "중반",               # 레벨 게이트 없음, 개인섬 필요
+    "농사(특수작물)": "중반",       # 섬 플롯 업그레이드가 실질 게이트
+    "채집": "중반",                 # 지역 접근이 실질 게이트
+}
+
+
+def load_snapshot(name):
+    p = os.path.join(SKILL, "audits", "snapshots", name)
+    with open(p, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def won_per_sec(anchor_name):
+    return ANCHORS[anchor_name] / 3600.0
+
+
+def fmt(v):
+    return f"{v:,.0f}"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--anchor", default="중반", choices=list(ANCHORS))
+    ap.add_argument("--mining-snapshot", default="2026-08-05-mining.raw.json")
+    ap.add_argument("--farming-snapshot", default="2026-08-05-farming.raw.json")
+    args = ap.parse_args()
+
+    print("=" * 82)
+    print("공통 앵커 — ★단일 상수가 아니다 (구 32,489원/h는 2026-08-05 폐기)")
+    print("=" * 82)
+    for k, v in ANCHORS.items():
+        print(f"  {k:<4} {fmt(v):>10}원/h = {v/3600:>7.2f}원/초"
+              f"{'   ← 기본 표시 앵커' if k == args.anchor else ''}")
+    print("  근거: price_ladder.stage_table() — 실측 220 포획/h + 피티 반영 몬테카를로")
+
+    mine = load_snapshot(args.mining_snapshot)["raw"]
+    farm = load_snapshot(args.farming_snapshot)["raw"]
+    wps = won_per_sec(args.anchor)
+
+    # ── 1. 광질 — 드릴채굴 ────────────────────────────────────────────────
+    print("\n" + "=" * 82)
+    print(f"### 광질 — 드릴채굴 (능동, break_ticks = 활동시간)   앵커: {args.anchor}")
+    print("=" * 82)
+    print(f"{'광맥':<16}{'T':>2}{'활동':>7}{'평균개':>7}{'블록당':>10}{'개당':>10}   재생")
+    print("─" * 82)
+    tier_units = {}
+    for o in mine["drill"]["ores"]:
+        sec = o["break_ticks"] / 20.0
+        qty = (o["qty_min"] + o["qty_max"]) / 2.0
+        won = sec * wps
+        per_unit = won / qty
+        tier_units.setdefault(o["drop"], []).append(per_unit)
+        print(f"{o['label']:<16}{o['tier']:>2}{sec:>6.1f}초{qty:>7.1f}{fmt(won):>10}{fmt(per_unit):>10}"
+              f"   {o['regen_sec']}초")
+    mineral = {k: sum(v) / len(v) for k, v in tier_units.items()}
+    print("\n  → 평균 단가: " + " · ".join(f"{k} {fmt(v)}원/개" for k, v in mineral.items()))
+    print(f"  압축흑정석(흑정석×9) = {fmt(mineral['흑정석']*9)}원 · "
+          f"압축철광석(철광석×9) = {fmt(mineral['철광석']*9)}원")
+    print("  ★주의: 위는 '활동시간만' 센 상한값이다. 광맥 재생 180~480초라 노드 수가 적으면"
+          "\n    대기시간이 붙어 실제 개/h는 이보다 낮고 → 개당 실질가치는 더 높다.")
+
+    # ── 2. 광질 — 섬광산 (실제 weight/qty 반영) ──────────────────────────
+    print("\n" + "=" * 82)
+    print(f"### 광질 — 섬광산 (반능동, 블록당 {1.5}초 가정 — 도구상한+호퍼캡으로 광클 불가)")
+    print("=" * 82)
+    SEC_PER_BLOCK = 1.5
+    won_block = SEC_PER_BLOCK * wps
+    print(f"  블록 1개 = {SEC_PER_BLOCK}초 → {fmt(won_block)}원의 노동")
+    print("  ★배분 방식(2026-08-05 수정): 한 블록은 **고를 수 없는 결합생산물**이라 '블록노동÷수량'으로"
+          "\n    개당가를 매기면 확률이 통째로 무시된다(구 버전 오류 — 돌과 다이아가 같은 값이 나옴).")
+    print("    희소도 비례 배분을 쓴다: value_i ∝ 1/기대산출_i 이고, 전체 배분액이 블록노동과 같도록"
+          "\n    정규화 → value_i = 블록노동 / (종류수 × 기대산출_i).")
+    print(f"\n{'광물':<10}{'확률':>7}{'평균개':>8}{'기대개/블록':>12}{'개당가치':>12}{'몇블록/개':>11}")
+    print("─" * 82)
+    island = {}
+    ores = mine["island_mine"]["ores"]
+    n_types = len(ores)
+    for o in ores:
+        p = o["chance_pct"] / 100.0
+        qty = (o["qty_min"] + o["qty_max"]) / 2.0
+        exp = p * qty                       # 블록당 기대 산출
+        per_unit = won_block / (n_types * exp) if exp else 0
+        island[o["label"]] = per_unit
+        print(f"{o['label']:<10}{o['chance_pct']:>6.1f}%{qty:>8.1f}{exp:>12.3f}{fmt(per_unit):>12}"
+              f"{1/exp if exp else 0:>11.1f}")
+    print("\n  강화계열(원석×16 압축) 재료가치:")
+    for name, base in [("강화철괴", "철"), ("강화금괴", "금"), ("강화다이아몬드", "다이아몬드"),
+                       ("강화에메랄드", "에메랄드"), ("강화청금석", "청금석"), ("강화석탄", "석탄")]:
+        print(f"    {name:<14}{fmt(island[base]*16):>12}원")
+
+    # ── 3. 농사 — 슬롯 임대료 모델 ────────────────────────────────────────
+    print("\n" + "=" * 82)
+    print("### 농사 — 특수작물 (수동, 슬롯 임대료 모델: growSec는 비용이 아니다)")
+    print("=" * 82)
+    lim = farm["plot_limits"]["individual"]
+    total_price = sum(lim["price"])
+    max_slots = max(lim["limit"])
+    SLOT_LIFETIME_HOURS = 100  # ★가정 — 실측 대체 가능(플레이어 평균 사용기간)
+    slot_h = (total_price / max_slots) / SLOT_LIFETIME_HOURS
+    print(f"  플롯 업그레이드 총액 {fmt(total_price)}원 ÷ {max_slots}슬롯 ÷ {SLOT_LIFETIME_HOURS}h"
+          f" = 슬롯당 {slot_h:.1f}원/h (★수명은 가정치)")
+    print(f"\n{'작물':<8}{'성장':>8}{'수확':>6}{'개/h':>8}{'슬롯비용/개':>13}{'앵커대비':>10}")
+    print("─" * 82)
+    for c in farm["crops"]:
+        sec, qty = c["grow_sec"], c["qty"]
+        per_h = c["qty_per_hour"]
+        slot_cost = slot_h * sec / 3600.0
+        per_unit = slot_cost / qty
+        print(f"{c['id']:<8}{sec/60:>6.0f}분{qty:>6}{per_h:>8.2f}{per_unit:>13.2f}"
+              f"{per_unit/ANCHORS[args.anchor]*3600:>9.2f}초")
+    print("  ★해석: 작물 1개의 '원가'는 슬롯 점유 임대료뿐이라 극히 싸다(수 초 노동 상당).")
+    print("    즉 농사는 시간이 아니라 **슬롯 수**가 병목 — 수익성 판정은 개당가가 아니라"
+          "\n    '슬롯당 시간수익(원/슬롯/h)'으로 해야 한다.")
+    print(f"\n{'작물':<8}{'슬롯당 시간수익 지표(개/h)':>26}   ※제출/요리 가치는 별도")
+    for c in sorted(farm["crops"], key=lambda x: -x["qty_per_hour"]):
+        print(f"{c['id']:<8}{c['qty_per_hour']:>20.2f} 개/h")
+
+    # ── 4. 채집 ──────────────────────────────────────────────────────────
+    print("\n" + "=" * 82)
+    print("### 채집 (능동, 8스윙 리듬 미니게임 + 유저별 쿨타임)")
+    print("=" * 82)
+    SWINGS, AVG_SWING_SEC = 8, 1.2
+    action_sec = SWINGS * AVG_SWING_SEC
+    action_won = action_sec * wps
+    COMMON_CD, RARE_CD = 5400, 72000     # ForageManager: 흔함 90분 / 희귀 20시간
+    scarcity = RARE_CD / COMMON_CD
+    print(f"  1회 채집 행동 {action_sec:.1f}초 → {fmt(action_won)}원 (흔함 기준선)")
+    print(f"  희귀 쿨타임비 {RARE_CD/3600:.0f}h / {COMMON_CD/3600:.1f}h = {scarcity:.2f}배"
+          f" → 희귀 1회 ≈ {fmt(action_won*scarcity)}원")
+    print("  ★이 값은 floor(하한)다 — 노드 밀도(시간당 몇 회 가능한가)는 서버 빌드 데이터라 미지수.")
+
+    # ── 5. 요약 + 3앵커 병기 ─────────────────────────────────────────────
+    print("\n" + "=" * 82)
+    print("요약 — 개당 원화가치 (3개 앵커 병기)")
+    print("=" * 82)
+    base = {
+        "흑정석": mineral["흑정석"], "철광석": mineral["철광석"], "자수정": mineral["자수정"],
+        "압축흑정석": mineral["흑정석"] * 9, "압축철광석": mineral["철광석"] * 9,
+        **island,
+        "채집(흔함)": action_won, "채집(희귀)": action_won * scarcity,
+    }
+    ratio = {k: ANCHORS[k] / ANCHORS[args.anchor] for k in ANCHORS}
+    print(f"{'재료':<16}" + "".join(f"{k:>12}" for k in ANCHORS) + "   권장앵커")
+    print("─" * 82)
+    rec_of = {"흑정석": "드릴 T1 (흑정석)", "압축흑정석": "드릴 T1 (흑정석)",
+              "철광석": "드릴 T2 (철광석)", "압축철광석": "드릴 T2 (철광석)",
+              "자수정": "드릴 T3 (자수정)",
+              "채집(흔함)": "채집", "채집(희귀)": "채집"}
+    for k, v in sorted(base.items(), key=lambda x: -x[1]):
+        act = rec_of.get(k, "섬광산")
+        print(f"{k:<16}" + "".join(f"{fmt(v*ratio[a]):>12}" for a in ANCHORS)
+              + f"   {RECOMMENDED[act]}({act})")
+    print("\n※ 구 버전 대비: 앵커가 32,489 → 중반 기준 "
+          f"{ANCHORS['중반']:,.0f}원/h 이므로 전 재료 가치가 일괄 "
+          f"×{ANCHORS['중반']/32489:.2f} (종결 앵커면 ×{ANCHORS['종결']/32489:.2f}).")
+
+
+if __name__ == "__main__":
+    main()

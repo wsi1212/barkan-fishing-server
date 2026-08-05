@@ -84,9 +84,16 @@ description: >-
 | 📜 퀘스트/도전과제 보상 + 마을별 난이도분포 | ✅ 완료(2026-07-25) — 🟡 콘텐츠 갭 다수(수치문제 아님) | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목3·5 |
 | ⚙️ 드릴 최종값 | ⚠️ 재개필요(2026-08-03) — 확정구조 **T1 흑정석/T2 철광석(둘 다 mine 월드)/T3 자수정(레드_로드 전용)**, 셋 다 실제 빌드 확인. ★regions.json "광산" 지역은 채굴처 **아님**(채굴 존 등록 금지). 미해결=**철광석 소비 레시피 0건**(T2 산출물 쓸 데 없음), 유저 결정 대기 | [mining-data-sources.md](references/mining-data-sources.md) | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목4·조치완료3 |
 
-**전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
-시급 32,489원/h를 공통 앵커로, 4개 경제(낚시/광질/농사/채집) 전 원재료에 골드가치 산출 완료
-(2026-07-25). 재계산: `scripts/cross_economy_values.py`.
+**전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) —
+★2026-08-05 전면 재산정. 구 단일 앵커 32,489원/h는 **폐기**했다(피티 미반영 + 150캐스트 가정의
+곱절 오류, 게다가 구간마다 시급이 4배 차이나 단일 상수가 성립하지 않음). 지금은 **구간별 앵커**
+(초반 95,403 / 중반 133,022 / 종결 370,210원/h)를 쓰고, 활동의 레벨 게이트에 맞는 것을 권장값으로
+표시한다. 앵커는 `price_ladder.py`에서 자동 파생되므로 낚시 수치가 바뀌면 전 경제가 같이 갱신된다.
+재계산: `scripts/cross_economy_values.py --anchor 중반`.
+
+**장비/소모처 가격 사다리**: [scripts/price_ladder.py](scripts/price_ladder.py) — 실측 처리량
+(220 포획/h) + 피티 반영 MC로 구간 수입을 뽑고, "풀세팅 = 구간 수입의 45%" 기준으로 장비 가격
+밴드를, "쓰는 시점의 노동시간" 기준으로 소모처 값을 역산한다. 2026-08-05 리프라이싱의 근거.
 
 ### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
 1. 그 경제의 코드/JSON 위치를 파악(Agent로 조사 — 이 스킬이 아직 모르는 시스템일 확률 높음).

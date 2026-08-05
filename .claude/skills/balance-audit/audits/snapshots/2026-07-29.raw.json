@@ -1,0 +1,317 @@
+{
+  "date": "2026-07-29",
+  "source_roots": {
+    "java": "/Users/user/development/blockship-plugin/src/main/java/com/blockship",
+    "json": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
+  },
+  "raw": {
+    "leveling": {
+      "max_level": 100,
+      "base_req_exp": 200,
+      "tier_walls": [
+        {
+          "below_level": 15,
+          "mult": 1.04
+        },
+        {
+          "below_level": 25,
+          "mult": 1.08
+        },
+        {
+          "below_level": 40,
+          "mult": 1.05
+        },
+        {
+          "below_level": 50,
+          "mult": 1.09
+        },
+        {
+          "below_level": 60,
+          "mult": 1.06
+        }
+      ],
+      "tier_wall_top": 1.1,
+      "max_grade_unlock": [
+        {
+          "level": 30,
+          "grade_num": 7
+        },
+        {
+          "level": 45,
+          "grade_num": 8
+        },
+        {
+          "level": 60,
+          "grade_num": 9
+        }
+      ],
+      "cumulative_xp": {
+        "30": 12807,
+        "45": 34113,
+        "60": 96931,
+        "70": 201961,
+        "100": 3013697
+      }
+    },
+    "economy": {
+      "grade_base_price": {
+        "E": 100,
+        "D": 250,
+        "C": 600,
+        "B": 2000,
+        "A": 6000,
+        "S": 20000,
+        "M": 65000,
+        "L": 170000,
+        "G": 450000
+      },
+      "quality_formula": {
+        "floor": 0.5,
+        "slope": 0.5,
+        "div": 100
+      },
+      "freshness_buckets": [
+        {
+          "age_min_max": 15,
+          "mult": 1.0
+        },
+        {
+          "age_min_max": 40,
+          "mult": 0.85
+        },
+        {
+          "age_min_max": 90,
+          "mult": 0.65
+        },
+        {
+          "age_min_max": 180,
+          "mult": 0.4
+        }
+      ],
+      "max_money": 1000000000000000,
+      "submit_fish_by_grade": {
+        "E": 1,
+        "D": 2,
+        "C": 5,
+        "B": 15,
+        "A": 50,
+        "S": 200,
+        "M": 700,
+        "L": 1800,
+        "G": 5000
+      },
+      "submit_reward_keys": [
+        "island",
+        "guild"
+      ],
+      "submit_reward_cap": 1000000,
+      "quest_rewards": {
+        "count": 203,
+        "sum": 1827650,
+        "max": 50000,
+        "min": 200
+      },
+      "pearl_drop_chance": {
+        "강_상류": 4,
+        "정상": 8,
+        "바르칸": 3,
+        "붉은사막": 3,
+        "대양": 3,
+        "원양어선": 6,
+        "늪지대": 3,
+        "붉은호수": 3,
+        "물보라동굴": 3,
+        "깊은호수": 7,
+        "기억의연못": 5
+      },
+      "pearl_drop_max": 8,
+      "afk_sweep_sec": 10,
+      "afk_idle_sec": 600
+    },
+    "rng": {
+      "grade_base_prob": {
+        "G": 1.75e-05,
+        "L": 0.0021,
+        "M": 0.0105,
+        "S": 0.21,
+        "A": 0.7,
+        "B": 1.868,
+        "C": 7.13,
+        "D": 21.12
+      },
+      "grade_gate": {
+        "G": 9,
+        "L": 8,
+        "M": 7,
+        "S": 0,
+        "A": 0,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "combo_step": null,
+      "combo_cap_pct": null,
+      "grade_up_cap": null,
+      "casino": {
+        "slot_bet_unit": 1000,
+        "slot_outcome_tickets": 10000,
+        "slot_winning_tickets": 4700,
+        "slot_theoretical_rtp_bps": 9392,
+        "slot_house_edge_pct": 6.08,
+        "poker_rake_pct": 5.0,
+        "seotda_cap_mult": 20
+      }
+    },
+    "equipment": {
+      "part_counts": {
+        "낚싯대": 22,
+        "릴": 12,
+        "줄": 14,
+        "바늘": 14,
+        "미끼": 13,
+        "찌": 11
+      },
+      "part_total": 86,
+      "enhance_cost": [
+        0,
+        700,
+        1800,
+        3500,
+        7000,
+        14000,
+        28000,
+        52000,
+        90000,
+        140000,
+        250000,
+        420000,
+        700000,
+        1250000,
+        2100000,
+        3500000,
+        5000000,
+        6300000,
+        7700000,
+        9000000,
+        11000000
+      ],
+      "enhance_success": [
+        0,
+        100,
+        95,
+        90,
+        85,
+        75,
+        65,
+        55,
+        46,
+        40,
+        35,
+        30,
+        26,
+        23,
+        20,
+        17,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "enhance_down": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        8,
+        11,
+        14,
+        17,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        45,
+        50,
+        55,
+        60,
+        65
+      ],
+      "enhance_pearl": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        7,
+        8,
+        8,
+        9,
+        9,
+        10,
+        10
+      ],
+      "enhance_checkpoint": [
+        5,
+        10,
+        15
+      ],
+      "enhance_stat_order": [
+        "나뭇가지",
+        "대나무 막대기",
+        "행운의 낚싯대",
+        "참나무 낚싯대",
+        "경험의 낚싯대",
+        "낚시꾼의 낚싯대",
+        "대물 낚싯대",
+        "강화목 낚싯대",
+        "쌍둥이 낚싯대",
+        "황금 낚싯대",
+        "견고한 낚싯대",
+        "전문가 낚싯대",
+        "행운꾼의 낚싯대",
+        "흑단목 낚싯대",
+        "명인의 낚싯대",
+        "대어꾼의 낚싯대",
+        "상인의 낚싯대",
+        "학자의 낚싯대",
+        "용왕의 낚싯대",
+        "심해 낚싯대",
+        "바르칸 낚싯대",
+        "초보 낚싯대",
+        "잉어꾼의 낚싯대",
+        "사막 낚싯대",
+        "여명의 낚싯대",
+        "수호자의 낚싯대",
+        "신기루 낚싯대",
+        "사막군주의 낚싯대",
+        "행상인의 낚싯대",
+        "대상인의 낚싯대",
+        "천공의 낚싯대"
+      ],
+      "enhance_stat_levels": 31,
+      "enhance_expected_attempts": {
+        "5": 4.3,
+        "10": 13.7,
+        "15": 33.1,
+        "16": 39.0,
+        "20": 167.3
+      }
+    }
+  },
+  "warnings": [],
+  "derived": {}
+}

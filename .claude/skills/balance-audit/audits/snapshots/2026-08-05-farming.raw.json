@@ -1,0 +1,97 @@
+{
+  "date": "2026-08-05",
+  "economy": "farming",
+  "raw": {
+    "crops": [
+      {
+        "id": "밀",
+        "name": "§f특수 밀",
+        "grow_sec": 1200,
+        "qty": 3,
+        "qty_per_hour": 9.0
+      },
+      {
+        "id": "당근",
+        "name": "§6특수 당근",
+        "grow_sec": 1800,
+        "qty": 2,
+        "qty_per_hour": 4.0
+      },
+      {
+        "id": "감자",
+        "name": "§e특수 감자",
+        "grow_sec": 2700,
+        "qty": 2,
+        "qty_per_hour": 2.667
+      },
+      {
+        "id": "토마토",
+        "name": "§c특수 토마토",
+        "grow_sec": 3600,
+        "qty": 2,
+        "qty_per_hour": 2.0
+      },
+      {
+        "id": "양배추",
+        "name": "§a특수 양배추",
+        "grow_sec": 1500,
+        "qty": 2,
+        "qty_per_hour": 4.8
+      },
+      {
+        "id": "버섯",
+        "name": "§e특수 버섯",
+        "grow_sec": 2400,
+        "qty": 3,
+        "qty_per_hour": 4.5
+      },
+      {
+        "id": "수박",
+        "name": "§a특수 수박",
+        "grow_sec": 86400,
+        "qty": 4,
+        "qty_per_hour": 0.167
+      }
+    ],
+    "plot_limits": {
+      "individual": {
+        "limit": [
+          0,
+          4,
+          8,
+          12,
+          20,
+          32
+        ],
+        "price": [
+          0,
+          0,
+          30000,
+          80000,
+          200000,
+          500000
+        ]
+      },
+      "guild": {
+        "limit": [
+          0,
+          4,
+          8,
+          12,
+          20,
+          32
+        ],
+        "price": [
+          0,
+          0,
+          150000,
+          400000,
+          1000000,
+          2500000
+        ]
+      }
+    }
+  },
+  "warnings": [],
+  "derived": {}
+}

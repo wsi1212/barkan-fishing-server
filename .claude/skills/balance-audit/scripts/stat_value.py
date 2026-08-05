@@ -9,16 +9,16 @@ stat_value.py — 스탯별 실질가치 산정 (공통화폐 = 원/h 환산).
 - 수입 앵커: 판매보너스 +1% = income×0.01. 다른 수입계 스탯을 여기 맞춰 환산.
 - ★수입가치 ≠ 직관가치: 행운의 수입가치는 '희귀등급'이 아니라 흔한 D/C 등급 확률 상향(E→D
   질량이동)에서 나온다. 희귀등급(M/L/G) 자체는 수입 기여 ≈0 (fish.json 개별가 없음 → 가격=
-  grade×quality, G조차 6,700캐스트당 1마리). 행운의 추가 효용(도감/고등급 baseExp)은 별도.
+  grade×크기점수, G조차 6,700캐스트당 1마리). 행운의 추가 효용(도감/고등급 baseExp)은 별도.
   이런 '어디서 가치가 나오나'를 표의 근거란에 명시한다 — 직관이 틀리기 쉬운 지점.
 
-사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--quality 50]
+사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--size-score 50]
 """
 import argparse, json, os
 
 # 미니게임 1판 ≈ 24초 가정 → 150판/h. balance.md 기준.
 DEFAULT_CASTS = 150
-DEFAULT_QUALITY = 50  # 평균 품질 (FishItem.quality 기본 50)
+DEFAULT_SIZE_SCORE = 50  # 평균 크기점수 (FishItem.sizeScore 기본 50)
 DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정). 크리배율 가치는 여기 비례.
 DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 폐지). 크리확률 가치는 여기 비례.
 CRIT_PRICE_COEF = 0.06    # 2026-07-24 신설: 크리 시 판매가 직접 ×(1+critDmg×COEF). FishingListener.java 참조.
@@ -50,9 +50,9 @@ def load_snapshot(path):
         return json.load(f)
 
 
-def qmult(quality):
-    """가격 품질배율 0.5 + q*0.5/100."""
-    return 0.5 + quality * 0.5 / 100.0
+def size_score_mult(size_score):
+    """가격 크기점수 배율 0.5 + size_score*0.5/100."""
+    return 0.5 + size_score * 0.5 / 100.0
 
 
 def grade_distribution(prob, max_rank=9):
@@ -67,21 +67,21 @@ def grade_distribution(prob, max_rank=9):
     return dist
 
 
-def avg_catch_value(dist, price, quality):
-    """캐스트당 평균 판매가 (품질배율 적용)."""
-    m = qmult(quality)
+def avg_catch_value(dist, price, size_score):
+    """캐스트당 평균 판매가 (크기점수 배율 적용)."""
+    m = size_score_mult(size_score)
     return sum(dist[g] * price.get(g, 0) * m for g in dist)
 
 
-def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
+def compute(snapshot, casts, size_score, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     raw = snapshot["raw"]
     prob = raw["rng"]["grade_base_prob"]
     price = raw["economy"]["grade_base_price"]
     dist = grade_distribution(prob)
-    avg = avg_catch_value(dist, price, quality)
+    avg = avg_catch_value(dist, price, size_score)
     income = avg * casts  # 원/h (무버프)
 
-    m = qmult(quality)
+    m = size_score_mult(size_score)
     V = {}  # stat -> (원/h per unit, 근거)
 
     # ── 순수 수입계 ──────────────────────────────
@@ -100,19 +100,19 @@ def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFA
         jump += dist.get(g, 0) * (price.get(nxt, 0) - price.get(g, 0)) * m
     V["등급업 (1%)"] = (0.01 * jump * casts, "1% 캐스트 1티어↑, 분포가중 가격차")
 
-    # 크기 +1%: size×1.01 → quality 상승 → 가격. 어종편차 큼(중간밴드 근사).
-    # 중간밴드(q≈50, size≈range) 가정: +1%size ≈ +1 quality; +1 quality → mult +0.005 → 가격 +0.005/m
-    price_per_quality = 0.005 / m  # 가격 상대증가율 per +1 quality
-    V["크기 (1%)"] = (income * price_per_quality * 1.0, "+1%size≈+1quality (★어종편차 큼)")
+    # 크기 +1%: size×1.01 → 크기점수 상승 → 가격. 어종편차 큼(중간밴드 근사).
+    # 중간밴드(score≈50, size≈range) 가정: +1%size ≈ +1 score; +1 score → mult +0.005 → 가격 +0.005/m
+    price_per_size_score = 0.005 / m  # 가격 상대증가율 per +1 크기점수
+    V["크기 (1%)"] = (income * price_per_size_score * 1.0, "+1%size≈+1크기점수 (★어종편차 큼)")
 
     # ── 크리 (★시너지·기준점 의존, 2026-07-24부터 size경로+직접가격보너스 2갈래) ──
-    # size경로: income × 크리율 × critDmg×10% × price_per_quality (기존, XP에도 기여)
+    # size경로: income × 크리율 × critDmg×10% × price_per_size_score (기존, XP에도 기여)
     # 직접경로: income × 크리율 × critDmg×CRIT_PRICE_COEF (신설, FishingListener 판매가 직접배수)
     # 두 경로 합 = 크리 1회당 가격 상대증가. 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
-    crit_gain_per_dmg = crit_dmg * 10 * price_per_quality + crit_dmg * CRIT_PRICE_COEF
+    crit_gain_per_dmg = crit_dmg * 10 * price_per_size_score + crit_dmg * CRIT_PRICE_COEF
     V["크리확률 (1%)"] = (income * 0.01 * crit_gain_per_dmg,
                        f"+1%크리율×(critDmg{crit_dmg}: 크기경로+직접가격+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
-    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_quality + CRIT_PRICE_COEF),
+    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_size_score + CRIT_PRICE_COEF),
                        f"크리율{int(crit_rate*100)}%: size+10%/점 + 판매가직접+6%/점 (상한없음)")
 
     # ── 미니게임 성공확률 (2026-07-25, MinigameManager Monte Carlo 실측 — 선형근사 아님) ──
@@ -132,7 +132,7 @@ def compute(snapshot, casts, quality, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFA
     # 정규화
     s = sum(v for k, v in dist2.items() if k != "E")
     dist2["E"] = max(0, 1 - s)
-    income2 = avg_catch_value(dist2, price, quality) * casts
+    income2 = avg_catch_value(dist2, price, size_score) * casts
     V["행운 (1점)"] = (income2 - income, "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%")
 
     # 경험치 +1%: 레벨링은 수입과 나란한 진행 트랙. +1%exp = +1% 레벨링 처리량.
@@ -148,7 +148,7 @@ def main():
     skill = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ap.add_argument("--snapshot", default=None)
     ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
-    ap.add_argument("--quality", type=int, default=DEFAULT_QUALITY)
+    ap.add_argument("--size-score", type=int, default=DEFAULT_SIZE_SCORE)
     ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE, help="기준 크리율(0~1), 크리배율 가치가 비례")
     ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~8), 크리확률 가치가 비례")
     args = ap.parse_args()
@@ -161,9 +161,9 @@ def main():
         args.snapshot = os.path.join(snap_dir, args.snapshot)
 
     snap = load_snapshot(args.snapshot)
-    income, avg, dist, V = compute(snap, args.casts, args.quality, args.crit_rate, args.crit_dmg)
+    income, avg, dist, V = compute(snap, args.casts, args.size_score, args.crit_rate, args.crit_dmg)
 
-    print(f"기준: {args.casts}캐스트/h, 품질{args.quality}, 크리율{int(args.crit_rate*100)}%, 크리배율{args.crit_dmg}")
+    print(f"기준: {args.casts}캐스트/h, 크기점수{args.size_score}, 크리율{int(args.crit_rate*100)}%, 크리배율{args.crit_dmg}")
     print(f"무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
     anchor = V["판매보너스 (1%)"][0]
     print(f"{'스탯':<15}{'원/h/단위':>9}{'정규화':>7}{'상한':>6}{'최대기여원/h':>12}{'최대정규화':>10}   근거")
@@ -184,7 +184,7 @@ def main():
 
     # JSON 출력(스냅샷 derived 병합용)
     result = {"income_per_hour": round(income), "avg_catch": round(avg, 1),
-              "casts": args.casts, "quality": args.quality,
+              "casts": args.casts, "size_score": args.size_score,
               "crit_rate": args.crit_rate, "crit_dmg": args.crit_dmg, "anchor_won": round(anchor, 1),
               "stat_values": out}
     print("\n--- JSON ---")

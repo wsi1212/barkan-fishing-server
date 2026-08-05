@@ -138,9 +138,9 @@ def pull_economy():
     # 등급 기본가 switch
     prices = dict(re.findall(r'case\s+"([EDCBASMLG])"\s*->\s*(\d+)', fi))
     out["grade_base_price"] = {g: int(v) for g, v in prices.items()}
-    # 품질 배율 공식 상수 (0.5 + q*0.5/100)
+    # 크기점수 배율 공식 상수 (0.5 + sizeScore*0.5/100)
     m = re.search(r"mult\s*=\s*([\d.]+)\s*\+\s*q\s*\*\s*([\d.]+)\s*/\s*(\d+)", fi)
-    out["quality_formula"] = (
+    out["size_score_formula"] = (
         {"floor": float(m.group(1)), "slope": float(m.group(2)), "div": int(m.group(3))}
         if m else None
     )
