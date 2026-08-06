@@ -70,7 +70,9 @@ HAIRLINE_SRC_DY = 26
 #   그 자리에 자바가 **실제 게임 폰트로 잡은 물고기**를 찍는다(등급색+이름+크기).
 #   나무결이 가로라 같은 y의 깨끗한 구간을 좌우 반전 교대로 타일링하면 이음매가 안 보인다.
 TITLE_TEXT_BOX = (248, 6, 458, 60)     # 글자 영역
-TITLE_SRC_X = (110, 248)               # 같은 밴드의 깨끗한 판
+# 반사 소스로 쓸 수 있는 **깨끗한 판** 범위. 이 밖은 모서리 장식(밧줄·나침반)이라
+# 물면 판 한복판에 밧줄 잔상이 생긴다(2026-08-06 실사고).
+TITLE_CLEAN_X = (110, 600)
 
 # 글리프 뒤에서 커서를 되돌릴 **음수 시프트** 문자. 2의 거듭제곱이라 임의 오프셋을
 # 몇 글자로 조립할 수 있다(자바 shift()가 사용). 기존 f801/f802/f803 은 타일 배치용.
@@ -103,19 +105,33 @@ def erase_hairlines(im):
 
 
 def erase_title_text(im):
+    """글자 자리를 **바로 양옆**의 거울반사 두 벌로 채우고 가로로 크로스페이드한다.
+
+    ★먼 곳(화면 왼쪽)에서 한 벌 떠와 타일링하면 이음매가 눈에 띈다(2026-08-06 제보).
+      경계 바로 옆을 거울로 접으면 x=경계에서 픽셀이 정확히 이어지고, 좌우 두 벌을
+      거리 가중으로 섞으면 가운데 이음매도 사라진다.
+    """
     px = im.load()
     tx0, ty0, tx1, ty1 = TITLE_TEXT_BOX
-    sx0, sx1 = TITLE_SRC_X
+    cx0, cx1 = TITLE_CLEAN_X
+    span = tx1 - tx0
+    lw, rw = tx0 - cx0, cx1 - tx1          # 양쪽 깨끗한 판의 폭
+
+    def fold(i, w):
+        """거울 반복(triangle wave) — 소스가 깨끗한 판을 벗어나면 되접는다."""
+        j = i % (2 * w)
+        return j if j < w else 2 * w - 1 - j
+
     for y in range(ty0, ty1):
-        row = [px[x, y] for x in range(sx0, sx1)]
-        x, flip = tx0, False
-        while x < tx1:
-            for v in (row[::-1] if flip else row):
-                if x >= tx1:
-                    break
-                px[x, y] = v
-                x += 1
-            flip = not flip
+        left = [px[tx0 - 1 - fold(i, lw), y] for i in range(span)]
+        right = [px[tx1 + fold(span - 1 - i, rw), y] for i in range(span)]
+        for i in range(span):
+            t = i / (span - 1)
+            a, b = left[i], right[i]
+            px[tx0 + i, y] = (round(a[0] * (1 - t) + b[0] * t),
+                              round(a[1] * (1 - t) + b[1] * t),
+                              round(a[2] * (1 - t) + b[2] * t),
+                              255)
     return im
 
 
