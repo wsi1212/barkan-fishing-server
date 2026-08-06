@@ -6,7 +6,8 @@
   1.21.4+ 규약은 두 파일이 분리돼 있다:
 
     assets/barkan/items/barkan_icon/<id>.json     ← setItemModel 이 찾는 **아이템 정의**
-      {"model":{"type":"minecraft:model","model":"barkan:barkan_icon/<id>"}}
+      {"model":{"type":"minecraft:model","model":"barkan:barkan_icon/<id>"},
+       "oversized_in_gui":true}   ← ★슬롯 밖으로 넘쳐 그려지게 (item_def() 주석 참고)
 
     assets/barkan/models/barkan_icon/<id>.json    ← 실제 **모델** (텍스처·display 변환)
       {"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/barkan_icon/<id>"}}
@@ -26,17 +27,12 @@ TEX = os.path.join(RP, "assets/minecraft/textures/item/barkan_icon")
 ITEMS = os.path.join(RP, "assets/barkan/items/barkan_icon")
 MODELS = os.path.join(RP, "assets/barkan/models/barkan_icon")
 
-# ★icon-forge/pad_skill_icons.py 로 원본 72개에 상단 여백을 만들면서(콘텐츠 폭
-#   58/64 → 49/64) 노드가 다시 작아져 레일과 안 붙었다 — 배율은 그대로 뒀는데
-#   콘텐츠만 줄어서 생긴 회귀. 캔버스가 아니라 **콘텐츠**가 칸을 채워야 하므로,
-#   줄어든 비율(58/49=1.184)만큼 배율을 올려 이전과 같은 유효 크기로 복원한다.
-#   1.125 * 58/49 = 1.332. (패딩 전 1.25가 넘쳤던 유효크기 1.133보다 작아 안전.)
-GUI_SCALE = 1.332        # 노드
-# ★1.125(정확히 18px=칸 크기)로는 실제 게임에서 노드-레일 사이가 살짝 안 붙었다.
-#   Python 목업은 아이템이 슬롯 중심 기준으로 확대된다고 가정했는데 실제 엔진 앵커가
-#   그와 미세하게 달라 계산상 "완전히 맞음"이 실제로는 1px 안팎의 틈으로 보였다.
-#   레일만 살짝(1.2) 더 키워 확실히 겹치게 한다 — 정확히 맞추는 것보다 약간 겹치는 쪽이 안전.
-RAIL_SCALE = 1.2
+# ★노드 배율은 건드리지 말 것 (유저 지시, 2026-08-06). 1.332가 확정값이다.
+#   내가 1.25→1.7로 두 번 바꿨다가 "노드만 커진다"는 재현고를 받았다. 문제는
+#   노드 크기가 아니라 **연결선이 슬롯 밖으로 안 나가는 것**이다. 노드를 키워서
+#   틈을 메우려는 시도는 전부 오답이니 반복하지 말 것.
+GUI_SCALE = 1.332         # 노드 — ★고정. 연결 문제를 이 값으로 풀려 하지 말 것
+RAIL_SCALE = 1.7          # 레일
 PREFIXES = ("skill_", "tree_rail_")
 NO_SCALE = ("skill_hub_",)   # /레벨 허브 아트에 맞춰진 아이콘 — 키우면 링 밖으로 삐져나온다
 
@@ -47,7 +43,18 @@ def targets():
 
 
 def item_def(icon_id):
-    return {"model": {"type": "minecraft:model", "model": f"barkan:barkan_icon/{icon_id}"}}
+    # ★oversized_in_gui — 이게 "아이콘이 자기 칸을 못 벗어나는" 문제의 진짜 해답이다.
+    #   1.21.8+ 클라는 GUI 아이템을 **슬롯 경계로 클리핑**한다(실측: 클라 jar
+    #   ClientItem$Properties 에 oversized_in_gui 필드 존재, 1.21.8/1.21.10/1.21.11/26.2
+    #   전부 확인). 그래서 display.gui.scale 을 아무리 올려도 넘치는 부분이 잘려나가
+    #   "굵어지기만 하고 옆칸을 침범하지 못하는" 증상이 난다 — 배율 문제가 아니었다.
+    #   true 면 별도 렌더 패스(OversizedItemRenderer)로 넘어가 슬롯 밖까지 그려진다.
+    #   근거: /도감 물고기가 옆칸을 삐져나가는 이유가 정확히 이것 —
+    #   assets/minecraft/items/cod.json 에 "oversized_in_gui": true 가 들어있다.
+    #   (팩 전체에서 이 필드를 쓰던 파일이 cod.json 뿐이었다.)
+    #   ★이건 **아이템 정의(items/)** 쪽 최상위 필드다. 모델(models/)에 쓰면 무시된다.
+    return {"model": {"type": "minecraft:model", "model": f"barkan:barkan_icon/{icon_id}"},
+            "oversized_in_gui": True}
 
 
 def model_def(icon_id):
