@@ -66,6 +66,17 @@ GLOW_BAND_H = 216
 HAIRLINE_BANDS = [(134, 146), (206, 218)]
 HAIRLINE_SRC_DY = 26
 
+# ★제목 글자("낚시 성공")도 지운다 — 그림에 구워두면 매번 같은 문구밖에 못 쓴다.
+#   그 자리에 자바가 **실제 게임 폰트로 잡은 물고기**를 찍는다(등급색+이름+크기).
+#   나무결이 가로라 같은 y의 깨끗한 구간을 좌우 반전 교대로 타일링하면 이음매가 안 보인다.
+TITLE_TEXT_BOX = (248, 6, 458, 60)     # 글자 영역
+TITLE_SRC_X = (110, 248)               # 같은 밴드의 깨끗한 판
+
+# 글리프 뒤에서 커서를 되돌릴 **음수 시프트** 문자. 2의 거듭제곱이라 임의 오프셋을
+# 몇 글자로 조립할 수 있다(자바 shift()가 사용). 기존 f801/f802/f803 은 타일 배치용.
+SHIFT_CHARS = {0xF810: -1, 0xF811: -2, 0xF812: -4, 0xF813: -8,
+               0xF814: -16, 0xF815: -32, 0xF816: -64, 0xF817: -128}
+
 # ★금테두리는 A(rank5)부터 — 등급 승격이 화면 전체로 읽히는 경계를 A에 둔다.
 #   티어 간 차이는 광휘 색·강도와 소켓 색으로 유지해 A→G 사이에도 단계가 남는다.
 TIERS = [
@@ -89,6 +100,36 @@ def erase_hairlines(im):
             for x in range(im.width):
                 px[x, y] = px[x, y - HAIRLINE_SRC_DY]
     return im
+
+
+def erase_title_text(im):
+    px = im.load()
+    tx0, ty0, tx1, ty1 = TITLE_TEXT_BOX
+    sx0, sx1 = TITLE_SRC_X
+    for y in range(ty0, ty1):
+        row = [px[x, y] for x in range(sx0, sx1)]
+        x, flip = tx0, False
+        while x < tx1:
+            for v in (row[::-1] if flip else row):
+                if x >= tx1:
+                    break
+                px[x, y] = v
+                x += 1
+            flip = not flip
+    return im
+
+
+def register_shifts():
+    """gui.json space provider 에 음수 시프트 문자를 등록(멱등). 기존 값은 보존."""
+    d = json.load(open(FONT_JSON, encoding="utf-8"))
+    sp = next((p for p in d["providers"] if p.get("type") == "space"), None)
+    if sp is None:
+        sp = {"type": "space", "advances": {}}
+        d["providers"].insert(0, sp)
+    for code, adv in SHIFT_CHARS.items():
+        sp["advances"][chr(code)] = adv
+    json.dump(d, open(FONT_JSON, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    return len(SHIFT_CHARS)
 
 
 def tint(im, hue, sat_mul, val_mul):
@@ -205,6 +246,7 @@ def main():
     base = Image.open(os.path.join(SRC, "bg_source.png")).convert("RGBA")
     assert base.size == (W, H), f"배경판 크기 {base.size} != {(W, H)}"
     erase_hairlines(base)
+    erase_title_text(base)
     sock0 = Image.open(os.path.join(SRC, "socket.png")).convert("RGBA")
 
     os.makedirs(OUTDIR, exist_ok=True)
@@ -241,6 +283,7 @@ def main():
               f"{'  +금테두리' if tier['gold'] else ''}")
 
     kept = merge_providers(provs)
+    print(f"  음수 시프트 문자 {register_shifts()}개 등록 (U+F810~F817)")
     json.dump(glyphs, open(os.path.join(SRC, "_glyphs.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
     print(f"  gui.json: 기존 {kept}개 보존 + {len(provs)}개 등록 (U+{CODE0:04X}~U+{code-1:04X})")
