@@ -65,6 +65,26 @@ ALTAR_CENTER_SLOT = 13
 ALTAR_MAX = (420, 216)
 
 
+# ★행 구분 헤어라인 제거 — 원래 소켓을 3줄로 깔 계획이라 발주서에서 y=140/212에
+#   그어 달라고 했던 선이다. 소켓이 가운데 한 줄로 줄면서 나눌 행이 없어졌고, 남아
+#   있으면 소켓을 관통해 등급색(금·보라)과 싸운다.
+#   ★납품 원본(bg_source.png)은 건드리지 않는다 — 빌드 산출물에서만 지운다.
+#     (2026-08-05 교훈: 생성기가 납품 원본을 덮어써 수작업 수정본이 날아간 사고)
+#   방식: 위쪽 깨끗한 줄을 복사해 덮는다. 선형보간은 패널 노이즈가 뭉개져 띠가 보인다.
+HAIRLINE_BANDS = [(134, 146), (206, 218)]
+HAIRLINE_SRC_DY = 26          # 이만큼 위의 줄에서 텍스처를 가져온다
+
+
+def erase_hairlines(im):
+    px = im.load()
+    for y0, y1 in HAIRLINE_BANDS:
+        for y in range(y0, y1):
+            sy = y - HAIRLINE_SRC_DY
+            for x in range(im.width):
+                px[x, y] = px[x, sy]
+    return im
+
+
 def slot_center(idx):
     """슬롯 인덱스 → 칸 중심 (아트 px)."""
     c, r = idx % COLS, idx // COLS
@@ -156,6 +176,8 @@ def main():
 
     bg = Image.open(os.path.join(SRC, "bg_source.png")).convert("RGBA")
     assert bg.size == (W, H), f"배경판 크기 {bg.size} != {(W, H)}"
+    erase_hairlines(bg)
+    print(f"  행 구분 헤어라인 제거 {HAIRLINE_BANDS}")
 
     # ① 제단 — 마커를 가운데 칸(슬롯 13) 중심에 맞춘다. 소켓보다 아래 레이어.
     altar_name = f"altar_{a.grade}.png" if a.grade else "altar.png"
