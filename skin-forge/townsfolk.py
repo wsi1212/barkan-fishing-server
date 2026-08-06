@@ -469,7 +469,9 @@ def head(s, v, seed):
     # ★얼굴 개인차 (2026-08-03) — 부위별 측정에서 머리가 가장 닮은 부위로 나왔다
     #   (자카드 0.561 vs 몸통 0.415·팔 0.310). 37명 전원이 눈 y=4·gaze=0·홍채 하나·
     #   입 y=6 w=2·앞머리 2로 똑같았기 때문. 옷에 했던 것과 같은 처방을 얼굴에 한다.
-    fringe = v.get('fringe', 3 if v.get('child') else 2)
+    # ★여성 앞머리는 한 단 낮춘다 — 레퍼런스 실측에서 잘 만든 여성 스킨은 이마가 거의
+    #   없고 앞머리가 눈 바로 위까지 내려온다. 눈을 아래로 내리는 것과 짝으로 가야 한다.
+    fringe = v.get('fringe', 3 if (v.get('child') or v.get('female')) else 2)
     g.hair(s, hair, fringe=fringe, back=v.get('backhair', 7 if v.get('female') else 6),
            seed=seed, part_x=v.get('part', 3 if v.get('female') else None))
     g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
@@ -481,31 +483,56 @@ def head(s, v, seed):
                 seed=seed, ragged=False)
     if v.get('age'):
         g.wrinkles(s, skin, crow=True, forehead=v.get('head') is None)
-    eye_y = v.get('eye_y', 4)
+    # ★여성 기본 눈높이 5 — 레퍼런스 여성 스킨은 눈이 얼굴 아래쪽(행 5~7)에 있다.
+    #   위쪽(3~4)은 성인 남성 비율이다. 스펙에 eye_y를 명시했으면 그걸 존중한다.
+    eye_y = v.get('eye_y', 5 if v.get('female') else 4)
+    if v.get('female'):
+        # ★4~5로 클램프한다. 위: 여성 앞머리를 fringe=3으로 낮췄기 때문에 eye_y=3이면
+        #   앞머리가 눈을 덮어 <b>한쪽 눈이 사라진다</b>(실측: 잉그리드 왼쪽 눈이 먹혔다).
+        #   아래: 2행 눈이라 6 이상이면 eye_y+1이 턱을 침범한다.
+        eye_y = max(4, min(eye_y, 5))
     # ★표식(흉터·주근깨)을 눈보다 먼저 찍는다 — 나중에 찍으면 흉터가 흰자를 덮어
     #   눈이 반쯤 사라진다(실측: 랄프의 흉터가 오른쪽 눈을 지웠다)
     g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
-    g.eyes(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
-           y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
-           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey')
-           else 2)
+    iris_i = 1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2
+    if v.get('female'):
+        # ★레퍼런스 실측: 눈동자가 채도 높은 색으로 또렷하다(보라·파랑). 우리는 거의
+        #   검정(0e0f11·221910)이라 흰자만 남고 '흰 얼룩'으로 보였다. 한 단 밝게 올린다.
+        iris_i = min(3, iris_i + 1)
+    if v.get('female'):
+        # ★2행 눈 — 흰자 면적이 남성용 eyes()의 4배. 레퍼런스와의 유일한 결정적 차이였다
+        #   (우리 2px vs 레퍼런스 10~11px). garments.female_eyes_big 주석 참고.
+        g.female_eyes_big(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
+                          skin, hair, eye_y=eye_y, gaze=v.get('gaze', 0), iris_idx=iris_i)
+    else:
+        g.eyes(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
+               y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+               iris_idx=iris_i)
+    # ★눈 지워짐 검사 — desertfolk/dealers엔 있었는데 townsfolk엔 없어서 잉그리드의
+    #   먹힌 눈을 빌드가 조용히 통과시켰다. 같은 가드를 여기도 둔다.
+    _ef = s.f('head', 'front')
+    if sum(1 for x in (1, 2, 5, 6) if max(_ef.get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError('%s: 눈이 지워졌다 (eye_y=%d, fringe=%d)' % (v['file'], eye_y, fringe))
+
     # ★brow_c = 눈썹색 직접 지정. 백발(age=True→hair[3])은 흰자와 색이 겹쳐 눈썹이
     #   눈에 붙어 보이는데, 그 사람만 짙은 색으로 떼어내려면 예외구가 필요하다.
     # ★여성은 눈썹을 한 행 위로 올려 눈 바로 위(eye_y-1)를 속눈썹에 내준다.
     #   남성 [눈썹 eye_y-1][눈] / 여성 [눈썹 eye_y-2][속눈썹 eye_y-1][눈]
     #   — 이 구조 차이가 8x8에서 성별을 만드는 실제 지점이다(garments.female_eyes 주석 참고).
     #   eye_y<=3이면 눈썹 자리가 앞머리에 덮이므로 눈썹은 원래 자리에 두고 속눈썹만 넣는다.
-    brow_up = bool(v.get('female')) and eye_y >= 4
+    brow_up = bool(v.get('female')) and eye_y >= 4   # 속눈썹(eye_y-1) 자리를 비운다
     g.brow(s, ramp(v['brow_c'])[2] if v.get('brow_c')
            else (hair[2] if not v.get('age') else hair[3]),
            y=eye_y - (2 if brow_up else 1),
            weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
     f = s.f('head', 'front')
     if v.get('female'):
-        # 속눈썹 — 머리색 한 단 밝게 섞어 '검은 줄'이 되지 않게 한다
-        g.female_eyes(s, g.mix(skin[1], hair[2], 0.65), eye_y=eye_y, skin_r=skin)
-        f.rect(3, v.get('mouth_y', 6), 4, v.get('mouth_y', 6),
-               ramp(v.get('lip', '9b5a52'))[2])          # 입술
+        # ★입술 — 2행 눈이 eye_y+1까지 차지하므로 그 아래 행에 놓는다. 그리고 아주 연하게:
+        #   레퍼런스 여성 스킨은 대부분 입이 아예 없었고, 우리 입은 진한 갈색 사각형이라
+        #   남성적 인상을 강화하고 있었다(실측). 피부에 절반 섞어 '암시'만 남긴다.
+        my = v.get('mouth_y', min(7, eye_y + 2))
+        lip = g.mix(skin[1], ramp(v.get('lip', '9b5a52'))[2], 0.55)
+        f.px(3, my, lip); f.px(4, my, lip)
     else:
         # ★수염이 있으면 입을 더 어둡게 — 기본 skin[1]은 수염 톤과 명도가 붙어 입이
         #   사라진다(2026-08-05 선원 실측: 그루터기 886145 옆의 입 816037이 안 보였다).

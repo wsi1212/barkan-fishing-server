@@ -214,7 +214,8 @@ def build_head(s, v, seed):
     skin, hair = ramp(v['skin']), ramp(v['hair'])
     g.head_base(s, skin, seed=seed)
     g.ears(s, skin, y=4)
-    g.hair(s, hair, fringe=2, back=7 if v.get('female') else 6, seed=seed)
+    g.hair(s, hair, fringe=3 if v.get('female') else 2,
+           back=8 if v.get('female') else 6, seed=seed)
     if v.get('beard'):
         g.beard(s, hair, style=v['beard'], y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)
@@ -222,20 +223,31 @@ def build_head(s, v, seed):
         g.wrinkles(s, skin, crow=True, forehead=True)
     # ★얼굴 개인차 (2026-08-03) — 전 마을 공통 처방. 눈높이·눈동자색·턱선·눈썹·표식을
     #   사람마다 달리한다. 이걸 안 하면 옷을 아무리 갈라도 '다 비슷하다'가 남는다.
-    eye_y = v.get('eye_y', 4)
+    eye_y = v.get('eye_y', 5 if v.get('female') else 4)
+    if v.get('female'):
+        # ★4~5로 클램프 — 여성 앞머리를 낮췄고(fringe) 머리쓰개가 3행까지 덮는 경우가 있어
+        #   eye_y=3이면 흰자가 먹힌다(실측: df_nur의 눈이 veil에 통째로 지워졌다).
+        #   위로는 2행 눈이라 6 이상이면 eye_y+1이 턱을 침범한다.
+        eye_y = max(4, min(eye_y, 5))
     g.face_shape(s, skin, jaw=v.get('jaw', 'oval'), cheek=v.get('cheek', False))
     g.face_marks(s, skin, kind=v.get('marks'), seed=seed)
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
-           gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
-           iris_idx=1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2)
+    _ii = 1 if v.get('iris', 'brown') in ('blue', 'amber', 'hazel', 'grey') else 2
+    if v.get('female'):
+        # ★2행 눈 — 레퍼런스 실측에서 여성 스킨과의 유일한 결정적 차이였다(흰자 면적 5배).
+        g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), skin, hair,
+                          eye_y=eye_y, gaze=v.get('gaze', 0), iris_idx=min(3, _ii + 1))
+    else:
+        g.eyes(s, 'c9c4b8', ramp(g.IRIS[v.get('iris', 'brown')]), y=eye_y,
+               gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
+               iris_idx=_ii)
     g.brow(s, hair[1], y=eye_y - 1, weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
-    if sum(1 for x in (1, 2, 5, 6)
-           if max(s.f('head', 'front').get(x, eye_y)[:3]) > 150) < 2:
-        raise ValueError(f"{v.get('file', v.get('name'))}: 눈이 지워졌다 (eye_y={eye_y})")
     f = s.f('head', 'front')
     if v.get('female'):
-        f.px(0, 4, skin[1]); f.px(7, 4, skin[1])
-        f.rect(3, 6, 4, 6, ramp('8f5248')[2])
+        # ★입은 2행 눈 아래로. 레퍼런스 여성 스킨은 입이 대부분 없었고, 진한 입은
+        #   남성적 인상을 강화한다 → 피부에 절반 섞어 암시만 남긴다.
+        _my = min(7, eye_y + 2)
+        _lip = mix(skin[1], ramp('8f5248')[2], 0.55)
+        f.px(3, _my, _lip); f.px(4, _my, _lip)
     else:
         g.mouth(s, skin, y=6, w=2)
     if v.get('soot'):
@@ -254,6 +266,13 @@ def build_head(s, v, seed):
         head_cloth(s, R(v['headc']), seed=seed)
     elif hd == 'veil':
         veil(s, R(v['headc']), seed=seed, hair=hair)
+
+    # ★눈 지워짐 검사는 <b>머리쓰개를 그린 뒤</b>여야 한다. 예전엔 brow 직후에 있어서
+    #   veil()이 머리카락을 흰자 위에 덮는 걸 못 잡았다(실측: df_nur 눈이 통째로 사라짐).
+    _ef = s.f('head', 'front')
+    if sum(1 for x in (1, 2, 5, 6) if max(_ef.get(x, eye_y)[:3]) > 150) < 2:
+        raise ValueError('%s: 눈이 지워졌다 (eye_y=%d, head=%s)'
+                         % (v.get('file', '?'), eye_y, hd))
 
 
 def build_body(s, v, seed):
