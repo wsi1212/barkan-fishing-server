@@ -165,16 +165,16 @@ VARIANTS = {
     # ── 여성 주민 ────────────────────────────────────────────────────────
     '103': dict(file='gretchen', cid=103, label='그레첸 — 빵집',
                 # "갓 구운 빵 냄새 좋지 않나요?" → 밀가루 앞치마 + 두건
-                female=True, skin=SKIN['pale'], hair='a83a1e', backhair=8,
+                female=True, skin=SKIN['pale'], hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
                 garb='kirtle', cloth='rust', under='linen', extra='chalk',
-                legs='rust', boot='boot', head='kerchief', headc='linen',
+                legs='linen', boot='boot', head='kerchief', headc='linen',
                 prop='basket', apron=True,
                 surface=('pocket', 'trim'), surfc='rust',
                 eye_y=4, iris='green', jaw='oval', cheek=True, marks='freckles', mouth_y=6),
     '105': dict(file='inga', cid=105, label='잉가 — 물 긷는 여인',
                 # "물 길으러 나왔어요" → 가장 소박한 차림. 금속 0곳
-                female=True, skin='b58b65', hair='d9bb63',
+                female=True, skin='b58b65', hair='d9bb63', bare=True, hem=10, sleeve=2,
                 cloth='moss', under='oat', legs='moss', boot='boot',
                 head=None, prop='pouch', braid=True,
                 surface='seams', surfc='oat',
@@ -184,9 +184,9 @@ VARIANTS = {
                 # "생선은 손질이 반이랍니다" → 방수 앞치마 + 걷은 소매 + 비늘
                 # 방수 앞치마는 타르를 먹인 검정이 실물에 맞다 — 어물전 3인(헬가·그레타)과
                 # 앞치마 색으로 갈리고, 마을의 '어두운 사람' 쿼터도 여기서 하나 채운다
-                female=True, skin='b58f6e', hair='c25a2a', braid=True,
+                female=True, skin='b58f6e', hair='c25a2a', bootrows=2, bare=True, hem=7, sleeve=2, braid=True,
                 garb='kirtle', cloth='teal_d', under='linen', extra='pitch',
-                legs='teal_d', boot='boot', head='kerchief', headc='teal',
+                legs='linen', boot='boot', head='kerchief', headc='teal',
                 prop='scales', apron=True, roll=5,
                 surface='pocket', surfc='teal',
                 eye_y=4, iris='dark', jaw='narrow', backhair=9, brow_a=-1),
@@ -194,7 +194,7 @@ VARIANTS = {
                 # "항구엔 늘 노랫거리가 있죠" → 마을에서 유일하게 색을 좀 쓴다
                 # ★그 '색을 쓴다'가 말뿐이었다(와인색=채도 0.28). 꼭두서니 빨강 + 웰드
                 #   노랑 숄로 실제 유채색 자리를 준다 — 무대에 서는 사람이니 명분도 맞다
-                female=True, skin=SKIN['ruddy'], hair='1b1a24',
+                female=True, skin=SKIN['ruddy'], hair='1b1a24', off=True, bare=True, hem=11, sleeve=5,
                 garb='kirtle', cloth='madder', under='linen', legs='madder', boot='boot',
                 head=None, prop='shawl', shawl='weld', braid=True,
                 surface=('lacing', 'trim'), surfc='weld',
@@ -229,12 +229,12 @@ VARIANTS = {
                 brow_w=1, brow_c='5b544c'),
     '72': dict(file='marie', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
-               female=True, skin='cfa47e', hair='241f1c',
+               female=True, skin='cfa47e', hair='241f1c', bare=True, sleeve=5,
                garb='kirtle', cloth='olive', under='linen', extra='canvas',
                legs='olive', boot='boot', head=None, prop='tools',
                apron=True, roll=6, braid=True,
                 surface='pocket', surfc='canvas',
-                hem=11,
+                hem=10,
                 eye_y=4, iris='brown', jaw='oval', backhair=8, marks='mole'),
     '73': dict(file='doran', cid=73, label='도란 — 상단 바르칸 지부',
                # "상단 바르칸 지부의 도란이라 하오" → 마르코82(상단마을)의 하급 동료.
@@ -248,7 +248,7 @@ VARIANTS = {
     '108': dict(file='brigitte', cid=108, label='브리기테 — 직조공',
                 # "옷감을 짜는 게 제 일이에요" → 실타래와 부드러운 옷감
                 # 적발 — 마을에 없던 머리색. 실타래를 다루는 사람이라 색이 붙어도 안 튄다
-                female=True, skin='d0a57f', hair='8f4a24',
+                female=True, skin='d0a57f', hair='8f4a24', hem=10, sleeve=7,
                 cloth='slate', under='linen', legs='slate',
                 boot='boot', head='kerchief', headc='oat', prop='yarn',
                 surface='check', surfc='oat',
@@ -264,7 +264,7 @@ VARIANTS = {
                 eye_y=4, iris='green', jaw='square', brow_w=2, socket=True, bootrows=6),
     '110': dict(file='astrid', cid=110, label='아스트리드 — 20년 장사꾼',
                 # "장사 20년, 단골들이 물고기를 찾는답니다" → 억센 상인 여성
-                female=True, age=True, skin='ba8f68', hair='7a6e5f',
+                female=True, age=True, skin='ba8f68', hair='7a6e5f', hem=11, sleeve=9,
                 cloth='rust', under='oat', extra='rust',
                 legs='rust', boot='boot', head='kerchief', headc='mustard',
                 prop='ledger', apron=True,
@@ -291,18 +291,18 @@ VARIANTS = {
                 eye_y=5, iris='brown', jaw='narrow', fringe=3, mouth_w=3, bootrows=2),
     '29': dict(file='marta', cid=29, label='마르타 — 시장 안내',
                # "싱싱한 건 제값 쳐주는 게 시장 인심이죠" → 활기찬 시장 상인
-               female=True, skin='bf9878', hair='9c7a4e',
+               female=True, skin='bf9878', hair='9c7a4e', bootrows=2, bare=True, hem=7, sleeve=2,
                # 앞치마는 크림이 아니라 표백 흰색이어야 금색 드레스와 값이 갈린다
                garb='kirtle', cloth='weld', under='linen', extra='chalk',
-               legs='weld', boot='boot', head=None, prop='basket',
+               legs='linen', boot='boot', head=None, prop='basket',
                apron=True, braid=True,
                 surface='stripe_v', surfc='linen',
                 eye_y=4, iris='brown', jaw='oval', backhair=8, cheek=True, mouth_w=3),
     '30': dict(file='bettina', cid=30, label='베티나 — 요리 안내',
                # "이 주방에선 잡은 걸로 근사한 요리를 만든답니다" → 주방 보조
-               female=True, skin='cfa47e', hair='2b2118', braid=True,
+               female=True, skin='cfa47e', hair='2b2118', bootrows=2, bare=True, hem=7, sleeve=5, braid=True,
                garb='kirtle', cloth='moss', under='linen', extra='chalk',
-               legs='moss', boot='boot', head='kerchief', headc='chalk',
+               legs='linen', boot='boot', head='kerchief', headc='chalk',
                prop='ladle', apron=True,
                 surface='pocket', surfc='moss',
                 eye_y=5, iris='hazel', jaw='oval', backhair=9, marks='freckles'),
@@ -319,7 +319,7 @@ VARIANTS = {
     '17': dict(file='ingrid', cid=17, label='잉그리드 — 길드 접수',
                # 길드 GUI 담당. 마을에서 가장 격식 있는 여성 — 장부와 인장
                # 대청 파랑 — 마을에서 가장 격식 있는 여성이라 비싼 염료가 명분이 된다
-               female=True, skin='d0a57f', hair='b9903f',
+               female=True, skin='d0a57f', hair='b9903f', hem=10, sleeve=7,
                garb='kirtle', cloth='woad', under='linen', legs='ink',
                boot='boot_d', head=None, prop='ledger', accent='brass',
                 surface=('trim', 'buttons'), surfc='brass',
@@ -347,15 +347,15 @@ VARIANTS = {
                 eye_y=5, iris='brown', jaw='oval', fringe=3, cheek=True, mouth_w=3),
     '6': dict(file='helga', cid=6, label='헬가 — 물고기 판매',
               # 오토14·그레타13과 한 어물전. 공통=방수 가죽 앞치마+비늘 / 개인=색과 나이
-              female=True, skin='b08762', hair='7a2f3a',
+              female=True, skin='b08762', hair='7a2f3a', bootrows=2, bare=True, hem=7, sleeve=5,
               garb='kirtle', cloth='slate', under='oat', extra='leather',
-              legs='slate', boot='boot', head='kerchief', headc='mustard',
+              legs='linen', boot='boot', head='kerchief', headc='mustard',
               prop='scales', apron=True, roll=6,
                 surface='pocket', surfc='mustard',
                 eye_y=4, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
     '13': dict(file='greta', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
-               female=True, age=True, skin='a88c73', hair='9a938a',
+               female=True, age=True, skin='a88c73', hair='9a938a', hem=10, sleeve=7,
                cloth='grey', under='oat', extra='leather',
                legs='grey', boot='boot', head='kerchief', headc='oat',
                prop='scales', apron=True, roll=6,
@@ -621,10 +621,13 @@ def body(s, v, seed):
     elif garb == 'overdress':                            # 커틀 위 소매 없는 겉드레스
         # ★커틀은 그 사람의 정체성 색(cloth) 그대로 두고, 겉드레스만 대비색(over).
         #   반대로 하면 붉은 커틀이 통째로 덮여 사람이 베이지 덩어리가 된다(v5 자기비평)
-        g.robe(s, cloth, y0=0, seed=seed, hem_row=11, sleeve_to=v.get('roll', 9),
-               lining=under)
-        g.overdress(s, R(v.get('over', 'canvas')), y0=1, hem=11, layer='outer', seed=seed)
+        _sleeve = v.get('sleeve', v.get('roll', 9))
+        _hem = v.get('hem', 11)
+        g.robe(s, cloth, y0=0, seed=seed, hem_row=_hem, sleeve_to=_sleeve, lining=under)
+        g.overdress(s, R(v.get('over', 'canvas')), y0=1, hem=_hem, layer='outer', seed=seed)
         g.belt(s, R('leather'), y=7, layer='outer')
+        if v.get('bare') and _sleeve < 9:
+            g.bare_arms(s, skin, _sleeve + 1, 11)
     elif garb == 'jerkin':                                 # 소매 없는 가죽 저킨
         # ★vest()는 가운데를 넓게 터서 셔츠를 보여주는 '조끼'다. 짐꾼처럼 통짜로
         #   껴입는 저킨에 쓰면 가슴 한가운데가 창백한 판때기가 된다(실측).
@@ -685,10 +688,21 @@ def body(s, v, seed):
         # ★robe()를 그대로 부르고 있었다(2026-08-05 지적 "복장자체가 여자같지 않음") —
         #   순례자·현자가 쓰는 그 함수라 남성 로브와 실루엣이 같았다. kirtle()은
         #   네크라인·보디스 끈·허리 조임·치마 음영을 얹어 여성 재단으로 가른다.
-        g.kirtle(s, cloth, under, y0=0, seed=seed, hem_row=11,
-                 sleeve_to=v.get('roll', 9),
+        # ★길이 변주 (2026-08-05 지적 "옷이 다 무조건 소매까지만 온다"):
+        #   sleeve = 소매 끝 행(0 민소매 / 2 캡 / 5 팔꿈치 / 7 칠부 / 9 손목)
+        #   hem    = 치마 끝 행(8 종아리 / 10 발목 / 11 바닥)
+        #   bare   = 소매 아래를 맨팔로(안 주면 속옷이 드러나 '긴 속옷 입은 사람'이 된다)
+        #   off    = 오프숄더
+        _sleeve = v.get('sleeve', v.get('roll', 9))
+        _hem = v.get('hem', 11)
+        g.kirtle(s, cloth, under, y0=0, seed=seed, hem_row=_hem,
+                 sleeve_to=_sleeve,
                  neckline=v.get('neckline', 'square'),
                  waist=v.get('waist', 7), lace=v.get('lace', True))
+        if v.get('bare') and _sleeve < 9:
+            g.bare_arms(s, skin, _sleeve + 1, 11)
+        if v.get('off'):
+            g.off_shoulder(s, cloth, under, y0=0, drop=v.get('offdrop', 2), skin_r=skin)
         if v.get('apron'):
             g.apron(s, R(v['extra']), bib=(2, 5), bib_y=(2, 6), waist=7, hem=11,
                     wrap=0, straps=True, tie=True, seed=seed)

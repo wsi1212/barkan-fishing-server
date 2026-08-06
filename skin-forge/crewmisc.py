@@ -27,7 +27,7 @@ V = {
     # ── 은빛 갈매기호 승무원 (계급이 옷의 격식으로 읽혀야 한다) ──────────────
     '55': dict(file='isabella', cid=55, label='이자벨라 — 선장',
                # "내 배에 오른 이상, 내 규칙을 따르도록" → ★여성 선장. 배에서 가장 갖춤
-               female=True, skin='b58b65', hair='1b1a24',
+               female=True, skin='b58b65', hair='1b1a24', hem=11, sleeve=9,
                garb='coat', cloth='navy', under='linen', legs='tar',
                boot='boot_d', head='cap', headc='tar', prop='ledger',
                accent='brass',
@@ -151,16 +151,16 @@ V = {
                eye_y=4, iris='green', jaw='oval', surface='trim', surfc='gold', layer2='tabard', l2c='crimson'),
     '151': dict(file='rosa_garden', cid=151, label='정원사 로자',
                 # "이 근처에 핀 노란 꽃들이 좀 신경 쓰여서" → 흙 묻은 앞치마 + 꽃
-                female=True, age=True, skin='b58b65', hair='8a8378',
+                female=True, age=True, skin='b58b65', hair='8a8378', hem=10, sleeve=7,
                 garb='kirtle', cloth='sage', under='linen', extra='canvas',
                 legs='sage', boot='boot', head='kerchief', headc='mustard',
                 prop='bloom', apron=True, roll=6,
                eye_y=5, iris='green', jaw='oval', cheek=True, backhair=8, marks='freckles', surface='pocket', surfc='sage'),
     '153': dict(file='tavernkeep', cid=153, label='식당 주인',
                 # "어서 오세요! 식당에 들어오신 걸 환영합니다" → 앞치마 + 국자
-                female=True, skin='cfa47e', hair='a83a1e', braid=True, backhair=9,
+                female=True, skin='cfa47e', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, braid=True, backhair=9,
                 garb='kirtle', cloth='chalk', under='linen', extra='linen',
-                legs='bloom', boot='boot', head='kerchief', headc='linen',
+                legs='linen', boot='boot', head='kerchief', headc='linen',
                 prop='ladle', apron=True, roll=6,
                eye_y=4, iris='hazel', jaw='square', cheek=True, marks='ruddy', mouth_w=3, surface='pocket', surfc='bloom'),
 }

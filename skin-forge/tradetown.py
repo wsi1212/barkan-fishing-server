@@ -79,7 +79,7 @@ V = {
     '101': dict(file='giovanna', cid=101, label='지오반나 — 요리',
                 # "요리는 재료가 전부예요" → 여성 요리사. 그레고르57·프란츠21과 한 축이되
                 #   여성 + 크림 앞치마 + 두건으로 갈린다
-                female=True, skin='cfa47e', hair='b9903f',
+                female=True, skin='cfa47e', hair='b9903f', hem=10, sleeve=7,
                 garb='kirtle', cloth='chalk', under='sail', extra='sail',
                 legs='wine2', boot='boot', head='kerchief', headc='sail',
                 prop='ladle', apron=True, roll=6,
@@ -89,7 +89,7 @@ V = {
     '83': dict(file='leila', cid=83, label='레일라 — 밀정',
                # ★"...조용히. 벽에도 귀가 있어요. 교단에 대해 알고 싶다면" → 정보원.
                #   마을에서 유일하게 후드를 깊이 눌러쓰고 색을 뺀다
-               female=True, skin='a89055', hair='241f1c',
+               female=True, skin='a89055', hair='241f1c', hem=11, sleeve=9,
                garb='kirtle', cloth='ink', under='grey', legs='ink',
                boot='boot_d', head='hood', headc='ink', prop='pouch',
                eye_y=4, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface='lacing', surfc='ink'),
@@ -101,7 +101,7 @@ V = {
     '97': dict(file='silvia', cid=97, label='실비아 — 감정 견습',
                # "감정 일을 배우고 있어요" → 젊은 견습. 사피르78(사막 감정사)의 손저울과
                #   같은 소품이되 옷은 훨씬 수수하다
-               female=True, skin='e0bcae', hair='c2a052',
+               female=True, skin='e0bcae', hair='c2a052', off=True, hem=11, sleeve=7,
                garb='kirtle', cloth='cream', under='sail', legs='sea',
                boot='boot', head=None, prop='ledger', braid=True,
                eye_y=3, iris='blue', jaw='narrow', backhair=8, marks='freckles', surface='placket', surfc='ink'),
@@ -118,7 +118,7 @@ V = {
                eye_y=5, iris='blue', jaw='narrow', fringe=3, marks='freckles', surface='seams', surfc='sea', bootrows=2),
     '100': dict(file='teresa', cid=100, label='테레사 — 시장 20년',
                 # 110 아스트리드(스폰 20년 장사꾼)와 같은 이력 → 색과 소품으로 가른다
-                female=True, age=True, skin='ba8f68', hair='7a6e5f',
+                female=True, age=True, skin='ba8f68', hair='7a6e5f', hem=11, sleeve=9,
                 garb='kirtle', cloth='cream', under='sail', extra='sail',
                 legs='ochre', boot='boot', head='kerchief', headc='wine2',
                 prop='basket', apron=True,
@@ -134,8 +134,8 @@ V = {
     '85': dict(file='giulia', cid=85, label='줄리아 — 상단 회계',
                # ★"숫자는 거짓말을 하지 않아요. 장부만 보면 다 알 수 있죠"
                #   구스킨은 대장간에 있을 사람처럼 보였다(유저 지적) — 잉크빛 커틀 + 장부
-               female=True, skin='d0a57f', hair='a83a1e', braid=True,
-               garb='kirtle', cloth='ink', under='sail', legs='ink',
+               female=True, skin='d0a57f', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=2, braid=True,
+               garb='kirtle', cloth='ink', under='sail', legs='linen',
                boot='boot_d', head=None, prop='ledger', accent='brass',
                eye_y=3, iris='dark', jaw='narrow', backhair=8, surface='trim', surfc='brass'),
     '86': dict(file='francesco', cid=86, label='프란체스코 — 40년 노잡이',
@@ -146,7 +146,7 @@ V = {
                eye_y=4, iris='blue', jaw='long', socket=True, marks='ruddy', surface='seams', surfc='slate', bootrows=6),
     '87': dict(file='claudia', cid=87, label='클라우디아 — 향신료 상인',
                # "사막 건너 온 귀한 물건" → 사막과 거래하는 여성. 색을 조금 쓴다
-               female=True, skin='c2856e', hair='c25a2a',
+               female=True, skin='c2856e', hair='c25a2a', hem=10, sleeve=7,
                garb='kirtle', cloth='burgundy', under='sail', legs='burgundy',
                boot='boot', head='kerchief', headc='ochre', prop='vialset',
                braid=True,
@@ -164,9 +164,9 @@ V = {
                boot='boot', head=None, prop='net', roll=4,
                eye_y=5, iris='green', jaw='square', brow_w=2, surface='patchwork', surfc='canvas', layer2='suspenders', l2c='leather'),
     '90': dict(file='rosa', cid=90, label='로사 — 생선 장수',
-               female=True, skin='b08b6b', hair='9c7a4e', backhair=8,
+               female=True, skin='b08b6b', hair='9c7a4e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
                garb='kirtle', cloth='chalk', under='sail', extra='oat',
-               legs='sea', boot='boot', head='kerchief', headc='rust',
+               legs='linen', boot='boot', head='kerchief', headc='rust',
                prop='scales', apron=True, roll=6,
                eye_y=4, iris='brown', jaw='oval', cheek=True, surface='pocket', surfc='sea'),
     '91': dict(file='massimo', cid=91, label='마시모 — 짐꾼(노년)',
