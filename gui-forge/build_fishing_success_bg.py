@@ -55,10 +55,14 @@ MARKER = (255, 0, 255)            # 제단 정렬 마커
 # ★소켓을 27칸 전부에 깔면 안 된다(2026-08-06 실측). 소켓 96px 이 칸 피치 72px 보다
 #   커서 링이 24px씩 겹쳐 벌집 격자처럼 뭉갠다. 그렇다고 소켓을 줄이면 안쪽 구멍도
 #   같이 줄어 아이템(64px)이 링을 덮는다 — 크기가 아니라 **배치**로 풀어야 한다.
-#   아이템이 실제로 들어가는 칸에만 깐다: 윗행 중앙 5칸(부가 어획) + 제단 5칸(주요 어획).
-#   나머지는 민무늬 패널로 두고, 아랫행은 정보 명판이라 소켓이 필요 없다.
-SOCKET_SLOTS = list(range(2, 7)) + list(range(11, 16))
+#   가운데 줄 5칸만. 낚시 결과가 그 이상 동시에 나오는 경우가 없어 더 깔 이유가 없다.
+SOCKET_SLOTS = list(range(11, 16))
 ALTAR_CENTER_SLOT = 13
+
+# ★제단 세로 예산 — 1차 납품(260x360)이 세로로 너무 길어 아래 정보행과 나무 구분띠까지
+#   다 덮었다. 위로 108 / 아래로 108 이 한계이고, 그걸 넘으면 게임에서 화면을 가린다.
+#   납품물이 규격을 어겼는지 **빌드 때** 잡는다 — 인게임에서 발견하면 이미 늦다.
+ALTAR_MAX = (420, 216)
 
 
 def slot_center(idx):
@@ -158,6 +162,9 @@ def main():
     ap_path = os.path.join(SRC, altar_name)
     if os.path.exists(ap_path):
         altar = Image.open(ap_path).convert("RGBA")
+        if altar.width > ALTAR_MAX[0] or altar.height > ALTAR_MAX[1]:
+            print(f"  ⛔ 제단 {altar_name} {altar.size} 가 예산 {ALTAR_MAX} 초과 — "
+                  f"게임에서 정보행/구분띠를 덮는다. 재작업 필요(미리보기는 그대로 진행)")
         m = find_marker(altar)
         cx, cy = slot_center(ALTAR_CENTER_SLOT)
         if m:
