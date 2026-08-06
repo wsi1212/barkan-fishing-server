@@ -8,8 +8,11 @@
 
 산출: src/<gui>/_guide.png — 캔버스 크기가 곧 정답이고, 그 위에 칸이 표시돼 있다.
 
-사용: python3 make_guide.py <gui이름> <컨테이너행수>
-      예) python3 make_guide.py fishcatch 3
+사용: python3 make_guide.py <gui이름> <컨테이너행수> [--hero 11-15] [--btn 4,8]
+      예) python3 make_guide.py fishing_success 3 --hero 11-15
+          python3 make_guide.py fish_shop 3 --hero 9-26 --btn 4,8
+  --hero : 아이템이 실제로 놓이는 칸(노란 상자로 강조)
+  --btn  : 버튼 칸(주황 채움) — 배경에 버튼 자리를 파둘 위치
 """
 import os
 import sys
@@ -58,11 +61,33 @@ def font(px):
     return ImageFont.load_default()
 
 
+def parse_slots(spec):
+    """'9-26' / '4,8' / '2-6,11-15' → 슬롯 집합."""
+    out = set()
+    for part in (spec or "").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            a, b = part.split("-", 1)
+            out.update(range(int(a), int(b) + 1))
+        else:
+            out.add(int(part))
+    return out
+
+
 def main():
     if len(sys.argv) < 3:
         print(__doc__)
         sys.exit(1)
     name, rows = sys.argv[1], int(sys.argv[2])
+    argv = sys.argv[3:]
+    hero_spec = btn_spec = ""
+    for i, a in enumerate(argv):
+        if a == "--hero" and i + 1 < len(argv): hero_spec = argv[i + 1]
+        if a == "--btn" and i + 1 < len(argv): btn_spec = argv[i + 1]
+    globals()["HERO_SLOTS"] = parse_slots(hero_spec)
+    globals()["BTN_SLOTS"] = parse_slots(btn_spec)
     g = geometry(rows)
     W, H = GW * SCALE, g["gh"] * SCALE
     im = Image.new("RGBA", (W, H), BG)
@@ -77,17 +102,20 @@ def main():
     # 컨테이너 슬롯 — 여기에 아이템이 올라간다. 소켓/홈은 정확히 이 칸에 맞춰야 한다.
     # ★주인공 칸은 **5칸**(2026-08-06). 낚시 결과는 물고기 1마리가 아니라 더블/트리플 +
     #   낚시 재료 + 보물상자까지 한 번에 3~4개가 쏟아지므로 한 칸짜리 제단으론 못 담는다.
-    heroes = set(range(11, 16)) if rows == 3 else set()
+    heroes = globals().get("HERO_SLOTS") or set()
+    btns = globals().get("BTN_SLOTS") or set()
     hero_cells = []
     for r, y in enumerate(g["slot_rows"]):
         for c in range(COLS):
             x = GRID_X + CELL * c
             idx = r * COLS + c
-            is_hero = idx in heroes
-            cell(x, y, SLOT_FILL, HERO_LINE if is_hero else SLOT_LINE, 4 if is_hero else 3)
+            is_hero, is_btn = idx in heroes, idx in btns
+            fill = (255, 150, 0, 90) if is_btn else SLOT_FILL
+            line = (255, 150, 0, 255) if is_btn else (HERO_LINE if is_hero else SLOT_LINE)
+            cell(x, y, fill, line, 4 if (is_hero or is_btn) else 3)
             if is_hero:
                 hero_cells.append((x, y))
-            d.text(((x + 4) * SCALE, (y + 5) * SCALE), str(idx),
+            d.text(((x + 4) * SCALE, (y + 5) * SCALE), ("BTN" if is_btn else str(idx)),
                    font=f_sm, fill=(255, 255, 255, 230))
 
     # 플레이어 인벤 — 격자는 빌더가 덧그린다. 아트에선 민무늬로 둘 것.
@@ -129,14 +157,13 @@ def main():
          "FRAME MUST NOT ENTER")
 
     if hero_cells:
-        hx0 = min(x for x, _ in hero_cells) * SCALE - sock
-        hx1 = (max(x for x, _ in hero_cells) + CELL) * SCALE - 1 + sock
-        hy = hero_cells[0][1]
-        d.rectangle([hx0, hy * SCALE - sock, hx1, (hy + CELL) * SCALE - 1 + sock],
-                    outline=HERO_LINE, width=5)
-        cxm = (hx0 + hx1) // 2
+        hx0 = min(x for x, _ in hero_cells) * SCALE
+        hx1 = (max(x for x, _ in hero_cells) + CELL) * SCALE - 1
+        hy0 = min(y for _, y in hero_cells) * SCALE
+        hy1 = (max(y for _, y in hero_cells) + CELL) * SCALE - 1
+        d.rectangle([hx0, hy0, hx1, hy1], outline=HERO_LINE, width=5)
         d.text((6, H - 30),
-               f"ALTAR must cover x {hx0}~{hx1} (5 slots) - marker at center x={cxm}, y={(hy + 9) * SCALE}",
+               f"ITEM AREA (yellow): x {hx0}~{hx1}, y {hy0}~{hy1}  center x={(hx0 + hx1) // 2}",
                font=f_sm, fill=HERO_LINE)
 
     d.text((12, H - 60), f"CANVAS MUST BE EXACTLY {W} x {H}", font=f_big, fill=(255, 255, 0, 255))
