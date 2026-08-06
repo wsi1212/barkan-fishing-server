@@ -151,7 +151,7 @@ V = {
                eye_y=4, iris='green', jaw='oval', surface='trim', surfc='gold', layer2='tabard', l2c='crimson'),
     '151': dict(file='rosa_garden', cid=151, label='정원사 로자',
                 # "이 근처에 핀 노란 꽃들이 좀 신경 쓰여서" → 흙 묻은 앞치마 + 꽃
-                female=True, age=True, skin='b58b65', hair='8a8378', hem=10, sleeve=7,
+                female=True, age=True, skin='b58b65', hair='8a8378', wrapshawl='madder', hem=10, sleeve=7,
                 garb='kirtle', cloth='sage', under='linen', extra='canvas',
                 legs='sage', boot='boot', head='kerchief', headc='mustard',
                 prop='bloom', apron=True, roll=6,
@@ -232,6 +232,9 @@ def build(v):
     tf.body(s, v, seed)
     tf.extra_cut(s, v, seed)    # 조끼·멜빵·새시 — 실루엣 한 겹
     tf.surface(s, v, seed)      # 옷 무늬 (소품보다 먼저)
+    # ★'shawl'은 prop='shawl' 색 지정에 이미 쓰이는 키다(충돌 회귀 있었음) → wrapshawl
+    if v.get('wrapshawl'):  # 노인 여성의 어깨 숄 — 옷 다음, feminize 앞
+        tf.g.shawl(s, tf.R(v['wrapshawl']), y0=0, drop=v.get('shawldrop', 4), seed=seed)
     tf.feminize(s, v, seed)     # ★여성 실루엣·옆머리 — 옷 다음, 소품 앞
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)

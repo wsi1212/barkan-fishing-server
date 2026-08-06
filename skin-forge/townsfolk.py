@@ -264,7 +264,7 @@ VARIANTS = {
                 eye_y=4, iris='green', jaw='square', brow_w=2, socket=True, bootrows=6),
     '110': dict(file='astrid', cid=110, label='아스트리드 — 20년 장사꾼',
                 # "장사 20년, 단골들이 물고기를 찾는답니다" → 억센 상인 여성
-                female=True, age=True, skin='ba8f68', hair='7a6e5f', hem=11, sleeve=9,
+                female=True, age=True, skin='ba8f68', hair='7a6e5f', wrapshawl='wine', hem=11, sleeve=9,
                 cloth='rust', under='oat', extra='rust',
                 legs='rust', boot='boot', head='kerchief', headc='mustard',
                 prop='ledger', apron=True,
@@ -355,7 +355,7 @@ VARIANTS = {
                 eye_y=4, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
     '13': dict(file='greta', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
-               female=True, age=True, skin='a88c73', hair='9a938a', hem=10, sleeve=7,
+               female=True, age=True, skin='a88c73', hair='9a938a', wrapshawl='woad', hem=10, sleeve=7,
                cloth='grey', under='oat', extra='leather',
                legs='grey', boot='boot', head='kerchief', headc='oat',
                prop='scales', apron=True, roll=6,
@@ -921,6 +921,10 @@ def build(v):
     body(s, v, seed)
     extra_cut(s, v, seed)   # ★조끼·멜빵·새시 — 무늬보다 실루엣이 먼저 읽힌다
     surface(s, v, seed)     # ★무늬는 옷 다음, 소품 앞 — 소품 위에 줄무늬가 얹히면 안 된다
+    # ★키 이름이 'shawl'이면 안 된다 — 이미 prop='shawl'(담요 숄 소품)의 색 지정용으로
+    #   쓰이고 있어서 도메니코(남성)·프리다에게 원치 않는 어깨 숄이 얹혔다(실측 회귀).
+    if v.get('wrapshawl'):  # 노인 여성의 어깨 숄 — 옷·무늬 다음에 얹는다
+        g.shawl(s, R(v['wrapshawl']), y0=0, drop=v.get('shawldrop', 4), seed=seed)
     feminize(s, v, seed)    # ★여성 실루엣 — 반드시 옷·무늬 다음(옷이 덮으면 무효), 소품 앞
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)

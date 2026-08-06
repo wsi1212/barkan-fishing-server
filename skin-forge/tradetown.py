@@ -118,7 +118,7 @@ V = {
                eye_y=5, iris='blue', jaw='narrow', fringe=3, marks='freckles', surface='seams', surfc='sea', bootrows=2),
     '100': dict(file='teresa', cid=100, label='테레사 — 시장 20년',
                 # 110 아스트리드(스폰 20년 장사꾼)와 같은 이력 → 색과 소품으로 가른다
-                female=True, age=True, skin='ba8f68', hair='7a6e5f', hem=11, sleeve=9,
+                female=True, age=True, skin='ba8f68', hair='7a6e5f', wrapshawl='moss', hem=11, sleeve=9,
                 garb='kirtle', cloth='cream', under='sail', extra='sail',
                 legs='ochre', boot='boot', head='kerchief', headc='wine2',
                 prop='basket', apron=True,
@@ -217,6 +217,9 @@ def build(v):
     tf.body(s, v, seed)
     tf.extra_cut(s, v, seed)    # 조끼·멜빵·새시 — 실루엣 한 겹
     tf.surface(s, v, seed)      # 옷 무늬 (소품보다 먼저)
+    # ★'shawl'은 prop='shawl' 색 지정에 이미 쓰이는 키다(충돌 회귀 있었음) → wrapshawl
+    if v.get('wrapshawl'):  # 노인 여성의 어깨 숄 — 옷 다음, feminize 앞
+        tf.g.shawl(s, tf.R(v['wrapshawl']), y0=0, drop=v.get('shawldrop', 4), seed=seed)
     tf.feminize(s, v, seed)     # ★여성 실루엣·옆머리 — 옷 다음, 소품 앞
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)

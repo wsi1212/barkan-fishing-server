@@ -293,7 +293,12 @@ def build_body(s, v, seed):
         g.robe(s, cloth, y0=0, seed=seed, hem_row=11,
                sleeve_to=v.get('roll', 10), lining=R('ecru'))
     elif garb == 'veil_robe':
+        # ★robe()를 그대로 부르고 있었다 — 사막 남성 thobe와 실루엣이 같아서 상반신만
+        #   보이는 각도에서 성별이 사라졌다(2026-08-05 지적: 아미라). 베일은 얼굴을 감싸
+        #   이미 여성 신호지만 몸이 남성과 동일하면 소용이 없다. 네크라인은 베일이 덮어
+        #   못 쓰므로 하이웨이스트 절개 + 앞 중앙 자수로 가른다.
         g.robe(s, cloth, y0=0, seed=seed, hem_row=11, sleeve_to=10, lining=R('ecru'))
+        g.high_waist(s, cloth, R('ecru'), band=v.get('band', 4), layer='outer')
     elif garb == 'apron':
         g.robe(s, cloth, y0=0, seed=seed, hem_row=11,
                sleeve_to=v.get('roll', 6), lining=R('ecru'))

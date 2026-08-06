@@ -124,8 +124,24 @@ def tuxedo(s, v, seed):
     for y in (3, 5, 7):                                  # 놋쇠 단추
         f.px(4, y, U['brass'][4]); f.px(4, y + 1, vest[1])
     f.px(2, 1, sh[3]); f.px(5, 1, sh[3])                 # 칼라 끝
-    f.rect(3, 1, 4, 1, jk[1])                            # ★검정 나비타이
-    f.px(3, 2, jk[0]); f.px(4, 2, jk[2])
+    if v.get('female'):
+        # ★여성 하우스 제복 — 남성 딜러와 같은 턱시도를 입히면 상반신만 보이는 각도에서
+        #   성별이 완전히 사라진다(2026-08-05 지적: 홀덤딜러Ⅱ). 실제 카지노도 여성 딜러는
+        #   나비타이 대신 리본, 바지 대신 스커트를 입는다 — 업장 톤을 지키면서 갈리는 축이다.
+        # ★리본을 재킷 검정(jk)으로 찍었더니 검정 배경에 묻혀 아예 안 보였다(실측).
+        #   흰 칼라 바로 아래이므로 <b>테이블 색의 밝은 단</b>으로 놓아야 대비가 생긴다.
+        f.rect(2, 1, 5, 1, vest[4])                      # 리본(나비타이보다 넓다)
+        f.px(3, 1, vest[2]); f.px(4, 1, vest[2])         # 매듭 가운데는 한 단 어둡게
+        f.px(2, 2, vest[3]); f.px(5, 2, vest[3])         # 늘어진 리본 끝
+        for _fn in ('front', 'back', 'right', 'left'):   # 허리 조임(조끼 밑단 위)
+            _fc = s.f('body', _fn, 'outer')
+            for _x in range(_fc.w):
+                _c = _fc.get(_x, 7)
+                if _c[3]:
+                    _fc.px(_x, 7, mix(_c, (0, 0, 0, _c[3]), 0.30))
+    else:
+        f.rect(3, 1, 4, 1, jk[1])                        # ★검정 나비타이
+        f.px(3, 2, jk[0]); f.px(4, 2, jk[2])
     for x in (1, 6):                                     # 라펠 실크(한 단 밝게)
         f.col(x, jk[4], 0, 5)
 
@@ -218,8 +234,24 @@ def build(v):
     g.tunic(s, U['shirt'], y0=0, y1=11, collar=True, seed=seed, grain=0.05, hem=False)
     g.sleeves(s, U['shirt'], y0=0, y1=11, seed=seed, grain=0.05)
     g.hands(s, skin, rows=1)
-    g.pants(s, U['trouser'], y0=0, y1=7, seed=seed)
-    g.boots(s, U['shoe'], rows=4, toe=True, cuff=False)
+    if v.get('female'):
+        # 펜슬 스커트(무릎까지) + 스타킹 + 낮은 구두 — 바지와 실루엣이 갈린다
+        # ★1차 실패: 스커트를 다리 0~5로 짧게 하고 스타킹을 밝은 셔츠색(6~9)으로 넓게
+        #   줬더니 다리 대부분이 크림색 덩어리가 되어 '속옷 입은 것'처럼 보였다(실측).
+        #   카지노 제복의 스타킹은 검정이고, 스커트는 무릎 아래까지 온다.
+        g.pants(s, U['trouser'], y0=0, y1=8, seed=seed)
+        for _p in ('leg_r', 'leg_l'):
+            # ★검정 스타킹은 검정 구두·검정 스커트와 뭉쳐 아무것도 안 보였다 → 중간 밝기 1행.
+            s.form_fill(_p, U['shirt'], 9, 9, layer='base', base_idx=1)
+        g.boots(s, U['shoe'], rows=2, toe=True, cuff=False)
+        for _p in ('leg_r', 'leg_l'):                                     # 스커트 자락(무릎 아래)
+            s.form_fill(_p, U['trouser'], 0, 8, layer='outer', base_idx=3, top=True)
+            # ★검정 위 검정이라 스커트 밑단이 안 읽혔다 → 밝은 헴 한 줄로 자락을 표시
+            s.f(_p, 'front', 'outer').row(8, U['shirt'][2])
+            s.f(_p, 'back', 'outer').row(8, U['shirt'][1])
+    else:
+        g.pants(s, U['trouser'], y0=0, y1=7, seed=seed)
+        g.boots(s, U['shoe'], rows=4, toe=True, cuff=False)
 
     tuxedo(s, v, seed)
     feminize(s, v, seed)     # ★여성 패스 — 정장 다음, 소품 앞
