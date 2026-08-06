@@ -75,15 +75,18 @@ def main():
                     fill=fill, outline=line, width=w)
 
     # 컨테이너 슬롯 — 여기에 아이템이 올라간다. 소켓/홈은 정확히 이 칸에 맞춰야 한다.
-    hero = None
+    # ★주인공 칸은 **5칸**(2026-08-06). 낚시 결과는 물고기 1마리가 아니라 더블/트리플 +
+    #   낚시 재료 + 보물상자까지 한 번에 3~4개가 쏟아지므로 한 칸짜리 제단으론 못 담는다.
+    heroes = set(range(11, 16)) if rows == 3 else set()
+    hero_cells = []
     for r, y in enumerate(g["slot_rows"]):
         for c in range(COLS):
             x = GRID_X + CELL * c
             idx = r * COLS + c
-            is_hero = (rows == 3 and idx == 13)
+            is_hero = idx in heroes
             cell(x, y, SLOT_FILL, HERO_LINE if is_hero else SLOT_LINE, 4 if is_hero else 3)
             if is_hero:
-                hero = (x, y)
+                hero_cells.append((x, y))
             d.text(((x + 4) * SCALE, (y + 5) * SCALE), str(idx),
                    font=f_sm, fill=(255, 255, 255, 230))
 
@@ -106,9 +109,34 @@ def main():
     d.text((lx * SCALE + 6, ly * SCALE + 4), "vanilla may draw a label on this line",
            font=f_sm, fill=WARN_LINE)
 
-    if hero:
-        hx, hy = hero
-        d.text((6, H - 30), f"HERO SLOT 13 center = ({(hx + 9) * SCALE}, {(hy + 9) * SCALE}) art px",
+    # ★프레임 침범 금지 영역 — 2026-08-06 실패: 좌우 나무 프레임을 44px로 그려서
+    #   맨 바깥 슬롯 열이 프레임 위에 올라탔다. 마크 슬롯 격자는 art x=28에서 시작하고
+    #   소켓(96px)은 x=16까지 뻗으므로, 프레임이 들어올 수 있는 폭은 한쪽 16px뿐이다.
+    #   이건 바닐라 상자 GUI 규격이라 협상 불가 — 그림으로 못박아 둔다.
+    def nogo(x0, y0, x1, y1, label):
+        d.rectangle([x0, y0, x1, y1], outline=(255, 140, 0, 255), width=5)
+        d.text((x0 + 8, y0 + 6), label, font=f_sm, fill=(255, 140, 0, 255))
+
+    sock = 96 // 2 - CELL * SCALE // 2      # 소켓이 칸 밖으로 뻗는 여유(art px)
+    sx0 = GRID_X * SCALE - sock
+    sx1 = (GRID_X + CELL * COLS) * SCALE - 1 + sock
+    sy0 = g["slot_rows"][0] * SCALE - sock
+    sy1 = (g["slot_rows"][-1] + CELL) * SCALE - 1 + sock
+    nogo(sx0, sy0, sx1, sy1, "FRAME MUST NOT ENTER (sockets reach here)")
+
+    iy0, iy1 = g["inv_rows"][0], g["hotbar"] + CELL
+    nogo(GRID_X * SCALE, iy0 * SCALE, (GRID_X + CELL * COLS) * SCALE - 1, iy1 * SCALE - 1,
+         "FRAME MUST NOT ENTER")
+
+    if hero_cells:
+        hx0 = min(x for x, _ in hero_cells) * SCALE - sock
+        hx1 = (max(x for x, _ in hero_cells) + CELL) * SCALE - 1 + sock
+        hy = hero_cells[0][1]
+        d.rectangle([hx0, hy * SCALE - sock, hx1, (hy + CELL) * SCALE - 1 + sock],
+                    outline=HERO_LINE, width=5)
+        cxm = (hx0 + hx1) // 2
+        d.text((6, H - 30),
+               f"ALTAR must cover x {hx0}~{hx1} (5 slots) - marker at center x={cxm}, y={(hy + 9) * SCALE}",
                font=f_sm, fill=HERO_LINE)
 
     d.text((12, H - 60), f"CANVAS MUST BE EXACTLY {W} x {H}", font=f_big, fill=(255, 255, 0, 255))
