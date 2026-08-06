@@ -655,8 +655,13 @@ def body(s, v, seed):
         g.mantle(s, R('leather_d'), front=3, back=8, seed=seed, lining=under)
         g.belt(s, R('leather'), y=8, layer='outer')
     elif garb == 'kirtle':
-        g.robe(s, cloth, y0=0, seed=seed, hem_row=11,
-               sleeve_to=v.get('roll', 9), lining=under)
+        # ★robe()를 그대로 부르고 있었다(2026-08-05 지적 "복장자체가 여자같지 않음") —
+        #   순례자·현자가 쓰는 그 함수라 남성 로브와 실루엣이 같았다. kirtle()은
+        #   네크라인·보디스 끈·허리 조임·치마 음영을 얹어 여성 재단으로 가른다.
+        g.kirtle(s, cloth, under, y0=0, seed=seed, hem_row=11,
+                 sleeve_to=v.get('roll', 9),
+                 neckline=v.get('neckline', 'square'),
+                 waist=v.get('waist', 7), lace=v.get('lace', True))
         if v.get('apron'):
             g.apron(s, R(v['extra']), bib=(2, 5), bib_y=(2, 6), waist=7, hem=11,
                     wrap=0, straps=True, tie=True, seed=seed)
