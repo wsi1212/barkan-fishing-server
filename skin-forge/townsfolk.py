@@ -491,12 +491,19 @@ def head(s, v, seed):
            else 2)
     # ★brow_c = 눈썹색 직접 지정. 백발(age=True→hair[3])은 흰자와 색이 겹쳐 눈썹이
     #   눈에 붙어 보이는데, 그 사람만 짙은 색으로 떼어내려면 예외구가 필요하다.
+    # ★여성은 눈썹을 한 행 위로 올려 눈 바로 위(eye_y-1)를 속눈썹에 내준다.
+    #   남성 [눈썹 eye_y-1][눈] / 여성 [눈썹 eye_y-2][속눈썹 eye_y-1][눈]
+    #   — 이 구조 차이가 8x8에서 성별을 만드는 실제 지점이다(garments.female_eyes 주석 참고).
+    #   eye_y<=3이면 눈썹 자리가 앞머리에 덮이므로 눈썹은 원래 자리에 두고 속눈썹만 넣는다.
+    brow_up = bool(v.get('female')) and eye_y >= 4
     g.brow(s, ramp(v['brow_c'])[2] if v.get('brow_c')
-           else (hair[2] if not v.get('age') else hair[3]), y=eye_y - 1,
+           else (hair[2] if not v.get('age') else hair[3]),
+           y=eye_y - (2 if brow_up else 1),
            weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
     f = s.f('head', 'front')
     if v.get('female'):
-        f.px(0, 4, skin[1]); f.px(7, 4, skin[1])         # 속눈썹/눈꼬리
+        # 속눈썹 — 머리색 한 단 밝게 섞어 '검은 줄'이 되지 않게 한다
+        g.female_eyes(s, g.mix(skin[1], hair[2], 0.65), eye_y=eye_y, skin_r=skin)
         f.rect(3, v.get('mouth_y', 6), 4, v.get('mouth_y', 6),
                ramp(v.get('lip', '9b5a52'))[2])          # 입술
     else:
@@ -850,11 +857,15 @@ def feminize(s, v, seed):
     if not v.get('female') or v.get('child'):
         return
     g.female_form(s, seed=seed)
-    head = v.get('head')
-    g.female_face(s, ramp(v['hair']), ramp(v['skin']),
-                  eye_y=v.get('eye_y', 4),
-                  locks=head not in ('hood', 'coif'),
-                  lock_y0=3 if head in ('kerchief', 'cap') else 1)
+    # ★긴 머리 — 얼굴 앞면은 절대 안 건드린다(1차 실패 교훈: female_face가 앞면 x0·x7을
+    #   머리로 덮어 얼굴이 6px로 좁아지고 눈이 검은 덩어리가 됐다. garments.female_hair_length
+    #   주석 참고). 머리를 통째로 감싸는 머리쓰개면 건너뛴다.
+    # ★머리 볼륨(옆·뒤·정수리)은 머리에 아무것도 안 쓴 사람만 — 이 패스는 모자를 그린
+    #   뒤에 돌기 때문에 켜면 두건·모자·바이저 crown을 머리카락이 덮어쓴다.
+    #   등으로 흘러내리는 길이(shoulders)는 머리쓰개와 무관하므로 항상 준다.
+    g.female_hair_length(s, ramp(v['hair']), seed=seed,
+                         head_volume=(v.get('head') is None and not v.get('visor')),
+                         shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
 
 
 def build(v):

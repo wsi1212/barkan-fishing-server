@@ -157,10 +157,15 @@ def feminize(s, v, seed):
     if not v.get('female') or v.get('child'):
         return
     g.female_form(s, seed=seed)
-    hd = v.get('head')
-    g.female_face(s, ramp(v['hair']), ramp(v['skin']), eye_y=v.get('eye_y', 4),
-                  locks=hd not in (),
-                  lock_y0=3 if hd in () else 1)
+    # ★긴 머리 — 얼굴 앞면은 절대 안 건드린다(1차 실패 교훈: female_face가 앞면 x0·x7을
+    #   머리로 덮어 얼굴이 6px로 좁아지고 눈이 검은 덩어리가 됐다. garments.female_hair_length
+    #   주석 참고). 머리를 통째로 감싸는 머리쓰개면 건너뛴다.
+    # ★머리 볼륨(옆·뒤·정수리)은 머리에 아무것도 안 쓴 사람만 — 이 패스는 모자를 그린
+    #   뒤에 돌기 때문에 켜면 두건·모자·바이저 crown을 머리카락이 덮어쓴다.
+    #   등으로 흘러내리는 길이(shoulders)는 머리쓰개와 무관하므로 항상 준다.
+    g.female_hair_length(s, ramp(v['hair']), seed=seed,
+                         head_volume=(v.get('head') is None and not v.get('visor')),
+                         shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
 
 def build(v):
     s = Skin()
