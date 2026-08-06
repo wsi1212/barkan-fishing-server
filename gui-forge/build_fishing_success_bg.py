@@ -66,10 +66,12 @@ GLOW_BAND_H = 216
 HAIRLINE_BANDS = [(134, 146), (206, 218)]
 HAIRLINE_SRC_DY = 26
 
+# ★금테두리는 A(rank5)부터 — 등급 승격이 화면 전체로 읽히는 경계를 A에 둔다.
+#   티어 간 차이는 광휘 색·강도와 소켓 색으로 유지해 A→G 사이에도 단계가 남는다.
 TIERS = [
     {"id": "basic", "grades": ["E", "D", "C", "B"], "socket": None,               "glow": None,                     "gold": False},
-    {"id": "weak",  "grades": ["A", "S"],           "socket": (0.78, 1.20, 1.05), "glow": ((120, 190, 255), 0.55),  "gold": False},
-    {"id": "mid",   "grades": ["M", "L"],           "socket": (0.09, 1.30, 1.10), "glow": ((255, 170, 90), 0.75),   "gold": False},
+    {"id": "weak",  "grades": ["A", "S"],           "socket": (0.78, 1.20, 1.05), "glow": ((120, 190, 255), 0.55),  "gold": True},
+    {"id": "mid",   "grades": ["M", "L"],           "socket": (0.09, 1.30, 1.10), "glow": ((255, 170, 90), 0.75),   "gold": True},
     {"id": "max",   "grades": ["G"],                "socket": (0.12, 1.35, 1.15), "glow": ((255, 215, 120), 1.00),  "gold": True},
 ]
 
