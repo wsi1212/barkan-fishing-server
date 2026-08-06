@@ -27,11 +27,11 @@ V = {
     # ── 은빛 갈매기호 승무원 (계급이 옷의 격식으로 읽혀야 한다) ──────────────
     '55': dict(file='isabella', cid=55, label='이자벨라 — 선장',
                # "내 배에 오른 이상, 내 규칙을 따르도록" → ★여성 선장. 배에서 가장 갖춤
-               female=True, skin='b58b65', hair='3f2f24',
+               female=True, skin='b58b65', hair='1b1a24',
                garb='coat', cloth='navy', under='linen', legs='tar',
                boot='boot_d', head='cap', headc='tar', prop='ledger',
                accent='brass',
-               eye_y=3, iris='grey', jaw='narrow', backhair=7, brow_a=1, surface=('trim', 'buttons'), surfc='brass', layer2='sash', l2c='crimson'),
+               eye_y=3, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface=('trim', 'buttons'), surfc='brass', layer2='sash', l2c='crimson'),
     '51': dict(file='matteo', cid=51, label='마테오 — 갑판장',
                # "이 갑판 위의 일은 전부 내 소관이지" → 팔뚝이 굵고 밧줄을 두른다
                skin='ab7748', hair='241f1c', beard='full',
@@ -158,7 +158,7 @@ V = {
                eye_y=5, iris='green', jaw='oval', cheek=True, backhair=8, marks='freckles', surface='pocket', surfc='sage'),
     '153': dict(file='tavernkeep', cid=153, label='식당 주인',
                 # "어서 오세요! 식당에 들어오신 걸 환영합니다" → 앞치마 + 국자
-                female=True, skin='cfa47e', hair='4f3b2a',
+                female=True, skin='cfa47e', hair='a83a1e', braid=True, backhair=9,
                 garb='kirtle', cloth='chalk', under='linen', extra='linen',
                 legs='bloom', boot='boot', head='kerchief', headc='linen',
                 prop='ladle', apron=True, roll=6,

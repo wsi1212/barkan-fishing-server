@@ -79,7 +79,7 @@ V = {
     '101': dict(file='giovanna', cid=101, label='지오반나 — 요리',
                 # "요리는 재료가 전부예요" → 여성 요리사. 그레고르57·프란츠21과 한 축이되
                 #   여성 + 크림 앞치마 + 두건으로 갈린다
-                female=True, skin='cfa47e', hair='3f2f24',
+                female=True, skin='cfa47e', hair='b9903f',
                 garb='kirtle', cloth='chalk', under='sail', extra='sail',
                 legs='wine2', boot='boot', head='kerchief', headc='sail',
                 prop='ladle', apron=True, roll=6,
@@ -134,7 +134,7 @@ V = {
     '85': dict(file='giulia', cid=85, label='줄리아 — 상단 회계',
                # ★"숫자는 거짓말을 하지 않아요. 장부만 보면 다 알 수 있죠"
                #   구스킨은 대장간에 있을 사람처럼 보였다(유저 지적) — 잉크빛 커틀 + 장부
-               female=True, skin='d0a57f', hair='241f1c',
+               female=True, skin='d0a57f', hair='a83a1e', braid=True,
                garb='kirtle', cloth='ink', under='sail', legs='ink',
                boot='boot_d', head=None, prop='ledger', accent='brass',
                eye_y=3, iris='dark', jaw='narrow', backhair=8, surface='trim', surfc='brass'),
@@ -146,7 +146,7 @@ V = {
                eye_y=4, iris='blue', jaw='long', socket=True, marks='ruddy', surface='seams', surfc='slate', bootrows=6),
     '87': dict(file='claudia', cid=87, label='클라우디아 — 향신료 상인',
                # "사막 건너 온 귀한 물건" → 사막과 거래하는 여성. 색을 조금 쓴다
-               female=True, skin='c2856e', hair='3f2f24',
+               female=True, skin='c2856e', hair='c25a2a',
                garb='kirtle', cloth='burgundy', under='sail', legs='burgundy',
                boot='boot', head='kerchief', headc='ochre', prop='vialset',
                braid=True,
@@ -164,7 +164,7 @@ V = {
                boot='boot', head=None, prop='net', roll=4,
                eye_y=5, iris='green', jaw='square', brow_w=2, surface='patchwork', surfc='canvas', layer2='suspenders', l2c='leather'),
     '90': dict(file='rosa', cid=90, label='로사 — 생선 장수',
-               female=True, skin='b08b6b', hair='5a4230',
+               female=True, skin='b08b6b', hair='9c7a4e', backhair=8,
                garb='kirtle', cloth='chalk', under='sail', extra='oat',
                legs='sea', boot='boot', head='kerchief', headc='rust',
                prop='scales', apron=True, roll=6,

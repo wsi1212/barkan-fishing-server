@@ -165,7 +165,7 @@ VARIANTS = {
     # ── 여성 주민 ────────────────────────────────────────────────────────
     '103': dict(file='gretchen', cid=103, label='그레첸 — 빵집',
                 # "갓 구운 빵 냄새 좋지 않나요?" → 밀가루 앞치마 + 두건
-                female=True, skin=SKIN['pale'], hair='6b4a2f',
+                female=True, skin=SKIN['pale'], hair='a83a1e', backhair=8,
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
                 garb='kirtle', cloth='rust', under='linen', extra='chalk',
                 legs='rust', boot='boot', head='kerchief', headc='linen',
@@ -174,7 +174,7 @@ VARIANTS = {
                 eye_y=4, iris='green', jaw='oval', cheek=True, marks='freckles', mouth_y=6),
     '105': dict(file='inga', cid=105, label='잉가 — 물 긷는 여인',
                 # "물 길으러 나왔어요" → 가장 소박한 차림. 금속 0곳
-                female=True, skin='b58b65', hair='4f3b2a',
+                female=True, skin='b58b65', hair='d9bb63',
                 cloth='moss', under='oat', legs='moss', boot='boot',
                 head=None, prop='pouch', braid=True,
                 surface='seams', surfc='oat',
@@ -184,17 +184,17 @@ VARIANTS = {
                 # "생선은 손질이 반이랍니다" → 방수 앞치마 + 걷은 소매 + 비늘
                 # 방수 앞치마는 타르를 먹인 검정이 실물에 맞다 — 어물전 3인(헬가·그레타)과
                 # 앞치마 색으로 갈리고, 마을의 '어두운 사람' 쿼터도 여기서 하나 채운다
-                female=True, skin='b58f6e', hair='241f1c',
+                female=True, skin='b58f6e', hair='c25a2a', braid=True,
                 garb='kirtle', cloth='teal_d', under='linen', extra='pitch',
                 legs='teal_d', boot='boot', head='kerchief', headc='teal',
                 prop='scales', apron=True, roll=5,
                 surface='pocket', surfc='teal',
-                eye_y=4, iris='dark', jaw='narrow', backhair=6, brow_a=-1),
+                eye_y=4, iris='dark', jaw='narrow', backhair=9, brow_a=-1),
     '138': dict(file='frieda', cid=138, label='프리다 — 항구 가수',
                 # "항구엔 늘 노랫거리가 있죠" → 마을에서 유일하게 색을 좀 쓴다
                 # ★그 '색을 쓴다'가 말뿐이었다(와인색=채도 0.28). 꼭두서니 빨강 + 웰드
                 #   노랑 숄로 실제 유채색 자리를 준다 — 무대에 서는 사람이니 명분도 맞다
-                female=True, skin=SKIN['ruddy'], hair='5a4230',
+                female=True, skin=SKIN['ruddy'], hair='1b1a24',
                 garb='kirtle', cloth='madder', under='linen', legs='madder', boot='boot',
                 head=None, prop='shawl', shawl='weld', braid=True,
                 surface=('lacing', 'trim'), surfc='weld',
@@ -291,7 +291,7 @@ VARIANTS = {
                 eye_y=5, iris='brown', jaw='narrow', fringe=3, mouth_w=3, bootrows=2),
     '29': dict(file='marta', cid=29, label='마르타 — 시장 안내',
                # "싱싱한 건 제값 쳐주는 게 시장 인심이죠" → 활기찬 시장 상인
-               female=True, skin='bf9878', hair='6b4a2f',
+               female=True, skin='bf9878', hair='9c7a4e',
                # 앞치마는 크림이 아니라 표백 흰색이어야 금색 드레스와 값이 갈린다
                garb='kirtle', cloth='weld', under='linen', extra='chalk',
                legs='weld', boot='boot', head=None, prop='basket',
@@ -300,12 +300,12 @@ VARIANTS = {
                 eye_y=4, iris='brown', jaw='oval', backhair=8, cheek=True, mouth_w=3),
     '30': dict(file='bettina', cid=30, label='베티나 — 요리 안내',
                # "이 주방에선 잡은 걸로 근사한 요리를 만든답니다" → 주방 보조
-               female=True, skin='cfa47e', hair='4f3b2a',
+               female=True, skin='cfa47e', hair='2b2118', braid=True,
                garb='kirtle', cloth='moss', under='linen', extra='chalk',
                legs='moss', boot='boot', head='kerchief', headc='chalk',
                prop='ladle', apron=True,
                 surface='pocket', surfc='moss',
-                eye_y=5, iris='hazel', jaw='oval', backhair=6, marks='freckles'),
+                eye_y=5, iris='hazel', jaw='oval', backhair=9, marks='freckles'),
     '28': dict(file='felix', cid=28, label='펠릭스 — 대장간 견습',
                # "여긴 대장간이에요. 좋은 장비가 좋은 어부를 만들죠!" → 젊고 들뜬 견습.
                #   군터9(마스터)보다 앞치마가 작고 그을음이 적어야 계급이 읽힌다
@@ -319,11 +319,11 @@ VARIANTS = {
     '17': dict(file='ingrid', cid=17, label='잉그리드 — 길드 접수',
                # 길드 GUI 담당. 마을에서 가장 격식 있는 여성 — 장부와 인장
                # 대청 파랑 — 마을에서 가장 격식 있는 여성이라 비싼 염료가 명분이 된다
-               female=True, skin='d0a57f', hair='4f3b2a',
+               female=True, skin='d0a57f', hair='b9903f',
                garb='kirtle', cloth='woad', under='linen', legs='ink',
                boot='boot_d', head=None, prop='ledger', accent='brass',
                 surface=('trim', 'buttons'), surfc='brass',
-                eye_y=3, iris='grey', jaw='narrow', backhair=7, brow_a=1),
+                eye_y=3, iris='grey', jaw='narrow', backhair=9, brow_a=1),
 
     # ── 기능 NPC (&b) ────────────────────────────────────────────────────
     '9': dict(file='gunter', cid=9, label='군터 — 마을 대장간',
@@ -347,12 +347,12 @@ VARIANTS = {
                 eye_y=5, iris='brown', jaw='oval', fringe=3, cheek=True, mouth_w=3),
     '6': dict(file='helga', cid=6, label='헬가 — 물고기 판매',
               # 오토14·그레타13과 한 어물전. 공통=방수 가죽 앞치마+비늘 / 개인=색과 나이
-              female=True, skin='b08762', hair='5a4230',
+              female=True, skin='b08762', hair='7a2f3a',
               garb='kirtle', cloth='slate', under='oat', extra='leather',
               legs='slate', boot='boot', head='kerchief', headc='mustard',
               prop='scales', apron=True, roll=6,
                 surface='pocket', surfc='mustard',
-                eye_y=4, iris='hazel', jaw='square', backhair=6, marks='ruddy'),
+                eye_y=4, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
     '13': dict(file='greta', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
                female=True, age=True, skin='a88c73', hair='9a938a',

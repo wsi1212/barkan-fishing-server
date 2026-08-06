@@ -117,7 +117,7 @@ VARIANTS = {
                eye_y=5, iris='hazel', jaw='oval', marks='freckles'),
     '114': dict(file='fatima', cid=114, label='파티마 — 직조공',
                 # "직물에 물고기 무늬를 새기는 게 제 특기죠" → 무늬 있는 옷 + 실타래
-                female=True, skin='b98a5c', hair='4a2f22',
+                female=True, skin='b98a5c', hair='2b2118',
                 garb='veil_robe', cloth='terra', over='mustard', sash='ecru',
                 head='veil', headc='mustard', prop='yarn', pattern=True,
                eye_y=4, iris='amber', jaw='oval', cheek=True),
@@ -129,7 +129,7 @@ VARIANTS = {
                eye_y=4, iris='dark', jaw='square', brow_w=2, marks='scar'),
     '116': dict(file='nur', cid=116, label='누르 — 향료상',
                 # "좋은 향과 좋은 생선은 닮은 점이 있어요" → 향료병. 색을 조금 쓴다
-                female=True, skin='b98a5c', hair='4a2f22',
+                female=True, skin='b98a5c', hair='1b1a24',
                 garb='veil_robe', cloth='plum', over='copper', sash='ecru',
                 head='veil', headc='plum', prop='vials', accent='brass',
                eye_y=3, iris='green', jaw='narrow', cheek=True),
