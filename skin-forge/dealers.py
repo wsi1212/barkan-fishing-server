@@ -198,6 +198,13 @@ def build(v):
     g.hair(s, hair, fringe=3 if v.get('female') else 2,
            back=8 if v.get('female') else 5, seed=seed,
            part_x=3 if v.get('female') else None)
+    # ★앞머리 모양 — hair() 직후. 자체 build_head를 가진 모듈이라 townsfolk의
+    #   배선이 여기까진 안 닿는다(lessons 10장).
+    if v.get('fstyle'):
+        g.fringe_style(s, hair, style=v['fstyle'],
+                       eye_y=max(4, min(v.get('eye_y', 5), 5)) if v.get('female')
+                       else v.get('eye_y', 4),
+                       seed=seed, skin_r=skin)
     if v.get('beard'):
         g.beard(s, hair, style=v['beard'], y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)

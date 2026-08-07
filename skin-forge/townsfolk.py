@@ -579,6 +579,19 @@ def head(s, v, seed):
         g.hair_volume(s, hair, fringe=fringe, back=8, seed=seed)
         g.cap(s, R(v['headc']), crown=4, brim=False, seed=seed)
 
+    # ★앞머리 모양 — 반드시 <b>머리쓰개 분기 다음</b>이어야 한다. hair() 직후에 뒀더니
+    #   위 hd 분기의 hair_volume() 재호출이 통째로 덮어써서 <b>아무 효과가 없었다</b>
+    #   (실측: outer 알파가 개정 전후 완전히 동일). 렌더만 보고 "미묘하다"고 넘겼으면
+    #   기능이 죽은 걸 모른 채 배포할 뻔했다.
+    # ★맨머리만 — 두건·후드는 앞머리를 천이 가리므로 모양을 줘봐야 안 보인다.
+    if v.get('fstyle') and hd is None:
+        g.fringe_style(s, hair, style=v['fstyle'], eye_y=eye_y, seed=seed, skin_r=skin)
+        # 앞머리를 다시 깎았으니 눈 검사도 다시 한다 — 가드는 마지막 상태를 봐야 한다
+        fchk2 = s.f('head', 'front')
+        if sum(1 for x in (1, 2, 5, 6) if max(fchk2.get(x, eye_y)[:3]) > 150) < 2:
+            raise ValueError(f"{v['file']}: fringe_style '{v['fstyle']}'가 눈을 덮었다 "
+                             f"(eye_y={eye_y})")
+
 
 def body(s, v, seed):
     skin = ramp(v['skin'])
@@ -937,6 +950,14 @@ def adorn(s, v, seed):
         return
     # 베일·후드는 목까지 감싸므로 네크라인·목걸이가 성립하지 않는다
     covered = v.get('head') in ('hood', 'coif', 'veil') or v.get('garb') == 'veil_robe'
+    # ★앞으로 넘긴 땋은 머리 — female_hair_length 다음, 장신구 앞.
+    #   feminize에 두면 dealers·desertfolk가 빠진다(자체 feminize를 갖고 있다,
+    #   lessons 10장). adorn은 7개 모듈 전부에 배선돼 있으므로 여기가 맞다.
+    #   ponytail()은 뒤로 가서 인게임에서 볼 일이 없다(lookclose).
+    if v.get('fbraid'):
+        g.braid_front(s, ramp(v['hair']), side=v.get('fbraidside'),
+                      drop=v.get('fbraiddrop', 6), seed=seed,
+                      tie=R(v['fbraidtie']) if v.get('fbraidtie') else None)
     # ★피부는 팔레트 키가 아니라 hex다 — R()이 아니라 ramp()를 쓴다
     if v.get('neck') and not covered:
         g.decollete(s, ramp(v['skin']), style=v['neck'])
@@ -1051,12 +1072,68 @@ def restyle(v):
     ★build() 맨 앞에서 불러야 한다 — head()가 v['head']를 읽기 <b>전</b>이어야
       두건 제거가 반영된다. adorn()에서 처리하면 이미 두건이 그려진 뒤다.
     """
-    patch = FEM_RESTYLE.get(v.get('file'))
-    if not patch:
+    f = v.get('file')
+    patch = FEM_RESTYLE.get(f)
+    hairp = FEM_HAIR.get(f)
+    if not patch and not hairp:
         return v
     out = dict(v)
-    out.update(patch)
+    out.update(patch or {})
+    out.update(hairp or {})
     return out
+
+
+# 머리 <b>모양</b> 축 (2026-08-07) — FEM_RESTYLE과 함께 restyle()에서 합쳐진다.
+#
+# 왜: 색은 이미 15종으로 갈라놨는데 <b>모양이 33명 전원 같았다</b>(fringe=3 · part=3).
+# 얼굴 8x8 픽셀 동일률이 4.8%로 몸통 다음으로 닮은 부위였던 실제 원인이 이것이다.
+# 앞머리 5종 × 가르마 위치 × 앞으로 넘긴 땋은머리로 얼굴 인상을 가른다.
+#
+# ★배분 원칙: 같은 마을 <b>이웃끼리 같은 fstyle을 주지 않는다</b>. 스킨은 혼자 볼 때가
+#   아니라 옆에 나란히 섰을 때 닮아 보이는 게 문제다.
+# ★사막(베일 4명)·밀정 레일라(후드)는 앞머리가 천에 가려 의미가 없어 제외했다.
+# ★리나(아이)는 앞머리만 준다 — fbraid는 adorn 안에 있고 adorn은 child를 건너뛴다.
+# ★fstyle은 <b>blunt / curtain / swept</b> 셋뿐이다.
+#   pulled(올백)과 wispy(숱 적음)는 <b>폐기</b>했다 — 8px 얼굴에서 이마는 4행뿐이라
+#   앞머리를 걷거나 성기게 만들면 예외 없이 '탈모·듬성한 헤어라인'으로 읽힌다.
+#   세 번 고쳐보고 내린 결론이다(합성 얼굴 실측). 자세한 경위는 garments.fringe_style 주석.
+FEM_HAIR = {
+    # ── 스폰 마을 ────────────────────────────────────────────────────────────
+    'gretchen':    dict(fstyle='blunt',   part=2),
+    'mia':         dict(fstyle='blunt',   part=5),
+    'bettina':     dict(fstyle='curtain', part=4, fbraid=True, fbraidside='r', fbraiddrop=5),
+    'brigitte':    dict(fstyle='swept',   part=1),
+    'astrid':      dict(fstyle='curtain', part=6),
+    'helga':       dict(fstyle='curtain', part=3),
+    'greta':       dict(fstyle='blunt',   part=5),
+    'frieda':      dict(fstyle='swept',   part=6, fbraid=True, fbraidside='l',
+                        fbraiddrop=7, fbraidtie='madder'),      # 가수 — 가장 화려해도 되는 배역
+    'inga':        dict(fstyle='swept',   part=2),
+    'ingrid':      dict(fstyle='blunt',   part=4),              # 접수 — 단정한 일자
+    'marie':       dict(fstyle='blunt',   part=4, fbraid=True, fbraidside='r', fbraiddrop=5),
+    'marta':       dict(fstyle='curtain', part=2),
+    'rina':        dict(fstyle='blunt',   part=5),              # 아이 — 앞머리만
+    # ── 상단 마을 ────────────────────────────────────────────────────────────
+    'claudia':     dict(fstyle='swept',   part=1, fbraid=True, fbraidside='l', fbraiddrop=6),
+    'giovanna':    dict(fstyle='blunt',   part=4),
+    'giulia':      dict(fstyle='blunt',   part=6),              # 회계 — 단정한 일자
+    'rosa':        dict(fstyle='blunt',   part=2),
+    'silvia':      dict(fstyle='curtain', part=5, fbraid=True, fbraidside='r', fbraiddrop=6),
+    'teresa':      dict(fstyle='curtain', part=3),              # 20년차
+    # ── 배·기타 ──────────────────────────────────────────────────────────────
+    'isabella':    dict(fstyle='swept',   part=2),              # 선장 (모자라 앞머리는 안 보임)
+    'rosa_garden': dict(fstyle='curtain', part=6, fbraid=True, fbraidside='l', fbraiddrop=5),
+    'tavernkeep':  dict(fstyle='blunt',   part=3),
+    'ci_cook':     dict(fstyle='blunt',   part=4),
+    # ── 카지노 딜러 ──────────────────────────────────────────────────────────
+    # 제복이라 단정한 쪽으로 몰되, 넷이 한 테이블에 서므로 서로는 반드시 달라야 한다
+    'd_blackjack2': dict(fstyle='curtain', part=1),
+    'd_holdem2':    dict(fstyle='blunt',   part=3),
+    'd_slot2':      dict(fstyle='curtain', part=4),
+    'd_threecard2': dict(fstyle='swept',   part=2, fbraid=True, fbraidside='r', fbraiddrop=5),
+    # ── 랭킹 ────────────────────────────────────────────────────────────────
+    'r_marcello':   dict(fstyle='swept',   part=5),
+}
 
 
 if __name__ == '__main__':
