@@ -32,7 +32,10 @@ FONT_TTF = os.path.join(RP, "assets/barkan/font/aggro_bold.ttf")
 
 SCALE = 4
 TITLE_H_GUI = 16          # 글리프 높이(GUI px) — 제목 줄 한 칸
-ASCENT = 13               # 글리프 top = 6 (바닐라 제목 줄 위치)
+# ★글리프 top(GUI y) = 13 - ascent. ascent=13 이면 top=0 (창 맨 위)이라 제목이
+#   헤더 명판 위로 튀어나온다(2026-08-07 실사고 — 6인 줄 알았다).
+#   공용판 명판 안쪽은 art y 43~81(중앙 62)이므로 16px 글리프의 top 을 8로 둔다.
+ASCENT = 5                # top = 13-5 = 8 → 글리프 중앙 art 64 ≈ 명판 중앙 62
 CODE0 = 0xE700
 PREFIX = "title_"
 
