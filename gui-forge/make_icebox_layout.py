@@ -58,7 +58,7 @@ def guide():
         for c in range(COLS):
             b = cell(c, r)
             d.rectangle(b, fill=(0, 170, 200, 60), outline=(120, 230, 255, 230), width=2)
-    d.text((cell(0, 3)[0] + 8, cell(0, 3)[1] - 26), "보관칸 45 (1~5행) — 물고기가 올라간다",
+    d.text((cell(0, 3)[0] + 8, cell(0, 3)[1] - 26), "보관칸 45 (1~5행): 물고기가 올라간다",
            font=fs, fill=(150, 235, 255, 255))
 
     # 머리줄
@@ -72,12 +72,12 @@ def guide():
 
     d.rectangle([GRID_X * SCALE, TITLE_Y0, (GRID_X + CELL * COLS) * SCALE - 1, TITLE_Y1],
                 outline=(150, 150, 255, 255), width=4)
-    d.text((GRID_X * SCALE + 8, TITLE_Y0 + 8), "제목 띠 — 「아이스박스」를 여기 그린다",
+    d.text((GRID_X * SCALE + 8, TITLE_Y0 + 8), "제목 띠: 「아이스박스」를 여기 그린다",
            font=fs, fill=(190, 190, 255, 255))
 
     d.rectangle([GRID_X * SCALE, INV_Y0 * SCALE, (GRID_X + CELL * COLS) * SCALE - 1, (INV_Y0 + 76) * SCALE],
                 outline=(255, 90, 90, 220), width=5)
-    d.text((GRID_X * SCALE + 8, (INV_Y0 - 13) * SCALE), "PLAYER INVENTORY — 격자 그리지 말 것",
+    d.text((GRID_X * SCALE + 8, (INV_Y0 - 13) * SCALE), "PLAYER INVENTORY: 격자 그리지 말 것",
            font=fs, fill=(255, 120, 120, 255))
     d.text((12, H - 34), f"CANVAS {W} x {H}", font=f, fill=(255, 255, 0, 255))
     return im
