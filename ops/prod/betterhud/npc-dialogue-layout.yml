@@ -1,0 +1,41 @@
+# 화면 하단 기준. Hotbar 위 24px을 비워 HUD와 겹치지 않게 한다.
+npc_dialogue_layout:
+  images:
+    1:
+      name: dialogue_ribbon
+      x: -250
+      y: -190
+    2:
+      name: npc_dialogue_portrait
+      x: -242
+      y: -190
+    3:
+      name: dialogue_box
+      x: -108
+      y: -148
+    4:
+      name: dialogue_nameplate
+      x: -236
+      y: -65
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -94
+      y: -132
+      scale: 1.0
+      align: left
+      line-align: left
+      line: 4
+      line-width: 14
+      split-width: 300
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -222
+      y: -55
+      scale: 1.0
+      align: left
