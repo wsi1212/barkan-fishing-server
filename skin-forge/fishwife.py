@@ -90,6 +90,10 @@ def build():
         fa.px(x, y, P['scale'][4])
         fa.px(min(7, x + 1), y, P['scale'][2])
 
+    # ★긴 머리 — 반드시 <b>옷·머리쓰개를 다 그린 뒤</b>, 그리고 outer 레이어에.
+    #   NPC는 lookclose로 늘 플레이어를 마주보므로 뒷머리는 볼 일이 없다 → 얼굴 옆과
+    #   가슴 앞으로 내려와야 '길다'가 읽힌다. 머리쓰개는 함수가 알아서 비켜간다.
+    g.female_hair_length(s, P['hair'], seed=SEED)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'fishwife.png'))
 

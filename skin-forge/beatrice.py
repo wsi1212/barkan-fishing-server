@@ -43,8 +43,6 @@ def build():
     f.rect(3, 6, 4, 6, P['lip'][2])                              # 입술
     g.headscarf(s, P['kerchief'], rows=2, tail=False, seed=SEED)  # 머릿수건
     g.ponytail(s, P['hair'], x0=2, w=2, y0=6, y1=11)             # 땋은 머리
-    s.f('body', 'front', 'outer').rect(0, 0, 1, 4, P['hair'][2])  # ★한쪽 어깨 앞으로
-    s.f('body', 'front', 'outer').col(0, P['hair'][1], 0, 4)
 
     # 블라우스 → 치마 → 보디스 → 앞치마
     g.tunic(s, P['blouse'], y0=0, y1=11, collar=True, seed=SEED, grain=0.07, hem=False)
@@ -65,6 +63,10 @@ def build():
     g.apron(s, P['apron'], bib=(3, 4), bib_y=(3, 6), waist=7, hem=11,
             wrap=1, straps=False, tie=True, seed=SEED)
     g.patch(s, 'leg_l', 'front', P['skirt'], x=1, y=5, w=2, h=2, layer='outer')
+    # ★긴 머리 — 반드시 <b>옷·머리쓰개를 다 그린 뒤</b>, 그리고 outer 레이어에.
+    #   NPC는 lookclose로 늘 플레이어를 마주보므로 뒷머리는 볼 일이 없다 → 얼굴 옆과
+    #   가슴 앞으로 내려와야 '길다'가 읽힌다. 머리쓰개는 함수가 알아서 비켜간다.
+    g.female_hair_length(s, P['hair'], seed=SEED)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'beatrice.png'))
 

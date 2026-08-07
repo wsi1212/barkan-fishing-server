@@ -910,6 +910,8 @@ def feminize(s, v, seed):
     #   뒤에 돌기 때문에 켜면 두건·모자·바이저 crown을 머리카락이 덮어쓴다.
     #   등으로 흘러내리는 길이(shoulders)는 머리쓰개와 무관하므로 항상 준다.
     g.female_hair_length(s, ramp(v['hair']), seed=seed,
+                         # 뒷머리 길이 스펙(backhair 7~9)을 앞·어깨로 흘리는 길이와 연동한다
+                         drop=max(3, min(6, v.get('backhair', 7) - 4)),
                          head_volume=(v.get('head') is None and not v.get('visor')),
                          shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
 
