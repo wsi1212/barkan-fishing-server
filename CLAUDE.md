@@ -28,7 +28,7 @@
 | **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
 | **배** | `ship/` (ShipManager·ShipFactory·ShipMover) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | BlockDisplay+Shulker, 프리셋 3종 |
 
-**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager·ChestLockListener — 아래 「상자 잠금 규약」) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
@@ -63,6 +63,16 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 문 설정: OP `/잠긴문 pos1/pos2 → 생성 <문id> <키id> <키표시이름...> → 도착점 <문id>`. 영속 `locked-doors.json`. 왕복은 안쪽에 같은 키의 문을 하나 더.
 - keyId는 한글 무공백(예: `여관지하실`), 표시이름은 자유(예: `여관 지하실 열쇠`).
 
+### 상자 잠금 규약 (lock/ChestLockManager — 2026-08-07 신설)
+- **잠긴문(door/)과 별개 시스템** — 이쪽은 유저가 스스로 거는 컨테이너 자물쇠(LWC/Lockette 계열), 저쪽은 OP가 배치하는 퀘스트 열쇠 문. 서로 참조하지 않는다.
+- **대상 월드는 `island_world` / `guild_world`뿐** (`ChestLockManager.LOCK_WORLDS`). 일반 월드는 MapProtectionListener가 이미 막으므로 중복 보호 금지.
+- **권위 데이터는 `chest-locks.json`** — 표지판은 UI일 뿐이다. 소유자 UUID를 별도로 들고 있어서 표지판 글자를 고쳐 남의 잠금을 뺏을 수 없다. 대신 **지연 검증**: 표지판이 사라지거나 `[lock]` 태그가 지워지면 다음 접근 때 잠금도 자동 소멸(`signStillValid`).
+- 잠그는 법: 상자·통·화로·마법부여대 등에 표지판을 붙이면 자동으로 `[lock]` + 본인 이름 각인. 다른 글자를 적으면 장식 표지판으로 남는다(자동잠금 회피구).
+- 명단은 표지판 2~4줄 — `wsi1212, calan123`처럼 콤마/공백 구분. 소유자는 항상 명단 맨 앞에 강제 유지. 3줄을 넘치면 `외 N명`으로 접히고 그 상태로 표지판을 재편집하면 접힌 이름은 사라진다(권위는 JSON이지만 재편집은 WYSIWYG) — 인원이 많으면 `/상자잠금 추가·제거`를 쓸 것.
+- 이름은 저장 시 UUID로도 해석해 둔다(온라인→캐시된 오프라인 순, **네트워크 조회 금지**). 그래서 닉 변경에도 유지되고 닉 재사용으로는 못 들어온다.
+- 막는 경로: 우클릭 사용 / 파괴 / 표지판 파괴 / 잠긴 상자 옆 상자 붙이기(더블상자 강탈) / 호퍼 반출(같은 주인 잠금끼리만 허용) / 폭발 / 피스톤. **호퍼로 넣는 건 자유**(자동 분류기가 깨지므로).
+- OP는 전부 통과. 섬장·길드장은 **`/상자잠금 해제`로 남의 잠금을 풀 수만** 있다(주인이 떠난 죽은 잠금 정리용, 열지는 못함).
+
 ### 메시지 전송 필터 패턴
 - 전체 broadcast 전송 시 차단 플래그 체크 필수: 전체채팅 / 길드채팅 / 길드홍보 / 서버팁 / S등급+ 낚시공지
 - guild_world에 있는 플레이어에게는 날씨 알림 보내지 않음
@@ -80,7 +90,8 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 ## 주요 명령어
 - `/레벨` `/장비` `/강화` `/칭호` `/부품상점` `/판매` `/작물`
 - `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>` `/잠수` (잠수대 토글 — 10분 방치 시 자동)
-- `/콤보 [n]` `/낚시테스트 [등급]` `/카메라툴` (op)
+- `/상자잠금` (섬/길드섬 컨테이너 자물쇠 — 잠그는 건 표지판, 이 명령은 정보·명단수정·해제)
+- `/콤보` (조회=일반, `/콤보 <n>` 설정만 op) · `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
 - `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — 비,뇌우,태풍,안개,모래바람,눈보라,열대야,땡볕
