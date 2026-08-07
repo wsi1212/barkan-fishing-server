@@ -726,8 +726,20 @@ def body(s, v, seed):
             fa = s.f('body', 'front', 'outer')
             for x in (0, 7):                             # 양옆을 비워 커틀이 흐르게
                 fa.rect(x, 7, x, 11, (0, 0, 0, 0), 0)
-        else:
+        elif v.get('belt', True):
+            # ★belt=False면 벨트를 안 채운다 — 가슴부터 발목까지 <b>한 덩어리로 흐르는
+            #   드레스</b>가 된다. 레퍼런스의 허리 밴드는 33%인데 우리는 80%였고,
+            #   벨트로 허리를 끊으면 남성 튜닉과 실루엣이 비슷해진다.
             g.belt(s, R('leather'), y=7, layer='outer')
+
+    # ★치마 구조 — 하의를 다 그린 뒤. 색은 이미 17종으로 갈렸는데도 치마 동일률이
+    #   3.4%(얼굴 다음)였던 원인은 <b>레시피가 하나뿐</b>이었다는 것이다:
+    #   33명 전원이 '균일 그라데이션 + 접힘선 1개'. 4x12 두 짝이면 구조를 넣을 자리가 있다.
+    if v.get('skirt'):
+        g.skirt_style(s, R(v['legs']) if v.get('legs') else cloth,
+                      style=v['skirt'], hem=v.get('hem', 11), y0=v.get('skirty0', 2),
+                      accent=R(v['skirtc']) if v.get('skirtc') else None, seed=seed)
+
 
 
 def extra_cut(s, v, seed):
@@ -1073,13 +1085,12 @@ def restyle(v):
       두건 제거가 반영된다. adorn()에서 처리하면 이미 두건이 그려진 뒤다.
     """
     f = v.get('file')
-    patch = FEM_RESTYLE.get(f)
-    hairp = FEM_HAIR.get(f)
-    if not patch and not hairp:
+    parts = (FEM_RESTYLE.get(f), FEM_HAIR.get(f), FEM_SKIRT.get(f))
+    if not any(parts):
         return v
     out = dict(v)
-    out.update(patch or {})
-    out.update(hairp or {})
+    for pt in parts:
+        out.update(pt or {})
     return out
 
 
@@ -1133,6 +1144,55 @@ FEM_HAIR = {
     'd_threecard2': dict(fstyle='swept',   part=2, fbraid=True, fbraidside='r', fbraiddrop=5),
     # ── 랭킹 ────────────────────────────────────────────────────────────────
     'r_marcello':   dict(fstyle='swept',   part=5),
+}
+
+
+# 치마 <b>구조</b> + 벨트 (2026-08-07) — restyle()에서 함께 합쳐진다.
+#
+# 왜: 실제로 보이는 면 기준 부위별 동일률에서 <b>치마가 3.4%로 얼굴 다음</b>이었다.
+# (앞서 "몸통 11.8%"라고 봤던 건 base 레이어만 잰 잘못된 값이었다 — outer 합성으로
+#  다시 재니 몸통은 2.3%로 3위였고 치마가 더 닮아 있었다.)
+# 색은 이미 17종으로 갈렸다. 문제는 <b>레시피가 하나</b>였다는 것 — 전원이
+# '균일 그라데이션 + 접힘선 1개'였다.
+#
+# ★belt=False는 '가슴~발목 한 덩어리로 흐르는 드레스'를 만든다. 레퍼런스 허리 밴드는
+#   33%인데 우리는 80%였다. 앞치마를 두른 사람은 어차피 허리끈이 있으니 제외.
+# ★역할과 맞춰 고른다: 격식(pleats) · 장식(banded/panel) · 노동(patched) · 서민(tiered)
+FEM_SKIRT = {
+    # ── 스폰 마을 ────────────────────────────────────────────────────────────
+    'gretchen':    dict(skirt='banded',  skirtc='chalk'),
+    'mia':         dict(skirt='patched'),
+    'bettina':     dict(skirt='tiered'),
+    'brigitte':    dict(skirt='panel',   skirtc='oat',    belt=False),
+    'astrid':      dict(skirt='pleats',  belt=False),
+    'helga':       dict(skirt='patched'),
+    'greta':       dict(skirt='tiered'),
+    'frieda':      dict(skirt='panel',   skirtc='chalk',  belt=False),   # 가수 — 가장 화려
+    'inga':        dict(skirt='banded',  skirtc='canvas'),
+    'ingrid':      dict(skirt='pleats',  belt=False),                    # 접수 — 격식
+    'marie':       dict(skirt='tiered'),
+    'marta':       dict(skirt='banded',  skirtc='linen'),
+    'rina':        dict(skirt='patched'),                                # 아이 — 기운 옷
+    # ── 상단 마을 ────────────────────────────────────────────────────────────
+    'claudia':     dict(skirt='panel',   skirtc='amber',  belt=False),
+    'giovanna':    dict(skirt='tiered'),
+    'giulia':      dict(skirt='pleats',  belt=False),                    # 회계 — 격식
+    'rosa':        dict(skirt='patched'),
+    'silvia':      dict(skirt='banded',  skirtc='pearl'),
+    'teresa':      dict(skirt='pleats',  belt=False),
+    # ── 배·기타 ──────────────────────────────────────────────────────────────
+    'rosa_garden': dict(skirt='patched'),
+    'tavernkeep':  dict(skirt='banded',  skirtc='brass'),
+    'ci_cook':     dict(skirt='tiered'),
+    # ── 사막(veil_robe) — 로브가 발목까지 한 덩어리라 이미 벨트가 없다 ──────────
+    # ★사막 4명은 desertfolk의 팔레트를 쓴다(chalk·pearl 등 스폰마을 키는 KeyError)
+    'amira':       dict(skirt='banded',  skirtc='ecru'),
+    'fatima':      dict(skirt='tiered'),
+    'nadia':       dict(skirt='panel',   skirtc='brass'),
+    'nur':         dict(skirt='banded',  skirtc='linen'),
+    # ── 밀정 ────────────────────────────────────────────────────────────────
+    'leila':       dict(skirt='pleats'),
+    # ── 카지노 딜러·랭킹은 정장 바지/코트라 치마 구조가 성립하지 않는다 ─────────
 }
 
 

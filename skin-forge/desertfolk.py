@@ -430,9 +430,20 @@ def feminize(s, v, seed):
 
 def build(v):
     s = Skin()
+    # ★여성 개정표 — 이 모듈만 배선이 빠져 있었다(2026-08-07 발견). FEM_RESTYLE에
+    #   사막 여성 항목이 없어서 지금까지 증상이 안 보였을 뿐, 표에 뭘 넣어도 조용히
+    #   무시되고 있었다. 자체 build()를 가진 모듈은 매번 전수 확인할 것(lessons 10장).
+    v = tf.restyle(v)
     seed = v['cid']
     build_head(s, v, seed)
     build_body(s, v, seed)
+    # ★치마 구조 — 자체 build_body를 가진 모듈이라 townsfolk의 배선이 안 닿는다
+    #   (lessons 10장. 실측: 이번에도 사막 여성 4명이 조용히 빠져 있었다).
+    #   베일 로브는 발목까지 한 덩어리라 벨트가 없고, 구조만 얹으면 된다.
+    if v.get('skirt'):
+        g.skirt_style(s, R(v.get('legs') or v['cloth']), style=v['skirt'],
+                      hem=v.get('hem', 11), y0=v.get('skirty0', 2),
+                      accent=R(v['skirtc']) if v.get('skirtc') else None, seed=seed)
     feminize(s, v, seed)     # ★여성 패스 — 옷 다음, 소품 앞
     build_props(s, v, seed)
     OUT.mkdir(exist_ok=True)
