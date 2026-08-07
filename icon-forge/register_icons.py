@@ -40,7 +40,12 @@ GUI_SCALE = 1.332         # 노드 — ★고정. 연결 문제를 이 값으로
 #   겹친다 — 끊기지 않으면서 링을 덮지 않는 지점.
 RAIL_SCALE = 1.3          # 레일
 PREFIXES = ("skill_", "tree_rail_")
-NO_SCALE = ("skill_hub_",)   # /레벨 허브 아트에 맞춰진 아이콘 — 키우면 링 밖으로 삐져나온다
+# 배율을 주지 않는(=원본 크기 그대로) 아이콘들. 이름이 skill_ 로 시작한다고 전부
+# 트리 노드는 아니다 — 아래는 이미 칸 크기에 맞춰 그려진 UI 아트라 키우면 커져 보인다.
+#   skill_hub_    : /레벨 허브 링 아트 — 키우면 링 밖으로 삐져나온다
+#   skill_arrow_  : 트리 페이지/뒤로가기 화살표 — 노드 배율(1.332)을 먹어 과하게 컸다(2026-08-07)
+#   skill_reset_  : 특성 초기화 아이콘 — 같은 이유
+NO_SCALE = ("skill_hub_", "skill_arrow_", "skill_reset_")
 
 
 def targets():
