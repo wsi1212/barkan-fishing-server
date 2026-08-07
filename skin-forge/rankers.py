@@ -118,6 +118,7 @@ def props(s, v, seed):
 def build(v):
     from skinlib import Skin
     s = Skin()
+    v = tf.restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     tf.head(s, v, seed)
     tf.body(s, v, seed)

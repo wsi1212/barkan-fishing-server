@@ -225,6 +225,7 @@ def props(s, v, seed):
 def build(v):
     from skinlib import Skin
     s = Skin()
+    v = tf.restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     tf.head(s, v, seed)
     if v.get('bandana'):                  # ★사막 두건이 아닌 뱃사람 반다나 (위 bandana() 주석 참고)

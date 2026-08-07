@@ -54,6 +54,10 @@ C = dict(
     woad='2f4f7e',        # 대청 파랑
     weld='b8912e',        # 웰드 노랑
     verdigris='2a6b5e',   # 녹청
+    # (4) 장신구 전용 (2026-08-07) — 옷 색과 같은 값을 쓰면 목걸이가 옷에
+    #     묻힌다. 금속·보석은 <b>주변보다 확실히 밝거나 확실히 어두워야</b> 읽힌다.
+    silver='c8ccd2', pearl='e8e2d4', copper='a8622f',
+    coral='c2564e', amber='c8892c', jet='2a2622',
 )
 
 # 피부톤 — 색상각이 23~30°에 전원 몰려 있어 '전부 같은 살색'이었다(실측 폭 5.6°).
@@ -914,10 +918,42 @@ def feminize(s, v, seed):
                          drop=max(3, min(6, v.get('backhair', 7) - 4)),
                          head_volume=(v.get('head') is None and not v.get('visor')),
                          shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
+    adorn(s, v, seed)
+
+
+def adorn(s, v, seed):
+    """장신구·네크라인 패스 (2026-08-07 신설). ★반드시 feminize의 머리 다음에 온다.
+
+    순서가 의미를 갖는다:
+      decollete  → 옷을 파서 <b>살</b>을 낸다. necklace가 걸릴 자리를 먼저 만든다.
+      necklace   → 파낸 살 위에 얹는다. 먼저 그리면 옷에 덮인다.
+      earrings   → 옆머리 <b>위에</b> 얹는다. female_hair_length보다 뒤여야 보인다.
+      hair_ornament → 두건을 뺀 자리를 메운다. 머리를 안 가려서 길이 신호를 안 죽인다.
+
+    ★레퍼런스 60장 대비 우리의 최대 격차가 네크라인(65% vs 12.5%)이었다.
+      kirtle이 가슴을 <b>속옷색</b>으로 채우고 있어서 '천 한 겹 더'로 읽힌 게 원인이다.
+    """
+    if not v.get('female') or v.get('child'):
+        return
+    # 베일·후드는 목까지 감싸므로 네크라인·목걸이가 성립하지 않는다
+    covered = v.get('head') in ('hood', 'coif', 'veil') or v.get('garb') == 'veil_robe'
+    # ★피부는 팔레트 키가 아니라 hex다 — R()이 아니라 ramp()를 쓴다
+    if v.get('neck') and not covered:
+        g.decollete(s, ramp(v['skin']), style=v['neck'])
+    if v.get('jewel') and not covered:
+        g.necklace(s, R(v.get('jewelc', 'brass')), style=v['jewel'])
+    if v.get('earring'):
+        # ★eye_y를 넘긴다 — 안 넘기면 눈 옆에 찍혀 상처처럼 보인다(실측 6명)
+        g.earrings(s, R(v.get('jewelc', 'brass')), eye_y=v.get('eye_y', 4))
+    if v.get('hairpin'):
+        g.hair_ornament(s, R(v.get('hairpinc', 'madder')), kind=v['hairpin'], seed=seed)
+    if v.get('bangle') and v.get('bare'):
+        g.bracelet(s, R(v.get('jewelc', 'brass')))
 
 
 def build(v):
     s = Skin()
+    v = restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     head(s, v, seed)
     body(s, v, seed)
@@ -931,6 +967,96 @@ def build(v):
     props(s, v, seed)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tf_{v['file']}.png"))
+
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 여성 개정표 (2026-08-07) — 두건 축소 + 네크라인 + 장신구
+#
+# 왜 표를 따로 두나: 스펙 dict 리터럴 20개를 정규식으로 고치는 건 사고가 난다.
+# 개정 내용만 한 곳에 모아 build() 진입점에서 병합하면 <b>무엇을 왜 바꿨는지</b>가
+# 한눈에 보이고, 되돌리기도 이 표만 지우면 된다.
+#
+# 근거(레퍼런스 60장 실측 대비):
+#   머리쓰개  30.0% vs 우리 70.0%  → 20명 → 10명 (베일4·후드1·모자1 유지 + 두건 4명만)
+#   네크라인  65.0% vs 우리 12.5%  → 가려진 6명 빼고 전원에 부여  ★최대 격차
+#
+# ★두건을 뺀 자리는 hairpin(꽃·리본·핀)으로 메운다. 두건과 달리 머리카락을 안 가려서
+#   길이 신호를 죽이지 않고, 유저 요청("여성들이 흔히 하는 치장")에도 정확히 맞는다.
+# ★역할상 머리를 싸매야 하는 사람만 두건을 남긴다 — 주방 3명(베티나·지오반나·취사)과
+#   생선 손질(미아). 빵집·직조·장사꾼은 위생 근거가 없어 뺀다.
+# ★장신구 색은 옷 색과 겹치면 묻힌다. 금속(silver/brass/copper/iron)과 보석
+#   (amber/coral/pearl/jet)에서 골라 <b>주변보다 확실히 밝거나 어둡게</b> 간다.
+FEM_RESTYLE = {
+    # ── 스폰 마을 ────────────────────────────────────────────────────────────
+    'gretchen':  dict(head=None, hairpin='ribbon', hairpinc='chalk',
+                      neck='square', jewel='beads', jewelc='copper'),
+    'mia':       dict(neck=None, earring=True, jewelc='iron'),          # 두건 유지(생선 손질)
+    'bettina':   dict(neck='scoop', earring=True, jewelc='brass'),      # 두건 유지(주방)
+    'brigitte':  dict(head=None, hairpin='pin', hairpinc='woad',
+                      neck='scoop', jewel='beads', jewelc='amber'),
+    'astrid':    dict(head=None, hairpin='ribbon', hairpinc='wine',
+                      neck='square', jewel='pendant', jewelc='silver'),
+    'helga':     dict(head=None, hairpin='pin', hairpinc='verdigris',
+                      neck='scoop', jewel='beads', jewelc='coral'),
+    'greta':     dict(head=None, hairpin='pin', hairpinc='teal',
+                      neck='scoop', jewel='beads', jewelc='iron'),
+    # 항구 가수 — 마을에서 가장 치장이 많아도 되는 배역. 초커+귀걸이+꽃
+    'frieda':    dict(neck='v', jewel='choker', jewelc='jet', earring=True,
+                      hairpin='flower', hairpinc='madder'),
+    'inga':      dict(neck='scoop', jewel='beads', jewelc='copper', hairpin='ribbon',
+                      hairpinc='woad'),
+    'ingrid':    dict(neck='square', jewel='pendant', jewelc='brass', earring=True),
+    'marie':     dict(neck='scoop', jewel='pendant', jewelc='iron'),
+    'marta':     dict(neck='square', jewel='beads', jewelc='amber',
+                      hairpin='flower', hairpinc='coral'),
+    # ── 상단 마을 ────────────────────────────────────────────────────────────
+    'claudia':   dict(head=None, neck='v', jewel='pendant', jewelc='amber',
+                      earring=True, hairpin='pin', hairpinc='madder'),
+    'giovanna':  dict(neck='scoop', earring=True, jewelc='copper'),     # 두건 유지(주방)
+    'giulia':    dict(neck='square', jewel='pendant', jewelc='silver'),
+    'rosa':      dict(head=None, neck='scoop', jewel='beads', jewelc='pearl',
+                      hairpin='pin', hairpinc='verdigris'),
+    'silvia':    dict(neck='scoop', jewel='beads', jewelc='copper', earring=True),
+    'teresa':    dict(head=None, neck='square', jewel='pendant', jewelc='copper',
+                      hairpin='ribbon', hairpinc='moss'),
+    # ── 배·기타 ──────────────────────────────────────────────────────────────
+    'isabella':  dict(jewel='pendant', jewelc='silver', earring=True),  # 선장모 유지
+    'rosa_garden': dict(head=None, hairpin='flower', hairpinc='coral',
+                        neck='scoop', jewel='beads', jewelc='verdigris'),
+    'tavernkeep': dict(head=None, hairpin='ribbon', hairpinc='madder',
+                       neck='square', jewel='beads', jewelc='brass'),
+    'ci_cook':   dict(neck='scoop', earring=True, jewelc='brass'),      # 두건 유지(배 취사)
+    # ── 카지노 딜러 ──────────────────────────────────────────────────────────
+    # ★검정 정장 위에서는 색으로 성별을 못 낸다(2026-08-05 실패: 검정 리본이 안 보였다).
+    #   해법은 <b>명도 대비</b> — 은/진주 목걸이는 검정 위에서 확실히 읽힌다.
+    'd_blackjack2': dict(neck='v', jewel='pendant', jewelc='silver', earring=True),
+    'd_holdem2':    dict(neck='v', jewel='choker', jewelc='pearl', earring=True),
+    'd_slot2':      dict(neck='v', jewel='pendant', jewelc='pearl', earring=True),
+    'd_threecard2': dict(neck='v', jewel='choker', jewelc='silver', earring=True),
+    # ── 랭킹 ────────────────────────────────────────────────────────────────
+    'r_marcello': dict(neck='square', jewel='pendant', jewelc='brass', earring=True),
+    # ── 사막(베일)·밀정(후드) ────────────────────────────────────────────────
+    # 베일·후드는 목까지 감싸므로 네크라인·목걸이가 성립하지 않는다. 개정 없음.
+    #   amira · fatima · nadia · nur · leila
+    # ── 아이 ────────────────────────────────────────────────────────────────
+    #   rina — child. 체형·장신구 처방을 아이에게 넣지 않는다.
+}
+
+
+def restyle(v):
+    """FEM_RESTYLE을 스펙에 병합한 <b>사본</b>을 준다. 원본 dict는 안 건드린다.
+
+    ★build() 맨 앞에서 불러야 한다 — head()가 v['head']를 읽기 <b>전</b>이어야
+      두건 제거가 반영된다. adorn()에서 처리하면 이미 두건이 그려진 뒤다.
+    """
+    patch = FEM_RESTYLE.get(v.get('file'))
+    if not patch:
+        return v
+    out = dict(v)
+    out.update(patch)
+    return out
 
 
 if __name__ == '__main__':

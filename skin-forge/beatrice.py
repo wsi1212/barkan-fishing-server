@@ -41,7 +41,6 @@ def build():
     f = s.f('head', 'front')
     f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])          # 속눈썹/눈꼬리
     f.rect(3, 6, 4, 6, P['lip'][2])                              # 입술
-    g.headscarf(s, P['kerchief'], rows=2, tail=False, seed=SEED)  # 머릿수건
     g.ponytail(s, P['hair'], x0=2, w=2, y0=6, y1=11)             # 땋은 머리
 
     # 블라우스 → 치마 → 보디스 → 앞치마
@@ -67,6 +66,10 @@ def build():
     #   NPC는 lookclose로 늘 플레이어를 마주보므로 뒷머리는 볼 일이 없다 → 얼굴 옆과
     #   가슴 앞으로 내려와야 '길다'가 읽힌다. 머리쓰개는 함수가 알아서 비켜간다.
     g.female_hair_length(s, P['hair'], seed=SEED)
+    # 두건을 뺀다 — 안내인은 머리를 싸맬 역할 근거가 없다. 대신 꽃 한 송이.
+    g.decollete(s, P['skin'], style='scoop')
+    g.necklace(s, P['bodice'], style='beads')
+    g.hair_ornament(s, P['lip'], kind='flower', seed=SEED)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'beatrice.png'))
 

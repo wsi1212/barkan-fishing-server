@@ -29,6 +29,7 @@ sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scri
 
 import garments as g                      # noqa: E402
 from skinlib import Skin, mix, ramp, ramp_lit       # noqa: E402
+import townsfolk as tf                    # noqa: E402  (여성 개정표 restyle)
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
@@ -184,9 +185,11 @@ def feminize(s, v, seed):
                          drop=max(3, min(6, v.get('backhair', 7) - 4)),
                          head_volume=(v.get('head') is None and not v.get('visor')),
                          shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
+    tf.adorn(s, v, seed)   # ★장신구·네크라인 — 머리 다음이어야 옆머리 위에 귀걸이가 얹힌다
 
 def build(v):
     s = Skin()
+    v = tf.restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     skin, hair = ramp(v['skin']), ramp(v['hair'])
 

@@ -62,6 +62,8 @@ def build():
     #   NPC는 lookclose로 늘 플레이어를 마주보므로 뒷머리는 볼 일이 없다 → 얼굴 옆과
     #   가슴 앞으로 내려와야 '길다'가 읽힌다. 머리쓰개는 함수가 알아서 비켜간다.
     g.female_hair_length(s, P['hair'], seed=SEED)
+    # 치료사 두건은 위생 근거가 있어 유지. 네크라인만.
+    g.decollete(s, P['skin'], style='scoop')
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'hilde.png'))
 

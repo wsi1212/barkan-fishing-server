@@ -35,6 +35,7 @@ P = dict(
     hair=ramp('6b4a2f'),
     # 기본 spread면 [3]~[4]가 마젠타로 튄다 — 서버 팔레트는 전부 뮤트다
     kirtle=ramp_lit('4e2d47', spread=0.44),
+    silver=ramp_lit('c8ccd2'),   # 중개인의 유일한 금속 — 목걸이·귀걸이 한 쌍
     linen=ramp_lit('c4bcaa'),
     net=ramp_lit('8a8378'),
     leather=ramp_lit('3a3129'),
@@ -96,6 +97,10 @@ def build():
     #   NPC는 lookclose로 늘 플레이어를 마주보므로 뒷머리는 볼 일이 없다 → 얼굴 옆과
     #   가슴 앞으로 내려와야 '길다'가 읽힌다. 머리쓰개는 함수가 알아서 비켜간다.
     g.female_hair_length(s, P['hair'], seed=SEED)
+    # 손을 더럽히지 않는 중개인 — 이 중 유일하게 장신구가 어울린다
+    g.decollete(s, P['skin'], style='square')
+    g.necklace(s, P['silver'], style='pendant')
+    g.earrings(s, P['silver'], eye_y=4)
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'lotte.png'))
 
