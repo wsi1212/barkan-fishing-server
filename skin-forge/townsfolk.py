@@ -1158,28 +1158,31 @@ FEM_HAIR = {
 # ★belt=False는 '가슴~발목 한 덩어리로 흐르는 드레스'를 만든다. 레퍼런스 허리 밴드는
 #   33%인데 우리는 80%였다. 앞치마를 두른 사람은 어차피 허리끈이 있으니 제외.
 # ★역할과 맞춰 고른다: 격식(pleats) · 장식(banded/panel) · 노동(patched) · 서민(tiered)
+# ★pleats(세로 주름)는 폐기했다 — 다리 두 짝에 세로 줄이 반복되면 예외 없이
+#   '줄무늬 바지'로 읽힌다(오너 지적). 구조는 가로(banded·tiered)이거나
+#   중앙 하나(panel)여야 치마로 보인다.
 FEM_SKIRT = {
     # ── 스폰 마을 ────────────────────────────────────────────────────────────
     'gretchen':    dict(skirt='banded',  skirtc='chalk'),
     'mia':         dict(skirt='patched'),
     'bettina':     dict(skirt='tiered'),
     'brigitte':    dict(skirt='panel',   skirtc='oat',    belt=False),
-    'astrid':      dict(skirt='pleats',  belt=False),
+    'astrid':      dict(skirt='tiered',  belt=False),
     'helga':       dict(skirt='patched'),
     'greta':       dict(skirt='tiered'),
     'frieda':      dict(skirt='panel',   skirtc='chalk',  belt=False),   # 가수 — 가장 화려
     'inga':        dict(skirt='banded',  skirtc='canvas'),
-    'ingrid':      dict(skirt='pleats',  belt=False),                    # 접수 — 격식
+    'ingrid':      dict(skirt='banded',  skirtc='iron',   belt=False),   # 접수 — 격식
     'marie':       dict(skirt='tiered'),
     'marta':       dict(skirt='banded',  skirtc='linen'),
     'rina':        dict(skirt='patched'),                                # 아이 — 기운 옷
     # ── 상단 마을 ────────────────────────────────────────────────────────────
     'claudia':     dict(skirt='panel',   skirtc='amber',  belt=False),
     'giovanna':    dict(skirt='tiered'),
-    'giulia':      dict(skirt='pleats',  belt=False),                    # 회계 — 격식
+    'giulia':      dict(skirt='banded',  skirtc='silver', belt=False),   # 회계 — 격식
     'rosa':        dict(skirt='patched'),
     'silvia':      dict(skirt='banded',  skirtc='pearl'),
-    'teresa':      dict(skirt='pleats',  belt=False),
+    'teresa':      dict(skirt='panel',   skirtc='copper', belt=False),
     # ── 배·기타 ──────────────────────────────────────────────────────────────
     'rosa_garden': dict(skirt='patched'),
     'tavernkeep':  dict(skirt='banded',  skirtc='brass'),
@@ -1191,7 +1194,7 @@ FEM_SKIRT = {
     'nadia':       dict(skirt='panel',   skirtc='brass'),
     'nur':         dict(skirt='banded',  skirtc='linen'),
     # ── 밀정 ────────────────────────────────────────────────────────────────
-    'leila':       dict(skirt='pleats'),
+    'leila':       dict(skirt='tiered'),
     # ── 카지노 딜러·랭킹은 정장 바지/코트라 치마 구조가 성립하지 않는다 ─────────
 }
 
