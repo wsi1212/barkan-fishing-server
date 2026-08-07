@@ -93,6 +93,16 @@ def pull_leveling():
     m = re.search(r"else\s+mult\s*=\s*([\d.]+)", src)
     out["tier_wall_top"] = float(m.group(1)) if m else None
 
+    # ★2026-08-01 개편 — 레벨별 필요경험치가 배수 공식에서 하드코딩 NEED_TABLE로 교체됐다.
+    #   테이블이 있으면 그게 권위(배수 walls는 레거시 참고용으로만 남김).
+    m = re.search(r"NEED_TABLE\s*=\s*new\s+int\[\]\s*\{(.*?)\}", src, re.S)
+    if m:
+        nums = re.findall(r"\d+", m.group(1))
+        out["need_table"] = [int(n) for n in nums]
+    else:
+        out["need_table"] = None
+        warn("NEED_TABLE 파싱 실패 — 레벨 곡선 소스가 또 바뀐 것. FishingLevelManager 직접 확인 필요")
+
     # 등급 해금 마일스톤 (RewardMath.maxGradeNum 또는 GradeRoller.maxGradeNum)
     gr = read_java("fishing/GradeRoller.java")
     ms = re.findall(r"level\s*>=\s*(\d+)\)\s*m\s*=\s*(\d+)", gr)
@@ -108,6 +118,18 @@ def cumulative_xp(lvl):
     walls = lvl.get("tier_walls")
     top = lvl.get("tier_wall_top")
     maxlv = lvl.get("max_level") or 100
+    marks_all = {5, 12, 20, 25, 30, 40, 45, 50, 60, 70, maxlv}
+
+    # ★NEED_TABLE이 있으면 그것이 권위 (2026-08-01 개편 이후).
+    table = lvl.get("need_table")
+    if table:
+        cum, result = 0, {}
+        for lv in range(1, min(maxlv, len(table) + 1)):
+            cum += table[lv - 1]      # need(lv → lv+1)
+            if (lv + 1) in marks_all:
+                result[str(lv + 1)] = cum
+        return result
+
     if not base or not walls or top is None:
         warn("누적 경험치 계산 스킵 (레벨 곡선 상수 누락)")
         return None
