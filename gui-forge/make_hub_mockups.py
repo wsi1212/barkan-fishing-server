@@ -75,7 +75,7 @@ def guide(title, tiles):
         d.text((box[0] + 4, box[1] + 22), lbl, font=fs, fill=(255, 170, 60, 255))
     d.rectangle(rect(0, 0, 9, 1), outline=(150, 150, 255, 255), width=5)
     d.text((rect(0, 0, 9, 1)[0] + 10, rect(0, 0, 9, 1)[1] + 20),
-           f'TITLE "{title}" — 그림에 직접', font=fs, fill=(190, 190, 255, 255))
+           "TITLE — 문구는 추후 확정", font=fs, fill=(190, 190, 255, 255))
     iy = 31 + 6 * CELL
     d.rectangle([GRID_X * SCALE, iy * SCALE, (GRID_X + CELL * COLS) * SCALE - 1, (iy + 76) * SCALE],
                 outline=(255, 90, 90, 220), width=5)
@@ -85,14 +85,13 @@ def guide(title, tiles):
     return im
 
 
-def mockup(title, tiles):
+def mockup(_title, tiles):
     im = Image.open(COMMON).convert("RGBA").resize((W, H), Image.LANCZOS)
     ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(ov, "RGBA")
-    ft, f = font(30), font(24)
-    bb = d.textbbox((0, 0), title, font=ft)
-    d.text((W / 2 - (bb[2] - bb[0]) / 2, 88), title, font=ft,
-           fill=(255, 226, 150, 255), stroke_width=3, stroke_fill=(18, 12, 8, 255))
+    f = font(24)
+    # ★제목 글자는 그리지 않는다 — 문구를 나중에 정해서 굽는다(목업에 넣으면
+    #   그 문구로 확정된 것처럼 읽힌다).
     for label, col, row, wc, hr in tiles:
         x0, y0, x1, y1 = rect(col, row, wc, hr)
         d.rounded_rectangle([x0 + 4, y0 + 4, x1 - 4, y1 - 4], radius=10,
