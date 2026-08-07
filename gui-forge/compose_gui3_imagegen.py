@@ -13,6 +13,12 @@ GEN = {
 }
 RECOMMEND_TILE = SRC / "shop" / "recommend_tile_imagegen.png"
 
+# 타일 그림보다 메뉴 아이콘 쪽이 더 나은 경우가 있다. (화면, 타일번호) → 아이콘 텍스처.
+# 도감이 그 경우였다(2026-08-08) — 생성물의 펼친 책보다 ui_menu_dex 가 또렷하다.
+RP_ICONS = Path.home() / "development" / "barkan-resourcepack" / \
+    "assets" / "minecraft" / "textures" / "item" / "barkan_icon"
+TILE_ICON_OVERRIDE = {("myinfo", 5): "ui_menu_dex"}
+
 # 2행 타일(메뉴·내 정보)은 세로 130px뿐이라 그림을 통째로 깔면 라벨이 아이콘 위에 얹힌다.
 # 아래 LABEL_BAND 만큼은 글자 전용으로 비우고, 그림은 그 위 칸에 비율 유지로 넣는다.
 # 상점은 4행이라 세로가 넉넉해서 예외(그림 그대로 + 아래쪽 여백에 글자).
@@ -122,14 +128,19 @@ def main():
         gen = Image.open(source).convert("RGBA").resize((W, H), Image.Resampling.LANCZOS)
         # Keep the exact slot-aligned molding from the deterministic base. The generated
         # art is used for the quiet interior only, so the imagegen model cannot move hitboxes.
-        for col, y0, y1, _ in LABELS[name]:
+        for tile, (col, y0, y1, _) in enumerate(LABELS[name]):
             x0, x1 = COLS[col]
             dst = (x0 + 7, y0 + 7, x1 - 6, y1 - 6)
             if name == "shop":
                 base.paste(gen.crop(dst), (dst[0], dst[1]))
             else:
                 iw, ih = dst[2] - dst[0], dst[3] - dst[1]
+                swap = TILE_ICON_OVERRIDE.get((name, tile))
                 icon = lift_icon(gen, (dst[0] + 10, dst[1], dst[2] - 10, dst[3]))
+                if swap:
+                    # 아이콘 원본은 사방에 투명 여백이 있다 — 그대로 맞추면 그림이 작아진다.
+                    icon = Image.open(RP_ICONS / f"{swap}.png").convert("RGBA")
+                    icon = icon.crop(icon.getbbox() or (0, 0, icon.width, icon.height))
                 zw, zh = iw - 26, ih - LABEL_BAND - 8
                 k = min(zw / icon.width, zh / icon.height)
                 nw, nh = max(1, round(icon.width * k)), max(1, round(icon.height * k))
