@@ -21,7 +21,11 @@
 ★이미지 폭은 160을 넘기지 말 것. 폰트 글리프 아틀라스에 못 들어가면 에러 없이 조용히
   사라진다(실측: 52·110·144는 나오고 217·300은 안 나옴). 넓은 판은 조각내서 붙인다.
 
-사용법:  python3 preview.py [출력.png]
+사용법:  python3 preview.py [출력.png] [--zoom x0,y0,x1,y1]
+
+  --zoom 은 화면 좌표로 잘라서 크게 그린다. 초상화가 액자 홈 안에 가운데인지,
+  명패가 액자와 좌우로 맞는지 같은 몇 px 차이는 전체 그림으로는 절대 안 보인다.
+  예) 액자+명패만 크게:  python3 preview.py /tmp/p.png --zoom -10,130,115,235
 """
 import os, sys, yaml
 from PIL import Image, ImageDraw, ImageFont
@@ -29,8 +33,18 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, "assets")
 
-SCREEN_W, SCREEN_H = 426, 240   # 16:9에서 보장되는 최소 가상 화면(세로 240 제약이 먼저 걸림)
+# ★실제 클라 실측값(2026-08-08, Feather 26.1.2 / 창 2672x1462 / GUI배율 3).
+#   예전엔 426x240(최소 보장 화면)으로 그렸는데, 그러면 판이 화면을 꽉 채운 그림이 나와서
+#   유저가 보는 화면(판이 가로 절반)과 전혀 딴판이었다. 잘림 검사는 아래에서 따로 한다.
+SCREEN_W, SCREEN_H = 891, 488
 HOTBAR_H = 22
+SAFE_W, SAFE_H = 320, 240       # 마크가 보장하는 최소 가상 화면 — 여기서 벗어나면 잘리는 유저가 생긴다
+
+# ★세로 보정상수. 셰이더는 yGui = ui.y * (gui.y)/100 로 화면 바닥을 잡지만, 실제로 찍히는
+#   위치는 그보다 이만큼 위다(글리프 ascent·DEFAULT_OFFSET 등 화면크기와 무관한 상수들).
+#   화면기록 3프레임에서 모두 23.33 로 일치. 셰이더상 화면 크기에 비례하는 항이 없으므로 상수로 둔다.
+#   ※가로는 셰이더에서 `pos.x -= 0.5*ui.x` 와 `+= ui.x*gui.x/100` 이 상쇄되어 보정이 없다.
+Y_BIAS = 23
 
 # 서버 폰트. 대사를 실제로 그려서 양피지 밖으로 넘치는지 잡는다.
 # 16px은 인게임 스샷 실측으로 보정한 값. 13px일 때 141px로 나왔는데 실제는 167px이라
@@ -38,9 +52,13 @@ HOTBAR_H = 22
 FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
 FONT_PX = 16
 
-# 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표.
-PARCHMENT = (112, 6, 427, 63)    # 대사 자리 (440x80 판 기준)
-PORTRAIT_SLOT = (16, 14, 91, 95)  # 초상화가 들어가야 하는 액자 홈
+# 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표. (판 440x80 기준)
+# ★눈대중이 아니라 조각 4장을 붙여 픽셀을 스캔해서 뽑은 값이다.
+#   금테 = 금색 픽셀(r>90,g>70,b<0.75r)이 한 열/행에 40개 이상인 구간.
+# ★calibrate.py 와 같은 값을 쓸 것. 어긋나면 "예측은 가운데인데 실측은 아니다"가 또 난다.
+PARCHMENT = (112, 6, 427, 63)     # 대사 자리
+FRAME_OUTER = (11, 6, 96, 71)     # 금테 바깥 — 명패는 이 좌우 중심(53.5)에 맞춘다
+PORTRAIT_SLOT = (16, 10, 91, 68)  # 금테 안쪽 홈 — 초상화도 중심 53.5
 
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
 SAMPLE_NAME = "[길잡이] 할아버지"
@@ -50,7 +68,7 @@ def load(name):
     return yaml.safe_load(open(os.path.join(HERE, name), encoding="utf-8"))
 
 
-def main(out_path):
+def main(out_path, zoom=None):
     hud = load("npc-dialogue-hud.yml")["npc_dialogue"]
     layout = load("npc-dialogue-layout.yml")["npc_dialogue_layout"]
     images = load("npc-dialogue-image.yml")
@@ -58,7 +76,8 @@ def main(out_path):
     align = str(layout.get("align", "left")).lower()
     offset = str(layout.get("offset", "center")).lower()
     gui = hud["layouts"][1]["gui"]
-    ax, ay = SCREEN_W * gui["x"] / 100.0, SCREEN_H * gui["y"] / 100.0
+    ax = SCREEN_W * gui["x"] / 100.0
+    ay = SCREEN_H * gui["y"] / 100.0 - Y_BIAS
 
     sized = {}
     for key, spec in images.items():
@@ -89,6 +108,7 @@ def main(out_path):
           f"align={align} offset={offset}  max={mx}")
 
     panel_l, panel_t = None, None
+    rect = {}
     for idx in sorted(layout.get("images", {})):
         e = layout["images"][idx]; name = e["name"]
         if name not in sized:
@@ -101,18 +121,36 @@ def main(out_path):
             warn = "   ← ★화면 밖!"
         if w > 160:
             warn += "   ← ★폭 160 초과: 렌더 안 될 수 있음"
-        if lx < (SCREEN_W-320)/2 or lx + w > (SCREEN_W+320)/2:
-            warn += "   (4:3 좁은 창에서는 잘림)"
+        if lx < (SCREEN_W-SAFE_W)/2 or lx + w > (SCREEN_W+SAFE_W)/2:
+            warn += f"   (가상화면 {SAFE_W} 인 유저는 잘림)"
         if name.startswith("dialogue_panel"):
             panel_l = lx if panel_l is None else min(panel_l, lx)
             panel_t = ty if panel_t is None else min(panel_t, ty)
+        rect[name] = (lx, ty, lx + w, ty + h)
         print(f"  {name:24s} x {lx:6.0f}~{lx+w:<6.0f} (폭 {w:3d}, 잘린여백 {xoff})  y {ty:.0f}~{ty+h:.0f}{warn}")
 
     parch = None
     if panel_l is not None:
-        parch = (panel_l + PARCHMENT[0], panel_t + PARCHMENT[1],
-                 panel_l + PARCHMENT[2], panel_t + PARCHMENT[3])
+        def to_screen(box):
+            return (panel_l + box[0], panel_t + box[1], panel_l + box[2], panel_t + box[3])
+        parch = to_screen(PARCHMENT)
+        slot, frame = to_screen(PORTRAIT_SLOT), to_screen(FRAME_OUTER)
         d.rectangle(list(parch), outline=(0, 220, 0, 200))
+
+        # ★몇 px 어긋남은 전체 그림으로 안 보인다. 숫자로 찍어서 판정한다.
+        def gap(label, box, ref):
+            if box is None:
+                return
+            print(f"  · {label:10s} 왼쪽 {box[0]-ref[0]:+.0f}  오른쪽 {ref[2]-box[2]:+.0f}"
+                  f"  위 {box[1]-ref[1]:+.0f}  아래 {ref[3]-box[3]:+.0f}"
+                  f"   (좌우 차 {abs((box[0]-ref[0])-(ref[2]-box[2])):.0f})")
+        print("  ── 액자 정렬 (좌우 차가 0이어야 가운데) ──")
+        print("     ※여기 예측과 실제는 요소마다 1~2px 다르다(반올림). 최종 확정은 calibrate.py 로.")
+        gap("초상화", rect.get("npc_dialogue_portrait"), slot)
+        gap("명패", rect.get("dialogue_nameplate"), frame)
+        if zoom:
+            for box, col in ((slot, (0, 200, 255, 255)), (frame, (255, 0, 220, 255))):
+                d.rectangle(list(box), outline=col)
 
     def wrap(text, limit, font, force=False):
         """BetterHud Adventures.kt 의 split 판정을 그대로 옮긴 것.
@@ -156,9 +194,18 @@ def main(out_path):
     if parch:
         print(f"  (양피지 x {parch[0]:.0f}~{parch[2]:.0f}  y {parch[1]:.0f}~{parch[3]:.0f})")
 
-    canvas.convert("RGB").resize((SCREEN_W * 3, SCREEN_H * 3), Image.NEAREST).save(out_path)
-    print(f"\n미리보기 저장: {out_path}")
+    if zoom:
+        x0, y0, x1, y1 = zoom
+        canvas = canvas.crop((x0, y0, x1, y1))
+        k = max(1, min(12, 1400 // max(1, x1 - x0)))
+    else:
+        k = 3
+    canvas.convert("RGB").resize((canvas.width * k, canvas.height * k), Image.NEAREST).save(out_path)
+    print(f"\n미리보기 저장: {out_path}  (x{k})")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "/tmp/hud-preview.png")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    z = next((a for a in sys.argv[1:] if a.startswith("--zoom")), None)
+    main(args[0] if args else "/tmp/hud-preview.png",
+         tuple(int(v) for v in z.split("=", 1)[1].split(",")) if z and "=" in z else None)
