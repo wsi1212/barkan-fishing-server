@@ -6,15 +6,18 @@
 # ★세로: 실제로 찍히는 위치는 (앵커y + y) 보다 23px 위다(셰이더 상수, preview.py Y_BIAS).
 #   앵커y = 0 이므로  "화면 위에서 N px" = y = N + 23.
 #
-# 판: 왼쪽에서 12px, 위에서 10px  ->  x = 87, y = 33.  판은 12~162, 10~52 를 차지한다.
+# 판: 왼쪽에서 4px, 위에서 4px  ->  x = 79, y = 27.  판은 4~154, 4~46 을 차지한다.
+#   ★"더 구석에" 요청 — 판은 모서리에 바짝, 글씨는 판 안쪽으로. 이 둘은 반대 방향이다.
+#     ("안쪽으로"를 판 위치로 오해해 한 번 반대로 밀었었다.)
 # 판 안쪽 양피지 7~34. 두 줄을 12px 간격으로: 글자 위끝 = 판 y 9 / 21.
+# 글자 왼끝 = 판 x 14 (8 이었는데 양피지 왼쪽 테두리에 붙어 보였다).
 barkan_place_layout:
   align: left
   images:
     1:
       name: place_plate
-      x: 87
-      y: 33
+      x: 79
+      y: 27
   texts:
     # 두 줄 모두 BlockShip 이 완성해서 넣는다(색 포함).
     # ★크림색 양피지 위라 밝은 색은 안 보인다 — 자바 쪽에서 어두운 색으로 변환해 보낸다.
@@ -22,15 +25,15 @@ barkan_place_layout:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
-      x: 95
-      y: 42
+      x: 93
+      y: 36
       scale: 0.62
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
-      x: 95
-      y: 54
+      x: 93
+      y: 48
       scale: 0.62
       align: left

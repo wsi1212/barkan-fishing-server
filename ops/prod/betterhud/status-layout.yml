@@ -10,12 +10,13 @@
 # ★세로: 실제로 찍히는 위치는 (앵커y + y) 보다 23px 위다(셰이더 상수, preview.py Y_BIAS).
 #   앵커y = 0 이므로  화면 위에서 N px 아래 = y = N + 23.
 #
-# 판 배치(124x72): 오른쪽에서 12px 안쪽(x = 62-136 = -74), 위에서 10px 아래(y = 33).
-#   -> 판은 화면 오른쪽 -136~-12, 위 10~82 를 차지한다.
+# 판 배치(124x72): 오른쪽에서 4px(x = 62-128 = -66), 위에서 4px(y = 27).
+#   -> 판은 화면 오른쪽 -128~-4, 위 4~76 을 차지한다.
+#   ★"더 구석에" 요청. 판은 모서리에 붙이고 내용물은 판 안쪽으로 — 방향이 반대다.
 #
 # 판 안쪽: 양피지 7~64 (나무테 0~6 · 65~71).
 #   아이콘이 16px 이라 줄 간격 18px. 줄 중심 = 판 y 16 / 34 / 52.
-#   아이콘 왼끝 = 판 x 8, 글자는 판 x 30 부터.
+#   아이콘 왼끝 = 판 x 12, 글자는 판 x 34 부터(8/30 은 테두리에 붙어 보였다).
 # ★아이콘마다 세로 크기가 다르다(동전16·레벨16·지폐9). BetterHud 는 세로 여백을
 #   되돌려주지 않으므로 y 를 "줄 중심 - 자기 높이/2" 로 각각 계산해 둔다.
 #   지폐만 47 인 이유가 이것이다(52 - 9/2 = 47.5).
@@ -26,20 +27,20 @@ barkan_status_layout:
   images:
     1:
       name: status_plate
-      x: -74
-      y: 33
+      x: -66
+      y: 27
     2:
       name: status_icon_coin      # 판 x 6, y 8
-      x: -66
-      y: 41
+      x: -54
+      y: 35
     3:
       name: status_icon_star      # 판 x 6, y 21
-      x: -66
-      y: 59
+      x: -54
+      y: 53
     4:
       name: status_icon_gem       # 판 x 6, y 34
-      x: -66
-      y: 80
+      x: -54
+      y: 74
   texts:
     # 세 줄 모두 BlockShip 이 완성된 문자열을 넣어준다(색 포함). 여기서 조립하지 않는 이유는
     # 숫자 포맷(1,234원)·경험치 바 칸수 같은 게 전부 자바 쪽 로직이기 때문이다.
@@ -48,23 +49,23 @@ barkan_status_layout:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"            # 크림색 양피지 위라 어두운 색이어야 읽힌다
-      x: -44
-      y: 44
+      x: -32
+      y: 38
       scale: 0.62
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -44
-      y: 62
+      x: -32
+      y: 56
       scale: 0.62
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -44
-      y: 80
+      x: -32
+      y: 74
       scale: 0.62
       align: left
