@@ -28,7 +28,7 @@ LABEL="$1"; shift
 
 PATCH="/tmp/rp-patch-$$.zip"
 trap 'rm -f "$PATCH"' EXIT
-echo "▶ 패치 zip 생성 — $*"
+echo "▶ 패치 zip 생성 — 대상 $# 건 (첫 항목: $1)"   # 목록을 다 찍으면 로그가 파묻힌다
 ( cd "$RP" && zip -rq "$PATCH" "$@" -x "*.DS_Store" )
 echo "  $(unzip -l "$PATCH" | tail -1 | awk '{print $2}') 파일 · $(wc -c < "$PATCH")b"
 

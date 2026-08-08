@@ -86,6 +86,15 @@ $rejlist"
 fi
 [ -z "$deploy_lines" ] && deploy_summary="배포 없음" || deploy_summary=$(printf '%s' "$deploy_lines")
 
+# --- 리소스팩 공개 파일과 server.properties SHA1 교차검증 ---
+# `latest` asset을 교체하면 URL은 같고 파일만 바뀐다. 이 검증 없이 재시작하면
+# require-resource-pack=true 환경에서 모든 접속자가 리소스팩 다운로드에 실패한다.
+if [ "$DRYRUN" = "0" ] && ! "$DIR/resourcepack-guard.sh" --repair; then
+  notify "$LABEL 🔴 리소스팩 공개파일 검증 실패로 정기 재시작을 취소했습니다. 서버는 기존 상태를 유지합니다."
+  log "resource pack guard failed — restart cancelled"
+  exit 1
+fi
+
 # --- ② 재시작 직전 즉시 알림 (사전예고 30/10/5/1분은 restart-warning.sh가 이미 방송함) ---
 if [ "$n" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
   rcon "say [서버] 서버 재부팅합니다 (정기 점검 06:00~06:10). 06:10 이후 다시 접속해 주세요."

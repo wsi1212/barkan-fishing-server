@@ -1,0 +1,11 @@
+# 왼쪽 위 위치·환경 HUD. 사이드바에 있던 "위치"·"환경" 두 줄을 옮겨 온 것이다.
+# gui x:0 y:0 = 왼쪽 위 모서리. 해상도가 달라도 항상 왼쪽에 붙는다.
+# tick: 20 — 지역·날씨는 1초 지연이면 충분하다.
+barkan_place:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_place_layout
+      gui:
+        x: 0
+        y: 0

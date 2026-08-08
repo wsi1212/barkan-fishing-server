@@ -41,7 +41,10 @@ DEST_LAST = re.compile(r"\b(?:scp|rsync|cp|mv|install|ditto)\b", re.IGNORECASE)
 DEST_ANY = re.compile(r"\b(?:curl|wget|tee|dd)\b", re.IGNORECASE)
 
 # 안전 경로 / 정식 배포 경로
-SAFE = re.compile(r"mcserver/staging|deploy-blockship\.sh|deploy-dev\.sh|stage-blockship\.sh",
+# ops/deploy-jar.sh = 이미 빌드된 jar 을 stop→교체→start 로 올리는 스크립트.
+# 공용 트리가 다른 세션 때문에 안 빌드될 때 격리 worktree 산출물을 올리는 정식 경로다.
+SAFE = re.compile(r"mcserver/staging|deploy-blockship\.sh|deploy-dev\.sh|stage-blockship\.sh"
+                  r"|ops/deploy-jar\.sh",
                   re.IGNORECASE)
 
 MSG = """⛔ 가동 중 서버의 plugins/ 에 jar 직접 쓰기 차단.

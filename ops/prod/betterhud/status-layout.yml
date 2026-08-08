@@ -10,12 +10,13 @@
 # ★세로: 실제로 찍히는 위치는 (앵커y + y) 보다 23px 위다(셰이더 상수, preview.py Y_BIAS).
 #   앵커y = 0 이므로  화면 위에서 N px 아래 = y = N + 23.
 #
-# 판 배치: 오른쪽에서 6px 안쪽(x = 55-116 = -61), 위에서 6px 아래(y = 29).
-#   -> 판은 화면 오른쪽 -116~-6, 위 6~62 를 차지한다.
+# 판 배치: 오른쪽에서 12px 안쪽(x = 55-122 = -67), 위에서 10px 아래(y = 33).
+#   -> 판은 화면 오른쪽 -122~-12, 위 10~66 을 차지한다.
+#   ★6px 이었는데 화면 모서리에 너무 붙어 보여서 12/10 으로 당겼다(2026-08-09).
 #
 # 판 안쪽 실측(판 왼쪽 위 기준): 양피지 7~48 (나무테 0~6 · 49~55).
-#   3줄을 13px 간격으로: 아이콘 위끝 = 판 y 8 / 21 / 34,  아이콘 왼끝 = 판 x 6.
-#   글자는 아이콘 오른쪽 판 x 21 부터.
+#   3줄을 13px 간격으로: 아이콘 위끝 = 판 y 8 / 21 / 34,  아이콘 왼끝 = 판 x 8.
+#   글자는 아이콘 오른쪽 판 x 23 부터.
 #
 # ★번호 = 그리는 순서. 판(1)을 먼저 깔고 그 위에 아이콘(2~4).
 barkan_status_layout:
@@ -23,22 +24,22 @@ barkan_status_layout:
   images:
     1:
       name: status_plate
-      x: -61
-      y: 29
+      x: -67
+      y: 33
     2:
       name: status_icon_coin      # 판 x 6, y 8
-      x: -55
-      y: 37
+      x: -59
+      y: 41
     3:
       # ★별·보석은 투명 여백이 잘려서(12->8px) 같은 y를 주면 글자보다 2px 위로 뜬다.
       #   BetterHud 가 세로 여백은 되돌려주지 않기 때문. 그래서 +2 해 준다.
       name: status_icon_star      # 판 x 6, y 21
-      x: -55
-      y: 52
+      x: -59
+      y: 56
     4:
       name: status_icon_gem       # 판 x 6, y 34
-      x: -55
-      y: 65
+      x: -59
+      y: 69
   texts:
     # 세 줄 모두 BlockShip 이 완성된 문자열을 넣어준다(색 포함). 여기서 조립하지 않는 이유는
     # 숫자 포맷(1,234원)·경험치 바 칸수 같은 게 전부 자바 쪽 로직이기 때문이다.
@@ -47,23 +48,23 @@ barkan_status_layout:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"            # 크림색 양피지 위라 어두운 색이어야 읽힌다
-      x: -40
-      y: 38
+      x: -44
+      y: 42
       scale: 0.62
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -40
-      y: 51
+      x: -44
+      y: 55
       scale: 0.62
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -40
-      y: 64
+      x: -44
+      y: 68
       scale: 0.62
       align: left

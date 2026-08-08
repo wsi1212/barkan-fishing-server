@@ -1,0 +1,6 @@
+# 왼쪽 위 위치·환경 HUD 그림. 아트는 gui-forge/build_status_hud.py 가 굽는다.
+# 판이 150 인 이유: "바르칸 > 폭포_뒤_동굴_2층" 같은 지역명이 110 에는 안 들어간다.
+# ★160 을 넘기면 글리프 아틀라스에 못 들어가 에러 없이 통째로 사라진다. 150 이 상한.
+place_plate:
+  type: single
+  file: status/place-plate.png
