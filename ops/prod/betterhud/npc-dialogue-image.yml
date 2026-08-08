@@ -1,24 +1,23 @@
-dialogue_ribbon:
-  type: single
-  file: dialogue/dialogue-ribbon.png
-
+# ===== 2026-08-08 05:34 시점 구성으로 복귀 =====
+# 이 조합이 실제로 박스·초상화·명패·대사 네 요소가 모두 화면에 나온 마지막 상태다.
+# 여기서부터 한 번에 한 가지만 바꿔가며 다듬을 것. (여러 개를 동시에 바꿔서 원인을 잃었다)
+# ★박스·명패는 moonlit.kr 에셋이다. 배치가 안정되면 우리 그림으로 교체할 것.
 dialogue_box:
   type: single
-  file: dialogue/dialogue-box.png
+  file: dialogue/ml-box.png
+  setting:
+    # 2026-08-08: 144x96 -> 1.5배 = 216x144. 중심 기준이라 좌우로 ±108을 차지한다.
+    # 최소 화면(중앙 기준 ±160) 안이라 안전. 더 키우려면 초상화를 박스 안쪽으로 넣어야 한다.
+    scale: 1.5
 
 dialogue_nameplate:
   type: single
-  file: dialogue/dialogue-nameplate.png
+  file: dialogue/ml-nameplate.png
+  setting:
+    scale: 0.4
 
-npc_dialogue_portrait_grandfather:
-  type: single
-  file: dialogue/portrait-grandfather-hud.png
-
-# follow placeholder의 값("grandfather")으로 해당 초상화 child를 선택한다.
 npc_dialogue_portrait:
   type: single
   file: dialogue/portrait-grandfather-hud.png
   setting:
-    children:
-      grandfather: npc_dialogue_portrait_grandfather
-    follow: string:npc_dialogue_portrait
+    scale: 0.57

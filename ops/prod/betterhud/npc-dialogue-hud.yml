@@ -1,4 +1,3 @@
-# BetterHud 2.0 NPC 대화창. 운영 서버 plugins/BetterHud/huds/에 배치한다.
 npc_dialogue:
   tick: 1
   layouts:

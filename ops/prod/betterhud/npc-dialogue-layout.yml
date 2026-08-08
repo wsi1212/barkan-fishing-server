@@ -1,41 +1,44 @@
-# 화면 하단 기준. Hotbar 위 24px을 비워 HUD와 겹치지 않게 한다.
+# 2026-08-08(2): 박스만 1.5배로 키웠다. 그에 따라 초상화 x를 -68 -> -132로 비켜주고
+#   대사 줄바꿈 폭을 120 -> 170으로 넓혔다 (박스가 넓어졌으므로). 나머지는 그대로.
+# 2026-08-08: 직전 상태에서 "x 전체를 +72" 만 했다. 구성·크기·텍스트 설정은 그대로다.
+# 근거: 스샷 실측으로 박스 중심이 GUI -80(설정 -72)에 있었다 -> x는 이미지 중심 기준이고
+#       값이 그대로 반영된다. 그래서 전부 +72 하면 박스가 정중앙(0)에 온다.
+#       상대 배치를 유지하려고 모든 요소에 같은 값을 더했다.
+#
+# ★x/y = 이미지 중심. y는 음수가 위. 최소 화면은 중앙 기준 ±160.
 npc_dialogue_layout:
   images:
     1:
-      name: dialogue_ribbon
-      x: -250
-      y: -190
+      name: dialogue_box
+      x: 0
+      y: -120
     2:
       name: npc_dialogue_portrait
-      x: -242
-      y: -190
+      x: -132
+      y: -108
     3:
-      name: dialogue_box
-      x: -108
-      y: -148
-    4:
       name: dialogue_nameplate
-      x: -236
-      y: -65
+      x: 6
+      y: -30
   texts:
     1:
       name: dialogue_font
       pattern: "[string:npc_dialogue_text]"
       color: "#3D2840"
-      x: -94
-      y: -132
+      x: 12
+      y: -104
       scale: 1.0
       align: left
       line-align: left
       line: 4
-      line-width: 14
-      split-width: 300
+      line-width: 20
+      split-width: 170
       force-split: false
     2:
       name: dialogue_font
       pattern: "[string:npc_dialogue_name]"
       color: "#4A2D3D"
-      x: -222
-      y: -55
-      scale: 1.0
+      x: 12
+      y: -26
+      scale: 0.9
       align: left
