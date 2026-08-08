@@ -29,16 +29,17 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, "assets")
 
-SCREEN_W, SCREEN_H = 320, 240
+SCREEN_W, SCREEN_H = 426, 240   # 16:9에서 보장되는 최소 가상 화면(세로 240 제약이 먼저 걸림)
 HOTBAR_H = 22
 
 # 서버 폰트. 대사를 실제로 그려서 양피지 밖으로 넘치는지 잡는다.
-# 13px은 인게임 스샷 실측으로 맞춘 값(한글 한 자 ≈ 12.8 GUI px).
+# 16px은 인게임 스샷 실측으로 보정한 값. 13px일 때 141px로 나왔는데 실제는 167px이라
+# 18% 과소평가였고, 그래서 글자 넘침을 못 잡았다.
 FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
-FONT_PX = 13
+FONT_PX = 16
 
 # 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표.
-PARCHMENT = (112, 8, 307, 90)    # 대사가 들어가야 하는 자리 (320판 기준)
+PARCHMENT = (112, 8, 387, 90)    # 대사가 들어가야 하는 자리 (400판 기준)
 PORTRAIT_SLOT = (16, 14, 91, 95)  # 초상화가 들어가야 하는 액자 홈
 
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
@@ -96,6 +97,8 @@ def main(out_path):
             warn = "   ← ★화면 밖!"
         if w > 160:
             warn += "   ← ★폭 160 초과: 렌더 안 될 수 있음"
+        if lx < (SCREEN_W-320)/2 or lx + w > (SCREEN_W+320)/2:
+            warn += "   (4:3 좁은 창에서는 잘림)"
         if name.startswith("dialogue_panel"):
             panel_l = lx if panel_l is None else min(panel_l, lx)
             panel_t = ty if panel_t is None else min(panel_t, ty)
