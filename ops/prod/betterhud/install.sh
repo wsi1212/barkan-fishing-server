@@ -29,7 +29,7 @@ install_one() { # <원본파일> <대상폴더>
 }
 
 echo "[1] 정의 파일 설치 ($BH)"
-for set in npc-dialogue status; do
+for set in npc-dialogue status place; do
   [ -f "$SRC/$set-hud.yml" ]    && install_one "$SRC/$set-hud.yml"    "$BH/huds"
   [ -f "$SRC/$set-layout.yml" ] && install_one "$SRC/$set-layout.yml" "$BH/layouts"
   [ -f "$SRC/$set-image.yml" ]  && install_one "$SRC/$set-image.yml"  "$BH/images"

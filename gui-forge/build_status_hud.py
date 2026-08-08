@@ -25,21 +25,47 @@ OUT = os.path.abspath(os.path.join(HERE, "..", "ops", "prod", "betterhud", "asse
 STRETCH = (10, 22)      # [시작, 끝) — 이 구간만 세로로 늘린다
 PLATE_H = 56            # 3줄(소지금·레벨·캐시)이 들어갈 높이
 
+# 왼쪽 위 판(위치·환경)은 2줄이지만 더 넓어야 한다.
+# "바르칸 > 폭포_뒤_동굴_2층" 같은 지역명이 나오는데 110px 로는 어림도 없다.
+# ★단 160 을 넘기면 글리프 아틀라스에 못 들어가 통째로 사라진다 — 150 이 상한선이다.
+PLACE_W, PLACE_H = 150, 42
+H_STRETCH = (30, 80)    # 명패 가로 방향으로 늘려도 티 안 나는 구간(양피지 안쪽)
+
 SS = 8                  # 아이콘은 8배로 그린 뒤 줄여서 계단을 없앤다
 ICON = 12
 
 
-def build_plate():
-    im = Image.open(SRC).convert("RGBA")
+def _stretch_v(im, target_h):
     w, h = im.size
     a, b = STRETCH
-    grow = PLATE_H - h
-    band = im.crop((0, a, w, b)).resize((w, (b - a) + grow), Image.LANCZOS)
-    out = Image.new("RGBA", (w, PLATE_H))
+    band = im.crop((0, a, w, b)).resize((w, (b - a) + (target_h - h)), Image.LANCZOS)
+    out = Image.new("RGBA", (w, target_h))
     out.alpha_composite(im.crop((0, 0, w, a)), (0, 0))
     out.alpha_composite(band, (0, a))
     out.alpha_composite(im.crop((0, b, w, h)), (0, a + band.height))
     return out
+
+
+def _stretch_h(im, target_w):
+    w, h = im.size
+    a, b = H_STRETCH
+    band = im.crop((a, 0, b, h)).resize(((b - a) + (target_w - w), h), Image.LANCZOS)
+    out = Image.new("RGBA", (target_w, h))
+    out.alpha_composite(im.crop((0, 0, a, h)), (0, 0))
+    out.alpha_composite(band, (a, 0))
+    out.alpha_composite(im.crop((b, 0, w, h)), (a + band.width, 0))
+    return out
+
+
+def build_plate():
+    return _stretch_v(Image.open(SRC).convert("RGBA"), PLATE_H)
+
+
+def build_place_plate():
+    """왼쪽 위 판 — 가로도 같이 늘린다. 세로 먼저 늘리고 가로를 늘려야
+    모서리 장식(볼트)이 안 눌린다(반대로 하면 볼트가 타원이 된다)."""
+    im = _stretch_v(Image.open(SRC).convert("RGBA"), PLACE_H)
+    return _stretch_h(im, PLACE_W)
 
 
 def _shrink(big, palette):
@@ -147,6 +173,7 @@ def icon_gem():
 def main():
     os.makedirs(OUT, exist_ok=True)
     made = [("status-plate.png", build_plate()),
+            ("place-plate.png", build_place_plate()),
             ("icon-coin.png", icon_coin()),
             ("icon-star.png", icon_star()),
             ("icon-gem.png", icon_gem())]
