@@ -1,23 +1,23 @@
-# ===== 2026-08-08 05:34 시점 구성으로 복귀 =====
-# 이 조합이 실제로 박스·초상화·명패·대사 네 요소가 모두 화면에 나온 마지막 상태다.
-# 여기서부터 한 번에 한 가지만 바꿔가며 다듬을 것. (여러 개를 동시에 바꿔서 원인을 잃었다)
-# ★박스·명패는 moonlit.kr 에셋이다. 배치가 안정되면 우리 그림으로 교체할 것.
-dialogue_box:
+# NPC 대화창 — 우리 그림 (2026-08-08 Codex 납품, moonlit 임시 에셋 전부 제거함).
+#
+# ★한 장으로 통합했다. 프레임·초상화 액자·양피지·장식이 dialogue-panel.png 한 장에 다 들어 있다.
+#   요소를 따로 얹으면 좌표가 어긋나 화면 밖으로 밀려나는 사고가 반복됐다(2026-08-08 반나절).
+#
+# ★크기 (실측): 패널 300x114 / 명패 110x32. 전부 scale 1.0 = 캔버스 1px이 화면 1px.
+#   마크는 GUI 배율과 무관하게 가상 화면을 최소 320x240으로 보정하므로 300이 상한이다.
+#
+# ★금지: height 1짜리 글리프(폰트 전체 거부) / 파일명 대문자 / 화면보다 큰 이미지.
+dialogue_panel:
   type: single
-  file: dialogue/ml-box.png
-  setting:
-    # 2026-08-08: 144x96 -> 1.5배 = 216x144. 중심 기준이라 좌우로 ±108을 차지한다.
-    # 최소 화면(중앙 기준 ±160) 안이라 안전. 더 키우려면 초상화를 박스 안쪽으로 넣어야 한다.
-    scale: 1.5
+  file: dialogue/dialogue-panel.png
 
 dialogue_nameplate:
   type: single
-  file: dialogue/ml-nameplate.png
-  setting:
-    scale: 0.4
+  file: dialogue/dialogue-nameplate.png
 
+# 초상화는 패널의 홈(76x82) 안에 앉힌다. 원본 89x138 -> 0.58배 = 52x80.
 npc_dialogue_portrait:
   type: single
   file: dialogue/portrait-grandfather-hud.png
   setting:
-    scale: 0.57
+    scale: 0.58

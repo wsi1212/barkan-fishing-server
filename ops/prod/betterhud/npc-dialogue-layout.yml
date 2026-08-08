@@ -1,44 +1,50 @@
-# 2026-08-08(2): 박스만 1.5배로 키웠다. 그에 따라 초상화 x를 -68 -> -132로 비켜주고
-#   대사 줄바꿈 폭을 120 -> 170으로 넓혔다 (박스가 넓어졌으므로). 나머지는 그대로.
-# 2026-08-08: 직전 상태에서 "x 전체를 +72" 만 했다. 구성·크기·텍스트 설정은 그대로다.
-# 근거: 스샷 실측으로 박스 중심이 GUI -80(설정 -72)에 있었다 -> x는 이미지 중심 기준이고
-#       값이 그대로 반영된다. 그래서 전부 +72 하면 박스가 정중앙(0)에 온다.
-#       상대 배치를 유지하려고 모든 요소에 같은 값을 더했다.
+# 화면 하단 중앙. 앵커 = hud의 gui(x50,y100).
+# ★x/y = 이미지 "중심" 좌표. y는 음수가 위. 최소 화면은 중앙 기준 ±160.
 #
-# ★x/y = 이미지 중심. y는 음수가 위. 최소 화면은 중앙 기준 ±160.
+# ★y는 요소의 '위쪽 끝'이고 음수가 위다. 패널(높이 114) 아래를 핫바 위에 붙이려면
+#   y = -(114 + 22) = -136. 나머지는 패널 위쪽 기준 상대 위치로 계산했다.
+# 나머지는 "패널 중심 + 패널 안에서의 상대 위치"로 계산했다 (영역은 그림에서 실측):
+#   초상화 홈  패널기준 (-96, -2)  ->  화면 (-96, -87)
+#   양피지     패널기준 (+50, -8)  ->  화면 (+50, -93)   폭 175 x 높이 82
 npc_dialogue_layout:
+  # ★align: center 는 필수다. BetterHud 기본값은 left 인데,
+  #   left 이면 요소의 왼쪽 끝 = x - max/2 이고 max = "레이아웃 안에서 가장 넓은 이미지의 폭"이다.
+  #   즉 이미지 하나만 크기를 바꿔도 나머지 요소가 전부 같이 밀려난다(2026-08-08 반나절 헤맴).
+  #   center 이면 왼쪽 끝 = x - 자기폭/2 이라 x가 그 요소 자신의 중심이 되고 max와 무관해진다.
+  #   근거: BetterHud 소스 LayoutComponentContainer.kt / LayoutGroup.kt / HudParser.kt
+  align: center
   images:
     1:
-      name: dialogue_box
+      name: dialogue_panel
       x: 0
-      y: -120
+      y: -136
     2:
       name: npc_dialogue_portrait
-      x: -132
-      y: -108
+      x: -96
+      y: -121
     3:
       name: dialogue_nameplate
-      x: 6
-      y: -30
+      x: -78
+      y: -56
   texts:
     1:
       name: dialogue_font
       pattern: "[string:npc_dialogue_text]"
       color: "#3D2840"
-      x: 12
-      y: -104
+      x: 50
+      y: -128
       scale: 1.0
       align: left
       line-align: left
       line: 4
       line-width: 20
-      split-width: 170
+      split-width: 168
       force-split: false
     2:
       name: dialogue_font
       pattern: "[string:npc_dialogue_name]"
       color: "#4A2D3D"
-      x: 12
-      y: -26
-      scale: 0.9
-      align: left
+      x: -78
+      y: -48
+      scale: 0.85
+      align: center
