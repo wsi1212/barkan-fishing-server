@@ -1,0 +1,45 @@
+name: 구·신 저장소 main 동기화
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: barkan-cross-repo-main-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # 이 파일은 구 저장소에도 복제되지만, 동기화 허브인 새 저장소에서만 실행한다.
+    if: github.repository == 'wsi1212/barkan-fishing-server'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: main 병합 후 양쪽 저장소에 반영
+        env:
+          SYNC_TOKEN: ${{ secrets.OLD_REPO_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "Barkan sync bot"
+          git config user.email "actions@github.com"
+
+          # 이 토큰은 wsi1212 계정의 권한으로 두 private repo에만 push한다.
+          git remote set-url origin "https://x-access-token:${SYNC_TOKEN}@github.com/wsi1212/barkan-fishing-server.git"
+          git remote add legacy "https://x-access-token:${SYNC_TOKEN}@github.com/mlid-P/fish.git"
+          git fetch --no-tags origin main
+          git fetch --no-tags legacy main
+          git checkout -B main origin/main
+
+          # 충돌은 절대 강제 해결하지 않는다. Git이 안전하게 병합할 수 없으면 이 작업은 실패한다.
+          git merge --no-edit legacy/main
+          git push origin HEAD:main
+          git push legacy HEAD:main

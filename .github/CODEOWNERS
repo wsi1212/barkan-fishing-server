@@ -1,0 +1,2 @@
+# 동기화 권한을 가진 workflow 변경은 저장소 소유자의 승인 없이는 main에 합쳐지지 않는다.
+/.github/workflows/ @wsi1212
