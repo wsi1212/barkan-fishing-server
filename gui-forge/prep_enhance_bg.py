@@ -8,14 +8,13 @@
    차분으로 화살표만 떼어낼 수 있다. 흐름은 16(강화 전) → 25(▼) → 34(강화 후).
 
 2. **입력칸이 비어 있으면 뭘 넣는 자리인지 안 보인다.** 회색 실루엣을 깔아 둔다.
-   낚싯대는 카탈로그 아이콘(초보 낚싯대)을 쓰고, 주문서는 **리소스팩에 아이콘이
-   없어서**(캐시샵이 바닐라 종이를 그대로 쓴다) 두루마리 모양을 그려 넣는다.
-   → 주문서 전용 아이콘이 생기면 SCROLL_ICON 에 경로만 넣으면 된다.
+   낚싯대는 카탈로그 아이콘(초보 낚싯대), 주문서는 각 종류의 **가장 하급** 아이콘을
+   쓴다 — 슬롯마다 다른 그림이라 "여기엔 상승권, 여기엔 방지권"이 그림만 봐도 갈린다.
 """
 import hashlib
 import os
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "src", "enhance")
@@ -23,10 +22,14 @@ RP_ICONS = os.path.expanduser("~/development/barkan-resourcepack/assets/minecraf
 
 S, GX, GY, C = 4, 7, 17, 18
 SLOT_ROD, SLOT_ARROW_FROM, SLOT_ARROW_TO = 19, 34, 25
-SCROLL_SLOTS = (21, 22, 23)
+# 슬롯 → 실루엣으로 쓸 아이콘. 주문서는 종류별 최하급을 쓴다(+10 / Lv.6~10 / -10).
+GHOST_ICON = {
+    21: "ui_scroll_success_10",
+    22: "ui_scroll_shield_1",
+    23: "ui_scroll_down_10",
+}
 GHOST_ALPHA = 84          # 0~255. 넣을 자리는 알려주되 진짜 아이템과 헷갈리면 안 된다
 GHOST_SIZE = 46           # 72px 칸 안에서 차지할 크기
-SCROLL_ICON = None        # 주문서 전용 아이콘이 생기면 여기에 파일명
 
 
 def cell(slot):
@@ -51,24 +54,6 @@ def to_ghost(im):
     return g
 
 
-def scroll_glyph(size):
-    """두루마리 실루엣 — 리소스팩에 주문서 아이콘이 없어서 직접 그린다.
-    ★세로로 길게. 가로로 퍼지면 두루마리가 아니라 리본/현수막으로 보인다.
-    ★흰색으로 그리면 낚싯대 실루엣보다 훨씬 밝아 혼자 튄다 — 중간 회색으로 그린다."""
-    im = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    body, roll = int(size * 0.52), max(3, size // 12)
-    x0, x1 = (size - body) // 2, (size + body) // 2
-    ink = (170, 170, 170, 255)
-    d.rectangle([x0, roll, x1, size - roll], fill=ink)
-    for cy in (roll, size - roll):
-        d.rounded_rectangle([x0 - roll, cy - roll, x1 + roll, cy + roll], radius=roll, fill=ink)
-    for i in range(3):
-        y = roll * 2 + int((size - roll * 4) * (i + 1) / 4)
-        d.line([x0 + roll, y, x1 - roll, y], fill=(40, 40, 40, 170), width=max(1, size // 26))
-    return to_ghost(im)
-
-
 def main():
     im = Image.open(os.path.join(SRC, "bg_source_rebuild.png")).convert("RGBA")
 
@@ -85,10 +70,15 @@ def main():
     rod = to_ghost(Image.open(rod_file).convert("RGBA")) if os.path.exists(rod_file) else None
     if rod is None:
         print("  ! 낚싯대 아이콘을 못 찾음 — 실루엣 생략")
-    scroll = (to_ghost(Image.open(os.path.join(RP_ICONS, SCROLL_ICON)).convert("RGBA"))
-              if SCROLL_ICON else scroll_glyph(GHOST_SIZE * 2))
+    ghosts = [(SLOT_ROD, rod)]
+    for slot, icon in GHOST_ICON.items():
+        f = os.path.join(RP_ICONS, icon + ".png")
+        if not os.path.exists(f):
+            print(f"  ! {icon} 없음 — {slot}번 실루엣 생략")
+            continue
+        ghosts.append((slot, to_ghost(Image.open(f).convert("RGBA"))))
 
-    for slot, art in [(SLOT_ROD, rod)] + [(s, scroll) for s in SCROLL_SLOTS]:
+    for slot, art in ghosts:
         if art is None:
             continue
         x0, y0, x1, y1 = cell(slot)
@@ -101,7 +91,7 @@ def main():
     out = os.path.join(SRC, "bg_source.png")
     im.save(out)
     print(f"  ▼ {SLOT_ARROW_FROM}→{SLOT_ARROW_TO} · 실루엣 {SLOT_ROD}(낚싯대)"
-          f" {list(SCROLL_SLOTS)}(주문서) → {out}")
+          f" {sorted(GHOST_ICON)}(주문서) → {out}")
 
 
 if __name__ == "__main__":
