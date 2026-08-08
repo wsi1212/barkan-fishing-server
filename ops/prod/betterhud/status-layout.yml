@@ -11,7 +11,8 @@
 #   (한때 23 을 빼고 있었는데, 화면 높이를 타이틀바 포함으로 잘못 잰 탓이었다. 그래서 이 판이
 #    의도보다 23px 아래에 찍혔다 — 2026-08-09 수정)
 #
-# 판(그려지는 크기 82x48): 오른쪽 3px, 위 3px  ->  x = 41-85 = -44, y = 3.
+# 판(그려지는 크기 82x48): 오른쪽 10px, 위 3px  ->  x = 41-92 = -51, y = 3.
+#   ★왼쪽 판과 좌우 간격을 맞춘 값이다(둘 다 10px).
 #
 # 판 안쪽(그려지는 좌표): 양피지 5~42. 줄 간격 12, 줄 중심 = 판 y 11 / 23 / 35.
 #   아이콘 왼끝 = 판 x 8, 글자는 판 x 22 부터.
@@ -24,19 +25,19 @@ barkan_status_layout:
   images:
     1:
       name: status_plate
-      x: -44
+      x: -51
       y: 3
     2:
       name: status_icon_coin      # 줄 중심 14, 높이 11
-      x: -36
+      x: -43
       y: 8
     3:
       name: status_icon_star      # 줄 중심 26, 높이 11
-      x: -36
+      x: -43
       y: 20
     4:
       name: status_icon_gem       # 줄 중심 38, 높이 6
-      x: -36
+      x: -43
       y: 35
   texts:
     # 세 줄 모두 BlockShip 이 완성된 문자열을 넣어준다(색 포함). 여기서 조립하지 않는 이유는
@@ -47,7 +48,7 @@ barkan_status_layout:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"            # 크림색 양피지 위라 어두운 색이어야 읽힌다
-      x: -22
+      x: -29
       y: 10
       scale: 0.41
       align: left
@@ -55,7 +56,7 @@ barkan_status_layout:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -22
+      x: -29
       y: 22
       scale: 0.41
       align: left
@@ -63,7 +64,7 @@ barkan_status_layout:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -22
+      x: -29
       y: 34
       scale: 0.41
       align: left
