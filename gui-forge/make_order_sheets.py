@@ -16,6 +16,8 @@ import textwrap
 
 from PIL import Image, ImageDraw, ImageFont
 
+import make_page_layouts as L
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 RP = os.path.expanduser("~/development/barkan-resourcepack")
 FONT_TTF = os.path.join(RP, "assets/barkan/font/aggro_bold.ttf")
@@ -27,11 +29,7 @@ COMMON = [
     ("p", "왼쪽 판을 열어서 그 위에 재질과 분위기만 입힌다."),
     ("p", "칸을 새로 그리거나 옮기지 말 것 - 이미 정확한 좌표로 파여 있다."),
     ("s", ""),
-    ("k", "큰 황토색 판 = 큰 버튼. 안은 비운다(아이콘은 우리가 올림)"),
-    ("k", "회색 = 홈. 우리가 아이콘을 올린다"),
-    ("k", "초록 = 넣는 칸. 회색과 확실히 구분되게"),
-    ("k", "파랑 = 목록. 얕은 홈, 안쪽은 조용하게"),
-    ("k", "빈 자리 = 장식. 마음껏"),
+    ("legend", ""),          # 그 화면에 실제로 있는 역할만 자동으로 채운다
     ("s", ""),
     ("t", "어기면 게임에서 깨진다"),
     ("w", "캔버스 크기 그대로. 1px도 다르면 안 된다"),
@@ -72,13 +70,28 @@ SHEETS = {
         ("p", "거푸집 · 도가니 · 정련. 분해가 부수는 방이면 여기는 빚는 방이다."),
         ("p", "분해창과 짝이라 색은 이어지되 도구가 반대면 좋다."),
     ]),
+    "iceshop": ("아이스박스 상점", [
+        ("p", "아이스박스를 한 단계씩 올리는 화면. 윗줄 9칸이 1~9티어 진열이고"),
+        ("p", "아랫줄에 잔액·닫기 홈이 있다. 아이템(상자 그림)은 우리가 올린다."),
+        ("s", ""),
+        ("hi", "★윗줄 9칸이 주인공이다."),
+        ("p", "왼쪽에서 오른쪽으로 갈수록 좋아지는 계단처럼 - 왼쪽은 소박한 나무 선반,"),
+        ("p", "오른쪽으로 갈수록 얼음이 두껍고 서리가 짙어지게. 마지막 칸만은"),
+        ("p", "전설급이라 티가 나도 좋다(빛나는 테두리 정도)."),
+        ("p", "2행짜리 낮은 창이라 위아래 여백이 적다 - 장식은 얇고 담백하게."),
+    ]),
     "enhance": ("낚싯대 강화", [("p", "이미 납품 완료 - 만듦새·색의 기준이 되는 화면이다.")]),
 }
 
-THEME = ("컨셉 - 대장간 한 채를 네 방으로",
+THEME_SMITHY = ("컨셉 - 대장간 한 채를 네 방으로",
          "강화창이 용광로 앞(뜨겁고 위험)이었다면 나머지는 그 대장간의 다른 구석이다.",
          "같은 재질(그을린 돌 · 달군 쇠 · 주황 불빛)을 쓰되 방마다 도구가 다르다.",
          "허브만 넓은 전경, 나머지 셋은 작업대 앞 클로즈업.")
+THEME_ICE = ("컨셉 - 얼음 창고의 진열대",
+             "아이스박스 보관함(src/icebox/bg_source.png)과 같은 방이다 - 그 화면의",
+             "성에·고드름·푸른 얼음을 그대로 쓰되, 여기는 사러 온 손님이 보는 진열대다.",
+             "9칸이 나무에서 전설까지 한 줄로 오르는 계단처럼 읽히면 성공.")
+THEMES = {"iceshop": THEME_ICE}
 
 
 def font(px, bold=True):
@@ -88,16 +101,36 @@ def font(px, bold=True):
         return ImageFont.load_default()
 
 
+LEGEND = {
+    "타일": "큰 황토색 판 = 큰 버튼. 안은 비운다(아이콘은 우리가 올림)",
+    "홈": "회색 = 홈. 우리가 아이콘을 올린다",
+    "입력": "초록 = 넣는 칸. 회색과 확실히 구분되게",
+    "목록": "파랑 = 목록. 얕은 홈, 안쪽은 조용하게",
+    "장식": "빈 자리 = 장식. 마음껏",
+}
+
+
+def legend_for(name):
+    rows, roles, default = L.PAGES[name]
+    used = {r for r, _ in roles.values()} | {default}
+    if L.TILES.get(name): used.add("타일")
+    return [("k", LEGEND[r]) for r in ("타일", "홈", "입력", "목록", "장식") if r in used]
+
+
 def build(name):
     title, body = SHEETS[name]
     plate_path = os.path.join(HERE, "src", name, "_template.png")
     plate = Image.open(plate_path).convert("RGBA")
     lines = 0
-    for kind, text in body + [("s", "")] + COMMON:
+    sections = body + [("s", "")] + COMMON
+    sections = [x for k, t in sections for x in (legend_for(name) if k == "legend" else [(k, t)])]
+    for kind, text in sections:
         lines += {"s": 0.4, "t": 1.5}.get(kind, 0)
         if kind not in ("s", "t"):
             lines += max(1, len(textwrap.wrap(text, 34)))
-    need = 170 + int(lines * 30) + 150            # 머리말 + 본문 + 컨셉 블록
+    theme = THEMES.get(name, THEME_SMITHY)
+    wrapped = [w for line in theme[1:] for w in textwrap.wrap(line, 40)]
+    need = 170 + int(lines * 30) + 40 + 34 + 26 * len(wrapped) + 30   # 머리말 + 본문 + 컨셉
     W, H = plate.width + PANEL_W, max(plate.height, need)
     im = Image.new("RGBA", (W, H), BG + (255,))
     im.alpha_composite(plate, (0, (H - plate.height) // 2))
@@ -109,7 +142,7 @@ def build(name):
     d.text((x, y), f"{plate.width} x {plate.height} · 왼쪽 판 위에 덧칠", font=font(20), fill=DIM); y += 20
     d.text((x, y + 8), "이 오른쪽 설명은 잘라내고 왼쪽만 쓰면 된다", font=font(20), fill=DIM); y += 46
 
-    for kind, text in body + [("s", "")] + COMMON:
+    for kind, text in sections:
         if kind == "s":
             y += 12; continue
         if kind == "t":
@@ -121,9 +154,9 @@ def build(name):
             d.text((x + (0 if i == 0 else 20), y), line, font=font(22), fill=col)
             y += 30
 
-    y = H - 132
-    d.text((x, y), THEME[0], font=font(24), fill=HI); y += 34
-    for line in THEME[1:]:
+    y += 28
+    d.text((x, y), theme[0], font=font(24), fill=HI); y += 34
+    for line in wrapped:
         d.text((x, y), line, font=font(19), fill=DIM); y += 26
 
     out = os.path.join(HERE, "src", name, "_order.png")
