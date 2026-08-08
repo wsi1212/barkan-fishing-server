@@ -70,3 +70,22 @@ echo "✅ 설치 완료. 이제 서버를 재시작할 것:"
 echo "   dev  : ~/dev-mc.sh restart"
 echo "   prod : sudo systemctl restart mcserver"
 echo "재시작 뒤 build.zip 에 hud_npc_dialogue_text_* 가 400KB 이상(=한글 포함)인지 확인하면 확실하다."
+
+echo
+cat <<'NOTE'
+────────────────────────────────────────────────────────────────────
+★HUD 정의를 바꿨다면(추가·삭제) prod 배포는 이 순서를 지킬 것.
+  셰이더 안에 HUD별 좌표표(switch (id))가 구워지는데, 정의가 바뀌면 id 배정이
+  바뀐다. 한 단계라도 빠지면 서버는 새 id 로 보내고 클라는 옛 표를 써서
+  HUD가 통째로 화면 밖으로 날아간다("[] 네모도 없이 아무것도 안 보임").
+
+  1) 정지 → 파일 교체 → BetterHud/.cache/*.txt·build.zip 삭제 → 기동
+  2) ~/mcserver/scripts/betterhud-26-1-fix.sh      # 26.1 셰이더 다시 뽑기
+  3) craftengine reload all
+  4) generated/resource_pack.zip → barkan-furniture.zip 이름으로 gh release upload --clobber
+  5) 공개 URL sha1 확인 → CraftEngine/config.yml 의 external sha1 갱신
+  6) ★재시작                                       # 없으면 클라가 새 팩을 안 받는다
+
+  검증: build.zip 과 배포팩의 switch (id) 문자열이 같은지 대조.
+────────────────────────────────────────────────────────────────────
+NOTE
