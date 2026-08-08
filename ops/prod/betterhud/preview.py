@@ -168,7 +168,7 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
 
     plate = rect.get("status_plate")              # 상태 HUD — 글자가 판 밖으로 나가는지만 본다
     if plate:
-        parch = (plate[0] + 6, plate[1] + 7, plate[0] + 104, plate[1] + 48)
+        parch = (plate[0] + 6, plate[1] + 7, plate[0] + 118, plate[1] + 64)
         d.rectangle(list(parch), outline=(0, 220, 0, 200))
 
     def wrap(text, limit, font, force=False):

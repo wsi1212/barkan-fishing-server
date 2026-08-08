@@ -6,8 +6,9 @@
   늘리는 방법은 "띠 반복"이 아니라 "안쪽 구간 resize" — 반복하면 같은 얼룩이 되풀이된다
   (2026-08-08 대화창 판에서 실제로 그 지적을 받았다).
 
-★아이콘은 색만 바꾼 같은 모양을 쓰지 않는다. 실루엣을 다르게 간다:
-  소지금=원(동전) · 레벨=별 · 캐시=마름모(보석). 색이 안 보여도 구분된다.
+★아이콘은 직접 그리지 않는다. src/status_icons/ 의 납품 아트(128px)를 여기서 내려 쓴다.
+  (처음엔 원/별/마름모를 절차적으로 그렸는데 반려됐다 — 그 코드는 지웠다.)
+  내릴 때 16px 로 간다: 14px 이하면 레벨 아이콘의 "LV" 글자가 뭉개져 못 읽는다(실측 비교).
 
 산출: ops/prod/betterhud/assets/status/ 에 png 4장
 사용:  python3 build_status_hud.py
@@ -23,7 +24,10 @@ OUT = os.path.abspath(os.path.join(HERE, "..", "ops", "prod", "betterhud", "asse
 # 명패 실측(열이 아니라 행 프로파일로 뽑음): 0~4 위 나무테 · 7~24 양피지 · 26~31 아래 나무테.
 # 10~21 이 밝기 162 로 완전히 균일해서, 늘려도 티가 안 나는 구간이 여기다.
 STRETCH = (10, 22)      # [시작, 끝) — 이 구간만 세로로 늘린다
-PLATE_H = 56            # 3줄(소지금·레벨·캐시)이 들어갈 높이
+# 아이콘이 16px 이라 줄 간격을 18px 로 벌려야 겹치지 않는다.
+# 3줄 x 18 = 54 + 나무테 15 -> 72. 폭도 124 로 넓혔다(글자 "999,999,999원" 이 78px 라
+# 110 짜리 판에서는 4px 넘쳤다). ★160 이 글리프 아틀라스 상한.
+PLATE_W, PLATE_H = 124, 72
 
 # 왼쪽 위 판(위치·환경)은 2줄이지만 더 넓어야 한다.
 # "바르칸 > 폭포_뒤_동굴_2층" 같은 지역명이 나오는데 110px 로는 어림도 없다.
@@ -58,7 +62,8 @@ def _stretch_h(im, target_w):
 
 
 def build_plate():
-    return _stretch_v(Image.open(SRC).convert("RGBA"), PLATE_H)
+    im = _stretch_v(Image.open(SRC).convert("RGBA"), PLATE_H)
+    return _stretch_h(im, PLATE_W)
 
 
 def build_place_plate():
@@ -68,115 +73,40 @@ def build_place_plate():
     return _stretch_h(im, PLACE_W)
 
 
-def _shrink(big, palette):
-    """8배 그림을 12px 픽셀아트로 내린다.
+ICON_SRC = os.path.join(HERE, "src", "status_icons")
+ICON_BOX = 16           # 긴 변 기준. 14 이하면 "LV" 가 안 읽힌다.
 
-    ★그냥 resize 만 하면 안티에일리어싱이 남아 뭉갠 젤리처럼 보인다(첫 시도에서 그랬다).
-      면적평균(BOX)으로 내린 뒤 **알파를 이진화하고 색을 팔레트에 스냅**해서 각을 세운다.
-      팔레트 스냅이 곧 색 수 제한이라, 인게임 12px 에서 형태가 또렷하게 읽힌다.
+
+def import_icon(fname):
+    """납품 128px 아트를 16px 픽셀아트로 내린다.
+
+    ★그냥 resize 하면 안티에일리어싱이 남아 뭉갠 젤리가 된다. 면적평균(BOX)으로 내린 뒤
+      **알파를 이진화하고 색 수를 줄여서** 각을 세운다. 색 수 제한이 곧 픽셀아트 느낌이다.
+    ★가로세로 비를 유지한다 — 지폐(캐시)는 가로로 길어서 정사각으로 맞추면 찌그러진다.
+    ★투명 여백은 잘라서 내보낸다. BetterHud 가 어차피 잘라내고 x 는 되돌려주지만
+      y 는 안 되돌려주므로, 여백을 남기면 그 줄만 위로 떠 버린다.
     """
-    small = big.resize((ICON, ICON), Image.BOX)
-    px = small.load()
-    for y in range(ICON):
-        for x in range(ICON):
-            r, g, b, a = px[x, y]
-            if a < 128:
-                px[x, y] = (0, 0, 0, 0)
-                continue
-            best = min(palette, key=lambda c: (c[0]-r)**2 + (c[1]-g)**2 + (c[2]-b)**2)
-            px[x, y] = (*best, 255)
-    return small
-
-
-GOLD = [(92, 58, 12), (168, 118, 32), (226, 176, 66), (248, 218, 134), (255, 244, 206)]
-TEAL = [(14, 62, 66), (28, 118, 122), (58, 176, 176), (126, 226, 216), (214, 252, 244)]
-VIOLET = [(52, 24, 82), (110, 58, 158), (168, 102, 226), (214, 170, 252), (250, 230, 255)]
-
-
-def icon_coin():
-    """소지금 — 정원(正圓) 동전. 사방 테두리를 두르고 왼쪽 위만 광택."""
-    s = ICON * SS
-    im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    # ★원만은 8배로 그려서 줄이지 않는다. 줄이는 순간 테두리 굵기가 방향마다 달라져
-    #   원이 아니라 찌그러진 덩어리로 읽힌다(두 번 시도해서 두 번 다 그랬다).
-    #   대신 12px 격자에서 반지름을 직접 판정해 링 두께를 사방 균일하게 만든다.
-    del im, d, s
-    out = Image.new("RGBA", (ICON, ICON), (0, 0, 0, 0))
-    px = out.load()
-    c = (ICON - 1) / 2.0
-    for y in range(ICON):
-        for x in range(ICON):
-            dx, dy = x - c, y - c
-            r = (dx * dx + dy * dy) ** 0.5
-            if r > 5.7:
-                continue
-            if r > 4.55:
-                col = GOLD[0]                       # 테두리 — 사방 균일
-            elif (dx + 1.3) ** 2 + (dy + 1.5) ** 2 < 1.9 ** 2:
-                col = GOLD[4]                       # 광택 심
-            elif (dx + 1.1) ** 2 + (dy + 1.3) ** 2 < 3.1 ** 2:
-                col = GOLD[3]                       # 광택 번짐
-            elif r > 3.7:
-                col = GOLD[1]                       # 가장자리 그늘
-            else:
-                col = GOLD[2]
-            px[x, y] = (*col, 255)
+    im = Image.open(os.path.join(ICON_SRC, fname)).convert("RGBA")
+    im = im.crop(im.split()[3].getbbox())
+    k = ICON_BOX / max(im.width, im.height)
+    w, h = max(1, round(im.width * k)), max(1, round(im.height * k))
+    small = im.resize((w, h), Image.BOX)
+    quant = small.convert("RGB").quantize(colors=10, method=Image.MEDIANCUT).convert("RGB")
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sp, qp, op = small.load(), quant.load(), out.load()
+    for y in range(h):
+        for x in range(w):
+            op[x, y] = (*qp[x, y], 255) if sp[x, y][3] >= 128 else (0, 0, 0, 0)
     return out
-
-
-def icon_star():
-    """레벨 — 별. ★청록으로 간다: 금색이면 동전과 한눈에 안 구분된다(색+실루엣 둘 다 다르게)."""
-    import math
-    s = ICON * SS
-    im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    # 안쪽 반지름을 크게(ro의 0.46) 잡아야 다리가 뭉툭해지지 않고 12px 에서도 별로 읽힌다.
-    cx, cy, ro = s / 2, s / 2 + 0.3 * SS, 5.6 * SS
-    ri = ro * 0.46
-
-    def star(scale):
-        p = []
-        for i in range(10):
-            ang = -math.pi / 2 + i * math.pi / 5
-            r = (ro if i % 2 == 0 else ri) * scale
-            p.append((cx + r * math.cos(ang), cy + r * math.sin(ang)))
-        return p
-
-    d.polygon(star(1.00), fill=TEAL[0] + (255,))
-    d.polygon(star(0.80), fill=TEAL[2] + (255,))
-    d.polygon(star(0.52), fill=TEAL[3] + (255,))
-    d.polygon([(cx - 0.5 * SS, cy - 2.4 * SS), (cx + 0.5 * SS, cy - 2.4 * SS), (cx, cy - 0.6 * SS)],
-              fill=TEAL[4] + (255,))
-    return _shrink(im, TEAL)
-
-
-def icon_gem():
-    """캐시 — 마름모 보석. 윗면을 좁히고 아래 꼭짓점을 뾰족하게(풍선처럼 안 보이게)."""
-    s = ICON * SS
-    im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    cx = s / 2
-    top, bot = 1.4 * SS, 10.9 * SS
-    lft, rgt, shoulder = 2.3 * SS, 9.7 * SS, 4.6 * SS      # 어깨 폭을 좁혔다
-    d.polygon([(cx, top), (rgt, shoulder), (cx, bot), (lft, shoulder)], fill=VIOLET[0] + (255,))
-    d.polygon([(cx, top + 0.9 * SS), (rgt - 0.9 * SS, shoulder), (cx, bot - 1.0 * SS),
-               (lft + 0.9 * SS, shoulder)], fill=VIOLET[2] + (255,))
-    # 위 절단면 — 여기만 밝게 해야 "깎인 보석"으로 읽힌다
-    d.polygon([(cx, top + 0.9 * SS), (rgt - 0.9 * SS, shoulder), (cx, shoulder + 0.7 * SS),
-               (lft + 0.9 * SS, shoulder)], fill=VIOLET[3] + (255,))
-    d.polygon([(cx, top + 1.3 * SS), (cx + 1.1 * SS, shoulder - 0.3 * SS), (cx, shoulder)],
-              fill=VIOLET[4] + (255,))
-    return _shrink(im, VIOLET)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
     made = [("status-plate.png", build_plate()),
             ("place-plate.png", build_place_plate()),
-            ("icon-coin.png", icon_coin()),
-            ("icon-star.png", icon_star()),
-            ("icon-gem.png", icon_gem())]
+            ("icon-coin.png", import_icon("money.png")),
+            ("icon-star.png", import_icon("level.png")),
+            ("icon-gem.png", import_icon("cash.png"))]
     for name, im in made:
         # ★파일명은 소문자만. 대문자가 하나만 섞여도 폰트 파일 전체가 거부되고 HUD가 통째로 사라진다.
         assert name == name.lower(), name
