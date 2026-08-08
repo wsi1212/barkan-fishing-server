@@ -29,15 +29,21 @@ install_one() { # <원본파일> <대상폴더>
 }
 
 echo "[1] 정의 파일 설치 ($BH)"
-install_one "$SRC/npc-dialogue-hud.yml"    "$BH/huds"
-install_one "$SRC/npc-dialogue-layout.yml" "$BH/layouts"
-install_one "$SRC/npc-dialogue-image.yml"  "$BH/images"
-install_one "$SRC/npc-dialogue-font.yml"   "$BH/texts"
+for set in npc-dialogue status; do
+  [ -f "$SRC/$set-hud.yml" ]    && install_one "$SRC/$set-hud.yml"    "$BH/huds"
+  [ -f "$SRC/$set-layout.yml" ] && install_one "$SRC/$set-layout.yml" "$BH/layouts"
+  [ -f "$SRC/$set-image.yml" ]  && install_one "$SRC/$set-image.yml"  "$BH/images"
+  [ -f "$SRC/$set-font.yml" ]   && install_one "$SRC/$set-font.yml"   "$BH/texts"
+done
 
-echo "[2] 대화창 그림 설치"
-mkdir -p "$BH/assets/dialogue"
-cp "$SRC/assets/dialogue/"*.png "$BH/assets/dialogue/"
-ls "$BH/assets/dialogue" | sed 's/^/   → /'
+echo "[2] 그림 설치"
+# 상태 HUD 아트는 gui-forge/build_status_hud.py 산출물이다. 손으로 고치지 말고 다시 구울 것.
+for dir in dialogue status; do
+  [ -d "$SRC/assets/$dir" ] || continue
+  mkdir -p "$BH/assets/$dir"
+  cp "$SRC/assets/$dir/"*.png "$BH/assets/$dir/"
+  ls "$BH/assets/$dir" | sed "s|^|   → $dir/|"
+done
 
 # ★2026-08-08: BetterHud 기본 제공 정의를 전부 지웠다(되돌리지 않음).
 #   entity-popup(때리면 뜨는 체력 팝업) / default-hud(데모 바) / default_compass(나침반)
@@ -57,7 +63,7 @@ rm -rf "$BH/assets/entity" "$BH/assets/compass"; rm -f "$BH"/assets/*.png
 echo "[3] 검증"
 missing=0
 # npc-dialogue-image.yml 이 참조하는 파일이 실제로 있는지 확인한다.
-for f in $(grep -oE 'file: *dialogue/[^ ]+\.png' "$SRC/npc-dialogue-image.yml" | awk '{print $2}' | sort -u); do
+for f in $(grep -hoE 'file: *(dialogue|status)/[^ ]+\.png' "$SRC"/*-image.yml | awk '{print $2}' | sort -u); do
   [ -f "$BH/assets/$f" ] || { echo "   ❌ 누락: assets/$f"; missing=1; }
 done
 # 한글이 [] 네모로 깨지는 사고의 직접 원인 — unifont 병합 플래그가 살아있는지 본다.

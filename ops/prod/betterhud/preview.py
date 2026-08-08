@@ -63,15 +63,25 @@ PORTRAIT_SLOT = (16, 10, 91, 68)  # 금테 안쪽 홈 — 초상화도 중심 53
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
 SAMPLE_NAME = "[길잡이] 할아버지"
 
+# HUD 세트별 (hud파일, layout파일, image파일, 텍스트 샘플들).
+# ★샘플은 "가장 긴 현실값"으로 둘 것 — 짧은 값으로 확인하면 넘침을 못 잡는다.
+SETS = {
+    "npc-dialogue": ("npc-dialogue-hud.yml", "npc-dialogue-layout.yml", "npc-dialogue-image.yml",
+                     [SAMPLE_TEXT, SAMPLE_NAME]),
+    "status": ("status-hud.yml", "status-layout.yml", "status-image.yml",
+               ["999,999,999원", "Lv.100 ||||||||||", "1,234,567"]),
+}
+
 
 def load(name):
     return yaml.safe_load(open(os.path.join(HERE, name), encoding="utf-8"))
 
 
-def main(out_path, zoom=None):
-    hud = load("npc-dialogue-hud.yml")["npc_dialogue"]
-    layout = load("npc-dialogue-layout.yml")["npc_dialogue_layout"]
-    images = load("npc-dialogue-image.yml")
+def main(out_path, zoom=None, setname="npc-dialogue"):
+    hf, lf, imf, samples = SETS[setname]
+    hud = next(iter(load(hf).values()))
+    layout = next(iter(load(lf).values()))
+    images = load(imf)
 
     align = str(layout.get("align", "left")).lower()
     offset = str(layout.get("offset", "center")).lower()
@@ -121,7 +131,9 @@ def main(out_path, zoom=None):
             warn = "   ← ★화면 밖!"
         if w > 160:
             warn += "   ← ★폭 160 초과: 렌더 안 될 수 있음"
-        if lx < (SCREEN_W-SAFE_W)/2 or lx + w > (SCREEN_W+SAFE_W)/2:
+        # ★잘림 검사는 "화면 가운데 기준" HUD 에만 의미가 있다. gui.x 가 0/100 이면 화면
+        #   모서리에 붙는 HUD 라 해상도가 달라도 항상 보인다 — 여기서 경고하면 오탐이다.
+        if 0 < gui["x"] < 100 and (lx < (SCREEN_W-SAFE_W)/2 or lx + w > (SCREEN_W+SAFE_W)/2):
             warn += f"   (가상화면 {SAFE_W} 인 유저는 잘림)"
         if name.startswith("dialogue_panel"):
             panel_l = lx if panel_l is None else min(panel_l, lx)
@@ -130,7 +142,7 @@ def main(out_path, zoom=None):
         print(f"  {name:24s} x {lx:6.0f}~{lx+w:<6.0f} (폭 {w:3d}, 잘린여백 {xoff})  y {ty:.0f}~{ty+h:.0f}{warn}")
 
     parch = None
-    if panel_l is not None:
+    if panel_l is not None:                       # 대화창 세트에만 있는 액자 정렬 검사
         def to_screen(box):
             return (panel_l + box[0], panel_t + box[1], panel_l + box[2], panel_t + box[3])
         parch = to_screen(PARCHMENT)
@@ -145,12 +157,17 @@ def main(out_path, zoom=None):
                   f"  위 {box[1]-ref[1]:+.0f}  아래 {ref[3]-box[3]:+.0f}"
                   f"   (좌우 차 {abs((box[0]-ref[0])-(ref[2]-box[2])):.0f})")
         print("  ── 액자 정렬 (좌우 차가 0이어야 가운데) ──")
-        print("     ※여기 예측과 실제는 요소마다 1~2px 다르다(반올림). 최종 확정은 calibrate.py 로.")
+        print("     ※예측과 실제는 요소마다 1~2px 다르다(반올림). 최종 확정은 calibrate.py 로.")
         gap("초상화", rect.get("npc_dialogue_portrait"), slot)
         gap("명패", rect.get("dialogue_nameplate"), frame)
         if zoom:
             for box, col in ((slot, (0, 200, 255, 255)), (frame, (255, 0, 220, 255))):
                 d.rectangle(list(box), outline=col)
+
+    plate = rect.get("status_plate")              # 상태 HUD — 글자가 판 밖으로 나가는지만 본다
+    if plate:
+        parch = (plate[0] + 6, plate[1] + 7, plate[0] + 104, plate[1] + 48)
+        d.rectangle(list(parch), outline=(0, 220, 0, 200))
 
     def wrap(text, limit, font, force=False):
         """BetterHud Adventures.kt 의 split 판정을 그대로 옮긴 것.
@@ -168,7 +185,7 @@ def main(out_path, zoom=None):
 
     for idx in sorted(layout.get("texts", {})):
         t = layout["texts"][idx]
-        sample = SAMPLE_TEXT if idx == 1 else SAMPLE_NAME
+        sample = samples[min(idx - 1, len(samples) - 1)]
         fs = max(6, round(FONT_PX * float(t.get("scale", 1.0))))
         font = ImageFont.truetype(FONT_TTF, fs)
         sw = t.get("split-width")
@@ -207,5 +224,7 @@ def main(out_path, zoom=None):
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     z = next((a for a in sys.argv[1:] if a.startswith("--zoom")), None)
+    st = next((a for a in sys.argv[1:] if a.startswith("--set")), None)
     main(args[0] if args else "/tmp/hud-preview.png",
-         tuple(int(v) for v in z.split("=", 1)[1].split(",")) if z and "=" in z else None)
+         tuple(int(v) for v in z.split("=", 1)[1].split(",")) if z and "=" in z else None,
+         st.split("=", 1)[1] if st and "=" in st else "npc-dialogue")

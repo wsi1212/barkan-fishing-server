@@ -1,0 +1,21 @@
+# 오른쪽 위 상태 HUD 그림. 아트는 gui-forge/build_status_hud.py 가 굽는다(손으로 고치지 말 것).
+#
+# ★폭 160 이하 — 넘으면 폰트 글리프 아틀라스에 못 들어가고 에러 없이 조용히 사라진다.
+#   판 110 이라 조각낼 필요가 없다(대화창 판 440 은 4조각이 필요했다).
+# ★파일명 소문자만. height 1 글리프 금지.
+# ★판이 가장 넓으므로 max = 110. 레이아웃 x 계산이 여기 물려 있다(status-layout.yml 참고).
+status_plate:
+  type: single
+  file: status/status-plate.png
+
+status_icon_coin:
+  type: single
+  file: status/icon-coin.png
+
+status_icon_star:
+  type: single
+  file: status/icon-star.png
+
+status_icon_gem:
+  type: single
+  file: status/icon-gem.png
