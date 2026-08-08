@@ -83,15 +83,21 @@ SHEETS = {
         ("p", "위아래 여백은 진열대를 감싸는 창고로 - 위는 고드름 매달린 천장,"),
         ("p", "아래는 성에 낀 바닥이나 얼음 벽돌 단. 진열이 공중에 뜨지 않게."),
     ]),
-    "skillhub": ("스킬 허브", [
-        ("p", "/스킬 로 열리는 첫 화면. 3행 중 가운데 줄 5칸이 스킬 메달리온이다"),
-        ("p", "(낚시·재배·채굴·요리·수집). 나머지 22칸은 전부 그림."),
+    "skillhub": ("스킬 허브 - 재작업", [
+        ("p", "받은 그림(오른쪽 아래 참고)은 재질·색·구도 다 좋다. 그대로 간다."),
+        ("p", "고칠 건 하나뿐이다 - 액자 5개의 간격이 어긋나 있다."),
         ("s", ""),
-        ("hi", "★지금 판은 비율이 강제로 늘어나 있고 검은 영역이 너무 넓다."),
-        ("p", "그걸 버리고 처음부터 704x672 에 맞춰 새로 그려 달라."),
-        ("p", "다섯 칸을 감싸는 하나의 무대처럼 - 가운데가 밝고 바깥으로 어두워지되"),
-        ("p", "검은 여백이 아니라 재질이 보이는 어둠으로(돌벽·나뭇결·천 등)."),
-        ("p", "메달리온 5개는 한 줄로 박힌 인장처럼. 안은 비운다(아이콘은 우리가 올림)."),
+        ("hi", "★액자 다섯의 간격이 76px인데 72px 이어야 한다."),
+        ("p", "게임은 아이템을 정확히 72px 간격에 그린다. 그래서 지금 그림이면"),
+        ("p", "양 끝 아이콘이 액자 밖으로 9px씩 삐져나온다."),
+        ("p", "액자 중심 x = 208 · 280 · 352 · 424 · 496 (가운데는 이미 맞다)."),
+        ("p", "세로 중심 y = 176 도 이미 맞다 - 건드리지 말 것."),
+        ("s", ""),
+        ("hi", "★액자 안쪽 구멍은 한 변 68px 이상."),
+        ("p", "지금 52px 이라 64px 짜리 아이콘이 테두리를 덮는다."),
+        ("p", "테두리는 그만큼 바깥으로 - 액자 바깥 한 변 72px 까지 써도 된다."),
+        ("s", ""),
+        ("p", "왼쪽 판의 회색 홈이 정확한 자리다. 그 위에 액자를 얹으면 된다."),
     ]),
     "skilltree": ("특성 트리", [
         ("p", "스킬 하나를 눌렀을 때 나오는 상세. 0행에 버튼 4개(이전·정보·다음·초기화),"),
@@ -123,6 +129,11 @@ THEME_SKILL = ("컨셉 - 성장의 방",
                "두 장이 같은 재질·같은 색으로 이어져야 한 시스템으로 읽힌다.",
                "밝고 정적인 톤 - 대장간(뜨거움)·아이스박스(차가움)와 구분되게.")
 THEMES = {"iceshop": THEME_ICE, "skillhub": THEME_SKILL, "skilltree": THEME_SKILL}
+
+# 재작업 시트용 - 오른쪽 설명판 아래에 「이 그림 기준」으로 축소해 붙인다.
+# 받은 그림을 말로만 가리키면 못 찾는다(발주서/그림 분리 사고와 같은 이유).
+REFERENCE = {"skillhub": ("src/skillhub/bg_source_rebuild.png",
+                          "받은 그림 - 재질·색·구도는 이대로")}
 
 
 def font(px, bold=True):
@@ -161,7 +172,14 @@ def build(name):
             lines += max(1, len(textwrap.wrap(text, 34)))
     theme = THEMES.get(name, THEME_SMITHY)
     wrapped = [w for line in theme[1:] for w in textwrap.wrap(line, 40)]
-    need = 170 + int(lines * 30) + 40 + 34 + 26 * len(wrapped) + 30   # 머리말 + 본문 + 컨셉
+    ref = REFERENCE.get(name)
+    ref_h = 0
+    if ref:
+        ri = Image.open(os.path.join(HERE, ref[0])).convert("RGBA")
+        rw = PANEL_W - 56
+        ri = ri.resize((rw, round(ri.height * rw / ri.width)), Image.LANCZOS)
+        ref_h = ri.height + 60
+    need = 170 + int(lines * 30) + 40 + 34 + 26 * len(wrapped) + 30 + ref_h
     W, H = plate.width + PANEL_W, max(plate.height, need)
     im = Image.new("RGBA", (W, H), BG + (255,))
     im.alpha_composite(plate, (0, (H - plate.height) // 2))
@@ -189,6 +207,11 @@ def build(name):
     d.text((x, y), theme[0], font=font(24), fill=HI); y += 34
     for line in wrapped:
         d.text((x, y), line, font=font(19), fill=DIM); y += 26
+
+    if ref:
+        y += 30
+        d.text((x, y), ref[1], font=font(20), fill=DIM); y += 28
+        im.alpha_composite(ri, (x, y))
 
     out = os.path.join(HERE, "src", name, "_order.png")
     im.convert("RGB").save(out)

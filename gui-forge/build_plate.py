@@ -21,8 +21,10 @@ import build_common6_bg as c6
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# 이름: (행 수, 텍스처 접두어, 시작 코드포인트)
+# 이름: (행 수, 텍스처 접두어, 시작 코드포인트[, 원본 파일명])
 # E620 낚시창 · E650 판매창 · E660 공용6행 · E670 메뉴 · E680 내정보 · E690 상점 · E6A0 아이스박스
+# 원본 파일명은 기본 bg_source.png. 손질 스크립트(prep_*.py)가 있는 화면은 그 산출물이
+# bg_source.png 이고, 손질이 필요 없는 화면은 받은 파일을 그대로 가리킨다 — 사본을 만들지 않는다.
 PLATES = {
     "enhance": (5, "enhance_", 0xE6B0),
     "mailbox": (6, "mailbox_", 0xE6C0),
@@ -31,6 +33,10 @@ PLATES = {
     "crafting": (6, "crafting_", 0xE6F0),
     "disassemble": (6, "disasm_", 0xE710),   # E700 은 제목 글리프가 쓴다
     "forge": (6, "forge_", 0xE720),
+    "iceshop": (3, "iceshop_", 0xE730),      # prep_iceshop_bg.py 가 bg_source.png 를 만든다
+    # ★접두어를 skilltree_ 로 두면 기존 폴더 skilltree_parts/ 까지 지우려 든다(노드 스프라이트).
+    "skilltree": (5, "sktree_", 0xE740, "bg_source_rebuild.png"),
+    "skillhub": (3, "skhub_", 0xE750),
 }
 
 
@@ -41,11 +47,12 @@ def split(total, n):
 
 
 def build(name):
-    rows, prefix, code0 = PLATES[name]
+    rows, prefix, code0, *rest = PLATES[name]
+    fname = rest[0] if rest else "bg_source.png"
     gw, gh = 176, 114 + rows * c6.CELL
     W, H = gw * c6.SCALE, gh * c6.SCALE
     src = os.path.join(HERE, "src", name)
-    im = Image.open(os.path.join(src, "bg_source.png")).convert("RGBA")
+    im = Image.open(os.path.join(src, fname)).convert("RGBA")
     assert im.size == (W, H), f"{name} 배경판 {im.size} != {(W, H)}"
 
     inv_y = 31 + rows * c6.CELL
