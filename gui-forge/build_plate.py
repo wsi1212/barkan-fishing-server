@@ -37,6 +37,11 @@ PLATES = {
     # ★접두어를 skilltree_ 로 두면 기존 폴더 skilltree_parts/ 까지 지우려 든다(노드 스프라이트).
     "skilltree": (5, "sktree_", 0xE740, "bg_source_rebuild.png"),
     "skillhub": (3, "skhub_", 0xE750),
+    # 도감 4종 — 슬롯 배열이 겹쳐 판 넷이 화면 여덟을 덮는다(prep_dex_bg.py 산출).
+    "dexmain": (3, "dexmain_", 0xE760),
+    "dextab": (6, "dextab_", 0xE770),
+    "dexfish": (6, "dexfish_", 0xE780),
+    "dexisland": (4, "dexisl_", 0xE790),
 }
 
 
