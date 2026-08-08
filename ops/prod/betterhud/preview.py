@@ -33,18 +33,20 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(HERE, "assets")
 
-# ★실제 클라 실측값(2026-08-08, Feather 26.1.2 / 창 2672x1462 / GUI배율 3).
-#   예전엔 426x240(최소 보장 화면)으로 그렸는데, 그러면 판이 화면을 꽉 채운 그림이 나와서
-#   유저가 보는 화면(판이 가로 절반)과 전혀 딴판이었다. 잘림 검사는 아래에서 따로 한다.
-SCREEN_W, SCREEN_H = 891, 488
+# ★실제 클라 실측값(Feather 26.1.2 / GUI배율 3).
+#   ★★세로는 "창 높이"가 아니라 "마크 프레임버퍼 높이"다. 화면기록이 macOS 타이틀바까지
+#     담아 1462 였는데 실제 프레임버퍼는 1394 다. 1462/3=488 로 잡았다가 23px 어긋났고,
+#     그걸 셰이더 상수(Y_BIAS)로 오해해서 위쪽 앵커 HUD 를 전부 23px 아래로 밀어버렸다.
+#     검산: 대화창(gui.y=100, layout y=-102) -> 465-102 = 363, 실측 362.67. 보정 없음.
+SCREEN_W, SCREEN_H = 891, 465
 HOTBAR_H = 22
 SAFE_W, SAFE_H = 320, 240       # 마크가 보장하는 최소 가상 화면 — 여기서 벗어나면 잘리는 유저가 생긴다
 
-# ★세로 보정상수. 셰이더는 yGui = ui.y * (gui.y)/100 로 화면 바닥을 잡지만, 실제로 찍히는
-#   위치는 그보다 이만큼 위다(글리프 ascent·DEFAULT_OFFSET 등 화면크기와 무관한 상수들).
-#   화면기록 3프레임에서 모두 23.33 로 일치. 셰이더상 화면 크기에 비례하는 항이 없으므로 상수로 둔다.
-#   ※가로는 셰이더에서 `pos.x -= 0.5*ui.x` 와 `+= ui.x*gui.x/100` 이 상쇄되어 보정이 없다.
-Y_BIAS = 23
+# ★세로 보정은 없다(0). 한때 23 을 넣었는데 그건 위 SCREEN_H 를 타이틀바 포함으로
+#   잘못 잡아서 생긴 착시였다. 셰이더에도 그런 상수는 없다 —
+#   `yGui = ui.y * gui.y/100` 이 전부이고, 가로는 `pos.x -= 0.5*ui.x` 와 상쇄된다.
+#   ※상수를 넣고 싶어지면 먼저 SCREEN_H 가 프레임버퍼 높이인지부터 확인할 것.
+Y_BIAS = 0
 
 # 서버 폰트. 대사를 실제로 그려서 양피지 밖으로 넘치는지 잡는다.
 # 16px은 인게임 스샷 실측으로 보정한 값. 13px일 때 141px로 나왔는데 실제는 167px이라
@@ -166,9 +168,14 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
             for box, col in ((slot, (0, 200, 255, 255)), (frame, (255, 0, 220, 255))):
                 d.rectangle(list(box), outline=col)
 
-    plate = rect.get("status_plate")              # 상태 HUD — 글자가 판 밖으로 나가는지만 본다
-    if plate:
-        parch = (plate[0] + 6, plate[1] + 7, plate[0] + 118, plate[1] + 64)
+    # 상태/위치 HUD — 글자가 판(양피지) 밖으로 나가는지만 본다.
+    # ★판 크기를 scale 로 줄이므로 안쪽 여백도 판 크기에 비례해서 잡는다(고정 px 로 두면 틀린다).
+    for key in ("status_plate", "place_plate"):
+        plate = rect.get(key)
+        if not plate:
+            continue
+        pad = max(3, round((plate[2] - plate[0]) * 0.05))
+        parch = (plate[0] + pad, plate[1] + pad, plate[2] - pad, plate[3] - pad)
         d.rectangle(list(parch), outline=(0, 220, 0, 200))
 
     def wrap(text, limit, font, force=False):
