@@ -39,7 +39,7 @@ FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/f
 FONT_PX = 16
 
 # 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표.
-PARCHMENT = (112, 8, 387, 90)    # 대사가 들어가야 하는 자리 (400판 기준)
+PARCHMENT = (112, 8, 427, 90)    # 대사가 들어가야 하는 자리 (440판 기준)
 PORTRAIT_SLOT = (16, 14, 91, 95)  # 초상화가 들어가야 하는 액자 홈
 
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
@@ -110,13 +110,17 @@ def main(out_path):
                  panel_l + PARCHMENT[2], panel_t + PARCHMENT[3])
         d.rectangle(list(parch), outline=(0, 220, 0, 200))
 
-    def wrap(text, limit, font):
-        out, cur = [], ""
+    def wrap(text, limit, font, force=False):
+        """BetterHud Adventures.kt 의 split 판정을 그대로 옮긴 것.
+             if (i >= sw && (i >= 1.25*sw || ch == ' ') || forceSplit) end()
+        ★연산자 우선순위 때문에 forceSplit 은 전체 조건과 OR 로 묶인다 -> 켜면 매 글자 줄바꿈.
+        ★공백이 없으면 1.25*sw 까지 밀고 나간다 -> 실제 상한은 split-width 의 1.25배."""
+        out, cur, i = [], "", 0.0
         for ch in text:
-            if d.textlength(cur + ch, font=font) > limit and cur:
-                out.append(cur); cur = ch
-            else:
-                cur += ch
+            i += d.textlength(ch, font=font)
+            cur += ch
+            if (i >= limit and (i >= 1.25 * limit or ch == " ")) or force:
+                out.append(cur); cur = ""; i = 0.0
         if cur: out.append(cur)
         return out
 
@@ -126,10 +130,13 @@ def main(out_path):
         fs = max(6, round(FONT_PX * float(t.get("scale", 1.0))))
         font = ImageFont.truetype(FONT_TTF, fs)
         sw = t.get("split-width")
-        lines = (wrap(sample, sw, font) if sw else [sample])[: t.get("line", 99)]
+        force = bool(t.get("force-split", False))
+        lines = (wrap(sample, sw, font, force) if sw else [sample])[: t.get("line", 99)]
         lw = t.get("line-width", 10)
         widest = max((d.textlength(l, font=font) for l in lines), default=0)
-        lx = left_edge(t.get("x", 0), sw if sw else widest)
+        # ★BetterHud는 텍스트의 '실제 렌더 폭'으로 move를 계산한다. split-width가 아니다.
+        #   (align:left 면 move=0 이라 폭과 무관하지만, center/right 면 결정적으로 다르다)
+        lx = left_edge(t.get("x", 0), widest)
         ty = ay + t.get("y", 0)
         warn = ""
         for i, line in enumerate(lines):
