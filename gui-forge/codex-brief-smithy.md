@@ -3,15 +3,22 @@
 대장간 NPC에게 말을 걸면 **허브**가 열리고, 거기서 각 작업대로 들어간다.
 강화창은 이미 나왔으니(`src/enhance/bg_source.png`) **그 화면과 형제로 보이면 된다.**
 
-## 첨부 — 화면마다 뼈대판 1장
-| 화면 | 뼈대판 | 크기 |
-|---|---|---|
-| 대장간 허브 | `src/smithy/_template.png` | 704 × 888 |
-| 조합대 | `src/crafting/_template.png` | 704 × 888 |
-| 부품 분해 | `src/disassemble/_template.png` | 704 × 888 |
-| 재료 제작소 | `src/forge/_template.png` | 704 × 888 |
+## 첨부 — 화면마다 시트 1장이면 끝
 
-**만듦새·색 기준: `src/enhance/bg_source.png`** (이미 납품한 강화창)
+**`_order.png` 한 장에 뼈대판과 지시문이 같이 들어 있다.** 이것만 열면 된다
+(왼쪽이 실제로 덧칠할 판, 오른쪽은 설명이라 잘라내고 쓰면 된다).
+
+| 화면 | 발주 시트 (열어볼 것) | 덧칠할 판만 필요하면 |
+|---|---|---|
+| 대장간 허브 | `/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/gui-forge/src/smithy/_order.png` | `.../src/smithy/_template.png` |
+| 조합대 | `/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/gui-forge/src/crafting/_order.png` | `.../src/crafting/_template.png` |
+| 부품 분해 | `/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/gui-forge/src/disassemble/_order.png` | `.../src/disassemble/_template.png` |
+| 재료 제작소 | `/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/gui-forge/src/forge/_order.png` | `.../src/forge/_template.png` |
+
+**만듦새·색 기준 (이미 납품한 강화창):**
+`/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/gui-forge/src/enhance/bg_source.png`
+
+★경로는 전부 절대경로다. 상대경로로 적었더니 그림을 못 찾는 일이 있었다(2026-08-08).
 
 ---
 
