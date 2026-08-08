@@ -7,9 +7,19 @@
 #   마크는 GUI 배율과 무관하게 가상 화면을 최소 320x240으로 보정하므로 300이 상한이다.
 #
 # ★금지: height 1짜리 글리프(폰트 전체 거부) / 파일명 대문자 / 화면보다 큰 이미지.
-dialogue_panel:
+# ★패널은 100px씩 3조각으로 잘라 붙인다. 한 장(300px)으로 두면 렌더가 안 된다 —
+#   마크는 폰트 글리프를 아틀라스에 넣는데 폭이 크면 못 들어가고 조용히 사라진다.
+#   실측: 52·110·144는 나오고 217·300은 안 나온다. 다른 서버들도 전부 ≤160으로 쓴다.
+#   조각을 x -100 / 0 / +100 에 두면 -150~-50, -50~50, 50~150 으로 정확히 이어진다.
+dialogue_panel_1:
   type: single
-  file: dialogue/dialogue-panel.png
+  file: dialogue/dialogue-panel-1.png
+dialogue_panel_2:
+  type: single
+  file: dialogue/dialogue-panel-2.png
+dialogue_panel_3:
+  type: single
+  file: dialogue/dialogue-panel-3.png
 
 dialogue_nameplate:
   type: single
