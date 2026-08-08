@@ -27,10 +27,12 @@ dialogue_panel_4:
 dialogue_nameplate:
   type: single
   file: dialogue/dialogue-nameplate.png
+  setting:
+    scale: 0.8
 
 # 액자 홈(76x82)에 맞춘 크기. 원본 89x138 -> 0.58배 = 52x80.
 npc_dialogue_portrait:
   type: single
   file: dialogue/portrait-grandfather-hud.png
   setting:
-    scale: 0.58
+    scale: 0.40

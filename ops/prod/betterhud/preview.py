@@ -39,7 +39,7 @@ FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/f
 FONT_PX = 16
 
 # 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표.
-PARCHMENT = (112, 8, 427, 90)    # 대사가 들어가야 하는 자리 (440판 기준)
+PARCHMENT = (112, 6, 427, 63)    # 대사 자리 (440x80 판 기준)
 PORTRAIT_SLOT = (16, 14, 91, 95)  # 초상화가 들어가야 하는 액자 홈
 
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
@@ -63,10 +63,14 @@ def main(out_path):
     sized = {}
     for key, spec in images.items():
         im = Image.open(os.path.join(ASSETS, spec["file"])).convert("RGBA")
-        im = im.crop(im.split()[3].getbbox())        # BetterHud는 투명 여백을 잘라낸다
+        bbox = im.split()[3].getbbox()               # BetterHud는 투명 여백을 잘라낸다
+        im = im.crop(bbox)
         s = float((spec.get("setting") or {}).get("scale", 1.0))
         w, h = max(1, round(im.width * s)), max(1, round(im.height * s))
-        sized[key] = (im.resize((w, h), Image.LANCZOS), w, h)
+        # ★잘라낸 왼쪽 여백은 x에 다시 더해진다 (HudImageParser.kt):
+        #     toPixelComponent(finalPixel.x + (image.xOffset * scale))
+        #   이걸 빼먹으면 투명 여백이 있는 그림(초상화 등)이 실제보다 왼쪽에 그려진다.
+        sized[key] = (im.resize((w, h), Image.LANCZOS), w, h, round(bbox[0] * s))
 
     used = [e["name"] for e in layout.get("images", {}).values()]
     mx = max((sized[n][1] for n in used if n in sized), default=0)
@@ -89,8 +93,8 @@ def main(out_path):
         e = layout["images"][idx]; name = e["name"]
         if name not in sized:
             print(f"  ! 이미지 정의 없음: {name}"); continue
-        im, w, h = sized[name]
-        lx, ty = left_edge(e.get("x", 0), w), ay + e.get("y", 0)
+        im, w, h, xoff = sized[name]
+        lx, ty = left_edge(e.get("x", 0) + xoff, w), ay + e.get("y", 0)
         canvas.alpha_composite(im, (round(lx), round(ty)))
         warn = ""
         if lx < 0 or lx + w > SCREEN_W:
@@ -102,7 +106,7 @@ def main(out_path):
         if name.startswith("dialogue_panel"):
             panel_l = lx if panel_l is None else min(panel_l, lx)
             panel_t = ty if panel_t is None else min(panel_t, ty)
-        print(f"  {name:24s} x {lx:6.0f}~{lx+w:<6.0f} (폭 {w:3d})  y {ty:.0f}~{ty+h:.0f}{warn}")
+        print(f"  {name:24s} x {lx:6.0f}~{lx+w:<6.0f} (폭 {w:3d}, 잘린여백 {xoff})  y {ty:.0f}~{ty+h:.0f}{warn}")
 
     parch = None
     if panel_l is not None:

@@ -11,7 +11,8 @@
 # ★번호 = 그리는 순서. 판(1~5) 먼저, 그 위에 초상화(6)·명패(7).
 #
 # 판 440x114, 110px씩 4조각. 왼쪽끝 = x - 55 이고 판은 화면 -220~+220 을 채운다.
-# y는 요소의 위쪽 끝(음수가 위). 판 아래를 핫바 위에 붙이려면 y = -(114+22) = -136.
+# y는 요소의 위쪽 끝(음수가 위). 판 높이를 70%(114->80)로 줄였으므로 y = -(80+22) = -102.
+# ★가로는 440 그대로 두고 세로만 줄였다 — 가로까지 줄이면 대사 폭을 잃는다.
 #
 # 판 안 실측(판 왼쪽 위 기준) -> 화면(판 왼쪽 = -200):
 #   액자 홈   16~91   -> 화면    9~84   (초상화를 그 안에 가운데로)
@@ -22,39 +23,39 @@ npc_dialogue_layout:
     1:
       name: dialogue_panel_1
       x: -165
-      y: -136
+      y: -102
     2:
       name: dialogue_panel_2
       x: -55
-      y: -136
+      y: -102
     3:
       name: dialogue_panel_3
       x: 55
-      y: -136
+      y: -102
     4:
       name: dialogue_panel_4
       x: 165
-      y: -136
+      y: -102
     5:
       name: npc_dialogue_portrait
-      x: -137
-      y: -121
+      x: -157
+      y: -92
     6:
       name: dialogue_nameplate
       x: -153
-      y: -56
+      y: -40
   texts:
     1:
       name: dialogue_font
       pattern: "[string:npc_dialogue_text]"
       color: "#3D2840"
       x: -43
-      y: -122
-      scale: 1.0
+      y: -92
+      scale: 0.85
       align: left
       line-align: left
-      line: 4
-      line-width: 20
+      line: 3
+      line-width: 15
       split-width: 230
       # ★force-split 은 켜면 안 된다. 이름과 달리 "단어 중간에서 자르기"가 아니라
       #   글자 하나마다 무조건 줄바꿈이라 글씨가 세로로 한 줄에 한 자씩 떨어진다.
@@ -69,6 +70,6 @@ npc_dialogue_layout:
       pattern: "[string:npc_dialogue_name]"
       color: "#4A2D3D"
       x: -136
-      y: -48
+      y: -34
       scale: 0.6
       align: left

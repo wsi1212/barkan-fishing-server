@@ -39,6 +39,21 @@ mkdir -p "$BH/assets/dialogue"
 cp "$SRC/assets/dialogue/"*.png "$BH/assets/dialogue/"
 ls "$BH/assets/dialogue" | sed 's/^/   → /'
 
+# ★2026-08-08: BetterHud 기본 제공 정의를 전부 지웠다(되돌리지 않음).
+#   entity-popup(때리면 뜨는 체력 팝업) / default-hud(데모 바) / default_compass(나침반)
+#   과 그것들만 쓰던 layouts·images·texts·assets. 팩에 쓸데없는 폰트·텍스처가 계속
+#   구워지고 있었고, 체력 팝업은 트리거 기반이라 default-popup 이 비어도 자동으로 떴다.
+#   BetterHud 를 재설치하면 이 파일들이 되살아나므로, 그때 다시 지울 것.
+BH_DEFAULTS=(popups/entity-popup.yml huds/default-hud.yml compasses/default_compass.yml
+             layouts/entity-layout.yml layouts/default-layout.yml
+             images/entity-image.yml images/entity-head-image.yml images/default-image.yml
+             texts/entity-font.yml)
+echo "[2.5] BetterHud 기본 정의 제거 (재설치 시 되살아남)"
+for f in "${BH_DEFAULTS[@]}"; do
+  [ -e "$BH/$f" ] && rm -f "$BH/$f" && echo "   x $f"
+done
+rm -rf "$BH/assets/entity" "$BH/assets/compass"; rm -f "$BH"/assets/*.png
+
 echo "[3] 검증"
 missing=0
 # npc-dialogue-image.yml 이 참조하는 파일이 실제로 있는지 확인한다.
