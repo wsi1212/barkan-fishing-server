@@ -27,6 +27,10 @@ PLATES = {
     "enhance": (5, "enhance_", 0xE6B0),
     "mailbox": (6, "mailbox_", 0xE6C0),
     "cooking": (6, "cooking_", 0xE6D0),
+    "smithy": (6, "smithy_", 0xE6E0),
+    "crafting": (6, "crafting_", 0xE6F0),
+    "disassemble": (6, "disasm_", 0xE710),   # E700 은 제목 글리프가 쓴다
+    "forge": (6, "forge_", 0xE720),
 }
 
 
