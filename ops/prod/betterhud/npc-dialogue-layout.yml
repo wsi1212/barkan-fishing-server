@@ -1,60 +1,66 @@
 # 화면 하단 중앙. 앵커 = hud의 gui(x50,y100).
-# ★x/y = 이미지 "중심" 좌표. y는 음수가 위. 최소 화면은 중앙 기준 ±160.
 #
-# ★y는 요소의 '위쪽 끝'이고 음수가 위다. 패널(높이 114) 아래를 핫바 위에 붙이려면
-#   y = -(114 + 22) = -136. 나머지는 패널 위쪽 기준 상대 위치로 계산했다.
-# 나머지는 "패널 중심 + 패널 안에서의 상대 위치"로 계산했다 (영역은 그림에서 실측):
-#   초상화 홈  패널기준 (-96, -2)  ->  화면 (-96, -87)
-#   양피지     패널기준 (+50, -8)  ->  화면 (+50, -93)   폭 175 x 높이 82
+# ★align: center 는 필수다. BetterHud 기본값은 left 이고, left 이면
+#   요소의 왼쪽 끝 = x - max/2 (max = 레이아웃 안에서 가장 넓은 이미지의 폭)이라
+#   이미지 하나만 크기를 바꿔도 나머지가 전부 같이 밀려난다.
+#   center 이면 왼쪽 끝 = x - 자기폭/2 이라 x가 그 요소 자신의 중심이 되고 max와 무관하다.
+#   근거: BetterHud 소스 LayoutComponentContainer.kt / LayoutGroup.kt / HudParser.kt
+#
+# ★번호가 곧 그리는 순서다. 판(1~4)을 먼저 깔고 그 위에 초상화(5)·명패(6).
+#
+# 패널 320x114를 80px씩 4조각으로 자른 것. 조각 중심은 -120/-40/+40/+120 이고
+# 이어 붙으면 화면 -160~+160 을 채운다. y는 요소의 위쪽 끝(음수가 위),
+# 패널 아래를 핫바 위에 붙이려면 y = -(114+22) = -136.
+#
+# 패널 안 실측 좌표(패널 왼쪽 위 기준) -> 화면 좌표(패널 왼쪽 = -160):
+#   액자 홈   16~91  (중심 53)  -> 화면 중심 -107
+#   양피지   112~307 (중심 209) -> 화면 중심  +49,  폭 195
 npc_dialogue_layout:
-  # ★align: center 는 필수다. BetterHud 기본값은 left 인데,
-  #   left 이면 요소의 왼쪽 끝 = x - max/2 이고 max = "레이아웃 안에서 가장 넓은 이미지의 폭"이다.
-  #   즉 이미지 하나만 크기를 바꿔도 나머지 요소가 전부 같이 밀려난다(2026-08-08 반나절 헤맴).
-  #   center 이면 왼쪽 끝 = x - 자기폭/2 이라 x가 그 요소 자신의 중심이 되고 max와 무관해진다.
-  #   근거: BetterHud 소스 LayoutComponentContainer.kt / LayoutGroup.kt / HudParser.kt
   align: center
   images:
-    # ★번호가 곧 그리는 순서다. 판(1~3)을 먼저 깔고 그 위에 초상화(4)·명패(5)를 얹는다.
-    #   순서를 바꾸면 판이 명패를 덮어버린다.
     1:
       name: dialogue_panel_1
-      x: -100
+      x: -120
       y: -136
     2:
       name: dialogue_panel_2
-      x: 0
+      x: -40
       y: -136
     3:
       name: dialogue_panel_3
-      x: 100
+      x: 40
       y: -136
     4:
-      name: npc_dialogue_portrait
-      x: -96
-      y: -121
+      name: dialogue_panel_4
+      x: 120
+      y: -136
     5:
+      name: npc_dialogue_portrait
+      x: -107
+      y: -121
+    6:
       name: dialogue_nameplate
-      x: -78
+      x: -107
       y: -56
   texts:
     1:
       name: dialogue_font
       pattern: "[string:npc_dialogue_text]"
       color: "#3D2840"
-      x: 50
+      x: 49
       y: -122
       scale: 1.0
-      align: left
+      align: center
       line-align: left
       line: 4
       line-width: 20
-      split-width: 150
+      split-width: 175
       force-split: false
     2:
       name: dialogue_font
       pattern: "[string:npc_dialogue_name]"
       color: "#4A2D3D"
-      x: -78
+      x: -107
       y: -48
       scale: 0.72
       align: center

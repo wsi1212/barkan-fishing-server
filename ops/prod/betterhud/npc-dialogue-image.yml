@@ -1,16 +1,11 @@
-# NPC 대화창 — 우리 그림 (2026-08-08 Codex 납품, moonlit 임시 에셋 전부 제거함).
+# NPC 대화창 — 우리 그림 (Codex 납품본을 320px로 늘린 것).
 #
-# ★한 장으로 통합했다. 프레임·초상화 액자·양피지·장식이 dialogue-panel.png 한 장에 다 들어 있다.
-#   요소를 따로 얹으면 좌표가 어긋나 화면 밖으로 밀려나는 사고가 반복됐다(2026-08-08 반나절).
-#
-# ★크기 (실측): 패널 300x114 / 명패 110x32. 전부 scale 1.0 = 캔버스 1px이 화면 1px.
-#   마크는 GUI 배율과 무관하게 가상 화면을 최소 320x240으로 보정하므로 300이 상한이다.
-#
-# ★금지: height 1짜리 글리프(폰트 전체 거부) / 파일명 대문자 / 화면보다 큰 이미지.
-# ★패널은 100px씩 3조각으로 잘라 붙인다. 한 장(300px)으로 두면 렌더가 안 된다 —
-#   마크는 폰트 글리프를 아틀라스에 넣는데 폭이 크면 못 들어가고 조용히 사라진다.
-#   실측: 52·110·144는 나오고 217·300은 안 나온다. 다른 서버들도 전부 ≤160으로 쓴다.
-#   조각을 x -100 / 0 / +100 에 두면 -150~-50, -50~50, 50~150 으로 정확히 이어진다.
+# ★폭 320이 상한이다. 마크는 GUI 배율을 아무리 올려도 가상 화면을 최소 320x240으로
+#   보정하므로, 이보다 넓으면 작은 화면 유저는 양끝이 잘린다.
+# ★한 장으로 두면 렌더가 안 된다. 마크는 이미지를 폰트 글리프로 넣는데 폭이 크면
+#   아틀라스에 못 들어가고 에러 없이 조용히 사라진다.
+#   실측: 52·110·144는 나오고 217·300은 안 나옴 -> 80px씩 4조각으로 자른다.
+# ★파일명 소문자만. height 1짜리 글리프 금지(폰트 전체가 거부된다).
 dialogue_panel_1:
   type: single
   file: dialogue/dialogue-panel-1.png
@@ -20,12 +15,18 @@ dialogue_panel_2:
 dialogue_panel_3:
   type: single
   file: dialogue/dialogue-panel-3.png
+dialogue_panel_4:
+  type: single
+  file: dialogue/dialogue-panel-4.png
 
+# 명패는 초상화 밑에 온다. 110 그대로면 화면 왼쪽으로 2px 나가서 0.85배로 줄였다.
 dialogue_nameplate:
   type: single
   file: dialogue/dialogue-nameplate.png
+  setting:
+    scale: 0.85
 
-# 초상화는 패널의 홈(76x82) 안에 앉힌다. 원본 89x138 -> 0.58배 = 52x80.
+# 액자 홈(76x82)에 맞춘 크기. 원본 89x138 -> 0.58배 = 52x80.
 npc_dialogue_portrait:
   type: single
   file: dialogue/portrait-grandfather-hud.png

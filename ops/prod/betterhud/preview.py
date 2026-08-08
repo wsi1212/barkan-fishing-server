@@ -38,7 +38,7 @@ FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/f
 FONT_PX = 13
 
 # 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표.
-PARCHMENT = (112, 8, 287, 90)    # 대사가 들어가야 하는 자리
+PARCHMENT = (112, 8, 307, 90)    # 대사가 들어가야 하는 자리 (320판 기준)
 PORTRAIT_SLOT = (16, 14, 91, 95)  # 초상화가 들어가야 하는 액자 홈
 
 SAMPLE_TEXT = "바르칸의 물은 정직하단다 — 던진 만큼 돌려주지."
