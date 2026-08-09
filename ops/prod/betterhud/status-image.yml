@@ -31,3 +31,26 @@ status_icon_gem:
   file: status/icon-gem.png
   setting:
     scale: 0.66
+
+# === 경험치 바 ===
+# ★type: listener 는 리스너가 준 0.0~1.0 만큼 그림을 잘라 그린다(바닐라 체력바와 같은 방식).
+#   글자 "||||" 와 달리 칸도 간격도 없는 진짜 게이지다.
+# ★split = 잘리는 단계 수. 원본이 44px 이라 44 로 두면 1px(=약 2.3%) 단위가 된다.
+# ★listener.class 의 barkan_exp 는 BlockShip(StatusHud)이 BetterHud API 로 등록한다.
+#   BetterHud 가 먼저 켜져서 설정을 읽을 땐 아직 없으므로, BlockShip 이 등록 후 리로드를
+#   한 번 건다. 이 이름이 없으면 이 이미지 정의가 파싱에 실패하니 같이 지우거나 같이 둘 것.
+exp_bar_empty:
+  type: single
+  file: status/exp-bar-empty.png
+  setting:
+    scale: 0.66
+
+exp_bar:
+  type: listener
+  file: status/exp-bar-fill.png
+  split: 44
+  split-type: left
+  setting:
+    scale: 0.66
+    listener:
+      class: barkan_exp

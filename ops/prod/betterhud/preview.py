@@ -71,7 +71,7 @@ SETS = {
     "npc-dialogue": ("npc-dialogue-hud.yml", "npc-dialogue-layout.yml", "npc-dialogue-image.yml",
                      [SAMPLE_TEXT, SAMPLE_NAME]),
     "status": ("status-hud.yml", "status-layout.yml", "status-image.yml",
-               ["999,999,999원", "Lv.100 ||||||||||", "1,234,567캐시"]),
+               ["999,999,999원", "Lv.100", "1,234,567캐시"]),
     "place": ("place-hud.yml", "place-layout.yml", "place-image.yml",
               ["바르칸 > 폭포_뒤_동굴_2층", "☀ 낮 ☁ 모래바람"]),
 }

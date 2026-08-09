@@ -100,13 +100,47 @@ def import_icon(fname):
     return out
 
 
+# 경험치 바 — 텍스트 "||||" 대신 진짜 게이지. BetterHud 가 type:listener 로 비율만큼 잘라 그린다.
+# ★빈 바와 채움 바는 반드시 같은 크기여야 한다. 크기가 다르면 잘리는 기준이 어긋나 삐뚤어진다.
+BAR_W, BAR_H = 44, 8
+
+
+def bar_empty():
+    """빈 홈. 크림색 양피지 위에 파인 것처럼 보이게 위쪽을 더 어둡게(안쪽 그림자)."""
+    im = Image.new("RGBA", (BAR_W, BAR_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, BAR_W - 1, BAR_H - 1], fill=(122, 104, 72, 255))     # 테두리
+    d.rectangle([1, 1, BAR_W - 2, BAR_H - 2], fill=(168, 148, 110, 255))    # 바닥
+    d.line([(1, 1), (BAR_W - 2, 1)], fill=(138, 118, 84, 255))              # 안쪽 그림자
+    return im
+
+
+def bar_fill():
+    """채움. 레벨 줄이 청록 계열이라 같은 계열로 간다(아이콘·글자와 색이 따로 놀지 않게).
+
+    ★빈 홈과 **똑같이 44x8 을 꽉 채워야 한다.** 가장자리를 투명하게 두면 BetterHud 가
+      그만큼 잘라내는데, 가로 여백은 x 로 되돌려주지만 **세로 여백은 안 되돌려준다**.
+      그래서 채움만 1px 위로 떠서 홈과 어긋난다(실제로 그렇게 만들었다가 발견).
+      '안쪽에 들어찬' 느낌은 투명 대신 어두운 테두리 색으로 낸다.
+    """
+    im = Image.new("RGBA", (BAR_W, BAR_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, BAR_W - 1, BAR_H - 1], fill=(122, 104, 72, 255))     # 홈 테두리와 같은 색
+    d.rectangle([1, 1, BAR_W - 2, BAR_H - 2], fill=(38, 128, 118, 255))
+    d.line([(1, 1), (BAR_W - 2, 1)], fill=(86, 190, 172, 255))              # 윗면 하이라이트
+    d.line([(1, BAR_H - 2), (BAR_W - 2, BAR_H - 2)], fill=(24, 92, 88, 255))  # 아랫면 그늘
+    return im
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     made = [("status-plate.png", build_plate()),
             ("place-plate.png", build_place_plate()),
             ("icon-coin.png", import_icon("money.png")),
             ("icon-star.png", import_icon("level.png")),
-            ("icon-gem.png", import_icon("cash.png"))]
+            ("icon-gem.png", import_icon("cash.png")),
+            ("exp-bar-empty.png", bar_empty()),
+            ("exp-bar-fill.png", bar_fill())]
     for name, im in made:
         # ★파일명은 소문자만. 대문자가 하나만 섞여도 폰트 파일 전체가 거부되고 HUD가 통째로 사라진다.
         assert name == name.lower(), name
