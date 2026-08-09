@@ -1,38 +1,146 @@
-# NPC 대화창 — Codex 납품 원본(300x114)의 양피지 안쪽 세로띠를 반복해 440x114로 늘린 것.
-# 늘린 스크립트와 원본은 gui-forge/src/dialogue/ 에 있다(dialogue-panel.png -> -400.png).
-#
-# ★폭 한계: 마크는 GUI 배율을 올려도 가상 화면을 최소 320x240으로 보정한다. 다만
-#   16:9 화면에서는 세로(240) 제약이 먼저 걸려서 가로는 426까지 보장된다(240 x 16/9).
-#   440은 1080p 이상(가상 480+)에서는 여유가 있고, 720p를 최대 배율로 쓰는 경우에만
-#   좌우 7px씩 잘린다. 그 이상 늘리면 잘리는 사람이 늘어난다.
-# ★한 장으로 두면 렌더가 안 된다 — 폭이 크면 마크 폰트 아틀라스에 못 들어가고
-#   에러 없이 조용히 사라진다(실측: 144는 되고 217/300은 안 됨).
-#   ★110px씩 4조각으로 자른다 — 명패(110)와 폭을 맞춰서 max가 110으로 고정되게 하려는 것.
-#     조각 폭이 명패보다 좁으면 max가 명패 폭이 되어 좌표 계산 기준이 흔들린다.
-# ★파일명 소문자만. height 1짜리 글리프 금지.
-dialogue_panel_1:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+dialogue_panel_1_sm:
   type: single
   file: dialogue/dialogue-panel-1.png
-dialogue_panel_2:
+  setting:
+    scale: 0.75
+
+dialogue_panel_2_sm:
   type: single
   file: dialogue/dialogue-panel-2.png
-dialogue_panel_3:
+  setting:
+    scale: 0.75
+
+dialogue_panel_3_sm:
   type: single
   file: dialogue/dialogue-panel-3.png
-dialogue_panel_4:
+  setting:
+    scale: 0.75
+
+dialogue_panel_4_sm:
   type: single
   file: dialogue/dialogue-panel-4.png
+  setting:
+    scale: 0.75
 
-# 명패는 원본 크기(110)로 쓴다. 이름이 여기 안에 들어가야 하므로 줄이지 않는다.
-dialogue_nameplate:
+npc_dialogue_portrait_sm:
+  type: single
+  file: dialogue/portrait-grandfather-hud.png
+  setting:
+    scale: 0.3
+
+npc_dialogue_nameplate_sm:
+  type: single
+  file: dialogue/dialogue-nameplate.png
+  setting:
+    scale: 0.6
+
+dialogue_panel_1_md:
+  type: single
+  file: dialogue/dialogue-panel-1.png
+  setting:
+    scale: 1.0
+
+dialogue_panel_2_md:
+  type: single
+  file: dialogue/dialogue-panel-2.png
+  setting:
+    scale: 1.0
+
+dialogue_panel_3_md:
+  type: single
+  file: dialogue/dialogue-panel-3.png
+  setting:
+    scale: 1.0
+
+dialogue_panel_4_md:
+  type: single
+  file: dialogue/dialogue-panel-4.png
+  setting:
+    scale: 1.0
+
+npc_dialogue_portrait_md:
+  type: single
+  file: dialogue/portrait-grandfather-hud.png
+  setting:
+    scale: 0.4
+
+npc_dialogue_nameplate_md:
   type: single
   file: dialogue/dialogue-nameplate.png
   setting:
     scale: 0.8
 
-# 액자 홈(76x82)에 맞춘 크기. 원본 89x138 -> 0.58배 = 52x80.
-npc_dialogue_portrait:
+dialogue_panel_1_lg:
+  type: single
+  file: dialogue/dialogue-panel-1.png
+  setting:
+    scale: 1.2
+
+dialogue_panel_2_lg:
+  type: single
+  file: dialogue/dialogue-panel-2.png
+  setting:
+    scale: 1.2
+
+dialogue_panel_3_lg:
+  type: single
+  file: dialogue/dialogue-panel-3.png
+  setting:
+    scale: 1.2
+
+dialogue_panel_4_lg:
+  type: single
+  file: dialogue/dialogue-panel-4.png
+  setting:
+    scale: 1.2
+
+npc_dialogue_portrait_lg:
   type: single
   file: dialogue/portrait-grandfather-hud.png
   setting:
-    scale: 0.40
+    scale: 0.48
+
+npc_dialogue_nameplate_lg:
+  type: single
+  file: dialogue/dialogue-nameplate.png
+  setting:
+    scale: 0.96
+
+dialogue_panel_1_xl:
+  type: single
+  file: dialogue/dialogue-panel-1.png
+  setting:
+    scale: 1.4
+
+dialogue_panel_2_xl:
+  type: single
+  file: dialogue/dialogue-panel-2.png
+  setting:
+    scale: 1.4
+
+dialogue_panel_3_xl:
+  type: single
+  file: dialogue/dialogue-panel-3.png
+  setting:
+    scale: 1.4
+
+dialogue_panel_4_xl:
+  type: single
+  file: dialogue/dialogue-panel-4.png
+  setting:
+    scale: 1.4
+
+npc_dialogue_portrait_xl:
+  type: single
+  file: dialogue/portrait-grandfather-hud.png
+  setting:
+    scale: 0.56
+
+npc_dialogue_nameplate_xl:
+  type: single
+  file: dialogue/dialogue-nameplate.png
+  setting:
+    scale: 1.12

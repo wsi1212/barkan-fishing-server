@@ -1,8 +1,38 @@
-npc_dialogue:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+npc_dialogue_sm:
   tick: 1
   layouts:
     1:
-      name: npc_dialogue_layout
+      name: npc_dialogue_layout_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_xl
       gui:
         x: 50
         y: 100

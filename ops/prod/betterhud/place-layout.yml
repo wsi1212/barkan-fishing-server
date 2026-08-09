@@ -1,31 +1,46 @@
-# 앵커 = hud 의 gui(x0, y0) = 화면 왼쪽 위 모서리.
-#
-# ★좌표 공식: 요소 왼쪽끝 = 앵커x - max/2 + x.
-#   0.66 배로 줄여서 max = 150 x 0.66 = 99, 앵커x = 0  ->  왼쪽끝 = x - 49.5
-#   따라서 "화면 왼쪽에서 N px" = x = N + 49.5.
-# ★세로 보정상수 없음(앵커y = 0) — y 가 곧 화면 y 다.
-#
-# 판(그려지는 크기 99x28): 왼쪽 10px, 위 3px  ->  x = 59.5, y = 3.
-#   ★3px 은 화면 왼쪽 테두리에 딱 붙어 보였다(2026-08-09). 오른쪽 판도 같은 10px 로 맞춘다.
-# 판 안쪽 양피지 5~23. 두 줄 간격 8, 글자 위끝 = 판 y 6 / 14. 글자 왼끝 = 판 x 9.
-barkan_place_layout:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+barkan_place_layout_sm:  # 작게 (x0.5)
   align: left
   images:
     1:
-      name: place_plate
+      name: place_plate_sm
+      x: 47.5
+      y: 3
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_place]"
+      color: "#4A3A22"
+      x: 54.5
+      y: 8
+      scale: 0.31
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_env]"
+      color: "#4A3A22"
+      x: 54.5
+      y: 14
+      scale: 0.31
+      align: left
+
+barkan_place_layout_md:  # 보통 (x0.66)
+  align: left
+  images:
+    1:
+      name: place_plate_md
       x: 59.5
       y: 3
   texts:
-    # 두 줄 모두 BlockShip 이 완성해서 넣는다(색 포함).
-    # ★크림색 양피지 위라 밝은 색은 안 보인다 — 자바 쪽에서 어두운 색으로 변환해 보낸다.
-    # scale 0.41 = 원래 0.62 의 66%.
     1:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
       x: 68.5
       y: 9
-      scale: 0.41
+      scale: 0.409
       align: left
     2:
       name: dialogue_font
@@ -33,5 +48,55 @@ barkan_place_layout:
       color: "#4A3A22"
       x: 68.5
       y: 17
-      scale: 0.41
+      scale: 0.409
+      align: left
+
+barkan_place_layout_lg:  # 크게 (x0.85)
+  align: left
+  images:
+    1:
+      name: place_plate_lg
+      x: 74
+      y: 3
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_place]"
+      color: "#4A3A22"
+      x: 86
+      y: 10
+      scale: 0.527
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_env]"
+      color: "#4A3A22"
+      x: 86
+      y: 21
+      scale: 0.527
+      align: left
+
+barkan_place_layout_xl:  # 아주 크게 (x1.0)
+  align: left
+  images:
+    1:
+      name: place_plate_xl
+      x: 85
+      y: 3
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_place]"
+      color: "#4A3A22"
+      x: 99
+      y: 12
+      scale: 0.62
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_env]"
+      color: "#4A3A22"
+      x: 99
+      y: 24
+      scale: 0.62
       align: left

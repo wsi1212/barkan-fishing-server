@@ -1,12 +1,26 @@
-# ★2026-08-09: 화면 대비 너무 커서 전부 0.66 배로 줄였다. 아트를 다시 굽지 않고
-#   setting.scale 로 줄인다 — 어차피 0.66 은 비정수라 어느 쪽이든 리샘플이고,
-#   숫자 하나만 되돌리면 원래 크기로 돌아온다.
-#   ★scale 을 바꾸면 max(가장 넓은 이미지 폭)도 같이 바뀌어 레이아웃 x 가 전부 틀어진다.
-# 왼쪽 위 위치·환경 HUD 그림. 아트는 gui-forge/build_status_hud.py 가 굽는다.
-# 판이 150 인 이유: "바르칸 > 폭포_뒤_동굴_2층" 같은 지역명이 110 에는 안 들어간다.
-# ★160 을 넘기면 글리프 아틀라스에 못 들어가 에러 없이 통째로 사라진다. 150 이 상한.
-place_plate:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+place_plate_sm:
+  type: single
+  file: status/place-plate.png
+  setting:
+    scale: 0.5
+
+place_plate_md:
   type: single
   file: status/place-plate.png
   setting:
     scale: 0.66
+
+place_plate_lg:
+  type: single
+  file: status/place-plate.png
+  setting:
+    scale: 0.85
+
+place_plate_xl:
+  type: single
+  file: status/place-plate.png
+  setting:
+    scale: 1.0

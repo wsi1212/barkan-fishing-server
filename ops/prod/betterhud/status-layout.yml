@@ -1,66 +1,94 @@
-# 앵커 = hud 의 gui(x100, y0) = 화면 오른쪽 위 모서리.
-#
-# ★좌표 공식 (BetterHud 소스 LayoutComponentContainer.kt / LayoutGroup.kt):
-#     요소 왼쪽끝 = 앵커x + (-max/2) + x     (align 기본 left 라 move=0, offset 기본 center)
-#     max = 레이아웃 안 가장 넓은 "이미지"의 **그려지는** 폭.
-#     ★0.66 배로 줄였으므로 max = 124 x 0.66 = 82  ->  왼쪽끝 = 앵커x - 41 + x
-#     따라서 "화면 오른쪽에서 N px 안쪽" = x = 41 - N.
-#     ※scale 이나 판 크기를 건드리면 max 가 바뀌어 전부 틀어진다. preview.py 가 max 를 찍어준다.
-#
-# ★세로 보정상수는 없다. 앵커y = 화면높이 x gui.y/100 이고 여기선 0 이므로 y 가 곧 화면 y 다.
-#   (한때 23 을 빼고 있었는데, 화면 높이를 타이틀바 포함으로 잘못 잰 탓이었다. 그래서 이 판이
-#    의도보다 23px 아래에 찍혔다 — 2026-08-09 수정)
-#
-# 판(그려지는 크기 82x48): 오른쪽 10px, 위 3px  ->  x = 41-92 = -51, y = 3.
-#   ★왼쪽 판과 좌우 간격을 맞춘 값이다(둘 다 10px).
-#
-# 판 안쪽(그려지는 좌표): 양피지 5~42. 줄 간격 12, 줄 중심 = 판 y 11 / 23 / 35.
-#   아이콘 왼끝 = 판 x 8, 글자는 판 x 22 부터.
-# ★아이콘마다 그려지는 높이가 다르다(동전11·레벨11·지폐6). BetterHud 는 세로 여백을
-#   되돌려주지 않으므로 y 를 "줄 중심 - 자기 높이/2" 로 각각 계산한다.
-#
-# ★번호 = 그리는 순서. 판(1)을 먼저 깔고 그 위에 아이콘(2~4).
-barkan_status_layout:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+barkan_status_layout_sm:  # 작게 (x0.5)
   align: left
   images:
     1:
-      name: status_plate
-      x: -51
+      name: status_plate_sm
+      x: -41
       y: 3
     2:
-      name: status_icon_coin      # 줄 중심 14, 높이 11
-      x: -43
+      name: status_icon_0_sm
+      x: -35
       y: 8
     3:
-      name: status_icon_star      # 줄 중심 26, 높이 11
-      x: -43
-      y: 20
+      name: status_icon_1_sm
+      x: -35
+      y: 16
     4:
-      name: status_icon_gem       # 줄 중심 38, 높이 6
-      x: -43
-      y: 35
-    # 경험치 바 — 빈 홈을 깔고 그 위에 채움을 얹는다(순서가 곧 그리는 순서라 5 -> 6).
-    # 원본 44x8 -> 그려지는 29x5. 레벨 줄 중심(23)에 맞춰 y = 3 + (23 - 5/2) 근처.
+      name: status_icon_2_sm
+      x: -35
+      y: 27
     5:
-      name: exp_bar_empty
-      x: -3
-      y: 23
+      name: exp_bar_empty_sm
+      x: -1
+      y: 18
     6:
-      name: exp_bar
-      x: -3
-      y: 23
+      name: exp_bar_sm
+      x: -1
+      y: 18
   texts:
-    # 세 줄 모두 BlockShip 이 완성된 문자열을 넣어준다(색 포함). 여기서 조립하지 않는 이유는
-    # 숫자 포맷(1,234원)·경험치 바 칸수 같은 게 전부 자바 쪽 로직이기 때문이다.
-    # color 는 기본색이고, 값 안의 MiniMessage 태그가 우선한다(경험치 바 색이 그렇게 들어간다).
-    # scale 0.41 = 원래 0.62 의 66%.
     1:
       name: dialogue_font
       pattern: "[string:hud_money]"
-      color: "#5C3F0E"            # 크림색 양피지 위라 어두운 색이어야 읽힌다
+      color: "#5C3F0E"
+      x: -25
+      y: 8
+      scale: 0.31
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_level]"
+      color: "#0E3E42"
+      x: -25
+      y: 18
+      scale: 0.31
+      align: left
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_cash]"
+      color: "#3A1A5C"
+      x: -25
+      y: 26
+      scale: 0.31
+      align: left
+
+barkan_status_layout_md:  # 보통 (x0.66)
+  align: left
+  images:
+    1:
+      name: status_plate_md
+      x: -51
+      y: 3
+    2:
+      name: status_icon_0_md
+      x: -43
+      y: 9
+    3:
+      name: status_icon_1_md
+      x: -43
+      y: 21
+    4:
+      name: status_icon_2_md
+      x: -43
+      y: 34
+    5:
+      name: exp_bar_empty_md
+      x: 2
+      y: 23
+    6:
+      name: exp_bar_md
+      x: 2
+      y: 23
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_money]"
+      color: "#5C3F0E"
       x: -29
       y: 10
-      scale: 0.41
+      scale: 0.409
       align: left
     2:
       name: dialogue_font
@@ -68,7 +96,7 @@ barkan_status_layout:
       color: "#0E3E42"
       x: -29
       y: 22
-      scale: 0.41
+      scale: 0.409
       align: left
     3:
       name: dialogue_font
@@ -76,5 +104,111 @@ barkan_status_layout:
       color: "#3A1A5C"
       x: -29
       y: 34
-      scale: 0.41
+      scale: 0.409
+      align: left
+
+barkan_status_layout_lg:  # 크게 (x0.85)
+  align: left
+  images:
+    1:
+      name: status_plate_lg
+      x: -62.5
+      y: 3
+    2:
+      name: status_icon_0_lg
+      x: -52.5
+      y: 11
+    3:
+      name: status_icon_1_lg
+      x: -52.5
+      y: 26
+    4:
+      name: status_icon_2_lg
+      x: -52.5
+      y: 43
+    5:
+      name: exp_bar_empty_lg
+      x: 5.5
+      y: 28
+    6:
+      name: exp_bar_lg
+      x: 5.5
+      y: 28
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_money]"
+      color: "#5C3F0E"
+      x: -34.5
+      y: 12
+      scale: 0.527
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_level]"
+      color: "#0E3E42"
+      x: -34.5
+      y: 27
+      scale: 0.527
+      align: left
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_cash]"
+      color: "#3A1A5C"
+      x: -34.5
+      y: 43
+      scale: 0.527
+      align: left
+
+barkan_status_layout_xl:  # 아주 크게 (x1.0)
+  align: left
+  images:
+    1:
+      name: status_plate_xl
+      x: -72
+      y: 3
+    2:
+      name: status_icon_0_xl
+      x: -60
+      y: 12
+    3:
+      name: status_icon_1_xl
+      x: -60
+      y: 30
+    4:
+      name: status_icon_2_xl
+      x: -60
+      y: 50
+    5:
+      name: exp_bar_empty_xl
+      x: 8
+      y: 33
+    6:
+      name: exp_bar_xl
+      x: 8
+      y: 33
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_money]"
+      color: "#5C3F0E"
+      x: -39
+      y: 14
+      scale: 0.62
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_level]"
+      color: "#0E3E42"
+      x: -39
+      y: 32
+      scale: 0.62
+      align: left
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_cash]"
+      color: "#3A1A5C"
+      x: -39
+      y: 50
+      scale: 0.62
       align: left

@@ -71,9 +71,12 @@ SETS = {
     "npc-dialogue": ("npc-dialogue-hud.yml", "npc-dialogue-layout.yml", "npc-dialogue-image.yml",
                      [SAMPLE_TEXT, SAMPLE_NAME]),
     "status": ("status-hud.yml", "status-layout.yml", "status-image.yml",
-               ["999,999,999원", "Lv.100", "1,234,567캐시"]),
+               # ★Num.compact 적용 후의 실제 최댓값이다. 축약 전 값(999,999,999원)으로 두면
+               #   과대평가해서 멀쩡한 배치를 넘친다고 오판한다.
+               ["999,999원", "Lv.100", "999,999캐시"]),
     "place": ("place-hud.yml", "place-layout.yml", "place-image.yml",
-              ["바르칸 > 폭포_뒤_동굴_2층", "☀ 낮 ☁ 모래바람"]),
+              # ★14글자를 넘으면 자바(shortPlace)가 상위 지역을 떼므로, 이게 실제 최댓값이다.
+              ["폭포_뒤_동굴_2층", "☀ 낮 ☁ 모래바람"]),
 }
 
 
@@ -83,8 +86,15 @@ def load(name):
 
 def main(out_path, zoom=None, setname="npc-dialogue"):
     hf, lf, imf, samples = SETS[setname]
-    hud = next(iter(load(hf).values()))
-    layout = next(iter(load(lf).values()))
+    # 상태/위치 HUD 는 크기 단계별로 여러 벌이다 — 환경변수 HUD_SIZE 로 고른다(기본 md).
+    want = "_" + os.environ.get("HUD_SIZE", "md")
+    def pick(d):
+        for k, v in d.items():
+            if k.endswith(want):
+                return v
+        return next(iter(d.values()))
+    hud = pick(load(hf))
+    layout = pick(load(lf))
     images = load(imf)
 
     align = str(layout.get("align", "left")).lower()

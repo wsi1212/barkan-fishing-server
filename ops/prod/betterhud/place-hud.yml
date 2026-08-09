@@ -1,11 +1,38 @@
-# 왼쪽 위 위치·환경 HUD. 사이드바에 있던 "위치"·"환경" 두 줄을 옮겨 온 것이다.
-# gui x:0 y:0 = 왼쪽 위 모서리. 해상도가 달라도 항상 왼쪽에 붙는다.
-# tick: 20 — 지역·날씨는 1초 지연이면 충분하다.
-barkan_place:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+barkan_place_sm:
   tick: 20
   layouts:
     1:
-      name: barkan_place_layout
+      name: barkan_place_layout_sm
+      gui:
+        x: 0
+        y: 0
+
+barkan_place_md:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_place_layout_md
+      gui:
+        x: 0
+        y: 0
+
+barkan_place_lg:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_place_layout_lg
+      gui:
+        x: 0
+        y: 0
+
+barkan_place_xl:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_place_layout_xl
       gui:
         x: 0
         y: 0

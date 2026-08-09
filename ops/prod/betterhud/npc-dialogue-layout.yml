@@ -1,61 +1,81 @@
-# 화면 하단 중앙. 앵커 = hud의 gui(x50,y100).
-#
-# ★align: left. 요소의 왼쪽 끝 = x - max/2 이고 max = 레이아웃 안 가장 넓은 "이미지" 폭.
-#   ★현재 max = 110 이다. 판 조각 4장이 110px씩이라 그게 제일 넓다(명패는 88, 초상화는 36).
-#     왼쪽 끝 = x - 55  ->  x = 원하는 왼쪽끝 - 화면중심(213) + 55 = 원하는왼쪽끝 - 158
-#     ※판 조각 폭을 바꾸면 max가 바뀌어 전부 틀어진다. preview.py 가 max를 찍어주니 확인할 것.
-#   center 를 쓰면 move = (max - 자기폭)/2 가 붙는데, 텍스트는 자기폭이 250쯤이라
-#   max(80)보다 훨씬 커서 -85 이상 왼쪽으로 밀려 초상화 위로 올라탄다. 그래서 left 다.
-#   ★판 조각 폭(80)을 바꾸면 max가 바뀌어 전부 틀어진다. 바꾸려면 x도 같이 재계산할 것.
-#   근거: BetterHud 소스 LayoutComponentContainer.kt / LayoutGroup.kt / HudParser.kt
-# ★번호 = 그리는 순서. 판(1~5) 먼저, 그 위에 초상화(6)·명패(7).
-#
-# 판 440x114, 110px씩 4조각. 왼쪽끝 = x - 55 이고 판은 화면 -220~+220 을 채운다.
-# y는 요소의 위쪽 끝(음수가 위). 판 높이를 70%(114->80)로 줄였으므로 y = -(80+22) = -102.
-# ★가로는 440 그대로 두고 세로만 줄였다 — 가로까지 줄이면 대사 폭을 잃는다.
-#
-# 판 안 실측(판 왼쪽 위 기준. 열별 밝기 프로파일로 뽑음):
-#   이음매 홈  x 7~9 · 97~99      금테 세로바 x 11~15 · 92~96
-#   금테 바깥  x 11~96  -> 중심 53.5   ★초상화·명패는 이 53.5 에 맞춘다
-#   액자 홈    x 16~91  -> 중심 53.5
-#   양피지     x 112~427, 폭 315
-#
-# ★★가운데 맞춤은 preview.py(예측)로 확정하지 말고 calibrate.py(실측)로 확정할 것.
-#   2026-08-08 사고: preview.py 로 "가운데 맞췄다"고 보고했는데 유저 화면은 달랐다.
-#   화면기록을 템플릿 매칭해 재보니 예측 대비 초상화 +0.33 / 명패 +1.67 px 어긋나 있었고
-#   (요소마다 반올림이 다르다), 무엇보다 preview.py 가 액자 중심을 잘못 잡고 있었다.
-#   지금 값은 실측 기반이다:  초상화 -157 일 때 중심 34.33 -> +19.17 -> -138
-#                             명패   -153 일 때 중심 57.67 -> -4.17  -> -157
-npc_dialogue_layout:
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+npc_dialogue_layout_sm:  # 작게 (x0.75)
   align: left
   images:
     1:
-      name: dialogue_panel_1
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 42
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 125
+      y: -82
+    5:
+      name: npc_dialogue_portrait_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.637
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 172
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -103
+      y: -31
+      scale: 0.45
+      align: left
+
+npc_dialogue_layout_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
       x: -165
       y: -102
     2:
-      name: dialogue_panel_2
+      name: dialogue_panel_2_md
       x: -55
       y: -102
     3:
-      name: dialogue_panel_3
+      name: dialogue_panel_3_md
       x: 55
       y: -102
     4:
-      name: dialogue_panel_4
+      name: dialogue_panel_4_md
       x: 165
       y: -102
     5:
-      # -157 일 때 실측 중심 34.33 -> 액자중심 53.5 까지 +19.17 -> -138
-      name: npc_dialogue_portrait
+      name: npc_dialogue_portrait_md
       x: -138
       y: -92
     6:
-      # -153 일 때 실측 중심 57.67 -> 액자중심 53.5 까지 -4.17 -> -157
-      # -> 인게임 육안으로 2px 더 왼쪽이라 +2 (-155), 다시 -1 해서 최종 -156.
-      #    실측 때 명패만 ±1.7px 흔들렸는데(판 매칭 자체의 ±0.33 지터가 얹힌 것) 그 오차폭과 일치.
-      # (명패 88 > 금테 86 이라 좌우로 1px씩 걸친다. 대칭이면 안 보인다)
-      name: dialogue_nameplate
+      name: npc_dialogue_nameplate_md
       x: -156
       y: -40
   texts:
@@ -71,20 +91,112 @@ npc_dialogue_layout:
       line: 3
       line-width: 15
       split-width: 230
-      # ★force-split 은 켜면 안 된다. 이름과 달리 "단어 중간에서 자르기"가 아니라
-      #   글자 하나마다 무조건 줄바꿈이라 글씨가 세로로 한 줄에 한 자씩 떨어진다.
-      #   BetterHud 소스(Adventures.kt)의 판정이 사실상 (...) || forceSplit 이기 때문이다.
       force-split: false
-      # ★split-width 는 "여기부터 줄바꿈을 노린다"이지 상한이 아니다. 소스 판정이
-      #   i >= sw && (i >= 1.25*sw || 공백) 이라 공백이 없으면 1.25배까지 밀고 나간다.
-      #   그래서 실제 상한 = split-width x 1.25 로 잡아야 한다.
-      #   양피지 가용폭 295 -> 295 / 1.25 = 236 -> 여유 두고 230.
     2:
       name: dialogue_font
       pattern: "[string:npc_dialogue_name]"
       color: "#4A2D3D"
-      # 명패가 -153 -> -156 이므로 이름도 같이 -3 (명패 안 상대 위치 유지)
       x: -139
       y: -34
       scale: 0.6
+      align: left
+
+npc_dialogue_layout_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 1.02
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 276
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -167
+      y: -36
+      scale: 0.72
+      align: left
+
+npc_dialogue_layout_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 1.19
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 322
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -195
+      y: -39
+      scale: 0.84
       align: left
