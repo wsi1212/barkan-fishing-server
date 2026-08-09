@@ -42,6 +42,7 @@ PLATES = {
     "dextab": (6, "dextab_", 0xE770),
     "dexfish": (6, "dexfish_", 0xE780),
     "dexisland": (4, "dexisl_", 0xE790),
+    "npcdialog": (4, "npcdlg_", 0xE7A0),
 }
 
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""도감 배경 손질 — 납품 넉 장 중 어긋난 것만 고쳐 bg_source.png 로 넘긴다.
+"""납품본 손질 — 받은 그림을 정확한 캔버스에 맞춰 bg_source.png 로 넘긴다.
+
+캔버스 맞추기(리사이즈)는 늘 하고, 어긋난 화면만 구간 보정·부분 도장을 더한다.
 
 ## 실측 결과 (check_align.py)
   표지(dexmain)      칸 오차 ≤2px  — 그대로 통과
@@ -23,7 +25,8 @@ import os
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.expanduser("~/Downloads/dex-images")
+DEX = os.path.expanduser("~/Downloads/dex-images")
+CODEX = os.path.expanduser("~/.codex/generated_images")
 
 S, GX, GY, CELL = 4, 7, 17, 18
 X0, Y0, PITCH = GX * S, GY * S, CELL * S          # 28, 68, 72
@@ -31,10 +34,13 @@ X0, Y0, PITCH = GX * S, GY * S, CELL * S          # 28, 68, 72
 # 이름: (납품 파일, 캔버스, 가로 구간, 세로 구간)
 #   구간 = [(원본 a0, a1) → (목표 b0, b1)]. 빈 목록이면 손대지 않는다.
 PLATES = {
-    "dexmain":   ("dex-menu.png",        (704, 672), [], []),
-    "dextab":    ("dex-book-tabs.png",   (704, 888), [], []),
-    "dexisland": ("dex-book-island.png", (704, 744), [], []),
-    "dexfish":   ("dex-book-fish.png",   (704, 888),
+    "dexmain":   (f"{DEX}/dex-menu.png",        (704, 672), [], []),
+    "dextab":    (f"{DEX}/dex-book-tabs.png",   (704, 888), [], []),
+    "dexisland": (f"{DEX}/dex-book-island.png", (704, 744), [], []),
+    # NPC 대화 창 — 칸 오차 ≤3px 이라 캔버스만 맞추면 된다.
+    "npcdialog": (f"{CODEX}/019fcffa-2416-7661-aab4-db32e8a6de57/"
+                  "exec-e95e2996-94c5-43b7-a73c-8e36d792de6e.png", (704, 744), [], []),
+    "dexfish":   (f"{DEX}/dex-book-fish.png",   (704, 888),
                   [((0, 45), (0, 28)),          # 왼쪽 테두리 — 눌러서 제자리
                    ((45, 656), (28, 676)),      # 격자 — 늘려서 72px 간격으로
                    ((656, 704), (676, 704))],   # 오른쪽 테두리 — 눌러서 제자리
@@ -70,8 +76,9 @@ def cell_box(col, row):
 
 def main():
     for name, (fname, size, xb, yb) in PLATES.items():
-        im = Image.open(os.path.join(SRC, fname)).convert("RGBA")
-        assert im.size == size, f"{name} 캔버스 {im.size} != {size}"
+        im = Image.open(fname).convert("RGBA")
+        if im.size != size:
+            im = im.resize(size, Image.LANCZOS)      # 비율이 맞으면 통짜 리사이즈로 끝난다
         im = remap(im, xb, yb)
 
         fill = SPINE_FILL.get(name)
