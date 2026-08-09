@@ -11,23 +11,23 @@ barkan_status_layout_sm:  # 작게 (x0.5)
     2:
       name: status_icon_0_sm
       x: -35
-      y: 8
+      y: 9
     3:
       name: status_icon_1_sm
       x: -35
-      y: 16
+      y: 18
     4:
       name: status_icon_2_sm
       x: -35
-      y: 27
+      y: 28
     5:
       name: exp_bar_empty_sm
       x: -1
-      y: 18
+      y: 19
     6:
       name: exp_bar_sm
       x: -1
-      y: 18
+      y: 19
   texts:
     1:
       name: dialogue_font
@@ -64,23 +64,23 @@ barkan_status_layout_md:  # 보통 (x0.66)
     2:
       name: status_icon_0_md
       x: -43
-      y: 9
+      y: 10
     3:
       name: status_icon_1_md
       x: -43
-      y: 21
+      y: 22
     4:
       name: status_icon_2_md
       x: -43
-      y: 34
+      y: 35
     5:
       name: exp_bar_empty_md
       x: 2
-      y: 23
+      y: 24
     6:
       name: exp_bar_md
       x: 2
-      y: 23
+      y: 24
   texts:
     1:
       name: dialogue_font
@@ -125,15 +125,15 @@ barkan_status_layout_lg:  # 크게 (x0.85)
     4:
       name: status_icon_2_lg
       x: -52.5
-      y: 43
+      y: 44
     5:
       name: exp_bar_empty_lg
       x: 5.5
-      y: 28
+      y: 29
     6:
       name: exp_bar_lg
       x: 5.5
-      y: 28
+      y: 29
   texts:
     1:
       name: dialogue_font

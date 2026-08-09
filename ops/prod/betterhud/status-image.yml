@@ -3,160 +3,116 @@
 #   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
 status_plate_sm:
   type: single
-  file: status/status-plate.png
-  setting:
-    scale: 0.5
+  file: status/gen/status-plate-sm.png
 
 status_icon_0_sm:
   type: single
-  file: status/icon-coin.png
-  setting:
-    scale: 0.5
+  file: status/gen/icon-coin-sm.png
 
 status_icon_1_sm:
   type: single
-  file: status/icon-star.png
-  setting:
-    scale: 0.5
+  file: status/gen/icon-star-sm.png
 
 status_icon_2_sm:
   type: single
-  file: status/icon-gem.png
-  setting:
-    scale: 0.5
+  file: status/gen/icon-gem-sm.png
 
 exp_bar_empty_sm:
   type: single
-  file: status/exp-bar-empty.png
-  setting:
-    scale: 0.5
+  file: status/gen/exp-bar-empty-sm.png
 
 exp_bar_sm:
   type: listener
-  file: status/exp-bar-fill.png
+  file: status/gen/exp-bar-fill-sm.png
   split: 36
   split-type: left
   setting:
-    scale: 0.5
     listener:
       class: barkan_exp
 
 status_plate_md:
   type: single
-  file: status/status-plate.png
-  setting:
-    scale: 0.66
+  file: status/gen/status-plate-md.png
 
 status_icon_0_md:
   type: single
-  file: status/icon-coin.png
-  setting:
-    scale: 0.66
+  file: status/gen/icon-coin-md.png
 
 status_icon_1_md:
   type: single
-  file: status/icon-star.png
-  setting:
-    scale: 0.66
+  file: status/gen/icon-star-md.png
 
 status_icon_2_md:
   type: single
-  file: status/icon-gem.png
-  setting:
-    scale: 0.66
+  file: status/gen/icon-gem-md.png
 
 exp_bar_empty_md:
   type: single
-  file: status/exp-bar-empty.png
-  setting:
-    scale: 0.66
+  file: status/gen/exp-bar-empty-md.png
 
 exp_bar_md:
   type: listener
-  file: status/exp-bar-fill.png
+  file: status/gen/exp-bar-fill-md.png
   split: 36
   split-type: left
   setting:
-    scale: 0.66
     listener:
       class: barkan_exp
 
 status_plate_lg:
   type: single
-  file: status/status-plate.png
-  setting:
-    scale: 0.85
+  file: status/gen/status-plate-lg.png
 
 status_icon_0_lg:
   type: single
-  file: status/icon-coin.png
-  setting:
-    scale: 0.85
+  file: status/gen/icon-coin-lg.png
 
 status_icon_1_lg:
   type: single
-  file: status/icon-star.png
-  setting:
-    scale: 0.85
+  file: status/gen/icon-star-lg.png
 
 status_icon_2_lg:
   type: single
-  file: status/icon-gem.png
-  setting:
-    scale: 0.85
+  file: status/gen/icon-gem-lg.png
 
 exp_bar_empty_lg:
   type: single
-  file: status/exp-bar-empty.png
-  setting:
-    scale: 0.85
+  file: status/gen/exp-bar-empty-lg.png
 
 exp_bar_lg:
   type: listener
-  file: status/exp-bar-fill.png
+  file: status/gen/exp-bar-fill-lg.png
   split: 36
   split-type: left
   setting:
-    scale: 0.85
     listener:
       class: barkan_exp
 
 status_plate_xl:
   type: single
-  file: status/status-plate.png
-  setting:
-    scale: 1.0
+  file: status/gen/status-plate-xl.png
 
 status_icon_0_xl:
   type: single
-  file: status/icon-coin.png
-  setting:
-    scale: 1.0
+  file: status/gen/icon-coin-xl.png
 
 status_icon_1_xl:
   type: single
-  file: status/icon-star.png
-  setting:
-    scale: 1.0
+  file: status/gen/icon-star-xl.png
 
 status_icon_2_xl:
   type: single
-  file: status/icon-gem.png
-  setting:
-    scale: 1.0
+  file: status/gen/icon-gem-xl.png
 
 exp_bar_empty_xl:
   type: single
-  file: status/exp-bar-empty.png
-  setting:
-    scale: 1.0
+  file: status/gen/exp-bar-empty-xl.png
 
 exp_bar_xl:
   type: listener
-  file: status/exp-bar-fill.png
+  file: status/gen/exp-bar-fill-xl.png
   split: 36
   split-type: left
   setting:
-    scale: 1.0
     listener:
       class: barkan_exp

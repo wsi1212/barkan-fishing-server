@@ -3,24 +3,16 @@
 #   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
 place_plate_sm:
   type: single
-  file: status/place-plate.png
-  setting:
-    scale: 0.5
+  file: status/gen/place-plate-sm.png
 
 place_plate_md:
   type: single
-  file: status/place-plate.png
-  setting:
-    scale: 0.66
+  file: status/gen/place-plate-md.png
 
 place_plate_lg:
   type: single
-  file: status/place-plate.png
-  setting:
-    scale: 0.85
+  file: status/gen/place-plate-lg.png
 
 place_plate_xl:
   type: single
-  file: status/place-plate.png
-  setting:
-    scale: 1.0
+  file: status/gen/place-plate-xl.png

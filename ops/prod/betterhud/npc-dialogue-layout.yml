@@ -14,15 +14,15 @@ npc_dialogue_layout_sm:  # 작게 (x0.75)
       y: -82
     3:
       name: dialogue_panel_3_sm
-      x: 42
+      x: 41
       y: -82
     4:
       name: dialogue_panel_4_sm
-      x: 125
+      x: 123
       y: -82
     5:
       name: npc_dialogue_portrait_sm
-      x: -103
+      x: -101
       y: -74
     6:
       name: npc_dialogue_nameplate_sm
@@ -72,7 +72,7 @@ npc_dialogue_layout_md:  # 보통 (x1.0)
       y: -102
     5:
       name: npc_dialogue_portrait_md
-      x: -138
+      x: -136
       y: -92
     6:
       name: npc_dialogue_nameplate_md
@@ -122,7 +122,7 @@ npc_dialogue_layout_lg:  # 크게 (x1.2)
       y: -118
     5:
       name: npc_dialogue_portrait_lg
-      x: -166
+      x: -163
       y: -106
     6:
       name: npc_dialogue_nameplate_lg
@@ -172,7 +172,7 @@ npc_dialogue_layout_xl:  # 아주 크게 (x1.4)
       y: -134
     5:
       name: npc_dialogue_portrait_xl
-      x: -194
+      x: -191
       y: -120
     6:
       name: npc_dialogue_nameplate_xl

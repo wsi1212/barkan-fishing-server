@@ -3,144 +3,96 @@
 #   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
 dialogue_panel_1_sm:
   type: single
-  file: dialogue/dialogue-panel-1.png
-  setting:
-    scale: 0.75
+  file: dialogue/gen/dialogue-panel-1-sm.png
 
 dialogue_panel_2_sm:
   type: single
-  file: dialogue/dialogue-panel-2.png
-  setting:
-    scale: 0.75
+  file: dialogue/gen/dialogue-panel-2-sm.png
 
 dialogue_panel_3_sm:
   type: single
-  file: dialogue/dialogue-panel-3.png
-  setting:
-    scale: 0.75
+  file: dialogue/gen/dialogue-panel-3-sm.png
 
 dialogue_panel_4_sm:
   type: single
-  file: dialogue/dialogue-panel-4.png
-  setting:
-    scale: 0.75
+  file: dialogue/gen/dialogue-panel-4-sm.png
 
 npc_dialogue_portrait_sm:
   type: single
-  file: dialogue/portrait-grandfather-hud.png
-  setting:
-    scale: 0.3
+  file: dialogue/gen/portrait-grandfather-hud-sm.png
 
 npc_dialogue_nameplate_sm:
   type: single
-  file: dialogue/dialogue-nameplate.png
-  setting:
-    scale: 0.6
+  file: dialogue/gen/dialogue-nameplate-sm.png
 
 dialogue_panel_1_md:
   type: single
-  file: dialogue/dialogue-panel-1.png
-  setting:
-    scale: 1.0
+  file: dialogue/gen/dialogue-panel-1-md.png
 
 dialogue_panel_2_md:
   type: single
-  file: dialogue/dialogue-panel-2.png
-  setting:
-    scale: 1.0
+  file: dialogue/gen/dialogue-panel-2-md.png
 
 dialogue_panel_3_md:
   type: single
-  file: dialogue/dialogue-panel-3.png
-  setting:
-    scale: 1.0
+  file: dialogue/gen/dialogue-panel-3-md.png
 
 dialogue_panel_4_md:
   type: single
-  file: dialogue/dialogue-panel-4.png
-  setting:
-    scale: 1.0
+  file: dialogue/gen/dialogue-panel-4-md.png
 
 npc_dialogue_portrait_md:
   type: single
-  file: dialogue/portrait-grandfather-hud.png
-  setting:
-    scale: 0.4
+  file: dialogue/gen/portrait-grandfather-hud-md.png
 
 npc_dialogue_nameplate_md:
   type: single
-  file: dialogue/dialogue-nameplate.png
-  setting:
-    scale: 0.8
+  file: dialogue/gen/dialogue-nameplate-md.png
 
 dialogue_panel_1_lg:
   type: single
-  file: dialogue/dialogue-panel-1.png
-  setting:
-    scale: 1.2
+  file: dialogue/gen/dialogue-panel-1-lg.png
 
 dialogue_panel_2_lg:
   type: single
-  file: dialogue/dialogue-panel-2.png
-  setting:
-    scale: 1.2
+  file: dialogue/gen/dialogue-panel-2-lg.png
 
 dialogue_panel_3_lg:
   type: single
-  file: dialogue/dialogue-panel-3.png
-  setting:
-    scale: 1.2
+  file: dialogue/gen/dialogue-panel-3-lg.png
 
 dialogue_panel_4_lg:
   type: single
-  file: dialogue/dialogue-panel-4.png
-  setting:
-    scale: 1.2
+  file: dialogue/gen/dialogue-panel-4-lg.png
 
 npc_dialogue_portrait_lg:
   type: single
-  file: dialogue/portrait-grandfather-hud.png
-  setting:
-    scale: 0.48
+  file: dialogue/gen/portrait-grandfather-hud-lg.png
 
 npc_dialogue_nameplate_lg:
   type: single
-  file: dialogue/dialogue-nameplate.png
-  setting:
-    scale: 0.96
+  file: dialogue/gen/dialogue-nameplate-lg.png
 
 dialogue_panel_1_xl:
   type: single
-  file: dialogue/dialogue-panel-1.png
-  setting:
-    scale: 1.4
+  file: dialogue/gen/dialogue-panel-1-xl.png
 
 dialogue_panel_2_xl:
   type: single
-  file: dialogue/dialogue-panel-2.png
-  setting:
-    scale: 1.4
+  file: dialogue/gen/dialogue-panel-2-xl.png
 
 dialogue_panel_3_xl:
   type: single
-  file: dialogue/dialogue-panel-3.png
-  setting:
-    scale: 1.4
+  file: dialogue/gen/dialogue-panel-3-xl.png
 
 dialogue_panel_4_xl:
   type: single
-  file: dialogue/dialogue-panel-4.png
-  setting:
-    scale: 1.4
+  file: dialogue/gen/dialogue-panel-4-xl.png
 
 npc_dialogue_portrait_xl:
   type: single
-  file: dialogue/portrait-grandfather-hud.png
-  setting:
-    scale: 0.56
+  file: dialogue/gen/portrait-grandfather-hud-xl.png
 
 npc_dialogue_nameplate_xl:
   type: single
-  file: dialogue/dialogue-nameplate.png
-  setting:
-    scale: 1.12
+  file: dialogue/gen/dialogue-nameplate-xl.png
