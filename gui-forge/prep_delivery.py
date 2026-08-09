@@ -58,6 +58,13 @@ SPINE_FILL = {"dexfish": ((3, 2), 4, [0, 1, 2, 3, 4])}
 #   (2026-08-10 유저가 확대해서 잡아냄 — 겹쳐보기 그림으로는 안 보였다.)
 SHIFTS = {"npcdialog": [((160, 272, 546, 368), 0, -2)]}   # 선택지 놋쇠 판이 2px 낮았다
 
+# 구멍 조이기: 액자 구멍이 아이콘(64px)보다 크면 그 틈만큼 액자 안쪽 테두리를 밀어 넣는다.
+# ★2px 옮겨 중심을 맞춰도 구멍이 65px 이면 남는 1px 이 어느 한쪽에 몰린다 — 옮기기로는
+#   절대 안 없어진다. 틈을 없애려면 구멍이 정확히 64px 이어야 한다(2026-08-10).
+#   구멍이 이미 64 이하인 칸에는 아무 일도 안 일어난다(멱등).
+SEAL = {"npcdialog": [29, 30, 31, 32, 33]}
+DARK = 60          # 이보다 어두우면 구멍, 밝으면 액자
+
 
 def remap(im, xb, yb):
     """구간별로 잘라 다시 붙인다. 구간이 없으면 그대로."""
@@ -73,6 +80,37 @@ def remap(im, xb, yb):
             out.paste(im.crop((a0, 0, a1, H)).resize((b1 - b0, H), Image.LANCZOS), (b0, 0))
         im = out
     return im
+
+
+def seal_cell(im, slot):
+    """칸 하나의 구멍을 아이콘 상자(64px)에 딱 맞춘다 — 넘치는 쪽 테두리를 안으로 민다."""
+    px = im.load()
+    col, row = slot % 9, slot // 9
+    x0, y0 = cell_box(col, row)[:2]
+    ix0, iy0 = x0 + 4, y0 + 4          # 아이콘 상자 (64px)
+    ix1, iy1 = ix0 + 63, iy0 + 63
+    def lum(x, y):
+        r, g, b = px[x, y][:3]
+        return (r * 299 + g * 587 + b * 114) // 1000
+    my, mx = iy0 + 32, ix0 + 32
+    # 아이콘 상자 바로 바깥이 아직 어두우면 **바깥 띠를 통째로 한 칸 안으로 민다.**
+    # ★한 줄만 복사하면 안 된다 — 그 줄이 경계의 중간톤이면 복사해도 계속 어두워서 제자리걸음.
+    for _ in range(4):
+        if lum(ix0 - 1, my) >= DARK:
+            break
+        im.paste(im.crop((x0, y0, ix0 - 1, y0 + 72)), (x0 + 1, y0))
+    for _ in range(4):
+        if lum(ix1 + 1, my) >= DARK:
+            break
+        im.paste(im.crop((ix1 + 2, y0, x0 + 72, y0 + 72)), (ix1 + 1, y0))
+    for _ in range(4):
+        if lum(mx, iy0 - 1) >= DARK:
+            break
+        im.paste(im.crop((x0, y0, x0 + 72, iy0 - 1)), (x0, y0 + 1))
+    for _ in range(4):
+        if lum(mx, iy1 + 1) >= DARK:
+            break
+        im.paste(im.crop((x0, iy1 + 2, x0 + 72, y0 + 72)), (x0, iy1 + 1))
 
 
 def cell_box(col, row):
@@ -97,6 +135,9 @@ def main():
                          (x0, y1 + dy if dy < 0 else y0))
             im.paste(piece, (x0 + dx, y0 + dy))
 
+        for slot in SEAL.get(name, []):
+            seal_cell(im, slot)
+
         fill = SPINE_FILL.get(name)
         if fill:
             (sc, sr), dst_col, rows = fill
@@ -111,7 +152,8 @@ def main():
         print(f"  {name:10} {size[0]}x{size[1]}"
               + (f" · 구간보정 {len(xb)}x{len(yb)}" if xb or yb else " · 원본 그대로")
               + (f" · 책등 액자 {len(fill[2])}개" if fill else "")
-              + (f" · 부분이동 {len(SHIFTS[name])}건" if name in SHIFTS else ""))
+              + (f" · 부분이동 {len(SHIFTS[name])}건" if name in SHIFTS else "")
+              + (f" · 구멍조이기 {len(SEAL[name])}칸" if name in SEAL else ""))
 
 
 if __name__ == "__main__":
