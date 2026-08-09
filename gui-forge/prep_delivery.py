@@ -52,6 +52,12 @@ PLATES = {
 # 책등 열에 액자를 찍을 화면: (떠올 칸 col·row, 찍을 col, 찍을 row 목록)
 SPINE_FILL = {"dexfish": ((3, 2), 4, [0, 1, 2, 3, 4])}
 
+# 한 덩어리만 살짝 옮길 때: 이름 → [(상자, dx, dy)]
+# ★2px(=0.5 GUI px) 라도 아이콘이 액자 구멍을 꽉 채우면 눈에 띈다. 구멍이 63px 인데
+#   아이콘이 64px 이라 여유가 없어서, 2px 밀리면 위는 테두리에 걸치고 아래에 틈이 생긴다.
+#   (2026-08-10 유저가 확대해서 잡아냄 — 겹쳐보기 그림으로는 안 보였다.)
+SHIFTS = {"npcdialog": [((160, 272, 546, 368), 0, -2)]}   # 선택지 놋쇠 판이 2px 낮았다
+
 
 def remap(im, xb, yb):
     """구간별로 잘라 다시 붙인다. 구간이 없으면 그대로."""
@@ -81,6 +87,16 @@ def main():
             im = im.resize(size, Image.LANCZOS)      # 비율이 맞으면 통짜 리사이즈로 끝난다
         im = remap(im, xb, yb)
 
+        for box, dx, dy in SHIFTS.get(name, []):
+            x0, y0, x1, y1 = box
+            piece = im.crop(box)
+            # 비는 자리는 옮긴 반대쪽 바로 옆에서 같은 두께로 떠다 메운다(뒤가 가로로 연속된 판).
+            if dy:
+                sy = y1 if dy < 0 else y0 + dy
+                im.paste(im.crop((x0, sy, x1, sy + abs(dy))),
+                         (x0, y1 + dy if dy < 0 else y0))
+            im.paste(piece, (x0 + dx, y0 + dy))
+
         fill = SPINE_FILL.get(name)
         if fill:
             (sc, sr), dst_col, rows = fill
@@ -94,7 +110,8 @@ def main():
         im.convert("RGB").save(os.path.join(out, "bg_source.png"))
         print(f"  {name:10} {size[0]}x{size[1]}"
               + (f" · 구간보정 {len(xb)}x{len(yb)}" if xb or yb else " · 원본 그대로")
-              + (f" · 책등 액자 {len(fill[2])}개" if fill else ""))
+              + (f" · 책등 액자 {len(fill[2])}개" if fill else "")
+              + (f" · 부분이동 {len(SHIFTS[name])}건" if name in SHIFTS else ""))
 
 
 if __name__ == "__main__":
