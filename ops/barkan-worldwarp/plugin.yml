@@ -1,0 +1,13 @@
+name: BarkanWorldWarp
+version: "1.0"
+main: com.barkan.worldwarp.WorldWarp
+api-version: "1.21"
+commands:
+  월드:
+    description: 성 전시월드로 이동
+    aliases: [성전시]
+    permission: barkanworldwarp.use
+permissions:
+  barkanworldwarp.use:
+    description: /월드 명령어 사용 권한
+    default: op
