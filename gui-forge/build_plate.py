@@ -58,6 +58,9 @@ def build(name):
     gw, gh = 176, 114 + rows * c6.CELL
     W, H = gw * c6.SCALE, gh * c6.SCALE
     src = os.path.join(HERE, "src", name)
+    # fit_sockets.py 산출이 있으면 그걸 쓴다 — 칸 구멍을 아이콘 상자에 맞춘 판이다.
+    if os.path.exists(os.path.join(src, "bg_fitted.png")):
+        fname = "bg_fitted.png"
     im = Image.open(os.path.join(src, fname)).convert("RGBA")
     assert im.size == (W, H), f"{name} 배경판 {im.size} != {(W, H)}"
 
