@@ -1,0 +1,114 @@
+{
+  "date": "2026-08-10",
+  "economy": "forage",
+  "status": "baseline",
+  "sources": {
+    "types": "plugins/BlockShip/forage-types.json",
+    "recipes": "plugins/BlockShip/recipes.json",
+    "quests": "plugins/BlockShip/quests.json",
+    "wildcard": "src/main/java/com/blockship/crafting/CraftingManager.java",
+    "direct_sale": "src/main/java/com/blockship/economy/SellCommand.java",
+    "shop": "plugins/BlockShip/shop-items.json",
+    "market": "src/main/java/com/blockship/market/MarketGui.java",
+    "trade": "src/main/java/com/blockship/trade/TradeManager.java"
+  },
+  "counts": {
+    "forage_types": 31,
+    "types_with_direct_recipe_use": 31,
+    "dead_types": 0,
+    "types_with_quest_goals": 8,
+    "quest_goal_entries": 11,
+    "wildcard_types": 14,
+    "direct_sale_entries": 0
+  },
+  "items": [
+    {"name": "붉은 요정버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "푸른 요정버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 1, "quest_target_qty_total": 10, "wildcard": false},
+    {"name": "주황 요정버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 1, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "마법 약초", "rarity": "흔함", "direct_recipe_uses": 3, "formula_qty_total": 9, "quest_goals": 2, "quest_target_qty_total": 24, "wildcard": true},
+    {"name": "야생 베리", "rarity": "흔함", "direct_recipe_uses": 4, "formula_qty_total": 9, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "붉은 열매", "rarity": "흔함", "direct_recipe_uses": 4, "formula_qty_total": 11, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "황금 갓버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "라벤더 선반버섯", "rarity": "흔함", "direct_recipe_uses": 7, "formula_qty_total": 133, "quest_goals": 1, "quest_target_qty_total": 10, "wildcard": false},
+    {"name": "상아 다발버섯", "rarity": "흔함", "direct_recipe_uses": 2, "formula_qty_total": 2, "quest_goals": 1, "quest_target_qty_total": 15, "wildcard": false},
+    {"name": "이끼 톨버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "분홍 겹버섯", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "황금 이삭", "rarity": "흔함", "direct_recipe_uses": 3, "formula_qty_total": 6, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "흰들국화", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 1, "quest_target_qty_total": 5, "wildcard": true},
+    {"name": "물결고사리", "rarity": "흔함", "direct_recipe_uses": 3, "formula_qty_total": 6, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "도토리 다발", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "부들", "rarity": "흔함", "direct_recipe_uses": 2, "formula_qty_total": 4, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "독그늘버섯", "rarity": "흔함", "direct_recipe_uses": 3, "formula_qty_total": 6, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "가시배 선인장", "rarity": "흔함", "direct_recipe_uses": 2, "formula_qty_total": 3, "quest_goals": 1, "quest_target_qty_total": 15, "wildcard": true},
+    {"name": "사막세이지", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 3, "quest_target_qty_total": 35, "wildcard": true},
+    {"name": "핏빛수정초", "rarity": "희귀", "direct_recipe_uses": 2, "formula_qty_total": 3, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "잿불꽃", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 3, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "설화", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 1, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "서리열매", "rarity": "흔함", "direct_recipe_uses": 5, "formula_qty_total": 6, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "바위솔", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "벼랑초롱꽃", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "야광버섯", "rarity": "흔함", "direct_recipe_uses": 5, "formula_qty_total": 44, "quest_goals": 1, "quest_target_qty_total": 12, "wildcard": false},
+    {"name": "자수정새싹", "rarity": "희귀", "direct_recipe_uses": 2, "formula_qty_total": 5, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "물냉이", "rarity": "흔함", "direct_recipe_uses": 1, "formula_qty_total": 2, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "트러플", "rarity": "희귀", "direct_recipe_uses": 3, "formula_qty_total": 36, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": false},
+    {"name": "사막장미", "rarity": "희귀", "direct_recipe_uses": 1, "formula_qty_total": 1, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true},
+    {"name": "서리연꽃", "rarity": "희귀", "direct_recipe_uses": 2, "formula_qty_total": 8, "quest_goals": 0, "quest_target_qty_total": 0, "wildcard": true}
+  ],
+  "low_use": {
+    "direct_recipe_only_no_quest_no_wildcard": [
+      "붉은 요정버섯",
+      "주황 요정버섯",
+      "황금 갓버섯",
+      "이끼 톨버섯",
+      "분홍 겹버섯",
+      "도토리 다발"
+    ],
+    "one_direct_recipe_wildcard_backed": [
+      "잿불꽃",
+      "설화",
+      "바위솔",
+      "벼랑초롱꽃",
+      "물냉이",
+      "사막장미"
+    ]
+  },
+  "demand_concentration": [
+    {
+      "name": "라벤더 선반버섯",
+      "direct_recipe_uses": 7,
+      "formula_qty_total": 133,
+      "non_cooking_qty": 130,
+      "notes": "스크롤/주문서 5종에 130개 집중"
+    },
+    {
+      "name": "야광버섯",
+      "direct_recipe_uses": 5,
+      "formula_qty_total": 44,
+      "largest_single_recipe_qty": 35,
+      "notes": "바르칸 대연회에 35개"
+    },
+    {
+      "name": "트러플",
+      "direct_recipe_uses": 3,
+      "formula_qty_total": 36,
+      "largest_single_recipe_qty": 25,
+      "notes": "바르칸 대연회 25개, 전설의 발효액 10개"
+    }
+  ],
+  "quest_usage": {
+    "푸른 요정버섯": {"goals": 1, "target_qty_total": 10},
+    "마법 약초": {"goals": 2, "target_qty_total": 24},
+    "라벤더 선반버섯": {"goals": 1, "target_qty_total": 10},
+    "상아 다발버섯": {"goals": 1, "target_qty_total": 15},
+    "흰들국화": {"goals": 1, "target_qty_total": 5},
+    "가시배 선인장": {"goals": 1, "target_qty_total": 15},
+    "사막세이지": {"goals": 3, "target_qty_total": 35},
+    "야광버섯": {"goals": 1, "target_qty_total": 12}
+  },
+  "method_notes": [
+    "공식량은 레시피 1회 제작분의 재료 수량이며 실제 플레이어 소비량이 아니다.",
+    "herbany는 14종 중 아무 꽃/풀류를 소모하므로 개별 품목의 확정 수요가 아니다.",
+    "마켓/직거래는 소각처가 아니라 소유권 이전이므로 소비처 집계에서 제외했다.",
+    "도감·채집 레벨·스킬 진행도는 아이템을 소모하지 않으므로 소비처에서 제외했다."
+  ]
+}
