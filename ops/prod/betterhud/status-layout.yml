@@ -10,48 +10,48 @@ barkan_status_layout_sm:  # 작게 (x0.5)
       y: 3
     2:
       name: status_icon_0_sm
-      x: -35
+      x: -36
       y: 9
     3:
       name: status_icon_1_sm
-      x: -35
+      x: -36
       y: 18
     4:
       name: status_icon_2_sm
-      x: -35
+      x: -36
       y: 28
     5:
       name: exp_bar_empty_sm
-      x: -1
+      x: -3
       y: 19
     6:
       name: exp_bar_sm
-      x: -1
+      x: -3
       y: 19
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
-      x: -25
+      x: -27
       y: 8
-      scale: 0.31
+      scale: 0.155
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -25
+      x: -27
       y: 18
-      scale: 0.31
+      scale: 0.155
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -25
+      x: -27
       y: 26
-      scale: 0.31
+      scale: 0.155
       align: left
 
 barkan_status_layout_md:  # 보통 (x0.66)
@@ -63,48 +63,48 @@ barkan_status_layout_md:  # 보통 (x0.66)
       y: 3
     2:
       name: status_icon_0_md
-      x: -43
+      x: -44
       y: 10
     3:
       name: status_icon_1_md
-      x: -43
+      x: -44
       y: 22
     4:
       name: status_icon_2_md
-      x: -43
+      x: -44
       y: 35
     5:
       name: exp_bar_empty_md
-      x: 2
+      x: -1
       y: 24
     6:
       name: exp_bar_md
-      x: 2
+      x: -1
       y: 24
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
-      x: -29
+      x: -32
       y: 10
-      scale: 0.409
+      scale: 0.205
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -29
+      x: -32
       y: 22
-      scale: 0.409
+      scale: 0.205
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -29
+      x: -32
       y: 34
-      scale: 0.409
+      scale: 0.205
       align: left
 
 barkan_status_layout_lg:  # 크게 (x0.85)
@@ -116,48 +116,48 @@ barkan_status_layout_lg:  # 크게 (x0.85)
       y: 3
     2:
       name: status_icon_0_lg
-      x: -52.5
+      x: -54.5
       y: 11
     3:
       name: status_icon_1_lg
-      x: -52.5
+      x: -54.5
       y: 26
     4:
       name: status_icon_2_lg
-      x: -52.5
+      x: -54.5
       y: 44
     5:
       name: exp_bar_empty_lg
-      x: 5.5
+      x: 2.5
       y: 29
     6:
       name: exp_bar_lg
-      x: 5.5
+      x: 2.5
       y: 29
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
-      x: -34.5
+      x: -37.5
       y: 12
-      scale: 0.527
+      scale: 0.264
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -34.5
+      x: -37.5
       y: 27
-      scale: 0.527
+      scale: 0.264
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -34.5
+      x: -37.5
       y: 43
-      scale: 0.527
+      scale: 0.264
       align: left
 
 barkan_status_layout_xl:  # 아주 크게 (x1.0)
@@ -169,46 +169,46 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
       y: 3
     2:
       name: status_icon_0_xl
-      x: -60
+      x: -62
       y: 12
     3:
       name: status_icon_1_xl
-      x: -60
+      x: -62
       y: 30
     4:
       name: status_icon_2_xl
-      x: -60
+      x: -62
       y: 50
     5:
       name: exp_bar_empty_xl
-      x: 8
+      x: 4
       y: 33
     6:
       name: exp_bar_xl
-      x: 8
+      x: 4
       y: 33
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
-      x: -39
+      x: -43
       y: 14
-      scale: 0.62
+      scale: 0.31
       align: left
     2:
       name: dialogue_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
-      x: -39
+      x: -43
       y: 32
-      scale: 0.62
+      scale: 0.31
       align: left
     3:
       name: dialogue_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
-      x: -39
+      x: -43
       y: 50
-      scale: 0.62
+      scale: 0.31
       align: left

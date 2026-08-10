@@ -32,15 +32,20 @@ SCALE_STATUS = (0.50, 0.66, 0.85, 1.00)
 SCALE_DIALOGUE = (0.75, 1.00, 1.20, 1.40)
 
 MARGIN_X, MARGIN_Y = 10, 3      # 화면 모서리에서의 여백(배율 무관, 화면 px)
-TEXT_SCALE = 0.62               # 배율 1.0 기준 글자 크기
+# ★폰트 raster 를 16 -> 32 로 올렸으므로 여기를 절반으로 내려 표시 크기를 유지한다.
+#   (표시 높이 = 폰트 scale x 이 값. 32 x 0.31 = 9.9 ~ 예전 16 x 0.62 와 같다)
+TEXT_SCALE = 0.31               # 배율 1.0 기준 글자 크기
 TEXT_H = 10.6                   # 그 크기에서 글자 한 줄의 대략 높이(세로 가운데 맞춤용)
 
 STATUS = dict(
     plate=("status-plate.png", 124, 72),
     rows=(16, 34, 52),                        # 줄 중심 (판 좌표)
-    icon_x=12, text_x=33,
+    # ★한 줄(레벨)은 "Lv.100 + 경험치바"가 판 폭을 꽉 채운다. 바를 왼쪽으로 당기려면
+    #   아이콘/글자도 같이 당겨야 한다 — 바만 당기면 Lv.100 에 달라붙는다.
+    icon_x=10, text_x=29,
     icons=["icon-coin.png", "icon-star.png", "icon-gem.png"],
-    bar=("exp-bar-empty.png", "exp-bar-fill.png", 80, 36),   # (빈, 채움, 판 x, split 단계수)
+    # ★split 단계수 = 바 폭(px). build_status_hud.BAR_W 와 같아야 1px 단위로 채워진다.
+    bar=("exp-bar-empty.png", "exp-bar-fill.png", 76, 32),   # (빈, 채움, 판 x, split 단계수)
     texts=["hud_money", "hud_level", "hud_cash"],
     colors=["#5C3F0E", "#0E3E42", "#3A1A5C"],
 )
@@ -52,12 +57,12 @@ DIALOGUE = dict(
     slice_w=110, panel_h=80,
     portrait=("portrait-grandfather-hud.png", 35, 10, 0.40),   # (파일, 판x, 판y, 배율)
     nameplate=("dialogue-nameplate.png", 9, 62, 0.8),
-    line=(122, 10, 0.85, 3, 15, 230),   # 대사: 판x, 판y, 배율, 줄수, 줄간격, split-width
-    name=(26, 68, 0.6),                 # 이름: 판x, 판y, 배율
+    line=(122, 10, 0.425, 3, 15, 230),  # 대사: 판x, 판y, 배율, 줄수, 줄간격, split-width
+    name=(26, 68, 0.3),                 # 이름: 판x, 판y, 배율   (둘 다 폰트 raster 2배에 맞춰 절반)
     hotbar=22,                          # 판 아래에 비워두는 화면 px (핫바 자리)
 )
 PLACE = dict(
-    plate=("place-plate.png", 150, 42),
+    plate=("place-plate.png", 124, 42),
     rows=(14, 27),
     text_x=14,
     texts=["hud_place", "hud_env"],
@@ -193,12 +198,14 @@ def build_place():
         txt = []
         for i, var in enumerate(PLACE["texts"]):
             center = MARGIN_Y + PLACE["rows"][i] * s
+            # ★가운데 정렬. align: center 는 x 를 "글자의 중심"으로 해석하므로
+            #   판의 가로 중심을 준다(왼쪽 끝이 아니다).
             txt.append(f"    {i+1}:\n      name: dialogue_font\n"
                        f"      pattern: \"[string:{var}]\"\n"
                        f"      color: \"{PLACE['colors'][i]}\"\n"
-                       f"      x: {base_x + round(PLACE['text_x'] * s):g}\n"
+                       f"      x: {base_x + W / 2:g}\n"
                        f"      y: {round(center - round(TEXT_H * s) / 2)}\n"
-                       f"      scale: {round(TEXT_SCALE * s, 3)}\n      align: left\n")
+                       f"      scale: {round(TEXT_SCALE * s, 3)}\n      align: center\n")
         lay.append(f"barkan_place_layout_{sid}:  # {label} (x{s})\n  align: left\n  images:\n"
                    f"    1:\n      name: place_plate_{sid}\n      x: {base_x:g}\n      y: {MARGIN_Y}\n"
                    + "  texts:\n" + "".join(txt))

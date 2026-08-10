@@ -52,7 +52,9 @@ Y_BIAS = 0
 # 16px은 인게임 스샷 실측으로 보정한 값. 13px일 때 141px로 나왔는데 실제는 167px이라
 # 18% 과소평가였고, 그래서 글자 넘침을 못 잡았다.
 FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
-FONT_PX = 16
+# ★npc-dialogue-font.yml 의 scale 과 같아야 한다. 폰트 raster 를 16 -> 32 로 올렸으면
+#   여기도 32 로. 안 맞추면 글자 폭을 절반으로 계산해 넘침을 못 잡는다.
+FONT_PX = 32
 
 # 패널 그림에서 실측한 영역. 패널 왼쪽 위를 (0,0)으로 본 좌표. (판 440x80 기준)
 # ★눈대중이 아니라 조각 4장을 붙여 픽셀을 스캔해서 뽑은 값이다.
@@ -215,6 +217,10 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
         # ★BetterHud는 텍스트의 '실제 렌더 폭'으로 move를 계산한다. split-width가 아니다.
         #   (align:left 면 move=0 이라 폭과 무관하지만, center/right 면 결정적으로 다르다)
         lx = left_edge(t.get("x", 0), widest)
+        # ★텍스트 자체의 align. center 면 x 가 "글자의 중심"이다(인게임으로 확인함).
+        ta = str(t.get("align", "left")).lower()
+        if ta == "center": lx -= widest / 2
+        elif ta == "right": lx -= widest
         ty = ay + t.get("y", 0)
         warn = ""
         for i, line in enumerate(lines):

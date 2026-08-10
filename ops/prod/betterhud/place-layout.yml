@@ -6,97 +6,97 @@ barkan_place_layout_sm:  # 작게 (x0.5)
   images:
     1:
       name: place_plate_sm
-      x: 47.5
+      x: 41
       y: 3
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
-      x: 54.5
+      x: 72
       y: 8
-      scale: 0.31
-      align: left
+      scale: 0.155
+      align: center
     2:
       name: dialogue_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
-      x: 54.5
+      x: 72
       y: 14
-      scale: 0.31
-      align: left
+      scale: 0.155
+      align: center
 
 barkan_place_layout_md:  # 보통 (x0.66)
   align: left
   images:
     1:
       name: place_plate_md
-      x: 59.5
+      x: 51
       y: 3
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
-      x: 68.5
+      x: 92
       y: 9
-      scale: 0.409
-      align: left
+      scale: 0.205
+      align: center
     2:
       name: dialogue_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
-      x: 68.5
+      x: 92
       y: 17
-      scale: 0.409
-      align: left
+      scale: 0.205
+      align: center
 
 barkan_place_layout_lg:  # 크게 (x0.85)
   align: left
   images:
     1:
       name: place_plate_lg
-      x: 74
+      x: 62.5
       y: 3
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
-      x: 86
+      x: 115
       y: 10
-      scale: 0.527
-      align: left
+      scale: 0.264
+      align: center
     2:
       name: dialogue_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
-      x: 86
+      x: 115
       y: 21
-      scale: 0.527
-      align: left
+      scale: 0.264
+      align: center
 
 barkan_place_layout_xl:  # 아주 크게 (x1.0)
   align: left
   images:
     1:
       name: place_plate_xl
-      x: 85
+      x: 72
       y: 3
   texts:
     1:
       name: dialogue_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
-      x: 99
+      x: 134
       y: 12
-      scale: 0.62
-      align: left
+      scale: 0.31
+      align: center
     2:
       name: dialogue_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
-      x: 99
+      x: 134
       y: 24
-      scale: 0.62
-      align: left
+      scale: 0.31
+      align: center

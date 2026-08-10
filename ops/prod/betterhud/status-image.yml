@@ -34,7 +34,7 @@ exp_bar_empty_sm:
 exp_bar_sm:
   type: listener
   file: status/gen/exp-bar-fill-sm.png
-  split: 36
+  split: 32
   split-type: left
   setting:
     scale: 0.5
@@ -69,15 +69,15 @@ exp_bar_empty_md:
   type: single
   file: status/gen/exp-bar-empty-md.png
   setting:
-    scale: 0.6667
+    scale: 0.6562
 
 exp_bar_md:
   type: listener
   file: status/gen/exp-bar-fill-md.png
-  split: 36
+  split: 32
   split-type: left
   setting:
-    scale: 0.6667
+    scale: 0.6562
     listener:
       class: barkan_exp
 
@@ -109,15 +109,15 @@ exp_bar_empty_lg:
   type: single
   file: status/gen/exp-bar-empty-lg.png
   setting:
-    scale: 0.8611
+    scale: 0.8438
 
 exp_bar_lg:
   type: listener
   file: status/gen/exp-bar-fill-lg.png
-  split: 36
+  split: 32
   split-type: left
   setting:
-    scale: 0.8611
+    scale: 0.8438
     listener:
       class: barkan_exp
 
@@ -154,7 +154,7 @@ exp_bar_empty_xl:
 exp_bar_xl:
   type: listener
   file: status/gen/exp-bar-fill-xl.png
-  split: 36
+  split: 32
   split-type: left
   setting:
     scale: 1.0
