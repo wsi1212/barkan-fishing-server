@@ -1,0 +1,54 @@
+lh-bizben.duckdns.org {
+    reverse_proxy localhost:3000
+}
+
+barkan.kro.kr {
+    redir /vip /vip/ 308
+
+    handle_path /vip/* {
+        reverse_proxy 127.0.0.1:3100
+    }
+
+    handle /barkan-resourcepack*.zip {
+        root * /var/www/barkan
+        file_server
+    }
+
+    handle_path /admin/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    handle /api/ranking {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    handle /ranking* {
+        root * /var/www/barkan/site
+        rewrite * /ranking.html
+        file_server
+    }
+
+    handle /wiki* {
+        root * /var/www/barkan/site
+        rewrite * /wiki.html
+        file_server
+    }
+
+    handle /dex* {
+        root * /var/www/barkan/site
+        rewrite * /dex.html
+        file_server
+    }
+
+    handle /gear* {
+        root * /var/www/barkan/site
+        rewrite * /gear.html
+        file_server
+    }
+
+    handle {
+        root * /var/www/barkan/site
+        try_files {path} /index.html
+        file_server
+    }
+}
