@@ -39,48 +39,54 @@ S, GX, GY, CELL, COLS = L.SCALE, L.GRID_X, L.GRID_Y, L.CELL, L.COLS
 N, ICON = CELL * S, 16 * S          # 72, 64
 PAD = (N - ICON) // 2               # 4
 SAME = 12                           # ref 와 이만큼 이내면 '구멍과 같은 색'
-# ★상한은 PAD(4) 다 — 아이콘 상자와 셀 경계 사이가 딱 4px 이라 그 이상 밀면 옆 칸을
-#   끌어와야 한다(6 으로 올렸더니 crop 좌표가 셀을 벗어나 터졌다). 4px 보다 벌어진 칸은
-#   액자가 옆 칸과 공유하는 구분선 밖에 있다는 뜻이고, 그건 그림을 다시 받아야 한다.
-MAX_GAP = PAD
+PROBE = 12                          # 이만큼 바깥까지 훑어 액자 안쪽 모서리를 찾는다
+NO_SOCKET = 10                      # 이만큼 훑어도 경계가 없으면 그 칸엔 액자가 없다
+# ★칸 경계를 넘어 떠오는 것을 허용한다. 아이콘 상자와 셀 경계 사이는 4px 뿐이라
+#   4px 로 묶어두면 5~7px 밀린 액자(판 바깥줄 칸들)를 못 고친다. 대신 액자가 아예 없는
+#   칸(평평한 목록판)은 건드리지 않는다 — 거기서 밀면 옆 칸을 끌어와 그림이 망가진다.
 
 
-def gap_depths(px, x0, y0):
-    """(왼, 오른, 위, 아래) 틈 깊이(px)."""
+def gap_depths(px, w, h, x0, y0):
+    """(왼, 오른, 위, 아래) 액자 안쪽 모서리가 아이콘 상자 밖으로 나간 거리."""
     ix0, iy0 = x0 + PAD, y0 + PAD
     ix1, iy1 = ix0 + ICON - 1, iy0 + ICON - 1
     mx, my = ix0 + ICON // 2, iy0 + ICON // 2
     ref = px[mx, my]
 
-    def depth(seq):
+    def depth(pts):
         d = 0
-        for v in seq:
-            if abs(v - ref) >= SAME:
+        for x, y in pts:
+            if not (0 <= x < w and 0 <= y < h) or abs(px[x, y] - ref) >= SAME:
                 break
             d += 1
         return d
 
-    return (depth([px[ix0 - 1 - k, my] for k in range(MAX_GAP)]),
-            depth([px[ix1 + 1 + k, my] for k in range(MAX_GAP)]),
-            depth([px[mx, iy0 - 1 - k] for k in range(MAX_GAP)]),
-            depth([px[mx, iy1 + 1 + k] for k in range(MAX_GAP)]))
+    return (depth([(ix0 - 1 - k, my) for k in range(PROBE)]),
+            depth([(ix1 + 1 + k, my) for k in range(PROBE)]),
+            depth([(mx, iy0 - 1 - k) for k in range(PROBE)]),
+            depth([(mx, iy1 + 1 + k) for k in range(PROBE)]))
 
 
 def fit_cell(im, slot):
+    """액자 안쪽 모서리를 아이콘 상자에 맞춘다. (민 양, 액자없음 여부)"""
+    w, h = im.size
     r, c = divmod(slot, COLS)
     x0, y0 = (GX + CELL * c) * S, (GY + CELL * r) * S
-    l, rt, t, b = gap_depths(im.convert("L").load(), x0, y0)
+    l, rt, t, b = gap_depths(im.convert("L").load(), w, h, x0, y0)
+    if max(l, rt, t, b) >= NO_SOCKET:
+        return 0, True                    # 평평한 판 — 맞출 액자가 없다
     ix0, iy0 = x0 + PAD, y0 + PAD
     ix1, iy1 = ix0 + ICON - 1, iy0 + ICON - 1
+    # 바깥 띠를 통째로 안으로 민다. 떠오는 쪽은 셀을 넘어가도 된다(판 바깥줄·구분선).
     if l:
-        im.paste(im.crop((x0, y0, ix0 - l, y0 + N)), (x0 + l, y0))
+        im.paste(im.crop((max(0, x0 - l), y0, ix0 - l, y0 + N)), (max(0, x0 - l) + l, y0))
     if rt:
-        im.paste(im.crop((ix1 + 1 + rt, y0, x0 + N, y0 + N)), (ix1 + 1, y0))
+        im.paste(im.crop((ix1 + 1 + rt, y0, min(w, x0 + N + rt), y0 + N)), (ix1 + 1, y0))
     if t:
-        im.paste(im.crop((x0, y0, x0 + N, iy0 - t)), (x0, y0 + t))
+        im.paste(im.crop((x0, max(0, y0 - t), x0 + N, iy0 - t)), (x0, max(0, y0 - t) + t))
     if b:
-        im.paste(im.crop((x0, iy1 + 1 + b, x0 + N, y0 + N)), (x0, iy1 + 1))
-    return max(l, rt, t, b)
+        im.paste(im.crop((x0, iy1 + 1 + b, x0 + N, min(h, y0 + N + b))), (x0, iy1 + 1))
+    return max(l, rt, t, b), False
 
 
 def fit(name):
@@ -93,14 +99,17 @@ def fit(name):
     im = Image.open(path).convert("RGBA")
     _, roles, _ = L.PAGES[name]
     slots = [s for s, (role, _) in roles.items() if role != "장식"]
-    fixed = worst = 0
+    fixed = worst = flat = 0
     for slot in slots:
-        d = fit_cell(im, slot)
-        if d:
+        d, no_socket = fit_cell(im, slot)
+        if no_socket:
+            flat += 1
+        elif d:
             fixed += 1
             worst = max(worst, d)
     im.convert("RGB").save(os.path.join(HERE, "src", name, "bg_fitted.png"))
-    print(f"  {name:12} 칸 {len(slots):3d} · 틈 메움 {fixed:3d} · 최대 {worst}px")
+    print(f"  {name:12} 칸 {len(slots):3d} · 틈 메움 {fixed:3d} · 최대 {worst}px"
+          + (f" · 액자없는 칸 {flat}" if flat else ""))
 
 
 def main():
