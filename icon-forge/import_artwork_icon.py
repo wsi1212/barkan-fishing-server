@@ -17,6 +17,7 @@
   - 알파 프리멀티플 상태로 축소 → 반투명 경계에 배경색 헤일로가 안 낀다
 """
 import argparse
+import json
 import os
 from collections import Counter
 
@@ -24,6 +25,8 @@ from PIL import Image, ImageFilter
 
 RP = os.path.expanduser("~/development/barkan-resourcepack")
 OUT_DIR = os.path.join(RP, "assets/minecraft/textures/item/barkan_icon")
+MODEL_DIR = os.path.join(RP, "assets/barkan/models/barkan_icon")
+ITEM_DIR = os.path.join(RP, "assets/barkan/items/barkan_icon")
 
 CORE = 60      # 이 거리 이내 = 순수 배경 → 알파 0
 EDGE = 150     # 이 거리 이내 = 프린지 → 부분 알파 + 색 보정
@@ -61,23 +64,57 @@ def key_out(im, k):
     return im
 
 
+def ensure_wiring(icon_id, item_type):
+    """신규 ImageGen 아이콘에만 model/items 정의를 보완한다.
+
+    기존 정의는 절대 덮어쓰지 않는다. 낚싯대는 손에 드는 각도를 유지하도록
+    handheld_rod 부모를 쓰고, 나머지 장비는 generated 평면 모델을 쓴다.
+    """
+    if not item_type:
+        return
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    os.makedirs(ITEM_DIR, exist_ok=True)
+    model_path = os.path.join(MODEL_DIR, f"{icon_id}.json")
+    item_path = os.path.join(ITEM_DIR, f"{icon_id}.json")
+    if not os.path.exists(model_path):
+        parent = "minecraft:item/handheld_rod" if item_type == "낚싯대" else "minecraft:item/generated"
+        model = {"parent": parent, "textures": {"layer0": f"minecraft:item/barkan_icon/{icon_id}"}}
+        with open(model_path, "w", encoding="utf-8") as f:
+            json.dump(model, f, ensure_ascii=False)
+    if not os.path.exists(item_path):
+        definition = {"model": {"type": "minecraft:model", "model": f"barkan:barkan_icon/{icon_id}"}}
+        with open(item_path, "w", encoding="utf-8") as f:
+            json.dump(definition, f, ensure_ascii=False)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("src")
     ap.add_argument("icon_id")
     ap.add_argument("--size", type=int, default=64)
+    ap.add_argument("--pixel-grid", type=int,
+                    help="원화를 이 논리 픽셀 격자로 축소·32색 양자화한 뒤 nearest로 확대")
+    ap.add_argument("--type", choices=["낚싯대", "릴", "줄", "바늘", "미끼", "찌", "작살"],
+                    help="신규 아이콘의 model/items 정의를 만들 장비 유형")
+    ap.add_argument("--no-key", action="store_true",
+                    help="원화에 이미 알파가 있으면 크로마키를 건너뛴다")
     a = ap.parse_args()
 
     src = Image.open(os.path.expanduser(a.src)).convert("RGBA")
-    k = guess_key(src)
-    print(f"소스 {src.size} / 추정 배경색 #{k[0]:02x}{k[1]:02x}{k[2]:02x}")
-
-    keyed = key_out(src, k)
-    # 스필 제거: 프린지 보정만으로는 반투명 경계에 배경색 성분이 조금 남는다.
-    # 고해상도 단계에서 알파를 2px 침식하면 스필 픽셀이 통째로 날아간다
-    # (1254px 기준 0.16%라 실루엣 변화는 안 보인다).
-    r_, g_, b_, a_ = keyed.split()
-    keyed = Image.merge("RGBA", (r_, g_, b_, a_.filter(ImageFilter.MinFilter(5))))
+    if a.no_key:
+        # ★이미 투명 배경인 원화는 크로마키를 돌리면 안 된다. 모서리가 투명이라 배경색이
+        #   검정으로 추정되고, 그림의 어두운 부분이 통째로 지워진다(2026-08-11).
+        print(f"소스 {src.size} / 크로마키 생략(알파 사용)")
+        keyed = src
+    else:
+        k = guess_key(src)
+        print(f"소스 {src.size} / 추정 배경색 #{k[0]:02x}{k[1]:02x}{k[2]:02x}")
+        keyed = key_out(src, k)
+        # 스필 제거: 프린지 보정만으로는 반투명 경계에 배경색 성분이 조금 남는다.
+        # 고해상도 단계에서 알파를 2px 침식하면 스필 픽셀이 통째로 날아간다
+        # (1254px 기준 0.16%라 실루엣 변화는 안 보인다).
+        r_, g_, b_, a_ = keyed.split()
+        keyed = Image.merge("RGBA", (r_, g_, b_, a_.filter(ImageFilter.MinFilter(5))))
     bbox = keyed.getbbox()
     if bbox:
         keyed = keyed.crop(bbox)                        # 투명 여백 제거 → 아이콘이 칸을 꽉 채움
@@ -111,11 +148,31 @@ def main():
                 sp[x, y] = (min(255, int(rr * f)), min(255, int(gg * f)),
                             min(255, int(bb * f)), aa)
     small = small.filter(ImageFilter.UnsharpMask(radius=1, percent=70, threshold=2))
+    if a.pixel_grid:
+        if a.pixel_grid > a.size or a.size % a.pixel_grid:
+            ap.error("--pixel-grid는 --size의 약수여야 합니다")
+        # ImageGen 원화의 연속 색/반투명 경계를 실제 인벤 픽셀 문법으로 정리한다.
+        # 등급별 원본 크기는 유지하되(B 32→128, A 64→256, S 128→512),
+        # 논리 격자의 한 픽셀은 nearest 확대 후에도 정확히 같은 색으로 남는다.
+        grid = small.resize((a.pixel_grid, a.pixel_grid), Image.Resampling.LANCZOS)
+        alpha = grid.getchannel("A").point(lambda v: 255 if v >= 128 else 0)
+        rgb = grid.convert("RGB")
+        rp = rgb.load()
+        for y in range(a.pixel_grid):
+            for x in range(a.pixel_grid):
+                r0, g0, b0 = rp[x, y]
+                # 순수 검정 외곽선은 슬롯에서 뭉개지므로 청흑색으로 밀어 올린다.
+                if r0 < 8 and g0 < 8 and b0 < 8:
+                    rp[x, y] = (12, 18, 27)
+        rgb = rgb.quantize(colors=32, method=Image.Quantize.MEDIANCUT).convert("RGB")
+        grid = Image.merge("RGBA", (*rgb.split(), alpha))
+        small = grid.resize((a.size, a.size), Image.Resampling.NEAREST)
 
     out = os.path.join(OUT_DIR, f"{a.icon_id}.png")
     if os.path.exists(out):
         print(f"기존 {a.icon_id} {Image.open(out).size} 교체")
     small.save(out)
+    ensure_wiring(a.icon_id, a.type)
     print(f"저장: {out} ({a.size}x{a.size})")
 
 

@@ -21,7 +21,13 @@ set -euo pipefail
 RP="$HOME/development/barkan-resourcepack"
 KEY="$HOME/.ssh/oracle-mc.key"
 HOST="ubuntu@168.107.8.107"
-SERVED="/var/www/barkan/barkan-resourcepack.zip"
+# ★서빙 파일명을 박아 두지 말 것 — server.properties 의 resource-pack URL 이 권위다.
+#   2026-08-11: 다른 세션이 버전 붙인 파일명(...-20260810-2333.zip)으로 갈아탔는데 이 값이
+#   옛 이름에 박혀 있어, 몇 시간 동안 **아무도 안 보는 파일에 패치하고 있었다.**
+SERVED=$(ssh -i "$HOME/.ssh/oracle-mc.key" -o StrictHostKeyChecking=no ubuntu@168.107.8.107 \
+    'grep -oP "(?<=^resource-pack=).*" ~/mcserver/server.properties | sed "s|\\\\||g; s|.*/||"')
+SERVED="/var/www/barkan/${SERVED}"
+echo "▶ 서빙 파일: $SERVED"
 
 [ $# -ge 2 ] || { echo "사용: $0 <라벨> <경로> [경로 ...]"; exit 1; }
 LABEL="$1"; shift
