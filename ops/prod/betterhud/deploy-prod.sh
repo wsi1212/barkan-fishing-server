@@ -29,14 +29,15 @@ AGGRO_FONT="${AGGRO_FONT:-$HOME/development/barkan-resourcepack/assets/barkan/fo
 say() { echo; echo "── $* ──"; }
 
 say "0) 보내기 전 검사"
-# ★어그로체에는 ☀ ☁ ☂ ⚡ ❄ ≋ ☽ 같은 기호가 없다. 이 두 플래그를 끄면 그 글자가
-#   MC 기본 폰트로 폴백되는데, 폴백 글리프는 BetterHud 의 위치 인코딩이 없어서
-#   셰이더가 못 옮긴다 -> 그 글자만 화면 위 보스바 자리에 찍힌다(2026-08-10 실제 사고).
-for k in "merge-default-bitmap" "use-unifont"; do
-  grep -qE "^ *$k: *true" "$SRC/npc-dialogue-font.yml" \
-    || { echo "❌ npc-dialogue-font.yml 의 $k 가 true 가 아니다 — 기호가 보스바로 샌다"; exit 1; }
-done
-echo "  폰트 플래그 OK"
+# ★HUD 폰트가 참조하는 TTF 가 실제로 있는지 본다. 없으면 BetterHud 가 폰트를 못 구워
+#   글자가 통째로 사라지거나 기본 폰트로 폴백된다(폴백은 보스바 자리에 찍힌다).
+FONTFILE=$(grep -E "^ *file: *" "$SRC/npc-dialogue-font.yml" | head -1 | sed "s/.*file: *//")
+[ -f "$SRC/assets/fonts/$FONTFILE" ] \
+  || { echo "❌ assets/fonts/$FONTFILE 가 없다 — build_hud_font.py 를 먼저 돌릴 것"; exit 1; }
+# 기호는 폰트에 직접 넣었으므로 유니폰트 병합은 꺼져 있어야 한다(켜면 한글이 유니폰트가 된다).
+grep -qE "^ *use-unifont: *false" "$SRC/npc-dialogue-font.yml" \
+  || { echo "❌ use-unifont 가 true 다 — 한글이 유니폰트로 바뀐다"; exit 1; }
+echo "  폰트 OK ($FONTFILE)"
 
 say "1) 파일 전송"
 # ★★대화창 정의(npc-dialogue-{hud,layout,image}.yml)와 assets/dialogue 는 보내지 않는다.
@@ -47,7 +48,7 @@ say "1) 파일 전송"
 # ★COPYFILE_DISABLE=1 필수 — macOS 가 ._ AppleDouble 을 끼워넣는데, assets/ 에 들어가면
 #   BetterHud 가 그걸 이미지로 읽으려다 폰트가 깨진다.
 SEND=$(cd "$SRC" && ls status-*.yml place-*.yml npc-dialogue-font.yml 2>/dev/null)
-DIRS="assets/status"
+DIRS="assets/status assets/fonts"
 if [ "$WITH_DIALOGUE" = 1 ]; then
   SEND="$SEND $(cd "$SRC" && ls npc-dialogue-hud.yml npc-dialogue-layout.yml npc-dialogue-image.yml 2>/dev/null)"
   DIRS="$DIRS assets/dialogue"
@@ -83,6 +84,7 @@ cp /tmp/bhdeploy/*-hud.yml    \$BH/huds/    2>/dev/null || true
 cp /tmp/bhdeploy/*-layout.yml \$BH/layouts/ 2>/dev/null || true
 cp /tmp/bhdeploy/*-image.yml  \$BH/images/  2>/dev/null || true
 cp /tmp/bhdeploy/*-font.yml   \$BH/texts/   2>/dev/null || true
+mkdir -p \$BH/fonts && cp /tmp/bhdeploy/assets/fonts/*.ttf \$BH/fonts/ 2>/dev/null || true
 cp -r /tmp/bhdeploy/assets/* \$BH/assets/
 # 안전망: 대화창 정의를 실수로 덮었는지 확인한다(Codex 작업물은 1000개 이상이다)
 n=\$(grep -cE '^npc_dialogue' \$BH/huds/npc-dialogue-hud.yml 2>/dev/null || echo 0)
@@ -164,18 +166,11 @@ $SSH 'sudo systemctl stop mcserver || true
       until ~/mcserver/scripts/rcon.py list >/dev/null 2>&1; do sleep 5; done'
 
 say "9) 검증"
-$SSH 'echo "  서버   : $(systemctl is-active mcserver)"
-      echo "  CE설정 : $(grep -oE "[0-9a-f]{40}" ~/mcserver/plugins/CraftEngine/config.yml|head -1)"
-      echo "  서버팩 : $(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|cut -c1-40)"
-      [ "$(grep -oE "[0-9a-f]{40}" ~/mcserver/plugins/CraftEngine/config.yml|head -1)" = "$(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|cut -c1-40)" ] || { echo "  ❌ CE설정과 서버팩 불일치"; exit 1; }
-      echo "  메인팩 : $(~/mcserver/scripts/resourcepack-guard.sh --check 2>&1|tail -1)"
-      echo "  예외   : $(grep -icE exception ~/mcserver/logs/latest.log)"
-      BUILD_FONTS=$(unzip -Z1 ~/mcserver/plugins/BetterHud/build.zip | grep -c "^assets/betterhud/font/.*\\.json$")
-      PACK_FONTS=$(unzip -Z1 ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip | grep -c "^assets/betterhud/font/.*\\.json$")
-      unzip -Z1 ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip | grep -qx "assets/betterhud/font/default.json" \\
-        || { echo "  ❌ 배포팩에 BetterHud 기본 폰트가 없음"; exit 1; }
-      [ "$PACK_FONTS" -ge "$BUILD_FONTS" ] || { echo "  ❌ 배포팩 폰트 엔트리 부족: build=$BUILD_FONTS pack=$PACK_FONTS"; exit 1; }
-      echo "  폰트 대조 : OK 엔트리 확인 (build=$BUILD_FONTS pack=$PACK_FONTS; 보호 ZIP이라 JSON 바이트 대조 생략)"'
+# ★검증은 verify_pack.py 로 뺐다. 배포 스크립트 안에 파이썬을 heredoc 으로 끼웠더니
+#   셸 인용이 꼬여 검증문이 깨진 채 배포가 "성공"으로 끝난 적이 있다(2026-08-10).
+scp -q -i "$HOME/.ssh/oracle-mc.key" "$SRC/verify_pack.py" ubuntu@168.107.8.107:/tmp/verify_pack.py
+$SSH "python3 /tmp/verify_pack.py"
+echo "  메인팩 : $($SSH '~/mcserver/scripts/resourcepack-guard.sh --check 2>&1|tail -1')"
 say "10) ★재시작 후 sha1 재확인"
 # 쓰는 시점에만 검사하면 그 뒤에 값이 망가져도 못 잡는다 — 2026-08-10 잡종 sha1 이
 # 남아 가구팩 다운로드가 계속 실패했는데 배포는 성공으로 끝났었다.

@@ -1,16 +1,17 @@
 # HUD 전용 폰트. 대화창·상태판·위치판이 전부 이걸 쓴다.
 #
-# ★★merge-default-bitmap / use-unifont 를 끄지 말 것.
-#   어그로체(aggro_medium.ttf)에는 3553자만 있고 ☀ ☁ ☂ ⚡ ❄ ≋ ☽ 같은 기호가 없다.
-#   폰트에 없는 글자는 MC 기본 폰트로 폴백되는데, **폴백 글리프는 BetterHud 의 위치
-#   인코딩(거대 음수 ascent)을 안 달고 있어서 셰이더가 못 옮긴다** — 그 글자만
-#   화면 위 보스바 자리에 덩그러니 찍힌다. 2026-08-10 실제로 그 증상이 났다.
-#   두 옵션을 켜두면 없는 글자를 이 폰트 안으로 흡수해서 위치가 같이 따라간다.
+# ★★aggro_medium_hud.ttf 는 build_hud_font.py 가 만든다(원본 어그로체 + 기호 7자).
+#   손으로 만들지 말고 그 스크립트를 돌릴 것.
 #
-# scale 은 배율 1.0 기준 raster 픽셀 크기다. 레이아웃의 text scale 이 곱해져
-# 크기 단계별로 5/7/8/10px 로 각각 새로 래스터된다(비트맵 확대가 아니라 1:1 이라 또렷하다).
+# ★merge-default-bitmap / use-unifont 를 켜지 말 것.
+#   켜면 한글까지 유니폰트로 바뀌어 글꼴이 통째로 달라진다(2026-08-10 실측 확인).
+#   원래 이 둘을 켠 이유는 어그로체에 ☀ ☁ ☂ ⚡ ❄ ≋ ☽ 가 없어서였는데,
+#   그건 이제 폰트에 직접 넣어 해결했다. 즉 켤 이유가 사라졌다.
+#   ※폰트에 없는 글자는 MC 기본 폰트로 폴백되고, 폴백 글리프는 BetterHud 의 위치
+#     인코딩이 없어 셰이더가 못 옮긴다 -> 그 글자만 보스바 자리에 찍힌다.
+#     HUD 에 새 기호를 쓰려면 반드시 build_hud_font.py 에 먼저 추가할 것.
 dialogue_font:
-  file: aggro_medium.ttf
+  file: aggro_medium_hud.ttf
   scale: 16
-  merge-default-bitmap: true
-  use-unifont: true
+  merge-default-bitmap: false
+  use-unifont: false
