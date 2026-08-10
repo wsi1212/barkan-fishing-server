@@ -40,16 +40,13 @@ PATTERNS = [
     "barkan_icon/catalog_*.png",
 ]
 
-# ★임계값 두 개 + 바깥 판정, 세 조건을 모두 만족하는 자리에만 칠한다.
-#   2026-08-06 실패 두 번에서 나온 규칙이다:
-#   ① 반투명(발광 오라·반짝임)을 덮었더니 후광 둘레에 검은 테가 생겼다 → ALPHA_EMPTY
-#   ② 형체 **내부**의 미세 투명 픽셀(디더링)까지 칠해져 구슬이 점박이가 됐다 → 바깥 판정
-#      (테두리에서 투명 영역을 타고 도달 가능한 곳만 '바깥'이다)
-#   ③ 흐릿한 오라가 외곽선을 유발해 금빛 소용돌이에 검은 후광이 생겼다 → ALPHA_SOLID 를
-#      높여 **진하게 불투명한 픽셀만** 외곽선의 씨앗으로 삼는다. 오라에 둘러싸인 본체는
-#      바깥과 맞닿지 않으므로 선이 안 생기고, 오라 자체가 배경과 분리해준다.
-ALPHA_SOLID = 200
-ALPHA_EMPTY = 24
+# ★손에 드는 generated 아이템은 반투명 픽셀을 절대 보존하지 않는다.
+# Minecraft는 layer0의 반투명 가장자리도 얇은 3D 옆면으로 만들어, 비스듬히 들면
+# 검은 '구멍/찌꺼기'로 보인다. 먼저 원화를 1-bit alpha로 고정하고 그 마스크에서만
+# 외곽선을 만든다. 후광·연기 같은 반투명 FX는 인벤 손아이콘이 아니라 별도 애니/GUI
+# 텍스처로만 허용한다.
+ALPHA_CUTOFF = 128
+ALPHA_EMPTY = 1
 OUTLINE = (0, 0, 0, 255)
 
 
@@ -86,12 +83,26 @@ def outside_mask(alpha, W, H):
     return out
 
 
+def binary_alpha(im):
+    """손에 드는 아이콘의 알파를 0/255만 남긴다.
+
+    반투명 프린지를 남겨 둔 채 외곽선을 칠하면 해당 픽셀이 '이미 내용물'로 취급돼
+    검은 테두리가 끊긴다. 그 끊긴 반투명 조각이 인게임에서 검은 압출면/투명 구멍이
+    되는 것이므로, outline 이전에 반드시 이 단계가 선행돼야 한다.
+    """
+    out = im.convert("RGBA").copy()
+    a = out.getchannel("A").point(lambda v: 255 if v >= ALPHA_CUTOFF else 0)
+    out.putalpha(a)
+    return out
+
+
 def add_outline(im, t):
-    """진하게 불투명한 실루엣 **바깥**에만 칠한다 — 원본 픽셀은 절대 건드리지 않는다."""
+    """이진 실루엣 **바깥**에만 검은 테두리를 칠한다."""
+    im = binary_alpha(im)
     W, H = im.size
     alpha = im.getchannel("A")
-    # 씨앗: 진한 불투명 픽셀만. MaxFilter 로 t 만큼 팽창(파이썬 루프보다 훨씬 빠르다).
-    seed = alpha.point(lambda v: 255 if v >= ALPHA_SOLID else 0)
+    # 씨앗은 이미 0/255인 불투명 실루엣 전체다.
+    seed = alpha
     grown = seed.filter(ImageFilter.MaxFilter(2 * t + 1))
     gp, sp, apx = grown.load(), seed.load(), alpha.load()
     outside = outside_mask(alpha, W, H)
@@ -103,9 +114,11 @@ def add_outline(im, t):
             if not outside[row + x]:
                 continue                    # 형체 내부 구멍 — 건드리지 않는다
             if apx[x, y] >= ALPHA_EMPTY:
-                continue                    # 반투명 발광 — 원본 유지
+                continue
             if gp[x, y] and not sp[x, y]:
                 op[x, y] = OUTLINE
+    # 회귀 방지: generated 아이템의 최종 PNG에는 중간 알파가 단 하나도 있으면 안 된다.
+    assert not any(0 < a < 255 for a in out.getchannel("A").getdata())
     return out
 
 
@@ -119,6 +132,23 @@ def targets():
     return out
 
 
+def is_new_art(live, backup, fixed_t=None):
+    """live 가 backup 의 '외곽선 결과'가 아니면 새 그림으로 본다.
+
+    mtime 비교로는 못 가른다 — 외곽선을 입히면 live 가 항상 backup 보다 새 파일이 된다.
+    그래서 backup 으로 결과를 다시 만들어 live 와 바이트가 같은지 본다(같으면 파생물).
+    """
+    try:
+        src = Image.open(backup).convert("RGBA")
+        cur = Image.open(live).convert("RGBA")
+    except Exception:
+        return False
+    if src.size != cur.size:
+        return True
+    t = fixed_t or thickness(src.size[0])
+    return add_outline(src, t).tobytes() != cur.tobytes()
+
+
 def backup_path(p):
     return os.path.join(BACKUP, os.path.relpath(p, TEX))
 
@@ -127,10 +157,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--restore", action="store_true")
+    ap.add_argument("--only", action="append", default=[],
+                    help="상대 경로 또는 파일명으로 대상 제한(예: barkan_icon/catalog_rod_x.png)")
     ap.add_argument("--thickness", type=int, default=None, help="고정 두께(기본: 크기 비례)")
     a = ap.parse_args()
 
     files = targets()
+    if a.only:
+        wanted = set(a.only)
+        files = [p for p in files if os.path.relpath(p, TEX) in wanted or os.path.basename(p) in wanted]
+        if not files:
+            ap.error("--only와 일치하는 텍스처가 없습니다")
     if a.dry_run:
         by = {}
         for p in files:
@@ -152,17 +189,25 @@ def main():
         print(f"원복 {n}개")
         return
 
-    done = 0
+    done = refreshed = 0
     for p in files:
         b = backup_path(p)
         os.makedirs(os.path.dirname(b), exist_ok=True)
         if not os.path.exists(b):
             shutil.copy2(p, b)          # 첫 실행에서만 원본 보존
+        elif is_new_art(p, b, a.thickness):
+            # ★새 그림이 들어왔으면 백업을 갱신한다. 안 하면 낡은 백업에서 다시 만들어
+            #   **방금 넣은 새 아트를 옛 그림으로 되돌려 버린다**(2026-08-11 실제 사고:
+            #   초보자 낚싯대·작살이 조용히 옛 아이콘으로 복구됐다).
+            shutil.copy2(p, b)
+            refreshed += 1
         im = Image.open(b).convert("RGBA")   # ★항상 백업(원본)에서 생성 → 멱등
         t = a.thickness or thickness(im.size[0])
         add_outline(im, t).save(p)
         done += 1
-    print(f"외곽선 적용 {done}개 (원본 보존: {BACKUP})")
+    print(f"외곽선 적용 {done}개"
+          + (f" · 새 그림으로 백업 갱신 {refreshed}개" if refreshed else "")
+          + f" (원본 보존: {BACKUP})")
 
 
 if __name__ == "__main__":
