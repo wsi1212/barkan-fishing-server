@@ -37,6 +37,8 @@ PLATES = {
     "dexmain":   (f"{DEX}/dex-menu.png",        (704, 672), [], []),
     "dextab":    (f"{DEX}/dex-book-tabs.png",   (704, 888), [], []),
     "dexisland": (f"{DEX}/dex-book-island.png", (704, 744), [], []),
+    # 분해창 — 납품본(bg_source_rebuild)은 손댈 게 없고 「갈기」 버튼 위치만 옮긴다(SHIFTS).
+    "disassemble": (f"{HERE}/src/disassemble/bg_source_rebuild.png", (704, 888), [], []),
     # NPC 대화 창 — 칸 오차 ≤3px 이라 캔버스만 맞추면 된다.
     "npcdialog": (f"{CODEX}/019fcffa-2416-7661-aab4-db32e8a6de57/"
                   "exec-e95e2996-94c5-43b7-a73c-8e36d792de6e.png", (704, 744), [], []),
@@ -56,7 +58,13 @@ SPINE_FILL = {"dexfish": ((3, 2), 4, [0, 1, 2, 3, 4])}
 # ★2px(=0.5 GUI px) 라도 아이콘이 액자 구멍을 꽉 채우면 눈에 띈다. 구멍이 63px 인데
 #   아이콘이 64px 이라 여유가 없어서, 2px 밀리면 위는 테두리에 걸치고 아래에 틈이 생긴다.
 #   (2026-08-10 유저가 확대해서 잡아냄 — 겹쳐보기 그림으로는 안 보였다.)
-SHIFTS = {"npcdialog": [((160, 272, 546, 368), 0, -2)]}   # 선택지 놋쇠 판이 2px 낮았다
+SHIFTS = {
+    "npcdialog": [((160, 272, 546, 368), 0, -2)],   # 선택지 놋쇠 판이 2px 낮았다
+    # ★분해창 「갈기」 버튼은 셀49 중심보다 10px 아래인데 **옮기지 않는다.** 버튼 위 9px 가
+    #   초록 입력판 아래 테두리와 붙어 있어서, 버튼을 담을 만큼 상자를 잡으면 그 테두리까지
+    #   끌려 올라가 판 밑에 검은 홈이 생겼다(2026-08-11 실측). 10px = 2.5 GUI px 라 두는 게
+    #   손해가 적다.
+}
 
 # 구멍 조이기: 액자 구멍이 아이콘(64px)보다 크면 그 틈만큼 액자 안쪽 테두리를 밀어 넣는다.
 # ★2px 옮겨 중심을 맞춰도 구멍이 65px 이면 남는 1px 이 어느 한쪽에 몰린다 — 옮기기로는
@@ -133,6 +141,10 @@ def main():
                 sy = y1 if dy < 0 else y0 + dy
                 im.paste(im.crop((x0, sy, x1, sy + abs(dy))),
                          (x0, y1 + dy if dy < 0 else y0))
+            if dx:
+                sx = x1 if dx < 0 else x0 + dx
+                im.paste(im.crop((sx, y0, sx + abs(dx), y1)),
+                         (x1 + dx if dx < 0 else x0, y0))
             im.paste(piece, (x0 + dx, y0 + dy))
 
         for slot in SEAL.get(name, []):
