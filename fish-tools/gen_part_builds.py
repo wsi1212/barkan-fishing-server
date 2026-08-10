@@ -255,6 +255,28 @@ NEW_NAME = {
 }
 # 삭제 허용 (개발자 부품)
 RETIRED_PREFIX = "개발자"
+# Legacy dive-shop reels deliberately sit outside the normal village grid.  Keep their
+# canonical source specs here so a regeneration preserves them while applying the
+# global 2026-08-07 XP-stat half multiplier exactly once.
+PRESERVE_PARTS = {
+    # ★초보자 4종 — 조합대 R00b~e 가 주는 스폰마을 입문 부품. 사다리 격자(GRID) 밖이라
+    #   여기 박아 둔다. 스탯은 레시피 로어에 적힌 값과 같아야 한다(로어=parts.json 관례).
+    #   이게 없던 동안 네 개는 그냥 바닐라 아이템이라 **장비로 인식되지 않았다**(2026-08-11 제보).
+    ("릴", "초보자 릴"): "초보자 릴|E|0|60|도망감소:5|1|스폰마을",
+    ("줄", "초보자 줄"): "초보자 줄|E|0|60|크리배율:20|1|스폰마을",
+    ("바늘", "초보자 바늘"): "초보자 바늘|E|0|60|등급업:1|1|스폰마을",
+    ("찌", "초보자 찌"): "초보자 찌|E|0|60|크기:2|1|스폰마을",
+    ("릴", "잠수부 릴"): "잠수부 릴|B|80000|220|경험치:30,행운:7|10|잠수상점",
+    ("릴", "심해 잠수부 릴"): "심해 잠수부 릴|A|880000|340|등급업:7,경험치:45,판매보너스:12,더블찬스:6,행운:9|30|잠수상점",
+    ("줄", "잠수부 줄"): "잠수부 줄|B|80000|220|도망감소:16,등급업:3,행운:7|10|잠수상점",
+    ("줄", "심해 잠수부 줄"): "심해 잠수부 줄|A|935000|340|도망감소:24,등급업:7,판매보너스:12,더블찬스:6,행운:9|30|잠수상점",
+    ("바늘", "잠수부 바늘"): "잠수부 바늘|B|80000|220|크리배율:4,크리확률:14,행운:7|10|잠수상점",
+    ("바늘", "심해 잠수부 바늘"): "심해 잠수부 바늘|A|990000|340|크리배율:5,크리확률:24,판매보너스:12,더블찬스:6,행운:9|30|잠수상점",
+    ("미끼", "잠수부 미끼"): "잠수부 미끼|B|1200|220|등급업:3,행운:22|10|잠수상점",
+    ("미끼", "심해 잠수부 미끼"): "심해 잠수부 미끼|A|12000|340|등급업:7,판매보너스:12,더블찬스:6,행운:30|30|잠수상점",
+    ("찌", "잠수부 찌"): "잠수부 찌|B|80000|220|등급업:8,행운:7|10|잠수상점",
+    ("찌", "심해 잠수부 찌"): "심해 잠수부 찌|A|1090000|340|등급업:14,판매보너스:12,더블찬스:6,행운:9|30|잠수상점",
+}
 
 STAT_ORDER = ["도망감소", "크리배율", "등급업", "크리확률", "크기", "경험치",
               "판매보너스", "더블찬스", "트리플찬스", "행운"]
@@ -319,6 +341,10 @@ def stats_for(ptype, grade, build, shape, hybrid=None, village=None):
         cc = CROSS_CAP.get(ax)
         if cc and grade in cc:
             st[ax] = min(st[ax], cc[grade])
+    # 2026-08-07 level-pacing decision: equipment XP contribution is halved.
+    # Keep this in the generator so parts.json is never hand-tuned out of sync.
+    if "경험치" in st:
+        st["경험치"] /= 2
     return st
 
 
@@ -444,16 +470,26 @@ def main():
         for n in list(parts[t]):
             if (t, n) in owned:
                 continue
+            if (t, n) in PRESERVE_PARTS:
+                continue
             if not n.startswith(RETIRED_PREFIX):
                 raise SystemExit(f"카탈로그에 없는 기존 부품(이름 유지 원칙 위반): {t}/{n}")
             del parts[t][n]
             removed.append(f"{t}/{n}")
-    P["order"] = [e for e in order if not (e[0] in TYPES and (e[0], e[1]) not in owned)]
+    # ★보존 부품(PRESERVE_PARTS)도 order 에 남겨야 한다 — owned 에만 없다고 걸러내면
+    #   parts 에는 있는데 순서 목록에서 빠져 목록·상점에서 사라진다.
+    P["order"] = [e for e in order
+                  if not (e[0] in TYPES and (e[0], e[1]) not in owned
+                          and (e[0], e[1]) not in PRESERVE_PARTS)]
     order = P["order"]
     for c in cat:
         parts[c["type"]][c["name"]] = "|".join([
             c["name"], c["grade"], str(c["price"]), str(c["dur"]),
             stat_str(c["st"]), str(c["lv"]), c["village"]])
+    for (ptype, name), value in PRESERVE_PARTS.items():
+        parts[ptype][name] = value
+        if [ptype, name] not in order:
+            order.append([ptype, name])
     have = {(t, n) for t, n in order}
     for c in cat:
         if (c["type"], c["name"]) not in have:
