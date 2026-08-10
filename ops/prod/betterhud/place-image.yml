@@ -4,15 +4,23 @@
 place_plate_sm:
   type: single
   file: status/gen/place-plate-sm.png
+  setting:
+    scale: 0.5
 
 place_plate_md:
   type: single
   file: status/gen/place-plate-md.png
+  setting:
+    scale: 0.66
 
 place_plate_lg:
   type: single
   file: status/gen/place-plate-lg.png
+  setting:
+    scale: 0.8533
 
 place_plate_xl:
   type: single
   file: status/gen/place-plate-xl.png
+  setting:
+    scale: 1.0

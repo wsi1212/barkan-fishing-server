@@ -1,3 +1,16 @@
+# HUD 전용 폰트. 대화창·상태판·위치판이 전부 이걸 쓴다.
+#
+# ★★merge-default-bitmap / use-unifont 를 끄지 말 것.
+#   어그로체(aggro_medium.ttf)에는 3553자만 있고 ☀ ☁ ☂ ⚡ ❄ ≋ ☽ 같은 기호가 없다.
+#   폰트에 없는 글자는 MC 기본 폰트로 폴백되는데, **폴백 글리프는 BetterHud 의 위치
+#   인코딩(거대 음수 ascent)을 안 달고 있어서 셰이더가 못 옮긴다** — 그 글자만
+#   화면 위 보스바 자리에 덩그러니 찍힌다. 2026-08-10 실제로 그 증상이 났다.
+#   두 옵션을 켜두면 없는 글자를 이 폰트 안으로 흡수해서 위치가 같이 따라간다.
+#
+# scale 은 배율 1.0 기준 raster 픽셀 크기다. 레이아웃의 text scale 이 곱해져
+# 크기 단계별로 5/7/8/10px 로 각각 새로 래스터된다(비트맵 확대가 아니라 1:1 이라 또렷하다).
 dialogue_font:
+  file: aggro_medium.ttf
+  scale: 16
   merge-default-bitmap: true
   use-unifont: true

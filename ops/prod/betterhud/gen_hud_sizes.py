@@ -76,6 +76,15 @@ HEAD = """# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고
 #   아이콘처럼 작은 건 멀쩡해서 더 헷갈렸다. 파일을 나누면 그 경로를 아예 안 탄다.
 GEN = "gen"          # assets/<원본폴더>/gen/ 에 산출
 
+# ★HD 배수. 파일을 "표시 크기 x HD" 로 굽고 setting.scale 로 1/HD 만큼 줄여 표시한다.
+#   MC 는 텍스처를 원본 해상도로 들고 있다가 표시 크기에 맞춰 그리므로, GUI 배율이 높을수록
+#   원본 픽셀이 그대로 살아 선명해진다(HD 폰트 리소스팩과 같은 원리).
+#   ★2026-08-10 실측으로 확정: 원본 496x288 을 height 72 로 표시해도 텍스처가 안 줄어든다.
+#   ★★단 "같은 png 를 두 정의가 참조하면 먼저 나온 하나만 등록된다"(전역 파일 단위 등록).
+#     그래서 HD 로 가더라도 단계마다 파일은 따로 있어야 한다. 한 파일로 배율만 달리하면
+#     4단계 중 1개만 팩에 들어간다 — 예전에 판이 사라졌던 진짜 원인이 이것이다.
+HD = 4
+
 
 def scaled_file(folder, fname, sid, s):
     """원본을 s 배로 줄여 assets/<folder>/gen/<이름>-<단계>.png 로 저장하고 상대경로를 돌려준다."""
@@ -86,11 +95,15 @@ def scaled_file(folder, fname, sid, s):
     out = f"{stem}-{sid}.png"
     with Image.open(src) as im:
         im = im.convert("RGBA")
-        w, h = max(1, round(im.width * s)), max(1, round(im.height * s))
-        im.resize((w, h), Image.LANCZOS).save(os.path.join(outdir, out))
+        w, h = max(1, round(im.width * s)), max(1, round(im.height * s))   # 표시 크기
+        # 표시 크기의 HD 배로 굽는다. 원본보다 크게는 만들지 않는다(없는 정보는 못 만든다).
+        k = min(HD, max(1.0, im.width / max(1, w)))
+        im.resize((max(1, round(w * k)), max(1, round(h * k))), Image.LANCZOS).save(
+            os.path.join(outdir, out))
     assert out == out.lower(), out      # 대문자 하나면 폰트 전체가 거부된다
-    assert w <= 160, f"{out} 폭 {w} — 160 넘으면 글리프 아틀라스에서 조용히 사라진다"
-    return f"{folder}/{GEN}/{out}", w, h
+    # ★160 제한은 "표시 폭"에 걸린다(원본 496 을 표시 124 로 쓰는 건 실측으로 통과).
+    assert w <= 160, f"{out} 표시폭 {w} — 160 넘으면 글리프 아틀라스에서 조용히 사라진다"
+    return f"{folder}/{GEN}/{out}", w, h, round(1.0 / k, 4)
 
 
 def png(name, s=1.0):
@@ -117,15 +130,17 @@ def build_status():
         # align:left · offset:center 이므로 왼쪽끝 = 앵커x - max/2 + x, max = 판 폭.
         # 앵커는 화면 오른쪽 끝이라 "오른쪽에서 N px" = x = W/2 - N.
         base_x = W / 2 - (MARGIN_X + W)
-        f, _, _ = scaled_file("status", STATUS["plate"][0], sid, s)
-        img.append(f"status_plate_{sid}:\n  type: single\n  file: {f}\n")
+        f, _, _, sc = scaled_file("status", STATUS["plate"][0], sid, s)
+        img.append(f"status_plate_{sid}:\n  type: single\n  file: {f}\n"
+                   f"  setting:\n    scale: {sc}\n")
         lay_lines = [f"    1:\n      name: status_plate_{sid}\n      x: {base_x:g}\n      y: {MARGIN_Y}\n"]
         n = 2
         for i, icon in enumerate(STATUS["icons"]):
             key = f"status_icon_{i}_{sid}"
             iw, ih = png(icon, s)
-            fi, _, _ = scaled_file("status", icon, sid, s)
-            img.append(f"{key}:\n  type: single\n  file: {fi}\n")
+            fi, _, _, sc = scaled_file("status", icon, sid, s)
+            img.append(f"{key}:\n  type: single\n  file: {fi}\n"
+                       f"  setting:\n    scale: {sc}\n")
             center = MARGIN_Y + STATUS["rows"][i] * s
             lay_lines.append(f"    {n}:\n      name: {key}\n"
                              f"      x: {base_x + round(STATUS['icon_x'] * s):g}\n"
@@ -135,14 +150,15 @@ def build_status():
         bh = png(empty, s)[1]
         bar_center = MARGIN_Y + STATUS["rows"][1] * s
         bar_y = round(bar_center - round(bh * s) / 2)
-        fe, _, _ = scaled_file("status", empty, sid, s)
-        img.append(f"exp_bar_empty_{sid}:\n  type: single\n  file: {fe}\n")
+        fe, _, _, sce = scaled_file("status", empty, sid, s)
+        img.append(f"exp_bar_empty_{sid}:\n  type: single\n  file: {fe}\n"
+                   f"  setting:\n    scale: {sce}\n")
         # ★listener 는 리스너가 준 0.0~1.0 만큼 그림을 잘라 그린다(바닐라 체력바와 같은 방식).
         #   barkan_exp 는 BlockShip(StatusHud)이 BetterHud API 로 등록한다 — 그게 없으면 파싱 실패.
-        ff, _, _ = scaled_file("status", fill, sid, s)
+        ff, _, _, scf = scaled_file("status", fill, sid, s)
         img.append(f"exp_bar_{sid}:\n  type: listener\n  file: {ff}\n"
                    f"  split: {split}\n  split-type: left\n"
-                   f"  setting:\n    listener:\n      class: barkan_exp\n")
+                   f"  setting:\n    scale: {scf}\n    listener:\n      class: barkan_exp\n")
         for key in (f"exp_bar_empty_{sid}", f"exp_bar_{sid}"):
             lay_lines.append(f"    {n}:\n      name: {key}\n"
                              f"      x: {base_x + round(bx * s):g}\n      y: {bar_y}\n")
@@ -171,8 +187,9 @@ def build_place():
     for (sid, label), s in zip(SIZES, SCALE_STATUS):
         W = round(pw * s)
         base_x = W / 2 + MARGIN_X          # 앵커가 화면 왼쪽 끝이라 "왼쪽에서 N px" = x = W/2 + N
-        f, _, _ = scaled_file("status", PLACE["plate"][0], sid, s)
-        img.append(f"place_plate_{sid}:\n  type: single\n  file: {f}\n")
+        f, _, _, sc = scaled_file("status", PLACE["plate"][0], sid, s)
+        img.append(f"place_plate_{sid}:\n  type: single\n  file: {f}\n"
+                   f"  setting:\n    scale: {sc}\n")
         txt = []
         for i, var in enumerate(PLACE["texts"]):
             center = MARGIN_Y + PLACE["rows"][i] * s
@@ -209,8 +226,9 @@ def build_dialogue():
         lay_lines, n = [], 1
         for i, f in enumerate(D["slices"]):
             key = f"dialogue_panel_{i+1}_{sid}"
-            fp, _, _ = scaled_file("dialogue", f, sid, s)
-            img.append(f"{key}:\n  type: single\n  file: {fp}\n")
+            fp, _, _, sc = scaled_file("dialogue", f, sid, s)
+            img.append(f"{key}:\n  type: single\n  file: {fp}\n"
+                       f"  setting:\n    scale: {sc}\n")
             # ★조각은 "i x 실제 조각폭(W)" 으로 놓아야 한다. round(i x 110 x 배율) 로 잡으면
             #   폭은 round(110 x 배율) 하나인데 위치만 따로 반올림돼 조각 사이가 1px 벌어진다
             #   (0.75배: 위치 0/82/165/248 인데 폭은 82 -> 3·4번째에서 틈).
@@ -222,14 +240,15 @@ def build_dialogue():
             n += 1
         for key, (f, bx, by, sc) in (("portrait", D["portrait"]), ("nameplate", D["nameplate"])):
             k = f"npc_dialogue_{key}_{sid}"
-            fp, _, _ = scaled_file("dialogue", f, sid, sc * s)
+            fp, _, _, back = scaled_file("dialogue", f, sid, sc * s)
             # ★투명 왼쪽 여백은 BetterHud 가 잘라내고 x 에 되돌려 더한다 -> 그만큼 미리 빼둔다.
             #   ★축소 "후"의 여백을 재야 한다(원본 여백 x 배율 로 계산하면 반올림이 어긋난다).
             with Image.open(os.path.join(ART, "dialogue", GEN, os.path.basename(fp))) as im:
                 box = im.split()[3].getbbox() or (0, 0, im.width, im.height)
-            img.append(f"{k}:\n  type: single\n  file: {fp}\n")
+            img.append(f"{k}:\n  type: single\n  file: {fp}\n"
+                       f"  setting:\n    scale: {back}\n")
             lay_lines.append(f"    {n}:\n      name: {k}\n"
-                             f"      x: {px(bx, trim=box[0]):g}\n"
+                             f"      x: {px(bx, trim=round(box[0] * back)):g}\n"
                              f"      y: {top + round(by * s)}\n")
             n += 1
         lx, ly, lsc, lines, lw, sw = D["line"]

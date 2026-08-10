@@ -13,14 +13,16 @@
 #
 # 설치 후에는 서버를 재시작해야 한다. BetterHud가 build.zip을 다시 만들고,
 # CraftEngine이 그걸 자기 리소스팩에 합쳐서 클라이언트로 보낸다.
-# (CraftEngine 팩이 갱신되지 않으면 `craftengine reload all` 로 재생성)
+# (CraftEngine 팩이 갱신되지 않으면 `ce reload all` 로 재생성)
 set -e
 
 SRC="$(cd "$(dirname "$0")" && pwd)"
 DEV_BH="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BetterHud"
 BH="${1:-$DEV_BH}"
+AGGRO_FONT="${AGGRO_FONT:-/Users/user/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf}"
 
 [ -d "$BH" ] || { echo "❌ BetterHud 폴더가 없다: $BH" >&2; exit 1; }
+[ -f "$AGGRO_FONT" ] || { echo "❌ Aggro 폰트를 찾을 수 없다: $AGGRO_FONT" >&2; exit 1; }
 
 install_one() { # <원본파일> <대상폴더>
   mkdir -p "$2"
@@ -36,13 +38,28 @@ for set in npc-dialogue status place; do
   [ -f "$SRC/$set-font.yml" ]   && install_one "$SRC/$set-font.yml"   "$BH/texts"
 done
 
+echo "[1.5] 서버 기본 폰트 설치"
+install -m 0644 "$AGGRO_FONT" "$BH/aggro_medium.ttf"
+mkdir -p "$BH/fonts"
+install -m 0644 "$AGGRO_FONT" "$BH/fonts/aggro_medium.ttf"
+sed -i '' -E 's|^default-font-name:.*$|default-font-name: aggro_medium.ttf|' "$BH/config.yml"
+cat > "$BH/font.yml" <<'EOF'
+scale: 16
+height: 8
+ascent: 7
+merge-default-bitmap: false
+use-unifont: false
+EOF
+
 echo "[2] 그림 설치"
 # 상태 HUD 아트는 gui-forge/build_status_hud.py 산출물이다. 손으로 고치지 말고 다시 구울 것.
 for dir in dialogue status; do
   [ -d "$SRC/assets/$dir" ] || continue
   mkdir -p "$BH/assets/$dir"
-  cp "$SRC/assets/$dir/"*.png "$BH/assets/$dir/"
-  ls "$BH/assets/$dir" | sed "s|^|   → $dir/|"
+  # gen/ 아래의 크기별 산출물도 포함한다. 1단계 복사만 하면 YAML이 참조하는
+  # dialogue/gen·status/gen 파일이 빠져 BetterHud가 이미지를 조용히 누락한다.
+  cp -R "$SRC/assets/$dir/." "$BH/assets/$dir/"
+  find "$BH/assets/$dir" -type f -print | sed "s|$BH/assets/$dir/|   → $dir/|"
 done
 
 # ★2026-08-08: BetterHud 기본 제공 정의를 전부 지웠다(되돌리지 않음).
@@ -66,10 +83,14 @@ missing=0
 for f in $(grep -hoE 'file: *(dialogue|status)/[^ ]+\.png' "$SRC"/*-image.yml | awk '{print $2}' | sort -u); do
   [ -f "$BH/assets/$f" ] || { echo "   ❌ 누락: assets/$f"; missing=1; }
 done
-# 한글이 [] 네모로 깨지는 사고의 직접 원인 — unifont 병합 플래그가 살아있는지 본다.
-grep -q 'use-unifont: *true' "$BH/texts/npc-dialogue-font.yml" \
-  || { echo "   ❌ use-unifont 가 꺼져 있다 — 한글이 전부 네모로 나온다"; missing=1; }
-[ "$missing" = "0" ] && echo "   ✅ 참조 그림·unifont 설정 정상"
+# HUD/보스바가 서버와 같은 Aggro Medium을 쓰는지 확인한다.
+grep -q 'file: *aggro_medium\.ttf' "$BH/texts/npc-dialogue-font.yml" \
+  || { echo "   ❌ HUD 폰트가 Aggro Medium이 아니다"; missing=1; }
+grep -q 'merge-default-bitmap: *false' "$BH/font.yml" \
+  || { echo "   ❌ 보스바가 BetterHud 기본 폰트를 계속 사용한다"; missing=1; }
+[ -f "$BH/aggro_medium.ttf" ] && [ -f "$BH/fonts/aggro_medium.ttf" ] \
+  || { echo "   ❌ Aggro Medium TTF 설치 누락"; missing=1; }
+[ "$missing" = "0" ] && echo "   ✅ 참조 그림·Aggro Medium 폰트 설정 정상"
 
 echo
 echo "✅ 설치 완료. 이제 서버를 재시작할 것:"
@@ -96,7 +117,7 @@ cat <<'NOTE'
 
   1) 정지 → 파일 교체 → BetterHud/.cache/*.txt·build.zip 삭제 → 기동
   2) ~/mcserver/scripts/betterhud-26-1-fix.sh      # 26.1 셰이더 다시 뽑기
-  3) craftengine reload all
+  3) ce reload all
   4) generated/resource_pack.zip → barkan-furniture.zip 이름으로 gh release upload --clobber
   5) 공개 URL sha1 확인 → CraftEngine/config.yml 의 external sha1 갱신
   6) ★재시작                                       # 없으면 클라가 새 팩을 안 받는다
