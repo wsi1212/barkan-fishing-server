@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#061323">
+  <meta name="description" content="바르칸 열도 공식 랭킹">
+  <title>명예의 전당 — 바르칸 열도</title>
+  <style>
+    :root{--ink:#061323;--deep:#081b2e;--panel:#0d2940;--foam:#edf8f8;--mist:#abc4ce;--tide:#8ce2e0;--gold:#ffd170;--silver:#c8d7dd;--bronze:#d99762;--line:rgba(213,240,242,.16)}
+    *{box-sizing:border-box} html{background:var(--ink)} body{min-width:320px;margin:0;color:var(--foam);font:15px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(920px 560px at 50% -170px,#1c5870 0%,rgba(13,49,70,.28) 41%,transparent 70%),linear-gradient(180deg,#071729 0%,var(--ink) 74%)}
+    .shell{width:min(1160px,calc(100% - 48px));margin:auto}.nav{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{color:var(--foam);text-decoration:none}.brand strong{display:block;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:21px;letter-spacing:.14em}.brand small{display:block;margin-top:-3px;color:var(--tide);font-size:9px;font-weight:900;letter-spacing:.2em}.links{display:flex;align-items:center;gap:25px}.links a{color:#c7dce4;text-decoration:none;font-size:13px}.links a:hover{color:#fff}.nav-shop{padding:8px 13px;border:1px solid rgba(140,226,224,.5);border-radius:999px;color:var(--tide)!important}.nav-discord{display:inline-grid;flex:none;width:35px;height:35px;place-items:center;border:1px solid rgba(140,226,224,.34);border-radius:50%;background:rgba(6,32,48,.42);color:#bce9ee!important;transition:transform .18s ease,background .18s ease,border-color .18s ease}.nav-discord:hover{border-color:#8ce2e0;background:#5865f2;color:#fff!important;transform:translateY(-2px)}.nav-discord svg{width:18px;height:18px;fill:currentColor}
+    .heading{padding:72px 0 34px;text-align:center}.eyebrow{margin:0 0 11px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.21em}.heading h1{margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:clamp(3rem,7vw,5.7rem);font-weight:600;letter-spacing:-.09em;line-height:1}.heading p{margin:16px auto 0;color:var(--mist);font-size:15px}.updated{display:inline-flex;align-items:center;gap:7px;margin-top:19px;color:#93adb9;font-size:12px}.updated:before{width:7px;height:7px;border-radius:50%;background:var(--tide);box-shadow:0 0 0 4px rgba(140,226,224,.1);content:""}
+    .tabs{display:flex;justify-content:center;gap:7px;margin:15px 0 34px;flex-wrap:wrap}.tab{min-height:43px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(6,22,39,.58);color:#bbd0d8;font:700 13px inherit;cursor:pointer;transition:.18s ease}.tab:hover{border-color:rgba(140,226,224,.55);color:#fff}.tab[aria-selected="true"]{border-color:rgba(255,209,112,.78);background:rgba(87,65,33,.52);color:#ffe0a3;box-shadow:inset 0 0 0 1px rgba(255,209,112,.13)}
+    .hall{position:relative;padding:40px 34px 0;border:1px solid rgba(255,209,112,.22);border-radius:25px 25px 0 0;background:linear-gradient(180deg,rgba(23,60,78,.83),rgba(8,25,42,.98));overflow:hidden;isolation:isolate}.hall:before{position:absolute;z-index:-1;inset:0;background:radial-gradient(ellipse 62% 44% at 50% 20%,rgba(255,209,112,.13),transparent 72%);content:""}.hall:after{position:absolute;z-index:-1;right:-180px;bottom:-240px;width:500px;height:500px;border:1px solid rgba(140,226,224,.1);border-radius:50%;box-shadow:0 0 0 58px rgba(140,226,224,.035),0 0 0 118px rgba(140,226,224,.025);content:""}.hall-top{display:flex;align-items:end;justify-content:space-between;gap:20px}.hall-title{margin:0;color:#dbe9ed;font-size:12px;font-weight:900;letter-spacing:.17em}.metric{margin:3px 0 0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:27px;font-weight:600;letter-spacing:-.055em}.hall-note{margin:0;color:#93adb9;font-size:12px}
+    .podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:13px;min-height:382px;margin:6px auto 0;max-width:780px}.winner{position:relative;display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:end;text-align:center}.winner:nth-child(1){order:1}.winner:nth-child(2){order:0}.winner:nth-child(3){order:2}.skin-wrap{position:relative;z-index:1;display:flex;height:182px;align-items:end;justify-content:center;filter:drop-shadow(0 18px 14px rgba(0,0,0,.4))}.winner.first .skin-wrap{height:221px}.skin{width:auto;height:100%;image-rendering:auto;object-fit:contain}.skin-empty{display:none;width:106px;height:132px;margin-bottom:11px;border:1px solid rgba(255,255,255,.16);border-radius:53px 53px 13px 13px;background:linear-gradient(145deg,#456477,#172f43);opacity:.7}.winner.empty .skin{display:none}.winner.empty .skin-empty{display:block}.winner-name{position:relative;z-index:2;max-width:100%;margin:0 0 2px;overflow:hidden;color:#fff;font-size:15px;font-weight:900;text-overflow:ellipsis;white-space:nowrap}.winner-value{position:relative;z-index:2;margin:0 0 11px;color:#c9dde2;font-size:12px;font-variant-numeric:tabular-nums}.step{display:flex;width:100%;height:var(--step-height);align-items:start;justify-content:center;padding-top:14px;border:1px solid color-mix(in srgb,var(--rank) 64%,#fff 4%);border-bottom:0;background:linear-gradient(90deg,color-mix(in srgb,var(--rank) 22%,#102e44),color-mix(in srgb,var(--rank) 12%,#0b2135));box-shadow:inset 0 1px rgba(255,255,255,.14)}.step b{color:color-mix(in srgb,var(--rank) 74%,#fff);font-size:28px;line-height:1;font-variant-numeric:tabular-nums}.first{--rank:var(--gold);--step-height:125px}.second{--rank:var(--silver);--step-height:84px}.third{--rank:var(--bronze);--step-height:58px}
+    .board{margin-bottom:80px;padding:0 34px 18px;border:1px solid var(--line);border-top:0;border-radius:0 0 25px 25px;background:rgba(5,18,32,.72)}.board-head,.row{display:grid;grid-template-columns:58px minmax(180px,1fr) minmax(120px,.55fr);align-items:center;column-gap:14px}.board-head{height:57px;border-bottom:1px solid var(--line);color:#87a4af;font-size:11px;font-weight:900;letter-spacing:.12em}.board-head span:last-child{text-align:right}.row{min-height:69px;border-bottom:1px solid rgba(213,240,242,.1);transition:background .16s ease}.row:last-child{border-bottom:0}.row:hover{background:rgba(140,226,224,.055)}.place{padding-left:9px;color:#aac4ce;font-size:13px;font-weight:900;font-variant-numeric:tabular-nums}.player{display:flex;min-width:0;align-items:center;gap:12px}.avatar{width:38px;height:38px;border-radius:7px;background:#193b50;image-rendering:pixelated}.player-name{overflow:hidden;color:#ecf7f8;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.value{text-align:right;color:#d5e5e8;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.empty-message{padding:47px 10px;color:var(--mist);text-align:center}.status{display:none;margin:-8px 0 29px;color:#ffcf92;text-align:center;font-size:13px}.status.show{display:block}.loading .podium,.loading .board{opacity:.54;pointer-events:none}.footer{padding:38px 0 52px;border-top:1px solid var(--line);background:#050f1c}.footer-inner{display:flex;align-items:end;justify-content:space-between;gap:24px}.footer p{margin:7px 0 0;color:#7896a5;font-size:12px}.footer a{color:#bcd5dd;text-decoration:none}.footer-links{display:flex;gap:18px;font-size:13px}
+    @media(max-width:720px){.shell{width:min(100% - 28px,620px)}.nav{height:72px}.links a:not(.nav-shop):not(.nav-discord){display:none}.heading{padding-top:52px}.heading h1{font-size:clamp(3rem,15vw,4.5rem)}.heading p{max-width:270px;font-size:14px}.hall{padding:28px 13px 0;border-radius:19px 19px 0 0}.hall-top{display:block;text-align:center}.metric{font-size:24px}.hall-note{margin-top:5px}.podium{min-height:320px;gap:5px}.skin-wrap{height:142px}.winner.first .skin-wrap{height:174px}.winner-name{font-size:12px}.winner-value{font-size:10px}.step{padding-top:10px}.step b{font-size:21px}.first{--step-height:102px}.second{--step-height:68px}.third{--step-height:47px}.board{margin-bottom:55px;padding:0 14px 10px;border-radius:0 0 19px 19px}.board-head,.row{grid-template-columns:39px minmax(0,1fr) minmax(88px,.5fr);column-gap:7px}.board-head{height:49px;font-size:9px}.row{min-height:61px}.avatar{width:32px;height:32px}.player{gap:9px}.player-name,.value{font-size:12px}.place{padding-left:2px;font-size:12px}.footer-inner{display:block}.footer-links{margin-top:18px}}
+    @media(prefers-reduced-motion:no-preference){.winner{animation:rise .58s both}.winner:nth-child(2){animation-delay:.07s}.winner:nth-child(3){animation-delay:.14s}@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}}
+    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-medium.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}body,body *{font-family:"Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav" aria-label="주 메뉴">
+      <a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a>
+      <div class="links"><a href="/">홈</a><a href="/ranking" aria-current="page">랭킹</a><a href="/wiki">위키</a><a href="/dex">도감</a><a class="nav-discord" href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer" aria-label="바르칸 열도 디스코드 참여" title="디스코드 참여"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.32 4.37A19.8 19.8 0 0 0 15.44 2.85a.08.08 0 0 0-.08.04c-.21.37-.44.86-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.64 12.64 0 0 0-.62-1.25.08.08 0 0 0-.08-.04A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.03.03C.53 9.05-.33 13.58.09 18.06a.09.09 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.39-.3a.08.08 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.08.08 0 0 1 .09.01l.39.3c.03.03.03.09-.01.12-.59.35-1.21.65-1.87.89a.08.08 0 0 0-.04.12c.37.7.78 1.37 1.23 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.61-3.56-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.95 2.41-2.15 2.41Zm7.95 0c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.94 2.41-2.15 2.41Z"/></svg></a><a class="nav-shop" href="/vip/">상점</a></div>
+    </nav>
+  </div>
+
+  <main class="shell" id="ranking-app">
+    <section class="heading">
+      <p class="eyebrow">BARKAN ISLANDS · HALL OF FAME</p>
+      <h1>명예의 전당</h1>
+      <p>바르칸 열도에서 가장 멀리 나아간 모험가들의 기록입니다.</p>
+      <span class="updated" id="updated">기록을 불러오는 중</span>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="랭킹 기준">
+      <button class="tab" type="button" role="tab" aria-selected="true" data-category="level">낚시 레벨</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="fish">누적 어획</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="wealth">보유 자산</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="guild">길드</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="island">섬 방문</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="casino">카지노 순수익</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-category="popularity">인기도</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+
+    <section class="hall" aria-labelledby="ranking-title">
+      <div class="hall-top"><div><p class="hall-title">HALL OF FAME</p><h2 class="metric" id="ranking-title">낚시 레벨</h2></div><p class="hall-note">상위 3명의 기록</p></div>
+      <div class="podium" id="podium" aria-live="polite"></div>
+    </section>
+    <section class="board" aria-label="전체 순위">
+      <div class="board-head"><span>순위</span><span>모험가</span><span id="value-head">레벨</span></div>
+      <div id="rows"><div class="empty-message">랭킹을 불러오는 중입니다.</div></div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java Edition Server</p></div><div class="footer-links"><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의</a></div></div></footer>
+  <script>
+    (() => {
+      const app = document.querySelector('#ranking-app');
+      const podium = document.querySelector('#podium');
+      const rows = document.querySelector('#rows');
+      const updated = document.querySelector('#updated');
+      const status = document.querySelector('#status');
+      const title = document.querySelector('#ranking-title');
+      const valueHead = document.querySelector('#value-head');
+      const tabs = [...document.querySelectorAll('[data-category]')];
+      let data = null;
+      let active = 'level';
+
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      const skinUrl = name => `https://mc-heads.net/body/${encodeURIComponent(name)}/250`;
+      const headUrl = name => `https://mc-heads.net/avatar/${encodeURIComponent(name)}/80`;
+      const formatValue = (item, category) => {
+        const value = Number(item?.[category.field] ?? 0);
+        if (category.field === 'level') return `Lv. ${value.toLocaleString('ko-KR')}`;
+        if (category.field === 'popularity') return `♥ ${value.toLocaleString('ko-KR')}`;
+        return `${value.toLocaleString('ko-KR')} ${category.suffix}`;
+      };
+      const podiumOrder = [1, 0, 2];
+      const slotClass = ['first', 'second', 'third'];
+      const rankLabel = ['1', '2', '3'];
+
+      function render() {
+        const category = data?.categories?.[active];
+        if (!category) return;
+        const leaders = category.rows || [];
+        title.textContent = category.label;
+        valueHead.textContent = category.field === 'level' ? '레벨' : category.label;
+        podium.innerHTML = podiumOrder.map(index => {
+          const item = leaders[index];
+          const cls = slotClass[index];
+          const label = rankLabel[index];
+          if (!item) return `<article class="winner ${cls} empty"><div class="skin-wrap"><span class="skin-empty" aria-hidden="true"></span></div><p class="winner-name">기록 없음</p><p class="winner-value">—</p><div class="step"><b>${label}</b></div></article>`;
+          const name = escapeHtml(item.name);
+          const skinName = item.skinName || item.name;
+          return `<article class="winner ${cls}"><div class="skin-wrap"><img class="skin" src="${skinUrl(skinName)}" alt="${name} 대표 스킨"></div><p class="winner-name">${name}</p><p class="winner-value">${formatValue(item, category)}</p><div class="step"><b>${label}</b></div></article>`;
+        }).join('');
+        rows.innerHTML = leaders.length ? leaders.slice(3).map((item, index) => {
+          const place = index + 4;
+          const name = escapeHtml(item.name);
+          const skinName = item.skinName || item.name;
+          return `<article class="row"><span class="place">${place}</span><span class="player"><img class="avatar" loading="lazy" src="${headUrl(skinName)}" alt=""><span class="player-name">${name}</span></span><span class="value">${formatValue(item, category)}</span></article>`;
+        }).join('') : '<div class="empty-message">아직 공개할 기록이 없습니다.</div>';
+      }
+
+      tabs.forEach(tab => tab.addEventListener('click', () => {
+        active = tab.dataset.category;
+        tabs.forEach(button => button.setAttribute('aria-selected', String(button === tab)));
+        render();
+      }));
+
+      fetch('/api/ranking', {headers:{Accept:'application/json'}})
+        .then(response => response.ok ? response.json() : Promise.reject(new Error('request failed')))
+        .then(payload => {
+          data = payload;
+          const date = payload.updatedAt;
+          updated.textContent = date ? `${date.replaceAll('-', '.')} 기준 기록` : '기록 갱신 대기 중';
+          render();
+        })
+        .catch(() => {
+          status.textContent = '랭킹을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
+          status.classList.add('show');
+          updated.textContent = '기록 연결 확인 중';
+          rows.innerHTML = '<div class="empty-message">서버 기록을 확인하는 중입니다.</div>';
+        })
+        .finally(() => app.classList.remove('loading'));
+    })();
+  </script>
+</body>
+</html>
