@@ -46,6 +46,34 @@ NO_SOCKET = 10                      # 이만큼 훑어도 경계가 없으면 �
 #   칸(평평한 목록판)은 건드리지 않는다 — 거기서 밀면 옆 칸을 끌어와 그림이 망가진다.
 
 
+# 액자가 아예 안 그려진 칸에 **같은 판의 액자를 떠다 찍는다.** 아이템이 올라가는 자리인데
+# 홈이 없으면 아이콘이 배경 위에 떠 보인다 — 그림을 다시 받기 전까지의 정답이다.
+#   {판: {빈칸: 떠올칸}}  ★떠올 칸은 반드시 같은 판에서 이미 액자가 맞은 칸으로.
+STAMP = {
+    # 목록 다섯 줄 중 아래 두 줄에만 액자가 그려져 있었다. 같은 열의 아래 줄에서 떠온다.
+    "mailbox": {s: 27 + (s % 9) for s in range(27)},
+    # 첫 줄 두 칸과 셋째 줄 전체가 비어 있었다(모루·기어 장식 위). 옆칸/윗줄에서 떠온다.
+    "disassemble": {14: 13, 16: 15, **{s: s - 9 for s in range(28, 35)}},
+    "dexisland": {13: 12, 22: 21, 25: 24},
+}
+
+
+def cell_xy(slot):
+    r, c = divmod(slot, COLS)
+    return (GX + CELL * c) * S, (GY + CELL * r) * S
+
+
+def stamp_missing(im, name):
+    """빈 칸에 액자를 찍는다. 떠온 칸은 이미 아이콘 상자에 맞춰져 있어 추가 보정이 없다."""
+    n = 0
+    for dst, src in STAMP.get(name, {}).items():
+        sx, sy = cell_xy(src)
+        dx, dy = cell_xy(dst)
+        im.paste(im.crop((sx, sy, sx + N, sy + N)), (dx, dy))
+        n += 1
+    return n
+
+
 def gap_depths(px, w, h, x0, y0):
     """(왼, 오른, 위, 아래) 액자 안쪽 모서리가 아이콘 상자 밖으로 나간 거리."""
     ix0, iy0 = x0 + PAD, y0 + PAD
@@ -107,9 +135,11 @@ def fit(name):
         elif d:
             fixed += 1
             worst = max(worst, d)
+    stamped = stamp_missing(im, name)
     im.convert("RGB").save(os.path.join(HERE, "src", name, "bg_fitted.png"))
     print(f"  {name:12} 칸 {len(slots):3d} · 틈 메움 {fixed:3d} · 최대 {worst}px"
-          + (f" · 액자없는 칸 {flat}" if flat else ""))
+          + (f" · 액자 찍음 {stamped}" if stamped else "")
+          + (f" · 여전히 액자없음 {flat - stamped}" if flat - stamped > 0 else ""))
 
 
 def main():
