@@ -1,0 +1,68 @@
+{
+  "date": "2026-08-10",
+  "economy": "forage",
+  "status": "post-change",
+  "change": "bait recipes forage linkage",
+  "sources": {
+    "dev_recipes": "/Users/user/development/blockship-plugin/recipes.json",
+    "runtime_recipes": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/recipes.json",
+    "forage_types": "plugins/BlockShip/forage-types.json",
+    "bait_stats": "plugins/BlockShip/parts.json"
+  },
+  "before": {
+    "craftable_bait_recipes": 17,
+    "bait_recipes_with_forage_ingredients": 0
+  },
+  "after": {
+    "craftable_bait_recipes": 17,
+    "bait_recipes_with_forage_ingredients": 17,
+    "forage_types_used_in_baits": 28,
+    "forage_formula_qty_total_per_one_craft_of_each_recipe": 89,
+    "rare_forages_added_at_qty_one": [
+      "핏빛수정초",
+      "자수정새싹",
+      "사막장미",
+      "서리연꽃"
+    ],
+    "high_demand_forages_excluded": [
+      "라벤더 선반버섯",
+      "야광버섯",
+      "트러플"
+    ]
+  },
+  "shop_only_baits_not_recipes": [
+    "지렁이",
+    "잠수부 미끼",
+    "심해 잠수부 미끼"
+  ],
+  "added_formula_by_material": {
+    "붉은요정버섯": 1,
+    "분홍겹버섯": 1,
+    "주황요정버섯": 1,
+    "도토리다발": 1,
+    "황금갓버섯": 6,
+    "야생베리": 2,
+    "이끼톨버섯": 2,
+    "부들": 2,
+    "물냉이": 2,
+    "상아다발버섯": 2,
+    "황금이삭": 6,
+    "흰들국화": 2,
+    "잿불꽃": 3,
+    "핏빛수정초": 1,
+    "마법약초": 3,
+    "사막세이지": 3,
+    "자수정새싹": 1,
+    "설화": 7,
+    "가시배선인장": 3,
+    "사막장미": 1,
+    "바위솔": 3,
+    "벼랑초롱꽃": 3,
+    "붉은열매": 4,
+    "서리열매": 8,
+    "물결고사리": 8,
+    "독그늘버섯": 8,
+    "푸른요정버섯": 4,
+    "서리연꽃": 1
+  }
+}
