@@ -151,8 +151,11 @@ assert not missing, f"글리프 텍스처 {len(missing)}개 누락: {missing[:5]
 junk = [n for n in names if any(j in n for j in ('.bak', '_prepad', 'backup', 'pf_reference', 'tools/'))]
 assert not junk, f"잡동사니가 실렸다: {junk[:5]}"
 
-# 사운드는 경고만 — 없는 sounds.json 항목은 조용히 안 울릴 뿐 팩을 깨뜨리지 않는다.
-# (2026-08-11 기준 weather 6종이 등록만 되고 파일이 없다. 오래된 상태이지 이번 배포의 문제 아님)
+# ★sounds.json 이 가리키는 .ogg 가 실제로 있어야 한다.
+#   없으면 그 소리는 "조용히 안 울린다" — 팩도 서버도 에러를 안 내므로 몇 달을 방치하기 쉽다.
+#   실제로 weather 6종(rain/thunder/blizzard/fog/typhoon/wind_light)이 등록만 된 채였다.
+#   지금은 0건이 정상이므로 하드 실패로 둔다. 음원은
+#   barkan-resourcepack/tools/gen_weather_sounds.py 로 만든다.
 snd = json.loads(z.read('assets/barkan/sounds.json'))
 bad = []
 for k, v in snd.items():
@@ -162,11 +165,12 @@ for k, v in snd.items():
         if not path:
             ns, path = 'minecraft', ns
         if ns != 'minecraft' and f"assets/{ns}/sounds/{path}.ogg" not in have:
-            bad.append(k)
+            bad.append(f"{k} -> {nm}")
+assert not bad, ("sounds.json 이 없는 .ogg 를 가리킨다 (그 소리는 조용히 안 울린다): "
+                 + str(sorted(set(bad))))
 
-print(f"   ✅ 항목 {len(names)} · glyph provider {len(gui)} · sounds {len(snd)}키 · 잡동사니 0")
-if bad:
-    print(f"   ⚠️ 파일 없는 사운드 {len(bad)}개 (안 울림, 배포는 계속): {sorted(set(bad))}")
+print(f"   ✅ 항목 {len(names)} · glyph provider {len(gui)} · sounds {len(snd)}키 "
+      f"(참조 전부 실존) · 잡동사니 0")
 PY
 
 # ── 3. ★회귀 가드 — 지금 서빙 중인 팩보다 내용이 줄면 중단 ────────────────
