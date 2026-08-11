@@ -6,10 +6,20 @@
 # server.properties 의 resource-pack 이 https://barkan.kro.kr/... 이고 그건 박스의
 # Caddy 가 /var/www/barkan/ 에서 직접 서빙한다.
 #
-# ## 왜 통째로 올리면 안 되나
-# 서빙 중인 zip 은 우리 팩 + **BetterHud 가 서버 기동 때 합쳐 넣은 1300여 파일**이다.
-# 로컬 팩으로 통째 덮으면 그게 전부 날아가 HUD 가 전멸한다. 그래서 항상
-# **바꾼 경로만 담은 패치 zip 을 만들어 박스에서 병합**한다.
+# ## 통째 교체 vs 패치 (2026-08-11 갱신)
+# 예전에는 "서빙 zip 에 BetterHud 가 합쳐 넣은 1300여 파일이 있으니 통째로 덮으면 HUD 가
+# 전멸한다"가 이 도구의 존재 이유였다. **그 제약은 사라졌다** — BetterHud 에셋은 이제
+# CraftEngine 팩(barkan-furniture.zip)이 실어 보내고, 메인 서빙본의 assets/betterhud/ 는
+# **0 개**다(2026-08-11 실측: 서빙본 11014 개, 그중 betterhud 0).
+#
+# 그래서 지금 두 도구는 이렇게 갈린다 — 둘 다 유효하다:
+#   * 통째 재빌드 = ops/build-prod-rp.py  (다이어트까지 적용: betterhud·백업 제외 +
+#     아이템 128px 상한 + PNG 재압축. 111MB → 71MB. 새 파일명으로 올리고 sha1 갱신)
+#   * 부분 갱신   = 이 스크립트          (경로 몇 개만 빨리 갈아 끼울 때. 다이어트는 안 먹는다
+#     — 여기로 올린 파일은 원본 해상도 그대로 들어간다)
+#
+# ★그래서 이 도구로 아이템 텍스처(assets/minecraft/textures/item/…)를 갈면 128px 상한이
+#   적용되지 않아 서빙본만 조금씩 뚱뚱해진다. 아이콘 대량 변경은 build-prod-rp.py 쪽으로.
 #
 # 사용: ops/patch-prod-rp.sh <라벨> <RP루트 기준 경로> [경로 ...]
 #   예: ops/patch-prod-rp.sh gui-plates assets/barkan/textures/gui assets/barkan/font/gui.json
@@ -60,15 +70,16 @@ with zipfile.ZipFile(patch) as pz:
             oz.writestr(it, pz.read(it.filename))
         print(f"  보존 {kept} + 교체/추가 {len(names)} = {kept + len(names)}")
 PY
-# ★병합본이 성한지 먼저 확인하고 나서 자리를 바꾼다. BetterHud 파일 수가 줄면 사고다.
+# ★병합본이 성한지 먼저 확인하고 나서 자리를 바꾼다.
+#   패치는 교체·추가만 하므로 **전체 파일 수는 절대 줄 수 없다** — 줄었으면 병합이 깨진 것이다.
+#   구 가드는 assets/betterhud/ 개수를 봤는데 그건 이제 서빙본에 0 개라 `0 >= 0` 으로
+#   무조건 통과하는 죽은 검사였다(2026-08-11). 전체 개수로 바꿨다.
 python3 - "$SERVED" "$NEW" <<'PY'
 import sys, zipfile
 old, new = sys.argv[1:3]
 o = zipfile.ZipFile(old); n = zipfile.ZipFile(new)
-ob = sum(1 for x in o.namelist() if x.startswith("assets/betterhud/"))
-nb = sum(1 for x in n.namelist() if x.startswith("assets/betterhud/"))
-print(f"  betterhud {ob} → {nb} · 전체 {len(o.namelist())} → {len(n.namelist())}")
-assert nb >= ob, "BetterHud 파일이 줄었다 — 중단"
+print(f"  전체 {len(o.namelist())} → {len(n.namelist())}")
+assert len(n.namelist()) >= len(o.namelist()), "파일이 줄었다 — 병합 실패, 중단"
 assert n.testzip() is None, "zip 손상"
 PY
 sudo cp -a "$SERVED" "$SERVED.bak-$(date +%Y%m%d)-$LABEL"
