@@ -28,6 +28,9 @@ BONE_COLOR = {
     "h_ph_head":          ((198, 152, 111), (60, 42, 25)),    # 얼굴 / 머리카락
     "pc_chest":           ((0, 168, 168), (0, 148, 148)),     # 상의
     "pw_waist":           ((0, 168, 168), (0, 148, 148)),
+    # ★phip_hip은 "애니 안 씀(항상 무회전)"이라 리그 문서엔 없는 셈 치지만 배 큐브
+    # (y 11.25~15)를 들고 있다. 빼면 배에 한 칸이 뻥 뚫린 채 렌더된다(실제로 그랬음).
+    "phip_hip":           ((0, 168, 168), (0, 148, 148)),
     "pra_right_arm":      ((0, 168, 168), (0, 148, 148)),     # 소매
     "pla_left_arm":       ((0, 168, 168), (0, 148, 148)),
     "prfa_right_forearm": ((198, 152, 111), (188, 142, 101)),  # 맨팔
@@ -37,7 +40,7 @@ BONE_COLOR = {
     "prfl_right_foreleg": ((59, 59, 158), (45, 45, 120)),
     "plfl_left_foreleg":  ((59, 59, 158), (45, 45, 120)),
 }
-SKIP_BONES = {"shadow", "tag_name", "cape_cape", "pri_right_item", "pli_left_item", "phip_hip"}
+SKIP_BONES = {"shadow", "tag_name", "cape_cape", "pri_right_item", "pli_left_item"}
 
 # 면 법선별 밝기(위=밝게, 아래=어둡게 — 마크 바닐라 조명 근사)
 FACE_SHADE = {"up": 1.0, "down": 0.5, "north": 0.86, "south": 0.86, "east": 0.72, "west": 0.72}
