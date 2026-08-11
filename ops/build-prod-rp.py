@@ -32,7 +32,9 @@ def gather(root, base=""):
             yield rel.replace(os.sep, "/"), p
 
 files = {}
-for top in ("assets", "pack.mcmeta"):
+# ★pack.png = 리소스팩 목록에 뜨는 아이콘. 서버 아이콘(server-icon.png)과 같은 그림을 쓴다.
+#   여기 목록에 없으면 소스에 파일이 있어도 팩에 안 실려서 회색 기본 아이콘이 나온다.
+for top in ("assets", "pack.mcmeta", "pack.png"):
     src = os.path.join(RP, top)
     if os.path.isdir(src):
         for rel, p in gather(src):
