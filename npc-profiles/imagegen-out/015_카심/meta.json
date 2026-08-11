@@ -1,0 +1,14 @@
+{
+  "citizensId": 15,
+  "npc": "카심",
+  "displayName": "&b[물고기 판매] 카심",
+  "skin": "df_kasim",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

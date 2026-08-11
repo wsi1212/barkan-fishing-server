@@ -1,0 +1,14 @@
+{
+  "citizensId": 9,
+  "npc": "군터",
+  "displayName": "&b[대장간] 군터",
+  "skin": "tf_gunter",
+  "roles": [
+    "smithy"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

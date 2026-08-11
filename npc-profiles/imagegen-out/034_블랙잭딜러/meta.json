@@ -1,0 +1,14 @@
+{
+  "citizensId": 34,
+  "npc": "블랙잭딜러",
+  "displayName": "&b[블랙잭] 딜러",
+  "skin": "d_blackjack1",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

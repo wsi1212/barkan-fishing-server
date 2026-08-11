@@ -1,0 +1,14 @@
+{
+  "citizensId": 31,
+  "npc": "룰렛딜러",
+  "displayName": "&b[룰렛] 딜러",
+  "skin": "d_roulette1",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

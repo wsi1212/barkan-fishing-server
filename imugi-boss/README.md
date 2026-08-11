@@ -27,7 +27,13 @@ OP `/이무기 소환 [월드 x y z [반경]] | 수영 | 잠수루프 | 정지 |
 - 보스 persistent=false (재시작에 안 남음) + PDC 고아 sweep
 - dev 호수: flatroom (150, 수면 -60, -100) r14 — 그 구역 forceload 유지 중
 
-## 재생성 절차
-1. `python3 convert_straight.py` (diff=0 확인) → 2. 리그 복사+dev 재시작 → 3. 로컬 zip 재빌드
-(`cd ~/development/barkan-resourcepack && zip -rq "$HOME/Library/Application Support/minecraft/resourcepacks/barkan-resourcepack.zip" assets pack.mcmeta -x "*.DS_Store"`)
-→ 4. 클라 F3+T. prod 배포는 `~/deploy-rp.sh`(prod sha1+재시작 수반 — 유저 결정).
+## dev 실소환 마무리 순서
+현재 정식 테스트 기준은 감긴 리그 `imugi_rig.json`과 `barkan:imugi/seg_00..08`이다.
+
+1. 필요할 때만 `python3 convert_imugi.py` 실행 후 `python3 verify_imugi.py`에서 diff=0 확인.
+2. 리그를 dev 데이터 폴더에 복사: `imugi-boss/imugi_rig.json` → `~/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/imugi_rig.json`.
+3. BlockShip 빌드·dev jar 배포·서버 재시작: `~/deploy-dev.sh`.
+4. 리소스팩 재빌드: `cd ~/development/barkan-resourcepack && zip -rq "$HOME/Library/Application Support/minecraft/resourcepacks/barkan-resourcepack.zip" assets pack.mcmeta -x "*.DS_Store"`.
+5. 클라이언트에서 F3+T 후 `spawn_commands.txt` 순서대로 dev 호수 주변 9청크를 forceload하고 `/이무기 소환 flatroom 150 -60 -100 14` → `/이무기 정보` → `/이무기 수영`을 실행. 유영/잠수 완료 후 forceload를 반드시 해제한다.
+
+직선 `imugi_s` 리그는 별도 비교용 산출물이며, 이 정식 소환 테스트에는 복사하지 않는다.

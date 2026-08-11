@@ -184,10 +184,10 @@ Qs = [
   ["harpoon|아무|M|1|0"],"상단마을",None),
 
  ("심해28","테클라",69,"물고기","&4Barkan Vs Deep Dark Sea",
-  ["&7심해전왕 &4레비아&7가 균열에서 몸을 일으킵니다.",
+ ["&7심해전왕 &4레비아&7가 균열에서 몸을 일으킵니다.",
    "&7바르칸의 모든 바다가 이 한 판에 걸렸습니다.",
-   "&f작살로 L등급 이상 1마리&7 — 심연을 끝내세요."],
-  ["harpoon|아무|L|1|0"],"상단마을","바다의영웅"),
+   "&f심해전왕의 핵 1개&7를 회수해 심연을 끝내세요."],
+  ["material|심해전왕의핵|1"],"상단마을","바다의영웅"),
 
  ("심해29","국왕",70,"이동","&6개선",
   ["&7바다가 잠잠해졌습니다. 왕도의 종이 울립니다.",
@@ -273,6 +273,13 @@ NEW_TITLE = {
     "심해탐험대": {"name": "&3심해 탐험대", "color": "&3", "desc": "&7안개해역을 넘어 검은 섬에 닿은 자", "icon": "heart_of_the_sea"},
     "바다의영웅": {"name": "&b바다의 &9영웅", "color": "&b", "desc": "&7심해전왕 레비아를 끌어내린 자", "icon": "nautilus_shell"},
 }
+
+# 보스 처치 전리품 — 심해28 material 목표와 ImugiBattle 레비아 보상 양쪽의 단일 권위.
+mp = f"{BASE}/materials.json"
+MJ = json.load(open(mp, encoding="utf-8"))
+M = MJ.setdefault("materials", {})
+M.setdefault("심해전왕의핵", {"name": "심해전왕의 핵", "mcItem": "heart_of_the_sea",
+                              "desc": "심해전왕 레비아를 쓰러뜨려 얻는 심연의 핵"})
 for k, v in NEW_TITLE.items():
     T[k] = v
 if "order" in TJ and isinstance(TJ["order"], list):
@@ -281,7 +288,7 @@ if "order" in TJ and isinstance(TJ["order"], list):
             TJ["order"].append(k)
 
 # ── 저장 ─────────────────────────────────────────────────────────────────────
-for path, obj in ((qp, QJ), (np_, NJ), (tp, TJ)):
+for path, obj in ((qp, QJ), (np_, NJ), (tp, TJ), (mp, MJ)):
     shutil.copy(path, path + ".pre-ch7")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)

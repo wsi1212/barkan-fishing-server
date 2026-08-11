@@ -1,0 +1,14 @@
+{
+  "citizensId": 6,
+  "npc": "한스",
+  "displayName": "&b[물고기 판매] 헬가",
+  "skin": "tf_helga",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

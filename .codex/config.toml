@@ -6,3 +6,7 @@ args = ["/Users/user/development/ai-builder-plugin/mcp-server/mc_builder_mcp.py"
 AIBUILDER_URL = "http://127.0.0.1:25599"
 AIBUILDER_CAPTURE_URL = "http://127.0.0.1:25598"
 AIBUILDER_TOKEN = ""
+
+[mcp_servers.codegraph]
+command = "/Users/user/.local/bin/codegraph"
+args = ["serve", "--mcp", "-p", "/Users/user/development/blockship-plugin"]

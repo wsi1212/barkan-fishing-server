@@ -1,0 +1,14 @@
+{
+  "citizensId": 40,
+  "npc": "쓰리카드딜러2",
+  "displayName": "&b[쓰리카드] 딜러 Ⅱ",
+  "skin": "d_threecard2",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

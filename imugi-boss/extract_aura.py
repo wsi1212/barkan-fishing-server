@@ -134,7 +134,12 @@ def place(tufts):
         anchor = max(tops, key=lambda c: (c[1], -abs(c[0] + 0.5 - want_x)))
         bx, by, bz = anchor[0], anchor[1] + 1 + max(0, t["gap"] - 1), anchor[2]
         for lat, oy, along in t["cells"]:
-            p = (bx + lat, by + oy, bz + along)   # 직선 접선=+z, 좌우=+x
+            # ★가로형(2026-07-10, 유저 피드백): 원래 세로로 솟던 불꽃(oy=수직) 다발을 along축 기준
+            # 90° 눕혀 lat/oy를 교환 — 위로 치솟던 모양이 옆으로 퍼지는 리본이 된다("세로→가로").
+            # 얇은 두께만 남기려 새 수직폭은 축소(0.4배), 새 좌우폭은 원래 높이를 그대로 사용.
+            nlat = round(oy * 0.7)
+            noy = round(lat * 0.4)
+            p = (bx + nlat, by + noy, bz + along)   # 직선 접선=+z, 좌우=+x
             if p not in straight:
                 placed.add(p)
     return sorted(placed)

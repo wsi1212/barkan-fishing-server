@@ -9,6 +9,23 @@
 
 {% if error %}<div class="panel"><p style="color:var(--neg)">{{ error }}</p></div>{% endif %}
 
+{% if players %}
+<div class="panel">
+  <h2>플레이어 목록 (최근 스냅샷, 레벨순 상위 {{ players|length }}명)</h2>
+  <table>
+    <thead><tr><th>닉네임</th><th>레벨</th><th>누적 어획</th><th>보유금</th></tr></thead>
+    <tbody>
+    {% for pl in players %}
+      <tr>
+        <td><a href="{{ base_path }}/user?name={{ pl.name }}">{{ pl.name }}</a></td>
+        <td>{{ pl.level | num1 }}</td><td>{{ pl.total_fish | num1 }}</td><td>{{ pl.money | money1 }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
 {% if rows %}
 <div class="panel">
   <h2>{{ name }} — 최근 7일</h2>
@@ -17,9 +34,9 @@
     <tbody>
     {% for r in rows %}
       <tr>
-        <td>{{ r.date }}</td><td>{{ (r.playtime_s // 60) }}분</td><td>{{ r.casts }}</td><td>{{ r.catches }}</td>
-        <td>{{ r.best_grade or '-' }}</td><td>{{ r.money_in - r.money_out }}</td>
-        <td>{{ r.quests_done }}</td><td>{{ r.crafts }}</td><td>{{ r.submits }}</td>
+        <td>{{ r.date }}</td><td>{{ (r.playtime_s // 60) | num1 }}분</td><td>{{ r.casts | num1 }}</td><td>{{ r.catches | num1 }}</td>
+        <td>{{ r.best_grade or '-' }}</td><td>{{ (r.money_in - r.money_out) | money1 }}</td>
+        <td>{{ r.quests_done | num1 }}</td><td>{{ r.crafts | num1 }}</td><td>{{ r.submits | num1 }}</td>
       </tr>
     {% endfor %}
     </tbody>

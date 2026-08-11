@@ -1,0 +1,14 @@
+{
+  "citizensId": 21,
+  "npc": "프란츠",
+  "displayName": "&b[요리] 프란츠",
+  "skin": "tf_franz",
+  "roles": [
+    "cooking"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

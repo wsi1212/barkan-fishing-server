@@ -1,0 +1,14 @@
+{
+  "citizensId": 16,
+  "npc": "자말",
+  "displayName": "&b[길드] 자말",
+  "skin": "df_jamal",
+  "roles": [
+    "guild"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

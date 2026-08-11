@@ -820,6 +820,46 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_0b15426d9b.png"
   },
   {
+    "kind": "릴",
+    "name": "숙련 릴",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_6cfbf006c3",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_6cfbf006c3.png"
+  },
+  {
+    "kind": "릴",
+    "name": "노련한 릴",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_bf36b736fe",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_bf36b736fe.png"
+  },
+  {
+    "kind": "릴",
+    "name": "사막 노장 릴",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_reel_0fb1c7a79b",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_0fb1c7a79b.png"
+  },
+  {
+    "kind": "릴",
+    "name": "정밀 감속 릴",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_reel_02b6854f1e",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_02b6854f1e.png"
+  },
+  {
     "kind": "줄",
     "name": "삼베줄",
     "grade": "E",
@@ -998,6 +1038,46 @@
     "id": "catalog_line_f1646fa413",
     "resolution": 256,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_f1646fa413.png"
+  },
+  {
+    "kind": "줄",
+    "name": "숙련줄",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_ee0fefac7b",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_ee0fefac7b.png"
+  },
+  {
+    "kind": "줄",
+    "name": "노련한줄",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_15161a9246",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_15161a9246.png"
+  },
+  {
+    "kind": "줄",
+    "name": "사막 노장줄",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_line_52976834e4",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_52976834e4.png"
+  },
+  {
+    "kind": "줄",
+    "name": "정밀 감속줄",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_line_b18b64e21e",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_b18b64e21e.png"
   },
   {
     "kind": "바늘",
@@ -1180,6 +1260,46 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_e0b73efb16.png"
   },
   {
+    "kind": "바늘",
+    "name": "숙련 바늘",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_d00ce42d07",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_d00ce42d07.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "노련한 바늘",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_8d2c7e3d43",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_8d2c7e3d43.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "사막 노장 바늘",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_hook_1cd63eab85",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_1cd63eab85.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "정밀 감속 바늘",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_hook_b14bd31c4a",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_b14bd31c4a.png"
+  },
+  {
     "kind": "미끼",
     "name": "지렁이",
     "grade": "E",
@@ -1360,6 +1480,46 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_7201fc9db9.png"
   },
   {
+    "kind": "미끼",
+    "name": "숙련 미끼",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_838f5d0cd9",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_838f5d0cd9.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "노련한 미끼",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_ccb88c460d",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_ccb88c460d.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "사막 노장 미끼",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_bait_44369c0a13",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_44369c0a13.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "정밀 감속 미끼",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bait_5da8d152e8",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_5da8d152e8.png"
+  },
+  {
     "kind": "찌",
     "name": "나무 찌",
     "grade": "E",
@@ -1538,6 +1698,46 @@
     "id": "catalog_bobber_7872323e9c",
     "resolution": 256,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_7872323e9c.png"
+  },
+  {
+    "kind": "찌",
+    "name": "숙련 찌",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_4124c4ad5b",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_4124c4ad5b.png"
+  },
+  {
+    "kind": "찌",
+    "name": "노련한 찌",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_20e37e1165",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_20e37e1165.png"
+  },
+  {
+    "kind": "찌",
+    "name": "사막 노장 찌",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_bobber_2fa674a1b2",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_2fa674a1b2.png"
+  },
+  {
+    "kind": "찌",
+    "name": "정밀 감속 찌",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bobber_fa29f1cc3d",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_fa29f1cc3d.png"
   },
   {
     "kind": "작살",

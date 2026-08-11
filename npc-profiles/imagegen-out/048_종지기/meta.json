@@ -1,0 +1,19 @@
+{
+  "citizensId": 48,
+  "npc": "종지기",
+  "displayName": "&a[Q] 종지기",
+  "skin": "bellringer",
+  "roles": [],
+  "quests": [
+    "왕도11"
+  ],
+  "states": [
+    "base",
+    "talk",
+    "surprised"
+  ],
+  "dialogue_lines": [
+    "북서 종탑의 종지기올시다. 매일 이 종을 울리지요.",
+    "헌데 밤마다… 누가 이 종탑에서 바다 너머로 불빛 신호를 보낸다오. 오싹한 일이야."
+  ]
+}

@@ -1,0 +1,22 @@
+[Unit]
+Description=Barkan VIP billing service
+After=network-online.target postgresql@16-main.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vipbilling
+Group=vipbilling
+WorkingDirectory=/srv/vip-billing
+EnvironmentFile=/etc/vip-billing/vip-billing.env
+ExecStart=/usr/bin/node /srv/vip-billing/server.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/vip-billing
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+{
+  "citizensId": 18,
+  "npc": "마켓",
+  "displayName": "&b[유저마켓] 라이문트",
+  "skin": "tf_raimund",
+  "roles": [
+    "market"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

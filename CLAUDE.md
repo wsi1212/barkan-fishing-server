@@ -224,6 +224,12 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 로그: `~/oracle-auto-retry/resize-retry.log`
 - 성공: `~/oracle-auto-retry/SUCCESS-RESIZE.txt` 생성 + macOS 알림
 
+## 체스 (별도 플러그인 — BlockShip 아님)
+- 소스: **`~/development/barkan-chess`** / GitHub `wsi1212/barkan-chess`(private). 2026-08-11 BlockShip에서 분리(결합도 0 — 순수 Bukkit/Adventure).
+- 원저자가 **컴파일된 jar만** 주므로 소스는 vineflower 역컴파일 복원본이다. **배포 전 `tools/gate.sh <업스트림.jar>` 필수** — ①업스트림 바이트코드 대조 ②랜덤 자가대국 퍼징(무한루프/예외). 2026-08-10 `hasBattery` 역컴파일 왜곡으로 무한루프→Paper 워치독이 prod를 죽인 사고 재발 방지책.
+- 데이터: `plugins/BarkanChess/`(config.yml=테이블·엔진, skins/preferences/achievements/decks/player-stats/variant-stats.yml). 말 모델은 **메인 리소스팩**에 포함(PAPER `custom_model_data` 21001~22301, `assets/minecraft/items/paper.json`).
+- `/체스`(cp) — 참가/솔로/AI/퇴장/스킨/규칙/덱/증강/도전과제/전적, op: 생성·제거·테이블·소환·평가·엔진탐지·변형통계·리로드. Stockfish는 dev `/opt/homebrew/bin/stockfish`, prod `/usr/games/stockfish`.
+
 ## 리소스팩
 - **소스 위치(★2026-06-06 이후, Downloads 경로는 낡음): `~/development/barkan-resourcepack`** — `~/Downloads/barkan-resourcepack/`은 더 이상 존재하지 않음(TCC가 Downloads/Desktop 재귀읽기 차단해서 이동함).
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)

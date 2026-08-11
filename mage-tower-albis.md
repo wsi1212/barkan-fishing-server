@@ -1,0 +1,124 @@
+# 마탑 — 알비스의 탑 (Albis's Arcane Tower)
+
+스폰마을 앞 물 위 바위섬의 작은 첨탑. 바르칸 열도의 조류·심연·전설을 연구하는 은둔 마법사 **알비스**의 아케인 거점.
+
+> 설계 확정 2026-07-19 → dev 구현 착수. prod 배포는 명시 요청 시.
+
+## 역할 분담 (겹침 방지)
+| 건물 | 역할 | 상태 |
+|------|------|------|
+| 등대 (스폰) | 장식 | 기존 |
+| 페리 (항구) | 초·중반 지역 이동 | 기존 |
+| **마탑 (앞섬)** | **순수 마법 (아케인)** | **신규** |
+
+세 건물이 서로 안 겹치는 게 설계의 핵심. 마탑은 항해/이동 기능을 흉내내지 않고 마법 전용.
+
+## NPC — 알비스
+- 늙은 은둔 마법사. 서양식 이름(스폰마을 유럽 중세 테마).
+- 머리 위 이름색 = **하늘색 `&b`** (기능형: 주문서 상점 + 포탈 각성 제공). 퀘스트도 주므로 NPC 태그 규약 준수.
+- 위치: 마탑 내부 (꼭대기 의식 제단 근처 — 정확한 배치는 빌드 시 확정).
+
+## v1 핵심 3종
+
+### 1. 오로라 의식 퀘스트라인 (= 탑 각성 퀘, 후반)
+- 레벨 게이트: **Lv65 전후** (튜닝 가능; Lv60 G/S 해금 직후, Lv70 엔드게임 직전).
+- 서사: 알비스가 포탈망을 켤 마력이 부족 → 오로라 아래에서만 낚이는 전설 어종 **성광어(星光魚)** 의 정수가 필요.
+- 흐름: 알비스에게 퀘 수락 → 오로라 발동 → 그 시간 동안 성광어 낚기 → 정수 바침 → 의식 완료.
+- 보상: 도감 등록(성광어) + **포탈망 각성 플래그**. (도감 + fast-travel 해금이 한 줄기)
+
+### 2. 거점 포탈망 (각성 후 fast-travel)
+- 거점 4곳: **마탑(스폰) ↔ 사막마을 ↔ 상단마을 ↔ 왕도**.
+- 형태: **거점 포탈 패드** — 각성한 플레이어가 패드를 밟으면 GUI로 다른 거점 선택 이동.
+- 사용: **무료 + 짧은 쿨다운(30초)** (튜닝 가능).
+- cross-world TP는 `execute in <dimKey> run tp` 규약 준수(`Worlds.dimKey`) — `teleport()` 금지.
+- 페리 관계: 각성 전엔 페리로만 이동. 각성 후 3곳은 포탈로 대체 = **의도된 엔드게임 졸업 보상**.
+
+### 3. 마법 주문서 상점
+- `scroll/` 시스템 재활용. 귀환/미끼/행운 스크롤 등 소모성 판매·(제작). 평소 방문 이유.
+
+## 전설 어종 — 성광어(星光魚)
+- 오로라 빛을 먹고 사는 심해어 (가칭, 이름 확정 TODO).
+- **오로라 활성 중 마탑 해역에서만** 낚임. 도감 최종 완성 훅.
+
+## 기본값 요약 (튜닝 가능)
+| 항목 | 값 |
+|------|-----|
+| 퀘 레벨 게이트 | Lv65 전후 |
+| 포탈 사용 | 무료 + 30초 쿨다운 |
+| 포탈 거점 | 마탑/스폰, 사막마을, 상단마을, 왕도 |
+| 전설 어종 | 성광어(星光魚), 오로라 전용 |
+
+## v2 백로그 (v1 제외)
+- 기상 주문 (순한 날씨만, 비용+쿨) — 공유 날씨 민폐 이슈로 보류.
+- 등대(장식)에 예보판 얹기.
+
+## 구현 결정 & 순서 (조사 확정)
+
+**핵심 결정:**
+- 각성 플래그: 신규 `보상각인` 필드(형식 `"포탈각인:각성"`)→`extraFlags["포탈각인"].add("각성")`. 패드 게이트 = `.contains("각성")`. (rewardKey 미러, ~10줄)
+- 성광어: grade E(신뢰 포획), 이중 게이트(`quest:"알비스02"` + Java 오로라 지역 게이트).
+- 의식 오로라: `WeatherManager` 의식 전용 시작 메서드(심야 우회+지역 스코프+커스텀 지속). **언제든 발동**(알비스가 자연 거스름 — 심야 대기 프릭션 제거). 시각 v1=마탑 지역 파티클.
+- 마탑 신규 지역 생성(좌표 실측 필요).
+- 퀘라인: 알비스01(Lv65, 인트로/워밍업) → 알비스02(수락 시 오로라 발동 → 오로라 중 성광어 1 낚기 → 알비스에서 클레임 → `보상각인` 포탈각성 + `보상도감해금` 성광어, 오로라 종료).
+- 포탈 패드: Portal/Ferry 확장 아닌 **신규 PadManager**(박스진입 트리거 + 페리식 선택 GUI + tp 디스패치 + `pads.json` + 각인 게이트).
+
+**트랙별 작업:**
+- 【JSON, dev `plugins/BlockShip/` 직접 편집→리로드】 fish.json(성광어), regions.json(마탑), quests.json(알비스01/02), npc.json+dialogue.json(알비스), pads.json(4거점).
+- 【Java, 소스 빌드→`~/deploy-dev.sh`→재시작(배치·★재시작 전 확인)】 QuestManager(`보상각인`+rewardAttune+알비스02 오로라 훅), FishingListener(성광어 게이트), WeatherManager(의식 오로라 메서드), 신규 PadManager + BlockShipPlugin 배선.
+- 【월드빌드, ★MCP 타겟 확인 필수】 마탑 내부 의식 제단, 포탈 패드 4곳 배치 + 도착점 실측. ※탑 구조물은 유저가 이미 지음(dev). dev=feather인데 `mc_*` 툴은 prod행 가능 → RCON/타겟 라우팅 확인 후 진행.
+
+**순서:** ①문서✅ → ②마탑 좌표 실측 + 지역 생성 → ③Java 일괄(빌드·재시작 1회) → ④JSON(리로드) → ⑤월드빌드(제단·패드·NPC) → ⑥dev 검증.
+
+## 통합 지점 (코드 조사)
+
+### portal/ (조사 완료)
+- `portal/PortalManager.java` 단일 파일. 데이터 `plugins/BlockShip/portals.json` (`Map<name,Portal>`).
+- Portal = 진입 AABB(world+min/max xyz) → **단일** 목적지(destWorld, destX/Y/Z, ±yaw/pitch). 발동 = 10틱 폴링 박스진입(클릭 아님), 3초 쿨. TP = `execute in Worlds.dimKey(destWorld) run tp` 콘솔 디스패치.
+- ★멀티 목적지/GUI 없음. `FerryManager`에 27칸 선택 GUI(COMPASS 아이콘 클릭→등록)가 있음 = 재사용 프리미티브.
+- **패드망 구현 방식**: Portal 확장 대신 **신규 매니저** — ①박스진입 트리거(`PortalManager.tick()` 복사) + ②선택 GUI(`FerryManager.openGui()` 복사, 나머지 3거점 표시) + ③tp 디스패치 + ④신규 `pads.json`(Node = 트리거 AABB + 목적지 `Loc{world,xyz,yaw,pitch}`) + ⑤각성 게이트.
+
+### PlayerData 각성 플래그 (조사 완료)
+- `extraFlags: Map<String,List<String>>` 사용. 선례 = 페리 `extraFlags["페리권한"].add(route)` + `markDirty()`.
+- 각성 = `extraFlags["포탈각인"].add(nodeId)` + `markDirty()`. 게이트 = `.getOrDefault("포탈각인", List.of()).contains(nodeId)`.
+
+### 거점 좌표 (regions.json pos1 앵커 — ★도착점 아님, 실측 필요)
+| 거점 | region id | world | pos1 (x,y,z) |
+|------|-----------|-------|--------------|
+| 사막마을 | `사막마을` | world | -369, 72, 179 |
+| 상단마을 | `상단마을` | world | 893, 77, -36 |
+| 왕도 | `왕도` | world | 463, 88, 203 |
+| 스폰 | `스폰도시` | world | 268, 79, 1078 |
+- ⚠️ pos1은 손배치 앵커. 실제 `/지역이동` 도착 = 폴리곤 bbox 중심 X/Z + 표층 Y(런타임 계산). 패드 목적지 좌표는 **인게임 실측**해서 넣어야 함.
+- ⚠️ **마탑(앞섬) 좌표 미확보** — 유저가 새로 지은 섬. 스폰(268,79,1078) 부근 물 위, 위치 실측 필요.
+- ferries.json엔 실제 노선 없음(`test` 플레이스홀더뿐) → 거점 좌표 소스는 regions.json이 유일.
+
+### quest/ + npc/ (조사 완료)
+- 데이터: `quests.json`(198개, `퀘스트` 맵) · `npc.json`(82, `{order, npcs}`) · `dialogue.json`(별도 파일). 알비스 미존재 = 신규.
+- **퀘 필드**: `이름 설명[] 목표[] 타입 카테고리(메인/사이드/일일/주간/튜토/히든) 필요레벨 선행퀘스트 다음퀘스트 안내좌표 보상돈 보상경험치 보상재료 보상칭호 보상도감해금 …`.
+- **목표 타입 16종**, 우리 것: `fish|<이름|아무>|<등급|아무|E~S>|<수>|<최소크기>` = 성광어 낚기. `visit|<npcId>|<표시명>` = NPC 우클릭.
+- **체인**: `선행퀘스트`+`다음퀘스트`로 N단계 선형. 상태 대기→진행→완료대기→완료. **레벨 게이트** = `필요레벨`(int).
+- **각성 플래그**: `extraFlags` 사용. ①(추천) 신규 `보상각인` 필드 + `rewardAttune`→`extraFlags["각인"]`(`rewardKey` 미러, ~10줄) / ②무코드 `보상열쇠:"각인:..."`(열쇠 네임스페이스 오염).
+- ★**결정적 제약**: 플래그 보상은 `완료대기`→NPC에서 클레임 시에만 지급(`giveReward`). `visit`/`action` 목표는 완료 시 돈·경험치만 주고 **플래그 스킵**. → **각성 주는 마지막 단계는 반드시 `fish`류 클레임 목표**(성광어 낚기)여야 함.
+- **알비스 NPC**: `npc.json`에 `{citizensId, name:"&b알비스", scrollShop:true, quest:false, quests:["알비스01",…]}`. `dialogue.json`에 `인사`+`진행중` 노드. 색 = 하늘 `&b`(기능형=주문서 상점이 상시 주기능; 퀘도 주지만 [Q]초록 아님 — 확정 필요).
+- **퀘라인 초안(2단계)**: 알비스01(Lv65, 인트로+워밍업)→알비스02(오로라 중 성광어 1마리 낚기 → 클레임 → `보상각인` 포탈각성 + `보상도감해금` 성광어). 오로라 발동 트리거는 물고기/오로라 조사 후 확정.
+
+### fishing/ + fish.json + 오로라 (조사 완료)
+- **fish.json**: `{fish:{name→FishDef}, regions:{rid→{sublist→[names]}}, environment:{type→[names]}}`. FishDef = `minSize maxSize grade(E~S) time weather quest`. 로더 `region/FishLoader`(단일 권위). 도감 소속 = regions/environment 어딘가에 이름 있으면 분류. 선례 퀘물고기 `상단화물꼬리표`=grade E(=신뢰 포획)+`quest` 게이트 → **성광어도 낮은 grade로 두면 의식 중 확실히 잡힘**(전설=로어, 포획난이도 아님).
+- **낚시 롤**: `fishing/FishingListener.onFish`(L93), grade roll L235. 플레이어 지역=`RegionTracker.getPlayerRegion`. 기존 게이트: 시간대·비/뇌우·지역상속·**커스텀 지역날씨**(L145 `getEnvFish(getEffectiveWeather(area))`)·**퀘 게이트**(L162 `quest` 필드→해당 퀘 비활성 시 제거).
+- **성광어 이중 게이트**: ①데이터 `FishDef.quest:"알비스02"` + ②Java `names.removeIf(n->"성광어".equals(n) && !"오로라".equals(weather.getEffectiveWeather(area)))`. → 의식 퀘 중 + 마탑 오로라에서만. 자연 야간 오로라로 딴 데 새는 것 차단.
+- **오로라 = WeatherManager 날씨 타입** `"오로라"`(global=true, requiredTime=심야, exp+15/크리+20). 시각 2겹: 전역 커튼(`AuroraDisplayManager`=전역 전용) + 지역 파티클(`RegionParticleTask`=지역 오로라 반영). 제어: 전역 `startGlobalWeather/stopGlobalWeather` · 지역 `startWeather(rid,"오로라")/stopWeather(rid)`.
+- ★제약: 지속 12000틱(10분) 하드코딩 · **심야 게이트**(낮엔 시작 불가+새벽 자동종료). → 의식용은 **WeatherManager에 의식 전용 시작 메서드 신규**(심야 우회+지역 스코프+커스텀 지속, 자연 오로라 WeatherDef 훼손 금지). v1 시각=마탑 지역 파티클(전역 커튼은 전원 영향이라 v2).
+- **마탑 지역 없음** → regions.json에 신규 `마탑` 지역 생성 필요(좌표 실측).
+
+## 진행 상태 (2026-07-19, dev)
+**★설계 변경: 오로라 = 전역 + 심야 전용 (지역 스코프 폐기).** 알비스02 진행 중 **심야에 낚싯대를 드리우면 전역 오로라 소환**(`FishingListener` 훅, 하늘 맑을 때) → 온 하늘 커튼 + 성광어 출현. 새벽에 자연 종료, 다음 밤 재낚시로 재소환(안 막힘). **마탑 지역 불필요.**
+
+- ✅ **Java (컴파일 성공)** — `FishingListener`(알비스02+심야+맑음 → `startGlobalWeather("오로라")` 소환) · `QuestManager`(`보상각인`+`rewardAttune`, 날씨 의존 없음) · 신규 `portal/PadManager`(근접+각성게이트+선택GUI+`/포탈패드`) · `BlockShipPlugin` 배선. WIP 21개 위에 얹음. **미빌드/미배포.**
+- ✅ **JSON (검증 완료)** — fish.json(성광어 grade E · `quest:알비스02` · `environment[오로라]`) · quests.json(알비스01 Lv65 → 알비스02 "밤바다 낚시" + `보상각인:포탈각인:각성`) · dialogue.json(알비스, 진행중=밤낚시 힌트).
+- ⬜ **npc.json** — 알비스 엔트리는 배치 후 citizensId 필요 → 배치 단계. 예정 `{citizensId:<후>, name:"&b알비스", scrollShop:true, quest:false, quests:["알비스01","알비스02"]}`.
+- ⬜ **좌표/배치(유저·인게임)** → 알비스 Citizens 배치 + 포탈 패드 4곳(`/포탈패드`, 도착점 실측). ★지역 실측 불필요(오로라 전역).
+- ⬜ **빌드 → deploy-dev → 재시작(1회, 확인 후)** → 이후 인게임 배치·검증.
+
+거점 좌표(regions.json pos1 앵커, ★패드 도착점은 실측 필요): 사막마을 -369,72,179 · 상단마을 893,77,-36 · 왕도 463,88,203 · 스폰 268,79,1078.
+
+> ⚠️ MCP `mc_*` 월드 툴은 prod(오라클)를 가리킬 수 있음 — 패드/제단 배치 전 dev 타겟 확인 필수.

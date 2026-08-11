@@ -1,0 +1,19 @@
+{
+  "citizensId": 47,
+  "npc": "금서고지기",
+  "displayName": "&a[Q] 금서고 지기",
+  "skin": "lib_vaultkeeper",
+  "roles": [],
+  "quests": [
+    "왕도10"
+  ],
+  "states": [
+    "base",
+    "talk",
+    "surprised"
+  ],
+  "dialogue_lines": [
+    "여기서부터는 봉인된 서고. 금서고 열쇠 없이는 아무도 들일 수 없소.",
+    "왕명으로 허가받은 자라면… 어둠 속 진실을 마주할 각오는 되었소?"
+  ]
+}

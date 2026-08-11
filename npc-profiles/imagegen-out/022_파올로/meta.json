@@ -1,0 +1,14 @@
+{
+  "citizensId": 22,
+  "npc": "파올로",
+  "displayName": "&b[물고기 판매] 파올로",
+  "skin": "tt_paolo",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

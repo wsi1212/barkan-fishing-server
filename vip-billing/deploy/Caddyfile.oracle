@@ -1,0 +1,18 @@
+lh-bizben.duckdns.org {
+    reverse_proxy localhost:3000
+}
+
+barkan.kro.kr {
+    redir /vip /vip/ 308
+    handle_path /vip/* {
+        reverse_proxy 127.0.0.1:3100
+    }
+    handle /barkan-resourcepack.zip {
+        root * /var/www/barkan
+        file_server
+    }
+    handle_path /admin/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+    # 루트(/)는 향후 서버 소개 페이지용으로 예약 — 지금은 아무 핸들러도 없음(404).
+}

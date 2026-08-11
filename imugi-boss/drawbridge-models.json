@@ -1,0 +1,12 @@
+{
+ "성문다리": {
+  "item_model": "barkan:drawbridge/castle_gate_deck",
+  "scale": 8.258065,
+  "anchor": [
+   531.0,
+   111.0,
+   1241
+  ],
+  "hingeSide": "WEST"
+ }
+}

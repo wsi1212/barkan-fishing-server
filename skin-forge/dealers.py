@@ -60,7 +60,9 @@ VARIANTS = {
                eye_y=4, iris='green', jaw='oval', cheek=True),
     '32': dict(file='d_holdem1', cid=32, table='holdem', prop='chips',
                skin='946642', hair='241d18', beard='full', visor=True,
-               eye_y=3, iris='amber', jaw='narrow', brow_a=1),
+               # ★eye_y=3이면 바이저(0~3행)가 두 눈을 통째로 덮는다(실측 사고, cid32).
+               #   바이저를 쓰는 딜러는 눈이 반드시 4행 이하여야 한다.
+               eye_y=4, iris='amber', jaw='narrow', brow_a=1),
     '41': dict(file='d_holdem2', cid=41, table='holdem', prop='cards',
                female=True, skin='cfa47e', hair='c2a052', backhair=8, beard=None, visor=False,
                eye_y=4, iris='hazel', jaw='oval', marks='mole'),

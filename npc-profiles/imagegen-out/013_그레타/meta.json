@@ -1,0 +1,14 @@
+{
+  "citizensId": 13,
+  "npc": "그레타",
+  "displayName": "&b[물고기 판매] 그레타",
+  "skin": "tf_greta",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

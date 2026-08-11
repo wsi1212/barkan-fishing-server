@@ -1,0 +1,14 @@
+{
+  "citizensId": 19,
+  "npc": "퀘스트",
+  "displayName": "&b[퀘스트] 디트리히",
+  "skin": "tf_dietrich",
+  "roles": [
+    "quest"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

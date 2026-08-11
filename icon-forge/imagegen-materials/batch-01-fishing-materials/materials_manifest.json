@@ -1,0 +1,21 @@
+[
+  {"matId":"물고기비늘","name":"물고기 비늘","file":"01_fish_scale.png","grade":"E","resolution":64},
+  {"matId":"녹슨부품","name":"녹슨 부품","file":"02_rusted_part.png","grade":"E","resolution":64},
+  {"matId":"낡은갈고리","name":"낡은 갈고리","file":"03_old_hook.png","grade":"E","resolution":64},
+  {"matId":"강화실","name":"강화 실","file":"04_reinforced_thread.png","grade":"E","resolution":64},
+  {"matId":"깃털찌조각","name":"깃털 찌 조각","file":"05_feather_float_fragment.png","grade":"E","resolution":64},
+  {"matId":"진주","name":"진주","file":"06_pearl.png","grade":"C","resolution":128},
+  {"matId":"거대비늘","name":"거대 비늘","file":"07_giant_scale.png","grade":"B","resolution":128},
+  {"matId":"별빛진주","name":"별빛 진주","file":"08_starlight_pearl.png","grade":"S","resolution":256},
+  {"matId":"안개수정","name":"안개 수정","file":"09_mist_crystal.png","grade":"B","resolution":128},
+  {"matId":"행운의구슬","name":"행운의 구슬","file":"10_lucky_orb.png","grade":"B","resolution":128},
+  {"matId":"바르칸조각","name":"바르칸 조각","file":"11_barkan_shard.png","grade":"A","resolution":256},
+  {"matId":"미끼","name":"미끼","file":"12_bait.png","grade":"E","resolution":64},
+  {"matId":"나뭇가지","name":"나뭇가지","file":"13_branch.png","grade":"E","resolution":64},
+  {"matId":"깨진 토기 조각","name":"깨진 토기 조각","file":"14_broken_pottery.png","grade":"D","resolution":64},
+  {"matId":"미감정 유물","name":"미감정 유물","file":"15_unidentified_relic.png","grade":"A","resolution":256},
+  {"matId":"진주조개","name":"진주조개","file":"16_pearl_oyster.png","grade":"C","resolution":128},
+  {"matId":"보석","name":"보석","file":"17_gemstone.png","grade":"A","resolution":256},
+  {"matId":"고대 유물","name":"고대 유물","file":"18_ancient_relic.png","grade":"A","resolution":256},
+  {"matId":"산호조각","name":"산호 조각","file":"19_coral_fragment.png","grade":"C","resolution":128}
+]

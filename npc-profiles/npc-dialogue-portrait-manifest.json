@@ -1,0 +1,2569 @@
+{
+  "version": 1,
+  "canvas": [
+    128,
+    154
+  ],
+  "visible_box": [
+    118,
+    138
+  ],
+  "entries": [
+    {
+      "citizensId": 1,
+      "npc": "낚시꾼할아버지",
+      "skin": "cm_old_angler",
+      "states": {
+        "base": {
+          "key": "001_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_001_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/001_낚시꾼할아버지.png"
+        },
+        "talk": {
+          "key": "001_talk",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_001_talk.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/special-angler-caver/framed/001_낚시꾼할아버지_talk.png"
+        },
+        "happy": {
+          "key": "001_happy",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_001_happy.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/special-angler-caver/framed/001_낚시꾼할아버지_happy.png"
+        },
+        "stern": {
+          "key": "001_stern",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_001_stern.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/special-angler-caver/framed/001_낚시꾼할아버지_stern.png"
+        }
+      }
+    },
+    {
+      "citizensId": 2,
+      "npc": "동굴탐험가",
+      "skin": "cm_caver",
+      "states": {
+        "base": {
+          "key": "002_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_002_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/002_동굴탐험가_base.png"
+        },
+        "talk": {
+          "key": "002_talk",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_002_talk.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/002_동굴탐험가_talk.png"
+        },
+        "happy": {
+          "key": "002_happy",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_002_happy.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/002_동굴탐험가_happy.png"
+        },
+        "stern": {
+          "key": "002_stern",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_002_stern.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/002_동굴탐험가_stern.png"
+        }
+      }
+    },
+    {
+      "citizensId": 4,
+      "npc": "페리선장",
+      "skin": "cm_ferry_captain",
+      "states": {
+        "base": {
+          "key": "004_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_004_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/004_페리선장.png"
+        }
+      }
+    },
+    {
+      "citizensId": 6,
+      "npc": "한스",
+      "skin": "tf_helga",
+      "states": {
+        "base": {
+          "key": "006_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_006_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/006_한스.png"
+        }
+      }
+    },
+    {
+      "citizensId": 7,
+      "npc": "클라우스",
+      "skin": "tf_klaus",
+      "states": {
+        "base": {
+          "key": "007_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_007_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/007_클라우스.png"
+        }
+      }
+    },
+    {
+      "citizensId": 8,
+      "npc": "브루노",
+      "skin": "tf_bruno",
+      "states": {
+        "base": {
+          "key": "008_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_008_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/008_브루노.png"
+        }
+      }
+    },
+    {
+      "citizensId": 9,
+      "npc": "군터",
+      "skin": "tf_gunter",
+      "states": {
+        "base": {
+          "key": "009_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_009_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/009_군터.png"
+        }
+      }
+    },
+    {
+      "citizensId": 10,
+      "npc": "파리드",
+      "skin": "df_farid",
+      "states": {
+        "base": {
+          "key": "010_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_010_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/010_파리드.png"
+        }
+      }
+    },
+    {
+      "citizensId": 12,
+      "npc": "하산",
+      "skin": "df_hasan",
+      "states": {
+        "base": {
+          "key": "012_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_012_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/012_하산.png"
+        }
+      }
+    },
+    {
+      "citizensId": 13,
+      "npc": "그레타",
+      "skin": "tf_greta",
+      "states": {
+        "base": {
+          "key": "013_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_013_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/013_그레타.png"
+        }
+      }
+    },
+    {
+      "citizensId": 14,
+      "npc": "오토",
+      "skin": "otto",
+      "states": {
+        "base": {
+          "key": "014_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_014_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/014_오토.png"
+        }
+      }
+    },
+    {
+      "citizensId": 15,
+      "npc": "카심",
+      "skin": "df_kasim",
+      "states": {
+        "base": {
+          "key": "015_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_015_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/015_카심_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 16,
+      "npc": "자말",
+      "skin": "df_jamal",
+      "states": {
+        "base": {
+          "key": "016_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_016_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/016_자말.png"
+        }
+      }
+    },
+    {
+      "citizensId": 17,
+      "npc": "콘라트",
+      "skin": "tf_ingrid",
+      "states": {
+        "base": {
+          "key": "017_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_017_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/017_콘라트.png"
+        }
+      }
+    },
+    {
+      "citizensId": 18,
+      "npc": "마켓",
+      "skin": "tf_raimund",
+      "states": {
+        "base": {
+          "key": "018_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_018_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/next10-skin-confirmed/framed/018_마켓.png"
+        }
+      }
+    },
+    {
+      "citizensId": 19,
+      "npc": "퀘스트",
+      "skin": "tf_dietrich",
+      "states": {
+        "base": {
+          "key": "019_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_019_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/019_퀘스트_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 20,
+      "npc": "유수프",
+      "skin": "yusuf",
+      "states": {
+        "base": {
+          "key": "020_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_020_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/020_유수프_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 21,
+      "npc": "프란츠",
+      "skin": "tf_franz",
+      "states": {
+        "base": {
+          "key": "021_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_021_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/021_프란츠.png"
+        }
+      }
+    },
+    {
+      "citizensId": 22,
+      "npc": "파올로",
+      "skin": "tt_paolo",
+      "states": {
+        "base": {
+          "key": "022_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_022_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/022_파올로.png"
+        }
+      }
+    },
+    {
+      "citizensId": 23,
+      "npc": "루카",
+      "skin": "tt_luca",
+      "states": {
+        "base": {
+          "key": "023_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_023_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/023_루카_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 24,
+      "npc": "로렌초",
+      "skin": "tt_lorenzo",
+      "states": {
+        "base": {
+          "key": "024_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_024_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/bases/missing/framed/024_로렌초.png"
+        }
+      }
+    },
+    {
+      "citizensId": 25,
+      "npc": "비토",
+      "skin": "tt_vito",
+      "states": {
+        "base": {
+          "key": "025_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_025_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/bases/missing/framed/025_비토.png"
+        }
+      }
+    },
+    {
+      "citizensId": 26,
+      "npc": "브록",
+      "skin": "tt_brock",
+      "states": {
+        "base": {
+          "key": "026_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_026_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/026_브록_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 27,
+      "npc": "엔초",
+      "skin": "tt_enzo",
+      "states": {
+        "base": {
+          "key": "027_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_027_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/bases/missing/framed/027_엔초.png"
+        }
+      }
+    },
+    {
+      "citizensId": 28,
+      "npc": "대장간안내",
+      "skin": "tf_felix",
+      "states": {
+        "base": {
+          "key": "028_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_028_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/028_대장간안내.png"
+        },
+        "progress": {
+          "key": "028_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_028_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/028_대장간안내/framed/progress.png"
+        },
+        "complete": {
+          "key": "028_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_028_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/028_대장간안내/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 29,
+      "npc": "시장안내",
+      "skin": "tf_marta",
+      "states": {
+        "base": {
+          "key": "029_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_029_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/029_시장안내.png"
+        },
+        "progress": {
+          "key": "029_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_029_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/029_시장안내/framed/progress.png"
+        },
+        "complete": {
+          "key": "029_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_029_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/029_시장안내/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 30,
+      "npc": "요리안내",
+      "skin": "tf_bettina",
+      "states": {
+        "base": {
+          "key": "030_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_030_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/030_요리안내.png"
+        },
+        "progress": {
+          "key": "030_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_030_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/030_요리안내/framed/progress.png"
+        },
+        "complete": {
+          "key": "030_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_030_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/030_요리안내/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 31,
+      "npc": "룰렛딜러",
+      "skin": "d_roulette1",
+      "states": {
+        "base": {
+          "key": "031_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_031_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/031_룰렛딜러.png"
+        }
+      }
+    },
+    {
+      "citizensId": 32,
+      "npc": "홀덤딜러",
+      "skin": "d_holdem1",
+      "states": {
+        "base": {
+          "key": "032_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_032_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch03-skin-confirmed/framed/032_홀덤딜러.png"
+        }
+      }
+    },
+    {
+      "citizensId": 33,
+      "npc": "섯다딜러",
+      "skin": "d_seotda1",
+      "states": {
+        "base": {
+          "key": "033_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_033_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/033_섯다딜러_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 34,
+      "npc": "블랙잭딜러",
+      "skin": "d_blackjack1",
+      "states": {
+        "base": {
+          "key": "034_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_034_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/bases/missing/framed/034_블랙잭딜러.png"
+        }
+      }
+    },
+    {
+      "citizensId": 35,
+      "npc": "쓰리카드딜러",
+      "skin": "d_threecard1",
+      "states": {
+        "base": {
+          "key": "035_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_035_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/035_쓰리카드딜러.png"
+        }
+      }
+    },
+    {
+      "citizensId": 36,
+      "npc": "슬롯도우미",
+      "skin": "d_slot1",
+      "states": {
+        "base": {
+          "key": "036_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_036_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/036_슬롯도우미.png"
+        }
+      }
+    },
+    {
+      "citizensId": 37,
+      "npc": "슬롯안내원",
+      "skin": "d_slot2",
+      "states": {
+        "base": {
+          "key": "037_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_037_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/037_슬롯안내원.png"
+        }
+      }
+    },
+    {
+      "citizensId": 38,
+      "npc": "블랙잭딜러2",
+      "skin": "d_blackjack2",
+      "states": {
+        "base": {
+          "key": "038_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_038_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/038_블랙잭딜러2.png"
+        }
+      }
+    },
+    {
+      "citizensId": 39,
+      "npc": "블랙잭딜러3",
+      "skin": "d_blackjack3",
+      "states": {
+        "base": {
+          "key": "039_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_039_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/039_블랙잭딜러3.png"
+        }
+      }
+    },
+    {
+      "citizensId": 40,
+      "npc": "쓰리카드딜러2",
+      "skin": "d_threecard2",
+      "states": {
+        "base": {
+          "key": "040_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_040_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/040_쓰리카드딜러2.png"
+        }
+      }
+    },
+    {
+      "citizensId": 41,
+      "npc": "홀덤딜러2",
+      "skin": "d_holdem2",
+      "states": {
+        "base": {
+          "key": "041_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_041_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/041_홀덤딜러2.png"
+        }
+      }
+    },
+    {
+      "citizensId": 42,
+      "npc": "섯다딜러2",
+      "skin": "d_seotda2",
+      "states": {
+        "base": {
+          "key": "042_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_042_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/042_섯다딜러2.png"
+        }
+      }
+    },
+    {
+      "citizensId": 43,
+      "npc": "마부",
+      "skin": "tf_oskar",
+      "states": {
+        "base": {
+          "key": "043_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_043_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/043_마부.png"
+        }
+      }
+    },
+    {
+      "citizensId": 44,
+      "npc": "국왕",
+      "skin": "king",
+      "states": {
+        "base": {
+          "key": "044_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_044_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/044_국왕.png"
+        },
+        "progress": {
+          "key": "044_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_044_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/044_국왕/framed/progress.png"
+        },
+        "complete": {
+          "key": "044_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_044_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/044_국왕/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 45,
+      "npc": "대사서",
+      "skin": "archivist",
+      "states": {
+        "base": {
+          "key": "045_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/045_대사서.png"
+        },
+        "progress": {
+          "key": "045_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/045_대사서/framed/progress.png"
+        },
+        "complete": {
+          "key": "045_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/045_대사서/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 46,
+      "npc": "필경사",
+      "skin": "lib_scribe",
+      "states": {
+        "base": {
+          "key": "046_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_046_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/046_필경사.png"
+        },
+        "progress": {
+          "key": "046_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_046_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/046_필경사/framed/progress.png"
+        },
+        "complete": {
+          "key": "046_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_046_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/046_필경사/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 47,
+      "npc": "금서고지기",
+      "skin": "lib_vaultkeeper",
+      "states": {
+        "base": {
+          "key": "047_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_047_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/047_금서고지기_base.png"
+        },
+        "progress": {
+          "key": "047_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_047_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/047_금서고지기_progress.png"
+        },
+        "complete": {
+          "key": "047_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_047_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/047_금서고지기_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 48,
+      "npc": "종지기",
+      "skin": "bellringer",
+      "states": {
+        "base": {
+          "key": "048_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_048_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/048_종지기.png"
+        },
+        "progress": {
+          "key": "048_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_048_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/048_종지기/framed/progress.png"
+        },
+        "complete": {
+          "key": "048_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_048_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/048_종지기/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 49,
+      "npc": "은둔학자",
+      "skin": "albis",
+      "states": {
+        "base": {
+          "key": "049_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_049_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/049_은둔학자.png"
+        },
+        "progress": {
+          "key": "049_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_049_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/049_은둔학자/framed/progress.png"
+        },
+        "complete": {
+          "key": "049_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_049_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/049_은둔학자/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 50,
+      "npc": "차석사서",
+      "skin": "lib_subarchivist",
+      "states": {
+        "base": {
+          "key": "050_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_050_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/050_차석사서.png"
+        },
+        "progress": {
+          "key": "050_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_050_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/050_차석사서/framed/progress.png"
+        },
+        "complete": {
+          "key": "050_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_050_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/050_차석사서/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 51,
+      "npc": "마테오",
+      "skin": "cm_matteo",
+      "states": {
+        "base": {
+          "key": "051_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_051_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/10-improved/framed/051_마테오.png"
+        },
+        "progress": {
+          "key": "051_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_051_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/051_마테오/framed/progress.png"
+        },
+        "complete": {
+          "key": "051_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_051_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/051_마테오/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 52,
+      "npc": "엔리코",
+      "skin": "cm_enrico",
+      "states": {
+        "base": {
+          "key": "052_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_052_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/052_엔리코_base.png"
+        },
+        "progress": {
+          "key": "052_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_052_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/052_엔리코_progress.png"
+        },
+        "complete": {
+          "key": "052_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_052_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/052_엔리코_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 53,
+      "npc": "피노",
+      "skin": "cm_pino",
+      "states": {
+        "base": {
+          "key": "053_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_053_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/053_피노.png"
+        },
+        "progress": {
+          "key": "053_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_053_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/053_피노/framed/progress.png"
+        },
+        "complete": {
+          "key": "053_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_053_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/053_피노/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 54,
+      "npc": "조반니",
+      "skin": "cm_giovanni_hold",
+      "states": {
+        "base": {
+          "key": "054_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_054_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/054_조반니.png"
+        },
+        "progress": {
+          "key": "054_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_054_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/054_조반니/framed/progress.png"
+        },
+        "complete": {
+          "key": "054_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_054_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/054_조반니/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 55,
+      "npc": "이자벨라",
+      "skin": "cm_isabella",
+      "states": {
+        "base": {
+          "key": "055_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_055_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/055_이자벨라_base.png"
+        },
+        "progress": {
+          "key": "055_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_055_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/055_이자벨라_progress.png"
+        },
+        "complete": {
+          "key": "055_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_055_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/055_이자벨라_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 56,
+      "npc": "니코",
+      "skin": "cm_niko",
+      "states": {
+        "base": {
+          "key": "056_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_056_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch05-skin-confirmed/framed/056_니코.png"
+        },
+        "progress": {
+          "key": "056_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_056_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/056_니코/framed/progress.png"
+        },
+        "complete": {
+          "key": "056_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_056_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/056_니코/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 57,
+      "npc": "왕실요리장",
+      "skin": "gregor",
+      "states": {
+        "base": {
+          "key": "057_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_057_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/057_왕실요리장_base.png"
+        },
+        "progress": {
+          "key": "057_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_057_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/057_왕실요리장_progress.png"
+        },
+        "complete": {
+          "key": "057_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_057_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/057_왕실요리장_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 58,
+      "npc": "궁정상인",
+      "skin": "valentin",
+      "states": {
+        "base": {
+          "key": "058_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/058_궁정상인.png"
+        },
+        "progress": {
+          "key": "058_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/058_궁정상인/framed/progress.png"
+        },
+        "complete": {
+          "key": "058_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/058_궁정상인/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 59,
+      "npc": "도서관견습생",
+      "skin": "nina",
+      "states": {
+        "base": {
+          "key": "059_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_059_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/059_도서관견습생.png"
+        },
+        "progress": {
+          "key": "059_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_059_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/059_도서관견습생/framed/progress.png"
+        },
+        "complete": {
+          "key": "059_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_059_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/059_도서관견습생/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 60,
+      "npc": "위병1",
+      "skin": "guard_lothar",
+      "states": {
+        "base": {
+          "key": "060_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_060_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/060_위병1.png"
+        },
+        "progress": {
+          "key": "060_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_060_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/060_위병1/framed/progress.png"
+        },
+        "complete": {
+          "key": "060_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_060_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/060_위병1/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 61,
+      "npc": "위병2",
+      "skin": "guard_kurt",
+      "states": {
+        "base": {
+          "key": "061_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_061_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/061_위병2.png"
+        },
+        "progress": {
+          "key": "061_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_061_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/061_위병2/framed/progress.png"
+        },
+        "complete": {
+          "key": "061_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_061_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/061_위병2/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 62,
+      "npc": "위병3",
+      "skin": "guard_dieter",
+      "states": {
+        "base": {
+          "key": "062_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_062_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/062_위병3.png"
+        }
+      }
+    },
+    {
+      "citizensId": 63,
+      "npc": "위병4",
+      "skin": "guard_oswald",
+      "states": {
+        "base": {
+          "key": "063_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_063_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/063_위병4.png"
+        }
+      }
+    },
+    {
+      "citizensId": 64,
+      "npc": "시민1",
+      "skin": "cm_pilgrim",
+      "states": {
+        "base": {
+          "key": "064_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_064_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/064_시민1.png"
+        }
+      }
+    },
+    {
+      "citizensId": 65,
+      "npc": "시민2",
+      "skin": "cm_peddler",
+      "states": {
+        "base": {
+          "key": "065_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_065_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/065_시민2_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 66,
+      "npc": "시민3",
+      "skin": "goodwife",
+      "states": {
+        "base": {
+          "key": "066_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_066_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/066_시민3.png"
+        }
+      }
+    },
+    {
+      "citizensId": 67,
+      "npc": "시민4",
+      "skin": "lib_apprentice",
+      "states": {
+        "base": {
+          "key": "067_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_067_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/067_시민4.png"
+        }
+      }
+    },
+    {
+      "citizensId": 68,
+      "npc": "시민5",
+      "skin": "villager",
+      "states": {
+        "base": {
+          "key": "068_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_068_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/068_시민5.png"
+        }
+      }
+    },
+    {
+      "citizensId": 69,
+      "npc": "시민6",
+      "skin": "fishwife",
+      "states": {
+        "base": {
+          "key": "069_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_069_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/069_시민6.png"
+        }
+      }
+    },
+    {
+      "citizensId": 70,
+      "npc": "하겐",
+      "skin": "hagen",
+      "states": {
+        "base": {
+          "key": "070_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_070_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/070_하겐_base.png"
+        },
+        "progress": {
+          "key": "070_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_070_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/070_하겐_progress.png"
+        },
+        "complete": {
+          "key": "070_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_070_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/070_하겐_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 71,
+      "npc": "세르간",
+      "skin": "tf_sergan",
+      "states": {
+        "base": {
+          "key": "071_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/071_세르간.png"
+        },
+        "progress": {
+          "key": "071_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/071_세르간/framed/progress.png"
+        },
+        "complete": {
+          "key": "071_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/071_세르간/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 72,
+      "npc": "마리",
+      "skin": "tf_marie",
+      "states": {
+        "base": {
+          "key": "072_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_072_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/072_마리.png"
+        },
+        "progress": {
+          "key": "072_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_072_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/072_마리/framed/progress.png"
+        },
+        "complete": {
+          "key": "072_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_072_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/072_마리/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 73,
+      "npc": "도란",
+      "skin": "tf_doran",
+      "states": {
+        "base": {
+          "key": "073_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/073_도란.png"
+        },
+        "progress": {
+          "key": "073_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/073_도란/framed/progress.png"
+        },
+        "complete": {
+          "key": "073_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/073_도란/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 74,
+      "npc": "노인",
+      "skin": "elder_fisher",
+      "states": {
+        "base": {
+          "key": "074_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/074_노인.png"
+        },
+        "progress": {
+          "key": "074_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/074_노인/framed/progress.png"
+        },
+        "complete": {
+          "key": "074_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/074_노인/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 75,
+      "npc": "리나",
+      "skin": "tf_rina",
+      "states": {
+        "base": {
+          "key": "075_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_075_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/075_리나.png"
+        },
+        "progress": {
+          "key": "075_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_075_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/075_리나/framed/progress.png"
+        },
+        "complete": {
+          "key": "075_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_075_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/075_리나/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 76,
+      "npc": "나디아",
+      "skin": "df_nadia",
+      "states": {
+        "base": {
+          "key": "076_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_076_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/076_나디아.png"
+        },
+        "progress": {
+          "key": "076_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_076_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/076_나디아/framed/progress.png"
+        },
+        "complete": {
+          "key": "076_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_076_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/076_나디아/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 77,
+      "npc": "노파",
+      "skin": "crone",
+      "states": {
+        "base": {
+          "key": "077_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_077_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/077_노파.png"
+        },
+        "progress": {
+          "key": "077_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_077_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/077_노파/framed/progress.png"
+        },
+        "complete": {
+          "key": "077_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_077_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/077_노파/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 78,
+      "npc": "사피르",
+      "skin": "df_safir",
+      "states": {
+        "base": {
+          "key": "078_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/078_사피르.png"
+        },
+        "progress": {
+          "key": "078_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/078_사피르_progress.png"
+        },
+        "complete": {
+          "key": "078_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/078_사피르_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 79,
+      "npc": "유세프",
+      "skin": "df_yusef",
+      "states": {
+        "base": {
+          "key": "079_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_079_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/079_유세프_base.png"
+        },
+        "progress": {
+          "key": "079_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_079_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/079_유세프_progress.png"
+        },
+        "complete": {
+          "key": "079_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_079_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/079_유세프_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 80,
+      "npc": "카림",
+      "skin": "df_karim",
+      "states": {
+        "base": {
+          "key": "080_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/080_카림.png"
+        },
+        "progress": {
+          "key": "080_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/080_카림/framed/progress.png"
+        },
+        "complete": {
+          "key": "080_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/080_카림/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 81,
+      "npc": "할릴",
+      "skin": "df_halil",
+      "states": {
+        "base": {
+          "key": "081_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/081_할릴.png"
+        },
+        "progress": {
+          "key": "081_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/081_할릴/framed/progress.png"
+        },
+        "complete": {
+          "key": "081_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/081_할릴/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 82,
+      "npc": "마르코",
+      "skin": "marco",
+      "states": {
+        "base": {
+          "key": "082_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_082_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/082_마르코_base.png"
+        },
+        "progress": {
+          "key": "082_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_082_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/082_마르코_progress.png"
+        },
+        "complete": {
+          "key": "082_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_082_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/082_마르코_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 83,
+      "npc": "레일라",
+      "skin": "tt_leila",
+      "states": {
+        "base": {
+          "key": "083_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_083_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/083_레일라.png"
+        },
+        "progress": {
+          "key": "083_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_083_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/083_레일라/framed/progress.png"
+        },
+        "complete": {
+          "key": "083_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_083_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/083_레일라/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 84,
+      "npc": "안토니오",
+      "skin": "tt_antonio",
+      "states": {
+        "base": {
+          "key": "084_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_084_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/084_안토니오.png"
+        }
+      }
+    },
+    {
+      "citizensId": 85,
+      "npc": "줄리아",
+      "skin": "tt_giulia",
+      "states": {
+        "base": {
+          "key": "085_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_085_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/085_줄리아.png"
+        }
+      }
+    },
+    {
+      "citizensId": 86,
+      "npc": "프란체스코",
+      "skin": "tt_francesco",
+      "states": {
+        "base": {
+          "key": "086_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_086_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/086_프란체스코.png"
+        }
+      }
+    },
+    {
+      "citizensId": 87,
+      "npc": "클라우디아",
+      "skin": "tt_claudia",
+      "states": {
+        "base": {
+          "key": "087_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_087_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/087_클라우디아.png"
+        }
+      }
+    },
+    {
+      "citizensId": 88,
+      "npc": "빈센초",
+      "skin": "tt_vincenzo",
+      "states": {
+        "base": {
+          "key": "088_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_088_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/088_빈센초.png"
+        }
+      }
+    },
+    {
+      "citizensId": 89,
+      "npc": "살바토레",
+      "skin": "tt_salvatore",
+      "states": {
+        "base": {
+          "key": "089_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_089_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/089_살바토레.png"
+        }
+      }
+    },
+    {
+      "citizensId": 90,
+      "npc": "로사",
+      "skin": "tt_rosa",
+      "states": {
+        "base": {
+          "key": "090_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_090_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/090_로사.png"
+        }
+      }
+    },
+    {
+      "citizensId": 91,
+      "npc": "마시모",
+      "skin": "tt_massimo",
+      "states": {
+        "base": {
+          "key": "091_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_091_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/091_마시모.png"
+        }
+      }
+    },
+    {
+      "citizensId": 92,
+      "npc": "잔니",
+      "skin": "tt_gianni",
+      "states": {
+        "base": {
+          "key": "092_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_092_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/092_잔니_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 93,
+      "npc": "베아트리체",
+      "skin": "beatrice",
+      "states": {
+        "base": {
+          "key": "093_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_093_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/093_베아트리체.png"
+        }
+      }
+    },
+    {
+      "citizensId": 94,
+      "npc": "도메니코",
+      "skin": "tt_domenico",
+      "states": {
+        "base": {
+          "key": "094_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_094_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/094_도메니코.png"
+        }
+      }
+    },
+    {
+      "citizensId": 95,
+      "npc": "알도",
+      "skin": "aldo",
+      "states": {
+        "base": {
+          "key": "095_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_095_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/095_알도.png"
+        },
+        "progress": {
+          "key": "095_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_095_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/095_알도/framed/progress.png"
+        },
+        "complete": {
+          "key": "095_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_095_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/095_알도/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 96,
+      "npc": "카를로",
+      "skin": "tt_carlo",
+      "states": {
+        "base": {
+          "key": "096_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_096_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/096_카를로.png"
+        },
+        "progress": {
+          "key": "096_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_096_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/096_카를로/framed/progress.png"
+        },
+        "complete": {
+          "key": "096_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_096_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/096_카를로/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 97,
+      "npc": "실비아",
+      "skin": "tt_silvia",
+      "states": {
+        "base": {
+          "key": "097_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_097_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/097_실비아_base.png"
+        },
+        "progress": {
+          "key": "097_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_097_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/097_실비아_progress.png"
+        },
+        "complete": {
+          "key": "097_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_097_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/097_실비아_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 98,
+      "npc": "로베르토",
+      "skin": "tt_roberto",
+      "states": {
+        "base": {
+          "key": "098_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_098_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/098_로베르토.png"
+        },
+        "progress": {
+          "key": "098_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_098_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/098_로베르토/framed/progress.png"
+        },
+        "complete": {
+          "key": "098_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_098_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/098_로베르토/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 99,
+      "npc": "파비오",
+      "skin": "tt_fabio",
+      "states": {
+        "base": {
+          "key": "099_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_099_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/099_파비오.png"
+        },
+        "progress": {
+          "key": "099_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_099_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/099_파비오/framed/progress.png"
+        },
+        "complete": {
+          "key": "099_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_099_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/099_파비오/framed/complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 100,
+      "npc": "테레사",
+      "skin": "tt_teresa",
+      "states": {
+        "base": {
+          "key": "100_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_100_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/100_테레사.png"
+        },
+        "progress": {
+          "key": "100_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_100_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/100_테레사_progress.png"
+        },
+        "complete": {
+          "key": "100_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_100_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/100_테레사_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 101,
+      "npc": "지오반나",
+      "skin": "tt_giovanna",
+      "states": {
+        "base": {
+          "key": "101_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_101_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/101_지오반나.png"
+        }
+      }
+    },
+    {
+      "citizensId": 102,
+      "npc": "하인리히",
+      "skin": "heinrich",
+      "states": {
+        "base": {
+          "key": "102_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_102_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/102_하인리히.png"
+        }
+      }
+    },
+    {
+      "citizensId": 103,
+      "npc": "그레첸",
+      "skin": "tf_gretchen",
+      "states": {
+        "base": {
+          "key": "103_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_103_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/103_그레첸.png"
+        }
+      }
+    },
+    {
+      "citizensId": 104,
+      "npc": "볼프강",
+      "skin": "tf_wolfgang",
+      "states": {
+        "base": {
+          "key": "104_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_104_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/104_볼프강.png"
+        }
+      }
+    },
+    {
+      "citizensId": 105,
+      "npc": "잉가",
+      "skin": "tf_inga",
+      "states": {
+        "base": {
+          "key": "105_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_105_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/105_잉가_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 106,
+      "npc": "디르크",
+      "skin": "tf_dirk",
+      "states": {
+        "base": {
+          "key": "106_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_106_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/106_디르크_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 107,
+      "npc": "헬무트",
+      "skin": "tf_helmut",
+      "states": {
+        "base": {
+          "key": "107_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_107_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/107_헬무트.png"
+        }
+      }
+    },
+    {
+      "citizensId": 108,
+      "npc": "브리기테",
+      "skin": "tf_brigitte",
+      "states": {
+        "base": {
+          "key": "108_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_108_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/108_브리기테_base.png"
+        },
+        "progress": {
+          "key": "108_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_108_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/108_브리기테_progress.png"
+        },
+        "complete": {
+          "key": "108_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_108_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/108_브리기테_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 109,
+      "npc": "지그프리트",
+      "skin": "tf_siegfried",
+      "states": {
+        "base": {
+          "key": "109_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_109_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/109_지그프리트_base.png"
+        },
+        "progress": {
+          "key": "109_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_109_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/109_지그프리트_progress.png"
+        },
+        "complete": {
+          "key": "109_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_109_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/109_지그프리트_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 110,
+      "npc": "아스트리드",
+      "skin": "tf_astrid",
+      "states": {
+        "base": {
+          "key": "110_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_110_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/110_아스트리드_base.png"
+        },
+        "progress": {
+          "key": "110_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_110_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/110_아스트리드_progress.png"
+        },
+        "complete": {
+          "key": "110_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_110_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/110_아스트리드_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 111,
+      "npc": "라시드4",
+      "skin": "df_rashid",
+      "states": {
+        "base": {
+          "key": "111_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_111_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/111_라시드4.png"
+        }
+      }
+    },
+    {
+      "citizensId": 112,
+      "npc": "아미라",
+      "skin": "df_amira",
+      "states": {
+        "base": {
+          "key": "112_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_112_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/112_아미라_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 113,
+      "npc": "유누스",
+      "skin": "df_yunus",
+      "states": {
+        "base": {
+          "key": "113_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/113_유누스.png"
+        },
+        "progress": {
+          "key": "113_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/113_유누스_progress.png"
+        },
+        "complete": {
+          "key": "113_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/113_유누스_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 114,
+      "npc": "파티마",
+      "skin": "df_fatima",
+      "states": {
+        "base": {
+          "key": "114_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_114_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/114_파티마.png"
+        },
+        "progress": {
+          "key": "114_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_114_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/114_파티마_progress.png"
+        },
+        "complete": {
+          "key": "114_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_114_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/114_파티마_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 115,
+      "npc": "오마르",
+      "skin": "df_omar",
+      "states": {
+        "base": {
+          "key": "115_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_115_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/115_오마르.png"
+        },
+        "progress": {
+          "key": "115_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_115_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/115_오마르_progress.png"
+        },
+        "complete": {
+          "key": "115_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_115_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/115_오마르_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 116,
+      "npc": "누르",
+      "skin": "df_nur",
+      "states": {
+        "base": {
+          "key": "116_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_116_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/116_누르.png"
+        },
+        "progress": {
+          "key": "116_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_116_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/116_누르_progress.png"
+        },
+        "complete": {
+          "key": "116_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_116_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/116_누르_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 117,
+      "npc": "지크하르트",
+      "skin": "sieghardt",
+      "states": {
+        "base": {
+          "key": "117_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_117_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/117_지크하르트_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 118,
+      "npc": "브란트",
+      "skin": "brandt",
+      "states": {
+        "base": {
+          "key": "118_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_118_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/118_브란트_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 119,
+      "npc": "로테",
+      "skin": "lotte",
+      "states": {
+        "base": {
+          "key": "119_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_119_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/119_로테.png"
+        }
+      }
+    },
+    {
+      "citizensId": 120,
+      "npc": "프리츠",
+      "skin": "fritz",
+      "states": {
+        "base": {
+          "key": "120_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_120_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/120_프리츠_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 121,
+      "npc": "알브레히트",
+      "skin": "albrecht",
+      "states": {
+        "base": {
+          "key": "121_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_121_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/121_알브레히트.png"
+        }
+      }
+    },
+    {
+      "citizensId": 122,
+      "npc": "힐데",
+      "skin": "hilde",
+      "states": {
+        "base": {
+          "key": "122_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_122_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/122_힐데.png"
+        }
+      }
+    },
+    {
+      "citizensId": 132,
+      "npc": "군나르",
+      "skin": "gunnar",
+      "states": {
+        "base": {
+          "key": "132_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_132_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/132_군나르.png"
+        }
+      }
+    },
+    {
+      "citizensId": 133,
+      "npc": "페더",
+      "skin": "tf_feder",
+      "states": {
+        "base": {
+          "key": "133_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_133_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/133_페더_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 134,
+      "npc": "랄프",
+      "skin": "tf_ralf",
+      "states": {
+        "base": {
+          "key": "134_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_134_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/134_랄프_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 135,
+      "npc": "스벤",
+      "skin": "tf_sven",
+      "states": {
+        "base": {
+          "key": "135_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_135_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/135_스벤.png"
+        },
+        "progress": {
+          "key": "135_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_135_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/135_스벤_progress.png"
+        },
+        "complete": {
+          "key": "135_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_135_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/135_스벤_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 136,
+      "npc": "미아",
+      "skin": "tf_mia",
+      "states": {
+        "base": {
+          "key": "136_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_136_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/136_미아.png"
+        }
+      }
+    },
+    {
+      "citizensId": 137,
+      "npc": "레오",
+      "skin": "tf_leo",
+      "states": {
+        "base": {
+          "key": "137_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_137_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/137_레오_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 138,
+      "npc": "프리다",
+      "skin": "tf_frieda",
+      "states": {
+        "base": {
+          "key": "138_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_138_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/138_프리다.png"
+        }
+      }
+    },
+    {
+      "citizensId": 139,
+      "npc": "발터",
+      "skin": "tf_walter",
+      "states": {
+        "base": {
+          "key": "139_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_139_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/139_발터.png"
+        }
+      }
+    },
+    {
+      "citizensId": 140,
+      "npc": "루디",
+      "skin": "tf_rudi",
+      "states": {
+        "base": {
+          "key": "140_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_140_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/140_루디.png"
+        },
+        "progress": {
+          "key": "140_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_140_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/140_루디_progress.png"
+        },
+        "complete": {
+          "key": "140_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_140_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/140_루디_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 141,
+      "npc": "루드비히",
+      "skin": "tf_ludwig",
+      "states": {
+        "base": {
+          "key": "141_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_141_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/141_루드비히_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 142,
+      "npc": "라시드",
+      "skin": "df_rashid_inn",
+      "states": {
+        "base": {
+          "key": "142_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_142_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/142_라시드.png"
+        }
+      }
+    },
+    {
+      "citizensId": 143,
+      "npc": "지오반니",
+      "skin": "giovanni",
+      "states": {
+        "base": {
+          "key": "143_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_143_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/143_지오반니.png"
+        }
+      }
+    },
+    {
+      "citizensId": 146,
+      "npc": "촌장",
+      "skin": "tf_chief",
+      "states": {
+        "base": {
+          "key": "146_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_146_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/146_촌장.png"
+        }
+      }
+    },
+    {
+      "citizensId": 147,
+      "npc": "현자",
+      "skin": "cm_sage",
+      "states": {
+        "base": {
+          "key": "147_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_147_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/147_현자_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 148,
+      "npc": "항구장",
+      "skin": "cm_harbourmaster",
+      "states": {
+        "base": {
+          "key": "148_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_148_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/148_항구장_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 149,
+      "npc": "전령",
+      "skin": "cm_herald",
+      "states": {
+        "base": {
+          "key": "149_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_149_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/149_전령_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 151,
+      "npc": "로자",
+      "skin": "cm_rosa_garden",
+      "states": {
+        "base": {
+          "key": "151_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_151_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/151_로자.png"
+        }
+      }
+    },
+    {
+      "citizensId": 153,
+      "npc": "식당주인",
+      "skin": "cm_tavernkeep",
+      "states": {
+        "base": {
+          "key": "153_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_153_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/153_식당주인_base.png"
+        },
+        "progress": {
+          "key": "153_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_153_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/153_식당주인_progress.png"
+        },
+        "complete": {
+          "key": "153_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_153_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/153_식당주인_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 154,
+      "npc": "도박꾼자히르",
+      "skin": "gm_whale",
+      "states": {
+        "base": {
+          "key": "154_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/154_도박꾼자히르.png"
+        },
+        "progress": {
+          "key": "154_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/154_도박꾼자히르_progress.png"
+        },
+        "complete": {
+          "key": "154_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/154_도박꾼자히르_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 155,
+      "npc": "도박꾼엘리아스",
+      "skin": "gm_sharp",
+      "states": {
+        "base": {
+          "key": "155_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/155_도박꾼엘리아스.png"
+        },
+        "progress": {
+          "key": "155_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/155_도박꾼엘리아스_progress.png"
+        },
+        "complete": {
+          "key": "155_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/155_도박꾼엘리아스_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 156,
+      "npc": "도박꾼달리아",
+      "skin": "gm_addict",
+      "states": {
+        "base": {
+          "key": "156_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/156_도박꾼달리아.png"
+        },
+        "progress": {
+          "key": "156_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/156_도박꾼달리아_progress.png"
+        },
+        "complete": {
+          "key": "156_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/156_도박꾼달리아_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 157,
+      "npc": "도박꾼테오",
+      "skin": "gm_ruined",
+      "states": {
+        "base": {
+          "key": "157_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/157_도박꾼테오.png"
+        },
+        "progress": {
+          "key": "157_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/157_도박꾼테오_progress.png"
+        },
+        "complete": {
+          "key": "157_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/157_도박꾼테오_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 158,
+      "npc": "알비스",
+      "skin": "albis",
+      "states": {
+        "base": {
+          "key": "158_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/158_알비스.png"
+        },
+        "progress": {
+          "key": "158_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/158_알비스_progress.png"
+        },
+        "complete": {
+          "key": "158_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/158_알비스_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 160,
+      "npc": "선원",
+      "skin": "cm_sailor",
+      "states": {
+        "base": {
+          "key": "160_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_160_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/160_선원_base.png"
+        },
+        "progress": {
+          "key": "160_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_160_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/160_선원_progress.png"
+        },
+        "complete": {
+          "key": "160_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_160_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/160_선원_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 161,
+      "npc": "바텐더",
+      "skin": "bartender",
+      "states": {
+        "base": {
+          "key": "161_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_161_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/161_바텐더.png"
+        }
+      }
+    },
+    {
+      "citizensId": 162,
+      "npc": "길드접수원",
+      "skin": "hagen",
+      "states": {
+        "base": {
+          "key": "162_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_162_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/162_길드접수원.png"
+        },
+        "progress": {
+          "key": "162_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_162_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/162_길드접수원_progress.png"
+        },
+        "complete": {
+          "key": "162_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_162_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/162_길드접수원_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 163,
+      "npc": "에르빈",
+      "skin": "r_erwin",
+      "states": {
+        "base": {
+          "key": "163_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_163_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/163_에르빈.png"
+        }
+      }
+    },
+    {
+      "citizensId": 164,
+      "npc": "구스타프",
+      "skin": "r_gustav",
+      "states": {
+        "base": {
+          "key": "164_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_164_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/164_구스타프.png"
+        }
+      }
+    },
+    {
+      "citizensId": 165,
+      "npc": "타리크",
+      "skin": "r_tariq",
+      "states": {
+        "base": {
+          "key": "165_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_165_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/165_타리크.png"
+        }
+      }
+    },
+    {
+      "citizensId": 166,
+      "npc": "마르첼로",
+      "skin": "r_marcello",
+      "states": {
+        "base": {
+          "key": "166_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_166_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/166_마르첼로_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 167,
+      "npc": "인트로선장",
+      "skin": "ci_captain",
+      "states": {
+        "base": {
+          "key": "167_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_167_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/167_인트로선장.png"
+        }
+      }
+    },
+    {
+      "citizensId": 168,
+      "npc": "인트로갑판원",
+      "skin": "ci_deckhand",
+      "states": {
+        "base": {
+          "key": "168_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_168_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/168_인트로갑판원.png"
+        }
+      }
+    },
+    {
+      "citizensId": 169,
+      "npc": "인트로취사",
+      "skin": "ci_cook",
+      "states": {
+        "base": {
+          "key": "169_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_169_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/169_인트로취사.png"
+        }
+      }
+    },
+    {
+      "citizensId": 170,
+      "npc": "인트로돛담당",
+      "skin": "ci_rigger",
+      "states": {
+        "base": {
+          "key": "170_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_170_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/170_인트로돛담당.png"
+        }
+      }
+    },
+    {
+      "citizensId": 171,
+      "npc": "영주",
+      "skin": "valdemar",
+      "states": {
+        "base": {
+          "key": "171_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_171_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/171_영주_base.png"
+        },
+        "progress": {
+          "key": "171_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_171_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/171_영주_progress.png"
+        },
+        "complete": {
+          "key": "171_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_171_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/171_영주_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 172,
+      "npc": "근위병",
+      "skin": "rainer",
+      "states": {
+        "base": {
+          "key": "172_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch16-skin-confirmed/framed/172_근위병.png"
+        },
+        "progress": {
+          "key": "172_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase07/transparent/172_근위병_progress.png"
+        },
+        "complete": {
+          "key": "172_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase07/transparent/172_근위병_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 173,
+      "npc": "사관",
+      "skin": "gerhardt",
+      "states": {
+        "base": {
+          "key": "173_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_173_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/173_사관_base.png"
+        },
+        "progress": {
+          "key": "173_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_173_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/173_사관_progress.png"
+        },
+        "complete": {
+          "key": "173_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_173_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/173_사관_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 174,
+      "npc": "테클라",
+      "skin": "tecla",
+      "states": {
+        "base": {
+          "key": "174_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_174_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/174_테클라_base.png"
+        },
+        "progress": {
+          "key": "174_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_174_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/174_테클라_progress.png"
+        },
+        "complete": {
+          "key": "174_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_174_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/174_테클라_complete.png"
+        }
+      }
+    },
+    {
+      "citizensId": 175,
+      "npc": "하르트무트",
+      "skin": "hartmut",
+      "states": {
+        "base": {
+          "key": "175_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_175_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/175_하르트무트_base.png"
+        },
+        "progress": {
+          "key": "175_progress",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_175_progress.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/175_하르트무트_progress.png"
+        },
+        "complete": {
+          "key": "175_complete",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_175_complete.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/emotions-from-headwear/transparent/175_하르트무트_complete.png"
+        }
+      }
+    }
+  ]
+}

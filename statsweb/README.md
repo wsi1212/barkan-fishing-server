@@ -1,8 +1,9 @@
 # 바르칸 통계 웹 대시보드 (statsweb)
 
-stats-system-plan.md §10-5 구현체. FastAPI 단일 프로세스, Discord OAuth2 로그인, 통계 열람 전용
-(쓰기 엔드포인트 0개 — 서버 조작은 인게임 `/통계` 명령만). stats-lab/queries.py를 웹·CLI가
-공유한다.
+stats-system-plan.md §10-5·§10-6 구현체. FastAPI 단일 프로세스, Discord OAuth2 로그인.
+①~⑩ 페이지는 순수 통계 열람(쓰기 엔드포인트 0개). ⑪ 콘솔(Phase 6)만 admin 역할 전용 쓰기
+액션(RCON 경유 kick/ban/pardon/whitelist/say/list) — CSRF+확인다이얼로그+audit_log 기록.
+stats-lab/queries.py를 웹·CLI가 공유한다.
 
 ## 로컬 개발 실행 (Mac)
 
@@ -19,31 +20,41 @@ venv/bin/uvicorn app:app --reload --port 8080
 서버로 바로 테스트하려면 `STATSLAB_DATA_DIR=/Users/.../plugins/BlockShip/telemetry`처럼 dev
 telemetry 폴더를 직접 가리키면 된다.
 
-## 운영자 1회 작업 체크리스트 (prod 배치 전, §10-5)
+## 샌드박스 (Discord 로그인 없이 전체 UI 확인)
 
-이 세션은 코드/설정 템플릿까지만 준비했다 — 아래는 사람이 직접 해야 하는 부분(계정·DNS·비밀값이
-필요해 AI가 대신할 수 없음). 전부 끝나야 실제 배치가 가능하다.
+```bash
+python3 ../stats-lab/seed_sandbox.py   # 가짜 데이터 생성(선택 — run_sandbox.sh가 없으면 자동으로 함)
+./run_sandbox.sh                       # http://127.0.0.1:8090, role=admin 세션 자동 주입
+```
+`RCON_PASSWORD`를 절대 채우지 않은 채로 뜬다(`rcon_client.RconDisabled`) — 콘솔 액션 폼을
+눌러봐도 실제 서버엔 아무 명령도 안 나가고 "RCON 비활성" 실패로만 audit_log에 기록된다.
 
-- [ ] **barkan.kro.kr A레코드**가 `168.107.8.107`(오라클 예약 IP)을 가리키는지 확인
-- [ ] **Discord Developer Portal**(discord.com/developers/applications)에서 새 앱 생성
-  - OAuth2 → Redirects에 `https://barkan.kro.kr/admin/callback` 등록
-  - Client ID / Client Secret 확보
-- [ ] 오라클 박스 `~/mcserver/statsweb/.env`에 위 client id/secret 기입,
-  `SESSION_SECRET`은 `python3 -c "import secrets;print(secrets.token_hex(32))"`로 재생성
-- [ ] `admins.json`에 어드민 전원의 Discord ID(닉·역할) 기입 — ID는 디스코드 설정→고급→
-  개발자 모드 켜고 프로필 우클릭→ID 복사
-- [ ] `oracle-ops-scripts/statsweb.service` 설치 + `oracle-ops-scripts/
-  caddy-barkan-admin-snippet.txt`를 기존 Caddyfile에 추가(★lh-bizben 블록은 그대로 두고
-  추가만) + `systemctl reload caddy`(무중단)
+## Phase 6(⑪ 콘솔) 관련 추가 환경변수
 
-이 저장소(oracle-ops-scripts/ 미러)에는 위 파일들이 준비되어 있지만, **실제 오라클 박스 설치·
-systemd 등록·Caddy reload는 prod 인프라 변경**이라 별도 명시 요청이 있을 때만 수행한다.
+| 변수 | 기본값 | 설명 |
+|---|---|---|
+| `RCON_HOST` | `127.0.0.1` | statsweb과 같은 박스의 RCON — 절대 외부 노출 금지 |
+| `RCON_PORT` | `25575` | |
+| `RCON_PASSWORD` | (빈 문자열=비활성) | **prod에 실제 값을 넣는 순간부터 콘솔 액션이 진짜 서버에 명령을 보낸다** — server.properties의 `rcon.password`와 동일 값 |
+| `PLAYERDATA_DIR` | (빈 문자열=뷰어 비활성) | `/playerdata` 조회 대상 — prod는 `~/mcserver/plugins/BlockShip/playerdata` |
+| `BANNED_PLAYERS_FILE` | (빈 문자열=뷰어 비활성) | `/banlist` 대상 — prod는 `~/mcserver/banned-players.json` |
 
-## 검증 상태 (2026-07-28)
+`requirements.txt`에 `python-multipart`가 새로 추가됨(콘솔 액션 폼 파싱에 필요) — **기존
+prod venv에 재설치 필요**: `venv/bin/pip install -r requirements.txt`.
 
-- 세션/인증 가드, 10개 페이지 라우트 전부 로컬(TestClient, forged 세션 쿠키)로 실제 렌더 확인.
-- SVG 차트 4종(bar/stacked-bar/line/scatter) 전부 실데이터+합성데이터로 정상 렌더 확인.
-- Discord OAuth2는 authorize URL 조립 로직만 검증(실제 토큰 교환·콜백은 진짜 Discord 앱
-  credential이 있어야 해서 이 환경에서 왕복 테스트 불가) — 코드 자체는 Discord OAuth2 표준
-  플로우를 그대로 구현.
-- prod 미배포. 로컬 파일만 존재.
+## 운영자 1회 작업 체크리스트 (Phase 5 배치분 — 전부 완료)
+
+- [x] barkan.kro.kr A레코드 → 168.107.8.107
+- [x] Discord Developer Portal 앱 생성 + redirect 등록 + client id/secret
+- [x] `.env` 기입 + admins.json 어드민 등록
+- [x] Caddyfile 블록 추가 + systemd `statsweb.service` 설치
+
+## 검증 상태 (2026-07-28 갱신)
+
+- **Phase 5(①~⑩)**: prod 실배치 완료(barkan.kro.kr/admin, Discord 실로그인 확인). HTTPS 인증서
+  발급 완료(kro.kr 레이트리밋 해제 후 원복 확인).
+- **Phase 6(⑪ 콘솔, RCON 액션 카탈로그+playerdata/밴목록 뷰어+audit_log)**: 코드 완성 + 샌드박스에서
+  역할게이팅(viewer 403·admin 통과)/CSRF 불일치 거부/audit_log 기록/admin.action 이벤트 미러까지
+  전부 실동작 확인. **prod 미배포** — 배포 시 위 표의 `RCON_PASSWORD`를 실제로 채우는 순간부터
+  진짜 서버에 명령이 나가므로 별도 명시 요청 시에만, 신중하게 진행할 것.
+- C10(강화 단계별 몇강 집계)은 ⑧ RNG 페이지 세 번째 섹션으로 병합, prod 배포 시 자동 포함.

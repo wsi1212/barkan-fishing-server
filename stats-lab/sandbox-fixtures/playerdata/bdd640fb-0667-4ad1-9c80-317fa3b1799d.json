@@ -1,0 +1,16 @@
+{
+  "uuid": "bdd640fb-0667-4ad1-9c80-317fa3b1799d",
+  "name": "가짜낚시왕",
+  "level": 42,
+  "curExp": 318.5,
+  "money": 12450000,
+  "cash": 320,
+  "coins": 58,
+  "maxCombo": 27,
+  "totalFish": 1893,
+  "dexFish": 214,
+  "skills": {"손맛": 3, "탐지": 2, "인내": 4},
+  "extraNums": {"잠수복귀X": 1024, "잠수복귀Z": -320},
+  "extraStrs": {"잠수복귀": "world,1024,64,-320"},
+  "_comment": "샌드박스 데모용 고정 fixture — 실제 PlayerData 스키마를 흉내낸 read-only 샘플입니다."
+}

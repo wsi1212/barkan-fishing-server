@@ -3,13 +3,15 @@
 {% block content %}
 <h1 style="font-size:18px; margin-bottom:16px;">① 홈 — 오늘/7일 KPI</h1>
 
+<div class="page-intro"><b>이 페이지가 하는 일</b>: 오늘 서버 활동을 최근 {{ days }}일 평균과 비교해서 보여줍니다.
+각 카드 아래 배지가 평균 대비 등락(±5% 미만은 회색 ≈표시) — 초록이면 평균보다 늘었고, 주황이면 줄었다는 뜻이에요.</div>
 <div class="kpi-row">
-  <div class="kpi"><div class="v">{{ today.players if today else 0 }}명</div><div class="l">오늘 접속</div></div>
-  <div class="kpi"><div class="v">{{ today_playtime_h }}h</div><div class="l">오늘 플레이타임</div></div>
-  <div class="kpi"><div class="v">{{ today.catches if today else 0 }}</div><div class="l">오늘 어획</div></div>
-  <div class="kpi"><div class="v">{{ today_net_str }}</div><div class="l">오늘 순발행</div></div>
-  <div class="kpi"><div class="v">{{ today_casino_str }}</div><div class="l">오늘 카지노 net</div></div>
-  <div class="kpi"><div class="v">{{ today.quests_done if today else 0 }}</div><div class="l">오늘 퀘스트 완료</div></div>
+  <div class="kpi"><div class="v">{{ (today.players if today else 0) | num1 }}명</div><div class="l">오늘 접속</div> {{ deltas.players | safe }}</div>
+  <div class="kpi"><div class="v">{{ today_playtime_h | num1 }}h</div><div class="l">오늘 플레이타임</div> {{ deltas.playtime | safe }}</div>
+  <div class="kpi"><div class="v">{{ (today.catches if today else 0) | num1 }}</div><div class="l">오늘 어획</div> {{ deltas.catches | safe }}</div>
+  <div class="kpi"><div class="v">{{ today_net_str }}</div><div class="l">오늘 순발행</div> {{ deltas.net | safe }}</div>
+  <div class="kpi"><div class="v">{{ today_casino_str }}</div><div class="l">오늘 카지노 net</div> {{ deltas.casino | safe }}</div>
+  <div class="kpi"><div class="v">{{ (today.quests_done if today else 0) | num1 }}</div><div class="l">오늘 퀘스트 완료</div> {{ deltas.quests | safe }}</div>
 </div>
 
 <div class="panel">

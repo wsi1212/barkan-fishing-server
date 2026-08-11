@@ -379,7 +379,7 @@ CID 174·175는 **dev·prod 양쪽에서 비어 있음을 확인하고** 잡았�
 
 ### 배포·검증 결과
 
-dev·prod 양쪽 `quests.json` `npc.json` `dialogue.json` `titles.json` **md5 4/4 일치**.
+dev·prod 양쪽 `quests.json` `npc.json` `dialogue.json` `fish.json` `parts.json` `recipes.json` `materials.json` `enhance.json` `titles.json` **md5 9/9 일치**.
 
 | 검증 | 결과 |
 |---|---|
@@ -392,19 +392,19 @@ dev·prod 양쪽 `quests.json` `npc.json` `dialogue.json` `titles.json` **md5 4/
 | 기존 257개 보존 | ✅ (삭제 0, 287개) |
 | prod 로드 | ✅ `Loaded 287 quests` · `Loaded 159 npcs, 113 dialogue sets` |
 | Citizens 등록 | ✅ **158 → 160명** (재시작 전후 로그 대조) |
-| dev 로드 | ✅ 287 quests · 159 npcs · Citizens 145 |
+| dev 로드 | ✅ 287 quests · 159 npcs · Citizens 160 |
 
-### ★남은 작업 (7챕터를 "완성"으로 부르려면 필요)
+### ★구현 완료 기록 (2026-08-08)
 
 | # | 항목 | 영향 | 비고 |
 |---|---|---|---|
-| 1 | **목표 진행도 텍스트 누락** | 큼 | `QuestManager.getProgressText` switch에 `harpoon` `fish_fresh` `mine` `harvest` `sail` `submit` `deliver` **표시 case가 없다** → 진행도가 빈칸으로 보인다. 7챕터는 harpoon 6·sail 3을 쓰므로 사실상 필수. checkProgress는 정상 |
-| 2 | **`야간투시` 스탯 미구현** | 중간 | `심해24`가 발광버섯을 모으라 하지만 스탯 자체가 없다(`수중호흡`은 있음). `harpoon/HarpoonItemFactory` + 효과 적용부 신설 필요 |
-| 3 | **심해 작살 티어 미생성** | 중간 | 현 최상단은 `천공의 작살` S/Lv60/수중호흡 76. 「1000초」는 `fish-tools/gen_spear_builds.py`에 심해 밴드를 추가해 생성할 것 (**손편집 금지**) |
-| 4 | **심해전왕 보스 미구현** | 중간 | `심해28`은 현재 `harpoon\|아무\|L\|1`로 대체 중. `boss/ImugiBattle`(2,095줄, 반경 14 물이면 아레나 성립) 재사용 가능. 소환은 유저 지시대로 **임시 위치** |
-| 5 | **신규 2인 스킨 미지정** | 중간 | `skintrait: {}` = 기본 스티브. `npc-skin-forge` 스킬로 제작 후 콘솔 `npc skin --url` 적용. 같은 무대(배) 선원 6인과 **textureRaw 무중복** 필수 |
-| 6 | 심해 지역 8종 | 낮음 | 유저가 임시 위치로 waive. 지역이 없어 `area`/지역 도감 목표는 `대양`·`폭포_뒤_동굴_2층`으로 대체함 |
-| 7 | 인게임 클릭 검증 | — | 접속자 0명이라 미수행. 배 갑판 아래에서 두 NPC 우클릭 → 대화·퀘스트 수락 확인 필요 |
+| 1 | **목표 진행도 텍스트** | ✅ 완료 | `QuestManager.getProgressText`에 `harpoon`·`fish_fresh`·`mine`·`harvest`·`sail`·`submit`·`deliver` 표시 추가 |
+| 2 | **`야간투시` 스탯** | ✅ 완료 | 작살 버프 적용/해제, 장비·도감 표시를 연결하고 심해24 진행에 사용 |
+| 3 | **심해 작살 티어** | ✅ 완료 | `fish-tools/gen_spear_builds.py` 생성기에서 S급 3종(수중호흡 1000초, 야간투시) 생성; `parts.json` 손편집 없음 |
+| 4 | **심해전왕 보스** | ✅ 완료 | `ImugiBattle` 프레임 재사용, `/심해전왕 전투` 임시 위치 소환, `심해전왕의핵` 보상 및 심해28 연결 |
+| 5 | **신규 2인 스킨** | ✅ 완료 | Citizens 174 테클라·175 하르트무트에 MineSkin URL 적용; 재시작 후 textureRaw 해시 확인 |
+| 6 | 심해 지역 8종 | ⏸ 보류(waive) | 실제 좌표 없이 기존 `대양`·`폭포_뒤_동굴_2층` 목표를 사용한다는 확정에 따름 |
+| 7 | 인게임 클릭 검증 | ⏸ 대기 | 접속자 0명으로 미수행. 배 갑판 아래에서 두 NPC 우클릭·대화·퀘스트 수락 확인만 남음 |
 
-★1번은 코드 수정이 작지만 **당시 `blockship-plugin`에 병렬 세션의 미커밋 변경이 10건 넘게 있어
-건드리지 않았다**. 그쪽 세션이 정리된 뒤 반영할 것.
+재배포 후 prod에서 `npc동기화`와 `데이터리로드`를 실행했다. dev·prod 핵심 데이터 9종의 md5가 일치하며,
+검증 스니펫의 불량 verb·메인 미배정·체인 끊김·선행 끊김은 모두 빈 리스트다.

@@ -1,0 +1,14 @@
+{
+  "citizensId": 32,
+  "npc": "홀덤딜러",
+  "displayName": "&b[홀덤] 딜러",
+  "skin": "d_holdem1",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

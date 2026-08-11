@@ -1,0 +1,14 @@
+{
+  "citizensId": 17,
+  "npc": "콘라트",
+  "displayName": "&b[길드] 잉그리드",
+  "skin": "tf_ingrid",
+  "roles": [
+    "guild"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

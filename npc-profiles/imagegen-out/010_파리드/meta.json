@@ -1,0 +1,14 @@
+{
+  "citizensId": 10,
+  "npc": "파리드",
+  "displayName": "&b[상점] 파리드",
+  "skin": "df_farid",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

@@ -1,0 +1,39 @@
+{
+  "_readme": "품목별 배치 조건. rule=none이면 무조건(지표면 아무데나). 아직 정의 안 된 나머지 28종은 전부 none(기본 지표 배치)로 취급 — 조건 생기면 여기 추가만 하면 됨. Java 플러그인은 이 파일을 모른다 (배치 스크립트 내부 참조 전용, forage-types.json과 별개).",
+  "barkan:forage_z_mushtable": {
+    "name": "황금 갓버섯",
+    "rule": "adjacent_log",
+    "params": { "radius": 1 },
+    "note": "버섯 = 나무에서 자람. 원목(log/wood) 블록에 수평 인접한 잔디블럭 위에만 설치. 조건 만족 지점이 없으면 스킵."
+  },
+  "barkan:forage_z_daisy": {
+    "name": "흰들국화",
+    "rule": "near_flower",
+    "params": { "radius": 4, "prefer_weight": 0.7 },
+    "note": "꽃 = 기본 꽃(민들레/양귀비/etc) 근처를 가급적 선호(100% 강제 아님). 후보 중 꽃 인접 지점에 가중치를 줘서 우선 배치, 부족하면 일반 지표에도 배치."
+  },
+  "barkan:forage_z_tuftgold": {
+    "name": "황금 이삭",
+    "rule": "adjacent_wheat_no_overlap",
+    "params": { "radius": 1 },
+    "note": "밀(wheat) 작물에 인접한 흙 계열(dirt/coarse_dirt/farmland/path 등) 블록 위에만 설치. 밀 블록 자체와는 절대 겹치지 않음(밀 작물 칸은 후보에서 제외)."
+  },
+  "barkan:forage_z_berry": {
+    "name": "야생 베리",
+    "rule": "under_leaves",
+    "params": {},
+    "note": "열매류 = 나뭇잎 블록 밑면에 매달려 설치(Java HANGING_TYPES). Y좌표는 그 나뭇잎 블록의 Y값 그대로(위가 아니라 그 블록 자체) — installAt()이 재변환하지 않으므로 호출측이 정확히 계산해서 넘겨야 함. 나뭇잎이 없으면 스킵."
+  },
+  "barkan:forage_z_fruit": {
+    "name": "붉은 열매",
+    "rule": "under_leaves",
+    "params": {},
+    "note": "야생 베리와 동일 규칙(나뭇잎 밑 매달림)."
+  },
+  "barkan:forage_z_acorn": {
+    "name": "도토리 다발",
+    "rule": "under_leaves",
+    "params": {},
+    "note": "야생 베리와 동일 규칙(나뭇잎 밑 매달림)."
+  }
+}

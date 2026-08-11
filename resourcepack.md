@@ -90,30 +90,25 @@ clean lines, no detail on scales, sticker-like flat art, no text
 | 항목 | 값 |
 |------|-----|
 | GitHub | https://github.com/wsi1212/minecraft-fish-resource-pack |
-| 파일명 | barkan-resourcepack.zip |
-| SHA1 | e48f63cd0e7bf6689f1f6c74354f17dcfe7b93f7 |
+| 파일명 | barkan-resourcepack.zip (같은 release `latest`에 CraftEngine 가구팩 `barkan-furniture.zip`도 별도 자산으로 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만) |
+| SHA1 | 배포마다 바뀜 — `~/deploy-rp.sh`가 자동 갱신하므로 여기 고정값을 적어두지 않음 |
 | 서버 설정 | server.properties → resource-pack, resource-pack-sha1 |
 | 강제 적용 | require-resource-pack=true |
 
 ## 업데이트 절차
 
-1. `~/Downloads/barkan-resourcepack/` 내 텍스처/모델 수정
-2. ZIP 재생성:
-   ```bash
-   cd ~/Downloads && zip -r barkan-resourcepack.zip barkan-resourcepack/
-   ```
-3. SHA1 갱신:
-   ```bash
-   shasum barkan-resourcepack.zip
-   ```
-4. GitHub 푸시:
-   ```bash
-   cd /tmp/minecraft-fish-resource-pack
-   cp ~/Downloads/barkan-resourcepack.zip .
-   git add -A && git commit -m "Update resource pack" && git push
-   ```
-5. server.properties의 SHA1 값 업데이트
-6. 서버 재시작
+★소스 위치는 **`~/development/barkan-resourcepack`**다 (`~/Downloads/barkan-resourcepack/`는 2026-06-06 TCC 권한 문제로 이동해 더 이상 존재하지 않음).
+
+1. `~/development/barkan-resourcepack/` 내 텍스처/모델 수정
+2. 배포는 한 줄: `~/deploy-rp.sh` (ZIP 생성 → GitHub Release 업로드(`--clobber`) → SHA1 계산 → server.properties 갱신까지 전부 자동)
+3. 서버 재시작 (접속자에게 자동 적용)
+
+수동으로 해야 할 때만:
+```bash
+cd ~/development/barkan-resourcepack && zip -r /tmp/barkan-resourcepack.zip . -x ".*"
+gh release upload latest /tmp/barkan-resourcepack.zip --repo wsi1212/minecraft-fish-resource-pack --clobber
+shasum /tmp/barkan-resourcepack.zip   # → server.properties의 resource-pack-sha1에 반영
+```
 
 ## 작업 파이프라인
 

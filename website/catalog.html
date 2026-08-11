@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#061323">
+  <meta name="description" content="바르칸 열도 장비·부품·재료 도감 — 획득처, 능력치, 제작 재료">
+  <title>장비·부품 도감 — 바르칸 열도</title>
+  <style>
+    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-medium.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}
+    :root{--ink:#061323;--foam:#eaf6f6;--mist:#a8c2cd;--tide:#8ce2e0;--gold:#ffd170;--line:rgba(213,240,242,.16)}*{box-sizing:border-box}html{background:var(--ink);scroll-behavior:smooth}body{min-width:320px;margin:0;color:var(--foam);font:15px/1.55 "Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:radial-gradient(900px 560px at 18% -170px,#28576c 0%,rgba(17,61,79,.28) 40%,transparent 70%),linear-gradient(180deg,#071827 0%,var(--ink) 82%)}.shell{width:min(1160px,calc(100% - 48px));margin:auto}.nav{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{color:var(--foam);text-decoration:none}.brand strong{display:block;font-size:21px;font-weight:900;letter-spacing:.14em}.brand small{display:block;margin-top:-3px;color:var(--tide);font-size:9px;font-weight:900;letter-spacing:.21em}.links{display:flex;align-items:center;gap:25px}.links a{color:#c7dce4;text-decoration:none;font-size:13px}.links a:hover{color:#fff}.nav-shop{padding:8px 13px;border:1px solid rgba(140,226,224,.5);border-radius:999px;color:var(--tide)!important}.nav-discord{display:inline-grid;flex:none;width:35px;height:35px;place-items:center;border:1px solid rgba(140,226,224,.34);border-radius:50%;background:rgba(6,32,48,.42);color:#bce9ee!important}.nav-discord:hover{background:#5865f2;color:#fff!important}.nav-discord svg{width:18px;height:18px;fill:currentColor}
+    .masthead{padding:70px 0 36px}.eyebrow{margin:0 0 13px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.2em}.masthead h1{margin:0;font-size:clamp(3rem,6.8vw,6rem);font-weight:900;letter-spacing:-.09em;line-height:.96}.masthead h1 em{font-style:normal;color:var(--gold)}.masthead p:not(.eyebrow){max-width:590px;margin:20px 0 0;color:var(--mist);font-size:16px}.masthead strong{color:#e9f9fa}.catalog-switch{display:flex;gap:8px;margin-top:28px}.catalog-switch a{padding:10px 13px;border:1px solid var(--line);border-radius:999px;color:#bcd6dc;font-size:12px;text-decoration:none}.catalog-switch a:hover{border-color:var(--tide);color:#fff}.catalog-switch a.active{border-color:rgba(255,209,112,.72);background:rgba(255,209,112,.11);color:#ffe2a0}.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.stat{min-width:120px;padding:12px 15px;border:1px solid var(--line);border-radius:11px;background:rgba(6,23,39,.52)}.stat b{display:block;color:var(--gold);font-size:21px;line-height:1}.stat span{display:block;margin-top:4px;color:#9eb9c3;font-size:11px}
+    .tools{position:sticky;z-index:5;top:10px;margin:4px 0 20px;padding:15px;border:1px solid rgba(140,226,224,.25);border-radius:17px;background:rgba(7,24,39,.91);box-shadow:0 15px 35px rgba(0,0,0,.17);backdrop-filter:blur(15px)}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}.tab{height:34px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:transparent;color:#b5cbd2;font:12px "Barkan Aggro","Apple SD Gothic Neo",sans-serif;cursor:pointer}.tab:hover{border-color:var(--tide);color:#fff}.tab.active{border-color:rgba(255,209,112,.75);background:rgba(255,209,112,.12);color:#ffe3a6}.search{position:relative}.search svg{position:absolute;top:15px;left:16px;width:18px;height:18px;fill:none;stroke:var(--tide);stroke-width:2;pointer-events:none}.search input,.select{width:100%;height:49px;border:1px solid rgba(140,226,224,.38);border-radius:9px;outline:none;background:rgba(3,17,30,.63);color:#f0fbfc;font:14px "Barkan Aggro","Apple SD Gothic Neo",sans-serif}.search input{padding:0 15px 0 47px}.search input:focus,.select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,209,112,.1)}.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.grade-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.grade-row.hide{display:none}.filter{height:31px;min-width:35px;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:transparent;color:#b5cbd2;font:12px "Barkan Aggro","Apple SD Gothic Neo",sans-serif;cursor:pointer}.filter.active{border-color:rgba(255,209,112,.75);background:rgba(255,209,112,.12);color:#ffe3a6}.result-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:24px 0 14px;color:#94afb8;font-size:12px}.result-meta b{color:#e6f6f7}.catalog-layout{display:grid;grid-template-columns:minmax(0,1fr) 335px;gap:18px;align-items:start;padding-bottom:82px}.item-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.item-card{position:relative;display:block;min-height:156px;padding:17px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,rgba(20,57,76,.79),rgba(7,22,37,.93));color:inherit;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease}.item-card:hover,.item-card.selected{border-color:rgba(255,209,112,.75);background:linear-gradient(145deg,rgba(47,70,75,.91),rgba(11,29,43,.96));transform:translateY(-2px)}.item-card:focus-visible{outline:3px solid var(--tide);outline-offset:2px}.item-type{display:inline-flex;align-items:center;gap:6px;color:#92cfd2;font-size:10px;font-weight:900;letter-spacing:.09em}.item-grade{display:inline-grid;min-width:27px;height:23px;place-items:center;border:1px solid currentColor;border-radius:6px;color:#9ddfe2;font-size:11px;font-weight:900}.g-e,.g-d{color:#9ddfe2}.g-c,.g-b{color:#b9d882}.g-a,.g-s{color:#ffd170}.g-g,.g-l,.g-m{color:#e6a5ff}.item-card h2{margin:19px 0 6px;color:#effafa;font-size:18px;font-weight:900;letter-spacing:-.055em;line-height:1.13}.item-card p{margin:0;overflow:hidden;color:#a9c1c9;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.item-card small{display:block;margin-top:7px;color:#7fa4b1;font-size:11px}.empty{display:none;grid-column:1/-1;padding:55px 20px;border:1px dashed var(--line);border-radius:13px;color:#a6bec6;text-align:center}.empty.show{display:block}.detail{position:sticky;top:145px;min-height:390px;padding:23px;border:1px solid rgba(255,209,112,.28);border-radius:16px;background:linear-gradient(155deg,rgba(37,55,56,.93),rgba(8,28,45,.98));box-shadow:0 24px 50px rgba(0,0,0,.2)}.detail.empty-state{display:flex;align-items:center;justify-content:center;border-color:var(--line);background:rgba(7,25,41,.72);color:#9db6bf;text-align:center}.detail-kicker{margin:0;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.16em}.detail h2{margin:9px 0 21px;font-size:30px;font-weight:900;letter-spacing:-.075em;line-height:1}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fact{padding:11px;border:1px solid rgba(213,240,242,.13);border-radius:8px;background:rgba(4,18,31,.38)}.fact b{display:block;color:#8fbbc6;font-size:10px;letter-spacing:.09em}.fact span{display:block;margin-top:5px;color:#eef9fa;font-size:13px}.section{margin-top:18px;padding-top:17px;border-top:1px solid var(--line)}.section b{display:block;margin-bottom:8px;color:var(--tide);font-size:11px;letter-spacing:.13em}.line{display:flex;align-items:flex-start;gap:7px;margin:7px 0;color:#c8dadd;font-size:12px}.line:before{margin-top:4px;color:var(--gold);content:'•'}.line small{color:#8ba8b1;font-size:11px}.wiki-link{display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding:11px 12px;border:1px solid rgba(140,226,224,.28);border-radius:8px;color:#d7f5f5;font-size:12px;text-decoration:none}.wiki-link:hover{border-color:var(--gold);color:#ffe2a5}.footer{padding:38px 0 53px;border-top:1px solid var(--line);background:#050f1d}.footer-inner{display:flex;align-items:end;justify-content:space-between;gap:24px}.footer p{margin:7px 0 0;color:#7896a5;font-size:12px}.footer-links{display:flex;gap:18px}.footer-links a{color:#bcd5dd;text-decoration:none;font-size:13px}
+    @media(max-width:900px){.item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-layout{grid-template-columns:minmax(0,1fr) 290px}}@media(max-width:720px){.shell{width:min(100% - 28px,620px)}.nav{height:72px}.links a:not(.nav-shop):not(.nav-discord){display:none}.masthead{padding:52px 0 28px}.masthead h1{font-size:clamp(2.8rem,13.5vw,4.5rem)}.masthead p:not(.eyebrow){font-size:14px}.tools{top:7px;padding:12px}.filters{grid-template-columns:1fr}.item-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.item-card{min-height:140px;padding:14px}.item-card h2{font-size:17px}.detail{position:relative;top:auto;margin-top:17px;min-height:0}.footer-inner{display:block}.footer-links{margin-top:18px}}@media(max-width:374px){.item-grid{grid-template-columns:1fr}}
+  </style>
+  <style>
+    .item-card .catalog-art{position:absolute;top:10px;right:10px;width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));opacity:.94;pointer-events:none;transition:transform .16s ease,opacity .16s ease}.item-card:hover .catalog-art,.item-card.selected .catalog-art{opacity:1;transform:scale(1.08)}.item-card h2{padding-right:66px}.detail-head{display:flex;align-items:flex-start;gap:16px}.detail-head>div{flex:1;min-width:0}.detail-art{flex:none;width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 7px 14px rgba(0,0,0,.5))}.material-art{image-rendering:auto}.material-emblem{display:grid;flex:none;width:80px;height:80px;place-items:center;border:1px solid rgba(255,209,112,.36);border-radius:18px;background:radial-gradient(circle at 36% 28%,rgba(255,209,112,.28),rgba(140,226,224,.08) 52%,transparent 72%),rgba(4,18,31,.5);color:#ffd170;font-size:30px;box-shadow:0 12px 25px rgba(0,0,0,.2)}
+    @media(max-width:720px){.detail-art{width:82px;height:82px}.material-emblem{width:66px;height:66px;font-size:25px}}
+  </style>
+</head>
+<body>
+  <div class="shell"><nav class="nav" aria-label="주 메뉴"><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><div class="links"><a href="/">홈</a><a href="/ranking">랭킹</a><a href="/wiki">위키</a><a href="/dex">물고기</a><a href="/catalog" aria-current="page">장비·재료</a><a class="nav-discord" href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer" aria-label="바르칸 열도 디스코드 참여" title="디스코드 참여"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.32 4.37A19.8 19.8 0 0 0 15.44 2.85a.08.08 0 0 0-.08.04c-.21.37-.44.86-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.64 12.64 0 0 0-.62-1.25.08.08 0 0 0-.08-.04A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.03.03C.53 9.05-.33 13.58.09 18.06a.09.09 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.39-.3a.08.08 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.08.08 0 0 0 .09.01l.39.3c.03.03.03.09-.01.12-.59.35-1.21.65-1.87.89a.08.08 0 0 0-.04.12c.37.7.78 1.37 1.23 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.61-3.56-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.95 2.41-2.15 2.41Zm7.95 0c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.94 2.41-2.15 2.41Z"/></svg></a><a class="nav-shop" href="/vip/">상점</a></div></nav></div>
+  <main class="shell"><header class="masthead"><p class="eyebrow">BARKAN ISLANDS · EQUIPMENT ARCHIVE</p><h1><em>장비·부품 도감</em></h1><p>낚싯대와 작살, 릴·줄·바늘·미끼·찌, 그리고 조합 재료까지. <strong>레벨 제한·능력치·획득 출처</strong>를 확인하고 세팅을 준비하세요.</p><nav class="catalog-switch" aria-label="도감 전환"><a href="/dex">물고기 도감</a><a class="active" href="/catalog">장비·부품·재료</a></nav><div class="stats"><div class="stat"><b id="equipment-count">—</b><span>장비와 부품</span></div><div class="stat"><b id="material-count">—</b><span>수집 재료</span></div><div class="stat"><b id="type-count">—</b><span>장비 종류</span></div></div></header>
+    <section class="tools" aria-label="장비 도감 검색 및 필터"><div class="tabs" id="tabs"><button type="button" class="tab active" data-mode="equipment">장비 전체</button><button type="button" class="tab" data-mode="낚싯대">낚싯대</button><button type="button" class="tab" data-mode="작살">작살</button><button type="button" class="tab" data-mode="부품">부품</button><button type="button" class="tab" data-mode="material">재료</button><button type="button" class="tab" data-gather="forage">채집품</button><button type="button" class="tab" data-gather="collectible">수집품</button></div><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"></circle><path d="m16 16 4.2 4.2"></path></svg><input id="search" type="search" autocomplete="off" placeholder="이름, 능력치, 획득 출처 검색"></label><div class="filters"><select id="type" class="select" aria-label="아이템 종류"></select><select id="source" class="select" aria-label="획득 출처"></select></div><div id="grade-row" class="grade-row" aria-label="장비 등급 필터"></div></section>
+    <div class="result-meta"><span><b id="result-count">—</b>개 표시</span><span>카드를 누르면 능력치와 제작 재료를 확인합니다.</span></div><section class="catalog-layout"><div id="item-grid" class="item-grid" aria-live="polite"></div><div id="empty" class="empty">조건에 맞는 아이템이 없습니다.<br>검색어나 필터를 바꿔 보세요.</div><aside id="detail" class="detail empty-state"><p>장비나 재료를 선택하면<br>획득 정보가 여기에 표시됩니다.</p></aside></section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java &amp; Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/dex">물고기 도감</a><a href="/wiki/gear">장비·강화 위키</a><a href="/wiki/mining">광질·제작 위키</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a></div></div></footer>
+  <script src="assets/catalog-data.js?v=20260811-icons"></script>
+  <script>
+    (()=>{
+      const data=window.BARKAN_CATALOG_DATA,grid=document.querySelector('#item-grid'),detail=document.querySelector('#detail'),empty=document.querySelector('#empty'),search=document.querySelector('#search'),type=document.querySelector('#type'),source=document.querySelector('#source'),tabs=document.querySelector('#tabs'),gradeRow=document.querySelector('#grade-row'),resultCount=document.querySelector('#result-count');
+      const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));const label=value=>String(value||'').replaceAll('_',' ');const gradeOrder=['E','D','C','B','A','S','G','L','M'];let mode='equipment',activeGrade='',selected=null;
+      if(!data?.items?.length){grid.innerHTML='<p class="empty show">장비 데이터를 불러오지 못했습니다.</p>';return;}
+      document.querySelector('#equipment-count').textContent=data.equipmentCount.toLocaleString('ko-KR');document.querySelector('#material-count').textContent=data.materialCount.toLocaleString('ko-KR');document.querySelector('#type-count').textContent=[...new Set(data.items.filter(item=>item.kind==='equipment').map(item=>item.type))].length.toLocaleString('ko-KR');
+      const base=()=>data.items.filter(item=>mode==='material'?item.kind==='material':mode==='equipment'?item.kind==='equipment':mode==='부품'?item.kind==='equipment'&&!['낚싯대','작살'].includes(item.type):item.kind==='equipment'&&item.type===mode);
+      function rebuildFilters(){const items=base(),isMaterial=mode==='material',types=[...new Set(items.map(item=>item.type))].sort((a,b)=>a.localeCompare(b,'ko'));const locations=[...new Set(items.flatMap(item=>isMaterial?item.sources.map(row=>row.region):[item.source]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));type.innerHTML=`<option value="">${isMaterial?'모든 재료':'모든 종류'}</option>${types.map(value=>`<option value="${esc(value)}">${esc(label(value))}</option>`).join('')}`;source.innerHTML=`<option value="">${isMaterial?'모든 획득 지역':'모든 획득 출처'}</option>${locations.map(value=>`<option value="${esc(value)}">${esc(label(value))}</option>`).join('')}`;const grades=[...new Set(items.map(item=>item.grade).filter(Boolean))].sort((a,b)=>gradeOrder.indexOf(a)-gradeOrder.indexOf(b));gradeRow.classList.toggle('hide',isMaterial);gradeRow.innerHTML=isMaterial?'':`<button class="filter active" type="button" data-grade="">전체</button>${grades.map(value=>`<button class="filter" type="button" data-grade="${esc(value)}">${esc(value)}</button>`).join('')}`;activeGrade='';}
+      function filtered(){const q=search.value.trim().toLowerCase(),isMaterial=mode==='material';return base().filter(item=>{const routes=isMaterial?item.sources.map(row=>`${row.region} ${row.chance}`).join(' '):`${item.source} ${item.stats.join(' ')}`;const haystack=[item.name,item.type,item.grade,item.desc,routes].join(' ').toLowerCase();return(!q||haystack.includes(q))&&(!type.value||item.type===type.value)&&(!source.value||(isMaterial?item.sources.some(row=>row.region===source.value):item.source===source.value))&&(!activeGrade||item.grade===activeGrade);});}
+      function card(item){if(item.kind==='material'){const first=item.sources[0],art=item.icon?`<img class="catalog-art material-art" src="assets/materials/${encodeURIComponent(item.icon)}.png" alt="" decoding="async">`:`<span class="material-emblem" aria-hidden="true">✦</span>`;return `<button class="item-card${selected?.name===item.name?' selected':''}" type="button" data-name="${esc(item.name)}">${art}<span class="item-type">MATERIAL</span><h2>${esc(item.name)}</h2><p>${esc(item.desc||'조합 재료')}</p><small>${first?`${esc(label(first.region))} · ${first.chance}%`:'획득처 확인 필요'}</small></button>`;}const art=item.icon?`<img class="catalog-art" src="assets/gear/${encodeURIComponent(item.icon)}.png" alt="" decoding="async">`:'';return `<button class="item-card${selected?.name===item.name?' selected':''}" type="button" data-name="${esc(item.name)}">${art}<span class="item-type">${esc(item.type)} <i class="item-grade g-${esc(item.grade[0].toLowerCase())}">${esc(item.grade)}</i></span><h2>${esc(item.name)}</h2><p>Lv. ${item.level} · ${esc(label(item.source))}</p><small>${esc(item.stats.slice(0,2).join(' · ')||'기본 장비')}</small></button>`;}
+      function showDetail(item,focus=false){selected=item;if(item.kind==='material'){const routes=item.sources.length?item.sources.map(row=>`<div class="line"><span><strong>${esc(label(row.region))}</strong> <small>· 드롭 확률 ${row.chance}%</small></span></div>`).join(''):'<div class="line"><span>현재 드롭 테이블에 등록된 획득 지역이 없습니다.</span></div>';const art=item.icon?`<img class="detail-art material-art" src="assets/materials/${encodeURIComponent(item.icon)}.png" alt="${esc(item.name)}" decoding="async">`:`<span class="material-emblem" aria-hidden="true">✦</span>`;detail.className='detail';detail.innerHTML=`<div class="detail-head"><div><p class="detail-kicker">MATERIAL</p><h2>${esc(item.name)}</h2></div>${art}</div><div class="detail-grid"><div class="fact"><b>분류</b><span>조합 재료</span></div><div class="fact"><b>획득 지역</b><span>${item.sources.length}곳</span></div></div><div class="section"><b>설명</b><div class="line"><span>${esc(item.desc||'제작과 강화에 사용하는 재료입니다.')}</span></div></div><div class="section"><b>드롭 지역 · 확률</b>${routes}</div><a class="wiki-link" href="/wiki/mining">광질·제작 위키 <span>→</span></a>`;}else{const recipe=item.recipe,ingredients=recipe?.ingredients?.length?recipe.ingredients.map(row=>`<div class="line"><span>${esc(row.name)} <small>× ${row.qty}</small></span></div>`).join(''):'<div class="line"><span>등록된 조합식이 없습니다.</span></div>';const art=item.icon?`<img class="detail-art" src="assets/gear/${encodeURIComponent(item.icon)}.png" alt="${esc(item.name)}" decoding="async">`:'';detail.className='detail';detail.innerHTML=`<div class="detail-head"><div><p class="detail-kicker">${esc(item.type)} · ${esc(item.grade)}</p><h2>${esc(item.name)}</h2></div>${art}</div><div class="detail-grid"><div class="fact"><b>레벨 제한</b><span>Lv. ${item.level}</span></div><div class="fact"><b>내구도</b><span>${item.durability}</span></div><div class="fact"><b>기준 가격</b><span>${item.price.toLocaleString('ko-KR')}원</span></div><div class="fact"><b>획득 출처</b><span>${esc(label(item.source)||'별도 확인')}</span></div></div><div class="section"><b>기본 능력치</b>${item.stats.length?item.stats.map(stat=>`<div class="line"><span>${esc(stat)}</span></div>`).join(''):'<div class="line"><span>기본 능력치 정보가 없습니다.</span></div>'}</div><div class="section"><b>조합 재료${recipe?.village?` · ${esc(label(recipe.village))}`:''}</b>${ingredients}</div><a class="wiki-link" href="/wiki/gear">장비·강화 위키 <span>→</span></a>`;}document.querySelectorAll('.item-card').forEach(card=>card.classList.toggle('selected',card.dataset.name===item.name));const params=new URLSearchParams(location.search);params.set('item',item.name);history.replaceState(null,'',`${location.pathname}?${params}`);if(focus&&innerWidth<721)detail.scrollIntoView({behavior:'smooth',block:'start'});}
+      function render(){const items=filtered();resultCount.textContent=items.length.toLocaleString('ko-KR');grid.innerHTML=items.map(card).join('');grid.style.display=items.length?'grid':'none';empty.classList.toggle('show',!items.length);grid.querySelectorAll('.item-card').forEach(cardEl=>cardEl.addEventListener('click',()=>showDetail(data.items.find(item=>item.name===cardEl.dataset.name),true)));}
+      tabs.addEventListener('click',event=>{const button=event.target.closest('[data-mode]');if(!button)return;mode=button.dataset.mode;tabs.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab===button));rebuildFilters();render();});gradeRow.addEventListener('click',event=>{const button=event.target.closest('[data-grade]');if(!button)return;activeGrade=button.dataset.grade;gradeRow.querySelectorAll('.filter').forEach(el=>el.classList.toggle('active',el===button));render();});[search,type,source].forEach(control=>control.addEventListener(control===search?'input':'change',render));
+      const wanted=new URLSearchParams(location.search).get('item');if(wanted){const found=data.items.find(item=>item.name===wanted);if(found){mode=found.kind==='material'?'material':found.type==='낚싯대'?'낚싯대':found.type==='작살'?'작살':'부품';tabs.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.mode===mode));selected=found;}}rebuildFilters();render();if(selected)showDetail(selected);
+    })();
+  </script>
+  <script>
+    (() => {
+      const detail = document.querySelector('#detail');
+      const catalog = new Map((window.BARKAN_CATALOG_DATA?.items || []).map(item => [item.name, item]));
+      const clarify = () => {
+        const item = catalog.get(detail.querySelector('h2')?.textContent?.trim());
+        if (!item || item.kind === 'material' || detail.dataset.pricingFor === item.name) return;
+        const acquisition = item.acquisition || {};
+        const priceFact = [...detail.querySelectorAll('.fact')].find(fact => fact.querySelector('b')?.textContent === '기준 가격');
+        if (priceFact && acquisition.price == null) priceFact.remove();
+        else if (priceFact) { priceFact.querySelector('b').textContent = acquisition.priceLabel || '가격'; priceFact.querySelector('span').textContent = `${Number(acquisition.price).toLocaleString('ko-KR')}원`; }
+        const routeFact = [...detail.querySelectorAll('.fact')].find(fact => fact.querySelector('b')?.textContent === '획득 출처');
+        if (routeFact) { routeFact.querySelector('b').textContent = '획득 방식'; routeFact.querySelector('span').textContent = acquisition.label || '별도 확인'; }
+        const recipeTitle = [...detail.querySelectorAll('.section > b')].find(label => label.textContent.startsWith('조합 재료'));
+        if (recipeTitle && item.recipe) recipeTitle.textContent = recipeTitle.textContent.replace('조합 재료', '제작 재료').replace(' · ', ' · 제작처: ');
+        if (recipeTitle && !item.recipe) recipeTitle.parentElement?.remove();
+        const wiki = detail.querySelector('.wiki-link');
+        if (wiki && item.type === '낚싯대') { wiki.href = '/wiki/gear#gear-overview'; wiki.firstChild.textContent = '낚싯대·강화 위키 '; }
+        if (wiki && item.type === '작살') { wiki.href = '/wiki/gear#gear-overview'; wiki.firstChild.textContent = '작살 사냥·장비 위키 '; }
+        if (wiki && !['낚싯대','작살'].includes(item.type)) { wiki.href = '/wiki/gear#gear-parts'; wiki.firstChild.textContent = '부품·강화 위키 '; }
+        detail.querySelector('.wiki-link')?.insertAdjacentHTML('beforebegin', `<div class="section catalog-note"><b>획득 안내</b><div class="line"><span>${acquisition.detail || '획득 조건을 확인하세요.'}</span></div></div>`);
+        detail.dataset.pricingFor = item.name;
+      };
+      new MutationObserver(clarify).observe(detail, { childList:true, subtree:true });
+      clarify();
+      const title = document.querySelector('.masthead strong');
+      if (title) title.textContent = '레벨 제한·능력치·해금 경로';
+      const search = document.querySelector('#search');
+      if (search) search.placeholder = '이름, 능력치, 해금 경로 검색';
+      document.querySelector('#source')?.setAttribute('aria-label', '해금 경로');
+    })();
+  </script>
+  <script src="assets/gather-data.js"></script>
+  <script>
+    (() => {
+      const data = window.BARKAN_GATHER_DATA;
+      if (!data?.forages?.length) return;
+      const tabs = document.querySelector('#tabs');
+      const grid = document.querySelector('#item-grid');
+      const detail = document.querySelector('#detail');
+      const empty = document.querySelector('#empty');
+      const search = document.querySelector('#search');
+      const type = document.querySelector('#type');
+      const source = document.querySelector('#source');
+      const gradeRow = document.querySelector('#grade-row');
+      const resultCount = document.querySelector('#result-count');
+      const title = document.querySelector('.masthead h1 em');
+      const intro = document.querySelector('.masthead > p:not(.eyebrow)');
+      const statEls = [...document.querySelectorAll('.stats .stat')];
+      const original = {
+        title: title?.textContent || '장비·부품 도감',
+        intro: intro?.innerHTML || '',
+        search: search?.placeholder || '',
+        equipment: document.querySelector('#equipment-count')?.textContent || '—',
+        material: document.querySelector('#material-count')?.textContent || '—',
+        types: document.querySelector('#type-count')?.textContent || '—',
+        labels: statEls.map(stat => stat.querySelector('span')?.textContent || '')
+      };
+      let active = '';
+      let selectedId = '';
+      const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      const formatCooldown = sec => {
+        if (!Number.isFinite(Number(sec))) return '별도 안내';
+        const minutes = Math.round(Number(sec) / 60);
+        if (minutes < 60) return `${minutes}분`;
+        const hours = Math.floor(minutes / 60);
+        const rest = minutes % 60;
+        if (hours >= 24 && rest === 0) return `${Math.round(hours / 24)}일`;
+        return rest ? `${hours}시간 ${rest}분` : `${hours}시간`;
+      };
+      const items = () => active === 'forage' ? data.forages : data.collectibles;
+      const restoreStats = () => {
+        const values = [original.equipment, original.material, original.types];
+        values.forEach((value, index) => { const el = statEls[index]?.querySelector('b'); if (el) el.textContent = value; });
+        original.labels.forEach((value, index) => { const el = statEls[index]?.querySelector('span'); if (el) el.textContent = value; });
+      };
+      const setGatherStats = () => {
+        const rows = items();
+        const areas = new Set(rows.map(item => active === 'forage' ? item.region : item.island));
+        const rare = active === 'forage' ? rows.filter(item => item.rarity !== '흔함').length : rows.filter(item => item.island !== '스폰도시').length;
+        const values = [rows.length.toLocaleString('ko-KR'), areas.size.toLocaleString('ko-KR'), rare.toLocaleString('ko-KR')];
+        const labels = active === 'forage' ? ['채집품', '서식 지역', '희귀 채집품'] : ['수집품', '발견 섬', '특별 수집품'];
+        values.forEach((value, index) => { const el = statEls[index]?.querySelector('b'); if (el) el.textContent = value; const label = statEls[index]?.querySelector('span'); if (label) label.textContent = labels[index]; });
+      };
+      const setControls = () => {
+        const rows = items();
+        const typeValues = [...new Set(rows.map(item => active === 'forage' ? item.rarity : item.headType).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'ko'));
+        const sourceValues = [...new Set(rows.map(item => active === 'forage' ? item.region : item.island).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'ko'));
+        type.innerHTML = `<option value="">${active === 'forage' ? '모든 희귀도' : '모든 수집품 종류'}</option>${typeValues.map(value => `<option value="${esc(value)}">${esc(value)}</option>`).join('')}`;
+        source.innerHTML = `<option value="">${active === 'forage' ? '모든 서식 지역' : '모든 발견 섬'}</option>${sourceValues.map(value => `<option value="${esc(value)}">${esc(value)}</option>`).join('')}`;
+        type.setAttribute('aria-label', active === 'forage' ? '채집품 희귀도' : '수집품 종류');
+        source.setAttribute('aria-label', active === 'forage' ? '채집품 서식 지역' : '수집품 발견 섬');
+        gradeRow.classList.add('hide');
+        gradeRow.innerHTML = '';
+      };
+      const filtered = () => {
+        const q = search.value.trim().toLowerCase();
+        return items().filter(item => {
+          const area = active === 'forage' ? item.region : item.island;
+          const kind = active === 'forage' ? item.rarity : item.headType;
+          const haystack = [item.name, area, kind, item.desc, item.id].join(' ').toLowerCase();
+          return (!q || haystack.includes(q)) && (!type.value || kind === type.value) && (!source.value || area === source.value);
+        });
+      };
+      const card = item => active === 'forage'
+        ? `<button class="item-card${selectedId === item.id ? ' selected' : ''}" type="button" data-gather-id="${esc(item.id)}"><span class="item-type">FORAGE <i class="item-grade g-${item.rarity === '희귀' ? 'a' : 'e'}">${esc(item.rarity)}</i></span><h2>${esc(item.name)}</h2><p>${esc(item.region)} · 재생 ${esc(formatCooldown(item.cooldownSec))}</p><small>${esc(item.desc)}</small></button>`
+        : `<button class="item-card${selectedId === item.id ? ' selected' : ''}" type="button" data-gather-id="${esc(item.id)}"><span class="item-type">COLLECTIBLE</span><h2>${esc(item.name)}</h2><p>${esc(item.island)} · ${esc(item.headType || '탐험 기록')}</p><small>${esc(item.desc)}</small></button>`;
+      const showDetail = (item, focus = false) => {
+        selectedId = item.id;
+        detail.className = 'detail';
+        if (active === 'forage') {
+          detail.innerHTML = `<p class="detail-kicker">FORAGE · ${esc(item.rarity)}</p><h2>${esc(item.name)}</h2><div class="detail-grid"><div class="fact"><b>서식 지역</b><span>${esc(item.region)}</span></div><div class="fact"><b>재생 대기</b><span>${esc(formatCooldown(item.cooldownSec))}</span></div></div><div class="section"><b>채집품 설명</b><div class="line"><span>${esc(item.desc)}</span></div></div><div class="section"><b>획득 방법</b><div class="line"><span>서식 지역의 채집 노드에서 <strong>빈손</strong>으로 상호작용한 뒤 리듬 채집 미니게임을 8회 성공하세요.</span></div><div class="line"><span>성공하면 해당 채집품이 지급되고, 노드는 재생 대기 상태가 됩니다.</span></div></div><a class="wiki-link" href="/wiki/explore#explore-collect">채집·탐험 위키 <span>→</span></a>`;
+        } else {
+          detail.innerHTML = `<p class="detail-kicker">COLLECTIBLE · ${esc(item.island)}</p><h2>${esc(item.name)}</h2><div class="detail-grid"><div class="fact"><b>발견 섬</b><span>${esc(item.island)}</span></div><div class="fact"><b>기록 유형</b><span>${esc(item.headType || '수집품')}</span></div></div><div class="section"><b>수집품 설명</b><div class="line"><span>${esc(item.desc)}</span></div></div><div class="section"><b>배치 위치</b><div class="line"><span>${esc(item.world)} · X ${item.x} / Y ${item.y} / Z ${item.z}</span></div></div><a class="wiki-link" href="/wiki/explore#explore-collect">수집·탐험 위키 <span>→</span></a>`;
+        }
+        grid.querySelectorAll('.item-card').forEach(cardEl => cardEl.classList.toggle('selected', cardEl.dataset.gatherId === item.id));
+        if (focus && innerWidth < 721) detail.scrollIntoView({behavior:'smooth', block:'start'});
+      };
+      const render = () => {
+        const rows = filtered();
+        resultCount.textContent = rows.length.toLocaleString('ko-KR');
+        grid.innerHTML = rows.map(card).join('');
+        grid.style.display = rows.length ? 'grid' : 'none';
+        empty.classList.toggle('show', !rows.length);
+        grid.querySelectorAll('[data-gather-id]').forEach(cardEl => cardEl.addEventListener('click', () => {
+          const found = items().find(item => item.id === cardEl.dataset.gatherId);
+          if (found) showDetail(found, true);
+        }));
+      };
+      const activate = button => {
+        active = button.dataset.gather;
+        selectedId = '';
+        tabs.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab === button));
+        if (title) title.textContent = active === 'forage' ? '채집품 도감' : '수집품 도감';
+        if (intro) intro.innerHTML = active === 'forage' ? '섬 곳곳에 숨은 채집 노드와 희귀한 재료를 기록하세요. <strong>서식 지역·희귀도·재생 대기</strong>를 한눈에 확인할 수 있습니다.' : '섬을 돌아다니며 발견한 수집품을 기록하세요. <strong>발견 섬·종류·배치 좌표</strong>를 확인하고 다음 탐험을 계획할 수 있습니다.';
+        if (search) search.placeholder = active === 'forage' ? '채집품 이름, 지역, 희귀도 검색' : '수집품 이름, 섬, 종류 검색';
+        setGatherStats(); setControls(); render();
+        detail.className = 'detail empty-state'; detail.innerHTML = `<p>카드를 선택하면<br>상세한 획득 정보가 여기에 표시됩니다.</p>`;
+      };
+      tabs.addEventListener('click', event => {
+        const button = event.target.closest('[data-gather]');
+        if (button) { event.preventDefault(); activate(button); return; }
+        if (event.target.closest('[data-mode]') && active) { active = ''; selectedId = ''; restoreStats(); if (title) title.textContent = original.title; if (intro) intro.innerHTML = original.intro; if (search) search.placeholder = original.search; }
+      });
+      [search, type, source].forEach(control => control.addEventListener(control === search ? 'input' : 'change', () => { if (active) render(); }));
+    })();
+  </script>
+  <script>
+    (() => {
+      const detail = document.querySelector('#detail');
+      const data = window.BARKAN_CATALOG_DATA;
+      if (!detail || !data?.items?.length) return;
+      const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      if (!document.querySelector('#catalog-material-link-style')) {
+        const style = document.createElement('style');
+        style.id = 'catalog-material-link-style';
+        style.textContent = '.catalog-material-link{color:#d9f6f3;text-decoration:underline;text-decoration-color:rgba(140,226,224,.55);text-underline-offset:3px}.catalog-material-link:hover{color:#ffd170;text-decoration-color:#ffd170}';
+        document.head.appendChild(style);
+      }
+      const linkRecipeMaterials = () => {
+        const item = data.items.find(row => row.name === detail.querySelector('h2')?.textContent?.trim());
+        const section = [...detail.querySelectorAll('.section')].find(row => row.querySelector('b')?.textContent.startsWith('제작 재료') || row.querySelector('b')?.textContent.startsWith('조합 재료'));
+        if (!item?.recipe?.ingredients?.length || !section || section.dataset.materialLinks === item.name) return;
+        const ingredients = item.recipe.ingredients;
+        section.querySelectorAll('.line span').forEach((span, index) => {
+          const ingredient = ingredients[index];
+          if (!ingredient || span.querySelector('a')) return;
+          span.innerHTML = `<a class="catalog-material-link" href="/catalog?item=${encodeURIComponent(ingredient.name)}">${esc(ingredient.name)}</a> <small>× ${esc(ingredient.qty)}</small>`;
+        });
+        section.dataset.materialLinks = item.name;
+      };
+      new MutationObserver(linkRecipeMaterials).observe(detail, {childList:true, subtree:true});
+      linkRecipeMaterials();
+    })();
+  </script>
+</body>
+</html>

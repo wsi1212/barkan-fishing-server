@@ -1,0 +1,14 @@
+{
+  "citizensId": 42,
+  "npc": "섯다딜러2",
+  "displayName": "&b[섯다] 딜러 Ⅱ",
+  "skin": "d_seotda2",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

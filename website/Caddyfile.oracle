@@ -40,6 +40,12 @@ barkan.kro.kr {
         file_server
     }
 
+    handle /catalog* {
+        root * /var/www/barkan/site
+        rewrite * /catalog.html
+        file_server
+    }
+
     handle /gear* {
         root * /var/www/barkan/site
         rewrite * /gear.html

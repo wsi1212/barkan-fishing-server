@@ -1,0 +1,188 @@
+{
+ "barkan:forage_z_mushred": {
+  "name": "붉은 요정버섯",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushblue": {
+  "name": "푸른 요정버섯",
+  "region": "동굴",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushorange": {
+  "name": "주황 요정버섯",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_herb": {
+  "name": "마법 약초",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_berry": {
+  "name": "야생 베리",
+  "region": "평원",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_fruit": {
+  "name": "붉은 열매",
+  "region": "평원",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushtable": {
+  "name": "황금 갓버섯",
+  "region": "평원",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushshelf": {
+  "name": "라벤더 선반버섯",
+  "region": "늪지대",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushcluster": {
+  "name": "상아 다발버섯",
+  "region": "동굴",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushtall": {
+  "name": "이끼 톨버섯",
+  "region": "늪지대",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushpink": {
+  "name": "분홍 겹버섯",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_tuftgold": {
+  "name": "황금 이삭",
+  "region": "평원",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_daisy": {
+  "name": "흰들국화",
+  "region": "평원",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_fern": {
+  "name": "물결고사리",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_acorn": {
+  "name": "도토리 다발",
+  "region": "깊은 숲",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_cattail": {
+  "name": "부들",
+  "region": "늪지대",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_mushpoison": {
+  "name": "독그늘버섯",
+  "region": "늪지대",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_prickly": {
+  "name": "가시배 선인장",
+  "region": "사막",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_sage": {
+  "name": "사막세이지",
+  "region": "사막",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_crystalblood": {
+  "name": "핏빛수정초",
+  "region": "붉은사막",
+  "rarity": "희귀",
+  "cooldownSec": 72000
+ },
+ "barkan:forage_z_ember": {
+  "name": "잿불꽃",
+  "region": "붉은사막",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_snowflower": {
+  "name": "설화",
+  "region": "정상",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_frostberry": {
+  "name": "서리열매",
+  "region": "정상",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_rosette": {
+  "name": "바위솔",
+  "region": "절벽",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_bellflower": {
+  "name": "벼랑초롱꽃",
+  "region": "절벽",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_glowshroom": {
+  "name": "야광버섯",
+  "region": "동굴",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_crystalame": {
+  "name": "자수정새싹",
+  "region": "동굴",
+  "rarity": "희귀",
+  "cooldownSec": 72000
+ },
+ "barkan:forage_z_watercress": {
+  "name": "물냉이",
+  "region": "강",
+  "rarity": "흔함",
+  "cooldownSec": 5400
+ },
+ "barkan:forage_z_truffle": {
+  "name": "트러플",
+  "region": "깊은 숲",
+  "rarity": "희귀",
+  "cooldownSec": 72000
+ },
+ "barkan:forage_z_desertrose": {
+  "name": "사막장미",
+  "region": "사막",
+  "rarity": "희귀",
+  "cooldownSec": 72000
+ },
+ "barkan:forage_z_frostlotus": {
+  "name": "서리연꽃",
+  "region": "정상",
+  "rarity": "희귀",
+  "cooldownSec": 72000
+ }
+}

@@ -1,0 +1,20 @@
+{
+  "citizensId": 50,
+  "npc": "차석사서",
+  "displayName": "&a[Q] 차석 사서",
+  "skin": "lib_subarchivist",
+  "roles": [],
+  "quests": [
+    "왕도14",
+    "심해17"
+  ],
+  "states": [
+    "base",
+    "talk",
+    "surprised"
+  ],
+  "dialogue_lines": [
+    "…차석 사서요. 무슨 일로 날 찾았소?",
+    "기록은 이미 다 정리되었소. 더 들출 것은 없을 텐데……"
+  ]
+}

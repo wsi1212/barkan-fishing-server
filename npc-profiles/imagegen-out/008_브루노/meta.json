@@ -1,0 +1,14 @@
+{
+  "citizensId": 8,
+  "npc": "브루노",
+  "displayName": "&b[섬상점] 브루노",
+  "skin": "tf_bruno",
+  "roles": [
+    "islandShop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

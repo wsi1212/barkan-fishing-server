@@ -1,0 +1,14 @@
+{
+  "citizensId": 23,
+  "npc": "루카",
+  "displayName": "&b[물고기 판매] 루카",
+  "skin": "tt_luca",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

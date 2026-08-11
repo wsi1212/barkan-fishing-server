@@ -824,15 +824,115 @@ rate limit(주 50건)에 걸려 인증서 발급이 일시 대기 상태였음 �
 24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할). — **전부 완료**.
 25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10). — **완료, 실행 확인**.
 26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉 → 실제로는 서버사이드 SVG로 대체). — **완료, 실로그인 성공 확인**.
-27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가는 아직 미반영(현재는 📊 통계요약 줄만 있음, Phase4-11 참조) — 후순위.
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가 — **✅ 완료(2026-07-28)**: `oracle-ops-scripts/nightly-restart.sh`가 `127.0.0.1:8080/healthz`를 직접 curl해 `📊 통계웹 up/down` 한 단어를 붙임, prod에 스크립트 sync 후 `PREVIEW=1` 실행으로 `up` 응답 실측 확인.
 - **수용 기준**: 어드민 로그인 성공(wsi1212 Discord 계정으로 실제 승인→콜백→대시보드 진입 확인) + 목록 밖 계정 거부는 코드상 보장(`auth.resolve_admin`이 admins.json에 없으면 거부, 실계정으로 재현은 안 함). 미로그인 접근 시 /login 리다이렉트 확인. **기존 lh-bizben.duckdns.org 서비스 무영향 확인**(변경 전후 응답 동일). 대시보드 조회 중 게임 서버는 별도 프로세스라 mspt 무관. ※HTTPS 인증서/systemd 자동재기동(kill 후 재기동)은 아직 미실측 — 인증서는 rate limit 해제 후, 재기동은 필요 시.
 
+### C10 — 강화 단계별(몇강) 시도/성공/실패 (2026-07-28 추가 요청, C9의 확장)
+**✅ 완료.** C9가 "명목 확률 구간별 실측 성공률"(이론 대 실측)을 보는 것과 달리, "+7강 시도가 총
+몇 번 있었고 그 중 몇 번 성공/실패했나"를 실제 강화 단계(`enh.attempt.from`) 기준으로 그대로
+센다 — 레벨 게이트·난이도 확인에 더 직접적. `queries.c10_enhance_by_level()` 신설(⑧ RNG 페이지
+세번째 섹션에 표+막대차트로 배치), `seed_sandbox.py`의 enh 이벤트에 현실적인 단계별 난이도
+곡선(from↑ → 성공률↓)과 from/to 필드를 보강해 샌드박스에서도 바로 확인 가능.
+
+### C11~C15 — 채집·통발·광질(드릴/섬광산) 실측 (2026-07-28 추가 요청 "광질이나 채집 탐험 뭐 그런것들")
+**✅ 완료.** ⑤ 생산 페이지가 지금까지 crop.harvest(C4)만 덮고 "채집/통발/광질 세부는 이벤트
+누적 후 확장"이라고 스스로 인정하던 빈칸을 채웠다 — §8-11·§8-12에 계측 자체는 이미 있었는데
+쿠키북·대시보드가 안 따라간 상태였음.
+- **C11 채집**(`c11_forage_performance`): forage.do를 타입별로 — 성공률/희귀 발견율/평균
+  산출량/평균 소요시간.
+- **C12 통발**(`c12_trap_performance`): trap.place/collect/break를 지역별로 합쳐 설치 대비
+  파손율, 회수당 평균 대기시간(wait_s) — UNION+LEFT JOIN으로 세 이벤트의 지역 키를 하나로
+  합침(SQLite는 FULL OUTER JOIN 미지원이라 이 패턴 사용).
+- **C13 드릴 티어**(`c13_mining_by_tier`): mine.min(분당 집계)을 티어별로 — 분당 채굴량
+  (ore_per_flush)이 성능 체감의 직접 지표.
+- **C14 광물 브레이크다운**(`c14_ore_breakdown`): mine.min/imine.min의 `ctx.ores`(광물명→개수
+  딕셔너리)를 `json_each()`로 풀어 광물별 합계 — 특정 광물 쏠림 확인.
+- **C15 섬광산 요약**(`c15_island_mine_summary`): capped_rate(유저별 채굴 한도 도달 빈도)로
+  한도가 너무 박한지/무의미한지 가늠.
+- `seed_sandbox.py`에 forage/trap.place/trap.collect/trap.break/mine.min/imine.min 이벤트
+  생성을 신규 추가(이전엔 전혀 없었음 — kind 가중치에 6종 추가, 채집 타입별 성공률 차등·드릴
+  티어별 배율·섬광산 capped 확률 등 현실적인 값으로 세팅). 샌드박스에서 6개 섹션 전부 렌더+
+  인사이트 배지 확인.
+
+### C16 — 상점(섬/드릴 등) 품목별 구매/판매 (2026-07-28 추가 요청 "섬상점에서 어떤 품목이 얼마나 팔렸고")
+**✅ 완료.** `IslandShopGui`/`DrillShopGui`는 이미 `shop.buy`/`shop.sell`(ctx: shop=island/drill,
+item, n, price)을 계측하고 있었는데(코드 조사로 확인) 쿠키북/대시보드가 안 따라간 상태였음.
+`queries.c16_shop_sales()`가 상점×품목으로 묶어 구매수량·매출·되팔기수량·지급액을 한 행에
+정리, ③ 경제 페이지 두번째 섹션에 배치. `seed_sandbox.py`에 섬상점 6종+드릴상점 3종 품목
+구매/되팔기 이벤트 신규 추가.
+
+### C6 버그 — 재화 종류(cur) 무시하고 합산되던 문제 (2026-07-28, prod 실사용 중 유저 발견)
+**✅ 완료.** ③ 경제 페이지에서 유저가 "골드랑 캐시랑 다 합쳐진거 같은데"라고 직접 발견 — `c6_inflation`이
+`reason`만 GROUP BY하고 `ctx.cur`(money/cash/afkp — 실제 서로 다른 재화)를 무시해서 전부 한 숫자로
+합산되고 있었다. `cur`도 GROUP BY에 추가하고, app.py가 재화별로 섹션 자체를 분리 렌더링(골드 먼저,
+나머지는 알파벳순) 하도록 수정. seed_sandbox.py에도 cash/afkp 이벤트를 새로 섞어 넣어 샌드박스에서
+분리 확인 완료. ★prod 실사용 중 발견된 버그 — 이 시스템이 실제로 자기 자신의 결함도 잡아낸 사례.
+
+### C16 버그 — 추천상점이 섬상점으로 뭉뚱그려지던 문제 (2026-07-28, 유저 발견 연속타)
+**✅ 완료.** 위 재화 분리 직후 유저가 "추천상점 그것도 분리해줘"라고 바로 지적 — 코드를 보니
+`IslandShopGui`가 섬상점/추천상점 둘 다 같은 클래스 인스턴스(`shopId="섬"`/`"추천"`)로 도는데,
+`shop.buy`/`shop.sell` 텔레메트리 3곳이 `shopId`를 무시하고 전부 `"shop": "island"`로 하드코딩
+되어 있었음(대시보드가 아니라 **Java 로깅 자체의 버그**). `shopTag()` 헬퍼 신설해
+`"추천".equals(shopId) ? "recommend" : "island"`로 실제 인스턴스를 반영하도록 수정
+(commit c54005b, jar 미배포). seed_sandbox.py에 추천상점(신호기/전달체) 이벤트 추가해 C16에서
+island/recommend/drill 셋이 진짜로 분리되는 것까지 확인.
+
+### 부록 — prod 실사용 중 발견한 진짜 데이터 이상(2026-07-28, 참고용 기록)
+플레이어 `sdghjkcam7`의 achievement money.txn 이벤트에서 `d=-8,300,034,833,169,298,177`라는
+비정상 값 발견 — 역산하면 이벤트 직전 잔액이 약 830경 원(MAX_MONEY 1e15의 8300배)이었다는 뜻.
+전체 텔레메트리 기록상 이 플레이어에게 그 이전 money.txn이 전무해 텔레메트리 배포 이전(Skript
+시절 등) 오염된 legacy 데이터로 추정, 현재는 클램프로 999,999,998,887,500(상한 바로 밑)에 안착.
+전체 playerdata 21명 스캔 결과 다른 플레이어의 초과 잔액은 0건 — 활성 진행 중인 버그는 아닌 것으로
+판단. 유저 요청으로 해당 플레이어의 데이터(계정 전체) 삭제 명령을 제공(직접 실행은 사용자가 함,
+영구삭제는 에이전트가 직접 수행하지 않는 정책).
+
+### C17~C20 — 마켓/직거래 경제 + 로깅 자체 보강 (2026-07-28 요청 "마켓/직거래 경제 먼저 + 모든 로깅까지 특히 직거래쪽은")
+**✅ 완료.** 이번엔 대시보드만 만든 게 아니라 실제 Java 로깅 자체에 구멍이 있는 걸 코드 조사로
+찾아내 **blockship-plugin도 같이 고쳤다**(커밋 8f862f4, jar 배포는 안 함):
+- **`trade.done`이 최악이었음** — items_a/items_b가 `{mat,n}`뿐이라 가치 정보가 전혀 없었고
+  (§8-6이 "수표 포함 실질 자금이동 추적"을 원래 요구했는데 코드엔 없었음), money.txn도 안
+  거쳐서 직거래는 통계상 완전한 블랙박스였다. `CheckCommand.readFaceValue()`(공개 메서드
+  신설)로 수표 액면가, `FishItem.calcPrice()`로 물고기 시세를 항목별로 매겨 `value`/`value_src`를
+  추가하고, 그 외 일반 아이템은 가격 카탈로그가 없어 `value` 없이(unknown) 남긴다. 거래 전체
+  `value_a`/`value_b`/`unknown_a`/`unknown_b`를 ctx 최상위에도 같이 기록해 "양쪽 다 100% 가치를
+  아는 거래"만 걸러 편측(불공정) 탐지가 가능해졌다.
+- **market.list/buy/cancel/expire**: `MarketManager.Listing`엔 이미 `id`/`qty`/`sellerUuid`가
+  있었는데 4개 텔레메트리 콜사이트 중 어디에도 안 실려있었음 — 전부 추가해 "등록→판매까지
+  걸린 시간"(time-to-sell) 조인이 처음으로 가능해짐. `market.buy`에 `seller_uuid`도 추가
+  (§8-6이 요구했는데 실제론 한 번도 없었음).
+- **xfer.send**: `/송금`(TransferCommand, 수수료 10%)과 `/돈 송금·보내기`(MoneyCommand, 수수료
+  0%)가 같은 이벤트 타입을 써서 구분이 안 됐음(§14 기재된 수수료 정책 불일치) — `via=
+  transfer_cmd`/`money_cmd` 필드 추가로 우회 규모를 직접 집계 가능해짐.
+- 쿠키북: `c17_market_by_item`(품목별 등록/판매/취소/만료+평균 판매소요시간),
+  `c18_trade_fairness`+`c18b_trade_overview`(편측 거래 탐지, ratio 상위 정렬), `c19_xfer_by_via`
+  (경로별 총액/수수료), `c20_check_summary`(발행 vs 입금 총액, outstanding 추정). ③ 경제 페이지에
+  4개 섹션 추가.
+- `seed_sandbox.py`에 market_listing(등록+결과를 같은 id로 묶어 생성)/trade_done(수표·물고기
+  위주로 가치 있는 거래 생성, 15% 확률로 의도적 편측 거래 주입)/check_issue·deposit/xfer 이벤트
+  신규 — 샌드박스에서 C18 편측탐지가 실제로 극단치(ratio 2000배 등)를 잡아내는 것까지 확인.
+
 ### Phase 6 — 통합 어드민 콘솔 (§10-6, 통계 안정화 후 착수)
-28. 역할 2단(viewer/admin) 분기 + 전 쓰기 액션 CSRF + `audit_log` 기록 공통 래퍼.
-29. 로컬 RCON 액션 카탈로그(ban/pardon/kick/whitelist/say/list) + 실행 전 확인 다이얼로그. **임의 명령 전달 경로 금지**(코드 리뷰 체크포인트).
-30. playerdata·밴목록 read-only 뷰어 + 유저 타임라인 교차 링크.
-31. `admin.action`(P0) 텔레메트리 미러 + TeleTypes 등록.
-- **수용 기준**: viewer 계정에 액션 버튼 비노출+API 직접 호출도 403. dev에서 테스트 밴 → audit_log·admin.action 기록 → pardon까지 왕복 확인.
+**✅ 완료(2026-07-28) — `/goal` "구현 안 한 부분 마저 해줘" 지시로 이번 세션에 전부 구현.**
+28. 역할 2단(viewer/admin) 분기 + 전 쓰기 액션 CSRF + `audit_log` 기록 공통 래퍼. — `guard_admin()`(app.py)이
+    admins.json role 필드로 게이팅, `_csrf_token()`이 세션당 토큰 발급+POST 대조.
+29. 로컬 RCON 액션 카탈로그(ban/pardon/kick/whitelist/say/list) + 실행 전 확인 다이얼로그. **임의 명령
+    전달 경로 금지** — `rcon_client.py`(순수 Source RCON, 의존성 0) + `admin_actions.py`의
+    `ACTION_CATALOG` 딕셔너리 하나만 통해서 실행(플레이어명은 정규식 화이트리스트로 검증, 자유
+    문자열을 명령에 직접 이어붙이지 않음). 브라우저 `confirm()` 1회로 실행 전 확인.
+30. playerdata·밴목록 read-only 뷰어 + 유저 타임라인 교차 링크. — `/playerdata`(이름→uuid 조회 후
+    `PLAYERDATA_DIR/<uuid>.json` 원문 표시) · `/banlist`(`BANNED_PLAYERS_FILE` 파싱), 둘 다
+    "행적 보기" 링크로 ⑨ 유저 상세와 교차.
+31. `admin.action`(P0) 텔레메트리 미러 + TeleTypes 등록. — `admin_actions.record()`가 audit_log
+    INSERT와 동시에 이번 달 `events-YYYY-MM.db`에 `admin.action` 이벤트도 남김(Python이 직접
+    쓰지만 Java `TeleTypes.java`에도 P0로 등록해 레지스트리 일관성 유지, blockship-plugin 커밋 완료·
+    ★jar 배포는 미실행).
+- **수용 기준 검증**: 샌드박스에서 role=admin 세션으로 CSRF 정상 토큰 액션 실행(RCON 비활성이라
+  "실패"로 정상 기록되는 것까지 확인, audit_log 행 생성 확인) / CSRF 불일치 → 403 확인 / 위조한
+  role=viewer 세션으로 `/console` 접근 → 403 + 네비에 콘솔 링크 자체가 안 보이는 것 확인. 실제
+  RCON 명령(ban/kick 등)은 prod/dev 어디에도 실행하지 않음 — 샌드박스는 `RCON_PASSWORD`를 항상
+  비워둬(`rcon_client.RconDisabled`) 진짜 서버에 명령이 나갈 수 없는 구조로 설계.
+  ※**prod 배포는 아직 안 함**(statsweb 코드 변경 전체와 함께 별도 명시 요청 대기 — 특히 prod
+  `.env`에 `RCON_PASSWORD`를 실제로 채우는 순간부터 진짜 명령이 나가므로 배포 시 각별히 주의).
 
 ### 커밋·배포 규칙 (기존 규칙 재확인)
 - blockship-plugin: Phase 단위 커밋(자동, 질문 불필요). jar 배포는 dev 먼저(`~/deploy-dev.sh`), **prod는 명시 요청 시에만**(접속자 0/운영자 단독 예외는 기존 메모리 규칙 따름). 서버 재시작 필수(plugman reload 금지).

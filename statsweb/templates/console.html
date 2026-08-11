@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}콘솔{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">⑪ 통합 콘솔</h1>
+<div class="page-intro"><b>이 페이지가 하는 일</b>: 실제 서버에 운영 명령(추방·차단·공지 등)을 실행합니다.
+여기서 실행한 액션은 전부 <b>기록</b>되고(누가·언제·무엇을), 게임 이벤트 타임라인에도 남습니다.
+admin 역할만 접근 가능하고, viewer는 이 메뉴 자체가 안 보입니다.</div>
+
+{% if not rcon_enabled %}
+<div class="page-note" style="border-left:4px solid var(--s2);">
+  ⚠️ RCON이 비활성 상태입니다(.env의 RCON_PASSWORD 미설정) — 액션을 실행하면 "RCON이 비활성 상태입니다" 오류만 기록되고 실제로는 아무 일도 일어나지 않습니다.
+  {% if sandbox_mode %}샌드박스는 안전을 위해 기본적으로 이 상태입니다.{% endif %}
+</div>
+{% endif %}
+
+{% if flash %}
+<div class="page-note" style="border-left:4px solid {{ 'var(--pos)' if flash.ok else 'var(--neg)' }};">{{ flash.text }}</div>
+{% endif %}
+
+<div class="panel">
+  <h2>액션 카탈로그</h2>
+  <p style="color:var(--muted); font-size:13px;">여기 나열된 것만 실행 가능 — 임의 명령 전달 경로는 없습니다. 실행 전 브라우저 확인창이 한 번 더 뜹니다.</p>
+  <div style="display:flex; flex-wrap:wrap; gap:16px;">
+  {% for key, entry in catalog.items() %}
+    <form method="post" action="{{ base_path }}/console/action"
+          onsubmit="return confirm('정말 실행하시겠습니까?\n\n액션: {{ entry.label }}');"
+          style="background:#12151b; border:1px solid var(--border); border-radius:8px; padding:12px 14px; min-width:220px;">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <input type="hidden" name="action" value="{{ key }}">
+      <div style="font-weight:600; margin-bottom:8px;">{{ entry.label }}</div>
+      {% if 'player' in entry.fields %}
+      <div style="margin-bottom:6px;"><input type="text" name="player" placeholder="플레이어 닉네임" required style="width:100%;"></div>
+      {% endif %}
+      {% if 'reason' in entry.fields %}
+      <div style="margin-bottom:6px;"><input type="text" name="reason" placeholder="{{ '메시지 내용' if key == 'say' else '사유(선택)' }}" style="width:100%;"
+        {% if key == 'say' %}required{% endif %}></div>
+      {% endif %}
+      <button type="submit">실행</button>
+    </form>
+  {% endfor %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>조회 확장</h2>
+  <p><a href="{{ base_path }}/banlist">밴 목록 보기 →</a> · 유저 검색은 <a href="{{ base_path }}/playerdata">플레이어데이터 조회</a>에서(찾은 뒤 <a href="{{ base_path }}/user">⑨ 유저 상세</a>로 최근 행적 교차 확인).</p>
+</div>
+
+<div class="panel">
+  <h2>최근 감사 로그(audit_log, 최대 20건)</h2>
+  <table>
+    <thead><tr><th>시각</th><th>실행자</th><th>액션</th><th>대상</th><th>인자</th><th>결과</th></tr></thead>
+    <tbody>
+      {% for r in recent %}
+      <tr><td>{{ r.time }}</td><td>{{ r.actor_name }}</td><td>{{ r.action }}</td><td>{{ r.target }}</td>
+          <td style="white-space:normal">{{ r.args }}</td><td style="white-space:normal">{{ r.result }}</td></tr>
+      {% else %}
+      <tr><td colspan="6" style="color:var(--muted)">아직 기록된 액션이 없습니다.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

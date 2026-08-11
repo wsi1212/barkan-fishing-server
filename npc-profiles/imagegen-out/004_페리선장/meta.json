@@ -1,0 +1,14 @@
+{
+  "citizensId": 4,
+  "npc": "페리선장",
+  "displayName": "&b페리선장",
+  "skin": "cm_ferry_captain",
+  "roles": [
+    "ferry"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

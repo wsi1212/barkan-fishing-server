@@ -1,0 +1,14 @@
+{
+  "citizensId": 12,
+  "npc": "하산",
+  "displayName": "&b[대장간] 하산",
+  "skin": "df_hasan",
+  "roles": [
+    "smithy"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

@@ -15,7 +15,7 @@
    타 세션 WIP가 컴파일 깨져 있으면 유저에게 보고(내 커밋만으로 빌드 불가).
 2. **prod 배포 순서**: `sudo systemctl stop mcserver` → jar `scp` → `start`.
    (실행 중 jar 덮어쓰기/plugman reload 절대 금지 — CNFE 부분 고장.)
-   SSH: `ssh -i ~/.ssh/oracle-mc.key ubuntu@134.185.113.25`, jar 목적지
+   SSH: `ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107`, jar 목적지
    `~/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar`.
 3. **`~/deploy-blockship.sh` 사용 금지** — jar 외 JSON 6종을 dev→prod로 덮어써
    prod측 편집을 클로버함. jar만 수동 scp.

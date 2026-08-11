@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}밴 목록{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">⑪ 밴 목록 (banned-players.json, read-only)</h1>
+<div class="page-intro"><b>이 페이지가 하는 일</b>: 현재 차단된 플레이어 목록을 그대로 보여줍니다.
+차단 해제는 콘솔의 "차단 해제(pardon)" 액션을 쓰세요 — 여기서는 조회만 됩니다.</div>
+{% if error %}<div class="panel"><p style="color:var(--neg)">{{ error }}</p></div>{% endif %}
+<div class="panel">
+  <table>
+    <thead><tr><th>닉네임</th><th>차단일</th><th>사유</th><th>만료</th><th>차단자</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.name }}</td><td>{{ r.created }}</td>
+        <td style="white-space:normal">{{ r.reason }}</td>
+        <td>{{ r.expires }}</td><td>{{ r.source }}</td>
+        <td><a href="{{ base_path }}/user?name={{ r.name }}">행적 →</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" style="color:var(--muted)">밴 목록이 비어있거나 아직 조회되지 않았습니다.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

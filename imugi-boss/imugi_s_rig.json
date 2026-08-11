@@ -179,7 +179,7 @@
   "green": {
    "3": {
     "item_model": "barkan:imugi_s/aura_03_green",
-    "scale": 9.290322580645162
+    "scale": 5.67741935483871
    },
    "4": {
     "item_model": "barkan:imugi_s/aura_04_green",
@@ -187,15 +187,15 @@
    },
    "5": {
     "item_model": "barkan:imugi_s/aura_05_green",
-    "scale": 6.193548387096774
+    "scale": 3.6129032258064515
    },
    "6": {
     "item_model": "barkan:imugi_s/aura_06_green",
-    "scale": 5.161290322580645
+    "scale": 3.6129032258064515
    },
    "9": {
     "item_model": "barkan:imugi_s/aura_09_green",
-    "scale": 10.32258064516129
+    "scale": 8.258064516129032
    }
   },
   "red": {
@@ -205,11 +205,11 @@
    },
    "1": {
     "item_model": "barkan:imugi_s/aura_01_red",
-    "scale": 4.129032258064516
+    "scale": 3.6129032258064515
    },
    "2": {
     "item_model": "barkan:imugi_s/aura_02_red",
-    "scale": 5.161290322580645
+    "scale": 3.096774193548387
    },
    "5": {
     "item_model": "barkan:imugi_s/aura_05_red",
@@ -217,15 +217,15 @@
    },
    "6": {
     "item_model": "barkan:imugi_s/aura_06_red",
-    "scale": 5.161290322580645
+    "scale": 3.6129032258064515
    },
    "7": {
     "item_model": "barkan:imugi_s/aura_07_red",
-    "scale": 7.225806451612903
+    "scale": 3.6129032258064515
    },
    "8": {
     "item_model": "barkan:imugi_s/aura_08_red",
-    "scale": 6.193548387096774
+    "scale": 3.096774193548387
    }
   },
   "purple": {
@@ -235,15 +235,15 @@
    },
    "1": {
     "item_model": "barkan:imugi_s/aura_01_purple",
-    "scale": 4.129032258064516
+    "scale": 3.6129032258064515
    },
    "2": {
     "item_model": "barkan:imugi_s/aura_02_purple",
-    "scale": 5.161290322580645
+    "scale": 3.096774193548387
    },
    "3": {
     "item_model": "barkan:imugi_s/aura_03_purple",
-    "scale": 9.290322580645162
+    "scale": 5.67741935483871
    },
    "4": {
     "item_model": "barkan:imugi_s/aura_04_purple",
@@ -251,23 +251,23 @@
    },
    "5": {
     "item_model": "barkan:imugi_s/aura_05_purple",
-    "scale": 6.193548387096774
+    "scale": 3.6129032258064515
    },
    "6": {
     "item_model": "barkan:imugi_s/aura_06_purple",
-    "scale": 5.161290322580645
+    "scale": 3.6129032258064515
    },
    "7": {
     "item_model": "barkan:imugi_s/aura_07_purple",
-    "scale": 7.225806451612903
+    "scale": 3.6129032258064515
    },
    "8": {
     "item_model": "barkan:imugi_s/aura_08_purple",
-    "scale": 6.193548387096774
+    "scale": 3.096774193548387
    },
    "9": {
     "item_model": "barkan:imugi_s/aura_09_purple",
-    "scale": 10.32258064516129
+    "scale": 8.258064516129032
    }
   }
  }

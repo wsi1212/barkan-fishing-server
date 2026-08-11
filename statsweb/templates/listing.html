@@ -2,7 +2,8 @@
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
 <h1 style="font-size:18px; margin-bottom:16px;">{{ page_title }}</h1>
-{% if page_note %}<p style="color:var(--muted); font-size:13px; margin-top:-8px;">{{ page_note }}</p>{% endif %}
+{% if page_intro %}<div class="page-intro">{{ page_intro | safe }}</div>{% endif %}
+{% if page_note %}<div class="page-note">{{ page_note | safe }}</div>{% endif %}
 {% for sec in sections %}
 <div class="panel">
   <h2>{{ sec.heading }}</h2>
@@ -10,11 +11,15 @@
   <div>{{ sec.chart_svg | safe }}</div>
   {% endif %}
   {% if sec.table_cols %}
+  {% set has_flags = sec.table_rows | selectattr('_flag', 'defined') | list | length > 0 %}
   <table>
-    <thead><tr>{% for c in sec.table_cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+    <thead><tr>{% for c in sec.table_cols %}<th>{{ c }}</th>{% endfor %}{% if has_flags %}<th>인사이트</th>{% endif %}</tr></thead>
     <tbody>
       {% for row in sec.table_rows %}
-      <tr>{% for c in sec.table_cols %}<td>{{ row.get(c, '') }}</td>{% endfor %}</tr>
+      <tr class="{{ 'row-good' if row.get('_flag_cls')=='good' else ('row-bad' if row.get('_flag_cls')=='bad' else '') }}">
+        {% for c in sec.table_cols %}<td>{{ row.get(c, '') }}</td>{% endfor %}
+        {% if has_flags %}<td>{% if row.get('_flag') %}<span class="badge {{ 'ok' if row.get('_flag_cls')=='good' else 'warn' }}">{{ row['_flag'] }}</span>{% endif %}</td>{% endif %}
+      </tr>
       {% else %}
       <tr><td colspan="{{ sec.table_cols|length }}" style="color:var(--muted)">데이터 없음</td></tr>
       {% endfor %}

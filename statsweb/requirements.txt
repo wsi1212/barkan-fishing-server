@@ -4,3 +4,4 @@ jinja2
 itsdangerous
 httpx
 python-dotenv
+python-multipart

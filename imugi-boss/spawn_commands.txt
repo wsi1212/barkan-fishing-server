@@ -1,12 +1,31 @@
-execute in minecraft:flatroom run summon minecraft:item_display 46.167 -44.833 -118.833 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_00"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[4.84f,4.84f,4.84f]},Tags:["imugi_test","imugi_seg0"]}
-execute in minecraft:flatroom run summon minecraft:item_display 49.792 -48.458 -113.792 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_01"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[5.22f,5.22f,5.22f]},Tags:["imugi_test","imugi_seg1"]}
-execute in minecraft:flatroom run summon minecraft:item_display 49.375 -49.938 -108.0 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_02"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[4.38f,4.38f,4.38f]},Tags:["imugi_test","imugi_seg2"]}
-execute in minecraft:flatroom run summon minecraft:item_display 47.761 -50.065 -103.065 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_03"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[4.08f,4.08f,4.08f]},Tags:["imugi_test","imugi_seg3"]}
-execute in minecraft:flatroom run summon minecraft:item_display 45.54 -48.26 -97.98 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_04"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[4.26f,4.26f,4.26f]},Tags:["imugi_test","imugi_seg4"]}
-execute in minecraft:flatroom run summon minecraft:item_display 45.455 -45.545 -92.909 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_05"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[6.55f,6.55f,6.55f]},Tags:["imugi_test","imugi_seg5"]}
-execute in minecraft:flatroom run summon minecraft:item_display 53.031 -40.344 -91.5 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_06"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[6.51f,6.51f,6.51f]},Tags:["imugi_test","imugi_seg6"]}
-execute in minecraft:flatroom run summon minecraft:item_display 53.5 -35.978 -99.022 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_07"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[5.5f,5.5f,5.5f]},Tags:["imugi_test","imugi_seg7"]}
-execute in minecraft:flatroom run summon minecraft:item_display 47.474 -31.526 -97.947 {item:{id:"minecraft:paper",count:1,components:{"minecraft:item_model":"barkan:imugi/seg_08"}},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[10.95f,10.95f,10.95f]},Tags:["imugi_test","imugi_seg8"]}
-execute in minecraft:flatroom run summon minecraft:item_display 46.5 -30.5 -91.5 {item:{id:"minecraft:ender_chest",count:1},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[2.0f,2.0f,2.0f]},Tags:["imugi_test"]}
-execute in minecraft:flatroom run summon minecraft:item_display 48.5 -30.5 -91.5 {item:{id:"minecraft:ender_chest",count:1},transformation:{translation:[0f,0f,0f],left_rotation:[0f,1f,0f,0f],right_rotation:[0f,0f,0f,1f],scale:[2.0f,2.0f,2.0f]},Tags:["imugi_test"]}
-# 정리: execute in minecraft:flatroom run kill @e[type=item_display,tag=imugi_test]
+# 이무기 dev 서버 실소환 테스트 순서
+# 기준: flatroom의 dev 호수 중심 (150, -60, -100), 반경 14
+# 리그는 BlockShip/imugi_rig.json, 모델은 barkan:imugi/seg_00..08
+
+# 1) 기존 보스/잔여 ItemDisplay 정리
+이무기 제거
+execute in minecraft:flatroom run kill @e[type=minecraft:item_display,tag=imugi_test]
+execute in minecraft:flatroom run forceload add 136 -114 164 -86
+
+# 2) 정식 리그 보스 소환(처음에는 정지 포즈로 렌더 확인)
+이무기 소환 flatroom 150 -60 -100 14
+이무기 정보
+
+# 3) 정지 포즈가 정상적으로 보이면 유영/잠수 테스트
+이무기 수영
+이무기 잠수루프
+
+# 4) 전투 진입 및 테스트 딜(플레이어가 실행)
+이무기 전투
+이무기 딜 10
+이무기 포기
+
+# 5) 최종 정리
+이무기 제거
+execute in minecraft:flatroom run forceload remove 136 -114 164 -86
+
+# 수동 소환 잔해 정리(구버전 명령으로 만든 엔티티가 남았을 때)
+execute in minecraft:flatroom run kill @e[type=minecraft:item_display,tag=imugi_test]
+
+# 콘솔에서 좌표형 소환을 할 때도 동일하게 사용:
+# 이무기 소환 flatroom 150 -60 -100 14

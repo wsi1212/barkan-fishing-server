@@ -192,6 +192,21 @@ LEGACY = {
     "다이아 작살":     ("A", 780000,   260, "수중호흡:30,수영속도:26,공격력:4", 40,  "대장간"),
     "네더라이트 작살": ("G", 40000000, 320, "수중호흡:70,수영속도:45,공격력:8", 100, "대장간"),
 }
+
+# ── 심해 전용 심층 티어 ──────────────────────────────────────────────────────
+# 7챕터 강하 준비의 권위 데이터. parts.json을 직접 고치지 않고 이 생성기에서만 산출한다.
+# 야간투시는 심해에서만 의미가 있는 작살 전용 스탯이며, 1,000초 호흡은 최심부 통행권이다.
+DEEP_SPEARS = [
+    ("심해 잠수 작살", "S", 3480000, 520,
+     "수중호흡:1000,야간투시:1,수영속도:55,공격력:8,돌진쿨감:18", 68, "심해", "왕도",
+     ["진주코어", "안개수정"]),
+    ("압력관통 작살", "S", 3550000, 560,
+     "수중호흡:1000,야간투시:1,수영속도:48,공격력:12,공격속도:42", 69, "심해", "왕도",
+     ["별빛진주", "압축흑정석"]),
+    ("심연의 작살", "S", 3620000, 600,
+     "수중호흡:1000,야간투시:2,수영속도:70,공격력:14,공격속도:50,돌진쿨감:28", 70, "심해", "왕도",
+     ["바르칸핵", "별빛진주"]),
+]
 #  ★id는 HP90+ 예약대역을 쓴다 — 카탈로그가 HP02부터 순번을 먹으므로 낮은 번호를 쓰면 카탈로그
 #    레시피를 덮어써 그 작살이 영구 미획득이 된다(2026-08-05 실제 사고: HP30/31/32가 모래바람·
 #    독전갈·대상단 작살을 지워 사막 A 3종이 제작 불가였다). main()의 충돌 검사가 재발을 막는다.
@@ -260,6 +275,9 @@ def stats_for(build, grade, shape, hybrid_with=None):
     for ax, table in BASE.items():
         st.setdefault(ax, r(table[grade] * (sm if ax != "공격력" else 1.0)))
     st["수중호흡"] = max(st["수중호흡"], BREATH_FLOOR[grade])
+    # 2026-08-07 level-pacing decision: equipment XP contribution is halved.
+    if "경험치" in st:
+        st["경험치"] /= 2
     return st
 
 
@@ -302,6 +320,11 @@ def build_catalog():
             price = int(round((prc_lo + t * (prc_hi - prc_lo)) / 100.0) * 100)
             name, g, st, origin, village, mats = x
             out.append((name, g, price, DURAB[g], stat_str(st), lv, origin, village, mats, sc))
+    # 심해 티어는 일반 S 밴드 점수 배치 대신 지정 레벨·호흡 1,000초를 보존한다.
+    for name, grade, price, dur, stats, lv, origin, village, mats in DEEP_SPEARS:
+        out.append((name, grade, price, dur, stats, lv, origin, village, mats,
+                    sum(POWER_W.get(k, 0) * float(v) for k, v in
+                        (x.split(":", 1) for x in stats.split(",")))))
     # 등급 → 레벨 순으로 정렬해 order/표가 사다리처럼 보이게
     gorder = {"D": 0, "C": 1, "B": 2, "A": 3, "S": 4}
     out.sort(key=lambda z: (gorder[z[1]], z[5]))

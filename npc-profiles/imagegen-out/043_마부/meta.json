@@ -1,0 +1,14 @@
+{
+  "citizensId": 43,
+  "npc": "마부",
+  "displayName": "&b[말 대여] 오스카",
+  "skin": "tf_oskar",
+  "roles": [
+    "horseRental"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

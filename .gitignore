@@ -1,0 +1,5 @@
+.claude/.env.9router
+statsweb/.env
+statsweb/admins.json
+stats-lab/sandbox-data/
+__pycache__/

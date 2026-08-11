@@ -1,0 +1,19 @@
+{
+  "citizensId": 46,
+  "npc": "필경사",
+  "displayName": "&a[Q] 필경사",
+  "skin": "lib_scribe",
+  "roles": [],
+  "quests": [
+    "왕도08"
+  ],
+  "states": [
+    "base",
+    "talk",
+    "surprised"
+  ],
+  "dialogue_lines": [
+    "필사실의 필경사입니다. 원본을 베껴 쓰는 게 제 일이지요.",
+    "…한데 요즘, 누군가 기록을 위조하고 낱장을 뜯어간 흔적이 보입니다."
+  ]
+}

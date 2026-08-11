@@ -1,0 +1,533 @@
+{
+  "date": "2026-07-24",
+  "source_roots": {
+    "java": "/Users/user/development/blockship-plugin/src/main/java/com/blockship",
+    "json": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
+  },
+  "raw": {
+    "leveling": {
+      "max_level": 100,
+      "base_req_exp": 200,
+      "tier_walls": [
+        {
+          "below_level": 15,
+          "mult": 1.04
+        },
+        {
+          "below_level": 25,
+          "mult": 1.08
+        },
+        {
+          "below_level": 40,
+          "mult": 1.05
+        },
+        {
+          "below_level": 50,
+          "mult": 1.09
+        },
+        {
+          "below_level": 60,
+          "mult": 1.06
+        }
+      ],
+      "tier_wall_top": 1.1,
+      "max_grade_unlock": [
+        {
+          "level": 30,
+          "grade_num": 7
+        },
+        {
+          "level": 45,
+          "grade_num": 8
+        },
+        {
+          "level": 60,
+          "grade_num": 9
+        }
+      ],
+      "cumulative_xp": {
+        "30": 12807,
+        "45": 34113,
+        "60": 96931,
+        "70": 201961,
+        "100": 3013697
+      }
+    },
+    "economy": {
+      "grade_base_price": {
+        "E": 100,
+        "D": 250,
+        "C": 600,
+        "B": 2000,
+        "A": 6000,
+        "S": 20000,
+        "M": 65000,
+        "L": 170000,
+        "G": 450000
+      },
+      "quality_formula": {
+        "floor": 0.5,
+        "slope": 0.5,
+        "div": 100
+      },
+      "freshness_buckets": [
+        {
+          "age_min_max": 15,
+          "mult": 1.0
+        },
+        {
+          "age_min_max": 40,
+          "mult": 0.85
+        },
+        {
+          "age_min_max": 90,
+          "mult": 0.65
+        },
+        {
+          "age_min_max": 180,
+          "mult": 0.4
+        }
+      ],
+      "max_money": 1000000000000000,
+      "submit_fish_by_grade": {
+        "E": 1,
+        "D": 2,
+        "C": 5,
+        "B": 15,
+        "A": 50,
+        "S": 200,
+        "M": 700,
+        "L": 1800,
+        "G": 5000
+      },
+      "submit_reward_keys": [
+        "island",
+        "guild"
+      ],
+      "submit_reward_cap": 1000000,
+      "quest_rewards": {
+        "count": 193,
+        "sum": 1812550,
+        "max": 50000,
+        "min": 200
+      },
+      "pearl_drop_chance": {
+        "강_상류": 4,
+        "정상": 8,
+        "바르칸": 3,
+        "붉은사막": 3,
+        "대양": 3,
+        "원양어선": 6,
+        "늪지대": 3,
+        "붉은호수": 3,
+        "물보라동굴": 3,
+        "깊은호수": 7,
+        "기억의연못": 5
+      },
+      "pearl_drop_max": 8,
+      "afk_sweep_sec": 10,
+      "afk_idle_sec": 600
+    },
+    "rng": {
+      "grade_base_prob": {
+        "G": 3.5e-06,
+        "L": 0.00035,
+        "M": 0.0035,
+        "S": 0.21,
+        "A": 0.7,
+        "B": 1.868,
+        "C": 7.13,
+        "D": 21.12
+      },
+      "grade_gate": {
+        "G": 9,
+        "L": 8,
+        "M": 7,
+        "S": 0,
+        "A": 0,
+        "B": 0,
+        "C": 0,
+        "D": 0
+      },
+      "combo_step": 5,
+      "combo_cap_pct": 20,
+      "grade_up_cap": 40,
+      "casino": {
+        "slot_bet_unit": 1000,
+        "slot_outcome_tickets": 10000,
+        "slot_winning_tickets": 4700,
+        "slot_theoretical_rtp_bps": 9392,
+        "slot_house_edge_pct": 6.08,
+        "poker_rake_pct": 5.0,
+        "seotda_cap_mult": 20
+      }
+    },
+    "equipment": {
+      "part_counts": {
+        "낚싯대": 20,
+        "릴": 12,
+        "줄": 14,
+        "바늘": 14,
+        "미끼": 13,
+        "찌": 11
+      },
+      "part_total": 84,
+      "enhance_cost": [
+        0,
+        700,
+        1800,
+        3500,
+        7000,
+        14000,
+        28000,
+        52000,
+        90000,
+        140000,
+        250000,
+        420000,
+        700000,
+        1250000,
+        2100000,
+        3500000,
+        5000000,
+        6300000,
+        7700000,
+        9000000,
+        11000000
+      ],
+      "enhance_success": [
+        0,
+        100,
+        95,
+        90,
+        85,
+        75,
+        65,
+        55,
+        46,
+        40,
+        35,
+        30,
+        26,
+        23,
+        20,
+        17,
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "enhance_down": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        8,
+        11,
+        14,
+        17,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        45,
+        50,
+        55,
+        60,
+        65
+      ],
+      "enhance_pearl": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        7,
+        8,
+        8,
+        9,
+        9,
+        10,
+        10
+      ],
+      "enhance_checkpoint": [
+        5,
+        10,
+        15
+      ],
+      "enhance_stat_order": [
+        "나뭇가지",
+        "대나무 막대기",
+        "행운의 낚싯대",
+        "참나무 낚싯대",
+        "경험의 낚싯대",
+        "낚시꾼의 낚싯대",
+        "대물 낚싯대",
+        "강화목 낚싯대",
+        "쌍둥이 낚싯대",
+        "황금 낚싯대",
+        "견고한 낚싯대",
+        "전문가 낚싯대",
+        "행운꾼의 낚싯대",
+        "흑단목 낚싯대",
+        "명인의 낚싯대",
+        "대어꾼의 낚싯대",
+        "상인의 낚싯대",
+        "학자의 낚싯대",
+        "용왕의 낚싯대",
+        "심해 낚싯대",
+        "바르칸 낚싯대",
+        "초보 낚싯대",
+        "잉어꾼의 낚싯대",
+        "사막 낚싯대",
+        "여명의 낚싯대",
+        "수호자의 낚싯대",
+        "신기루 낚싯대",
+        "사막군주의 낚싯대",
+        "행상인의 낚싯대",
+        "대상인의 낚싯대",
+        "천공의 낚싯대"
+      ],
+      "enhance_stat_levels": 31,
+      "enhance_expected_attempts": {
+        "5": 4.3,
+        "10": 13.7,
+        "15": 33.1,
+        "16": 39.0,
+        "20": 167.3
+      }
+    }
+  },
+  "warnings": [],
+  "derived": {
+    "income_per_hour": {
+      "base": 32489,
+      "sell110": 68228,
+      "double110": 68228,
+      "note": "quality50, 150casts/h, 낚시판매만. 부품엔 판매/더블 0=강화에서만"
+    },
+    "high_grade_income_negligible": true,
+    "enhance_plus15_reality": {
+      "money": 142563143,
+      "pearl": 956,
+      "hours_money_base": 4388,
+      "hours_money_sell110": 2090,
+      "hours_pearl_best8pct": 80,
+      "hours_pearl_common3pct": 212,
+      "roi_breakeven_hours": 3989,
+      "bottleneck": "money",
+      "note": "판매/더블은 강화에서만 나옴→+15=수입2배 투자. 완화=캐시주문서+비낚시수입"
+    },
+    "stat_values_normalized": {
+      "note": "per-단위 정규화. 최대기여는 stat_values 참조",
+      "경험치1%": "1.00(레벨링)",
+      "판매/더블1%": 1.0,
+      "등급업1%": 1.9,
+      "트리플1%": 2.0,
+      "크기1%": 0.67,
+      "행운1점": 0.65,
+      "도주감소1%": 0.5,
+      "크리확률1%": 0.27,
+      "크리배율1점": 1.33,
+      "max_contribution_최강": "판매/더블/경험치(레벨링)",
+      "max_contribution_최약": "크리(확률0.19+배율0.08)"
+    },
+    "cooking_buff_value_won": {
+      "잿불매운탕_등급업14": 1875,
+      "파스타_등급업10": 1236,
+      "세이지_더블10": 650,
+      "꿀햄구이_크리10": 174,
+      "경험치요리": 0,
+      "note": "버프가치=스탯×원/h×지속. 등급업요리가 크리요리 7배=티어가 스탯가치 무시"
+    },
+    "weather_net_won_per_h": {
+      "유성우": 12609,
+      "뇌우": 12454,
+      "땡볕": 7590,
+      "모래바람": 6500,
+      "열대야": 5576,
+      "태풍": 3642,
+      "안개": 1854,
+      "오로라": 1740,
+      "note": "뇌우행운50/유성우=+38~39% income, 7배 편차"
+    },
+    "equipment_payback_h_sample": {
+      "대상인낚싯대A": 3.6,
+      "바르칸낚싯대S": 10.2,
+      "신기루바늘A_등급업": 1.5,
+      "정교한바늘B_크리": 2.3,
+      "note": "S바르칸(10h)>A대상인(3.6h)=등급-가치역전. 크리부품 약함"
+    },
+    "stat_values": {
+      "income_per_hour": 32489,
+      "avg_catch": 216.6,
+      "casts": 150,
+      "quality": 50,
+      "crit_rate": 0.2,
+      "crit_dmg": 4,
+      "anchor_won": 324.9,
+      "stat_values": {
+        "경험치 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 255,
+          "max_contribution_won": 82848,
+          "basis": "★레벨링 국면: income 1%와 동가치(병렬진행). 만렙 후 0"
+        },
+        "판매보너스 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 110,
+          "max_contribution_won": 35738,
+          "basis": "income×1% (앵커)"
+        },
+        "더블찬스 (1%)": {
+          "won_per_unit": 324.9,
+          "normalized_per_unit": 1.0,
+          "max_magnitude": 110,
+          "max_contribution_won": 35738,
+          "basis": "+1% 확률로 +1마리(평균값)"
+        },
+        "등급업 (1%)": {
+          "won_per_unit": 617.7,
+          "normalized_per_unit": 1.901,
+          "max_magnitude": 56,
+          "max_contribution_won": 34591,
+          "basis": "1% 캐스트 1티어↑, 분포가중 가격차"
+        },
+        "크기 (1%)": {
+          "won_per_unit": 216.6,
+          "normalized_per_unit": 0.667,
+          "max_magnitude": 100,
+          "max_contribution_won": 21660,
+          "basis": "+1%size≈+1quality (★어종편차 큼)"
+        },
+        "행운 (1점)": {
+          "won_per_unit": 212.4,
+          "normalized_per_unit": 0.654,
+          "max_magnitude": 100,
+          "max_contribution_won": 21239,
+          "basis": "모든등급확률+1%(희귀어 수집엔 실효). 수입기여: 흔함80%/S19%/MLG1.3%"
+        },
+        "크리확률 (1%)": {
+          "won_per_unit": 164.6,
+          "normalized_per_unit": 0.507,
+          "max_magnitude": 80,
+          "max_contribution_won": 13169,
+          "basis": "+1%크리율×(critDmg4: 크기경로+직접가격+24%). ★critDmg 낮으면 값↓"
+        },
+        "크리배율 (1점)": {
+          "won_per_unit": 823.1,
+          "normalized_per_unit": 2.533,
+          "max_magnitude": 15,
+          "max_contribution_won": 12346,
+          "basis": "크리율20%: size+10%/점 + 판매가직접+6%/점 (상한없음)"
+        },
+        "트리플찬스 (1%)": {
+          "won_per_unit": 649.8,
+          "normalized_per_unit": 2.0,
+          "max_magnitude": 13,
+          "max_contribution_won": 8447,
+          "basis": "+1% 확률로 +2마리"
+        },
+        "도주감소 (1%)": {
+          "won_per_unit": 162.4,
+          "normalized_per_unit": 0.5,
+          "max_magnitude": 50,
+          "max_contribution_won": 8122,
+          "basis": "escapeBase-0.5%(÷2)=+0.5%캐치 (★도주율 높을때만)"
+        }
+      }
+    },
+    "caps_removed_2026_07_24": {
+      "gradeUpChance_cap": {
+        "was": 40,
+        "now": "없음"
+      },
+      "critDamage_cap": {
+        "was": 8,
+        "now": "없음",
+        "realizable_max": 15
+      },
+      "comboBonusPct_cap": {
+        "was": 20,
+        "now": "없음"
+      },
+      "crit_max_contribution_normalized": {
+        "before": 0.08,
+        "after": 0.18
+      },
+      "blockship_commit": "efb0110",
+      "principle": "확률 자연포화 vs 임의 매직넘버 — 후자는 폐지, 카지노 하우스엣지 캡은 예외 존치"
+    },
+    "crit_rebalance_2026_07_24": {
+      "stage1_cap_removal": {
+        "crit_max_contrib": 0.18,
+        "specialized_build_pct": 39
+      },
+      "stage2_direct_price_bonus": {
+        "coef": 0.06,
+        "blockship_commit": "ca25655",
+        "crit_max_contrib": "0.35-0.37",
+        "specialized_build_pct": 66,
+        "equipment_payback_before_after": {
+          "고속릴": [
+            5.2,
+            2.7
+          ],
+          "정교한바늘": [
+            6.5,
+            3.4
+          ],
+          "PE합사줄": [
+            7.4,
+            3.9
+          ]
+        },
+        "note": "등급업 캡폐지 후 실현치107%로 판매/더블 동률권 진입해 크리와 격차 확대→가격보너스로 66%까지 견인, 크기87%권 근접"
+      }
+    },
+    "equipment_slot_rebalance_2026_07_25": {
+      "줄슬롯": {
+        "before_h": 3.55,
+        "after_h": 2.56,
+        "note": "크리조정 부수효과로 자동해소"
+      },
+      "낚싯대": {
+        "cut_pct": 15,
+        "before_h": 6.67,
+        "after_h": 5.67,
+        "changed_items": 10,
+        "reason": "주스탯 난이도가 stat_value모델에 미반영돼 과가격으로 나옴, 반영해도(6.15h) 격차 안줄어 실제 과가격 확정",
+        "note": "낚싯대만 내구도 없음(프리미엄 정당) — 완전동률 아닌 조금만 인하",
+        "backup": "parts.json.bak-20260725-rodcut-before/after"
+      },
+      "durability_bug_fix": {
+        "blockship_commit": "2d5b0c7",
+        "issue": "내구도0=파괴(재구매강제) 였으나 의도는 고장(수리대기)",
+        "fixed": true,
+        "files": [
+          "EquipmentManager.reduceDurability",
+          "FishingBonuses(durability게이트 신설)",
+          "WorkbenchGui",
+          "ProfileGui"
+        ]
+      },
+      "methodology_correction": "150casts/h 연속가정은 내구소모엔 과대추정(실제 훨씬느림, 사용자확인) — 재구매비 계산에 쓰지말것"
+    }
+  }
+}

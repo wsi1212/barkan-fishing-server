@@ -30,6 +30,10 @@
   th, td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
   th { color:var(--muted); font-weight:600; }
   tr:hover td { background:#1c2029; }
+  tr.row-good td { background:#15241a; }
+  tr.row-bad td { background:#2a1a1a; }
+  tr.row-good:hover td { background:#1a2e21; }
+  tr.row-bad:hover td { background:#332020; }
   .chart-title { fill:var(--muted); font-size:11px; }
   .chart-axis { stroke:var(--border); stroke-width:1; }
   .chart-bar-pos { fill:var(--pos); }
@@ -39,6 +43,29 @@
   .chart-legend { fill:var(--muted); font-size:10px; }
   .chart-line { stroke:var(--accent); stroke-width:2; }
   .chart-dot { fill:var(--accent); }
+  .chart-dot-good { fill:var(--pos); }
+  .chart-dot-bad { fill:var(--neg); }
+  .chart-axis-label { fill:var(--muted); font-size:11px; font-weight:600; }
+  .scatter-pt { cursor:pointer; }
+  .scatter-hover-label { fill:var(--text); font-size:11px; opacity:0; pointer-events:none;
+    paint-order:stroke; stroke:var(--bg); stroke-width:3px; }
+  .scatter-pt:hover .scatter-hover-label { opacity:1; }
+  .scatter-pt:hover circle.chart-dot,
+  .scatter-pt:hover circle.chart-dot-good,
+  .scatter-pt:hover circle.chart-dot-bad { r:6.5; }
+  .bar-pt, .line-pt { cursor:pointer; }
+  .bar-hover-label, .line-hover-label { fill:var(--text); font-size:11px; font-weight:600; opacity:0;
+    pointer-events:none; paint-order:stroke; stroke:var(--bg); stroke-width:3px; transition:opacity .05s; }
+  .bar-pt:hover .bar-hover-label, .line-pt:hover .line-hover-label { opacity:1; }
+  .bar-pt:hover rect { filter:brightness(1.4); }
+  .line-pt:hover circle.chart-dot { r:5.5; }
+  .chart-reference-line { stroke:var(--muted); stroke-width:1.5; stroke-dasharray:4 3; }
+  .chart-reference-label { fill:var(--muted); font-size:10px; }
+  .page-intro { background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--accent);
+    border-radius:8px; padding:14px 18px; margin-bottom:14px; font-size:15px; line-height:1.7; color:var(--text); }
+  .page-intro b, .page-intro strong { color:var(--accent); }
+  .page-note { background:#171a21; border:1px solid var(--border); border-radius:8px; padding:12px 16px;
+    margin-bottom:18px; font-size:14px; line-height:1.7; color:var(--text); }
   .chart-series-0 { fill:var(--s0); } .chart-series-1 { fill:var(--s1); } .chart-series-2 { fill:var(--s2); }
   .chart-series-3 { fill:var(--s3); } .chart-series-4 { fill:var(--s4); } .chart-series-5 { fill:var(--s5); }
   .chart-empty { color:var(--muted); font-size:13px; padding:24px; text-align:center; }
@@ -48,6 +75,9 @@
   input[type=text] { background:#0c0e12; border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:6px; }
   button { background:var(--accent); border:none; color:#0a0e14; font-weight:600; padding:8px 14px; border-radius:6px; cursor:pointer; }
   .userinfo { font-size:13px; color:var(--muted); }
+  .inline-form { display:flex; gap:6px; } .inline-form button { padding:6px 9px; font-size:12px; }
+  button.secondary { background:#586272; color:var(--text); } button.danger { background:var(--neg); color:white; }
+  .wrap-cell { white-space:normal; min-width:160px; max-width:280px; } .flash-ok { border-left-color:var(--pos); } .flash-error { border-left-color:var(--neg); }
 </style>
 </head>
 <body>
@@ -64,11 +94,20 @@
     <a href="{{ base_path }}/rng" class="{{ 'active' if active=='rng' else '' }}">⑧ RNG</a>
     <a href="{{ base_path }}/user" class="{{ 'active' if active=='user' else '' }}">⑨ 유저 상세</a>
     <a href="{{ base_path }}/coverage" class="{{ 'active' if active=='coverage' else '' }}">⑩ 커버리지</a>
+    {% if user and user.role == 'admin' %}
+    <a href="{{ base_path }}/console" class="{{ 'active' if active=='console' else '' }}">⑪ 콘솔</a>
+    <a href="{{ base_path }}/membership" class="{{ 'active' if active=='membership' else '' }}">⑫ 멤버십</a>
+    {% endif %}
   </nav>
   <main>
+    {% if sandbox_mode %}
+    <div style="background:#3a2a1e; color:var(--s2); padding:8px 14px; border-radius:6px; margin-bottom:16px; font-size:13px; font-weight:600;">
+      🧪 샌드박스 모드 — 전부 가짜 데이터입니다(실제 서버 통계 아님). seed_sandbox.py로 생성.
+    </div>
+    {% endif %}
     <div class="topbar">
       <div></div>
-      <div class="userinfo">{% if user %}{{ user.name }} ({{ user.role }}) · <a href="{{ base_path }}/logout">로그아웃</a>{% endif %}</div>
+      <div class="userinfo">{% if user %}{{ user.name }} ({{ user.role }}) · {% if not sandbox_mode %}<a href="{{ base_path }}/logout">로그아웃</a>{% endif %}{% endif %}</div>
     </div>
     {% block content %}{% endblock %}
   </main>

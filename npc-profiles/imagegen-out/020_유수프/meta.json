@@ -1,0 +1,14 @@
+{
+  "citizensId": 20,
+  "npc": "유수프",
+  "displayName": "&b[요리] 유수프",
+  "skin": "yusuf",
+  "roles": [
+    "cooking"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

@@ -1,0 +1,14 @@
+{
+  "citizensId": 36,
+  "npc": "슬롯도우미",
+  "displayName": "&b[슬롯] 도우미",
+  "skin": "d_slot1",
+  "roles": [
+    "casino"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

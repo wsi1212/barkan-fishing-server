@@ -1,0 +1,14 @@
+{
+  "citizensId": 14,
+  "npc": "오토",
+  "displayName": "&b[물고기 판매] 오토",
+  "skin": "otto",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}

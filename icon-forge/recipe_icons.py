@@ -147,7 +147,28 @@ def sym_trap(im, ac):
                 put(im, x, y, ac)                              # 바닥
     for x in range(11, 21, 3):
         for y in range(12, 21):
-            put(im, x, y, ac)                                  # 세로살
+                put(im, x, y, ac)                                  # 세로살
+
+
+def sym_harpoon(im, ac):
+    """작살 — 긴 대각 샤프트 + 삼각 창끝 + 양쪽 미늘. 낚싯대와 구분되는 직선 무기 실루엣."""
+    # 손잡이/샤프트: 우상향 대각선, 2px 굵기
+    pts = [(8, 27), (10, 25), (12, 23), (14, 21), (16, 19), (18, 17), (20, 15)]
+    thick(im, pts, ac, 1)
+    # 손잡이 끝의 감은 로프
+    for x, y in [(7, 27), (8, 28), (9, 27), (8, 26)]:
+        put(im, x, y, OUT)
+    # 창끝 몸통(상단) + 중앙 능선
+    for x, y in [(20, 15), (21, 14), (22, 13), (23, 12), (24, 11)]:
+        put(im, x, y, ac)
+    put(im, 23, 13, OUT)
+    put(im, 22, 14, OUT)
+    # 양쪽 미늘 — 작살임을 16px에서도 읽히게 굵게
+    thick(im, [(21, 14), (20, 13)], ac, 0)
+    thick(im, [(22, 14), (23, 15)], ac, 0)
+    # 창끝 하이라이트
+    put(im, 23, 12, "d8e4e8")
+    put(im, 24, 11, "f4f7f2")
 
 
 CATS = {
@@ -158,6 +179,7 @@ CATS = {
     "bobber": (sym_bobber, "4a3a2a"),
     "bait":   (sym_bait,   "3d6a22"),
     "trap":   (sym_trap,   "6a4a26"),
+    "harpoon": (sym_harpoon, "4a5964"),
 }
 
 # 바닐라 아이템 텍스처를 회색 도장으로(유저 지시): rod/reel/line/bait는 실제 아이콘, 나머지는 손그림.

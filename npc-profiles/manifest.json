@@ -1,0 +1,2722 @@
+{
+  "reference": "BetterHUD portrait-grandfather-hud.png",
+  "npcs": [
+    {
+      "citizensId": 1,
+      "npc": "낚시꾼할아버지",
+      "displayName": "&a[Q] 낚시꾼할아버지",
+      "skin": "cm_old_angler",
+      "roles": [],
+      "dialogueLines": 11,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/001_낚시꾼할아버지__base.png",
+        "npc-profiles/out/001_낚시꾼할아버지__talk.png",
+        "npc-profiles/out/001_낚시꾼할아버지__stern.png"
+      ]
+    },
+    {
+      "citizensId": 2,
+      "npc": "동굴탐험가",
+      "displayName": "&a[Q] 동굴탐험가",
+      "skin": "cm_caver",
+      "roles": [],
+      "dialogueLines": 12,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/002_동굴탐험가__base.png",
+        "npc-profiles/out/002_동굴탐험가__talk.png",
+        "npc-profiles/out/002_동굴탐험가__stern.png"
+      ]
+    },
+    {
+      "citizensId": 3,
+      "npc": "할아버지",
+      "displayName": "&a[길잡이] 할아버지",
+      "skin": "tf_grandpa",
+      "roles": [],
+      "dialogueLines": 36,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/003_할아버지__base.png",
+        "npc-profiles/out/003_할아버지__talk.png",
+        "npc-profiles/out/003_할아버지__happy.png",
+        "npc-profiles/out/003_할아버지__stern.png"
+      ]
+    },
+    {
+      "citizensId": 4,
+      "npc": "페리선장",
+      "displayName": "&b페리선장",
+      "skin": "cm_ferry_captain",
+      "roles": [
+        "ferry"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/004_페리선장__base.png"
+      ]
+    },
+    {
+      "citizensId": 16,
+      "npc": "자말",
+      "displayName": "&b[길드] 자말",
+      "skin": "df_jamal",
+      "roles": [
+        "guild"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/016_자말__base.png"
+      ]
+    },
+    {
+      "citizensId": 17,
+      "npc": "콘라트",
+      "displayName": "&b[길드] 잉그리드",
+      "skin": "tf_ingrid",
+      "roles": [
+        "guild"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/017_콘라트__base.png"
+      ]
+    },
+    {
+      "citizensId": 6,
+      "npc": "한스",
+      "displayName": "&b[물고기 판매] 헬가",
+      "skin": "tf_helga",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/006_한스__base.png"
+      ]
+    },
+    {
+      "citizensId": 13,
+      "npc": "그레타",
+      "displayName": "&b[물고기 판매] 그레타",
+      "skin": "tf_greta",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/013_그레타__base.png"
+      ]
+    },
+    {
+      "citizensId": 14,
+      "npc": "오토",
+      "displayName": "&b[물고기 판매] 오토",
+      "skin": "otto",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/014_오토__base.png"
+      ]
+    },
+    {
+      "citizensId": 15,
+      "npc": "카심",
+      "displayName": "&b[물고기 판매] 카심",
+      "skin": "df_kasim",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/015_카심__base.png"
+      ]
+    },
+    {
+      "citizensId": 8,
+      "npc": "브루노",
+      "displayName": "&b[섬상점] 브루노",
+      "skin": "tf_bruno",
+      "roles": [
+        "islandShop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/008_브루노__base.png"
+      ]
+    },
+    {
+      "citizensId": 7,
+      "npc": "클라우스",
+      "displayName": "&b[상점] 클라우스",
+      "skin": "tf_klaus",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/007_클라우스__base.png"
+      ]
+    },
+    {
+      "citizensId": 10,
+      "npc": "파리드",
+      "displayName": "&b[상점] 파리드",
+      "skin": "df_farid",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/010_파리드__base.png"
+      ]
+    },
+    {
+      "citizensId": 9,
+      "npc": "군터",
+      "displayName": "&b[대장간] 군터",
+      "skin": "tf_gunter",
+      "roles": [
+        "smithy"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/009_군터__base.png"
+      ]
+    },
+    {
+      "citizensId": 12,
+      "npc": "하산",
+      "displayName": "&b[대장간] 하산",
+      "skin": "df_hasan",
+      "roles": [
+        "smithy"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/012_하산__base.png"
+      ]
+    },
+    {
+      "citizensId": 18,
+      "npc": "마켓",
+      "displayName": "&b[유저마켓] 라이문트",
+      "skin": "tf_raimund",
+      "roles": [
+        "market"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/018_마켓__base.png"
+      ]
+    },
+    {
+      "citizensId": 19,
+      "npc": "퀘스트",
+      "displayName": "&b[퀘스트] 디트리히",
+      "skin": "tf_dietrich",
+      "roles": [
+        "quest"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/019_퀘스트__base.png"
+      ]
+    },
+    {
+      "citizensId": 20,
+      "npc": "유수프",
+      "displayName": "&b[요리] 유수프",
+      "skin": "yusuf",
+      "roles": [
+        "cooking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/020_유수프__base.png"
+      ]
+    },
+    {
+      "citizensId": 21,
+      "npc": "프란츠",
+      "displayName": "&b[요리] 프란츠",
+      "skin": "tf_franz",
+      "roles": [
+        "cooking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/021_프란츠__base.png"
+      ]
+    },
+    {
+      "citizensId": 22,
+      "npc": "파올로",
+      "displayName": "&b[물고기 판매] 파올로",
+      "skin": "tt_paolo",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/022_파올로__base.png"
+      ]
+    },
+    {
+      "citizensId": 23,
+      "npc": "루카",
+      "displayName": "&b[물고기 판매] 루카",
+      "skin": "tt_luca",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/023_루카__base.png"
+      ]
+    },
+    {
+      "citizensId": 28,
+      "npc": "대장간안내",
+      "displayName": "&a[Q] 펠릭스",
+      "skin": "tf_felix",
+      "roles": [],
+      "dialogueLines": 28,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/028_대장간안내__base.png",
+        "npc-profiles/out/028_대장간안내__talk.png",
+        "npc-profiles/out/028_대장간안내__happy.png",
+        "npc-profiles/out/028_대장간안내__stern.png"
+      ]
+    },
+    {
+      "citizensId": 29,
+      "npc": "시장안내",
+      "displayName": "&a[Q] 마르타",
+      "skin": "tf_marta",
+      "roles": [],
+      "dialogueLines": 18,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "worried",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/029_시장안내__base.png",
+        "npc-profiles/out/029_시장안내__talk.png",
+        "npc-profiles/out/029_시장안내__happy.png",
+        "npc-profiles/out/029_시장안내__worried.png",
+        "npc-profiles/out/029_시장안내__stern.png"
+      ]
+    },
+    {
+      "citizensId": 30,
+      "npc": "요리안내",
+      "displayName": "&a[Q] 베티나",
+      "skin": "tf_bettina",
+      "roles": [],
+      "dialogueLines": 15,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/030_요리안내__base.png",
+        "npc-profiles/out/030_요리안내__talk.png",
+        "npc-profiles/out/030_요리안내__stern.png"
+      ]
+    },
+    {
+      "citizensId": 31,
+      "npc": "룰렛딜러",
+      "displayName": "&b[룰렛] 딜러",
+      "skin": "d_roulette1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/031_룰렛딜러__base.png"
+      ]
+    },
+    {
+      "citizensId": 32,
+      "npc": "홀덤딜러",
+      "displayName": "&b[홀덤] 딜러",
+      "skin": "d_holdem1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/032_홀덤딜러__base.png"
+      ]
+    },
+    {
+      "citizensId": 33,
+      "npc": "섯다딜러",
+      "displayName": "&b[섯다] 딜러",
+      "skin": "d_seotda1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/033_섯다딜러__base.png"
+      ]
+    },
+    {
+      "citizensId": 34,
+      "npc": "블랙잭딜러",
+      "displayName": "&b[블랙잭] 딜러",
+      "skin": "d_blackjack1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/034_블랙잭딜러__base.png"
+      ]
+    },
+    {
+      "citizensId": 35,
+      "npc": "쓰리카드딜러",
+      "displayName": "&b[쓰리카드] 딜러",
+      "skin": "d_threecard1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/035_쓰리카드딜러__base.png"
+      ]
+    },
+    {
+      "citizensId": 36,
+      "npc": "슬롯도우미",
+      "displayName": "&b[슬롯] 도우미",
+      "skin": "d_slot1",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/036_슬롯도우미__base.png"
+      ]
+    },
+    {
+      "citizensId": 37,
+      "npc": "슬롯안내원",
+      "displayName": "&b[슬롯] 안내원",
+      "skin": "d_slot2",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/037_슬롯안내원__base.png"
+      ]
+    },
+    {
+      "citizensId": 38,
+      "npc": "블랙잭딜러2",
+      "displayName": "&b[블랙잭] 딜러 Ⅱ",
+      "skin": "d_blackjack2",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/038_블랙잭딜러2__base.png"
+      ]
+    },
+    {
+      "citizensId": 39,
+      "npc": "블랙잭딜러3",
+      "displayName": "&b[블랙잭] 딜러 Ⅲ",
+      "skin": "d_blackjack3",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/039_블랙잭딜러3__base.png"
+      ]
+    },
+    {
+      "citizensId": 40,
+      "npc": "쓰리카드딜러2",
+      "displayName": "&b[쓰리카드] 딜러 Ⅱ",
+      "skin": "d_threecard2",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/040_쓰리카드딜러2__base.png"
+      ]
+    },
+    {
+      "citizensId": 41,
+      "npc": "홀덤딜러2",
+      "displayName": "&b[홀덤] 딜러 Ⅱ",
+      "skin": "d_holdem2",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/041_홀덤딜러2__base.png"
+      ]
+    },
+    {
+      "citizensId": 42,
+      "npc": "섯다딜러2",
+      "displayName": "&b[섯다] 딜러 Ⅱ",
+      "skin": "d_seotda2",
+      "roles": [
+        "casino"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/042_섯다딜러2__base.png"
+      ]
+    },
+    {
+      "citizensId": 43,
+      "npc": "마부",
+      "displayName": "&b[말 대여] 오스카",
+      "skin": "tf_oskar",
+      "roles": [
+        "horseRental"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/043_마부__base.png"
+      ]
+    },
+    {
+      "citizensId": 44,
+      "npc": "국왕",
+      "displayName": "&a[Q] 바르칸 국왕",
+      "skin": "king",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "worried",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/044_국왕__base.png",
+        "npc-profiles/out/044_국왕__talk.png",
+        "npc-profiles/out/044_국왕__worried.png",
+        "npc-profiles/out/044_국왕__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 45,
+      "npc": "대사서",
+      "displayName": "&a[Q] 왕립 대사서",
+      "skin": "archivist",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/045_대사서__base.png",
+        "npc-profiles/out/045_대사서__talk.png",
+        "npc-profiles/out/045_대사서__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 46,
+      "npc": "필경사",
+      "displayName": "&a[Q] 필경사",
+      "skin": "lib_scribe",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/046_필경사__base.png",
+        "npc-profiles/out/046_필경사__talk.png",
+        "npc-profiles/out/046_필경사__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 47,
+      "npc": "금서고지기",
+      "displayName": "&a[Q] 금서고 지기",
+      "skin": "lib_vaultkeeper",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/047_금서고지기__base.png",
+        "npc-profiles/out/047_금서고지기__talk.png",
+        "npc-profiles/out/047_금서고지기__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 48,
+      "npc": "종지기",
+      "displayName": "&a[Q] 종지기",
+      "skin": "bellringer",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/048_종지기__base.png",
+        "npc-profiles/out/048_종지기__talk.png",
+        "npc-profiles/out/048_종지기__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 49,
+      "npc": "은둔학자",
+      "displayName": "&a[Q] 첨탑의 은둔 학자",
+      "skin": "albis",
+      "roles": [],
+      "dialogueLines": 5,
+      "expressions": [
+        "base",
+        "talk",
+        "worried",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/049_은둔학자__base.png",
+        "npc-profiles/out/049_은둔학자__talk.png",
+        "npc-profiles/out/049_은둔학자__worried.png",
+        "npc-profiles/out/049_은둔학자__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 50,
+      "npc": "차석사서",
+      "displayName": "&a[Q] 차석 사서",
+      "skin": "lib_subarchivist",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/050_차석사서__base.png",
+        "npc-profiles/out/050_차석사서__talk.png",
+        "npc-profiles/out/050_차석사서__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 51,
+      "npc": "마테오",
+      "displayName": "&a[Q] 갑판장 마테오",
+      "skin": "cm_matteo",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/051_마테오__base.png",
+        "npc-profiles/out/051_마테오__talk.png",
+        "npc-profiles/out/051_마테오__happy.png",
+        "npc-profiles/out/051_마테오__stern.png"
+      ]
+    },
+    {
+      "citizensId": 52,
+      "npc": "엔리코",
+      "displayName": "&a[Q] 포수 엔리코",
+      "skin": "cm_enrico",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/052_엔리코__base.png",
+        "npc-profiles/out/052_엔리코__talk.png",
+        "npc-profiles/out/052_엔리코__stern.png"
+      ]
+    },
+    {
+      "citizensId": 53,
+      "npc": "피노",
+      "displayName": "&a[Q] 갑판원 피노",
+      "skin": "cm_pino",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "stern",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/053_피노__base.png",
+        "npc-profiles/out/053_피노__talk.png",
+        "npc-profiles/out/053_피노__stern.png",
+        "npc-profiles/out/053_피노__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 54,
+      "npc": "조반니",
+      "displayName": "&a[Q] 화물지기 조반니",
+      "skin": "cm_giovanni_hold",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/054_조반니__base.png",
+        "npc-profiles/out/054_조반니__talk.png",
+        "npc-profiles/out/054_조반니__stern.png"
+      ]
+    },
+    {
+      "citizensId": 55,
+      "npc": "이자벨라",
+      "displayName": "&a[Q] 항해사 이자벨라",
+      "skin": "cm_isabella",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/055_이자벨라__base.png",
+        "npc-profiles/out/055_이자벨라__talk.png",
+        "npc-profiles/out/055_이자벨라__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 56,
+      "npc": "니코",
+      "displayName": "&a[Q] 견시 니코",
+      "skin": "cm_niko",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/056_니코__base.png",
+        "npc-profiles/out/056_니코__talk.png",
+        "npc-profiles/out/056_니코__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 57,
+      "npc": "왕실요리장",
+      "displayName": "&a[Q] 왕실 요리장 그레고르",
+      "skin": "gregor",
+      "roles": [
+        "cooking"
+      ],
+      "dialogueLines": 6,
+      "expressions": [
+        "base",
+        "talk",
+        "happy"
+      ],
+      "files": [
+        "npc-profiles/out/057_왕실요리장__base.png",
+        "npc-profiles/out/057_왕실요리장__talk.png",
+        "npc-profiles/out/057_왕실요리장__happy.png"
+      ]
+    },
+    {
+      "citizensId": 58,
+      "npc": "궁정상인",
+      "displayName": "&a[Q] 궁정 상인 발렌틴",
+      "skin": "valentin",
+      "roles": [
+        "shop"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/058_궁정상인__base.png",
+        "npc-profiles/out/058_궁정상인__talk.png"
+      ]
+    },
+    {
+      "citizensId": 59,
+      "npc": "도서관견습생",
+      "displayName": "&a[Q] 견습 사서 니나",
+      "skin": "nina",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/059_도서관견습생__base.png",
+        "npc-profiles/out/059_도서관견습생__talk.png",
+        "npc-profiles/out/059_도서관견습생__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 60,
+      "npc": "위병1",
+      "displayName": "&a[Q] 성문 위병 로타르",
+      "skin": "guard_lothar",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/060_위병1__base.png",
+        "npc-profiles/out/060_위병1__talk.png",
+        "npc-profiles/out/060_위병1__stern.png"
+      ]
+    },
+    {
+      "citizensId": 61,
+      "npc": "위병2",
+      "displayName": "&a[Q] 성문 위병 쿠르트",
+      "skin": "guard_kurt",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/061_위병2__base.png",
+        "npc-profiles/out/061_위병2__talk.png",
+        "npc-profiles/out/061_위병2__stern.png"
+      ]
+    },
+    {
+      "citizensId": 62,
+      "npc": "위병3",
+      "displayName": "&f거리 위병 디터",
+      "skin": "guard_dieter",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/062_위병3__base.png",
+        "npc-profiles/out/062_위병3__talk.png",
+        "npc-profiles/out/062_위병3__stern.png"
+      ]
+    },
+    {
+      "citizensId": 63,
+      "npc": "위병4",
+      "displayName": "&f거리 위병 오스발트",
+      "skin": "guard_oswald",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/063_위병4__base.png",
+        "npc-profiles/out/063_위병4__talk.png",
+        "npc-profiles/out/063_위병4__stern.png"
+      ]
+    },
+    {
+      "citizensId": 64,
+      "npc": "시민1",
+      "displayName": "&f순례자",
+      "skin": "cm_pilgrim",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/064_시민1__base.png",
+        "npc-profiles/out/064_시민1__talk.png"
+      ]
+    },
+    {
+      "citizensId": 65,
+      "npc": "시민2",
+      "displayName": "&f행상인",
+      "skin": "cm_peddler",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/065_시민2__base.png",
+        "npc-profiles/out/065_시민2__talk.png",
+        "npc-profiles/out/065_시민2__stern.png"
+      ]
+    },
+    {
+      "citizensId": 66,
+      "npc": "시민3",
+      "displayName": "&f마을 아낙",
+      "skin": "goodwife",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/066_시민3__base.png",
+        "npc-profiles/out/066_시민3__talk.png",
+        "npc-profiles/out/066_시민3__stern.png"
+      ]
+    },
+    {
+      "citizensId": 67,
+      "npc": "시민4",
+      "displayName": "&f젊은 필경생",
+      "skin": "lib_apprentice",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/067_시민4__base.png",
+        "npc-profiles/out/067_시민4__talk.png",
+        "npc-profiles/out/067_시민4__stern.png"
+      ]
+    },
+    {
+      "citizensId": 68,
+      "npc": "시민5",
+      "displayName": "&f마을 주민",
+      "skin": "villager",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/068_시민5__base.png",
+        "npc-profiles/out/068_시민5__talk.png",
+        "npc-profiles/out/068_시민5__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 69,
+      "npc": "시민6",
+      "displayName": "&f장터 여인",
+      "skin": "fishwife",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/069_시민6__base.png",
+        "npc-profiles/out/069_시민6__talk.png"
+      ]
+    },
+    {
+      "citizensId": 70,
+      "npc": "하겐",
+      "displayName": "&a[Q] 길드장 하겐",
+      "skin": "hagen",
+      "roles": [],
+      "dialogueLines": 20,
+      "expressions": [
+        "base",
+        "talk",
+        "happy"
+      ],
+      "files": [
+        "npc-profiles/out/070_하겐__base.png",
+        "npc-profiles/out/070_하겐__talk.png",
+        "npc-profiles/out/070_하겐__happy.png"
+      ]
+    },
+    {
+      "citizensId": 71,
+      "npc": "세르간",
+      "displayName": "&a[Q] 세르간",
+      "skin": "tf_sergan",
+      "roles": [],
+      "dialogueLines": 24,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/071_세르간__base.png",
+        "npc-profiles/out/071_세르간__talk.png",
+        "npc-profiles/out/071_세르간__happy.png",
+        "npc-profiles/out/071_세르간__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 72,
+      "npc": "마리",
+      "displayName": "&a[Q] 마리",
+      "skin": "tf_marie",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/072_마리__base.png",
+        "npc-profiles/out/072_마리__talk.png"
+      ]
+    },
+    {
+      "citizensId": 73,
+      "npc": "도란",
+      "displayName": "&a[Q] 도란",
+      "skin": "tf_doran",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "happy"
+      ],
+      "files": [
+        "npc-profiles/out/073_도란__base.png",
+        "npc-profiles/out/073_도란__talk.png",
+        "npc-profiles/out/073_도란__happy.png"
+      ]
+    },
+    {
+      "citizensId": 74,
+      "npc": "노인",
+      "displayName": "&a[Q] 어부 노인",
+      "skin": "elder_fisher",
+      "roles": [],
+      "dialogueLines": 21,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "worried",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/074_노인__base.png",
+        "npc-profiles/out/074_노인__talk.png",
+        "npc-profiles/out/074_노인__happy.png",
+        "npc-profiles/out/074_노인__worried.png",
+        "npc-profiles/out/074_노인__stern.png"
+      ]
+    },
+    {
+      "citizensId": 75,
+      "npc": "리나",
+      "displayName": "&a[Q] 리나",
+      "skin": "tf_rina",
+      "roles": [],
+      "dialogueLines": 8,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/075_리나__base.png",
+        "npc-profiles/out/075_리나__talk.png",
+        "npc-profiles/out/075_리나__stern.png"
+      ]
+    },
+    {
+      "citizensId": 76,
+      "npc": "나디아",
+      "displayName": "&a[Q] 촌장 나디아",
+      "skin": "df_nadia",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/076_나디아__base.png",
+        "npc-profiles/out/076_나디아__talk.png"
+      ]
+    },
+    {
+      "citizensId": 77,
+      "npc": "노파",
+      "displayName": "&a[Q] 노파",
+      "skin": "crone",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "worried"
+      ],
+      "files": [
+        "npc-profiles/out/077_노파__base.png",
+        "npc-profiles/out/077_노파__talk.png",
+        "npc-profiles/out/077_노파__happy.png",
+        "npc-profiles/out/077_노파__worried.png"
+      ]
+    },
+    {
+      "citizensId": 79,
+      "npc": "유세프",
+      "displayName": "&a[Q] 유세프",
+      "skin": "df_yusef",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/079_유세프__base.png",
+        "npc-profiles/out/079_유세프__talk.png"
+      ]
+    },
+    {
+      "citizensId": 80,
+      "npc": "카림",
+      "displayName": "&a[Q] 대장장이 카림",
+      "skin": "df_karim",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/080_카림__base.png",
+        "npc-profiles/out/080_카림__talk.png"
+      ]
+    },
+    {
+      "citizensId": 81,
+      "npc": "할릴",
+      "displayName": "&a[Q] 할릴",
+      "skin": "df_halil",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/081_할릴__base.png",
+        "npc-profiles/out/081_할릴__talk.png"
+      ]
+    },
+    {
+      "citizensId": 82,
+      "npc": "마르코",
+      "displayName": "&a[Q] 상인 마르코",
+      "skin": "marco",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/082_마르코__base.png",
+        "npc-profiles/out/082_마르코__talk.png"
+      ]
+    },
+    {
+      "citizensId": 83,
+      "npc": "레일라",
+      "displayName": "&a[Q] 레일라",
+      "skin": "tt_leila",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/083_레일라__base.png",
+        "npc-profiles/out/083_레일라__talk.png"
+      ]
+    },
+    {
+      "citizensId": 84,
+      "npc": "안토니오",
+      "displayName": "안토니오",
+      "skin": "tt_antonio",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/084_안토니오__base.png",
+        "npc-profiles/out/084_안토니오__talk.png",
+        "npc-profiles/out/084_안토니오__stern.png"
+      ]
+    },
+    {
+      "citizensId": 85,
+      "npc": "줄리아",
+      "displayName": "줄리아",
+      "skin": "tt_giulia",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/085_줄리아__base.png",
+        "npc-profiles/out/085_줄리아__talk.png"
+      ]
+    },
+    {
+      "citizensId": 86,
+      "npc": "프란체스코",
+      "displayName": "프란체스코",
+      "skin": "tt_francesco",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/086_프란체스코__base.png",
+        "npc-profiles/out/086_프란체스코__talk.png"
+      ]
+    },
+    {
+      "citizensId": 87,
+      "npc": "클라우디아",
+      "displayName": "클라우디아",
+      "skin": "tt_claudia",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/087_클라우디아__base.png",
+        "npc-profiles/out/087_클라우디아__talk.png"
+      ]
+    },
+    {
+      "citizensId": 88,
+      "npc": "빈센초",
+      "displayName": "빈센초",
+      "skin": "tt_vincenzo",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/088_빈센초__base.png",
+        "npc-profiles/out/088_빈센초__talk.png",
+        "npc-profiles/out/088_빈센초__stern.png"
+      ]
+    },
+    {
+      "citizensId": 89,
+      "npc": "살바토레",
+      "displayName": "살바토레",
+      "skin": "tt_salvatore",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/089_살바토레__base.png",
+        "npc-profiles/out/089_살바토레__talk.png"
+      ]
+    },
+    {
+      "citizensId": 90,
+      "npc": "로사",
+      "displayName": "로사",
+      "skin": "tt_rosa",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/090_로사__base.png",
+        "npc-profiles/out/090_로사__talk.png",
+        "npc-profiles/out/090_로사__stern.png"
+      ]
+    },
+    {
+      "citizensId": 91,
+      "npc": "마시모",
+      "displayName": "마시모",
+      "skin": "tt_massimo",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/091_마시모__base.png",
+        "npc-profiles/out/091_마시모__talk.png"
+      ]
+    },
+    {
+      "citizensId": 92,
+      "npc": "잔니",
+      "displayName": "잔니",
+      "skin": "tt_gianni",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/092_잔니__base.png",
+        "npc-profiles/out/092_잔니__talk.png"
+      ]
+    },
+    {
+      "citizensId": 93,
+      "npc": "베아트리체",
+      "displayName": "베아트리체",
+      "skin": "beatrice",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "worried",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/093_베아트리체__base.png",
+        "npc-profiles/out/093_베아트리체__talk.png",
+        "npc-profiles/out/093_베아트리체__worried.png",
+        "npc-profiles/out/093_베아트리체__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 94,
+      "npc": "도메니코",
+      "displayName": "도메니코",
+      "skin": "tt_domenico",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "happy"
+      ],
+      "files": [
+        "npc-profiles/out/094_도메니코__base.png",
+        "npc-profiles/out/094_도메니코__talk.png",
+        "npc-profiles/out/094_도메니코__happy.png"
+      ]
+    },
+    {
+      "citizensId": 95,
+      "npc": "알도",
+      "displayName": "&a[Q] 알도",
+      "skin": "aldo",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/095_알도__base.png",
+        "npc-profiles/out/095_알도__talk.png",
+        "npc-profiles/out/095_알도__stern.png"
+      ]
+    },
+    {
+      "citizensId": 96,
+      "npc": "카를로",
+      "displayName": "&a[Q] 카를로",
+      "skin": "tt_carlo",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/096_카를로__base.png",
+        "npc-profiles/out/096_카를로__talk.png",
+        "npc-profiles/out/096_카를로__stern.png"
+      ]
+    },
+    {
+      "citizensId": 97,
+      "npc": "실비아",
+      "displayName": "&a[Q] 실비아",
+      "skin": "tt_silvia",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/097_실비아__base.png",
+        "npc-profiles/out/097_실비아__talk.png"
+      ]
+    },
+    {
+      "citizensId": 98,
+      "npc": "로베르토",
+      "displayName": "&a[Q] 로베르토",
+      "skin": "tt_roberto",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "worried"
+      ],
+      "files": [
+        "npc-profiles/out/098_로베르토__base.png",
+        "npc-profiles/out/098_로베르토__talk.png",
+        "npc-profiles/out/098_로베르토__worried.png"
+      ]
+    },
+    {
+      "citizensId": 99,
+      "npc": "파비오",
+      "displayName": "&a[Q] 파비오",
+      "skin": "tt_fabio",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/099_파비오__base.png",
+        "npc-profiles/out/099_파비오__talk.png"
+      ]
+    },
+    {
+      "citizensId": 100,
+      "npc": "테레사",
+      "displayName": "&a[Q] 테레사",
+      "skin": "tt_teresa",
+      "roles": [],
+      "dialogueLines": 11,
+      "expressions": [
+        "base",
+        "talk",
+        "worried",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/100_테레사__base.png",
+        "npc-profiles/out/100_테레사__talk.png",
+        "npc-profiles/out/100_테레사__worried.png",
+        "npc-profiles/out/100_테레사__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 101,
+      "npc": "지오반나",
+      "displayName": "&b[요리] 지오반나",
+      "skin": "tt_giovanna",
+      "roles": [
+        "cooking"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/101_지오반나__base.png",
+        "npc-profiles/out/101_지오반나__talk.png"
+      ]
+    },
+    {
+      "citizensId": 102,
+      "npc": "하인리히",
+      "displayName": "하인리히",
+      "skin": "heinrich",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/102_하인리히__base.png",
+        "npc-profiles/out/102_하인리히__talk.png"
+      ]
+    },
+    {
+      "citizensId": 103,
+      "npc": "그레첸",
+      "displayName": "그레첸",
+      "skin": "tf_gretchen",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/103_그레첸__base.png",
+        "npc-profiles/out/103_그레첸__talk.png"
+      ]
+    },
+    {
+      "citizensId": 104,
+      "npc": "볼프강",
+      "displayName": "볼프강",
+      "skin": "tf_wolfgang",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/104_볼프강__base.png",
+        "npc-profiles/out/104_볼프강__talk.png"
+      ]
+    },
+    {
+      "citizensId": 105,
+      "npc": "잉가",
+      "displayName": "잉가",
+      "skin": "tf_inga",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/105_잉가__base.png",
+        "npc-profiles/out/105_잉가__talk.png"
+      ]
+    },
+    {
+      "citizensId": 106,
+      "npc": "디르크",
+      "displayName": "디르크",
+      "skin": "tf_dirk",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/106_디르크__base.png",
+        "npc-profiles/out/106_디르크__talk.png"
+      ]
+    },
+    {
+      "citizensId": 107,
+      "npc": "헬무트",
+      "displayName": "헬무트",
+      "skin": "tf_helmut",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "happy"
+      ],
+      "files": [
+        "npc-profiles/out/107_헬무트__base.png",
+        "npc-profiles/out/107_헬무트__talk.png",
+        "npc-profiles/out/107_헬무트__happy.png"
+      ]
+    },
+    {
+      "citizensId": 108,
+      "npc": "브리기테",
+      "displayName": "&a[Q] 브리기테",
+      "skin": "tf_brigitte",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/108_브리기테__base.png",
+        "npc-profiles/out/108_브리기테__talk.png"
+      ]
+    },
+    {
+      "citizensId": 109,
+      "npc": "지그프리트",
+      "displayName": "&a[Q] 지그프리트",
+      "skin": "tf_siegfried",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/109_지그프리트__base.png",
+        "npc-profiles/out/109_지그프리트__talk.png"
+      ]
+    },
+    {
+      "citizensId": 110,
+      "npc": "아스트리드",
+      "displayName": "&a[Q] 아스트리드",
+      "skin": "tf_astrid",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/110_아스트리드__base.png",
+        "npc-profiles/out/110_아스트리드__talk.png"
+      ]
+    },
+    {
+      "citizensId": 112,
+      "npc": "아미라",
+      "displayName": "아미라",
+      "skin": "df_amira",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/112_아미라__base.png",
+        "npc-profiles/out/112_아미라__talk.png"
+      ]
+    },
+    {
+      "citizensId": 113,
+      "npc": "유누스",
+      "displayName": "&a[Q] 유누스",
+      "skin": "df_yunus",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/113_유누스__base.png",
+        "npc-profiles/out/113_유누스__talk.png"
+      ]
+    },
+    {
+      "citizensId": 114,
+      "npc": "파티마",
+      "displayName": "&a[Q] 파티마",
+      "skin": "df_fatima",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/114_파티마__base.png",
+        "npc-profiles/out/114_파티마__talk.png",
+        "npc-profiles/out/114_파티마__stern.png"
+      ]
+    },
+    {
+      "citizensId": 115,
+      "npc": "오마르",
+      "displayName": "&a[Q] 오마르",
+      "skin": "df_omar",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/115_오마르__base.png",
+        "npc-profiles/out/115_오마르__talk.png"
+      ]
+    },
+    {
+      "citizensId": 116,
+      "npc": "누르",
+      "displayName": "&a[Q] 누르",
+      "skin": "df_nur",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/116_누르__base.png",
+        "npc-profiles/out/116_누르__talk.png"
+      ]
+    },
+    {
+      "citizensId": 117,
+      "npc": "지크하르트",
+      "displayName": "&b[대장간] 지크하르트",
+      "skin": "sieghardt",
+      "roles": [
+        "smithy"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/117_지크하르트__base.png",
+        "npc-profiles/out/117_지크하르트__talk.png"
+      ]
+    },
+    {
+      "citizensId": 118,
+      "npc": "브란트",
+      "displayName": "&b[길드] 브란트",
+      "skin": "brandt",
+      "roles": [
+        "guild"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/118_브란트__base.png",
+        "npc-profiles/out/118_브란트__talk.png"
+      ]
+    },
+    {
+      "citizensId": 119,
+      "npc": "로테",
+      "displayName": "&b[유저마켓] 로테",
+      "skin": "lotte",
+      "roles": [
+        "market"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/119_로테__base.png",
+        "npc-profiles/out/119_로테__talk.png"
+      ]
+    },
+    {
+      "citizensId": 120,
+      "npc": "프리츠",
+      "displayName": "&b[퀘스트] 프리츠",
+      "skin": "fritz",
+      "roles": [
+        "quest"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/120_프리츠__base.png",
+        "npc-profiles/out/120_프리츠__talk.png"
+      ]
+    },
+    {
+      "citizensId": 121,
+      "npc": "알브레히트",
+      "displayName": "&b[말 대여] 알브레히트",
+      "skin": "albrecht",
+      "roles": [
+        "horseRental"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/121_알브레히트__base.png",
+        "npc-profiles/out/121_알브레히트__talk.png"
+      ]
+    },
+    {
+      "citizensId": 122,
+      "npc": "힐데",
+      "displayName": "&b[회복] 힐데",
+      "skin": "hilde",
+      "roles": [
+        "heal"
+      ],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/122_힐데__base.png",
+        "npc-profiles/out/122_힐데__talk.png"
+      ]
+    },
+    {
+      "citizensId": 132,
+      "npc": "군나르",
+      "displayName": "군나르",
+      "skin": "gunnar",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/132_군나르__base.png",
+        "npc-profiles/out/132_군나르__talk.png"
+      ]
+    },
+    {
+      "citizensId": 133,
+      "npc": "페더",
+      "displayName": "페더",
+      "skin": "tf_feder",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/133_페더__base.png",
+        "npc-profiles/out/133_페더__talk.png"
+      ]
+    },
+    {
+      "citizensId": 134,
+      "npc": "랄프",
+      "displayName": "랄프",
+      "skin": "tf_ralf",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/134_랄프__base.png",
+        "npc-profiles/out/134_랄프__talk.png",
+        "npc-profiles/out/134_랄프__happy.png",
+        "npc-profiles/out/134_랄프__stern.png"
+      ]
+    },
+    {
+      "citizensId": 135,
+      "npc": "스벤",
+      "displayName": "&a[Q] 스벤",
+      "skin": "tf_sven",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/135_스벤__base.png",
+        "npc-profiles/out/135_스벤__talk.png"
+      ]
+    },
+    {
+      "citizensId": 136,
+      "npc": "미아",
+      "displayName": "미아",
+      "skin": "tf_mia",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/136_미아__base.png",
+        "npc-profiles/out/136_미아__talk.png"
+      ]
+    },
+    {
+      "citizensId": 137,
+      "npc": "레오",
+      "displayName": "레오",
+      "skin": "tf_leo",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/137_레오__base.png",
+        "npc-profiles/out/137_레오__talk.png",
+        "npc-profiles/out/137_레오__stern.png"
+      ]
+    },
+    {
+      "citizensId": 138,
+      "npc": "프리다",
+      "displayName": "프리다",
+      "skin": "tf_frieda",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/138_프리다__base.png",
+        "npc-profiles/out/138_프리다__talk.png"
+      ]
+    },
+    {
+      "citizensId": 139,
+      "npc": "발터",
+      "displayName": "발터",
+      "skin": "tf_walter",
+      "roles": [],
+      "dialogueLines": 2,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/139_발터__base.png",
+        "npc-profiles/out/139_발터__talk.png"
+      ]
+    },
+    {
+      "citizensId": 140,
+      "npc": "루디",
+      "displayName": "&a[Q] 루디",
+      "skin": "tf_rudi",
+      "roles": [],
+      "dialogueLines": 10,
+      "expressions": [
+        "base",
+        "talk",
+        "stern",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/140_루디__base.png",
+        "npc-profiles/out/140_루디__talk.png",
+        "npc-profiles/out/140_루디__stern.png",
+        "npc-profiles/out/140_루디__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 141,
+      "npc": "루드비히",
+      "displayName": "&b[여관] 루드비히",
+      "skin": "tf_ludwig",
+      "roles": [
+        "inn"
+      ],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/141_루드비히__base.png",
+        "npc-profiles/out/141_루드비히__talk.png",
+        "npc-profiles/out/141_루드비히__stern.png"
+      ]
+    },
+    {
+      "citizensId": 143,
+      "npc": "지오반니",
+      "displayName": "&b[여관] 지오반니",
+      "skin": "giovanni",
+      "roles": [
+        "inn"
+      ],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/143_지오반니__base.png",
+        "npc-profiles/out/143_지오반니__talk.png",
+        "npc-profiles/out/143_지오반니__stern.png"
+      ]
+    },
+    {
+      "citizensId": 146,
+      "npc": "촌장",
+      "displayName": "&b촌장",
+      "skin": "tf_chief",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/146_촌장__base.png"
+      ]
+    },
+    {
+      "citizensId": 147,
+      "npc": "현자",
+      "displayName": "&b현자",
+      "skin": "cm_sage",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/147_현자__base.png"
+      ]
+    },
+    {
+      "citizensId": 148,
+      "npc": "항구장",
+      "displayName": "&b항구장",
+      "skin": "cm_harbourmaster",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/148_항구장__base.png"
+      ]
+    },
+    {
+      "citizensId": 149,
+      "npc": "전령",
+      "displayName": "&b전령",
+      "skin": "cm_herald",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/149_전령__base.png"
+      ]
+    },
+    {
+      "citizensId": 78,
+      "npc": "사피르",
+      "displayName": "&a[Q] 사피르",
+      "skin": "df_safir",
+      "roles": [
+        "appraisal"
+      ],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/078_사피르__base.png",
+        "npc-profiles/out/078_사피르__talk.png"
+      ]
+    },
+    {
+      "citizensId": 111,
+      "npc": "라시드4",
+      "displayName": "라시드",
+      "skin": "df_rashid",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/111_라시드4__base.png"
+      ]
+    },
+    {
+      "citizensId": 142,
+      "npc": "라시드",
+      "displayName": "&b[여관] 라시드",
+      "skin": "df_rashid_inn",
+      "roles": [
+        "inn"
+      ],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk",
+        "stern"
+      ],
+      "files": [
+        "npc-profiles/out/142_라시드__base.png",
+        "npc-profiles/out/142_라시드__talk.png",
+        "npc-profiles/out/142_라시드__stern.png"
+      ]
+    },
+    {
+      "citizensId": 24,
+      "npc": "로렌초",
+      "displayName": "&b[길드] 로렌초",
+      "skin": "tt_lorenzo",
+      "roles": [
+        "guild"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/024_로렌초__base.png"
+      ]
+    },
+    {
+      "citizensId": 25,
+      "npc": "비토",
+      "displayName": "&b[대장간] 비토",
+      "skin": "tt_vito",
+      "roles": [
+        "smithy"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/025_비토__base.png"
+      ]
+    },
+    {
+      "citizensId": 26,
+      "npc": "브록",
+      "displayName": "&b[드릴상점] 브록",
+      "skin": "tt_brock",
+      "roles": [
+        "drillShop"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/026_브록__base.png"
+      ]
+    },
+    {
+      "citizensId": 27,
+      "npc": "엔초",
+      "displayName": "&b[퀘스트] 엔초",
+      "skin": "tt_enzo",
+      "roles": [
+        "quest"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/027_엔초__base.png"
+      ]
+    },
+    {
+      "citizensId": 151,
+      "npc": "로자",
+      "displayName": "&a[Q] 정원사 로자",
+      "skin": "cm_rosa_garden",
+      "roles": [],
+      "dialogueLines": 14,
+      "expressions": [
+        "base",
+        "talk",
+        "stern",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/151_로자__base.png",
+        "npc-profiles/out/151_로자__talk.png",
+        "npc-profiles/out/151_로자__stern.png",
+        "npc-profiles/out/151_로자__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 153,
+      "npc": "식당주인",
+      "displayName": "&a[Q] 식당 주인",
+      "skin": "cm_tavernkeep",
+      "roles": [],
+      "dialogueLines": 14,
+      "expressions": [
+        "base",
+        "talk",
+        "happy",
+        "stern",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/153_식당주인__base.png",
+        "npc-profiles/out/153_식당주인__talk.png",
+        "npc-profiles/out/153_식당주인__happy.png",
+        "npc-profiles/out/153_식당주인__stern.png",
+        "npc-profiles/out/153_식당주인__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 154,
+      "npc": "도박꾼자히르",
+      "displayName": "&a[Q] 큰손 자히르",
+      "skin": "gm_whale",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/154_도박꾼자히르__base.png",
+        "npc-profiles/out/154_도박꾼자히르__talk.png"
+      ]
+    },
+    {
+      "citizensId": 155,
+      "npc": "도박꾼엘리아스",
+      "displayName": "&a[Q] 노름꾼 엘리아스",
+      "skin": "gm_sharp",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/155_도박꾼엘리아스__base.png",
+        "npc-profiles/out/155_도박꾼엘리아스__talk.png",
+        "npc-profiles/out/155_도박꾼엘리아스__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 156,
+      "npc": "도박꾼달리아",
+      "displayName": "&a[Q] 달리아",
+      "skin": "gm_addict",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/156_도박꾼달리아__base.png",
+        "npc-profiles/out/156_도박꾼달리아__talk.png",
+        "npc-profiles/out/156_도박꾼달리아__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 157,
+      "npc": "도박꾼테오",
+      "displayName": "&a[Q] 빈털터리 테오",
+      "skin": "gm_ruined",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/157_도박꾼테오__base.png",
+        "npc-profiles/out/157_도박꾼테오__talk.png",
+        "npc-profiles/out/157_도박꾼테오__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 158,
+      "npc": "알비스",
+      "displayName": "&a[Q] 알비스",
+      "skin": "albis",
+      "roles": [],
+      "dialogueLines": 5,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/158_알비스__base.png",
+        "npc-profiles/out/158_알비스__talk.png"
+      ]
+    },
+    {
+      "citizensId": 160,
+      "npc": "선원",
+      "displayName": "&f선원",
+      "skin": "cm_sailor",
+      "roles": [],
+      "dialogueLines": 6,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/160_선원__base.png",
+        "npc-profiles/out/160_선원__talk.png",
+        "npc-profiles/out/160_선원__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 161,
+      "npc": "바텐더",
+      "displayName": "&f바텐더",
+      "skin": "bartender",
+      "roles": [],
+      "dialogueLines": 3,
+      "expressions": [
+        "base",
+        "talk",
+        "worried"
+      ],
+      "files": [
+        "npc-profiles/out/161_바텐더__base.png",
+        "npc-profiles/out/161_바텐더__talk.png",
+        "npc-profiles/out/161_바텐더__worried.png"
+      ]
+    },
+    {
+      "citizensId": 162,
+      "npc": "길드접수원",
+      "displayName": "&a[Q] 요한",
+      "skin": "hagen",
+      "roles": [],
+      "dialogueLines": 4,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/162_길드접수원__base.png",
+        "npc-profiles/out/162_길드접수원__talk.png",
+        "npc-profiles/out/162_길드접수원__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 163,
+      "npc": "에르빈",
+      "displayName": "&b[랭킹] 에르빈",
+      "skin": "r_erwin",
+      "roles": [
+        "ranking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/163_에르빈__base.png"
+      ]
+    },
+    {
+      "citizensId": 165,
+      "npc": "타리크",
+      "displayName": "&b[랭킹] 타리크",
+      "skin": "r_tariq",
+      "roles": [
+        "ranking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/165_타리크__base.png"
+      ]
+    },
+    {
+      "citizensId": 166,
+      "npc": "마르첼로",
+      "displayName": "&b[랭킹] 마르첼로",
+      "skin": "r_marcello",
+      "roles": [
+        "ranking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/166_마르첼로__base.png"
+      ]
+    },
+    {
+      "citizensId": 164,
+      "npc": "구스타프",
+      "displayName": "&b[랭킹] 구스타프",
+      "skin": "r_gustav",
+      "roles": [
+        "ranking"
+      ],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/164_구스타프__base.png"
+      ]
+    },
+    {
+      "citizensId": 167,
+      "npc": "인트로선장",
+      "displayName": "&f선장",
+      "skin": "ci_captain",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/167_인트로선장__base.png"
+      ]
+    },
+    {
+      "citizensId": 168,
+      "npc": "인트로갑판원",
+      "displayName": "&f갑판원",
+      "skin": "ci_deckhand",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/168_인트로갑판원__base.png"
+      ]
+    },
+    {
+      "citizensId": 169,
+      "npc": "인트로취사",
+      "displayName": "&f취사",
+      "skin": "ci_cook",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/169_인트로취사__base.png"
+      ]
+    },
+    {
+      "citizensId": 170,
+      "npc": "인트로돛담당",
+      "displayName": "&f돛 담당",
+      "skin": "ci_rigger",
+      "roles": [],
+      "dialogueLines": 0,
+      "expressions": [
+        "base"
+      ],
+      "files": [
+        "npc-profiles/out/170_인트로돛담당__base.png"
+      ]
+    },
+    {
+      "citizensId": 171,
+      "npc": "영주",
+      "displayName": "&a[Q] 영주 발데마르",
+      "skin": "valdemar",
+      "roles": [],
+      "dialogueLines": 8,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/171_영주__base.png",
+        "npc-profiles/out/171_영주__talk.png"
+      ]
+    },
+    {
+      "citizensId": 172,
+      "npc": "근위병",
+      "displayName": "&a[Q] 근위병 라이너",
+      "skin": "rainer",
+      "roles": [],
+      "dialogueLines": 8,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/172_근위병__base.png",
+        "npc-profiles/out/172_근위병__talk.png",
+        "npc-profiles/out/172_근위병__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 173,
+      "npc": "사관",
+      "displayName": "&a[Q] 사관 게르하르트",
+      "skin": "gerhardt",
+      "roles": [],
+      "dialogueLines": 8,
+      "expressions": [
+        "base",
+        "talk",
+        "surprised"
+      ],
+      "files": [
+        "npc-profiles/out/173_사관__base.png",
+        "npc-profiles/out/173_사관__talk.png",
+        "npc-profiles/out/173_사관__surprised.png"
+      ]
+    },
+    {
+      "citizensId": 174,
+      "npc": "테클라",
+      "displayName": "&a[Q] 심해조사관 테클라",
+      "skin": "tecla",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk",
+        "worried"
+      ],
+      "files": [
+        "npc-profiles/out/174_테클라__base.png",
+        "npc-profiles/out/174_테클라__talk.png",
+        "npc-profiles/out/174_테클라__worried.png"
+      ]
+    },
+    {
+      "citizensId": 175,
+      "npc": "하르트무트",
+      "displayName": "&a[Q] 잠수장 하르트무트",
+      "skin": "hartmut",
+      "roles": [],
+      "dialogueLines": 7,
+      "expressions": [
+        "base",
+        "talk"
+      ],
+      "files": [
+        "npc-profiles/out/175_하르트무트__base.png",
+        "npc-profiles/out/175_하르트무트__talk.png"
+      ]
+    }
+  ],
+  "missing": []
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}플레이어데이터{% endblock %}
+{% block content %}
+<h1 style="font-size:18px; margin-bottom:16px;">⑪ 플레이어데이터 조회 (read-only)</h1>
+<div class="page-intro"><b>이 페이지가 하는 일</b>: 유저의 PlayerData JSON 원본을 그대로 보여줍니다(밴 검토 등에서
+"이 유저 상태가 어떤지" 빠르게 확인용). 여기서는 아무것도 고칠 수 없습니다 — 읽기 전용.</div>
+<form method="get" action="{{ base_path }}/playerdata" style="margin-bottom:16px;">
+  <input type="text" name="name" placeholder="닉네임" value="{{ name or '' }}">
+  <button type="submit">조회</button>
+</form>
+{% if error %}<div class="panel"><p style="color:var(--neg)">{{ error }}</p></div>{% endif %}
+{% if json_text %}
+<div class="panel">
+  <h2>{{ name }} <span style="color:var(--muted); font-size:12px;">({{ uuid }})</span>
+    · <a href="{{ base_path }}/user?name={{ name }}">최근 행적 보기 →</a></h2>
+  <pre style="white-space:pre-wrap; font-size:12px; overflow-x:auto;">{{ json_text }}</pre>
+</div>
+{% endif %}
+{% endblock %}

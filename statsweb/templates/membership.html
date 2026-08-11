@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}멤버십 관리{% endblock %}
+{% block content %}
+<h1>⑫ 멤버십 · 기간권 관리</h1>
+<div class="page-intro">Discord <b>admin</b> 권한으로만 계좌이체 입금을 확인하고 기간권을 지급할 수 있습니다. 입금 확인 전에는 절대 지급하지 마세요. 계좌이체 환불은 실제 송금 완료 후에만 환불 완료 처리합니다.</div>
+{% if flash %}<div class="page-note {{ 'flash-ok' if flash.ok else 'flash-error' }}">{{ flash.text }}</div>{% endif %}
+{% if error %}<div class="page-note flash-error">{{ error }}</div>{% else %}
+<div class="panel"><h2>계좌이체 입금 대기</h2>{% if bank_orders %}<table><thead><tr><th>생성일</th><th>게임 계정</th><th>이용권</th><th>금액</th><th>입금자명</th><th>기한</th><th>처리</th></tr></thead><tbody>
+{% for order in bank_orders %}<tr><td>{{ order.created_at }}</td><td>{{ order.player_name or '-' }}</td><td>{{ order.tier }} · {{ order.period_days }}일</td><td>₩{{ '{:,}'.format(order.amount_krw or 0) }}</td><td><b>{{ order.transfer_reference }}</b></td><td>{{ order.transfer_deadline }}</td><td><form method="post" action="{{ base_path }}/membership/bank-transfer/{{ order.order_id }}" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><button name="action" value="confirm" onclick="return confirm('은행 입금내역의 금액과 입금자명을 확인했고, 이 기간권을 즉시 지급할까요?')">입금확인·지급</button><button name="action" value="reject" class="secondary" onclick="return confirm('입금 미확인 주문을 취소할까요?')">주문 취소</button></form></td></tr>{% endfor %}
+</tbody></table>{% else %}<p class="chart-empty">입금 확인 대기 주문이 없습니다.</p>{% endif %}</div>
+<div class="panel"><h2>환불 요청</h2>{% if rows %}<table><thead><tr><th>요청일</th><th>게임 계정</th><th>주문</th><th>금액</th><th>사유</th><th>상태</th><th>처리</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.created_at }}</td><td>{{ row.player_name or '-' }}</td><td>{{ row.order_id }}</td><td>₩{{ '{:,}'.format(row.amount_krw or 0) }}</td><td class="wrap-cell">{{ row.reason }}</td><td>{{ row.status }}</td><td>{% if row.status == 'PENDING' %}<form method="post" action="{{ base_path }}/membership/refund/{{ row.id }}" class="inline-form"><input type="hidden" name="csrf" value="{{ csrf }}"><button name="action" value="approve" class="danger" onclick="return confirm('{% if row.payment_method == 'BANK_TRANSFER' %}실제 계좌 환불을 먼저 완료했나요? 이 버튼은 환불 완료 기록과 이용권 종료만 처리합니다.{% else %}전액 환불과 즉시 이용권 종료를 실행할까요?{% endif %}')">{% if row.payment_method == 'BANK_TRANSFER' %}수동 환불완료·종료{% else %}승인·환불{% endif %}</button><button name="action" value="reject" class="secondary" onclick="return confirm('이 환불 요청을 거절할까요?')">거절</button></form>{% else %}-{% endif %}</td></tr>{% endfor %}
+</tbody></table>{% else %}<p class="chart-empty">환불 요청이 없습니다.</p>{% endif %}</div>{% endif %}
+{% endblock %}

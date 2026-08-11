@@ -1,0 +1,14 @@
+{
+  "citizensId": 7,
+  "npc": "클라우스",
+  "displayName": "&b[상점] 클라우스",
+  "skin": "tf_klaus",
+  "roles": [
+    "shop"
+  ],
+  "quests": [],
+  "states": [
+    "base"
+  ],
+  "dialogue_lines": []
+}
