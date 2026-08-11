@@ -50,31 +50,31 @@ PART_MAP = {
     "leftLeg":  ("pll_left_leg", "plfl_left_foreleg"),
 }
 
-# 축 부호 보정. Emotecraft(=바닐라 플레이어 모델) 기준과 steve.bbmodel 리그 규약이
-# 다른 축은 여기서 뒤집는다. rig-conventions.md: 오른팔 +Z=바깥, 왼팔 -Z=바깥이라
-# roll(Z)은 좌우가 반대 부호여야 한다.
-SIGN = {
-    "head":     (1, 1, 1),
-    "torso":    (1, 1, 1),
-    "rightArm": (1, 1, 1),
-    "leftArm":  (1, 1, -1),
-    "rightLeg": (1, 1, 1),
-    "leftLeg":  (1, 1, -1),
-}
+# ★부호 보정 없음. Emotecraft 소스는 이미 좌우가 미러링돼 있고(팔 벌리기 = rightArm.roll
+# +135 / leftArm.roll −135), 그게 우리 리그 규약(오른팔 +Z=바깥, 왼팔 −Z=바깥)과 정확히
+# 같은 방향이다. 처음엔 왼쪽 z를 뒤집었는데 그래서 왼팔만 몸을 가로질러 가다 clamp에
+# 잘려 "한쪽 팔만 움직이는" 결과가 나왔다(jumping_jacks·floss에서 실측).
+SIGN = {p: (1, 1, 1) for p in
+        ("head", "torso", "rightArm", "leftArm", "rightLeg", "leftLeg")}
 
-# 관통 방지 clamp(rig-conventions.md의 안전범위). bend는 관절이 꺾이는 방향만 허용.
+# 관통 방지 clamp. ★mocap 리타게터(rig-conventions.md)의 좁은 범위를 그대로 쓰면 안 된다 —
+# 저건 모캡의 노이즈·과장이 리그를 뚫는 걸 막는 값이고, Emotecraft 이모트는 사람이 실제
+# 플레이어 모델을 보면서 만든 것이라 팔이 몸을 가로지르는 게 의도(플로스가 대표적)다.
 LIMITS = {
-    "h_ph_head": ((-40, 40), (-60, 60), (-30, 30)),
-    "pw_waist": ((-35, 35), (-35, 35), (-30, 30)),
-    "pc_chest": ((-35, 35), (-35, 35), (-30, 30)),
-    "pra_right_arm": ((-120, 120), (-40, 40), (-20, 130)),
-    "pla_left_arm": ((-120, 120), (-40, 40), (-130, 20)),
-    "prl_right_leg": ((-60, 90), (-25, 25), (-25, 25)),
-    "pll_left_leg": ((-60, 90), (-25, 25), (-25, 25)),
+    "h_ph_head": ((-50, 50), (-70, 70), (-40, 40)),
+    "pw_waist": ((-40, 40), (-40, 40), (-35, 35)),
+    "pc_chest": ((-40, 40), (-40, 40), (-35, 35)),
+    "pra_right_arm": ((-180, 180), (-90, 90), (-140, 140)),
+    "pla_left_arm": ((-180, 180), (-90, 90), (-140, 140)),
+    "prl_right_leg": ((-70, 100), (-45, 45), (-45, 45)),
+    "pll_left_leg": ((-70, 100), (-45, 45), (-45, 45)),
 }
-BEND_LIMIT = {"prfa_right_forearm": (0, 120), "plfa_left_forearm": (0, 120),
-              "prfl_right_foreleg": (0, 110), "plfl_left_foreleg": (0, 110),
-              "pc_chest": (-35, 35)}
+# ★bend는 소스에서 좌우 부호가 갈린다(왼팔 −19 / 오른팔 +19가 같은 그림). 관절은 한쪽으로만
+# 접히므로 절대값을 쓴다 — 부호를 살리면 한쪽 팔이 반대로 꺾여 부러진 것처럼 보인다.
+BEND_ABS = True
+BEND_LIMIT = {"prfa_right_forearm": (0, 130), "plfa_left_forearm": (0, 130),
+              "prfl_right_foreleg": (0, 120), "plfl_left_foreleg": (0, 120),
+              "pc_chest": (-40, 40)}
 
 
 def ease(name, t):
@@ -165,7 +165,10 @@ def build_series(chans, end_tick, is_loop, step_tick=1.0):
         rot[bone] = (xs, ys, zs)
         if child:
             bl = BEND_LIMIT[child if child in BEND_LIMIT else "pc_chest"]
-            bend = [clamp(sample(chans.get((part, "bend"), []), tk), *bl) for tk in ticks]
+            raw_bend = [sample(chans.get((part, "bend"), []), tk) for tk in ticks]
+            if BEND_ABS and child != "pc_chest":
+                raw_bend = [abs(v) for v in raw_bend]
+            bend = [clamp(v, *bl) for v in raw_bend]
             # 몸통 bend는 가슴을 앞으로 접는 것(자체 회전 없음), 팔다리 bend는 관절 굽힘.
             rot[child] = (bend, [0.0] * len(ticks), [0.0] * len(ticks))
 
