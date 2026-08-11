@@ -17,7 +17,9 @@ RP = os.path.expanduser("~/development/barkan-resourcepack")
 # 여기에 받아 두고 같이 굽는다. 지금은 소리 3개 + 보스바 스프라이트 3개.
 EXTRA = os.path.expanduser("~/development/barkan-rp-extra")
 OUT = "/tmp/barkan-resourcepack-slim.zip"
-JUNK = (".bak-", "backup", "_prepad", "pf_reference", ".DS_Store", ".codex-backup")
+# ★".bak-" 만 있으면 `gui.json.bak` / `cod.json.bak` 처럼 접미어가 붙지 않은 백업이 통과한다
+#   (2026-08-11 실측: 그 둘이 배포본에 실려 나갔다). ".bak" 이 ".bak-*" 도 함께 잡는다.
+JUNK = (".bak", "backup", "_prepad", "pf_reference", ".DS_Store", ".codex-backup")
 
 def gather(root, base=""):
     for dirpath, dirnames, files in os.walk(root):
@@ -42,6 +44,13 @@ if os.path.isdir(EXTRA):
         files.setdefault(rel, p)                 # 서버에만 있던 것 보강
 
 png_before = png_after = 0
+# ★결정적(deterministic) zip — 항목 시각을 고정한다.
+#   writestr 에 문자열 이름을 주면 zipfile 이 **현재 시각**을 박아서, 내용이 하나도 안 바뀐
+#   재빌드도 sha1 이 달라진다. 그러면 server.properties 의 sha1 이 바뀌어 전 클라가 74MB 를
+#   다시 받는다(2026-08-11 실측: 연속 두 빌드가 ec5d35d9 / 359d3f88). 시각을 고정하면
+#   "내용이 같으면 sha1도 같다" 가 성립해 헛된 재다운로드가 사라진다.
+EPOCH = (1980, 1, 1, 0, 0, 0)
+
 with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for name in sorted(files):
         p = files[name]
@@ -63,7 +72,10 @@ with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
             except Exception:
                 pass
             png_after += len(data)
-        z.writestr(name, data)
+        zi = zipfile.ZipInfo(name, date_time=EPOCH)
+        zi.compress_type = zipfile.ZIP_DEFLATED
+        zi.external_attr = 0o644 << 16
+        z.writestr(zi, data)
 
 print(f"항목 {len(files)}")
 print(f"PNG {png_before/1e6:.1f}MB → {png_after/1e6:.1f}MB ({100*(1-png_after/max(1,png_before)):.0f}% 절감)")
