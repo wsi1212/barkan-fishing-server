@@ -217,7 +217,17 @@ EXTRA = {"잉어꾼의 낚싯대": "등급특화:C:50"}
 
 # ★개발자 낚싯대(개발자 낚싯대·개발자 크리확률)는 2026-08-03 삭제 — 유저 요청.
 #   빈 리스트로 두면 build_catalog에 없는 기존 항목이 stale로 잡혀 제거된다.
-KEEP_AS_IS = []
+KEEP_AS_IS = ["잠수부의 낚싯대", "심해 잠수부의 낚싯대", "초보자 낚싯대"]
+PRESERVE_RODS = {
+    "잠수부의 낚싯대": "잠수부의 낚싯대|B|160000|320|난이도:2,행운:7,등급업:3,판매보너스:8,더블찬스:3|10|잠수상점",
+    "심해 잠수부의 낚싯대": "심해 잠수부의 낚싯대|A|2100000|480|난이도:4,행운:17,판매보너스:15,더블찬스:8,트리플찬스:3,경험치:22.5|30|잠수상점",
+    # ★초보자 낚싯대 — 조합대 R00(스폰마을 입문)이 주는 낚싯대. 사다리 격자 밖이라 여기 박아 둔다.
+    #   부품 4종은 gen_part_builds.py 의 PRESERVE_PARTS 에 들어갔는데 낚싯대만 빠져 있었다
+    #   (2026-08-11 발견). 그대로 두면 이 생성기가 stale 로 보고
+    #   "카탈로그에 없는 기존 낚싯대(이름 유지 원칙 위반): 초보자 낚싯대" 로 **중단**된다.
+    #   값은 parts.json 과 반드시 같아야 한다(로어=parts.json 관례).
+    "초보자 낚싯대": "초보자 낚싯대|E|0|60|경험치:3|1|스폰마을",
+}
 # ★삭제 허용 목록 — 이 생성기가 직접 만들었다가 시리즈명 통일 과정에서 이름이 바뀐 항목들.
 #   기존 22종(플레이어 데이터가 걸린 이름)은 절대 여기 넣지 말 것. 넣으면 그 연결이 끊긴다.
 RETIRED = {"개발자 낚싯대", "개발자 크리확률",
@@ -293,6 +303,9 @@ def stats_for(build, grade, shape, hybrid_with=None, hidden=False, theme_village
         if ax == "행운" and hidden and grade in CAP_HIDDEN_LUCK:
             cap = CAP_HIDDEN_LUCK[grade]
         st[ax] = min(st[ax], cap)
+    # 2026-08-07 level-pacing decision: equipment XP contribution is halved.
+    if "경험치" in st:
+        st["경험치"] /= 2
     return st
 
 
@@ -434,6 +447,8 @@ def main():
         parts["낚싯대"][c["name"]] = "|".join([
             c["name"], c["grade"], str(c["price"]), str(c["dur"]),
             stat_str(c["st"], EXTRA.get(c["name"])), str(c["lv"]), c["origin"]])
+    for name, value in PRESERVE_RODS.items():
+        parts["낚싯대"][name] = value
     have = {n for t, n in order if t == "낚싯대"}
     for c in cat:
         if c["name"] not in have:
