@@ -21,6 +21,7 @@
 라이브 파일이 없으면(신규 파일) 통과. .json이 아니면 통과.
 의도적으로 항목을 지우는 배포라면 스테이징에 <파일명>.allow-shrink 를 같이 올린다.
 """
+import collections
 import json
 import os
 import sys
@@ -52,11 +53,27 @@ def main():
     staged, live = sys.argv[1], sys.argv[2]
     if not staged.endswith('.json'):
         sys.exit(0)                                    # jar/기타는 이 검사 대상 아님
+    # ★중복 키를 먼저 잡는다 — 파이썬 json 은 중복을 조용히 덮어쓰지만 서버의 gson 은
+    #   JsonSyntaxException("duplicate key") 으로 **파일 전체를 거부**한다. 그래서 여기서
+    #   통과시키면 prod 에서 그 데이터가 통째로 안 읽힌다.
+    #   2026-08-11 실제 사고: parts.json 에 초보자 4종이 두 번 들어가 prod 가
+    #   "Loaded 0 parts (0 types)" 로 떴다 — 장비 시스템 전체 정지.
+    dups = []
+
+    def dup_hook(pairs):
+        counts = collections.Counter(k for k, _ in pairs)
+        dups.extend(k for k, n in counts.items() if n > 1)
+        return dict(pairs)
+
     try:
         with open(staged, encoding='utf-8') as f:
-            snew = json.load(f)
+            snew = json.loads(f.read(), object_pairs_hook=dup_hook)
     except Exception as e:                             # noqa: BLE001
         reject(f'JSON 파싱 실패: {e}')
+    if dups:
+        uniq = sorted(set(dups))
+        reject(f'중복 키 {len(uniq)}건 — 서버 gson 이 파일 전체를 거부한다: '
+               f'{uniq[:8]}{" …" if len(uniq) > 8 else ""}')
     if not os.path.exists(live):
         sys.exit(0)                                    # 신규 파일은 통과
     try:
