@@ -367,6 +367,9 @@ def common(p):
     p.add_argument("--flip", default="1,1,1", help="축 부호 sx,sy,sz (--euler 경로에서만)")
     p.add_argument("--euler", action="store_true",
                    help="구 오일러 경로 사용(기본은 위치 기반). 디버그용")
+    p.add_argument("--loop-frac", type=float, default=0.08,
+                   help="루프 크로스페이드 비율. 긴 클립(30초)엔 0.03 정도가 적당 — "
+                        "0.08이면 2.4초가 뭉개진다")
 
 
 def prep(args):
@@ -384,7 +387,8 @@ def prep(args):
     else:
         sm, times, L = build_pos(mv, start, n, args.step, arm_ex=args.arm_ex,
                                   spine_ex=args.spine_ex, head_ex=args.head_ex,
-                                  hip_ex=args.hip_ex, twist_ex=args.twist_ex)
+                                  hip_ex=args.hip_ex, twist_ex=args.twist_ex,
+                                  loop_frac=args.loop_frac)
     return sm, times, L
 
 
