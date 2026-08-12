@@ -206,7 +206,10 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     # 각도 평균은 원형이라 벡터 평균으로 낸다(179도와 -179도의 산술평균은 0이 되어버림)
     my = math.atan2(sum(math.sin(v) for v in ys), sum(math.cos(v) for v in ys))
     face = my - math.pi          # 정면 기준(어깨선이 -X를 향할 때가 정면)
-    ca, sa = math.cos(-face), math.sin(-face)
+    # ★부호 주의: Y축 회전 θ는 각도를 (my - θ)로 옮긴다. 어깨선을 -X(=모델 왼쪽)로
+    # 보내려면 θ = my - π = face 여야 한다. -face로 돌리면 2my-π가 되어 정확히
+    # 좌우가 뒤집힌 채 정렬된다(어깨선이 +X를 가리킴 = 거울상).
+    ca, sa = math.cos(face), math.sin(face)
 
     def P(f, seg):
         x, y, z = raw(f, seg)
