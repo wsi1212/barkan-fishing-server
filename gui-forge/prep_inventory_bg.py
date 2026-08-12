@@ -78,6 +78,59 @@ def heal(im, box, dx, dy, src):
 CRAFT_BLOCK = (376, 44, 560, 216)
 CRAFT_DX = -6
 
+# ── 칸 틈 메우기 ────────────────────────────────────────────────────────────
+# gui-forge/fit_sockets.py 와 같은 판정·같은 수법을 바닐라 좌표에 적용한다.
+#   판정: 칸 한가운데 밝기를 '구멍 기준'으로 두고, 아이템 상자(64px) 바로 바깥부터
+#         **그와 12 이내로 같은** 픽셀이 몇 개 이어지는지 센다. 그 개수가 틈이다.
+#   수법: 바깥 띠를 통째로 **안으로만** 민다. 밖으로 밀면 칸 사이 구분선을 먹는다.
+# ★상한은 여백(4px)이다. 그보다 벌어진 칸은 이웃 칸 바닥을 끌어오므로 손대지 않는다.
+FIT_ICON, FIT_PAD, FIT_SAME = 64, 4, 12
+
+
+def _depths(px, w, h, ix0, iy0):
+    mx, my = ix0 + FIT_ICON // 2, iy0 + FIT_ICON // 2
+    ref = px[mx, my]
+
+    def run(pts):
+        d = 0
+        for x, y in pts:
+            if not (0 <= x < w and 0 <= y < h) or abs(px[x, y] - ref) >= FIT_SAME:
+                break
+            d += 1
+        return d
+
+    return (run([(ix0 - 1 - k, my) for k in range(FIT_PAD)]),
+            run([(ix0 + FIT_ICON + k, my) for k in range(FIT_PAD)]),
+            run([(mx, iy0 - 1 - k) for k in range(FIT_PAD)]),
+            run([(mx, iy0 + FIT_ICON + k) for k in range(FIT_PAD)]))
+
+
+def fit_slots(im):
+    """모든 칸의 액자 구멍을 아이템 상자에 맞춘다. 조합칸을 옮긴 **뒤에** 부른다."""
+    n = cell = FIT_ICON + 2 * FIT_PAD
+    w, h = im.size
+    fixed = worst = 0
+    for gx, gy in L.ARMOR + L.OFFHAND + L.CRAFT + L.RESULT + L.BAG + L.HOTBAR:
+        px = im.convert("L").load()          # 앞 칸을 고친 결과를 반영해 다시 잰다
+        ix0, iy0 = gx * S, gy * S
+        x0, y0 = ix0 - FIT_PAD, iy0 - FIT_PAD
+        l, r, t, b = _depths(px, w, h, ix0, iy0)
+        if max(l, r, t, b) >= FIT_PAD:
+            continue                          # 액자가 없는 칸(평평한 판) — 건드리지 않는다
+        if l:
+            im.paste(im.crop((max(0, x0 - l), y0, ix0 - l, y0 + n)), (max(0, x0 - l) + l, y0))
+        if r:
+            im.paste(im.crop((ix0 + FIT_ICON + r, y0, min(w, x0 + n + r), y0 + n)), (ix0 + FIT_ICON, y0))
+        if t:
+            im.paste(im.crop((x0, max(0, y0 - t), x0 + n, iy0 - t)), (x0, max(0, y0 - t) + t))
+        if b:
+            im.paste(im.crop((x0, iy0 + FIT_ICON + b, x0 + n, min(h, y0 + n + b))), (x0, iy0 + FIT_ICON))
+        if max(l, r, t, b):
+            fixed += 1
+            worst = max(worst, l, r, t, b)
+    print(f"  칸 틈 메움 {fixed}칸 · 최대 {worst}px")
+
+
 def main():
     raw = Image.open(RAW).convert("RGB")
     px = raw.load()
@@ -107,6 +160,8 @@ def main():
     # 조합 2x2 액자를 통째로 왼쪽으로 — 옮긴 뒤 오른쪽에 남는 띠만 나뭇결로 덮는다.
     x0, y0, x1, y1 = CRAFT_BLOCK
     im.paste(im.crop(CRAFT_BLOCK), (x0 + CRAFT_DX, y0))
+
+    fit_slots(im)
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     im.convert("RGBA").save(OUT)
