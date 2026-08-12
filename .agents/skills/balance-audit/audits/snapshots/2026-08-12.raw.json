@@ -446,22 +446,39 @@
   },
   "warnings": [],
   "derived": {
-    "tutorial": {
-      "quest_count_to_graduation": 30,
-      "quest_reward_xp": 3250,
-      "cumulative_xp_to_level_5": 2101,
-      "cumulative_xp_to_level_7": 3223,
-      "level_after_quest_rewards_only": 7,
-      "exp_remaining_at_level_7": 27,
-      "xp_through_tutorial_1_18": 2165,
-      "xp_after_1_18_tail": 1085,
-      "documented_target_level": 5,
-      "excess_xp_over_documented_target": 1149
-    },
-    "leveling_time_reference": {
-      "cumulative_xp_level_7": 3223,
-      "base_fishing_xp_per_catch_range": [2, 6],
-      "note": "Tutorial quest rewards alone reach level 7; required fishing actions add only a variable amount on top."
+    "tutorial_gold": {
+      "quest_cash": 21600,
+      "daily_cash_one_easy_min": 350,
+      "daily_cash_one_easy_max": 500,
+      "guaranteed_achievement_cash": 3500,
+      "mandatory_spend": 2700,
+      "required_fish_sale_estimate": [150, 750],
+      "guaranteed_achievement_breakdown": {
+        "여정_첫지역": 500,
+        "생활_첫제작": 500,
+        "경제_1만": 500,
+        "낚시_B": 1000,
+        "유산_졸업": 1000
+      },
+      "conditional_achievement_rewards": {
+        "낚시_A": 2000,
+        "수집_도감10": 1000,
+        "낚시_대물100": 5000,
+        "생활_제작10": 1000,
+        "생활_일퀘올클": 2000,
+        "수집_낚싯대3": 1000
+      },
+      "wet_treasure_cash_estimate": {
+        "min": 2600,
+        "max": 6900,
+        "cash_branch_chance_per_chest_pct": 20,
+        "cash_chest_probability_over_14_rod_catches_pct": 3.2
+      },
+      "fresh_balance_before_optional_sales_estimate": [22750, 22900],
+      "fresh_balance_after_required_sales_estimate": [22900, 23650],
+      "typical_balance_if_all_scripted_fish_are_sold_estimate": [24000, 26000],
+      "graduation_check_if_R60_already_unlocked": 4500,
+      "note": "신규 계정 기준. 물고기 판매는 등급·크기·신선도 RNG, 일퀘는 초급 1개만 완료한다고 가정. 70000원은 튜토리얼 순수 보상으로 설명되지 않으며 기존 PlayerData 잔액/반복 테스트를 우선 의심한다."
     }
   }
 }
