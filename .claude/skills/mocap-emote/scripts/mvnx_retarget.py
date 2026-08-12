@@ -569,7 +569,12 @@ def common(p):
     p.add_argument("--arm-ex", type=float, default=1.0)
     p.add_argument("--spine-ex", type=float, default=1.2)
     p.add_argument("--head-ex", type=float, default=1.5)
-    p.add_argument("--hip-ex", type=float, default=1.0)
+    p.add_argument("--hip-ex", type=float, default=1.0,
+                   help="★1.0을 유지할 것. 스티브 허벅지는 키의 18.8%%(사람 28.2%%)라 무릎이 "
+                        "원본만큼 높이 안 올라오는데, 이건 각도로 못 고친다 — 무릎높이는 "
+                        "허벅지길이×sin(각도)라 90도로 들어도 18.8%%가 상한이다. 1.5로 키워봤자 "
+                        "진폭만 76->97도로 과장되고(방향오차 5->13도) 높이는 그대로였다. "
+                        "리그의 물리적 한계이니 각도는 원본에 충실하게 두는 쪽이 낫다.")
     p.add_argument("--twist-ex", type=float, default=1.5)
     p.add_argument("--flip", default="1,1,1", help="축 부호 sx,sy,sz (--euler 경로에서만)")
     p.add_argument("--euler", action="store_true",

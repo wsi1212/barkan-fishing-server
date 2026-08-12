@@ -30,6 +30,7 @@ COMMON = [
     ("p", "표시된 자리를 옮기지 말 것 - 이미 정확한 좌표다."),
     ("p", "★홈 하나는 72px 칸이고 아이콘은 그 가운데 64px 다. 액자 구멍을 그보다 크게"),
     ("p", "  그리면 아이콘과 테두리 사이에 틈이 남는다(확대하면 바로 보인다)."),
+    ("grid", ""),            # 칸 좌표를 숫자로 박는다(grid_for)
     ("p", "★작게 그려도 안 된다 - 아이콘이 테두리 위로 올라탄다."),
     ("p", "  칸 여백은 사방 4px 뿐이다. 액자 테두리를 그보다 두껍게 그리면 이웃 칸을"),
     ("p", "  침범해 옆 액자가 잘려 보인다. 칸 사이를 떼어 놓으려 하지 말 것 -"),
@@ -46,6 +47,8 @@ COMMON = [
 HARD = {
     "chest": [("w", "액자 구멍은 칸 정중앙에 정확히 64px — 크면 아이콘과 틈이 생긴다"),
               ("w", "캔버스 크기 그대로. 1px도 다르면 안 된다"),
+              ("w", "★격자를 가로지르는 장식(책 접힘선·기둥·걸쇠·관)을 격자에 붙이지 말 것"),
+              ("w", "  격자가 틀어지면 우리가 옮기는데, 붙어 있으면 그 장식까지 깨진다"),
               ("w", "투명 픽셀 0 - 둥근 모서리 바깥도 어두운 색으로"),
               ("w", "맨 아래 큰 사각형(플레이어 인벤)에는 격자도 장식도 금지"),
               ("w", "좌우 프레임은 한쪽 16px 이내")],
@@ -357,6 +360,27 @@ LEGEND = {
 }
 
 
+def grid_for(name):
+    """칸 좌표를 숫자로 박는다 — '72px 칸' 같은 말만으로는 격자가 안 맞아서(2026-08-12
+    도감 두 판을 코드로 옮기다 접힘선·걸쇠가 깨졌다) 자로 잴 수 있는 두 점을 준다."""
+    if name not in L.PAGES:
+        return []
+    _, roles, _ = L.PAGES[name]
+    # 기준점은 **격자(목록/입력)** 에서 잡는다 — 상단 버튼은 격자와 따로 놓이는 일이 많다.
+    used = sorted(k for k, (r, _) in roles.items() if r in ("목록", "입력")) \
+        or sorted(k for k, (r, _) in roles.items() if r != "장식")
+    if not used:
+        return []
+    cx = lambda c: (L.GRID_X + L.CELL * c) * L.SCALE + 36
+    cy = lambda r: (L.GRID_Y + L.CELL * r) * L.SCALE + 36
+    fr, fc = divmod(used[0], L.COLS)
+    lr, lc = divmod(used[-1], L.COLS)
+    return [("w", "★칸 중심 간격(피치)은 가로·세로 모두 정확히 72px"),
+            ("w", f"  첫 칸 구멍 한가운데 = ({cx(fc)}, {cy(fr)})"),
+            ("w", f"  끝 칸 구멍 한가운데 = ({cx(lc)}, {cy(lr)})"),
+            ("w", "  이 두 점만 맞으면 사이 칸은 저절로 맞는다")]
+
+
 def legend_for(name):
     if name == "dialogue":
         return [("k", "파랑 = 초상화 · 노랑 = 이름표 · 초록 = 대사"),
@@ -380,7 +404,8 @@ def build(name):
     sections = body + [("s", "")] + COMMON
     hard = HARD.get(name, HARD["chest"])
     sections = [x for k, t in sections
-                for x in (legend_for(name) if k == "legend" else hard if k == "hard" else [(k, t)])]
+                for x in (legend_for(name) if k == "legend" else hard if k == "hard"
+                          else grid_for(name) if k == "grid" else [(k, t)])]
     for kind, text in sections:
         lines += {"s": 0.4, "t": 1.5}.get(kind, 0)
         if kind not in ("s", "t"):
