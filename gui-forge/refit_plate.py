@@ -40,25 +40,23 @@ ICON, PAD = 16 * S, 4
 # 그라데이션, 낱개로 떨어진 버튼)은 한 덩어리로 묶으면 사이의 배경까지 끌고 가 어색해진다.
 SOLO_M = 13     # 낱개로 옮길 때 칸 둘레로 함께 물 여유(액자 테두리·장식)
 GROUPS = {
+    # 2026-08-12 재발주분. 격자가 판 가운데 떠 있어 좌우 여백이 넉넉하다 — 블록을 옮겨도
+    # 경첩·기둥을 안 건드린다(이전 아트가 막혔던 지점).
     "dexisland": [
-        (list(range(10, 17)) + list(range(19, 26)), (96, 136, 616, 300), (0, 170)),
-        ([0, 4, 8], None, (0, 150)),
-    ],
-    # ★한 줄로 붙어 있는 진열대는 블록째 옮긴다. 낱개로 옮겼더니 이웃 액자를 파먹고
-    #   메운 자리에 기둥·고드름이 복사돼 판이 망가졌다(2026-08-12).
-    #   블록 이동은 액자를 복제하는 게 아니라 통째로 옮기는 것이라 티어별 색도 그대로 간다.
-    "iceshop": [
-        (list(range(18, 27)), (24, 216, 684, 330), (0, -150)),
-        ([0], None, (0, 120)),
+        (list(range(10, 17)) + list(range(19, 26)), (100, 140, 610, 290), None),
+        ([0, 4, 8], None, None),
     ],
     "dextab": [
-        # ★경계를 격자 바로 옆에 두면 안 된다. 96 으로 잡았더니 확대분이 왼쪽으로 9px
-        #   나가면서 경계가 책 기둥·걸쇠 한복판에 떨어져 장식이 직각으로 잘렸다.
-        #   격자를 제 위치로 옮기면 왼쪽 장식과 겹칠 수밖에 없는 구조라(피치가 4% 작다),
-        #   **걸쇠·기둥까지 블록에 넣어 같이 옮긴다** — 그러면 장식이 온전히 보존되고
-        #   빈자리는 판 바깥 어두운 테두리라 눈에 띄지 않는다.
-        ([s for r in range(4) for s in range(10 + r * 9, 17 + r * 9)],
-         (52, 136, 660, 428), (0, 150)),
+        (list(range(10, 17)) + list(range(19, 26)) + list(range(28, 35)) + list(range(37, 44)),
+         (30, 66, 682, 530), None),
+        # ★상단·하단 버튼을 낱개 그룹에 넣지 말 것 — 이 아트는 9x6 전체 격자라 그것들도
+        #   위 블록에 이미 들어 있다. 낱개로 또 옮기면 이중 이동이 된다(실측 11.5px).
+        #   예외는 48 하나 — 하단 계단이 우리 슬롯과 한 칸 어긋나게 그려졌다.
+        ([48], None, None),
+    ],
+    "iceshop": [
+        (list(range(18, 27)), (24, 216, 684, 330), None),
+        ([0], None, None),
     ],
 }
 
@@ -107,6 +105,27 @@ def refit(name, check=False):
     w, h = im.size
 
     for slots, box, heal in GROUPS[name]:
+        if box is None:
+            # ★낱개 모드는 칸마다 자기 오차로 옮긴다 — 그룹 공통 배율을 구하지 않는다.
+            #   (모서리 버튼처럼 흩어진 칸은 first/last 를 잡을 수 없다)
+            moved = 0
+            for slot in slots:
+                cx, cy = cell_center(slot)
+                a = hole_center(px, w, h, cx, cy)
+                sx, sy = round(cx - a[0]), round(cy - a[1])
+                if not (sx or sy):
+                    continue
+                bx0 = cx - ICON // 2 - SOLO_M - max(0, sx)
+                by0 = cy - ICON // 2 - SOLO_M - max(0, sy)
+                bx1 = cx + ICON // 2 + SOLO_M - min(0, sx)
+                by1 = cy + ICON // 2 + SOLO_M - min(0, sy)
+                im.paste(im.crop((bx0, by0, bx1, by1)), (bx0 + sx, by0 + sy))
+                moved += 1
+            print(f"  {name} 낱개 {len(slots)}칸 중 {moved}칸 개별 이동")
+            if check:
+                pass
+            continue
+
         xs = sorted({divmod(s, COLS)[1] for s in slots})
         ys = sorted({divmod(s, COLS)[0] for s in slots})
         first = next(s for s in slots if divmod(s, COLS) == (ys[0], xs[0]))
@@ -119,22 +138,6 @@ def refit(name, check=False):
         print(f"  {name} 격자 {len(slots)}칸 · 가로 배율 {kx:.4f} 이동 {dx:+.1f}"
               f" · 세로 배율 {ky:.4f} 이동 {dy:+.1f}")
         if check:
-            continue
-
-        if box is None:
-            for slot in slots:
-                cx, cy = cell_center(slot)
-                a = hole_center(px, w, h, cx, cy)
-                sx, sy = round(cx - a[0]), round(cy - a[1])
-                if not (sx or sy):
-                    continue
-                bx0, by0 = cx - ICON // 2 - SOLO_M, cy - ICON // 2 - SOLO_M
-                bx1, by1 = cx + ICON // 2 + SOLO_M, cy + ICON // 2 + SOLO_M
-                piece = im.crop((bx0, by0, bx1, by1))
-                hx, hy = heal
-                im.paste(im.crop((bx0 + hx, by0 + hy, bx1 + hx, by1 + hy)), (bx0, by0))
-                im.paste(piece, (bx0 + sx, by0 + sy))
-            print(f"     낱개 {len(slots)}칸 개별 이동")
             continue
 
         # ★메우지 않는다. 옛 자리를 배경으로 덮으려 했더니, 양피지처럼 **세로로 음영이
