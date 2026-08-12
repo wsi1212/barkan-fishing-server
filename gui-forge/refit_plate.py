@@ -23,6 +23,8 @@ import os
 import shutil
 import sys
 
+from math import ceil
+
 from PIL import Image
 
 import make_page_layouts as L
@@ -130,16 +132,22 @@ def refit(name, check=False):
             print(f"     낱개 {len(slots)}칸 개별 이동")
             continue
 
+        # ★메우지 않는다. 옛 자리를 배경으로 덮으려 했더니, 양피지처럼 **세로로 음영이
+        #   흐르는 배경**에서 170px 아래를 떠오는 바람에 밝기가 안 맞아 가로 띠가 생겼다
+        #   (2026-08-12 유저 지적). 대신 **비는 쪽으로 블록을 더 물어** 옛 자리를 통째로
+        #   덮게 한다 — 옮긴 그림이 스스로 자기 자국을 가리므로 이어붙인 경계가 없다.
         x0, y0, x1, y1 = box
-        block = im.crop(box)
-        nw, nh = max(1, round((x1 - x0) * kx)), max(1, round((y1 - y0) * ky))
+        gx0 = x0 - max(0, ceil(x0 - (x0 * kx + dx)))
+        gy0 = y0 - max(0, ceil(y0 - (y0 * ky + dy)))
+        gx1 = x1 + max(0, ceil(x1 - (x1 * kx + dx)))
+        gy1 = y1 + max(0, ceil(y1 - (y1 * ky + dy)))
+        block = im.crop((gx0, gy0, gx1, gy1))
+        nw, nh = max(1, round((gx1 - gx0) * kx)), max(1, round((gy1 - gy0) * ky))
         block = block.resize((nw, nh), Image.LANCZOS)
-        # 블록 왼쪽 위 모서리도 같은 1차식으로 옮긴다
-        nx, ny = round(x0 * kx + dx), round(y0 * ky + dy)
-        # ★옮기기 전에 원래 자리를 배경으로 덮는다 — 새 자리가 옛 자리를 다 가리지 못한다.
-        hx, hy = heal
-        im.paste(im.crop((x0 + hx, y0 + hy, x1 + hx, y1 + hy)), (x0, y0))
+        nx, ny = round(gx0 * kx + dx), round(gy0 * ky + dy)
         im.paste(block, (nx, ny))
+        if (gx0, gy0, gx1, gy1) != box:
+            print(f"     자국을 덮으려 블록을 넓힘: {box} → {(gx0, gy0, gx1, gy1)}")
 
     if check:
         return
