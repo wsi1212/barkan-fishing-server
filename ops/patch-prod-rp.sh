@@ -34,9 +34,17 @@ HOST="ubuntu@168.107.8.107"
 # ★서빙 파일명을 박아 두지 말 것 — server.properties 의 resource-pack URL 이 권위다.
 #   2026-08-11: 다른 세션이 버전 붙인 파일명(...-20260810-2333.zip)으로 갈아탔는데 이 값이
 #   옛 이름에 박혀 있어, 몇 시간 동안 **아무도 안 보는 파일에 패치하고 있었다.**
-SERVED=$(ssh -i "$HOME/.ssh/oracle-mc.key" -o StrictHostKeyChecking=no ubuntu@168.107.8.107 \
-    'grep -oP "(?<=^resource-pack=).*" ~/mcserver/server.properties | sed "s|\\\\||g; s|.*/||"')
-SERVED="/var/www/barkan/${SERVED}"
+RP_URL=$(ssh -i "$HOME/.ssh/oracle-mc.key" -o StrictHostKeyChecking=no ubuntu@168.107.8.107 \
+    'grep -oP "(?<=^resource-pack=).*" ~/mcserver/server.properties | sed "s|\\\\||g"')
+# ★prod 가 박스에서 직접 서빙할 때만 이 스크립트가 유효하다. 2026-08-12 에 배포가
+#   GitHub 릴리스로 옮겨갔는데 그걸 모르고 돌렸더니, 아무도 안 보는 로컬 zip 에 패치하고
+#   **server.properties 의 sha1 만 그 파일 해시로 덮어** 팩이 통째로 안 받아지는 상태를 만들었다.
+case "$RP_URL" in
+    *barkan.kro.kr*) : ;;
+    *) echo "✋ 지금 prod 리소스팩은 박스에서 서빙되지 않는다:"; echo "   $RP_URL"
+       echo "   이 스크립트는 쓰지 말고 ops/rp-deploy.sh prod 로 배포할 것."; exit 1 ;;
+esac
+SERVED="/var/www/barkan/${RP_URL##*/}"
 echo "▶ 서빙 파일: $SERVED"
 
 [ $# -ge 2 ] || { echo "사용: $0 <라벨> <경로> [경로 ...]"; exit 1; }
