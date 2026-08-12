@@ -184,7 +184,7 @@ if curl --fail --location --silent --show-error --retry 2 --retry-delay 2 \
   CUR_N=$(wc -l < "$CUR_LIST"); NEW_N=$(wc -l < "$NEW_LIST")
   LOST=$(comm -23 "$CUR_LIST" "$NEW_LIST" | grep -vE '\.bak|_prepad|backup|pf_reference|^tools/' || true)
   LOST_N=$(printf '%s' "$LOST" | grep -c . || true)
-  echo "   현재 $CUR_N개 → 신규 $NEW_N개 · 잡동사니 제외 순손실 ${LOST_N}개"
+  echo "   현재 ${CUR_N}개 → 신규 ${NEW_N}개 · 잡동사니 제외 순손실 ${LOST_N}개"
   if [ "$LOST_N" -gt 0 ]; then
     printf '%s\n' "$LOST" | head -20 | sed 's/^/     - /'
     [ "$LOST_N" -gt 20 ] && echo "     … 외 $((LOST_N - 20))개"

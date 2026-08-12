@@ -61,20 +61,24 @@ class Mvnx:
         self.fps = float(subj.get("frameRate", "240"))
         self.labels = [s.get("label") for s in subj.find("m:segments", NS).findall("m:segment", NS)]
         self.idx = {lab: i for i, lab in enumerate(self.labels)}
-        self.quats, self.pos, self.rest = [], [], None
+        self.quats, self.pos, self.rest, self.rest_pos = [], [], None, None
         for fr in subj.find("m:frames", NS).findall("m:frame", NS):
             o = [float(v) for v in fr.find("m:orientation", NS).text.split()]
             q = [tuple(o[i * 4:i * 4 + 4]) for i in range(len(self.labels))]
-            if fr.get("type") != "normal":
-                # npose/tpose = 캘리브레이션 자세. 모션 프레임에선 빼되 ★기준자세로 보관한다.
-                if self.rest is None:
-                    self.rest = q
-                continue
             p = [float(v) for v in fr.find("m:position", NS).text.split()]
+            pos = [tuple(p[i * 3:i * 3 + 3]) for i in range(len(self.labels))]
+            if fr.get("type") != "normal":
+                # npose/tpose = 캘리브레이션(차렷) 자세. 모션에선 빼되 ★기준자세로 보관한다.
+                # 위치까지 보관하는 게 중요하다 — 사람 척추는 자연스레 굽어 있어서 절대
+                # 겨냥각에 10~20도 상수 기울기가 섞이고, 우리 리그의 수직 박스 기준으로는
+                # 그게 "계속 앞으로 접힌 자세"로 보인다. 이 기준자세 각을 빼야 0=차렷이 된다.
+                if self.rest is None:
+                    self.rest, self.rest_pos = q, pos
+                continue
             self.quats.append(q)
-            self.pos.append([tuple(p[i * 3:i * 3 + 3]) for i in range(len(self.labels))])
+            self.pos.append(pos)
         if self.rest is None:
-            self.rest = self.quats[0]
+            self.rest, self.rest_pos = self.quats[0], self.pos[0]
 
     def local(self, f, child, parent):
         qc = self.quats[f][self.idx[child]]
@@ -180,70 +184,127 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     L = times[-1]
     I = mv.idx
 
-    def P(f, seg):
-        return to_ours(mv.pos[f][I[seg]])
+    # ★촬영장 기준 방향을 우리 모델의 정면(+Z)에 맞춘다.
+    # MVN 전역 좌표계는 사람이 아니라 **방** 기준이라, 피험자가 어느 쪽을 보고 섰는지에 따라
+    # "앞"이 우리 +Z와 어긋난다. 그대로 쓰면 좌우 다리가 벌어진 채 고정되고(우 -19도/좌 +29도)
+    # 몸이 계속 기울어 보인다 — 실제로 강남스타일이 그렇게 나왔다. 구간 평균 어깨선 방향으로
+    # 상수 yaw를 재서 모든 좌표를 미리 돌려 놓는다(프레임별 잔여 회전은 그대로 twist가 된다).
+    def raw(f, seg):
+        return to_ours(mv.rest_pos[I[seg]] if f == -1 else mv.pos[f][I[seg]])
 
-    ch = {k: [] for k in ("waist_x", "waist_z", "chest_x", "chest_z", "twist",
-                           "pra_x", "pra_z", "pla_x", "pla_z", "prl_x", "prl_z", "pll_x", "pll_z",
-                           "prfa", "plfa", "prfl", "plfl", "rx", "ry", "rz", "head_x", "head_y")}
+    ys = []
     for f in idxs:
+        sh = sub(raw(f, "LeftShoulder"), raw(f, "RightShoulder"))
+        ys.append(math.atan2(sh[2], sh[0]))
+    # 각도 평균은 원형이라 벡터 평균으로 낸다(179도와 -179도의 산술평균은 0이 되어버림)
+    my = math.atan2(sum(math.sin(v) for v in ys), sum(math.cos(v) for v in ys))
+    face = my - math.pi          # 정면 기준(어깨선이 -X를 향할 때가 정면)
+    ca, sa = math.cos(-face), math.sin(-face)
+
+    def P(f, seg):
+        x, y, z = raw(f, seg)
+        return (x * ca + z * sa, y, -x * sa + z * ca)
+
+    KEYS = ("waist_x", "waist_z", "chest_x", "chest_z", "twist",
+            "pra_x", "pra_z", "pla_x", "pla_z", "prl_x", "prl_z", "pll_x", "pll_z",
+            "prfa", "plfa", "prfl", "plfl", "rx", "ry", "rz", "head_x", "head_y")
+    ch = {k: [] for k in KEYS}
+    # ★기준자세(차렷)에서의 같은 각도 — 아래 루프가 끝난 뒤 전부 빼서 "0=차렷"으로 맞춘다.
+    rest_ch = {k: [] for k in KEYS}
+    base_spine = [0.0, 0.0, 0.0, 0.0]   # 기준자세의 (wx, wz, cx, cz)
+    for f in [-1] + idxs:          # -1 = 기준자세
+        into = rest_ch if f == -1 else ch
         pelvis, t8, neck = P(f, "Pelvis"), P(f, "T8"), P(f, "Neck")
         # 몸통: 골반->T8이 허리, T8->목이 가슴. 좌우 어깨선으로 몸 전체 비틀림.
         wx, wz = dir_to_xz([-c for c in sub(t8, pelvis)])   # 위로 뻗은 축이라 부호 반전
         cx, cz = dir_to_xz([-c for c in sub(neck, t8)])
-        ch["waist_x"].append(wx); ch["waist_z"].append(wz)
-        ch["chest_x"].append(cx - wx); ch["chest_z"].append(cz - wz)
+        if f == -1:
+            base_spine[:] = [wx, wz, cx, cz]
+        else:
+            # ★기준자세(차렷)의 척추 굽음을 여기서 바로 뺀다. 나중에 빼면 늦다 —
+            # 아래에서 팔다리의 부모 회전을 걷어낼 때 이 각도를 쓰기 때문에, 보정 전
+            # 값을 쓰면 척추의 자연 굽음이 팔다리 각도로 그대로 전가된다(다리가 계속
+            # 19도 뒤로 가 있어서 몸이 앞으로 꺾여 보였다).
+            wx -= base_spine[0]; wz -= base_spine[1]
+            cx -= base_spine[2]; cz -= base_spine[3]
+        into["waist_x"].append(wx); into["waist_z"].append(wz)
+        into["chest_x"].append(cx - wx); into["chest_z"].append(cz - wz)
         sh = sub(P(f, "LeftShoulder"), P(f, "RightShoulder"))
-        ch["twist"].append(math.degrees(math.atan2(sh[2], sh[0])))
+        into["twist"].append(math.degrees(math.atan2(sh[2], sh[0])))
         hd = sub(P(f, "Head"), neck)
-        ch["head_x"].append(dir_to_xz([-c for c in hd])[0])
-        ch["head_y"].append(0.0)
+        into["head_x"].append(dir_to_xz([-c for c in hd])[0])
+        into["head_y"].append(0.0)
 
         # 팔다리: 부모(가슴/골반) 회전을 걷어낸 뒤 겨냥각을 뽑는다.
-        par = pr.euler_mat(cx, 0, cz)
-        parT = mat_t(par)
-        hip = pr.euler_mat(wx, 0, wz)
-        hipT = mat_t(hip)
+        # 팔은 가슴의 자식이라 가슴의 절대 회전을 걷어내야 로컬 각이 된다.
+        parT = mat_t(pr.euler_mat(cx, 0, cz))
+        # ★다리는 다르다 — rig-conventions.md대로 prl/pll은 허리가 아니라 player_root의
+        # 직계 자식이라 몸통 회전을 물려받지 않는다. 그래서 걷어내면 안 되고 월드 방향을
+        # 그대로 쓴다(걷어냈더니 척추 기울기가 다리로 전가돼 우/좌가 -19도/+25도로
+        # 벌어진 채 고정됐다). 루트 비틀림(Y)은 방향의 X/Z 성분에 영향이 작아 무시.
+        hipT = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         for side, up, low, end, k in (("R", "RightUpperArm", "RightForeArm", "RightHand", "pra"),
                                        ("L", "LeftUpperArm", "LeftForeArm", "LeftHand", "pla")):
             d = pr.mat_vec(parT, list(sub(P(f, low), P(f, up))))
             ax, az = dir_to_xz(d)
-            ch[k + "_x"].append(ax); ch[k + "_z"].append(az)
+            into[k + "_x"].append(ax); into[k + "_z"].append(az)
             bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
-            ch["prfa" if side == "R" else "plfa"].append(bend)
+            into["prfa" if side == "R" else "plfa"].append(bend)
         for side, up, low, end, k in (("R", "RightUpperLeg", "RightLowerLeg", "RightFoot", "prl"),
                                        ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll")):
             d = pr.mat_vec(hipT, list(sub(P(f, low), P(f, up))))
             ax, az = dir_to_xz(d)
-            ch[k + "_x"].append(ax); ch[k + "_z"].append(az)
+            into[k + "_x"].append(ax); into[k + "_z"].append(az)
             bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
-            ch["prfl" if side == "R" else "plfl"].append(bend)
+            into["prfl" if side == "R" else "plfl"].append(bend)
         p = P(f, "Pelvis")
-        ch["rx"].append(p[0]); ch["ry"].append(p[1]); ch["rz"].append(p[2])
+        into["rx"].append(p[0]); into["ry"].append(p[1]); into["rz"].append(p[2])
+
+    # ★기준자세 빼기 = "0은 차렷 자세". 평균 빼기(옛 방식)와 결정적으로 다르다:
+    # 강남스타일처럼 한 자세를 오래 유지하는 춤은 그 자세가 곧 평균이라, 평균을 빼면
+    # 시그니처 포즈가 통째로 사라진다(실제로 '두 손 모아 앞으로'가 지워져서 팔 내리고
+    # 흔드는 춤이 나왔다). 기준자세는 클립 내용과 무관한 상수라 그런 일이 없다.
+    # ★척추·머리에만 적용한다. MVNX의 캘리브레이션 프레임은 이름이 npose라도 실제로는
+    # **T포즈(팔 수평)** 라서, 팔다리에까지 빼면 차렷이 -90도로 읽혀 팔이 뒤틀린다(실측).
+    # 팔다리는 애초에 보정이 필요 없다 — dir_to_xz의 0도가 "곧게 아래"이고 그게 우리 리그의
+    # 쉬는 자세와 정확히 같다.
+    for k in ("head_x",):        # 척추는 루프 안에서 이미 보정됨
+        base = rest_ch[k][0]
+        ch[k] = [v - base for v in ch[k]]
 
     m2u = 30.0 / 1.75
     win = max(3, (len(idxs) // 2) | 1)
 
     def C(key, ex, lo, hi, dead=2.0):
+        """평균중심화 경로 — ★비틀림처럼 '전역 기준이 임의'인 채널에만 쓸 것."""
         sm = R.smooth(ch[key])
         m = R.mean(sm)
         d = R.deadzone([v - m for v in sm], dead)
         return R.clamp([v * ex for v in d], lo, hi)
 
-    waist_x = C("waist_x", spine_ex, -30, 30); waist_z = C("waist_z", spine_ex, -25, 25)
-    chest_x = C("chest_x", spine_ex, -30, 30); chest_z = C("chest_z", spine_ex, -25, 25)
+    def A(key, ex, lo, hi):
+        """★절대 각도 경로(기본). 방향벡터로 뽑은 겨냥각은 이미 '쉬는 자세=0'인
+        해부학적 절대값이라 평균중심화하면 안 된다 — 유지되는 자세(강남스타일의
+        '두 손 모아 앞으로' 같은)는 거의 상수라서 평균을 빼면 통째로 사라진다.
+        실제로 그래서 말춤이 팔 내리고 흔드는 춤으로 나왔다(2026-08-12)."""
+        return R.clamp([v * ex for v in R.smooth(ch[key])], lo, hi)
+
+    waist_x = A("waist_x", spine_ex, -30, 30); waist_z = A("waist_z", spine_ex, -25, 25)
+    chest_x = A("chest_x", spine_ex, -30, 30); chest_z = A("chest_z", spine_ex, -25, 25)
+    # 비틀림만 중심화 — 촬영장에서 어느 방향을 보고 섰는지는 임의값이라 상수 성분에 의미가 없다.
     twist = C("twist", twist_ex, -35, 35, 1.5)
-    pra_x = R.clamp([15 + v for v in C("pra_x", arm_ex, -180, 180, 3)], -60, 130)
-    pla_x = R.clamp([15 + v for v in C("pla_x", arm_ex, -180, 180, 3)], -60, 130)
-    pra_z = R.clamp([20 + v for v in C("pra_z", arm_ex, -180, 180, 3)], -25, 135)
-    pla_z = R.clamp([-20 + v for v in C("pla_z", arm_ex, -180, 180, 3)], -135, 25)
-    prl_x = R.clamp([8 + v for v in C("prl_x", hip_ex, -180, 180, 3)], -25, 90)
-    pll_x = R.clamp([8 + v for v in C("pll_x", hip_ex, -180, 180, 3)], -25, 90)
-    prl_z = C("prl_z", hip_ex, -22, 22, 3); pll_z = C("pll_z", hip_ex, -22, 22, 3)
-    prfa = R.clamp([8 + v for v in R.debias(R.smooth(ch["prfa"]))], 0, 120)
-    plfa = R.clamp([8 + v for v in R.debias(R.smooth(ch["plfa"]))], 0, 120)
-    prfl = R.clamp(R.debias(R.smooth(ch["prfl"])), 0, 110)
-    plfl = R.clamp(R.debias(R.smooth(ch["plfl"])), 0, 110)
+    pra_x = A("pra_x", arm_ex, -60, 130); pla_x = A("pla_x", arm_ex, -60, 130)
+    pra_z = A("pra_z", arm_ex, -135, 135); pla_z = A("pla_z", arm_ex, -135, 135)
+    prl_x = A("prl_x", hip_ex, -25, 90); pll_x = A("pll_x", hip_ex, -25, 90)
+    # ★다리 벌림(Z)만은 중심화한다. 사람 허벅지는 원래 안쪽으로 10~20도 기울어 있는데
+    # (골반이 무릎보다 넓다) 우리 리그는 다리 박스 둘이 딱 붙어 있어서 그 상수를 그대로
+    # 주면 두 다리가 30초 내내 교차한 채 꼬여 보인다. 흔들림(변화분)만 남긴다.
+    prl_z = C("prl_z", hip_ex, -25, 25, 1.0); pll_z = C("pll_z", hip_ex, -25, 25, 1.0)
+    # 굽힘은 두 세그먼트 사이의 기하학적 각도라 0=쭉 편 상태. debias 불필요.
+    prfa = R.clamp(R.smooth(ch["prfa"]), 0, 120)
+    plfa = R.clamp(R.smooth(ch["plfa"]), 0, 120)
+    prfl = R.clamp(R.smooth(ch["prfl"]), 0, 110)
+    plfl = R.clamp(R.smooth(ch["plfl"]), 0, 110)
 
     root_x = R.clamp(R.highpass([v * m2u for v in ch["rx"]], win), -root_xz_max, root_xz_max)
     root_z = R.clamp(R.highpass([v * m2u for v in ch["rz"]], win), -root_xz_max, root_xz_max)
