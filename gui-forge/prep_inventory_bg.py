@@ -95,15 +95,19 @@ def _edges(px, w, h, ix0, iy0):
     mx, my = ix0 + FIT_ICON // 2, iy0 + FIT_ICON // 2
     ref = px[mx, my]
 
-    def scan(dx, dy):
+    def scan(dx, dy, base):
         for k in range(1, FIT_ICON // 2 + FIT_PAD + 2):
             x, y = mx + dx * k, my + dy * k
             if not (0 <= x < w and 0 <= y < h):
                 return None
             if px[x, y] - ref >= FIT_RISE:
-                return k - FIT_ICON // 2      # 0 이면 딱 맞음
+                return k - base               # 0 이면 딱 맞음
         return None
-    return tuple(scan(*d) for d in ((-1, 0), (1, 0), (0, -1), (0, 1)))
+    # ★상자는 mx-32 ~ mx+31 로 **좌우가 비대칭**이다(폭 64, 중심이 픽셀 경계가 아니라
+    #   픽셀 위에 있다). 그래서 상자 바로 바깥 첫 픽셀이 왼·위는 33칸, 오른·아래는 32칸
+    #   떨어져 있다. 양쪽 다 32 로 재면 왼·위가 늘 +1 로 나와 멀쩡한 칸을 1px 씩 밀어버린다
+    #   (2026-08-12 그렇게 46칸을 최대 4px 까지 파먹었다).
+    return (scan(-1, 0, 33), scan(1, 0, 32), scan(0, -1, 33), scan(0, 1, 32))
 
 
 def fit_slots(im):

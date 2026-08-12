@@ -135,6 +135,10 @@ def sub(a, b):
 SEG_LEN = 5.625          # 우리 리그의 상완/전완, 허벅지/정강이 한 마디 길이
 
 
+def M_sub(a, b):
+    return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
+
+
 def dist3(v):
     return math.sqrt(sum(c * c for c in v))
 
@@ -239,6 +243,18 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         x, y, z = raw(f, seg)
         return (x * ca + z * sa, y, -x * sa + z * ca)
 
+    # ★루트 비틀림을 먼저 확정한다. player_root의 Y회전은 팔·다리에도 그대로 곱해지므로,
+    # IK 목표를 이 회전이 걷힌 좌표계로 옮겨놓지 않으면 발의 앞뒤 성분(±1유닛)이 좌우
+    # 성분(±4유닛)과 섞여 부호가 뒤집힌다 — "다리가 반대"로 보이던 원인.
+    tw_raw = []
+    for f in idxs:
+        sh = M_sub(P(f, "LeftShoulder"), P(f, "RightShoulder"))
+        tw_raw.append(math.degrees(math.atan2(sh[2], sh[0])))
+    _sm = R.smooth(tw_raw)
+    _m = R.mean(_sm)
+    TW = R.clamp([(v - _m) * twist_ex for v in R.deadzone([v - _m for v in _sm], 1.5)], -35, 35)
+    TW = [0.0] + TW          # 인덱스 0은 기준자세(f=-1)용
+
     KEYS = ("waist_x", "waist_z", "chest_x", "chest_z", "twist",
             "pra_x", "pra_z", "pla_x", "pla_z", "prl_x", "prl_z", "pll_x", "pll_z",
             "prfa", "plfa", "prfl", "plfl", "rx", "ry", "rz", "head_x", "head_y")
@@ -246,8 +262,9 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     # ★기준자세(차렷)에서의 같은 각도 — 아래 루프가 끝난 뒤 전부 빼서 "0=차렷"으로 맞춘다.
     rest_ch = {k: [] for k in KEYS}
     base_spine = [0.0, 0.0, 0.0, 0.0]   # 기준자세의 (wx, wz, cx, cz)
-    for f in [-1] + idxs:          # -1 = 기준자세
+    for _fi, f in enumerate([-1] + idxs):   # -1 = 기준자세
         into = rest_ch if f == -1 else ch
+        untwist = mat_t(pr.euler_mat(0, TW[_fi], 0))   # 루트 Y회전 제거용
         pelvis, t8, neck = P(f, "Pelvis"), P(f, "T8"), P(f, "Neck")
         # 몸통: 골반->T8이 허리, T8->목이 가슴. 좌우 어깨선으로 몸 전체 비틀림.
         wx, wz = dir_to_xz([-c for c in sub(t8, pelvis)])   # 위로 뻗은 축이라 부호 반전
@@ -284,7 +301,8 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
                 ("L", "LeftUpperArm", "LeftForeArm", "LeftHand", "pla", "plfa")):
             src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
             v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
-            v = pr.mat_vec(parT, v)                 # 팔은 가슴의 자식
+            v = pr.mat_vec(untwist, v)              # 루트 비틀림 제거
+            v = pr.mat_vec(parT, v)                 # 그 다음 가슴 회전 제거
             ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)
             into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
         for side, up, low, end, k, seg in (
@@ -292,7 +310,8 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
                 ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll", "plfl")):
             src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
             v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
-            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)   # 다리는 root 직계라 부모회전 없음
+            v = pr.mat_vec(untwist, v)      # 다리는 root 직계 — 비틀림만 제거하면 된다
+            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)
             into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
         p = P(f, "Pelvis")
         into["rx"].append(p[0]); into["ry"].append(p[1]); into["rz"].append(p[2])
@@ -329,7 +348,7 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     waist_x = A("waist_x", spine_ex, -30, 30); waist_z = A("waist_z", spine_ex, -25, 25)
     chest_x = A("chest_x", spine_ex, -30, 30); chest_z = A("chest_z", spine_ex, -25, 25)
     # 비틀림만 중심화 — 촬영장에서 어느 방향을 보고 섰는지는 임의값이라 상수 성분에 의미가 없다.
-    twist = C("twist", twist_ex, -35, 35, 1.5)
+    twist = TW[1:]          # 루프 전에 확정한 값(팔다리 IK와 동일한 값이어야 한다)
     # ★IK 결과라 clamp를 넉넉히 — 좁게 잡으면 손끝이 목표에서 밀려나 '손 모으기'가 깨진다.
     pra_x = A("pra_x", arm_ex, -170, 170); pla_x = A("pla_x", arm_ex, -170, 170)
     pra_z = A("pra_z", arm_ex, -140, 140); pla_z = A("pla_z", arm_ex, -140, 140)
