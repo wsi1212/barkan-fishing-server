@@ -272,7 +272,7 @@ def find_window(mv, n, stride=40, loop_weight=1.5, neutral_weight=1.2):
 
 
 def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=1.0,
-              twist_ex=1.5, root_xz_max=2.5, loop_frac=0.08):
+              twist_ex=1.5, root_xz_max=2.5, loop_frac=0.08, arm_smooth_win=1):
     """위치(방향벡터) 기반 리타게팅. 각 뼈를 자식 관절 쪽으로 '겨냥'시킨다."""
     import pose_render as pr
     idxs = list(range(start, start + n, step))
@@ -435,6 +435,14 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     # 비틀림만 중심화 — 촬영장에서 어느 방향을 보고 섰는지는 임의값이라 상수 성분에 의미가 없다.
     twist = TW[1:]          # 루프 전에 확정한 값(팔다리 IK와 동일한 값이어야 한다)
     # ★IK 결과라 clamp를 넉넉히 — 좁게 잡으면 손끝이 목표에서 밀려나 '손 모으기'가 깨진다.
+    # ★팔 전용 추가 평활(arm_smooth_win). 기본 1 = 끔.
+    # 팔의 과잉 움직임(원본의 2배)은 고주파 떨림이 아니라 **팔이 틀린 경로로 가는 것**이라
+    # 평활로 안 잡힌다 — 실측: 창 1->7에서 움직임은 6355->5862로 거의 그대로인데 오차만
+    # 27->29도, 30도초과 35->47%로 나빠진다. 진짜 원인은 오일러 분해 불안정이고, 그건
+    # 구조를 바꿔야 한다(아래 주석 참고). 다리에 같은 평활을 걸면 진짜 동작까지 죽는다
+    # (3365->2028도, 원본 3934).
+    for _k in ("pra_x", "pra_z", "pla_x", "pla_z"):
+        ch[_k] = R.smooth(R.smooth(ch[_k], arm_smooth_win), arm_smooth_win)
     pra_x = A("pra_x", arm_ex, -170, 170); pla_x = A("pla_x", arm_ex, -170, 170)
     pra_z = A("pra_z", arm_ex, -140, 140); pla_z = A("pla_z", arm_ex, -140, 140)
     prl_x = A("prl_x", hip_ex, -80, 100); pll_x = A("pll_x", hip_ex, -80, 100)
