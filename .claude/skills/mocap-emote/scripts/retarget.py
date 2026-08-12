@@ -206,8 +206,12 @@ def retarget_window(sk, frames, start, n, step, arm_ex=1.3, spine_ex=2.5, head_e
     # 않게 주는 기본 굽힘).
     prfa_curl = clamp([8 + v for v in debias(smooth(rradius))], 0, 110)
     plfa_curl = clamp([8 + v for v in debias(smooth(lradius))], 0, 110)
-    prfl_bend = clamp(debias(smooth(rtibia)), 0, 100)
-    plfl_bend = clamp(debias(smooth(ltibia)), 0, 100)
+    # ★무릎은 **음수**로 접힌다(팔꿈치 +와 반대). 사람 무릎은 뒤로, 팔꿈치는 앞으로 접히기
+    # 때문. 실측: 허벅지를 앞으로 45도 든 상태에서 굽힘 +45면 정강이가 수평 앞, +60이면
+    # 위로 들리고, -45라야 수직 아래로 늘어진다. 여태 양수로 넣어서 무릎을 들 때마다
+    # 다리가 'Λ'가 됐다(원본은 허벅지 앞·정강이 아래의 'ㄱ'). 춤 전체에 있던 버그.
+    prfl_bend = clamp([-v for v in debias(smooth(rtibia))], -100, 0)
+    plfl_bend = clamp([-v for v in debias(smooth(ltibia))], -100, 0)
 
     def centered(vals, ex, dead_thresh):
         """스무딩 -> 평균중심화 -> 데드존(원 진폭 기준) -> 과장 순서.

@@ -449,8 +449,14 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
                                    R.smooth(ch["hgap"]))
     prfa = R.clamp(R.smooth(ch["prfa"]), 0, 120)
     plfa = R.clamp(R.smooth(ch["plfa"]), 0, 120)
-    prfl = R.clamp(R.smooth(ch["prfl"]), 0, 110)
-    plfl = R.clamp(R.smooth(ch["plfl"]), 0, 110)
+    # ★무릎은 **음수**로 접힌다. 팔꿈치(+)와 부호가 반대다 — 사람 무릎은 뒤로,
+    # 팔꿈치는 앞으로 접히기 때문. 실측(허벅지를 앞으로 45도 든 상태):
+    #   굽힘 +45 -> 정강이가 수평 앞(Y 0.00), +60 -> 위로 들림(Y +0.26)
+    #   굽힘 -45 -> 정강이가 수직 아래(Y -1.00)  ← 원본 자세
+    # 양수로 넣는 바람에 무릎을 들 때마다 정강이가 위로 뻗어 다리가 'Λ'가 됐다
+    # (원본은 허벅지 앞·정강이 아래의 'ㄱ' 모양). 유저가 잡아준 항목.
+    prfl = R.clamp([-v for v in R.smooth(ch["prfl"])], -120, 0)
+    plfl = R.clamp([-v for v in R.smooth(ch["plfl"])], -120, 0)
 
     root_x = R.clamp(R.highpass([v * m2u for v in ch["rx"]], win), -root_xz_max, root_xz_max)
     root_z = R.clamp(R.highpass([v * m2u for v in ch["rz"]], win), -root_xz_max, root_xz_max)
