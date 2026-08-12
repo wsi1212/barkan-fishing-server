@@ -54,7 +54,12 @@ def pitch_of(v):
 
 
 # (라벨, 원본 부모, 원본 자식, 리그 부모본, 리그 자식본)
-JOINTS = [("우허벅지", "RightUpperLeg", "RightLowerLeg", "prl_right_leg", "prfl_right_foreleg"),
+# ★정강이의 원본 끝점은 발목(Foot)이 아니라 발끝(Toe)이다 — 마크 다리엔 발목 관절이
+# 없어서 정강이 끝이 곧 딛는 면이기 때문. 발목으로 재면 모델이 사람 발목 높이에 서 있는
+# 꼴이 되고, 방향도 평균 17도 어긋난다.
+JOINTS = [("우정강이", "RightLowerLeg", "RightToe", "prfl_right_foreleg", "*prfl_right_foreleg"),
+          ("좌정강이", "LeftLowerLeg", "LeftToe", "plfl_left_foreleg", "*plfl_left_foreleg"),
+          ("우허벅지", "RightUpperLeg", "RightLowerLeg", "prl_right_leg", "prfl_right_foreleg"),
           ("좌허벅지", "LeftUpperLeg", "LeftLowerLeg", "pll_left_leg", "plfl_left_foreleg"),
           ("우상완", "RightUpperArm", "RightForeArm", "pra_right_arm", "prfa_right_forearm"),
           ("좌상완", "LeftUpperArm", "LeftForeArm", "pla_left_arm", "plfa_left_forearm"),
@@ -91,7 +96,9 @@ def report(mv, P, idxs, hier, anim, L):
             f = idxs[ti]
             sv = M.norm(M.sub(P(f, sc), P(f, sp)))
             w = pr.pose_world(hier, anim, t, loop_length=L)
-            mvv = M.norm([w[rc][0][i] - w[rp][0][i] for i in range(3)])
+            # rc가 "*본"이면 그 뼈의 끝점(END_EXTENSION)을 쓴다
+            end_pt = pr.end_point(rc[1:], w) if rc.startswith("*") else w[rc][0]
+            mvv = M.norm([end_pt[i] - w[rp][0][i] for i in range(3)])
             dot = max(-1.0, min(1.0, sum(sv[i] * mvv[i] for i in range(3))))
             errs.append(math.degrees(math.acos(dot)))
             if prev_s is not None:

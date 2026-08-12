@@ -385,9 +385,13 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         # 몸 아래에 그대로 있어서 IK가 "다리 쭉 뻗고 발만 제자리"로 풀어버린다.
         # 실측: 원본 허벅지 진폭 56도인데 IK 결과는 19도(계속 -20도에 붙어 있었음).
         # 눈에 보이는 건 허벅지 각도지 발 좌표가 아니다.
+        # ★끝점은 발목(Foot)이 아니라 **발끝(Toe)**. 마인크래프트 다리는 엉덩이-무릎-발바닥이
+        # 전부고 발목 관절이 없어서 정강이 끝이 곧 딛는 면이다. 발목에 맞추면 모델이 사람의
+        # '발목 높이'에 서 있는 꼴이 된다 — 사람은 발목 아래로 키의 10.9%가 더 있고,
+        # 무릎->발목과 무릎->발끝은 방향도 평균 17도 다르다(유저 지적으로 발견).
         for side, up, low, end, k, seg in (
-                ("R", "RightUpperLeg", "RightLowerLeg", "RightFoot", "prl", "prfl"),
-                ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll", "plfl")):
+                ("R", "RightUpperLeg", "RightLowerLeg", "RightToe", "prl", "prfl"),
+                ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftToe", "pll", "plfl")):
             thigh = pr.mat_vec(untwist, list(sub(P(f, low), P(f, up))))
             ax, az = dir_to_xz(thigh, prev_az.get(k))
             prev_az[k] = az
