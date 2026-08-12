@@ -64,11 +64,14 @@ def build(name):
     im = Image.open(os.path.join(src, fname)).convert("RGBA")
     assert im.size == (W, H), f"{name} 배경판 {im.size} != {(W, H)}"
 
-    inv_y = 31 + rows * c6.CELL
-    c6.INV_Y0 = inv_y
-    c6.INV_ROWS_Y = [inv_y, inv_y + c6.CELL, inv_y + 2 * c6.CELL]
-    c6.HOTBAR_Y = inv_y + 58
-    c6.draw_inventory(im)
+    # ★조립판(assemble_plate.py)은 인벤 칸까지 액자로 찍어 두므로 공용 격자를 덧그리면
+    #   두 겹이 된다. 마커가 있으면 건너뛴다.
+    if not os.path.exists(os.path.join(src, ".assembled")):
+        inv_y = 31 + rows * c6.CELL
+        c6.INV_Y0 = inv_y
+        c6.INV_ROWS_Y = [inv_y, inv_y + c6.CELL, inv_y + 2 * c6.CELL]
+        c6.HOTBAR_Y = inv_y + 58
+        c6.draw_inventory(im)
 
     col_gui = [59, 59, 58]
     row_gui = split(gh, 4)

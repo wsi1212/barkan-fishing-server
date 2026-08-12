@@ -125,16 +125,29 @@ def assemble(name):
         bg = bg.resize((W, H), Image.LANCZOS)
     frame = make_frame(frame_file)
 
+    def put(gx, gy):
+        # 아이콘 상자(칸 안쪽 64px) 기준으로 놓는다 — 액자가 그 둘레로 PAD_OUT 만큼 나간다.
+        bg.alpha_composite(frame, (gx * S + PAD - PAD_OUT, gy * S + PAD - PAD_OUT))
+
     _, roles, _ = L.PAGES[name]
     slots = sorted(s for s, (r, _) in roles.items() if r != "장식")
     for slot in slots:
         r, c = divmod(slot, COLS)
-        # 아이콘 상자(칸 안쪽 64px) 기준으로 놓는다 — 액자가 그 둘레로 PAD_OUT 만큼 나간다.
-        bg.alpha_composite(frame, ((GX + CELL * c) * S + PAD - PAD_OUT,
-                                   (GY + CELL * r) * S + PAD - PAD_OUT))
+        put(GX + CELL * c, GY + CELL * r)
+
+    # ★플레이어 인벤토리 칸도 같은 액자로 찍는다. 예전엔 build_plate 가 공용 격자(단색 선)를
+    #   덧그렸는데, 그러면 위 진열칸과 아래 가방칸의 생김새가 따로 논다.
+    inv_y0 = 31 + rows * CELL
+    inv_rows = [inv_y0, inv_y0 + CELL, inv_y0 + 2 * CELL, inv_y0 + 58]   # 가방 3줄 + 단축바
+    for gy in inv_rows:
+        for c in range(COLS):
+            put(GX + CELL * c, gy)
+
     out = os.path.join(HERE, "src", name, "bg_source.png")
     bg.convert("RGB").save(out)
-    print(f"  {name} 칸 {len(slots)}개 배치 → {out}")
+    # build_plate 가 공용 인벤 격자를 덧그리지 않게 표시해 둔다.
+    open(os.path.join(HERE, "src", name, ".assembled"), "w").write("assemble_plate.py\n")
+    print(f"  {name} 진열 {len(slots)}칸 + 인벤 {len(inv_rows) * COLS}칸 배치 → {out}")
 
 
 def main():
