@@ -148,16 +148,22 @@ def norm(v):
     return (v[0] / n, v[1] / n, v[2] / n)
 
 
-def dir_to_xz(v):
+def dir_to_xz(v, prev_az=None, eps=0.30):
     """아래로 뻗은 기본자세(0,-1,0)를 방향 v로 보내는 (X각, Z각) 도.
 
     bbmodel 오일러 합성 순서가 Rz·Ry·Rx라, Rz·Rx·(0,-1,0) = (sz·cx, -cz·cx, -sx).
-    Y(비틀림)는 방향을 안 바꾸므로 여기선 안 나온다(따로 처리)."""
+    Y(비틀림)는 방향을 안 바꾸므로 여기선 안 나온다(따로 처리).
+
+    ★짐벌 특이점: cx=cos(ax)가 0에 가까울 때(=뼈가 정면/정후방을 가리킬 때) az는
+    기하학적으로 의미가 없어지고 수치적으로 폭발한다. 강남스타일은 팔을 계속 앞으로
+    뻗으므로 정확히 이 지점에 머문다 — 그대로 두면 팔이 매 프레임 튀어서 움직임량이
+    원본의 4배가 됐다. 이럴 땐 az를 계산하지 말고 직전 프레임 값을 유지한다
+    (어차피 팔 방향은 같으므로 그림은 안 바뀌고 연속성만 얻는다)."""
     x, y, z = norm(v)
     ax = math.degrees(math.asin(max(-1.0, min(1.0, -z))))
     cx = math.cos(math.radians(ax))
-    if abs(cx) < 1e-6:
-        return ax, 0.0
+    if abs(cx) < eps:
+        return ax, (prev_az if prev_az is not None else 0.0)
     az = math.degrees(math.atan2(x / cx, -y / cx))
     return ax, az
 
@@ -168,7 +174,63 @@ def angle_between(a, b):
     return math.degrees(math.acos(d))
 
 
-def two_bone_ik(target, L1, L2):
+SHOULDER_X = 5.15625     # steve 어깨 관절의 좌우 위치(모델 유닛)
+SHOULDER_Y = 21.5625
+
+
+def _hand_local(pr, ax, ay, az, bend, side):
+    """가슴 기준 손끝 위치(팔 회전만 반영). 보정용이라 가슴 회전은 무시해도 된다
+    — 양팔에 똑같이 걸리므로 두 손 '간격'은 거의 안 변한다."""
+    R1 = pr.euler_mat(ax, ay, az)
+    v1 = pr.mat_vec(R1, [0, -SEG_LEN, 0])
+    R2 = pr.mat_mul(R1, pr.euler_mat(bend, 0, 0))
+    v2 = pr.mat_vec(R2, [0, -SEG_LEN, 0])
+    return [SHOULDER_X * side + v1[0] + v2[0], SHOULDER_Y + v1[1] + v2[1], v1[2] + v2[2]]
+
+
+def converge_hands(pr, pra_x, pra_z, pla_x, pla_z, prfa, plfa, gap_target, limit=55.0):
+    """리그의 두 손 거리를 원본에 맞춘다. 조정 축은 **상완 비틀림(Y)**.
+
+    ★왜 Y인가: 스티브는 양 어깨가 10.3유닛 벌어져 있는데 사람은 우리 스케일로 6유닛
+    남짓이라, 원본 각도를 그대로 복사하면 손이 12유닛 떨어진다(원본 4.2). 말춤은 손이
+    모여야 말춤이다. 그런데 팔이 앞으로 뻗은 상태(말춤의 기본자세)에서는 Z 회전이 손을
+    좌우로 거의 못 옮긴다 — 실제로 Z로 보정했더니 12.3에서 10.6까지밖에 안 좁혀졌다.
+    팔이 앞을 향할 때 상완을 비틀면 굽힌 전완이 안쪽으로 스윙한다. 사람이 실제로 손을
+    모으는 방식과 같다."""
+    ry = [0.0] * len(pra_x)
+    ly = [0.0] * len(pra_x)
+    for i in range(len(pra_x)):
+        best, best_err = 0.0, None
+        # 굵게 훑고 다시 미세하게 — 한 프레임당 수십 번 평가라 비용은 무시할 만하다.
+        for coarse in range(-int(limit), int(limit) + 1, 5):
+            rh = _hand_local(pr, pra_x[i], coarse, pra_z[i], prfa[i], +1)
+            lh = _hand_local(pr, pla_x[i], -coarse, pla_z[i], plfa[i], -1)
+            gap = math.sqrt(sum((rh[j] - lh[j]) ** 2 for j in range(3)))
+            err = abs(gap - gap_target[i])
+            if best_err is None or err < best_err:
+                best, best_err = float(coarse), err
+        ry[i], ly[i] = best, -best
+    return R.smooth(R.smooth(ry, 7), 7), R.smooth(R.smooth(ly, 7), 7)
+
+
+def unwrap(seq):
+    """±180 경계에서 튀는 각도열을 연속으로 편다.
+
+    ★IK/겨냥각은 팔이 수평 위로 올라가는 순간 az가 +179 -> -179로 점프한다. 그대로
+    구우면 그 사이를 보간하느라 팔이 반대편으로 홱 돌아간다(상완 진폭이 원본 141도인데
+    666도로 측정됐던 원인). 각도는 ±180을 넘어도 되므로 이어붙이는 게 맞다."""
+    out = [seq[0]]
+    for v in seq[1:]:
+        dv = v - out[-1]
+        while dv > 180:
+            dv -= 360
+        while dv < -180:
+            dv += 360
+        out.append(out[-1] + dv)
+    return out
+
+
+def two_bone_ik(target, L1, L2, prev_az=None):
     """어깨(엉덩이) 기준 목표 위치 -> (부모뼈 X각, 부모뼈 Z각, 자식뼈 굽힘각).
 
     ★각도 복사가 아니라 **위치를 맞추는** 이유: 스티브는 어깨 간격·팔 길이 비율이
@@ -181,7 +243,7 @@ def two_bone_ik(target, L1, L2):
     bend = 180.0 - math.degrees(math.acos(max(-1.0, min(1.0, ci))))
     cosa = (dist * dist + L1 * L1 - L2 * L2) / (2 * dist * L1)
     alpha = math.degrees(math.acos(max(-1.0, min(1.0, cosa))))
-    ax, az = dir_to_xz(target)
+    ax, az = dir_to_xz(target, prev_az)
     return ax - alpha, az, bend
 
 
@@ -246,6 +308,16 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     # ★루트 비틀림을 먼저 확정한다. player_root의 Y회전은 팔·다리에도 그대로 곱해지므로,
     # IK 목표를 이 회전이 걷힌 좌표계로 옮겨놓지 않으면 발의 앞뒤 성분(±1유닛)이 좌우
     # 성분(±4유닛)과 섞여 부호가 뒤집힌다 — "다리가 반대"로 보이던 원인.
+    prev_az = {}          # 팔다리별 직전 Z각(특이점에서 유지용)
+    # ★가슴 회전은 팔 목표를 걷어낼 때 쓰이는데, T8->목 마디가 14cm밖에 안 돼서 위치
+    # 노이즈가 각도로 크게 증폭된다. 원시값을 쓰면 그 노이즈가 팔 목표에 곱해져 팔이
+    # 매 프레임 떨린다(움직임량이 원본의 4배였던 원인). 미리 평활해 두고 쓴다.
+    cx_raw, cz_raw = [], []
+    for f in idxs:
+        a_, b_ = dir_to_xz([-c for c in M_sub(P(f, "Neck"), P(f, "T8"))])
+        cx_raw.append(a_); cz_raw.append(b_)
+    CX = [0.0] + R.smooth(R.smooth(cx_raw, 9), 9)
+    CZ = [0.0] + R.smooth(R.smooth(cz_raw, 9), 9)
     tw_raw = []
     for f in idxs:
         sh = M_sub(P(f, "LeftShoulder"), P(f, "RightShoulder"))
@@ -257,7 +329,7 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
 
     KEYS = ("waist_x", "waist_z", "chest_x", "chest_z", "twist",
             "pra_x", "pra_z", "pla_x", "pla_z", "prl_x", "prl_z", "pll_x", "pll_z",
-            "prfa", "plfa", "prfl", "plfl", "rx", "ry", "rz", "head_x", "head_y")
+            "prfa", "plfa", "prfl", "plfl", "rx", "ry", "rz", "head_x", "head_y", "hgap")
     ch = {k: [] for k in KEYS}
     # ★기준자세(차렷)에서의 같은 각도 — 아래 루프가 끝난 뒤 전부 빼서 "0=차렷"으로 맞춘다.
     rest_ch = {k: [] for k in KEYS}
@@ -287,8 +359,8 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         into["head_y"].append(0.0)
 
         # 팔다리: 부모(가슴/골반) 회전을 걷어낸 뒤 겨냥각을 뽑는다.
-        # 팔은 가슴의 자식이라 가슴의 절대 회전을 걷어내야 로컬 각이 된다.
-        parT = mat_t(pr.euler_mat(cx, 0, cz))
+        # 팔은 가슴의 자식이라 가슴의 절대 회전을 걷어내야 로컬 각이 된다(평활값 사용).
+        parT = mat_t(pr.euler_mat(CX[_fi], 0, CZ[_fi]))
         # ★다리는 다르다 — rig-conventions.md대로 prl/pll은 허리가 아니라 player_root의
         # 직계 자식이라 몸통 회전을 물려받지 않는다. 그래서 걷어내면 안 되고 월드 방향을
         # 그대로 쓴다(걷어냈더니 척추 기울기가 다리로 전가돼 우/좌가 -19도/+25도로
@@ -296,23 +368,32 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         hipT = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
         # ★팔다리는 각도 복사가 아니라 IK — 손끝/발끝이 원본과 같은 자리에 오도록 푼다.
         # 원본 팔다리 길이로 정규화한 뒤 우리 뼈 길이(5.625+5.625)에 맞춰 늘린다.
+        # ★팔도 IK가 아니라 FK다. 2본 IK는 손이 가슴 근처(=목표 거리가 짧을 때) 알파가
+        # 90도 부근이라 손이 조금만 움직여도 상완이 크게 휜다 — 실측 움직임량이 원본의
+        # 4배(11073도 vs 2788도)로 팔이 떨었다. 상완 방향과 팔꿈치 굽힘을 그대로 복사하는
+        # 쪽이 원본에 훨씬 충실하다. '두 손 모으기'는 아래 arm_converge 보정으로 따로 만든다.
         for side, up, low, end, k, seg in (
                 ("R", "RightUpperArm", "RightForeArm", "RightHand", "pra", "prfa"),
                 ("L", "LeftUpperArm", "LeftForeArm", "LeftHand", "pla", "plfa")):
-            src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
-            v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
-            v = pr.mat_vec(untwist, v)              # 루트 비틀림 제거
-            v = pr.mat_vec(parT, v)                 # 그 다음 가슴 회전 제거
-            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)
+            d_ = pr.mat_vec(parT, pr.mat_vec(untwist, list(sub(P(f, low), P(f, up)))))
+            ax, az = dir_to_xz(d_, prev_az.get(k))
+            prev_az[k] = az
+            bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
             into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
+        # ★다리는 IK가 아니라 FK(허벅지 방향 + 무릎 굽힘 복사)다.
+        # IK는 발 '위치'만 맞추는데, 무릎을 앞으로 크게 드는 동작(말춤의 핵심)은 발이
+        # 몸 아래에 그대로 있어서 IK가 "다리 쭉 뻗고 발만 제자리"로 풀어버린다.
+        # 실측: 원본 허벅지 진폭 56도인데 IK 결과는 19도(계속 -20도에 붙어 있었음).
+        # 눈에 보이는 건 허벅지 각도지 발 좌표가 아니다.
         for side, up, low, end, k, seg in (
                 ("R", "RightUpperLeg", "RightLowerLeg", "RightFoot", "prl", "prfl"),
                 ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll", "plfl")):
-            src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
-            v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
-            v = pr.mat_vec(untwist, v)      # 다리는 root 직계 — 비틀림만 제거하면 된다
-            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)
+            thigh = pr.mat_vec(untwist, list(sub(P(f, low), P(f, up))))
+            ax, az = dir_to_xz(thigh, prev_az.get(k))
+            prev_az[k] = az
+            bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
             into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
+        into["hgap"].append(dist3(sub(P(f, "RightHand"), P(f, "LeftHand"))) * (30.0 / 1.75))
         p = P(f, "Pelvis")
         into["rx"].append(p[0]); into["ry"].append(p[1]); into["rz"].append(p[2])
 
@@ -359,6 +440,9 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     # IK는 발 위치를 직접 맞추므로 중심화하면 안 된다(위치가 어긋남).
     prl_z = A("prl_z", hip_ex, -45, 45); pll_z = A("pll_z", hip_ex, -45, 45)
     # 굽힘은 두 세그먼트 사이의 기하학적 각도라 0=쭉 편 상태. debias 불필요.
+    pra_y, pla_y = converge_hands(pr, pra_x, pra_z, pla_x, pla_z,
+                                   R.smooth(ch["prfa"]), R.smooth(ch["plfa"]),
+                                   R.smooth(ch["hgap"]))
     prfa = R.clamp(R.smooth(ch["prfa"]), 0, 120)
     plfa = R.clamp(R.smooth(ch["plfa"]), 0, 120)
     prfl = R.clamp(R.smooth(ch["prfl"]), 0, 110)
@@ -375,8 +459,8 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         "pc_chest_x": chest_x, "pc_chest_y": [v * 0.3 for v in twist], "pc_chest_z": chest_z,
         "h_ph_head_x": C("head_x", head_ex, -25, 25), "h_ph_head_y": [0.0] * len(idxs),
         "h_ph_head_z": [0.0] * len(idxs),
-        "pra_x": pra_x, "pra_y": [0.0] * len(idxs), "pra_z": pra_z,
-        "pla_x": pla_x, "pla_y": [0.0] * len(idxs), "pla_z": pla_z,
+        "pra_x": pra_x, "pra_y": pra_y, "pra_z": pra_z,
+        "pla_x": pla_x, "pla_y": pla_y, "pla_z": pla_z,
         "prfa_x": prfa, "plfa_x": plfa,
         "prl_x": prl_x, "prl_y": [0.0] * len(idxs), "prl_z": prl_z,
         "pll_x": pll_x, "pll_y": [0.0] * len(idxs), "pll_z": pll_z,
@@ -432,6 +516,10 @@ def build(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=1.0,
     # 루트: 골반 위치(미터->유닛, Z가 위) + 골반 yaw에서 느린 성분 제거
     P = mv.idx["Pelvis"]
     win = max(3, (len(idxs) // 2) | 1)
+    # ★각도 연속화는 스무딩·clamp보다 먼저. 순서가 바뀌면 점프 지점을 평균내 버린다.
+    for k in ("pra_x", "pra_z", "pla_x", "pla_z", "prl_x", "prl_z", "pll_x", "pll_z"):
+        ch[k] = unwrap(ch[k])
+
     m2u = 30.0 / 1.75        # 사람키 ~1.75m를 모델 30유닛에 맞춘 환산
     px = [mv.pos[f][P][0] * m2u for f in idxs]
     py = [mv.pos[f][P][1] * m2u for f in idxs]
