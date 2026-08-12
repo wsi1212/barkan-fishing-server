@@ -132,6 +132,13 @@ def sub(a, b):
     return (a[0] - b[0], a[1] - b[1], a[2] - b[2])
 
 
+SEG_LEN = 5.625          # 우리 리그의 상완/전완, 허벅지/정강이 한 마디 길이
+
+
+def dist3(v):
+    return math.sqrt(sum(c * c for c in v))
+
+
 def norm(v):
     n = math.sqrt(sum(c * c for c in v)) or 1.0
     return (v[0] / n, v[1] / n, v[2] / n)
@@ -155,6 +162,23 @@ def angle_between(a, b):
     a, b = norm(a), norm(b)
     d = max(-1.0, min(1.0, sum(a[i] * b[i] for i in range(3))))
     return math.degrees(math.acos(d))
+
+
+def two_bone_ik(target, L1, L2):
+    """어깨(엉덩이) 기준 목표 위치 -> (부모뼈 X각, 부모뼈 Z각, 자식뼈 굽힘각).
+
+    ★각도 복사가 아니라 **위치를 맞추는** 이유: 스티브는 어깨 간격·팔 길이 비율이
+    사람과 달라서, 원본과 똑같은 어깨/팔꿈치 각도를 줘도 손끝이 11유닛이나 벌어진다
+    (강남스타일의 '두 손 모으기'가 전혀 안 나왔던 원인 — 원본 1.4유닛 vs 결과 12유닛).
+    알파 부호는 FK로 되돌려 검증했다(+1이면 오차 10.6유닛, -1이면 0.64유닛)."""
+    dist = math.sqrt(sum(c * c for c in target))
+    dist = max(abs(L1 - L2) + 0.05, min(L1 + L2 - 0.05, dist))
+    ci = (L1 * L1 + L2 * L2 - dist * dist) / (2 * L1 * L2)
+    bend = 180.0 - math.degrees(math.acos(max(-1.0, min(1.0, ci))))
+    cosa = (dist * dist + L1 * L1 - L2 * L2) / (2 * dist * L1)
+    alpha = math.degrees(math.acos(max(-1.0, min(1.0, cosa))))
+    ax, az = dir_to_xz(target)
+    return ax - alpha, az, bend
 
 
 def mat_t(m):
@@ -253,20 +277,23 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
         # 그대로 쓴다(걷어냈더니 척추 기울기가 다리로 전가돼 우/좌가 -19도/+25도로
         # 벌어진 채 고정됐다). 루트 비틀림(Y)은 방향의 X/Z 성분에 영향이 작아 무시.
         hipT = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        for side, up, low, end, k in (("R", "RightUpperArm", "RightForeArm", "RightHand", "pra"),
-                                       ("L", "LeftUpperArm", "LeftForeArm", "LeftHand", "pla")):
-            d = pr.mat_vec(parT, list(sub(P(f, low), P(f, up))))
-            ax, az = dir_to_xz(d)
-            into[k + "_x"].append(ax); into[k + "_z"].append(az)
-            bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
-            into["prfa" if side == "R" else "plfa"].append(bend)
-        for side, up, low, end, k in (("R", "RightUpperLeg", "RightLowerLeg", "RightFoot", "prl"),
-                                       ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll")):
-            d = pr.mat_vec(hipT, list(sub(P(f, low), P(f, up))))
-            ax, az = dir_to_xz(d)
-            into[k + "_x"].append(ax); into[k + "_z"].append(az)
-            bend = angle_between(sub(P(f, low), P(f, up)), sub(P(f, end), P(f, low)))
-            into["prfl" if side == "R" else "plfl"].append(bend)
+        # ★팔다리는 각도 복사가 아니라 IK — 손끝/발끝이 원본과 같은 자리에 오도록 푼다.
+        # 원본 팔다리 길이로 정규화한 뒤 우리 뼈 길이(5.625+5.625)에 맞춰 늘린다.
+        for side, up, low, end, k, seg in (
+                ("R", "RightUpperArm", "RightForeArm", "RightHand", "pra", "prfa"),
+                ("L", "LeftUpperArm", "LeftForeArm", "LeftHand", "pla", "plfa")):
+            src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
+            v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
+            v = pr.mat_vec(parT, v)                 # 팔은 가슴의 자식
+            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)
+            into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
+        for side, up, low, end, k, seg in (
+                ("R", "RightUpperLeg", "RightLowerLeg", "RightFoot", "prl", "prfl"),
+                ("L", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "pll", "plfl")):
+            src_len = (dist3(sub(P(f, low), P(f, up))) + dist3(sub(P(f, end), P(f, low)))) or 1e-6
+            v = [c * (SEG_LEN * 2 / src_len) for c in sub(P(f, end), P(f, up))]
+            ax, az, bend = two_bone_ik(v, SEG_LEN, SEG_LEN)   # 다리는 root 직계라 부모회전 없음
+            into[k + "_x"].append(ax); into[k + "_z"].append(az); into[seg].append(bend)
         p = P(f, "Pelvis")
         into["rx"].append(p[0]); into["ry"].append(p[1]); into["rz"].append(p[2])
 
@@ -303,13 +330,15 @@ def build_pos(mv, start, n, step, arm_ex=1.0, spine_ex=1.2, head_ex=1.5, hip_ex=
     chest_x = A("chest_x", spine_ex, -30, 30); chest_z = A("chest_z", spine_ex, -25, 25)
     # 비틀림만 중심화 — 촬영장에서 어느 방향을 보고 섰는지는 임의값이라 상수 성분에 의미가 없다.
     twist = C("twist", twist_ex, -35, 35, 1.5)
-    pra_x = A("pra_x", arm_ex, -60, 130); pla_x = A("pla_x", arm_ex, -60, 130)
-    pra_z = A("pra_z", arm_ex, -135, 135); pla_z = A("pla_z", arm_ex, -135, 135)
-    prl_x = A("prl_x", hip_ex, -25, 90); pll_x = A("pll_x", hip_ex, -25, 90)
+    # ★IK 결과라 clamp를 넉넉히 — 좁게 잡으면 손끝이 목표에서 밀려나 '손 모으기'가 깨진다.
+    pra_x = A("pra_x", arm_ex, -170, 170); pla_x = A("pla_x", arm_ex, -170, 170)
+    pra_z = A("pra_z", arm_ex, -140, 140); pla_z = A("pla_z", arm_ex, -140, 140)
+    prl_x = A("prl_x", hip_ex, -80, 100); pll_x = A("pll_x", hip_ex, -80, 100)
     # ★다리 벌림(Z)만은 중심화한다. 사람 허벅지는 원래 안쪽으로 10~20도 기울어 있는데
     # (골반이 무릎보다 넓다) 우리 리그는 다리 박스 둘이 딱 붙어 있어서 그 상수를 그대로
     # 주면 두 다리가 30초 내내 교차한 채 꼬여 보인다. 흔들림(변화분)만 남긴다.
-    prl_z = C("prl_z", hip_ex, -25, 25, 1.0); pll_z = C("pll_z", hip_ex, -25, 25, 1.0)
+    # IK는 발 위치를 직접 맞추므로 중심화하면 안 된다(위치가 어긋남).
+    prl_z = A("prl_z", hip_ex, -45, 45); pll_z = A("pll_z", hip_ex, -45, 45)
     # 굽힘은 두 세그먼트 사이의 기하학적 각도라 0=쭉 편 상태. debias 불필요.
     prfa = R.clamp(R.smooth(ch["prfa"]), 0, 120)
     plfa = R.clamp(R.smooth(ch["plfa"]), 0, 120)
