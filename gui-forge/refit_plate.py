@@ -27,6 +27,7 @@ from math import ceil
 
 from PIL import Image
 
+import hole_probe as HP
 import make_page_layouts as L
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -66,20 +67,13 @@ def cell_center(slot):
     return (GX + CELL * c) * S + ICON // 2 + PAD, (GY + CELL * r) * S + ICON // 2 + PAD
 
 
-def hole_center(px, w, h, cx, cy, th=22):
-    """구멍 한가운데에서 사방으로 같은 색이 이어지는 범위 → 실제 중심."""
-    ref = px[cx, cy]
-
-    def go(dx, dy, lim=40):
-        k = 0
-        while k < lim:
-            x, y = cx + dx * (k + 1), cy + dy * (k + 1)
-            if not (0 <= x < w and 0 <= y < h) or abs(px[x, y] - ref) > th:
-                break
-            k += 1
-        return k
-    l, r, t, b = go(-1, 0), go(1, 0), go(0, -1), go(0, 1)
-    return cx + (r - l) / 2, cy + (b - t) / 2
+def hole_center(px, w, h, cx, cy):
+    """구멍의 실제 중심. 판정은 hole_probe(번짐) 에 맡긴다 — 질감·음영에 안 휘둘린다."""
+    hb = HP.hole_bbox(px, w, h, cx, cy)
+    if hb is None:
+        return cx, cy          # 액자를 못 찾으면 '이미 맞다'로 두고 건드리지 않는다
+    hx0, hy0, hx1, hy1 = hb
+    return (hx0 + hx1) / 2, (hy0 + hy1) / 2
 
 
 MIN_SPAN = 200      # 두 기준점이 이만큼은 떨어져야 배율을 믿는다
@@ -97,6 +91,23 @@ def solve(actual, target):
     return k, t0 - a0 * k
 
 
+AUTO_M = 18      # 자동 블록이 슬롯 격자 밖으로 무는 여유(액자 테두리·장식)
+
+
+def auto_groups(name):
+    """GROUPS 에 없는 판용 — 쓰는 칸 전체를 한 블록으로 잡는다."""
+    _, roles, _ = L.PAGES[name]
+    slots = sorted(s for s, (r, _) in roles.items() if r != "장식")
+    if len(slots) < 4:
+        return []
+    rc = [divmod(s, COLS) for s in slots]
+    r0, r1 = min(r for r, _ in rc), max(r for r, _ in rc)
+    c0, c1 = min(c for _, c in rc), max(c for _, c in rc)
+    box = ((GX + CELL * c0) * S - AUTO_M, (GY + CELL * r0) * S - AUTO_M,
+           (GX + CELL * (c1 + 1)) * S + AUTO_M, (GY + CELL * (r1 + 1)) * S + AUTO_M)
+    return [(slots, box, None)]
+
+
 def refit(name, check=False):
     src = os.path.join(HERE, "src", name)
     path = os.path.join(src, "bg_source.png")
@@ -104,7 +115,7 @@ def refit(name, check=False):
     px = im.convert("L").load()
     w, h = im.size
 
-    for slots, box, heal in GROUPS[name]:
+    for slots, box, heal in (GROUPS.get(name) or auto_groups(name)):
         if box is None:
             # ★낱개 모드는 칸마다 자기 오차로 옮긴다 — 그룹 공통 배율을 구하지 않는다.
             #   (모서리 버튼처럼 흩어진 칸은 first/last 를 잡을 수 없다)
@@ -126,10 +137,12 @@ def refit(name, check=False):
                 pass
             continue
 
-        xs = sorted({divmod(s, COLS)[1] for s in slots})
-        ys = sorted({divmod(s, COLS)[0] for s in slots})
-        first = next(s for s in slots if divmod(s, COLS) == (ys[0], xs[0]))
-        last = next(s for s in slots if divmod(s, COLS) == (ys[-1], xs[-1]))
+        # ★기준점은 '그 자리에 실제로 있는' 칸에서 고른다. (맨위,맨왼쪽) 조합이 슬롯 목록에
+        #   없는 판(모서리만 버튼인 판 등)에서 예전엔 StopIteration 으로 죽었다.
+        rc = {s: divmod(s, COLS) for s in slots}
+        ys = sorted({r for r, _ in rc.values()}); xs = sorted({c for _, c in rc.values()})
+        first = min(slots, key=lambda s: (rc[s][0] - ys[0]) ** 2 + (rc[s][1] - xs[0]) ** 2)
+        last = min(slots, key=lambda s: (rc[s][0] - ys[-1]) ** 2 + (rc[s][1] - xs[-1]) ** 2)
         fa = hole_center(px, w, h, *cell_center(first))
         la = hole_center(px, w, h, *cell_center(last))
         ft, lt = cell_center(first), cell_center(last)
