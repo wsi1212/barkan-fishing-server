@@ -1,0 +1,141 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# BlockShip 빌드 + 부팅 스모크
+#
+# ★이 파일은 fish repo가 아니라 blockship-plugin repo의
+#   .github/workflows/ 에 놓는다. (fish에서 돌리면 gradle 프로젝트가 없어 실패)
+#   같이 옮길 것: ops/ci/paper-smoke-test.sh → blockship-plugin/ci/paper-smoke-test.sh
+#
+# 설계 의도 — 승격 게이트:
+#   push        → 빌드 + 스모크까지만. staging 근처에도 안 간다.
+#   수동 실행   → promote=true 일 때만 Release 발행 → 오라클이 당겨감.
+#   이렇게 끊는 이유: 오라클의 06:00 데일리 유지보수는 staging에 있는 걸
+#   무조건 적용한다. push마다 staging에 떨어지면 오타 하나가 다음날 라이브로 간다.
+# ─────────────────────────────────────────────────────────────────────────────
+name: build & smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: "스모크 통과 시 Release 발행 (오라클 staging 승격용)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"        # prod = Azul Zulu 21, CI는 temurin 21로 충분
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: 빌드
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: jar 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: blockship-jar
+          path: build/libs/BlockShip-*.jar
+          if-no-files-found: error
+          retention-days: 14
+
+  smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: blockship-jar
+          path: dist
+
+      # Paper jar는 52MB — 매번 받지 말고 캐시한다 (빌드 번호별로 키가 갈림)
+      - name: Paper 캐시
+        uses: actions/cache@v4
+        with:
+          path: .paper-cache
+          key: paper-1.21.10-${{ hashFiles('ci/paper-smoke-test.sh') }}
+          restore-keys: paper-1.21.10-
+
+      # ── 의존 플러그인 ────────────────────────────────────────────────────
+      # ★확인 필요: BlockShip plugin.yml 의 depend / softdepend.
+      #   hard depend 인데 여기 없으면 "로드되지 않았다"로 실패한다(오탐).
+      #   softdepend 면 없어도 부팅은 되므로 이 단계를 통째로 지워도 된다.
+      #   ViaVersion Hangar 다운로드 패턴은 CLAUDE.md에 이미 정리돼 있다.
+      - name: 의존 플러그인 내려받기
+        run: |
+          mkdir -p deps
+          # ViaVersion 5.11.0 (prod와 동일 버전 — 정식 빌드)
+          curl -fsSL -o deps/ViaVersion.jar \
+            "https://hangar.papermc.io/api/v1/projects/ViaVersion/versions/5.11.0/PAPER/download" || \
+            echo "::warning::ViaVersion 다운로드 실패 — softdepend면 무시 가능"
+          ls -la deps/ || true
+
+      - name: 부팅 스모크
+        run: |
+          chmod +x ci/paper-smoke-test.sh
+          JAR=$(ls dist/BlockShip-*.jar | head -1)
+          echo "테스트 대상: $JAR"
+          ci/paper-smoke-test.sh \
+            --plugin "$JAR" \
+            --expect-plugin BlockShip \
+            --mc-version 1.21.10 \
+            --cache-dir .paper-cache \
+            --workdir smoke-run \
+            --timeout 240 \
+            --keep
+          # 의존 플러그인을 쓰려면 위에 --plugin deps/ViaVersion.jar 를 추가.
+          # 플러그인 기능 경로까지 때리려면:
+          #   --rcon-command "데이터리로드"
+
+      - name: 실패 시 부팅 로그 첨부
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-boot-log
+          path: smoke-run/boot.log
+          retention-days: 14
+
+  # 스모크를 통과한 것만 Release로 나간다. 오라클 cron이 이 Release를 당겨
+  # ~/mcserver/staging/ 에 넣고, 06:00 데일리 유지보수가 적용한다.
+  publish:
+    needs: smoke
+    if: github.event_name == 'workflow_dispatch' && inputs.promote
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: blockship-jar
+          path: dist
+
+      - name: Release 발행 (staging 승격)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-${{ github.run_number }}"
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --title "$TAG" \
+            --notes "스모크 통과. 오라클 cron이 staging으로 당겨감 → 06:00 적용." \
+            dist/BlockShip-*.jar
