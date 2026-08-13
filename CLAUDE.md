@@ -1,11 +1,11 @@
 # Fish - 바르칸 열도 낚시 서버
 
 ## 프로젝트 개요
-마크 서버용 종합 낚시 게임. **Paper 1.21 + Java 21.** 모든 게임 로직은 BlockShip 자바 플러그인(`/Users/user/development/blockship-plugin/src/main/java/com/blockship/`)에 기능별 패키지(`fishing/` `enhance/` `parts/` `quest/` `npc/` `ferry/` `region/` `market/` `economy/` `profile/` `ranking/` `mining/` `guild/` `inn/` `portal/` `island/` 등)로 구현돼 있다.
+마크 서버용 종합 낚시 게임. **Paper 1.21.11 + Java 21 툴체인(런타임 JVM 은 Java 25).** 모든 게임 로직은 BlockShip 자바 플러그인(`/Users/user/development/blockship-plugin/src/main/java/com/blockship/`)에 기능별 패키지(`fishing/` `enhance/` `parts/` `quest/` `npc/` `ferry/` `region/` `market/` `economy/` `profile/` `ranking/` `mining/` `guild/` `inn/` `portal/` `island/` 등)로 구현돼 있다.
 상세 설계: [design.md](design.md) | 수치 밸런스: [balance.md](balance.md) | 스토리: [story.md](story.md)
 
 ## 기술 스택
-- **Paper 1.21 + Java 21 — BlockShip 자바 플러그인이 모든 게임 시스템** (빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`, 상세는 아래 「BlockShip Java 플러그인」 섹션)
+- **Paper 1.21.11 + Java 21 툴체인 — BlockShip 자바 플러그인이 모든 게임 시스템** (빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`, 상세는 아래 「BlockShip Java 플러그인」 섹션)
 
 ## 핵심 시스템 요약
 > 각 시스템은 `com/blockship/` 아래 자바 패키지에 구현. 표의 패키지는 대략 위치이니 정확한 클래스는 해당 패키지에서 확인.
@@ -130,8 +130,11 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **인스턴스**: `minecraft-server` — OCID `ocid1.instance.oc1.ap-chuncheon-1.an4w4ljripxk3pacvlzpjj2sojj6c57romwttueidpff7jcyyvp7v6bwbvmq` (★인스턴스 재생성 시 OCID 바뀜 → 워치독 동적그룹 `mc-instance-dg` 매칭룰도 갱신 필요)
 - **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 힙 플래그. start.sh)
 - **OS**: Ubuntu 24.04 ARM64
-- **MC/Paper 버전**: prod 구동 = **Paper 1.21.10** (version_history.json 확인). BlockShip 빌드 타겟 = **1.21.4** (build.gradle.kts paperDevBundle 1.21.4, api-version '1.21') → **버전 드리프트 있음(작동중, Bukkit API 호환 범위 내·NMS 사용 파일 1개뿐)**. 패킷/NMS 오류 시 1순위 의심.
-- **ProtocolLib 5.4.0**: 지원 명시 범위는 1.21.4–1.21.8 → prod(1.21.10)에서 부팅 시 "not yet been tested" 경고 뜸(로드·리스너 등록은 정상). dev(Mac) 버전은 별도 확인 필요 — 패킷 작업 전 양쪽 버전 대조할 것.
+- **MC/Paper 버전**: prod·dev 구동 = **Paper 1.21.11** (prod version_history.json / dev `~/dev-mc.sh` 의 paper-1.21.11-132.jar). BlockShip 빌드 타겟도 **1.21.11** 로 맞췄다(2026-08-14, build.gradle.kts paperDevBundle·paper-api 1.21.11, api-version '1.21') — **드리프트 없음**.
+  - ★드리프트를 방치하면 "컴파일은 되는데 런타임에 없는 상수"가 그대로 나간다. 1.21.4 로 빌드하던 동안 **`Material.CHAIN`** 참조 4곳이 지뢰로 남아 있었다(1.21.9 에서 구리 사슬이 들어오며 chain → **iron_chain** 개명. 1.21.11 API 에 CHAIN 없음). 짚라인 케이블·배 블록 판정·스킬 노드 아이콘이 실행되는 순간 NoSuchFieldError 가 되는 상태였다. **MC 를 올리면 빌드 타깃도 같이 올릴 것.**
+  - 상향에 딸려 오는 것: paperweight **2.0.0-beta.21**(1.21.11 번들은 data version 7 이라 beta.16 이하 거부) + **Gradle 9.0**(beta.17+ 요구) + `test { failOnNoDiscoveredTests = false }`(Gradle 9 는 테스트 소스만 있고 발견 0이면 빌드를 깬다 — src/test 의 *SelfTest 는 JUnit 이 아니라 main() 검산 스크립트다).
+  - ★이제 이 jar 은 1.21.9 미만에서 안 돈다(IRON_CHAIN 부재).
+- **ProtocolLib 5.4.0**: 지원 명시 범위는 1.21.4–1.21.8 → prod(1.21.11)에서 부팅 시 "not yet been tested" 경고 뜸(로드·리스너 등록은 정상). dev(Mac) 버전은 별도 확인 필요 — 패킷 작업 전 양쪽 버전 대조할 것.
 - **ViaVersion/ViaBackwards 5.11.0**(정식, 2026-07-27 교체 — 이전 5.11.1-SNAPSHOT 개발버전이 최신 클라(26.2) 미지원해 접속끊김 유발했음, 상세는 「클라이언트 크래시 자동감지」 참조). Hangar 다운로드: `https://hangar.papermc.io/api/v1/projects/<ViaVersion|ViaBackwards>/versions/<버전>/PAPER/download`.
 - **공인 IP**: `168.107.8.107` (Reserved 예약 IP — 인스턴스 재생성에도 불변. 2026-07-24 임시 IP 134.185.113.25에서 교체. 예약IP OCID: `ocid1.publicip.oc1.ap-chuncheon-1.amaaaaaaipxk3paarwjmvgd5ii3js5qes7jmsbyh5sy2holja6x4vhdust7a`)
 - **도메인**: `barkan.kro.kr` (내도메인.한국 무료 서브도메인, A레코드 → 168.107.8.107 예정)
@@ -139,7 +142,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107`
 - **OCI CLI 설정**: `~/.oci-family/config` (가족 계정용, OCI_CLI_CONFIG_FILE 환경변수로 지정)
 - **서버 경로**: `~/mcserver/` (인스턴스 안)
-- **Java**: Azul Zulu JDK 21 ARM (`/usr/lib/jvm/zulu21-ca-arm64`)
+- **Java**: Azul Zulu JDK **25** ARM (`/usr/lib/jvm/zulu25-ca-arm64`, start.sh 가 이 경로를 쓴다). 플러그인 바이트코드는 Java 21 툴체인 산출이라 그대로 돈다.
 - **방화벽 (2계층 — 외부 접근은 둘 다 통과해야 함)**: OCI Security List(외부 관문) + iptables(박스 내부)
   - **외부 열림 포트**: `22`(SSH) · `25565`(마크) · `80`·`443`·`3000`(다른 서비스용, 예: LH cron) · icmp — OCI SL·iptables 양쪽에 존재
   - **RCON `25575`**: enabled지만 **localhost 전용** — OCI SL에 없고 iptables 기본 REJECT라 외부에서 이중 차단
@@ -150,7 +153,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **유저 데이터(`world/` 등)는 환경별 별개** — sync 금지!
 - 코드(jar, 설정)만 dev → prod 동기화
 - **dev 코드 배포 한 줄**: `~/deploy-dev.sh` (BlockShip 빌드 → dev plugins/ 복사 → dev-mc.sh restart 자동)
-- **⚠️ dev 기동 느림(~83s, 타임아웃 90s 아슬아슬)**: 타임아웃 떠도 실패 아님(그냥 느림), 몇 초 더 기다리면 뜸. 곧바로 재시작하면 뜨는 중인 인스턴스가 `world/session.lock`을 잡은 채라 새 인스턴스가 죽고 **좀비 java 누적**(락만 잡고 25565 미리슨) — 감지: `ps aux|grep paper-1.21.10.jar` 2개 이상. 해결: `pkill -9 -f paper-1.21.10.jar` → 락 해제 확인 → `dev-mc.sh start` 1회.
+- **⚠️ dev 기동 느림(~83s, 타임아웃 90s 아슬아슬)**: 타임아웃 떠도 실패 아님(그냥 느림), 몇 초 더 기다리면 뜸. 곧바로 재시작하면 뜨는 중인 인스턴스가 `world/session.lock`을 잡은 채라 새 인스턴스가 죽고 **좀비 java 누적**(락만 잡고 25565 미리슨) — 감지: `ps aux|grep paper-1.21.11.jar` 2개 이상. 해결: `pkill -9 -f paper-1.21.11.jar` → 락 해제 확인 → `dev-mc.sh start` 1회.
 - **prod↔dev 데이터 동기화(수동, 기본 꺼짐)**: `~/mc-sync/mc-sync.sh` (launchd 자동 sync는 2026-07-05 해제 — dev의 플러그인 편집이 매일 덮여 유실된 사고 이후 수동 전환). `DATA_PATHS` 비어있어 **플러그인 데이터는 sync 안 됨**, 월드만 prod→dev 미러. `--dry-run`으로 미리 확인.
 
 ### 자동 sync (옵션 C)
