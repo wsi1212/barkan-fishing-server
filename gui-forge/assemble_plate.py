@@ -38,11 +38,34 @@ KEY = (255, 0, 255)        # 액자 그림의 배경 크로마키(마젠타)
 KEY_TOL = 60
 
 # 판: (배경 파일, 액자 파일)  — 액자는 칸 역할별로 다르면 {역할: 파일} 로도 준다.
+DL = os.path.expanduser("~/Downloads/barkan-new-imagegen-20260813-workbench")
 PARTS = {
+    # 장비 작업대 — 2026-08-13 납품. 규격 그대로다(외곽 432 · 구멍 384 · 테두리 24).
+    # ★투명본을 쓴다. 마젠타본은 가장자리 안티에일리어싱이 키 색에 먹혀 위아래 2px 이 깎인다.
+    "workbench": (os.path.join(DL, "workbench_background_704x672.png"),
+                  os.path.join(DL, "socket_frame_512_transparent.png")),
     "dextab": ("ㅊㅋ.png", "exec-dc0a6566-7b20-401a-8839-0ddb77f6183e.png"),
     "dexisland": ("exec-09f2960c-c325-4a2f-b956-4a0420f0409f.png",
                   "exec-bdbd278c-8043-4791-a354-efbffca48922.png"),
 }
+
+
+# 아래 인벤 판이 실제 칸 자리와 안 맞게 그려져 온 경우: (그려진 테두리 y, 있어야 할 y, 아래로 안 건드릴 y)
+# 판은 균일한 재질이라 세로로 조금 늘려도 티가 안 난다 — 칸이 판 테두리에 걸치는 것보다 낫다.
+# ★납품 파일을 손으로 고쳐 두지 않는다. 그러면 다시 받았을 때 이 보정이 안 따라온다.
+PANEL_FIX = {
+    "workbench": (368, 330, 652),   # 2026-08-13 납품분이 8 GUI px 낮게 그려져 첫 줄이 걸쳤다
+}
+
+
+def fix_panel(name, bg):
+    if name not in PANEL_FIX:
+        return bg
+    seam, want, keep = PANEL_FIX[name]
+    strip = bg.crop((0, seam, bg.width, keep)).resize((bg.width, keep - want), Image.LANCZOS)
+    bg.paste(strip, (0, want))
+    print(f"  아래 판 테두리 {seam} → {want} 로 끌어올림(칸이 테두리에 걸쳐 있었다)")
+    return bg
 
 
 def dekey(im):
@@ -64,17 +87,29 @@ def tight(im):
 
 
 def hole_box(im):
-    """액자 안쪽 구멍 — 한가운데 색과 비슷한 픽셀이 이어지는 범위."""
-    g = im.convert("L")
-    px = g.load()
-    w, h = g.size
+    """액자 안쪽 구멍 — 가운데에서 밖으로 나가며 액자가 시작되는 지점.
+
+    ★알파가 있으면 **알파로 잰다**. 투명 픽셀에도 RGB 색은 남아 있어서(PNG 는 투명한
+      자리의 색을 버리지 않는다) 밝기로 훑으면 보이지도 않는 색 얼룩에서 멈춘다 —
+      납품받은 액자에서 구멍 384 를 310 으로 읽어 액자 바깥을 42px 씩 잘라 먹었다
+      (2026-08-13). 눈에 보이는 건 알파다."""
+    w, h = im.size
     cx, cy = w // 2, h // 2
-    ref = px[cx, cy]
+    al = im.getchannel("A").load()
+    if al[cx, cy] < 32:                      # 가운데가 비어 있다 = 구멍이 투명하게 왔다
+        def stop(x, y):
+            return al[x, y] >= 32
+    else:                                    # 구멍이 칠해져 온 액자 — 예전처럼 밝기로
+        g = im.convert("L").load()
+        ref = g[cx, cy]
+
+        def stop(x, y):
+            return abs(g[x, y] - ref) > 26
 
     def go(dx, dy):
         k = 0
         while 0 <= cx + dx * (k + 1) < w and 0 <= cy + dy * (k + 1) < h:
-            if abs(px[cx + dx * (k + 1), cy + dy * (k + 1)] - ref) > 26:
+            if stop(cx + dx * (k + 1), cy + dy * (k + 1)):
                 break
             k += 1
         return k
@@ -99,7 +134,11 @@ def nine_slice(sp, w, h, corner):
 
 def make_frame(path):
     """액자 그림 → 구멍이 정확히 64px 인 액자. 테두리는 사방 PAD_OUT px."""
-    sp = tight(dekey(Image.open(os.path.join(GEN, path))))
+    raw = Image.open(os.path.join(GEN, path))
+    # ★이미 투명(알파)으로 온 액자는 크로마키를 지우지 않는다. 키 색을 지우면 가장자리
+    #   안티에일리어싱 픽셀까지 함께 날아가 액자가 위아래로 2px 깎인다(2026-08-13 실측).
+    keyed = raw.mode == "RGBA" and raw.getchannel("A").getextrema()[0] < 250
+    sp = tight(raw.convert("RGBA") if keyed else dekey(raw))
     hx0, hy0, hx1, hy1 = hole_box(sp)
     # 구멍 밖으로 남길 테두리 = 결과에서 PAD_OUT 이 되도록 원본 비율로 환산
     tw = round(PAD_OUT * (hx1 - hx0) / ICON)
@@ -124,6 +163,7 @@ def assemble(name):
     if bg.size != (W, H):
         print(f"  배경 {bg.size} → {W}x{H}")
         bg = bg.resize((W, H), Image.LANCZOS)
+    bg = fix_panel(name, bg)
     # 액자는 역할별로 다를 수 있다 — 장비 작업대는 '넣는 칸'과 '일반 칸'이 달라야 한다
     # (끌어다 넣는 홈이 진열칸과 같이 보이면 어디에 끼우는 창인지 안 읽힌다).
     spec = frame_spec if isinstance(frame_spec, dict) else {"홈": frame_spec}

@@ -43,6 +43,8 @@ PLATES = {
     "dexfish": (6, "dexfish_", 0xE780),
     "dexisland": (4, "dexisl_", 0xE790),
     "npcdialog": (4, "npcdlg_", 0xE7A0),
+    # 장비 작업대(/장비) — 배경+액자 분리 발주분을 assemble_plate 로 조립해 쓴다
+    "workbench": (3, "wbench_", 0xE7B0),
 }
 
 
