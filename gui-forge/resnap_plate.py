@@ -133,16 +133,19 @@ def resnap_each(name, check=False, only=None):
             # ★자를 크기를 **역산**한다. 테두리를 PAD 비율로 더하면 반올림 때문에 줄인 뒤
             #   구멍이 63px 이 되곤 했다(58 → 66 → 63.3). 셀:아이콘 = 72:64 배로 잡고
             #   구멍 중심에 맞춰 자르면 줄인 결과가 바로 64px 다.
-            cw = round(hw * CELL * S / ICON)
-            ch = round(hh * CELL * S / ICON)
+            # ★늘리지 않는다. 구멍을 64px 로 키우려고 확대했더니 자른 조각에 딸려 온
+            #   이웃 테두리까지 함께 커져 칸 위에 선이 하나 더 생겼다(2026-08-13 유저 지적).
+            #   액자를 **셀 크기 그대로 떠서 옮기기만** 한다 — 구멍이 원본보다 작은 건
+            #   그림의 성질이라 그대로 두고, 위치만 정확히 맞춘다.
+            n = CELL * S
             mx, my = (hx0 + hx1 + 1) / 2, (hy0 + hy1 + 1) / 2
-            box = (round(mx - cw / 2), round(my - ch / 2),
-                   round(mx - cw / 2) + cw, round(my - ch / 2) + ch)
+            box = (round(mx - n / 2), round(my - n / 2),
+                   round(mx - n / 2) + n, round(my - n / 2) + n)
             if box[0] < 0 or box[1] < 0 or box[2] > w or box[3] > h:
                 skip += 1
                 continue
             if not check:
-                im.paste(src.crop(box).resize((CELL * S, CELL * S), Image.LANCZOS), (x0, y0))
+                im.paste(src.crop(box), (x0, y0))
             done += 1
     print(f"  {name} 칸별 {done}칸 다시 찍음" + (f" · 못 찾아 건너뜀 {skip}" if skip else ""))
     if check or not done:
