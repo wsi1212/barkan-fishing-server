@@ -70,13 +70,26 @@ push        → 빌드 + 스모크까지만 (staging 근처에도 안 감)
 그래서 승격을 사람이 누르는 단계로 끊어놨다. 그 사이에 폰 마크 클라로 확인하는 게
 빠진 dev 서버의 자리를 메운다.
 
+## 의존 플러그인 — 필요 없음 (2026-08-13 실측 확정)
+
+```
+name: BlockShip · main: com.blockship.BlockShipPlugin · api-version: '1.21'
+softdepend: [ BetterHud, BetterModel, ProtocolLib, Citizens, VotifierPlus ]
+```
+
+**`depend` 가 하나도 없다.** 의존 jar 없이 로드·enable 되므로 CI 에 아무것도 안 넣어도
+된다. Citizens 미러 문제도 사라졌다.
+
+그리고 이 구성이 오히려 **더 민감하다** — softdepend 를 가드 없이 쓰는 코드가 있으면
+스모크가 잡는다. 가장 의심스러운 곳은 `diagnostics/PacketBlackbox`(ProtocolLib) 다.
+터지면 오탐이 아니라 실제 버그다: prod 에서 ProtocolLib 이 로드 실패하면 같은 방식으로
+깨진다.
+
 ## 남은 확인 항목
 
-- [ ] **BlockShip `plugin.yml`의 `depend` / `softdepend`** — ProtocolLib·Citizens가
-      hard depend면 CI에 그 jar들이 있어야 한다. 없으면 "로드되지 않았다"로 **오탐 실패**.
-      softdepend면 워크플로의 「의존 플러그인」 단계를 통째로 지워도 된다.
-      (blockship repo가 아직 git에 없어서 확인 못 함)
-- [ ] Citizens는 자유 배포 URL이 없다 — hard depend로 판명되면 별도 미러 필요
+- [ ] **prod 실제 MC 버전** — CLAUDE.md 는 1.21.10 인데 `plugins/` 에 1.21.11 용
+      jar(`AxiomPaperPlugin-5.0.4-for-MC1.21.11`, `BarkanChess-1.21.11`)가 있다.
+      스모크가 엉뚱한 버전을 테스트하면 의미가 없다. 워크플로의 `MC_VERSION` 을 맞출 것
 - [ ] 빌드 타겟(1.21.4)과 구동(1.21.10)의 버전 드리프트 — `NoSuchMethodError`를
       치명 패턴에 넣어둔 이유. 스모크가 이걸 잡으면 드리프트가 실제로 터진 것
 

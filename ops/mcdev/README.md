@@ -132,11 +132,37 @@ prod 것을 물려받아야 텍스처 검증이 의미가 있다.
 `mcdev-sync.sh`의 rsync 구간은 컨테이너에 rsync가 없어 미검증 — 오라클에는 있다
 (`mc-sync.sh`가 이미 씀). **오라클에서 첫 실행은 `--dry-run`으로 확인할 것.**
 
+## ⚠️ 디스크 제약 (2026-08-13 실측)
+
+```
+/dev/sda1  48G  26G  23G  54% /
+```
+
+**전체 48GB 에 여유 23GB 뿐이다.** 월드를 복사하면 빠듯하다.
+`mcdev-sync.sh` 가 80% 에서 거부하고 필요량의 2배를 요구하지만, 애초에
+`--no-worlds`(플러그인·JSON 만) 나 메인 월드만 쓰는 게 현실적이다.
+
+먼저 크기를 재볼 것:
+```bash
+du -sh ~/mcserver/world* ~/mcserver/{guild_world,island_world,afk_world,flatroom,mine} 2>/dev/null
+```
+
+## 메모리 실측 (2026-08-13) — 2층은 가능하다
+
+```
+Mem: total 23974  used 18523  available 5451   (힙 16G)
+```
+
+`available 5451MB` > 문턱 3500MB → **`mcdev-up.sh` 가 dev 를 켤 수 있다.**
+2G 힙 dev(RSS ~2.5GB)를 얹으면 21GB 사용, 여유 3GB 정도가 된다. 빠듯하지만 동작한다.
+
+★단 prod 가 12GB 로 리사이즈되면(Always Free 한도 축소 시나리오) `available` 이
+문턱 아래로 떨어져 **dev 시작이 거부된다.** 설계대로다 — `ops/oracle/HEAP-DOWNSIZE.md` 참조.
+
 ## 남은 확인 항목
 
-- [ ] **메모리 실측** — prod 힙 16G에 dev 2G를 얹을 여유가 실제로 있나.
-      `free -m` 으로 `MemAvailable` 확인. 3500MB 미만이면 `start.sh`의 힙을
-      12G로 되돌리는 게 맞다 (2026-07-07에 12G→16G 올린 것의 원복).
+- [x] ~~메모리 실측~~ — `available 5451MB`, 문턱 통과 (위 참조)
+- [ ] **월드 크기 확인** — 디스크 여유 23GB 안에 들어가는지
 - [ ] `MCDEV_WHITELIST` 가 본인 마크 계정인지 (기본값 `wsi1212`)
 - [ ] prod `server.properties`의 `level-name` 이 `world` 인지 — 다르면
       `mcdev-sync.sh` 의 `WORLDS` 기본값을 맞출 것

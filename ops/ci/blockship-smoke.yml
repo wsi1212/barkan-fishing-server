@@ -55,6 +55,12 @@ jobs:
   smoke:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      # ★prod 구동 버전과 일치시킬 것 — job 레벨이라 캐시 키에서도 보인다.
+      #   CLAUDE.md 는 1.21.10 이라 적혀 있으나 plugins/ 에 1.21.11 용 jar
+      #   (AxiomPaperPlugin-5.0.4-for-MC1.21.11, BarkanChess-1.21.11)가 있어 확인 필요.
+      #   확인: ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'
+      MC_VERSION: "1.21.10"
     steps:
       - uses: actions/checkout@v4
 
@@ -73,39 +79,41 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .paper-cache
-          key: paper-1.21.10-${{ hashFiles('ci/paper-smoke-test.sh') }}
-          restore-keys: paper-1.21.10-
+          key: paper-${{ env.MC_VERSION }}-${{ hashFiles('ci/paper-smoke-test.sh') }}
+          restore-keys: paper-
 
-      # ── 의존 플러그인 ────────────────────────────────────────────────────
-      # ★확인 필요: BlockShip plugin.yml 의 depend / softdepend.
-      #   hard depend 인데 여기 없으면 "로드되지 않았다"로 실패한다(오탐).
-      #   softdepend 면 없어도 부팅은 되므로 이 단계를 통째로 지워도 된다.
-      #   ViaVersion Hangar 다운로드 패턴은 CLAUDE.md에 이미 정리돼 있다.
-      - name: 의존 플러그인 내려받기
-        run: |
-          mkdir -p deps
-          # ViaVersion 5.11.0 (prod와 동일 버전 — 정식 빌드)
-          curl -fsSL -o deps/ViaVersion.jar \
-            "https://hangar.papermc.io/api/v1/projects/ViaVersion/versions/5.11.0/PAPER/download" || \
-            echo "::warning::ViaVersion 다운로드 실패 — softdepend면 무시 가능"
-          ls -la deps/ || true
+      # ── 의존 플러그인: 필요 없다 (2026-08-13 plugin.yml 실측) ──────────────
+      #   name: BlockShip / main: com.blockship.BlockShipPlugin / api-version: '1.21'
+      #   softdepend: [ BetterHud, BetterModel, ProtocolLib, Citizens, VotifierPlus ]
+      #   ★hard depend 가 하나도 없다 → 의존 jar 없이 로드·enable 된다.
+      #
+      #   그래서 이 스모크는 오히려 더 민감하다: softdepend 를 가드 없이 쓰는 코드가
+      #   있으면(예: PacketBlackbox 가 ProtocolLib 을 무조건 참조) 여기서 터진다.
+      #   그건 오탐이 아니라 실제 버그다 — prod 에서 그 플러그인이 로드 실패하면
+      #   같은 방식으로 깨진다.
+      #
+      #   만약 ProtocolLib 계열 클래스 오류로 실패하는데 "가드를 추가하는 게 아니라
+      #   CI 에 넣고 싶다" 면 아래를 살려서 --plugin deps/ProtocolLib.jar 로 넘긴다.
+      # - name: (선택) ProtocolLib 내려받기
+      #   run: |
+      #     mkdir -p deps
+      #     curl -fsSL -o deps/ProtocolLib.jar \
+      #       "https://github.com/dmulloy2/ProtocolLib/releases/latest/download/ProtocolLib.jar"
 
       - name: 부팅 스모크
         run: |
           chmod +x ci/paper-smoke-test.sh
           JAR=$(ls dist/BlockShip-*.jar | head -1)
-          echo "테스트 대상: $JAR"
+          echo "테스트 대상: $JAR (Paper $MC_VERSION)"
           ci/paper-smoke-test.sh \
             --plugin "$JAR" \
             --expect-plugin BlockShip \
-            --mc-version 1.21.10 \
+            --mc-version "$MC_VERSION" \
             --cache-dir .paper-cache \
             --workdir smoke-run \
             --timeout 240 \
             --keep
-          # 의존 플러그인을 쓰려면 위에 --plugin deps/ViaVersion.jar 를 추가.
-          # 플러그인 기능 경로까지 때리려면:
-          #   --rcon-command "데이터리로드"
+          # 플러그인 기능 경로까지 때리려면: --rcon-command "데이터리로드"
 
       - name: 실패 시 부팅 로그 첨부
         if: failure()

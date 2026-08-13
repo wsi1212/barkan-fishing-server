@@ -18,18 +18,44 @@ Paper 1.21.10 + Aikar 소용량 플래그 + `-Xms8G -Xmx8G -XX:+AlwaysPreTouch`:
 | OOM·GC 경고 | 0건 |
 
 ★**이 0.56GB 는 바닥값이다** — 플러그인 0개, 슈퍼플랫, 접속자 0명 기준.
-실제로는 BlockShip·Citizens·ProtocolLib·Via* 의 메타스페이스, Netty 다이렉트 버퍼,
-8개 월드의 리전 파일 캐시가 더해져 **1~1.5GB** 로 보는 게 현실적이다.
 
-### 그래서 권장 힙
+## prod 실측 (2026-08-13) — 이게 진짜 숫자다
 
-| 힙 | 예상 RSS | 12GB 에서 여유 | 판단 |
+```
+$ free -m
+              total    used    free   shared  buff/cache   available
+Mem:          23974   18523     489      102        5382        5451
+```
+
+힙이 16G(16384MB)인데 `used` 가 18523MB → **힙 밖으로 2,139MB** 를 쓰고 있다
+(JVM 오버헤드 + OS + 기타 프로세스 전부 포함).
+
+컨테이너 실측 0.56GB 와 4배 차이 나는 이유는 **플러그인이 20개**라서다:
+
+```
+AIBuilder · Axiom · BarkanChess · BarkanWorldWarp · BetterHud · BetterModel
+BlockShip · Chunky · Citizens · CoreProtect · CraftEngine · Geyser · floodgate
+GrimAC · ProtocolLib · ViaVersion · ViaBackwards · VotifierPlus
+multiverse-core · worldedit
+```
+
+메타스페이스·Netty 다이렉트 버퍼·리전 파일 캐시가 그만큼 늘어난다.
+
+### 그래서 권장 힙 (실측 2,139MB 오버헤드 기준)
+
+12GB = 12,288MB. 여기서 오버헤드 2,139MB 를 빼고, 월드 IO 용 page cache 를 남긴다.
+
+| 힙 | 힙+오버헤드 | 남는 page cache | 판단 |
 |---|---|---|---|
-| 8G | ~9.0~9.5 GB | ~2.5~3 GB | 가능하지만 여유가 적다 |
-| **7G** | ~8.0~8.5 GB | ~3.5~4 GB | **권장** — 안전 마진 확보 |
-| 6G | ~7.0~7.5 GB | ~4.5~5 GB | 보수적, 인구 늘면 부족할 수 있음 |
+| 9G | 11,355 MB | ~0.9 GB | ✗ 너무 얇다, IO 가 죽는다 |
+| 8G | 10,331 MB | ~1.9 GB | 가능하지만 월드 IO 가 답답해진다 |
+| **7G** | 9,307 MB | ~2.9 GB | **권장** |
+| 6G | 8,283 MB | ~3.9 GB | 보수적, 인구 늘면 부족할 수 있음 |
 
-베타 인구(동시 수 명)면 **7G 로 시작**하고, `/tps`·GC 로그를 보며 조정한다.
+참고로 현재 prod 의 `buff/cache` 가 5,382MB 다 — 8개 월드를 굴리는 데 그만큼 쓰고 있다.
+12GB 로 내려가면 이 여유가 크게 줄어드니 **page cache 를 최대한 남기는 쪽**이 맞다.
+
+**7G 로 시작**하고 `/tps`·GC 로그를 보며 조정한다.
 
 ## ★★ 놓치기 쉬운 함정: Aikar 플래그는 12GB 경계에서 값이 다르다
 
@@ -39,7 +65,7 @@ CLAUDE.md 에 *"Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 �
 **`-Xmx` 만 8G 로 바꾸고 대용량 플래그를 그대로 두면 GC 설정이 힙 크기와 안 맞는다.**
 아래 5개 값을 반드시 함께 되돌린다.
 
-| 플래그 | 현재 (≥12G 변형) | **8G 이하로 내릴 때** |
+| 플래그 | 현재 (start.sh 실측) | **8G 이하로 내릴 때** |
 |---|---|---|
 | `G1NewSizePercent` | 40 | **30** |
 | `G1MaxNewSizePercent` | 50 | **40** |
@@ -53,8 +79,20 @@ CLAUDE.md 에 *"Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 �
 `G1RSetUpdatingPauseTimePercent=5` `SurvivorRatio=32` `+PerfDisableSharedMem`
 `MaxTenuringThreshold=1`)는 두 변형이 동일하므로 그대로 둔다.
 
-★적용 전에 실제 `start.sh` 를 열어 현재 값을 확인할 것 — 이 표는 CLAUDE.md 기록과
-Aikar 기준값에 근거한 것이고, `start.sh` 자체는 이 repo 에 없어 대조하지 못했다.
+### ✅ 2026-08-13 `start.sh` 실측 — 위 "현재" 열이 정확히 일치한다
+
+```
+-Xms16G -Xmx16G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200
+-XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch
+-XX:G1NewSizePercent=40 -XX:G1MaxNewSizePercent=50 -XX:G1HeapRegionSize=16M
+-XX:G1ReservePercent=15 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4
+-XX:InitiatingHeapOccupancyPercent=20 -XX:G1MixedGCLiveThresholdPercent=90
+-XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32
+-XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1
+```
+
+다섯 개 값(40 / 50 / 16M / 15 / 20)이 모두 대용량 변형이다. 추정이 아니라 확인된 사실이니
+힙을 내릴 때 **반드시 함께 되돌린다.**
 
 ## 실측 검증된 전체 명령
 
@@ -95,7 +133,11 @@ dev 는 핑이 상관없다. `mcdev-sync.sh` 의 rsync 를 SSH 경유로 바꾸�
 
 ## 아직 검증 못 한 것
 
-- [ ] **실제 월드·플러그인을 물린 상태의 메모리** — 위 수치는 플러그인 0개 기준이다.
-      blockship 과 plugins 데이터가 git 에 올라오면 실측할 수 있다
-- [ ] 7G 에서 실플레이가 버티는지 — 접속해서 `/tps` 와 GC 로그 확인 필요
-- [ ] `start.sh` 의 현재 플래그 실제 값
+- [x] ~~`start.sh` 의 현재 플래그~~ — 2026-08-13 실측 확인, 표와 일치
+- [x] ~~실제 플러그인 물린 상태의 오버헤드~~ — prod `free -m` 으로 2,139MB 확인
+- [ ] **7G 에서 실플레이가 버티는지** — 접속해서 `/tps` 와 GC 로그 확인 필요.
+      리사이즈가 강제되기 전에 미리 해볼 수는 없다(24GB 에서 7G 로 낮춰 돌려보면
+      page cache 가 넉넉해 조건이 다르다). 그래도 GC 압박은 미리 볼 수 있다
+- [ ] ⚠️ **디스크 48GB / 여유 23GB** — `df -h /` 실측. 2층 dev 가 월드를 복사하면
+      빠듯하다. `mcdev-sync.sh` 는 80% 에서 거부하지만, 애초에 `--no-worlds` 나
+      월드 일부만 쓰는 게 현실적이다. 월드 크기 확인: `du -sh ~/mcserver/world*`
