@@ -22,6 +22,7 @@ import sys
 
 from PIL import Image, ImageChops
 
+import build_plate
 import hole_probe as HP
 import make_page_layouts as L
 
@@ -113,7 +114,7 @@ def resnap_each(name, check=False, only=None):
     우편함처럼 칸마다 그림이 다르면서 격자까지 틀어진 판을 위한 모드다. 액자를 하나로
     통일하는 기본 모드는 그런 판에서 쓸 수 없다(가드가 막는다).
     """
-    path = os.path.join(HERE, "src", name, "bg_source.png")
+    path = build_plate.source_path(name)     # ★굽는 파일과 같은 걸 고쳐야 반영된다
     im = Image.open(path).convert("RGB")
     px = im.convert("L").load()
     w, h = im.size
@@ -159,7 +160,7 @@ def resnap(name, src_slot=None, check=False):
     if name in SKIP:
         print(f"  {name}: 칸마다 그림이 달라 건너뛴다(refit_plate 로 옮길 것)")
         return
-    path = os.path.join(HERE, "src", name, "bg_source.png")
+    path = build_plate.source_path(name)     # ★굽는 파일과 같은 걸 고쳐야 반영된다
     im = Image.open(path).convert("RGB")
     px = im.convert("L").load()
     w, h = im.size

@@ -46,6 +46,20 @@ PLATES = {
 }
 
 
+def source_path(name):
+    """이 판을 **실제로 굽는 파일**. 손질 스크립트도 반드시 이걸 열어야 한다.
+
+    ★규칙이 두 군데 있으면 반드시 어긋난다. refit/resnap 은 bg_source.png 를 고치는데
+      bg_fitted.png 가 있으면 굽는 건 그쪽이라, 고쳐도 화면은 그대로인 판이 생긴다
+      (2026-08-13 대장간에서 확인 — 그래서 규칙을 여기 하나로 모았다)."""
+    rows, prefix, code0, *rest = PLATES[name]
+    src = os.path.join(HERE, "src", name)
+    fitted = os.path.join(src, "bg_fitted.png")
+    if os.path.exists(fitted):
+        return fitted
+    return os.path.join(src, rest[0] if rest else "bg_source.png")
+
+
 def split(total, n):
     """total 을 n 조각으로 — 앞쪽부터 1씩 더 준다(합이 정확히 맞게)."""
     base, rem = divmod(total, n)
@@ -54,14 +68,10 @@ def split(total, n):
 
 def build(name):
     rows, prefix, code0, *rest = PLATES[name]
-    fname = rest[0] if rest else "bg_source.png"
     gw, gh = 176, 114 + rows * c6.CELL
     W, H = gw * c6.SCALE, gh * c6.SCALE
     src = os.path.join(HERE, "src", name)
-    # fit_sockets.py 산출이 있으면 그걸 쓴다 — 칸 구멍을 아이콘 상자에 맞춘 판이다.
-    if os.path.exists(os.path.join(src, "bg_fitted.png")):
-        fname = "bg_fitted.png"
-    im = Image.open(os.path.join(src, fname)).convert("RGBA")
+    im = Image.open(source_path(name)).convert("RGBA")
     assert im.size == (W, H), f"{name} 배경판 {im.size} != {(W, H)}"
 
     # ★조립판(assemble_plate.py)은 인벤 칸까지 액자로 찍어 두므로 공용 격자를 덧그리면

@@ -27,6 +27,7 @@ from math import ceil
 
 from PIL import Image
 
+import build_plate
 import hole_probe as HP
 import make_page_layouts as L
 
@@ -65,6 +66,12 @@ GROUPS = {
         (list(range(18, 27)), (24, 216, 684, 330), None),
         ([0], None, None),
     ],
+    # 대장간 결과칸 하나 — 소켓이 아이템 자리보다 4px 왼쪽에 그려져 있다. 칸이 하나뿐이라
+    # 자동 블록(4칸 이상)이 안 잡혀 여태 손대지 못했다. 둘레가 균일한 어두운 벽이라
+    # 낱개 이동으로 티가 안 난다.
+    "smithy": [
+        ([8], None, None),
+    ],
 }
 
 
@@ -74,15 +81,21 @@ def cell_center(slot):
 
 
 def hole_center(px, w, h, cx, cy):
-    """구멍의 실제 중심. 판정은 hole_probe(번짐) 에 맡긴다 — 질감·음영에 안 휘둘린다."""
+    """구멍의 실제 중심. 판정은 hole_probe(번짐) 에 맡긴다 — 질감·음영에 안 휘둘린다.
+
+    ★+1 을 더해야 한다. 픽셀 [a..b] 가 차지하는 실제 구간은 [a, b+1] 이라 중심은 (a+b+1)/2 다.
+      (a+b)/2 로 두면 늘 0.5px 위·왼쪽으로 치우친 답이 나오고, 그만큼 격자를 밀어버린다.
+      아이템 상자도 [x0+4 .. x0+67] → 중심 x0+36 = cell_center 라 목표는 그대로 맞다."""
     hb = HP.hole_bbox(px, w, h, cx, cy)
     if hb is None:
         return cx, cy          # 액자를 못 찾으면 '이미 맞다'로 두고 건드리지 않는다
     hx0, hy0, hx1, hy1 = hb
-    return (hx0 + hx1) / 2, (hy0 + hy1) / 2
+    return (hx0 + hx1 + 1) / 2, (hy0 + hy1 + 1) / 2
 
 
 MIN_SPAN = 200      # 두 기준점이 이만큼은 떨어져야 배율을 믿는다
+PASSES = 3          # 되재고 고치는 횟수(보통 2차에서 끝난다)
+SETTLED = 0.9       # 남은 오차가 이 아래면 그만둔다 — 4배 판이라 1px = 0.25 GUI px
 
 
 def solve(actual, target):
@@ -115,8 +128,7 @@ def auto_groups(name):
 
 
 def refit(name, check=False):
-    src = os.path.join(HERE, "src", name)
-    path = os.path.join(src, "bg_source.png")
+    path = build_plate.source_path(name)     # ★굽는 파일과 같은 걸 고쳐야 반영된다
     im = Image.open(path).convert("RGB")
     px = im.convert("L").load()
     w, h = im.size
@@ -149,32 +161,47 @@ def refit(name, check=False):
         ys = sorted({r for r, _ in rc.values()}); xs = sorted({c for _, c in rc.values()})
         first = min(slots, key=lambda s: (rc[s][0] - ys[0]) ** 2 + (rc[s][1] - xs[0]) ** 2)
         last = min(slots, key=lambda s: (rc[s][0] - ys[-1]) ** 2 + (rc[s][1] - xs[-1]) ** 2)
-        fa = hole_center(px, w, h, *cell_center(first))
-        la = hole_center(px, w, h, *cell_center(last))
         ft, lt = cell_center(first), cell_center(last)
-        kx, dx = solve((fa[0], la[0]), (ft[0], lt[0]))
-        ky, dy = solve((fa[1], la[1]), (ft[1], lt[1]))
-        print(f"  {name} 격자 {len(slots)}칸 · 가로 배율 {kx:.4f} 이동 {dx:+.1f}"
-              f" · 세로 배율 {ky:.4f} 이동 {dy:+.1f}")
-        if check:
-            continue
 
-        # ★메우지 않는다. 옛 자리를 배경으로 덮으려 했더니, 양피지처럼 **세로로 음영이
-        #   흐르는 배경**에서 170px 아래를 떠오는 바람에 밝기가 안 맞아 가로 띠가 생겼다
-        #   (2026-08-12 유저 지적). 대신 **비는 쪽으로 블록을 더 물어** 옛 자리를 통째로
-        #   덮게 한다 — 옮긴 그림이 스스로 자기 자국을 가리므로 이어붙인 경계가 없다.
-        x0, y0, x1, y1 = box
-        gx0 = x0 - max(0, ceil(x0 - (x0 * kx + dx)))
-        gy0 = y0 - max(0, ceil(y0 - (y0 * ky + dy)))
-        gx1 = x1 + max(0, ceil(x1 - (x1 * kx + dx)))
-        gy1 = y1 + max(0, ceil(y1 - (y1 * ky + dy)))
-        block = im.crop((gx0, gy0, gx1, gy1))
-        nw, nh = max(1, round((gx1 - gx0) * kx)), max(1, round((gy1 - gy0) * ky))
-        block = block.resize((nw, nh), Image.LANCZOS)
-        nx, ny = round(gx0 * kx + dx), round(gy0 * ky + dy)
-        im.paste(block, (nx, ny))
-        if (gx0, gy0, gx1, gy1) != box:
-            print(f"     자국을 덮으려 블록을 넓힘: {box} → {(gx0, gy0, gx1, gy1)}")
+        # ★한 번에 안 맞는다 — 되재고 고친다. 계산대로 옮겨도 결과는 2px 쯤 남는다.
+        #   줄이고 늘리면(LANCZOS) 액자 가장자리의 번짐 폭이 달라져 구멍 경계가 옮겨 앉기
+        #   때문이다. 그래서 옮긴 **결과를 다시 재서** 남은 오차만큼 한 번 더 손본다.
+        #   우편함이 그 증거다: 1회 -20.5px 로 크게 맞춘 뒤에도 위 줄이 2.5px 남아 있었다.
+        for it in range(PASSES):
+            fa = hole_center(px, w, h, *ft)
+            la = hole_center(px, w, h, *lt)
+            kx, dx = solve((fa[0], la[0]), (ft[0], lt[0]))
+            ky, dy = solve((fa[1], la[1]), (ft[1], lt[1]))
+            resid = max(abs(fa[0] - ft[0]), abs(fa[1] - ft[1]),
+                        abs(la[0] - lt[0]), abs(la[1] - lt[1]))
+            tag = f"  {name} 격자 {len(slots)}칸 [{it + 1}차]"
+            if resid <= SETTLED:
+                print(f"{tag} 남은 오차 {resid:.1f}px — 손대지 않는다")
+                break
+            print(f"{tag} 가로 배율 {kx:.4f} 이동 {dx:+.1f}"
+                  f" · 세로 배율 {ky:.4f} 이동 {dy:+.1f} (남은 오차 {resid:.1f}px)")
+            if check:
+                break
+
+            # ★메우지 않는다. 옛 자리를 배경으로 덮으려 했더니, 양피지처럼 **세로로 음영이
+            #   흐르는 배경**에서 170px 아래를 떠오는 바람에 밝기가 안 맞아 가로 띠가 생겼다
+            #   (2026-08-12 유저 지적). 대신 **비는 쪽으로 블록을 더 물어** 옛 자리를 통째로
+            #   덮게 한다 — 옮긴 그림이 스스로 자기 자국을 가리므로 이어붙인 경계가 없다.
+            x0, y0, x1, y1 = box
+            gx0 = x0 - max(0, ceil(x0 - (x0 * kx + dx)))
+            gy0 = y0 - max(0, ceil(y0 - (y0 * ky + dy)))
+            gx1 = x1 + max(0, ceil(x1 - (x1 * kx + dx)))
+            gy1 = y1 + max(0, ceil(y1 - (y1 * ky + dy)))
+            block = im.crop((gx0, gy0, gx1, gy1))
+            nw, nh = max(1, round((gx1 - gx0) * kx)), max(1, round((gy1 - gy0) * ky))
+            block = block.resize((nw, nh), Image.LANCZOS)
+            nx, ny = round(gx0 * kx + dx), round(gy0 * ky + dy)
+            im.paste(block, (nx, ny))
+            if (gx0, gy0, gx1, gy1) != box:
+                print(f"     자국을 덮으려 블록을 넓힘: {box} → {(gx0, gy0, gx1, gy1)}")
+            # 다음 차수는 **옮겨 놓인 자리**를 대상으로 삼는다(원래 상자는 이미 비었다)
+            box = (nx, ny, nx + nw, ny + nh)
+            px = im.convert("L").load()
 
     if check:
         return
