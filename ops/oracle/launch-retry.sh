@@ -83,7 +83,7 @@ MISSING=()
 for v in COMPARTMENT SUBNET IMAGE AD; do [[ -n "${!v}" ]] || MISSING+=("$v"); done
 [[ ${#MISSING[@]} -eq 0 ]] || { echo "✗ 설정 누락: ${MISSING[*]}  (--discover 로 찾을 수 있다)" >&2; exit 2; }
 [[ -f "$SSH_PUB" ]] || { echo "✗ SSH 공개키 없음: $SSH_PUB" >&2
-                         echo "  만들기: ssh-keygen -t ed25519 -f \${SSH_PUB%.pub} -C mc-prod" >&2; exit 2; }
+                         echo "  만들기: ssh-keygen -t ed25519 -f ${SSH_PUB%.pub} -C mc-prod" >&2; exit 2; }
 
 LAUNCH=(oci --profile "$OCI_PROFILE" compute instance launch
   --availability-domain "$AD" --compartment-id "$COMPARTMENT"
