@@ -117,16 +117,23 @@ def make_frame(path):
 
 
 def assemble(name):
-    bg_file, frame_file = PARTS[name]
+    bg_file, frame_spec = PARTS[name]
     rows = build_plate.PLATES[name][0]
     W, H = 176 * S, (114 + rows * CELL) * S
     bg = Image.open(os.path.join(GEN, bg_file)).convert("RGBA")
     if bg.size != (W, H):
         print(f"  배경 {bg.size} → {W}x{H}")
         bg = bg.resize((W, H), Image.LANCZOS)
-    frame = make_frame(frame_file)
+    # 액자는 역할별로 다를 수 있다 — 장비 작업대는 '넣는 칸'과 '일반 칸'이 달라야 한다
+    # (끌어다 넣는 홈이 진열칸과 같이 보이면 어디에 끼우는 창인지 안 읽힌다).
+    spec = frame_spec if isinstance(frame_spec, dict) else {"홈": frame_spec}
+    frames = {role: make_frame(f) for role, f in spec.items()}
 
-    def put(gx, gy):
+    def frame_for(role):
+        # 역할별 액자가 없으면 '홈' 액자로 — 그것도 없으면 받은 것 중 하나
+        return frames.get(role) or frames.get("홈") or next(iter(frames.values()))
+
+    def put(gx, gy, frame):
         # 아이콘 상자(칸 안쪽 64px) 기준으로 놓는다 — 액자가 그 둘레로 PAD_OUT 만큼 나간다.
         bg.alpha_composite(frame, (gx * S + PAD - PAD_OUT, gy * S + PAD - PAD_OUT))
 
@@ -134,7 +141,7 @@ def assemble(name):
     slots = sorted(s for s, (r, _) in roles.items() if r != "장식")
     for slot in slots:
         r, c = divmod(slot, COLS)
-        put(GX + CELL * c, GY + CELL * r)
+        put(GX + CELL * c, GY + CELL * r, frame_for(roles[slot][0]))
 
     # ★플레이어 인벤토리 칸도 같은 액자로 찍는다. 예전엔 build_plate 가 공용 격자(단색 선)를
     #   덧그렸는데, 그러면 위 진열칸과 아래 가방칸의 생김새가 따로 논다.
@@ -143,9 +150,10 @@ def assemble(name):
     #   세로로만 4px 밀려 있었다(2026-08-12 유저 지적).
     inv_y0 = 30 + rows * CELL
     inv_rows = [inv_y0, inv_y0 + CELL, inv_y0 + 2 * CELL, inv_y0 + 58]   # 가방 3줄 + 단축바
+    inv_frame = frame_for("홈")      # 가방은 늘 '일반 칸' — 특수 액자를 36칸에 깔면 시끄럽다
     for gy in inv_rows:
         for c in range(COLS):
-            put(GX + CELL * c, gy)
+            put(GX + CELL * c, gy, inv_frame)
 
     out = os.path.join(HERE, "src", name, "bg_source.png")
     bg.convert("RGB").save(out)

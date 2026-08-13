@@ -67,7 +67,10 @@ def build(name):
         d.rounded_rectangle([x0, y0, x0 + CELL * wc * S - 1, y0 + CELL * hr * S - 1],
                             radius=12, fill=SOCKET, outline=SOCKET_EDGE, width=4)
 
-    inv_y = (31 + rows * CELL) * S
+    # ★30 이다(31 아님) — 바닐라의 139/197 은 아이템이 그려지는 y 이고 셀 좌상단은 그보다
+    #   1 GUI px 위다. build_plate 는 30 을 쓰는데 여기만 31 이면 발주 시 그려 준 '건드리지
+    #   말 자리'가 실제 인벤 격자와 4px 어긋난다.
+    inv_y = (30 + rows * CELL) * S
     d.rectangle([GX * S, inv_y, (GX + CELL * COLS) * S - 1, inv_y + 76 * S],
                 outline=REGION, width=3)
 
