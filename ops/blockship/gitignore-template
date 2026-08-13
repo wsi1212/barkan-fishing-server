@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# blockship-plugin repo 용 .gitignore
+# 이 파일을 blockship-plugin 루트에 `.gitignore` 라는 이름으로 놓는다.
+# (fish repo 안에서는 이름을 그대로 두면 여기 파일들이 무시돼버리므로
+#  `gitignore-template` 으로 보관한다)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Gradle / 빌드 산출물 ────────────────────────────────────────────────────
+build/
+.gradle/
+out/
+*.class
+# ★jar 는 커밋하지 않는다. Actions 가 빌드해서 Release 로 내보낸다.
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# ── 로컬 환경 ───────────────────────────────────────────────────────────────
+local.properties
+.DS_Store
+Thumbs.db
+
+# ── 로컬 테스트 서버 (Paper 를 repo 안에서 돌렸을 때 생기는 것들) ───────────
+run/
+server/
+logs/
+crash-reports/
+world/
+world_*/
+*.log
+usercache.json
+banned-*.json
+eula.txt
+session.lock
+.paper-cache/
+smoke-run/
+
+# ── ★비밀 — 절대 커밋되면 안 되는 것 ────────────────────────────────────────
+# 파일을 이리저리 옮기는 과정에서 실수로 들어가는 걸 막는다.
+*.key
+*.pem
+*.p12
+*.keystore
+.env
+.env.*
+*-token
+*.token
+discord-webhook.url
+oracle-mc.key*
+.github-token
+
+# ── 커밋해야 하는 것 (참고) ─────────────────────────────────────────────────
+# 아래는 일부러 무시하지 않는다:
+#   src/                        자바 소스
+#   build.gradle.kts            빌드 정의
+#   gradle/wrapper/             래퍼 (jar 예외 처리됨)
+#   ci/paper-smoke-test.sh      스모크 게이트
+#   .github/workflows/          Actions
+#
+# ★plugins/BlockShip/*.json (퀘스트·어종·NPC·지역 데이터)을 이 repo에 넣기로 했다면
+#   그것도 커밋 대상이다. 위 `world/` `logs/` 규칙과 겹치지 않는 경로에 두고
+#   (예: `data/` 또는 `config/`) 무시 규칙을 추가하지 말 것.
+#   ※ playerdata/ 는 예외 — 유저 진행도는 백업 대상이지 git 대상이 아니다.
+data/playerdata/
+config/playerdata/
+plugins/BlockShip/playerdata/
