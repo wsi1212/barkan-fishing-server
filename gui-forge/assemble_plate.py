@@ -138,7 +138,10 @@ def assemble(name):
 
     # ★플레이어 인벤토리 칸도 같은 액자로 찍는다. 예전엔 build_plate 가 공용 격자(단색 선)를
     #   덧그렸는데, 그러면 위 진열칸과 아래 가방칸의 생김새가 따로 논다.
-    inv_y0 = 31 + rows * CELL
+    # ★바닐라의 139 / 197 은 **아이템이 그려지는 y** 다. 셀 좌상단은 그보다 1 GUI px 위다
+    #   (진열칸이 GRID_Y=17, 아이템 18 인 것과 같은 관계). 139 를 셀로 쓰는 바람에 가방칸이
+    #   세로로만 4px 밀려 있었다(2026-08-12 유저 지적).
+    inv_y0 = 30 + rows * CELL
     inv_rows = [inv_y0, inv_y0 + CELL, inv_y0 + 2 * CELL, inv_y0 + 58]   # 가방 3줄 + 단축바
     for gy in inv_rows:
         for c in range(COLS):

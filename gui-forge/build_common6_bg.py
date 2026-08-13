@@ -30,7 +30,9 @@ GH = 114 + ROWS * 18                   # 222
 W, H = GW * SCALE, GH * SCALE          # 704 x 888
 
 GRID_X, GRID_Y, CELL, COLS = 7, 17, 18, 9
-INV_Y0 = 31 + ROWS * CELL              # 139
+# ★30 이다 — 139/197 은 아이템 좌표이고 셀 좌상단은 그보다 1 GUI px 위다(진열칸이
+#   GRID_Y=17, 아이템 18 인 것과 같은 관계). 31 로 두면 인벤 격자가 4px 밀린다.
+INV_Y0 = 30 + ROWS * CELL              # 138
 INV_ROWS_Y = [INV_Y0, INV_Y0 + CELL, INV_Y0 + 2 * CELL]
 HOTBAR_Y = INV_Y0 + 58                 # 197
 

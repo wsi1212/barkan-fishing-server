@@ -67,7 +67,9 @@ def build(name):
     # ★조립판(assemble_plate.py)은 인벤 칸까지 액자로 찍어 두므로 공용 격자를 덧그리면
     #   두 겹이 된다. 마커가 있으면 건너뛴다.
     if not os.path.exists(os.path.join(src, ".assembled")):
-        inv_y = 31 + rows * c6.CELL
+        # ★30 이다(31 아님) — 바닐라의 139/197 은 아이템이 그려지는 y 이고 셀은 1 GUI px
+        #   위다. 31 로 두면 가방·단축바 격자가 세로로만 4px 밀린다(2026-08-12 발견).
+        inv_y = 30 + rows * c6.CELL
         c6.INV_Y0 = inv_y
         c6.INV_ROWS_Y = [inv_y, inv_y + c6.CELL, inv_y + 2 * c6.CELL]
         c6.HOTBAR_Y = inv_y + 58
