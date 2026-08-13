@@ -19,6 +19,8 @@
 # 사용: ops/deploy-jar.sh <jar 경로> [--dev] [--name <plugins 안 파일명>]
 #   --dev            prod 대신 dev(맥)에 올린다. 정지·기동은 ~/dev-mc.sh 가 맡는다.
 #   --name <파일명>   BlockShip 이 아닌 플러그인(예: BarkanChess-1.0.0.jar)을 올릴 때.
+# ★별도 레포 플러그인(BarkanChess 등)도 이걸 쓴다 — --name 을 생략하면 원격 파일명은 로컬 jar 의 basename.
+#   BarkanChess 는 반드시 tools/gate.sh 를 먼저 통과시킬 것(역컴파일 복원본이라 빌드 성공 ≠ 정상).
 set -euo pipefail
 
 JAR="${1:?사용: $0 <jar 경로> [--dev] [--name <파일명>]}"
@@ -27,13 +29,20 @@ shift
 
 TARGET=prod
 NAME="BlockShip-1.0.0-SNAPSHOT.jar"
+NAME_SET=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --dev)  TARGET=dev; shift ;;
-        --name) NAME="${2:?--name 뒤에 파일명}"; shift 2 ;;
+        --name) NAME="${2:?--name 뒤에 파일명}"; NAME_SET=1; shift 2 ;;
         *)      echo "❌ 모르는 인자: $1"; exit 1 ;;
     esac
 done
+
+# --name 을 명시하지 않은 별도 플러그인은 로컬 산출물 이름을 그대로 사용한다.
+# BlockShip 기본 산출물명은 기존 기본값과 동일하므로 기존 호출은 변하지 않는다.
+if [ "$NAME_SET" = 0 ]; then
+    NAME="$(basename "$JAR")"
+fi
 
 KEY="$HOME/.ssh/oracle-mc.key"
 HOST="ubuntu@168.107.8.107"
