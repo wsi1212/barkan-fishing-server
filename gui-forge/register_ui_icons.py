@@ -25,6 +25,8 @@ MODELS = os.path.join(RP, "assets/barkan/models/barkan_icon")
 FOLDERS = {
     "enhancement": "ui_scroll_",   # 강화 주문서 10종 (성공률/하락방지/하락감소)
     "tickets": "ui_ticket_",       # 잠수 상점 티켓 (자동심기·비행)
+    # /스탯 능력치 19종. 일반·작살 창이 같은 이름은 같은 그림을 쓴다(납품분 해시 동일 확인).
+    "stats": "ui_stat_",
 }
 
 
