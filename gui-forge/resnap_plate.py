@@ -107,6 +107,51 @@ def make_frame(im, px, w, h, slot):
     return frame
 
 
+def resnap_each(name, check=False, only=None):
+    """칸마다 **자기 액자**를 떠서 제자리에 다시 찍는다 — 칸별 색·그림이 그대로 유지된다.
+
+    우편함처럼 칸마다 그림이 다르면서 격자까지 틀어진 판을 위한 모드다. 액자를 하나로
+    통일하는 기본 모드는 그런 판에서 쓸 수 없다(가드가 막는다).
+    """
+    path = os.path.join(HERE, "src", name, "bg_source.png")
+    im = Image.open(path).convert("RGB")
+    px = im.convert("L").load()
+    w, h = im.size
+    src = im.copy()                     # 뜨는 원본은 고정 — 찍은 결과를 다시 뜨지 않게
+    done = skip = 0
+    for role, slots in groups_of(name).items():
+        if only and role not in only:
+            continue                     # ★역할을 좁힐 수 있어야 한다 — 우편함은 '본문 목록만'
+        for slot in slots:
+            x0, y0 = cell_origin(slot)
+            hb = HP.hole_bbox(px, w, h, x0 + PAD + HP.HALF, y0 + PAD + HP.HALF)
+            if hb is None:
+                skip += 1
+                continue
+            hx0, hy0, hx1, hy1 = hb
+            hw, hh = hx1 - hx0 + 1, hy1 - hy0 + 1
+            # ★자를 크기를 **역산**한다. 테두리를 PAD 비율로 더하면 반올림 때문에 줄인 뒤
+            #   구멍이 63px 이 되곤 했다(58 → 66 → 63.3). 셀:아이콘 = 72:64 배로 잡고
+            #   구멍 중심에 맞춰 자르면 줄인 결과가 바로 64px 다.
+            cw = round(hw * CELL * S / ICON)
+            ch = round(hh * CELL * S / ICON)
+            mx, my = (hx0 + hx1 + 1) / 2, (hy0 + hy1 + 1) / 2
+            box = (round(mx - cw / 2), round(my - ch / 2),
+                   round(mx - cw / 2) + cw, round(my - ch / 2) + ch)
+            if box[0] < 0 or box[1] < 0 or box[2] > w or box[3] > h:
+                skip += 1
+                continue
+            if not check:
+                im.paste(src.crop(box).resize((CELL * S, CELL * S), Image.LANCZOS), (x0, y0))
+            done += 1
+    print(f"  {name} 칸별 {done}칸 다시 찍음" + (f" · 못 찾아 건너뜀 {skip}" if skip else ""))
+    if check or not done:
+        return
+    if not os.path.exists(path + ".bak-resnap"):
+        shutil.copy2(path, path + ".bak-resnap")
+    im.save(path)
+
+
 def resnap(name, src_slot=None, check=False):
     if name in SKIP:
         print(f"  {name}: 칸마다 그림이 달라 건너뛴다(refit_plate 로 옮길 것)")
@@ -140,13 +185,20 @@ def resnap(name, src_slot=None, check=False):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    argv = sys.argv[1:]
+    # --role/--src 뒤의 값은 판 이름이 아니다(그대로 두면 '목록'을 판으로 찾다 죽는다)
+    skip_next = {i + 1 for i, a in enumerate(argv) if a in ("--role", "--src")}
+    args = [a for i, a in enumerate(argv) if not a.startswith("--") and i not in skip_next]
     check = "--check" in sys.argv
     src = None
     if "--src" in sys.argv:
         src = int(sys.argv[sys.argv.index("--src") + 1])
+    each = "--each" in sys.argv
+    only = None
+    if "--role" in sys.argv:
+        only = {sys.argv[sys.argv.index("--role") + 1]}
     for n in args:
-        resnap(n, src, check)
+        (resnap_each(n, check, only) if each else resnap(n, src, check))
 
 
 if __name__ == "__main__":
