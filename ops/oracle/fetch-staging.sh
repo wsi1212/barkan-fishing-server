@@ -62,7 +62,16 @@ validate_jar() {
   unzip -t "$jar" >/dev/null 2>&1         || { log "  검증 실패: 손상된 zip"; return 1; }
   # ★`unzip -l` 은 크기·날짜가 앞에 붙은 표 형식이라 경계 매칭이 어긋난다
   #   (정상 jar 를 전부 거부하는 버그를 실측으로 물었다). -Z1 은 이름만 한 줄씩 낸다.
-  unzip -Z1 "$jar" 2>/dev/null | grep -qE '^(plugin|paper-plugin)\.yml$' \
+  # ★★그리고 파이프로 `grep -q` 에 넘기면 안 된다. grep -q 는 첫 매칭에서 즉시 끝나고,
+  #   그러면 아직 쓰는 중인 unzip 이 SIGPIPE 로 죽어 rc=141 이 된다. 이 스크립트는
+  #   `set -o pipefail` 이라 **매칭에 성공했는데도 파이프라인이 실패로 잡힌다.**
+  #   → 정상 jar 를 100% 거부한다. 2026-08-14 첫 실제 배포에서 물었다(prod 실측 rc=141).
+  #   엔트리가 적은 합성 jar 로 시험하면 unzip 이 파이프 버퍼에 다 쓰고 끝나 SIGPIPE 가
+  #   안 나므로 통과한다 — 그래서 앞선 6케이스 검증을 빠져나갔다. 목록을 먼저 담아서 본다.
+  local names
+  names=$(unzip -Z1 "$jar" 2>/dev/null) \
+                                          || { log "  검증 실패: 항목 목록을 읽을 수 없다"; return 1; }
+  grep -qE '^(plugin|paper-plugin)\.yml$' <<<"$names" \
                                           || { log "  검증 실패: plugin.yml 없음 (플러그인 jar 가 아니다)"; return 1; }
   return 0
 }
@@ -76,8 +85,25 @@ API="https://api.github.com/repos/$REPO"
 HDR=(-H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
      -H "X-GitHub-Api-Version: 2022-11-28")
 
-RESP=$(curl -fsS --max-time 60 "${HDR[@]}" "$API/releases/latest" 2>/dev/null) \
-  || die "Release 조회 실패 (repo 이름·토큰 권한 확인: $REPO)"
+# ★상태코드를 봐야 한다. 전에는 실패를 뭉개서 "Release 조회 실패" 하나로 냈는데,
+#   그러면 **아직 promote 안 한 정상 상태**(404, releases 0개)와 **토큰 만료·권한 부족**(401/403)이
+#   같은 빨간 알림으로 나온다. cron 이 15분마다 도니까 첫 promote 전에는 하루 96번 오탐이 되고,
+#   그 노이즈에 묻혀 진짜 토큰 만료를 놓친다 — 무인운영에서 제일 위험한 실패 방식이다.
+#   2026-08-14 실측으로 갈랐다: repo 200 / releases/latest 404 / releases 0개.
+# trap 은 쓰지 않는다 — 아래 다운로드 구간이 자기 trap 으로 EXIT 를 덮어써서 이 파일이 남는다.
+HTTP_BODY=$(mktemp)
+CODE=$(curl -sS --max-time 60 -o "$HTTP_BODY" -w '%{http_code}' "${HDR[@]}" "$API/releases/latest" 2>/dev/null || echo 000)
+RESP=""
+[[ "$CODE" == 200 ]] && RESP=$(<"$HTTP_BODY")
+rm -f "$HTTP_BODY"
+case "$CODE" in
+  200) : ;;
+  404) log "아직 Release 가 없다 (promote 전 정상 상태) — 할 일 없음"; exit 0 ;;
+  401) die "토큰 인증 실패 (401) — PAT 만료·오타 의심: $TOKEN_FILE" ;;
+  403) die "권한 부족 또는 rate limit (403) — PAT 의 Contents:read 와 대상 repo 확인: $REPO" ;;
+  000) die "GitHub API 에 닿지 못했다 (네트워크·DNS)" ;;
+  *)   die "Release 조회 예상 밖 응답 HTTP $CODE ($REPO)" ;;
+esac
 
 read -r TAG ASSET_ID ASSET_NAME ASSET_SIZE <<<"$(python3 - "$ASSET_GLOB" <<PY
 import json, sys, fnmatch
