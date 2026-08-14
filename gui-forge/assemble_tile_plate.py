@@ -48,8 +48,9 @@ PARTS = {
 # 그래서 띠를 없애고 구멍 + 베벨까지 아이콘에 내준 다음, 라벨을 아래쪽에 겹쳐 굽는다.
 # 겹쳐도 읽히게 테두리(stroke)를 두껍게 준다 — 그림 위 글자는 stroke 가 전부다.
 ICON_PAD = 2
-ICON_BLEED = 16                # 구멍 밖(액자 안쪽 베벨)으로 아이콘이 번져도 되는 폭
+ICON_BLEED = 11                # 구멍 밖(액자 안쪽 베벨)으로 아이콘이 번져도 되는 폭
 LABEL_DROP = 2                 # 라벨 밑단을 구멍 아래에서 띄우는 여유
+ICON_RISE = 4                  # 아이콘을 살짝 올린다 — 라벨이 주제(아래쪽)를 덜 가리게
 SCRIM_H = 42                   # 라벨 뒤에 까는 어둠의 높이
 SCRIM_A = 165                  # 그 어둠의 최대 불투명도
 
@@ -61,11 +62,27 @@ def font(px):
         return ImageFont.load_default()
 
 
+EDGE_TRIM = 3        # 생성물 가장자리의 비네팅 링
+KEY_TOL = 110        # 어두워진 마젠타까지 잡는다
+SOLID = 96           # 상자를 잡을 때 '확실히 그림'으로 칠 알파
+
+
 def sprite(path):
-    """마젠타를 지우고 그림만 남긴 RGBA. 알파로 온 그림은 그대로 쓴다."""
+    """마젠타를 지우고 그림만 남긴 RGBA.
+
+    ★상자는 **확실히 불투명한 픽셀**로만 잡는다. 키에서 살아남은 반투명 얼룩까지 세면
+      상자가 그쪽으로 늘어나고, 가운데 정렬이 그만큼 밀린다 — 길드 섬 아이콘이 오른쪽으로
+      밀려 있던 이유다(알파 무게중심 622 vs 상자중심 442, 2026-08-14 실측).
+    """
     raw = Image.open(os.path.join(GEN, path))
     keyed = raw.mode == "RGBA" and raw.getchannel("A").getextrema()[0] < 250
-    return A.tight(raw.convert("RGBA") if keyed else A.dekey(raw))
+    if keyed:
+        im = raw.convert("RGBA")
+    else:
+        w, h = raw.size
+        im = A.dekey(raw.crop((EDGE_TRIM, EDGE_TRIM, w - EDGE_TRIM, h - EDGE_TRIM)), tol=KEY_TOL)
+    box = im.getchannel("A").point(lambda v: 255 if v > SOLID else 0).getbbox()
+    return im.crop(box) if box else im
 
 
 def hole_of(im):
@@ -86,6 +103,19 @@ def fit(im, box_w, box_h):
     """비율 유지로 상자 안에 넣는다."""
     k = min(box_w / im.width, box_h / im.height)
     return im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+
+
+def cell_frame(path):
+    """작은 칸 액자 — assemble_plate.make_frame 과 같은 계산을, 청소된 스프라이트로."""
+    sp = sprite(path)
+    hx0, hy0, hx1, hy1 = A.hole_box(sp)
+    tw = round(A.PAD_OUT * (hx1 - hx0) / A.ICON)
+    th = round(A.PAD_OUT * (hy1 - hy0) / A.ICON)
+    cut = sp.crop((max(0, hx0 - tw), max(0, hy0 - th),
+                   min(sp.width, hx1 + tw), min(sp.height, hy1 + th)))
+    size = A.ICON + 2 * A.PAD_OUT
+    print(f"  작은 칸 액자 {sp.size} · 구멍 {hx1-hx0}x{hy1-hy0} → {size}x{size}")
+    return cut.resize((size, size), Image.LANCZOS)
 
 
 def build(name):
@@ -113,7 +143,7 @@ def build(name):
         icon = fit(icon, area_w, area_h)
         cx = x0 + (hx0 + hx1) // 2
         cy = y0 + (hy0 + hy1) // 2
-        bg.alpha_composite(icon, (cx - icon.width // 2, cy - icon.height // 2))
+        bg.alpha_composite(icon, (cx - icon.width // 2, cy - icon.height // 2 - ICON_RISE))
         # ★금색 글자가 금색 아이콘 위에 겹치면 게임 크기에서 뭉갠다(실측 — 랭킹 메달·기부
         #   금화가 그랬다). 아이콘은 그대로 두고 글자 아래에만 어둠을 깔아 대비를 만든다.
         #   아래로 갈수록 짙어지는 그라데이션이라 띠처럼 보이지 않는다.
@@ -133,7 +163,7 @@ def build(name):
                label, font=f, fill=GOLD_HI, stroke_width=4, stroke_fill=INK)
 
     # ── 작은 칸(정보칸 · 아래 버튼 줄 · 플레이어 인벤) ────────
-    cell = A.make_frame(spec["cell"])          # 구멍이 정확히 64px 인 72x72
+    cell = cell_frame(spec["cell"])            # 구멍이 정확히 64px 인 72x72
     def put(gx, gy):
         bg.alpha_composite(cell, (gx * S + A.PAD - A.PAD_OUT, gy * S + A.PAD - A.PAD_OUT))
     _, roles, _ = L.PAGES[name]

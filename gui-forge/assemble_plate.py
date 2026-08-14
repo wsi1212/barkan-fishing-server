@@ -68,15 +68,20 @@ def fix_panel(name, bg):
     return bg
 
 
-def dekey(im):
-    """크로마키를 지우고 액자만 남긴다 — 키 색에 가까운 픽셀을 투명으로."""
+def dekey(im, tol=None):
+    """크로마키를 지우고 액자만 남긴다 — 키 색에 가까운 픽셀을 투명으로.
+
+    tol 을 올려야 하는 경우가 있다. 생성물 가장자리에 비네팅이 걸려 마젠타가 어두워지면
+    (실측 (237,34,233)) 기본 허용치로는 그 링이 살아남는다 — 그게 tight() 상자를 끌고 가
+    아이콘이 한쪽으로 밀린다(2026-08-14 길드 섬)."""
+    tol = KEY_TOL if tol is None else tol
     im = im.convert("RGBA")
     px = im.load()
     w, h = im.size
     for y in range(h):
         for x in range(w):
             r, g, b, _ = px[x, y]
-            if abs(r - KEY[0]) + abs(g - KEY[1]) + abs(b - KEY[2]) < KEY_TOL:
+            if abs(r - KEY[0]) + abs(g - KEY[1]) + abs(b - KEY[2]) < tol:
                 px[x, y] = (0, 0, 0, 0)
     return im
 
