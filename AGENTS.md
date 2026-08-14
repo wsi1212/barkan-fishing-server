@@ -3,7 +3,7 @@
 ## 프로젝트 개요
 마크 서버용 종합 낚시 게임. **Paper 1.21.11 + Java 21 툴체인(런타임 JVM 은 Java 25).** 모든 게임 로직은 BlockShip 자바 플러그인에 기능별 패키지로 구현돼 있다 — **자바 359파일 / `com/blockship/` 아래 70개 패키지**(2026-08-14 실측). 낚시는 그중 하나일 뿐이고 채집·채굴·요리·카지노·길드·섬·보스까지 한 플러그인에 다 들어있다.
 - **소스(Mac 로컬)**: `/Users/user/development/blockship-plugin/src/main/java/com/blockship/`
-- **소스(GitHub)**: `wsi1212/blockship-plugin` (**private**) — 맥이 없는 환경에서는 이쪽을 클론해서 본다. 루트에 라이브 JSON(`fish.json` `parts.json` `quests.json` `npc.json` 등)도 같이 있다.
+- **소스(GitHub)**: `wsi1212/blockship-plugin` (**private**) — 맥이 없는 환경에서는 이쪽을 클론해서 본다. 루트에 라이브 JSON(`fish.json` `parts.json` `quests.json` `npc.json` 등)도 같이 있다. **원격/웹 세션에서 붙이는 절차와 함정(private 리포 사전확인 404 등)은 [CLAUDE.md](CLAUDE.md)의 「맥이 아닌 세션에서 게임 코드 보기」 참조** — "코드가 여기 없다"에서 멈추지 말 것.
 - 이 리포(`wsi1212/barkan-fishing-server`)는 **설계 문서 + 에셋 파이프라인 + 운영 스크립트**만 있고 게임 코드는 없다. 둘은 별개 리포다.
 
 상세 설계: [design.md](design.md) | 수치 밸런스: [balance.md](balance.md) | 스토리: [story.md](story.md)

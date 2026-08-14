@@ -161,6 +161,19 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=`~/dev-mc.sh restart` — RCON 25575, **feather 미사용** / prod=`sudo systemctl restart mcserver`)
 
+### 맥이 아닌 세션에서 게임 코드 보기 (웹·모바일 = Claude Code on the web / 원격 컨테이너)
+> 2026-08-14 신설. **"코드가 여기 없다"에서 멈추지 말 것** — 안 붙어 있는 것이지 막힌 게 아니다. 실제로 이 함정에 한 번 빠졌다.
+
+- 원격 세션은 **세션에 붙은 리포만** 클론된 상태로 뜬다. 시작 시점 스코프가 `barkan-fishing-server` 하나면 플러그인 소스는 디스크에 없다. CLAUDE.md의 맥 경로(`/Users/user/development/...`)도 당연히 없다.
+- 절차 (툴 3번이면 끝):
+  1. `list_repos` — 계정이 접근 가능한 리포 확인 (`wsi1212/blockship-plugin`이 여기 뜬다)
+  2. `add_repo {owner: wsi1212, repo: blockship-plugin}` → 응답이 시키는 대로 **`git clone --depth 1 <url> /workspace/blockship-plugin` 을 인라인으로 딱 한 번** (서브에이전트·병렬 금지 — 같은 리포 동시 2개면 429)
+  3. `register_repo_root` — 그 리포의 CLAUDE.md/스킬을 다음 턴에 로드
+- **★private 리포는 사전 확인으로 판단하면 안 된다.** `curl`·`gh repo view`·`git ls-remote`로 미리 찔러보면 **실재하고 권한이 있어도 404**가 뜬다(비인증 요청이라). 그 404를 보고 "없네" 하고 `add_repo`를 건너뛰는 게 정확히 위에서 말한 함정이다. 그냥 `add_repo`를 호출하고 **서버 응답**으로 판단할 것.
+- **컨테이너는 일회용이다** — 비활성 상태가 이어지면 회수되고 `/workspace/` 클론도 같이 사라진다. 세션마다 위 절차를 다시 밟아야 하고, 남길 게 있으면 **반드시 커밋·푸시**해야 한다.
+- shallow 클론이라 `git log`/`blame`/`bisect`가 필요하면 그때 `git -C /workspace/blockship-plugin fetch --unshallow`.
+- ⚠️ 원격 세션에서 **할 수 없는 것**: 맥 전용 작업(리소스팩 배포 `~/deploy-rp.sh`, dev 서버 `~/dev-mc.sh`, MCP 의존 작업, 크롬 제어). 빌드도 여기서 하지 말 것 — 검증되지 않은 jar이 배포 경로에 섞이면 안 된다(위 「배포 후 서버 풀 재시작 필수」).
+
 ### /textride 서브커맨드 (기존 명령어에 통합, 새 명령어 등록 불필요)
 - `/textride <player> <tag>` — Paper addPassenger (기존)
 - `/textride update <player> <titleTag> <nameTag> <titleText>` — 칭호 업데이트 (HEX 지원)
