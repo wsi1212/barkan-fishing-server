@@ -2,10 +2,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # BlockShip jar 롤백 — 폰에서 한 줄로
 #
-#   ~/mcserver/scripts/rollback-jar.sh --list        후보 보기 (안전, 아무것도 안 바꿈)
-#   ~/mcserver/scripts/rollback-jar.sh --dry-run     무엇을 할지만 보기
-#   ~/mcserver/scripts/rollback-jar.sh --yes         직전 백업으로 되돌리고 재시작
-#   ~/mcserver/scripts/rollback-jar.sh --yes --to <파일명>   특정 백업으로
+# ★하이픈 없이 쓴다 — 모바일 키보드가 `--` 를 대시(—)로 자동 변환해서 안 먹는 일이 있다.
+#   ~/mcserver/scripts/rollback-jar.sh list          후보 보기 (안전, 아무것도 안 바꿈)
+#   ~/mcserver/scripts/rollback-jar.sh dry           무엇을 할지만 보기
+#   ~/mcserver/scripts/rollback-jar.sh yes           직전 백업으로 되돌리고 재시작
+#   ~/mcserver/scripts/rollback-jar.sh yes to <파일명>    특정 백업으로
+#   (--list · --dry-run · --yes · --to 도 그대로 받고, 대시로 바뀐 것도 알아서 고친다)
 #
 # 왜 스크립트인가: 손으로 하면 5단계고, 그중 staging 비우기를 빼먹으면
 # **다음날 06:00 데일리 유지보수가 깨진 jar 를 다시 적용한다.** 스트레스 상황에서
@@ -24,15 +26,25 @@ BROKEN_DIR="$MC_ROOT/backups/broken-jars"
 WEBHOOK_FILE="$MC_ROOT/scripts/discord-webhook.url"
 LOG_FILE="$MC_ROOT/scripts/ops.log"
 
+# ★인자를 관대하게 받는다. 이건 폰에서 쓰는 비상 도구다 —
+#   모바일 키보드가 `--` 를 en/em dash(–, —)로 자동 변환하는 일이 흔하고, 하이픈 개수도
+#   틀리기 쉽다. 그런 이유로 복구 도구가 안 먹으면 그 자체가 결함이다.
+#   **하이픈 없는 형태(list · dry · yes · to)가 정식이다.**
+norm_arg() { printf '%s' "$1" | sed 's/[–—‒―]\{1,\}/--/g; s/^-\([a-z]\)/--\1/'; }
+
 LIST=0; DRY=0; YES=0; TARGET=""
 while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --list)    LIST=1; shift ;;
-    --dry-run) DRY=1; shift ;;
-    --yes)     YES=1; shift ;;
-    --to)      TARGET="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-    *) echo "알 수 없는 인자: $1" >&2; exit 2 ;;
+  case "$(norm_arg "$1")" in
+    --list|list|ls)                LIST=1; shift ;;
+    --dry-run|--dry|--dryrun|dry|dryrun|dry-run) DRY=1; shift ;;
+    --yes|yes|y|--y)               YES=1; shift ;;
+    --to|to)                       TARGET="${2:-}"; shift 2 ;;
+    --help|help|--h)               sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *)
+      echo "알 수 없는 인자: '$1'" >&2
+      echo "받은 바이트: $(printf '%s' "$1" | od -An -c | tr -s ' ')" >&2
+      echo "쓸 수 있는 것: list | dry | yes | to <파일명>   (하이픈 없이도 된다)" >&2
+      exit 2 ;;
   esac
 done
 
