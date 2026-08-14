@@ -17,7 +17,7 @@ CLAUDE.md가 "잔여 리스크(인지함, 미자동화)"로 적어둔 항목 —
 
 ## 무엇을 하나
 
-버려질 슈퍼플랫 월드에 Paper 1.21.10을 띄우고 새 jar를 꽂아 실제로 부팅시킨다.
+버려질 슈퍼플랫 월드에 Paper 1.21.11(prod 구동 버전)을 띄우고 새 jar를 꽂아 실제로 부팅시킨다.
 마크 클라이언트도 사람도 필요 없다.
 
 판정:
@@ -31,7 +31,8 @@ CLAUDE.md가 "잔여 리스크(인지함, 미자동화)"로 적어둔 항목 —
 
 | 케이스 | 결과 |
 |---|---|
-| Paper 1.21.10 build 130 부팅 | ✅ 35~37초, 정상 종료 |
+| Paper **1.21.11** build 132 부팅 | ✅ 31초, 정상 종료 |
+| Paper 1.21.10 build 130 부팅 | ✅ 35~37초 (참고, 구 버전) |
 | 정상 플러그인 + rcon `list` | ✅ 종료코드 0, enable 확인, rcon 응답 |
 | **Helper 클래스를 뺀 jar (CNFE 재현)** | ✅ **종료코드 1**, 스택트레이스 + 4건 진단 |
 
@@ -87,11 +88,13 @@ softdepend: [ BetterHud, BetterModel, ProtocolLib, Citizens, VotifierPlus ]
 
 ## 남은 확인 항목
 
-- [ ] **prod 실제 MC 버전** — CLAUDE.md 는 1.21.10 인데 `plugins/` 에 1.21.11 용
-      jar(`AxiomPaperPlugin-5.0.4-for-MC1.21.11`, `BarkanChess-1.21.11`)가 있다.
-      스모크가 엉뚱한 버전을 테스트하면 의미가 없다. 워크플로의 `MC_VERSION` 을 맞출 것
-- [ ] 빌드 타겟(1.21.4)과 구동(1.21.10)의 버전 드리프트 — `NoSuchMethodError`를
-      치명 패턴에 넣어둔 이유. 스모크가 이걸 잡으면 드리프트가 실제로 터진 것
+- [x] ~~prod 실제 MC 버전~~ — **1.21.11** 확정(2026-08-13, 클라 대응 업그레이드).
+      `MC_VERSION` 반영 완료, 1.21.11 build 132 로 통과·실패 양쪽 재검증했다.
+- [ ] ⚠️ **빌드 타겟(1.21.4) vs 구동(1.21.11) = 7패치 드리프트** — 이게 이 게이트의
+      존재 이유 중 가장 큰 것이 됐다. `NoSuchMethodError`·`NoSuchFieldError`·
+      `IncompatibleClassChangeError` 를 치명 패턴에 넣어둔 까닭이고, 스모크가 이걸
+      잡으면 드리프트가 실제로 터진 것이다. `build.gradle.kts` 의 paperDevBundle 을
+      올리는 것도 검토할 것
 
 ## 알아둘 것
 

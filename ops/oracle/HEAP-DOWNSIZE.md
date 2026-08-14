@@ -8,7 +8,8 @@ Always Free A1 한도가 **2 OCPU / 12 GB** 로 내려갔다(현재 prod 는 4/2
 
 ## 실측 (2026-08-13, 컨테이너)
 
-Paper 1.21.10 + Aikar 소용량 플래그 + `-Xms8G -Xmx8G -XX:+AlwaysPreTouch`:
+Paper + Aikar 소용량 플래그 + `-Xms8G -Xmx8G -XX:+AlwaysPreTouch`
+(컨테이너 측정은 1.21.10 으로 했다 — 패치 버전 차이는 힙 오버헤드에 유의미하지 않다):
 
 | 항목 | 값 |
 |---|---|
@@ -107,7 +108,7 @@ java -Xms7G -Xmx7G \
   -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 \
   -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 \
   -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 \
-  -jar paper-1.21.10.jar --nogui
+  -jar paper-1.21.11.jar --nogui
 ```
 
 `-Xms` 와 `-Xmx` 를 같게 두는 이유: `+AlwaysPreTouch` 와 함께 쓰면 힙을 처음에

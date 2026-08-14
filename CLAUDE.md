@@ -128,16 +128,22 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **계정**: 가족 명의 (rhfipkk tenancy, ap-chuncheon-1)
 - **리전**: South Korea North (Chuncheon) — 한국 핑 5~10ms
 - **인스턴스**: `minecraft-server` — OCID `ocid1.instance.oc1.ap-chuncheon-1.an4w4ljripxk3pacvlzpjj2sojj6c57romwttueidpff7jcyyvp7v6bwbvmq` (★인스턴스 재생성 시 OCID 바뀜 → 워치독 동적그룹 `mc-instance-dg` 매칭룰도 갱신 필요)
-- **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 힙 플래그. start.sh)
+- **현재 사양**: VM.Standard.A1.Flex 4 OCPU / 24 GB RAM (목표 달성, Java 힙 16G — 2026-07-07 12G→16G, Aikar ≥12G 대용량 힙 플래그. start.sh). 디스크 48GB(2026-08-13 여유 23GB).
+- **🚨 이 인스턴스는 재발급되지 않는다 (2026-08-13 확인)**
+  - 오라클 공식 문서: A1은 **South Korea North (Chuncheon) 제외** 모든 AD에서 생성 가능 → **춘천에 A1을 새로 만들 수 없다.** 무료 가입 드롭다운에 한국이 없는 이유이고, 새 계정을 만들어도 해결되지 않는다.
+  - Always Free A1 한도가 **4 OCPU/24GB → 2 OCPU/12GB**(1,500 OCPU-h / 9,000 GB-h)로 축소됨. 현재 인스턴스는 **한도의 2배**이고, 한도 초과 shape는 재생성이 막힌다. (시행 시점은 1차 출처 확인 실패 — 날짜를 사실로 취급하지 말 것.)
+  - **⇒ `terminate` 절대 금지.** `stop`(정지)은 되돌릴 수 있지만 종료는 영구다. 이전·정리 작업 중 실수로 날리면 춘천 4/24를 영구히 잃는다.
+  - 강제 리사이즈 대비: 힙을 **7G**로 내리고 Aikar 플래그 5개를 소용량 변형으로 되돌려야 한다 → **[ops/oracle/HEAP-DOWNSIZE.md](ops/oracle/HEAP-DOWNSIZE.md)** (실측 수치 포함). 이전 검토와 대안은 [ops/oracle/MIGRATION.md](ops/oracle/MIGRATION.md) (전제 붕괴 표시됨).
 - **OS**: Ubuntu 24.04 ARM64
 - **MC/Paper 버전**: prod·dev 구동 = **Paper 1.21.11** (prod version_history.json / dev `~/dev-mc.sh` 의 paper-1.21.11-132.jar). BlockShip 빌드 타겟도 **1.21.11** 로 맞췄다(2026-08-14, build.gradle.kts paperDevBundle·paper-api 1.21.11, api-version '1.21') — **드리프트 없음**.
   - ★드리프트를 방치하면 "컴파일은 되는데 런타임에 없는 상수"가 그대로 나간다. 1.21.4 로 빌드하던 동안 **`Material.CHAIN`** 참조 4곳이 지뢰로 남아 있었다(1.21.9 에서 구리 사슬이 들어오며 chain → **iron_chain** 개명. 1.21.11 API 에 CHAIN 없음). 짚라인 케이블·배 블록 판정·스킬 노드 아이콘이 실행되는 순간 NoSuchFieldError 가 되는 상태였다. **MC 를 올리면 빌드 타깃도 같이 올릴 것.**
   - 상향에 딸려 오는 것: paperweight **2.0.0-beta.21**(1.21.11 번들은 data version 7 이라 beta.16 이하 거부) + **Gradle 9.0**(beta.17+ 요구) + `test { failOnNoDiscoveredTests = false }`(Gradle 9 는 테스트 소스만 있고 발견 0이면 빌드를 깬다 — src/test 의 *SelfTest 는 JUnit 이 아니라 main() 검산 스크립트다).
   - ★이제 이 jar 은 1.21.9 미만에서 안 돈다(IRON_CHAIN 부재).
 - **ProtocolLib 5.4.0**: 지원 명시 범위는 1.21.4–1.21.8 → prod(1.21.11)에서 부팅 시 "not yet been tested" 경고 뜸(로드·리스너 등록은 정상). dev(Mac) 버전은 별도 확인 필요 — 패킷 작업 전 양쪽 버전 대조할 것.
+- **plugin.yml 의존성 실측**: `api-version: '1.21'` · **`softdepend: [ BetterHud, BetterModel, ProtocolLib, Citizens, VotifierPlus ]`** — ★**hard `depend`가 하나도 없다.** 그래서 그 플러그인들이 없어도 BlockShip은 로드·enable 된다. 대신 softdepend를 가드 없이 참조하는 코드(예: `diagnostics/PacketBlackbox`의 ProtocolLib)는 그 플러그인이 로드 실패하면 CNFE로 죽는다 — **새 softdepend 사용 시 `getPluginManager().getPlugin(...) != null` 확인 필수.**
 - **ViaVersion/ViaBackwards 5.11.0**(정식, 2026-07-27 교체 — 이전 5.11.1-SNAPSHOT 개발버전이 최신 클라(26.2) 미지원해 접속끊김 유발했음, 상세는 「클라이언트 크래시 자동감지」 참조). Hangar 다운로드: `https://hangar.papermc.io/api/v1/projects/<ViaVersion|ViaBackwards>/versions/<버전>/PAPER/download`.
 - **공인 IP**: `168.107.8.107` (Reserved 예약 IP — 인스턴스 재생성에도 불변. 2026-07-24 임시 IP 134.185.113.25에서 교체. 예약IP OCID: `ocid1.publicip.oc1.ap-chuncheon-1.amaaaaaaipxk3paarwjmvgd5ii3js5qes7jmsbyh5sy2holja6x4vhdust7a`)
-- **도메인**: `barkan.kro.kr` (내도메인.한국 무료 서브도메인, A레코드 → 168.107.8.107 예정)
+- **도메인**: `barkan.kro.kr` (내도메인.한국 무료 서브도메인, A레코드 → 168.107.8.107 — **2026-08-14 dig 실측 해석됨**). ★무료 도메인이라 **갱신 주기 확인 필요** — 놓치면 서버는 멀쩡한데 이름만 안 풀린다.
 - **SSH 키**: `~/.ssh/oracle-mc.key` (Mac 로컬)
 - **SSH 접속**: `ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107`
 - **OCI CLI 설정**: `~/.oci-family/config` (가족 계정용, OCI_CLI_CONFIG_FILE 환경변수로 지정)

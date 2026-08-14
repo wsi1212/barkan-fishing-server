@@ -56,11 +56,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
-      # ★prod 구동 버전과 일치시킬 것 — job 레벨이라 캐시 키에서도 보인다.
-      #   CLAUDE.md 는 1.21.10 이라 적혀 있으나 plugins/ 에 1.21.11 용 jar
-      #   (AxiomPaperPlugin-5.0.4-for-MC1.21.11, BarkanChess-1.21.11)가 있어 확인 필요.
-      #   확인: ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'
-      MC_VERSION: "1.21.10"
+      # prod 구동 버전. job 레벨이라 캐시 키에서도 보인다.
+      # 2026-08-13 확인: prod 는 1.21.11 (클라 대응으로 업그레이드됨).
+      # 바꿀 때: ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'
+      MC_VERSION: "1.21.11"
     steps:
       - uses: actions/checkout@v4
 

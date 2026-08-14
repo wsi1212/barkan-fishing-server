@@ -18,7 +18,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-MC_VERSION="1.21.10"          # prod 구동 버전 (version_history.json 기준)
+MC_VERSION="1.21.11"          # prod 구동 버전 (2026-08-13 확인, version_history.json)
 TIMEOUT=240                   # Done 대기 상한(초). 컨테이너 실측 ~40s
 HEAP="1G"
 WORKDIR=""
@@ -81,7 +81,7 @@ FATAL_PATTERNS=(
   'NoClassDefFoundError'                 # ★2026-08-03 사고
   'ClassNotFoundException'
   'UnsupportedClassVersionError'         # 자바 버전 불일치
-  'NoSuchMethodError'                    # API 드리프트 (1.21.4 빌드 vs 1.21.10 구동)
+  'NoSuchMethodError'                    # ★API 드리프트 (1.21.4 빌드 vs 1.21.11 구동, 7패치 차)
   'NoSuchFieldError'
   'IncompatibleClassChangeError'
   'Error occurred while enabling'
@@ -96,7 +96,7 @@ FATAL_PATTERNS=(
 # CI 환경·버전 드리프트 때문에 정상적으로 뜨는 경고들. 치명 스캔에서 제외.
 IGNORE_PATTERNS=(
   'Advanced terminal features are not available'   # 헤드리스 CI에서 항상 뜸
-  'not yet been tested'                            # ProtocolLib이 1.21.10에 대해 내는 경고
+  'not yet been tested'                            # ProtocolLib이 1.21.11에 대해 내는 경고
   'You are running an outdated'
 )
 IGNORE_PATTERNS+=("${EXTRA_IGNORES[@]+"${EXTRA_IGNORES[@]}"}")

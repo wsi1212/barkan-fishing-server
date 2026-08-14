@@ -221,7 +221,7 @@ rsync -avz -e "ssh -i ~/.ssh/oracle-new" \
       지역 JSON + **playerdata**), ProtocolLib, ViaVersion/ViaBackwards 5.11.0
 - [ ] `server.properties` — 리소스팩 URL·SHA1 포함. **RCON 비밀번호는 새로 발급**
 - [ ] `ops.json` · `whitelist.json` · `banned-*.json`
-- [ ] Paper jar (`paper-1.21.10.jar`)
+- [ ] Paper jar (`paper-1.21.11.jar`)
 - [ ] `start.sh` — ★힙 결정: 16G 유지할지, dev(2층)를 같은 박스에서 쓸 거면 12G
 - [ ] `scripts/` 전부 + **cron 전체**
 - [ ] `staging/` · `backups/` (백업은 새로 시작해도 되지만 롤백용 구 jar 는 챙길 것)

@@ -361,7 +361,7 @@ CREATE TABLE audit_log (                -- 웹 콘솔 운영 액션 감사 (Phas
 |---|---|---|---|
 | `sess.start` | P0 | `PlayerJoinEvent` (SessionTracker, MONITOR) | `{first:0\|1}` (first=playerdata 신규 생성 여부) |
 | `sess.end` | P0 | `PlayerQuitEvent` + 크래시 합성(§4-5) | `{dur_s, afk_s, reason:"quit"\|"crash"}` |
-| `srv.start` | P0 | onEnable | `{mc:"1.21.10", jar_ts, catalogs:{parts:"a1b2..",fish:"..",...}}` |
+| `srv.start` | P0 | onEnable | `{mc:"1.21.11", jar_ts, catalogs:{parts:"a1b2..",fish:"..",...}}` |
 | `srv.stop` | P0 | onDisable | `{uptime_s}` |
 | `gauge.online` | P2 | 60초 | `{n, tps, mspt}` (`Bukkit.getTPS()[0]`, `getAverageTickTime()`) |
 | `cmd.use` | P2 | `PlayerCommandPreprocessEvent` | `{cmd, args, op}` |
