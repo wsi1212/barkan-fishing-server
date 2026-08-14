@@ -213,3 +213,8 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 이 프로젝트의 Codex 전용 실행 설정은 `.codex/config.toml`, `.codex/hooks.json`, `.codex/hooks/`에 있다.
 - 상세 운영 규칙과 최신 변경 기록은 `CLAUDE.md`에도 남아 있으므로, 이 문서에 없는 서버 운영·워치독·클라이언트 크래시 대응 세부사항이 필요한 작업에서는 `CLAUDE.md`의 해당 절을 함께 읽는다.
 - Claude 전용 명칭은 Codex 대응물로 해석한다: `CLAUDE_PROJECT_DIR`는 현재 프로젝트 루트, `claude-in-chrome`는 사용 가능한 브라우저 제어 도구, `mcp__minecraft-ai-builder__*`는 `minecraft-ai-builder` MCP 서버 도구다.
+- **★경로 이식성 (2026-08-14)** — 이 리포는 맥에서 `~/Library/Application Support/feather/player-server/servers/07de.../plugins/Skript/scripts` 에 있다(Skript 시절 잔재. `ops/deploy-blockship.sh`의 `SCRIPTS_REPO`, `gui-forge/codex-brief-*.md`가 같은 경로를 참조하니 **옮기면 그쪽도 같이 고칠 것**).
+  - `.claude/` 쪽은 설정·스크립트 모두 `$CLAUDE_PROJECT_DIR` 기준이라 어디서 열어도 돈다.
+  - `.codex/hooks/regen-docs-index.sh` 도 **자기 위치에서 리포 루트를 역산**하도록 고쳤다(하드코딩 제거).
+  - **남은 커플링: `.codex/hooks.json` 의 `command` 경로 7곳이 절대경로다.** 리포를 옮기면 Codex 훅만 죽는데, 훅이 비차단(`exit 0`)이라 **경고 없이 조용히** 죽는다. Codex가 프로젝트 루트 변수를 지원하는지 확인되면 그걸로 교체할 것.
+  - `.codex/hooks/*.py` 셔임이 가리키는 `/Users/user/.claude/hooks/*` 와 `.codex/config.toml` 의 MCP 경로는 **의도된 맥 전용**이다(전역 훅·로컬 MCP 서버) — 건드리지 말 것.
