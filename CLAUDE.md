@@ -224,8 +224,12 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): staging 자동배포+**무조건** `systemctl restart`(누수 정리, 접속자 있어도 실행)+디스코드 데일리 리포트. 사전예고(30/10/5/1분 전 인게임 방송)는 `restart-warning.sh`가 별도 cron으로 담당(2026-07-27 신설).
 - `~/mcserver/scripts/disk-guard.sh` (매시간): `df /` 사용률 85%⚠️경고 / 92%🔴면 가장 오래된 로컬 백업부터 삭제해 88% 아래로 확보(★라이브 데이터·오프사이트는 절대 안 건드림).
 - `~/mcserver/scripts/heartbeat.sh` (cron 5분): MC 포트 살아있으면 healthchecks.io로 핑 → 박스 자체가 죽거나 cron이 멈추면 **박스 밖에서** 침묵 감지, 25분 무응답 시 디스코드 알림(데드맨 스위치, 온박스 워치독의 사각 커버).
-- 로그: `watchdog.log`(프리즈워치독) · `ops.log`(nightly/diskguard) · `offsite.log` · `local.log`.
-- 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화).
+- **`~/mcserver/scripts/fetch-staging.sh` (cron `*/15`, 2026-08-14 가동)**: GitHub Release → `staging/` **당겨오기**. 방향이 핵심이다 — 폰/맥이 prod에 밀어넣는 게 아니라 prod가 당겨오므로 **폰에 SSH 키가 없어도, 맥이 꺼져 있어도 배포가 돈다.** 전제: Actions가 **수동 promote(`workflow_dispatch` + `promote=true`)일 때만** Release를 만든다 → "최신 Release 존재" = "사람이 승격을 눌렀다". ★push마다 Release가 생기게 바꾸면 이 전제가 깨지니 금지. 토큰 `~/mcserver/.github-token`(fine-grained PAT, contents:read, 600).
+  - 무변화면 **로그도 안 남긴다**(*/15 × 96줄/일이면 진짜 사건이 묻힌다). 404=아직 Release 없음(정상, 조용히 exit 0) / 401·403=진짜 실패만 🔴 알림.
+  - ★**PAT 만료가 조용한 사고 지점** — 만료되면 배포가 그냥 안 온다(서버는 멀쩡). 만료일 관리 필요.
+- **`~/mcserver/scripts/rollback-jar.sh` (2026-08-14 신설, 수동 전용)**: 깨진 jar 롤백을 한 줄로. `list`(후보+라이브 sha256+staging 대기, 무해) / `dry` / `yes` / `yes to <파일>`. **하이픈 없이 쓴다** — 모바일 키보드가 `--`를 대시로 바꿔 안 먹은 실측 사례가 있어 en/em dash도 정규화한다. 보존→교체→**staging 비움**→`.fetch-staging-state` 초기화→재시작→부팅확인→알림. ★staging을 안 비우면 다음날 06:00에 깨진 jar이 재적용된다(그래서 스크립트로 묶었다).
+- 로그: `backups/watchdog.log`(프리즈워치독) · `backups/ops.log`(nightly/diskguard/**fetch-staging/rollback**) · `offsite.log` · `local.log`. ★운영 로그는 `backups/` 에 모인다 — 새 스크립트가 `scripts/ops.log`로 쓰면 장애 때 한쪽만 보게 된다.
+- 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화) / **PAT 만료** / **리소스팩·MCP 의존 작업은 여전히 맥 전용**.
 
 ### Resize 자동 재시도 (백그라운드)
 - 위치: `~/oracle-auto-retry/resize-retry.sh`

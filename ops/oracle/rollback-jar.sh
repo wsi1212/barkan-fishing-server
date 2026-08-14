@@ -24,7 +24,7 @@ STAGING="$MC_ROOT/staging"
 LIVE="$PLUGINS/BlockShip-1.0.0-SNAPSHOT.jar"
 BROKEN_DIR="$MC_ROOT/backups/broken-jars"
 WEBHOOK_FILE="$MC_ROOT/scripts/discord-webhook.url"
-LOG_FILE="$MC_ROOT/scripts/ops.log"
+LOG_FILE="$MC_ROOT/backups/ops.log"   # ★운영 로그는 backups/ 에 모인다
 
 # ★인자를 관대하게 받는다. 이건 폰에서 쓰는 비상 도구다 —
 #   모바일 키보드가 `--` 를 en/em dash(–, —)로 자동 변환하는 일이 흔하고, 하이픈 개수도

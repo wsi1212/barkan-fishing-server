@@ -28,7 +28,7 @@ STAGING="$MC_ROOT/staging"
 STATE_FILE="$MC_ROOT/.fetch-staging-state"
 TOKEN_FILE="${GITHUB_TOKEN_FILE:-$MC_ROOT/.github-token}"
 WEBHOOK_FILE="$MC_ROOT/scripts/discord-webhook.url"
-LOG_FILE="${FETCH_LOG:-$MC_ROOT/scripts/ops.log}"
+LOG_FILE="${FETCH_LOG:-$MC_ROOT/backups/ops.log}"   # ★운영 로그는 backups/ 에 모인다(watchdog·diskguard·nightly 관행)
 ASSET_GLOB="${ASSET_GLOB:-BlockShip-*.jar}"
 
 DRY=0; FORCE=0
@@ -119,15 +119,21 @@ PY
 )" || die "Release 파싱: $(python3 -c "
 import json;d=json.loads('''$RESP''');print(d.get('tag_name','?'),'draft' if d.get('draft') else '','prerelease' if d.get('prerelease') else '')" 2>/dev/null)"
 
-log "최신 Release: $TAG ($ASSET_NAME, $((ASSET_SIZE / 1024))KB)"
-
+# ★변화가 없으면 **로그도 남기지 않는다.** cron 이 */15 이라 "최신 Release: …" 를 무조건
+#   찍으면 하루 96줄이 쌓여 ops.log 에서 진짜 사건(백업 실패·롤백·프리즈)이 묻힌다.
+#   위 401/403 구분과 같은 이유다 — 무인운영에서 노이즈는 그 자체로 장애다.
+#   단 사람이 직접 부른 경우(--dry-run/--force)는 보여준다. 조용하면 되는지 알 수 없으니까.
 LAST=$(cat "$STATE_FILE" 2>/dev/null || echo "")
-if [[ "$LAST" == "$TAG" && $FORCE -eq 0 ]]; then
-  # 조용히 끝낸다 — cron 이 15분마다 도니 여기서 알림을 보내면 노이즈가 된다
+if [[ "$LAST" == "$TAG" && $FORCE -eq 0 && $DRY -eq 0 ]]; then
   exit 0
 fi
 
-log "새 승격 감지: ${LAST:-<없음>} → $TAG"
+log "최신 Release: $TAG ($ASSET_NAME, $((ASSET_SIZE / 1024))KB)"
+if [[ "$LAST" == "$TAG" ]]; then
+  log "이미 받은 태그다 — 실제 실행이면 여기서 조용히 끝낸다 (다시 받으려면 --force)"
+else
+  log "새 승격 감지: ${LAST:-<없음>} → $TAG"
+fi
 [[ $DRY -eq 1 ]] && { log "(dry-run — 여기서 멈춘다)"; exit 0; }
 
 mkdir -p "$STAGING"
