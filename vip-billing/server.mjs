@@ -1,5 +1,7 @@
 import http from "node:http";
+import net from "node:net";
 import process from "node:process";
+import { readFile } from "node:fs/promises";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import pg from "pg";
 
@@ -18,6 +20,18 @@ const BANK_TRANSFER_ACCOUNT_NUMBER = process.env.BANK_TRANSFER_ACCOUNT_NUMBER ??
 const BANK_TRANSFER_ACCOUNT_HOLDER = process.env.BANK_TRANSFER_ACCOUNT_HOLDER ?? "";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? "";
+const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET ?? "";
+const COMMUNITY_BASE_URL = (process.env.COMMUNITY_BASE_URL ?? "https://barkan.kro.kr/community").replace(/\/$/, "");
+const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID ?? "972075275342983199";
+const MINECRAFT_PLAYERDATA_DIR = process.env.MINECRAFT_PLAYERDATA_DIR ?? "/home/ubuntu/mcserver/plugins/BlockShip/playerdata";
+const MINECRAFT_GUILDS_FILE = process.env.MINECRAFT_GUILDS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/guilds.json";
+const MINECRAFT_ISLANDS_FILE = process.env.MINECRAFT_ISLANDS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/islands.json";
+const MINECRAFT_ACHIEVEMENTS_FILE = process.env.MINECRAFT_ACHIEVEMENTS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/achievements.json";
+const MINECRAFT_TITLES_FILE = process.env.MINECRAFT_TITLES_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/titles.json";
+const MC_RCON_HOST = process.env.MC_RCON_HOST ?? "127.0.0.1";
+const MC_RCON_PORT = Number.parseInt(process.env.MC_RCON_PORT ?? "25575", 10);
+const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
 
 const TIERS = Object.freeze({
@@ -48,6 +62,82 @@ const minecraftName = (value) => typeof value === "string" && /^[A-Za-z0-9_]{3,1
 const validUuid = (value) => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const esc = (value = "") => String(value).replace(/[&<>'"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[c]);
 
+function rconPacket(id, type, body) {
+  const payload = Buffer.from(String(body), "utf8");
+  const packet = Buffer.alloc(4 + 4 + 4 + payload.length + 2);
+  packet.writeInt32LE(4 + 4 + payload.length + 2, 0);
+  packet.writeInt32LE(id, 4);
+  packet.writeInt32LE(type, 8);
+  payload.copy(packet, 12);
+  packet[12 + payload.length] = 0;
+  packet[13 + payload.length] = 0;
+  return packet;
+}
+
+function nextRconPacket(socket, state) {
+  return new Promise((resolve, reject) => {
+    let timer;
+    const cleanup = () => {
+      clearTimeout(timer);
+      socket.off("data", onData);
+      socket.off("error", onError);
+      socket.off("close", onClose);
+    };
+    const take = () => {
+      if (state.buffer.length < 4) return false;
+      const length = state.buffer.readInt32LE(0);
+      if (length < 10 || length > 1_000_000) {
+        cleanup();
+        reject(new Error("invalid RCON packet"));
+        return true;
+      }
+      if (state.buffer.length < length + 4) return false;
+      const packet = state.buffer.subarray(4, length + 4);
+      state.buffer = state.buffer.subarray(length + 4);
+      const result = { id: packet.readInt32LE(0), type: packet.readInt32LE(4), body: packet.subarray(8, packet.length - 2).toString("utf8") };
+      cleanup();
+      resolve(result);
+      return true;
+    };
+    const onData = (chunk) => { state.buffer = Buffer.concat([state.buffer, chunk]); take(); };
+    const onError = () => { cleanup(); reject(new Error("RCON connection failed")); };
+    const onClose = () => { cleanup(); reject(new Error("RCON connection closed")); };
+    socket.on("data", onData);
+    socket.on("error", onError);
+    socket.on("close", onClose);
+    timer = setTimeout(() => { cleanup(); reject(new Error("RCON timeout")); }, 5_000);
+    take();
+  });
+}
+
+async function rconExecute(command) {
+  if (!MC_RCON_PASSWORD) throw new Error("RCON is not configured");
+  const socket = net.createConnection({ host: MC_RCON_HOST, port: MC_RCON_PORT });
+  const state = { buffer: Buffer.alloc(0) };
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { socket.destroy(); reject(new Error("RCON connect timeout")); }, 5_000);
+      socket.once("connect", () => { clearTimeout(timer); resolve(); });
+      socket.once("error", (error) => { clearTimeout(timer); reject(error); });
+    });
+    socket.write(rconPacket(1, 3, MC_RCON_PASSWORD));
+    const auth = await nextRconPacket(socket, state);
+    if (auth.id === -1) throw new Error("RCON authentication failed");
+    socket.write(rconPacket(2, 2, command));
+    const response = await nextRconPacket(socket, state);
+    return response.body;
+  } finally {
+    socket.end();
+  }
+}
+
+const base64Url = (value) => Buffer.from(String(value ?? ""), "utf8").toString("base64url");
+async function submitGuildApplication(current, guildId, message) {
+  const command = `guildbr webapply ${[current.minecraft_uuid, current.player_name, guildId, message].map(base64Url).join(" ")}`;
+  const result = await rconExecute(command);
+  return /WEBAPPLY\s+ok/i.test(result);
+}
+
 function cookies(req) {
   return Object.fromEntries((req.headers.cookie ?? "").split(";").map((part) => {
     const i = part.indexOf("=");
@@ -56,12 +146,15 @@ function cookies(req) {
 }
 
 function send(res, status, body, type = "text/html; charset=utf-8", extra = {}) {
+  if (type.startsWith("text/html") && typeof body === "string" && body.includes('class="nav-links"') && !body.includes(`href="${COMMUNITY_BASE_URL}/guilds"`)) {
+    body = body.replace('<a href="/ranking">랭킹</a>', (match) => `${match}<a href="${COMMUNITY_BASE_URL}/guilds">길드</a>`);
+  }
   res.writeHead(status, {
     "Content-Type": type,
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "same-origin",
-    "Content-Security-Policy": "default-src 'self'; style-src 'unsafe-inline'; script-src 'self' https://js.tosspayments.com; connect-src 'self' https://api.tosspayments.com",
+    "Content-Security-Policy": "default-src 'self'; img-src 'self' https://mc-heads.net https://cdn.discordapp.com; style-src 'unsafe-inline'; script-src 'self' https://js.tosspayments.com; connect-src 'self' https://api.tosspayments.com",
     ...extra
   });
   res.end(body);
@@ -115,11 +208,51 @@ async function migrate() {
       expires_at TIMESTAMPTZ NOT NULL, used_at TIMESTAMPTZ
     );
     CREATE INDEX IF NOT EXISTS link_codes_player_idx ON link_codes (minecraft_uuid) WHERE used_at IS NULL;
+    CREATE TABLE IF NOT EXISTS discord_links (
+      minecraft_uuid UUID PRIMARY KEY, player_name TEXT NOT NULL,
+      discord_id TEXT NOT NULL UNIQUE, discord_name TEXT,
+      linked_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      verified_at TIMESTAMPTZ, reward_claimed_at TIMESTAMPTZ
+    );
+    ALTER TABLE discord_links ADD COLUMN IF NOT EXISTS avatar_hash TEXT;
+    ALTER TABLE discord_links ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
+    ALTER TABLE discord_links ADD COLUMN IF NOT EXISTS reward_claimed_at TIMESTAMPTZ;
     CREATE TABLE IF NOT EXISTS web_sessions (
       token_hash TEXT PRIMARY KEY, minecraft_uuid UUID NOT NULL, csrf_token TEXT NOT NULL,
       expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE web_sessions ADD COLUMN IF NOT EXISTS player_name TEXT;
+    CREATE TABLE IF NOT EXISTS community_sessions (
+      token_hash TEXT PRIMARY KEY, discord_id TEXT NOT NULL, minecraft_uuid UUID NOT NULL,
+      player_name TEXT NOT NULL, discord_name TEXT, avatar_hash TEXT, csrf_token TEXT NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS community_sessions_expiry_idx ON community_sessions (expires_at);
+    CREATE TABLE IF NOT EXISTS community_posts (
+      id UUID PRIMARY KEY, discord_id TEXT NOT NULL, minecraft_uuid UUID NOT NULL,
+      player_name TEXT NOT NULL, discord_name TEXT, category TEXT NOT NULL CHECK (category IN ('공략','질문','후기','소식')),
+      title TEXT NOT NULL, body TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), hidden BOOLEAN NOT NULL DEFAULT FALSE
+    );
+    CREATE INDEX IF NOT EXISTS community_posts_feed_idx ON community_posts (hidden, created_at DESC);
+    CREATE INDEX IF NOT EXISTS community_posts_author_idx ON community_posts (minecraft_uuid, created_at DESC);
+    CREATE TABLE IF NOT EXISTS community_post_likes (
+      post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+      minecraft_uuid UUID NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (post_id, minecraft_uuid)
+    );
+    CREATE INDEX IF NOT EXISTS community_post_likes_post_idx ON community_post_likes (post_id);
+    CREATE TABLE IF NOT EXISTS community_post_views (
+      post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+      viewer_key TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (post_id, viewer_key)
+    );
+    CREATE INDEX IF NOT EXISTS community_post_views_post_idx ON community_post_views (post_id);
+    CREATE TABLE IF NOT EXISTS community_profiles (
+      minecraft_uuid UUID PRIMARY KEY, introduction TEXT NOT NULL DEFAULT '', updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS orders (
       order_id TEXT PRIMARY KEY, minecraft_uuid UUID NOT NULL, tier TEXT NOT NULL CHECK (tier IN ('MVP','VIP','MVP_PLUS')),
       amount_krw INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING', provider_payment_key TEXT UNIQUE,
@@ -242,12 +375,559 @@ function linkPage(selection, error = "") {
   return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p></div>`);
 }
 
+const COMMUNITY_CATEGORIES = Object.freeze(["공략", "질문", "후기", "소식"]);
+const communityConfigured = () => Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET);
+async function communitySession(req) {
+  const value = cookies(req).community_session;
+  if (!value) return null;
+  const result = await pool.query(
+    `SELECT s.discord_id,s.minecraft_uuid,s.player_name,s.discord_name,s.avatar_hash,s.csrf_token
+       FROM community_sessions s JOIN discord_links d ON d.discord_id=s.discord_id
+      WHERE s.token_hash=$1 AND s.expires_at>NOW()`,
+    [hash(value)]
+  );
+  return result.rows[0] ?? null;
+}
+function communityLayout(title, content) {
+  content = `<style>.filter{text-decoration:none}</style>${content}`;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b1a"><title>${esc(title)} · 바르칸 열도</title><style>
+  @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-light.ttf') format('truetype');font-weight:300;font-display:swap}@font-face{font-family:Barkan;src:url('/assets/barkan-aggro-medium.ttf') format('truetype');font-weight:500;font-display:swap}@font-face{font-family:Barkan;src:url('/assets/barkan-aggro-bold.ttf') format('truetype');font-weight:800;font-display:swap}:root{color-scheme:dark;--ink:#071b1a;--deep:#0c2825;--panel:#123733;--line:rgba(216,238,224,.18);--text:#edf3e9;--muted:#a8bdb0;--faint:#78968a;--accent:#e2ad67;--mint:#96d9c4;--danger:#ff9b9f}*{box-sizing:border-box}body{margin:0;background:radial-gradient(720px 420px at 100% -10%,rgba(31,93,77,.4),transparent 70%),var(--ink);color:var(--text);font-family:Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;line-height:1.6}.wrap{width:min(1160px,calc(100% - 48px));margin:auto}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{color:var(--text);text-decoration:none;line-height:1}.brand strong{display:block;font-size:20px;font-weight:800;letter-spacing:.15em}.brand small{display:block;margin-top:7px;color:var(--accent);font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.18em}.nav-links{display:flex;align-items:center;gap:18px}.nav-links a{color:var(--muted);font-size:13px;text-decoration:none}.nav-links a:hover{color:var(--accent)}.nav-login{padding:9px 13px;border:1px solid rgba(150,217,196,.55);color:var(--mint)!important}.nav-login:hover{background:rgba(150,217,196,.1)}main{padding:58px 0 110px}.eyebrow{margin:0 0 12px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}.intro{display:flex;align-items:end;justify-content:space-between;gap:30px;padding-bottom:34px;border-bottom:1px solid var(--line)}h1{max-width:700px;margin:0;font-size:clamp(3rem,7vw,6rem);font-weight:800;letter-spacing:-.12em;line-height:.95}h1 em{color:var(--accent);font-style:normal}.intro-copy{max-width:310px;margin:0;color:var(--muted);font-size:14px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:30px 0 16px}.filters{display:flex;flex-wrap:wrap;gap:7px}.filter{padding:8px 12px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 12px Barkan;cursor:pointer}.filter.active,.filter:hover{border-color:var(--accent);color:var(--accent);background:rgba(226,173,103,.08)}.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border:1px solid var(--accent);background:var(--accent);color:#25180b;font-weight:800;text-decoration:none;cursor:pointer}.button:hover{background:#f0c783;transform:translateY(-1px)}.button.ghost{border-color:var(--line);background:transparent;color:var(--text)}.feed{border-top:1px solid var(--line)}.post{display:grid;grid-template-columns:95px minmax(0,1fr) 130px;gap:24px;align-items:start;padding:25px 0;border-bottom:1px solid var(--line);text-decoration:none}.post:hover .post-title{color:var(--accent)}.post-category{padding-top:5px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.08em}.post-title{margin:0;font-size:24px;font-weight:500;letter-spacing:-.07em;transition:color .15s}.post-excerpt{display:-webkit-box;overflow:hidden;margin:8px 0 0;color:var(--muted);font-size:13px;-webkit-box-orient:vertical;-webkit-line-clamp:2}.post-meta{padding-top:5px;color:var(--faint);font-size:11px;text-align:right}.empty{padding:62px 0;border-bottom:1px solid var(--line);color:var(--muted)}.notice{margin:18px 0;padding:13px 15px;border-left:2px solid var(--mint);background:rgba(150,217,196,.08);color:#d8eee2}.notice.danger{border-left-color:var(--danger);background:rgba(255,155,159,.1);color:#ffd9d9}.panel{max-width:800px;margin:auto;padding:35px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(18,55,51,.95),rgba(8,30,29,.95))}.panel h2{margin:0 0 7px;font-size:28px;letter-spacing:-.08em}label{display:block;margin:20px 0 7px;font-size:13px;font-weight:800}input,select,textarea{width:100%;padding:13px 14px;border:1px solid var(--line);background:#071b1a;color:var(--text);font:inherit;border-radius:0}textarea{min-height:310px;resize:vertical}small.help{display:block;margin-top:-2px;color:var(--faint);font-size:11px}.detail{max-width:820px;margin:auto}.detail-head{padding-bottom:30px;border-bottom:1px solid var(--line)}.detail h1{font-size:clamp(2.6rem,6vw,5rem)}.detail-meta{margin:17px 0 0;color:var(--muted);font-size:12px}.detail-body{padding:36px 0;color:#d7e5dc;font-size:16px;white-space:pre-wrap}.back{display:inline-block;margin-top:20px;color:var(--accent);font-size:13px;text-underline-offset:4px}.footer{padding:28px 0 40px;border-top:1px solid var(--line);color:var(--faint);font-size:12px}.footer-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px}.footer-links a{color:var(--muted);text-decoration:none}@media(max-width:720px){.wrap{width:min(100% - 30px,620px)}.nav{height:68px}.nav-links{gap:11px}.nav-links a:not(.nav-login){display:none}.intro{display:block;padding-bottom:27px}.intro-copy{margin-top:22px}.toolbar{display:block}.filters{margin-bottom:14px}.post{grid-template-columns:70px minmax(0,1fr);gap:12px;padding:20px 0}.post-meta{grid-column:2;padding-top:0;text-align:left}.post-title{font-size:19px}.panel{padding:25px 19px}}
+  </style><script src="/assets/site-nav.js" defer></script></head><body><div class="wrap"><div data-site-nav></div>${content}<footer class="footer"><div>바르칸 열도 · 공략과 항해 기록을 함께 쌓는 공간</div><div class="footer-links"><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">멤버십 상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의 및 환불</a></div></footer></div></body></html>`;
+}
+async function communityPosts(category = "") {
+  const selected = COMMUNITY_CATEGORIES.includes(category) ? category : "";
+  const stats = `
+    COALESCE((SELECT COUNT(*) FROM community_post_likes l WHERE l.post_id=p.id), 0)::int AS like_count,
+    COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count`;
+  const result = selected
+    ? await pool.query(`SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,${stats} FROM community_posts p WHERE p.hidden=FALSE AND p.category=$1 ORDER BY p.created_at DESC LIMIT 60`, [selected])
+    : await pool.query(`SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,${stats} FROM community_posts p WHERE p.hidden=FALSE ORDER BY p.created_at DESC LIMIT 60`);
+  return result.rows;
+}
+async function communityPost(id, current = null) {
+  if (!validUuid(id)) return null;
+  const result = await pool.query(`
+    SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,
+      COALESCE((SELECT COUNT(*) FROM community_post_likes l WHERE l.post_id=p.id), 0)::int AS like_count,
+      COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count,
+      ($2::uuid IS NOT NULL AND EXISTS (
+        SELECT 1 FROM community_post_likes l WHERE l.post_id=p.id AND l.minecraft_uuid=$2::uuid
+      )) AS liked
+    FROM community_posts p
+    WHERE p.id=$1::uuid AND p.hidden=FALSE`, [id, current?.minecraft_uuid ?? null]);
+  return result.rows[0] ?? null;
+}
+function communityCount(value) {
+  return Number(value ?? 0).toLocaleString("ko-KR");
+}
+function communityPostStats(post, includeLike = false) {
+  const likeLabel = includeLike ? `${post.liked ? "♥" : "♡"} ${communityCount(post.like_count)}` : `♥ ${communityCount(post.like_count)}`;
+  return `<span class="post-stat${post.liked ? " liked" : ""}">${likeLabel}</span><span class="post-stat">조회 ${communityCount(post.view_count)}</span>`;
+}
+async function readMinecraftJson(file, fallback) {
+  try { return JSON.parse(await readFile(file, "utf8")); } catch { return fallback; }
+}
+async function minecraftProfileData(uuid) {
+  if (!validUuid(uuid)) return {};
+  return readMinecraftJson(`${MINECRAFT_PLAYERDATA_DIR}/${uuid}.json`, {});
+}
+async function minecraftGuildFor(uuid) {
+  const guild = (await minecraftGuildList()).find((candidate) => candidate.members.some((member) => member.uuid === uuid));
+  if (!guild) return null;
+  const member = guild.members.find((candidate) => candidate.uuid === uuid);
+  return { id: guild.id, name: guild.name, role: member?.role ?? "MEMBER", memberCount: guild.members.length };
+}
+async function minecraftIslandFor(uuid) {
+  const islands = await readMinecraftJson(MINECRAFT_ISLANDS_FILE, {});
+  const island = Object.values(islands).find((candidate) => candidate && typeof candidate === "object" && candidate.ownerUuid === uuid);
+  if (!island) return null;
+  return { name: island.id?.replace(/^개인섬_/, "") || "개인 섬", visitCount: Number(island.visitCount ?? 0), isPublic: Boolean(island.isPublic) };
+}
+function minecraftColorless(value) {
+  return String(value ?? "").replace(/[&§][0-9a-fk-or]/gi, "").trim();
+}
+async function minecraftAchievementDefinitions() {
+  const root = await readMinecraftJson(MINECRAFT_ACHIEVEMENTS_FILE, {});
+  return Array.isArray(root.achievements) ? root.achievements : [];
+}
+async function minecraftTitleDefinitions() {
+  const root = await readMinecraftJson(MINECRAFT_TITLES_FILE, {});
+  const source = root.titles && typeof root.titles === "object" ? root.titles : {};
+  const order = Array.isArray(root.order) ? root.order : Object.keys(source);
+  return order.map((id) => ({ id, ...(source[id] && typeof source[id] === "object" ? source[id] : {}) }));
+}
+function normalizeGuild(key, guild) {
+  const source = guild && typeof guild === "object" ? guild : {};
+  const members = source.members && typeof source.members === "object" ? Object.entries(source.members).map(([uuid, member]) => ({
+    uuid,
+    name: String(member?.name ?? "알 수 없음"),
+    role: String(member?.role ?? "MEMBER"),
+    joinedAt: Number(member?.joinedAt ?? 0),
+    contributed: Number(member?.contributed ?? 0)
+  })) : [];
+  const applications = source.pendingApplications && typeof source.pendingApplications === "object"
+    ? Object.entries(source.pendingApplications).map(([uuid, application]) => ({ uuid, name: String(application?.name ?? "알 수 없음") }))
+    : [];
+  let emblemPixels = Array.isArray(source.emblemPixels) && source.emblemPixels.length === 64
+    ? source.emblemPixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < 12 ? Number(value) : -1)
+    : Array(64).fill(-1);
+  // 64×64 논리 캔버스와 구버전 128×128 캔버스 모두 웹 미리보기로 복원한다.
+  const rawLargePixels = Array.isArray(source.emblemCanvasPixels)
+    ? (source.emblemCanvasPixels.length === 64 * 64 || source.emblemCanvasPixels.length === 128 * 128 ? source.emblemCanvasPixels : null)
+    : null;
+  const largeSize = rawLargePixels ? Math.sqrt(rawLargePixels.length) : 0;
+  const largePixels = rawLargePixels
+    ? rawLargePixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < 12 ? Number(value) : -1)
+    : null;
+  if (largePixels && emblemPixels.every((value) => value < 0)) {
+    emblemPixels = Array.from({ length: 64 }, (_, index) => {
+      const gx = index % 8, gy = Math.floor(index / 8);
+      const counts = Array(12).fill(0);
+      const cell = largeSize / 8;
+      for (let y = 0; y < cell; y++) for (let x = 0; x < cell; x++) {
+        const value = largePixels[(gy * cell + y) * largeSize + gx * cell + x];
+        if (value >= 0) counts[value]++;
+      }
+      let best = -1, bestCount = 0;
+      counts.forEach((count, color) => { if (count > bestCount) { best = color; bestCount = count; } });
+      return best;
+    });
+  }
+  const canvasPixels = largePixels && largeSize === 64
+    ? largePixels
+    : largePixels && largeSize === 128
+      ? Array.from({ length: 64 * 64 }, (_, index) => {
+          const x = index % 64, y = Math.floor(index / 64);
+          for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) {
+            const value = largePixels[(y * 2 + dy) * 128 + x * 2 + dx];
+            if (value >= 0) return value;
+          }
+          return -1;
+        })
+      : [];
+  return {
+    id: String(source.id ?? key),
+    name: String(source.displayName ?? source.id ?? key),
+    description: String(source.description ?? ""),
+    isPublic: source.isPublic !== false,
+    pvp: Boolean(source.pvp),
+    ownerId: String(source.ownerId ?? ""),
+    ownerUuid: String(source.ownerUuid ?? ""),
+    treasury: Number(source.treasury ?? 0),
+    submitTotal: Number(source.submitTotal ?? 0),
+    submitSeason: Number(source.submitSeason ?? 0),
+    maxMembers: Number(source.maxMembers ?? 0),
+    islandId: String(source.islandId ?? ""),
+    upgrades: { hopper: Number(source.hopperLevel ?? 0), frame: Number(source.frameLevel ?? 0), furniture: Number(source.furnitureLevel ?? 0), crop: Number(source.cropLevel ?? 0), warp: Number(source.warpLevel ?? 0), cooking: Number(source.cookingStations ?? 0) },
+    emblemPixels,
+    emblemCanvasPixels: canvasPixels,
+    members,
+    applications
+  };
+}
+const EMBLEM_COLORS = Object.freeze([
+  "#141b27", "#eff4f2", "#d34d5a", "#f08f49", "#f5c757", "#68cd8f",
+  "#42a67e", "#58cddd", "#4980d0", "#8169c4", "#d270bc", "#9f6948"
+]);
+function guildEmblem(guild, className = "guild-emblem", full = false) {
+  const pixels = full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
+    ? guild.emblemCanvasPixels
+    : Array.isArray(guild?.emblemPixels) && guild.emblemPixels.length === 64 ? guild.emblemPixels : Array(64).fill(-1);
+  const size = full && pixels.length === 64 * 64 ? 64 : 8;
+  const cells = pixels.map((value) => {
+    const color = Number.isInteger(value) && value >= 0 && value < EMBLEM_COLORS.length ? EMBLEM_COLORS[value] : "#08121d";
+    return `<i style="background:${color}"></i>`;
+  }).join("");
+  return `<span class="${className}" style="--emblem-size:${size}" aria-label="${esc(guild?.name ?? "길드")} 엠블럼">${cells}</span>`;
+}
+async function minecraftGuildList() {
+  const source = await readMinecraftJson(MINECRAFT_GUILDS_FILE, {});
+  return Object.entries(source).filter(([, guild]) => guild && typeof guild === "object").map(([key, guild]) => normalizeGuild(key, guild)).sort((a, b) => b.submitSeason - a.submitSeason || b.members.length - a.members.length || a.name.localeCompare(b.name, "ko"));
+}
+async function minecraftGuildById(id) {
+  const guild = (await minecraftGuildList()).find((candidate) => candidate.id === id);
+  if (!guild) return null;
+  const uuids = guild.members.map((member) => member.uuid).filter(validUuid);
+  const linked = uuids.length ? await pool.query("SELECT minecraft_uuid FROM discord_links WHERE minecraft_uuid=ANY($1::uuid[])", [uuids]) : { rows: [] };
+  const linkedSet = new Set(linked.rows.map((row) => row.minecraft_uuid));
+  return { ...guild, members: guild.members.map((member) => ({ ...member, linked: linkedSet.has(member.uuid) })) };
+}
+function achievementRecords(ids, definitions) {
+  const byId = new Map(definitions.map((definition) => [String(definition.id), definition]));
+  return ids.map((id) => {
+    const definition = byId.get(String(id));
+    return { id: String(id), name: String(definition?.name ?? id), desc: String(definition?.desc ?? "서버의 도전과제를 완료했습니다."), tab: String(definition?.tab ?? "기록"), tier: String(definition?.tier ?? "완료") };
+  });
+}
+function titleRecords(ids, definitions) {
+  const byId = new Map(definitions.map((definition) => [String(definition.id), definition]));
+  return ids.map((id) => {
+    const definition = byId.get(String(id));
+    return { id: String(id), name: minecraftColorless(definition?.name ?? id), desc: minecraftColorless(definition?.desc ?? "획득한 칭호") };
+  });
+}
+async function communityProfile(uuid) {
+  const link = await pool.query("SELECT minecraft_uuid,player_name,discord_id,discord_name,avatar_hash,linked_at FROM discord_links WHERE minecraft_uuid=$1", [uuid]);
+  if (!link.rowCount) return null;
+  const [game, posts, guild, island, profileMeta, achievementDefs, titleDefs] = await Promise.all([
+    minecraftProfileData(uuid),
+    pool.query("SELECT id,category,title,body,created_at FROM community_posts WHERE minecraft_uuid=$1 AND hidden=FALSE ORDER BY created_at DESC LIMIT 30", [uuid]),
+    minecraftGuildFor(uuid),
+    minecraftIslandFor(uuid),
+    pool.query("SELECT introduction FROM community_profiles WHERE minecraft_uuid=$1", [uuid]),
+    minecraftAchievementDefinitions(),
+    minecraftTitleDefinitions()
+  ]);
+  const fishRecords = game.fishRecords && typeof game.fishRecords === "object" ? game.fishRecords : {};
+  const dex = game.dexDiscovery && typeof game.dexDiscovery === "object" ? game.dexDiscovery : {};
+  const extraNums = game.extraNums && typeof game.extraNums === "object" ? game.extraNums : {};
+  const parts = game.equippedParts && typeof game.equippedParts === "object" ? game.equippedParts : {};
+  return {
+    ...link.rows[0],
+    game,
+    posts: posts.rows,
+    guild,
+    island,
+    fishCount: Object.keys(fishRecords).length,
+    regionCount: Array.isArray(game.visitedRegions) ? game.visitedRegions.length : Array.isArray(dex.지역) ? dex.지역.length : 0,
+    totalFishing: Number(extraNums["총낚시"] ?? 0),
+    popularity: Number(game.popularity ?? 0),
+    achievements: achievementRecords(Array.isArray(game.completedAchievements) ? game.completedAchievements : [], achievementDefs),
+    titles: titleRecords(Array.isArray(game.ownedTitles) ? game.ownedTitles : [], titleDefs),
+    achievementCount: Array.isArray(game.completedAchievements) ? game.completedAchievements.length : 0,
+    titleCount: Array.isArray(game.ownedTitles) ? game.ownedTitles.length : 0,
+    introduction: profileMeta.rows[0]?.introduction ?? String(game.introduction ?? "").trim(),
+    cookingLevel: Number(extraNums["요리레벨"] ?? 0),
+    collectionLevel: Number(extraNums["수집레벨"] ?? 0),
+    explorationLevel: Number(extraNums["탐험레벨"] ?? 0),
+    parts
+  };
+}
+function communityPage(current, posts, notice = "", selectedCategory = "") {
+  const userMarker = current ? " data-community-user=\"1\"" : "";
+  const cards = posts.length ? posts.map((post) => `<article class="post"><div class="post-category">${esc(post.category)}</div><a class="post-content" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><h2 class="post-title">${esc(post.title)}</h2><p class="post-excerpt">${esc(post.body)}</p><div class="post-stats">${communityPostStats(post)}</div></a><a class="post-meta" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(post.minecraft_uuid)}">${esc(post.player_name)}<br>${new Date(post.created_at).toLocaleDateString("ko-KR")}</a></article>`).join("") : `<div class="empty">아직 첫 항해 기록이 없습니다. 게임에서 겪은 팁과 발견을 남겨 보세요.</div>`;
+  const action = current ? `<a class="button" href="${COMMUNITY_BASE_URL}/write">글쓰기</a>` : `<a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 시작하기</a>`;
+  const categories = ["전체", ...COMMUNITY_CATEGORIES].map((category) => {
+    const active = category === "전체" ? !selectedCategory : category === selectedCategory;
+    const href = category === "전체" ? COMMUNITY_BASE_URL : `${COMMUNITY_BASE_URL}?category=${encodeURIComponent(category)}`;
+    return `<a class="filter${active ? " active" : ""}" href="${href}">${category}</a>`;
+  }).join("");
+  return communityLayout("커뮤니티", `<main${userMarker}><style>.post-content{display:block;min-width:0;color:inherit;text-decoration:none}.post-meta{display:block;text-decoration:none}.post-meta:hover{color:var(--accent)}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.post-stat.liked{color:var(--danger)}.post-stat:first-child{color:var(--accent)}</style><section class="intro"><div><p class="eyebrow">Barkan community</p><h1>커뮤니티</h1></div><p class="intro-copy">바르칸에서 먼저 알아낸 방법과 오늘의 발견을 나누는 공간입니다. 게임 계정과 연결된 Discord로 글을 남겨 보세요.</p></section>${notice ? `<div class="notice">${esc(notice)}</div>` : ""}<div class="toolbar"><div class="filters">${categories}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${current ? `<a class="button ghost" href="${COMMUNITY_BASE_URL}/profile">내 프로필</a>` : ""}${action}</div></div><section class="feed" aria-label="커뮤니티 글">${cards}</section></main>`);
+}
+function communityWritePage(current, error = "") {
+  return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log</p><h2>새 기록 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">분류</label><select id="category" name="category">${COMMUNITY_CATEGORIES.map((category) => `<option value="${category}">${category}</option>`).join("")}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
+}
+function communityPostPage(current, post, error = "") {
+  if (!post) return communityLayout("글을 찾을 수 없음", `<main><section class="panel"><h2>기록을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
+  const heart = current
+    ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}/heart" class="heart-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="heart-button${post.liked ? " active" : ""}" type="submit" aria-label="${post.liked ? "하트 취소" : "하트 보내기"}">${post.liked ? "♥" : "♡"} <span>${communityCount(post.like_count)}</span></button></form>`
+    : `<a class="heart-button" href="${COMMUNITY_BASE_URL}/login">♡ <span>${communityCount(post.like_count)}</span></a>`;
+  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}</style><article class="detail"><div class="detail-head"><p class="eyebrow">${esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span><span class="view-count">조회 ${communityCount(post.view_count)}</span></p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span></div><div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a></article></main>`);
+}
+function communityViewer(req, current) {
+  if (current) return { key: `user:${current.minecraft_uuid}`, cookie: null };
+  const existing = cookies(req).community_viewer;
+  const value = existing || token(24);
+  return {
+    key: `anon:${hash(value)}`,
+    cookie: existing ? null : `community_viewer=${encodeURIComponent(value)}; Path=/community; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax`
+  };
+}
+function communityProfilePage(profile, current = null) {
+  if (!profile) return communityLayout("프로필을 찾을 수 없음", `<main><section class="panel"><h2>연결된 프로필을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
+  const game = profile.game ?? {};
+  const fishLevel = Number(game.fishingLevel ?? 0);
+  const currentExp = Number(game.currentExp ?? 0);
+  const requiredExp = Number(game.requiredExp ?? 0);
+  const expPercent = requiredExp > 0 ? Math.max(0, Math.min(100, Math.round((currentExp / requiredExp) * 100))) : 0;
+  const displayName = String(game.name ?? profile.player_name ?? "항해자");
+  const titles = Array.isArray(game.ownedTitles) ? game.ownedTitles : [];
+  const regions = Array.isArray(game.visitedRegions) ? game.visitedRegions : [];
+  const avatar = validUuid(profile.minecraft_uuid) ? `https://mc-heads.net/avatar/${encodeURIComponent(profile.minecraft_uuid)}/160` : "";
+  const skinBase = validUuid(profile.minecraft_uuid) ? `https://mc-heads.net/body/${encodeURIComponent(profile.minecraft_uuid)}/250` : "";
+  const intro = esc(profile.introduction || "아직 소개글이 없습니다. 마크에서 /프로필을 열고 소개글을 설정해 보세요.").replace(/\n/g, "<br>");
+  const skinViews = [
+    ["앞", skinBase],
+    ["오른쪽", `${skinBase}/right`],
+    ["뒤", `${skinBase}/back`],
+    ["왼쪽", `${skinBase}/left`]
+  ];
+  const stat = (label, value, detail = "") => `<div class="profile-stat"><span>${esc(label)}</span><strong>${esc(String(value))}</strong>${detail ? `<small>${esc(detail)}</small>` : ""}</div>`;
+  const equipped = Object.entries(profile.parts ?? {}).filter(([, value]) => value).map(([slot, value]) => `<div class="equipment-row"><span>${esc(slot)}</span><b>${esc(String(value))}</b></div>`).join("") || `<p class="muted">장착한 장비 정보가 없습니다.</p>`;
+  const postCards = profile.posts.length ? profile.posts.map((post) => `<a class="profile-post" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><span>${esc(post.category)}</span><div><strong>${esc(post.title)}</strong><small>${new Date(post.created_at).toLocaleDateString("ko-KR")}</small></div><b>→</b></a>`).join("") : `<div class="empty">아직 작성한 글이 없습니다.</div>`;
+  const profileMarker = current ? " data-community-user=\"1\"" : "";
+  return communityLayout("프로필", `<main${profileMarker}><style>
+  .profile-hero{display:grid;grid-template-columns:1fr 240px;gap:28px;align-items:stretch;padding:34px 0 30px;border-bottom:1px solid var(--line)}
+  .profile-identity{display:flex;gap:18px;align-items:center}.profile-avatar{width:72px;height:72px;object-fit:cover;border:1px solid rgba(150,217,196,.45);background:#071b1a;image-rendering:auto}.profile-kicker{margin:0 0 7px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase}.profile-name{margin:0;font-size:clamp(2rem,5vw,3.7rem);font-weight:800;letter-spacing:-.1em;line-height:.95}.profile-discord{margin:9px 0 0;color:var(--muted);font-size:12px}.profile-intro{max-width:620px;margin:24px 0 0;padding:15px 17px;border-left:2px solid var(--accent);background:rgba(226,173,103,.08);color:#dce9df;font-size:14px;line-height:1.7}.profile-skin{display:flex;justify-content:center;align-items:end;min-height:190px;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%,rgba(150,217,196,.18),transparent 55%),linear-gradient(150deg,rgba(150,217,196,.13),rgba(7,27,26,.3));overflow:hidden}.skin-viewer{width:100%;height:100%;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:end;cursor:grab;touch-action:none;user-select:none}.skin-viewer:active{cursor:grabbing}.skin-stage{position:relative;display:flex;width:180px;height:222px;align-items:end;justify-content:center;perspective:650px;transform-style:preserve-3d}.skin-figure{position:relative;display:flex;width:170px;height:215px;align-items:end;justify-content:center;transform-origin:50% 75%;will-change:transform;transition:transform .12s ease-out}.skin-figure img{position:absolute;bottom:0;height:215px;max-width:170px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 18px 14px rgba(0,0,0,.38));transition:opacity .15s ease}.skin-figure img[hidden]{display:none}.skin-hint{display:flex;align-items:center;gap:10px;margin:4px 0 12px;color:var(--muted);font-size:10px}.skin-hint b{color:var(--mint);font-weight:800}.profile-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.profile-stat{min-height:104px;padding:15px;background:rgba(12,40,37,.74)}.profile-stat span,.profile-stat small{display:block;color:var(--muted);font-size:11px}.profile-stat strong{display:block;margin-top:9px;color:var(--text);font-size:25px;letter-spacing:-.06em}.profile-stat small{margin-top:3px;color:var(--faint)}.profile-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:26px}.profile-section{padding-top:27px;border-top:1px solid var(--line)}.profile-section h2{margin:0 0 15px;font-size:19px;letter-spacing:-.07em}.profile-section h2 small{margin-left:7px;color:var(--faint);font:500 11px ui-monospace,monospace;letter-spacing:0}.progress{height:7px;margin:12px 0 7px;background:#071b1a;border:1px solid var(--line)}.progress i{display:block;height:100%;background:var(--mint)}.progress-line{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.profile-posts{border-top:1px solid var(--line)}.profile-post{display:grid;grid-template-columns:58px minmax(0,1fr) 20px;gap:13px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.profile-post:hover strong{color:var(--accent)}.profile-post>span{color:var(--mint);font:800 10px ui-monospace,monospace}.profile-post strong{display:block;font-size:15px;font-weight:500;letter-spacing:-.04em}.profile-post small{display:block;margin-top:3px;color:var(--faint);font-size:10px}.profile-post>b{color:var(--accent);font-size:18px;font-weight:400}.equipment{border-top:1px solid var(--line)}.equipment-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.equipment-row span{color:var(--muted)}.equipment-row b{font-weight:500;text-align:right}.profile-tags{display:flex;flex-wrap:wrap;gap:6px}.profile-tag{padding:6px 9px;border:1px solid var(--line);color:var(--muted);font-size:11px}.profile-actions{display:flex;gap:9px;margin-top:20px}.profile-actions .button{min-height:38px;padding:8px 12px}@media(max-width:760px){.profile-hero{grid-template-columns:1fr}.profile-skin{min-height:150px}.skin-stage{height:210px}.skin-figure{height:200px}.skin-figure img{height:200px;max-width:160px}.profile-stats{grid-template-columns:repeat(2,1fr)}.profile-stat:last-child{grid-column:span 2}.profile-layout{grid-template-columns:1fr}}
+  </style><section class="profile-hero"><div><div class="profile-identity">${avatar ? `<img class="profile-avatar" src="${avatar}" alt="Discord 프로필 이미지">` : `<div class="profile-avatar" aria-hidden="true"></div>`}<div><p class="profile-kicker">Barkan profile</p><h1 class="profile-name">${esc(displayName)}</h1><p class="profile-discord">${esc(profile.discord_name ?? "Discord 연결됨")} · ${esc(game.equippedTitle ?? "항해자")}</p></div></div><div class="profile-actions"><a class="button ghost" href="${COMMUNITY_BASE_URL}">커뮤니티로</a>${current ? `<a class="button" href="${COMMUNITY_BASE_URL}/write">글쓰기</a>` : ""}</div></div><div class="profile-skin">${skin ? `<img src="${skin}" alt="${esc(displayName)}의 마인크래프트 스킨" loading="lazy">` : `<span class="muted">스킨 정보를 준비 중입니다.</span>`}</div></section><section class="profile-stats" aria-label="서버 기록">${stat("낚시 레벨", fishLevel)}${stat("발견 물고기", `${profile.fishCount}종`)}${stat("탐험 지역", `${profile.regionCount}곳`)}${stat("총 낚시", profile.totalFishing)}${stat("최고 콤보", Number(game.maxCombo ?? 0))}</section><div class="profile-layout"><div><section class="profile-section"><h2>성장 기록 <small>GAME PROGRESS</small></h2><div class="progress"><i style="width:${expPercent}%"></i></div><div class="progress-line"><span>낚시 경험치</span><span>${currentExp.toLocaleString("ko-KR")} / ${requiredExp.toLocaleString("ko-KR")}</span></div><div class="profile-tags" style="margin-top:17px">${["요리", "수집", "탐험"].map((label) => `<span class="profile-tag">${label} Lv.${Number(label === "요리" ? profile.cookingLevel : label === "수집" ? profile.collectionLevel : profile.explorationLevel)}</span>`).join("")}</div></section><section class="profile-section"><h2>작성한 글 <small>${profile.posts.length} POSTS</small></h2><div class="profile-posts">${postCards}</div></section></div><aside><section class="profile-section"><h2>항해 정보</h2><div class="equipment"><div class="equipment-row"><span>길드</span><b>${profile.guild ? `${esc(profile.guild.name)} · ${profile.guild.memberCount}명` : "가입한 길드 없음"}</b></div><div class="equipment-row"><span>섬</span><b>${profile.island ? `${esc(profile.island.name)} · 방문 ${profile.island.visitCount}회` : "개인 섬 없음"}</b></div><div class="equipment-row"><span>칭호</span><b>${esc(game.equippedTitle ?? "항해자")}</b></div></div></section><section class="profile-section"><h2>장착 장비 <small>EQUIPMENT</small></h2><div class="equipment">${equipped}</div></section><section class="profile-section"><h2>발견한 지역</h2><div class="profile-tags">${regions.length ? regions.slice(0, 18).map((region) => `<span class="profile-tag">${esc(region)}</span>`).join("") : `<span class="muted">아직 기록이 없습니다.</span>`}</div></section></aside></div></main>`);
+}
+function communityProfileEditPage(current, introduction = "", error = "") {
+  return communityLayout("소개글 수정", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Edit profile</p><h2>소개글 수정</h2><p class="muted">최대 100자이며, 저장하면 마크 서버의 <code>/프로필</code>과 웹 프로필에 함께 표시됩니다.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/profile/edit"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="introduction">소개글</label><textarea id="introduction" name="introduction" maxlength="100" rows="4" placeholder="예: 항구에서 낚시와 요리를 연구하는 항해자입니다.">${esc(introduction)}</textarea><small class="help">비워 두면 기본 안내가 표시됩니다.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">저장하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}/profile">취소</a></div></form></section></main>`);
+}
+
+function profileClientJs() {
+  return [
+    "(()=>{",
+    "const root=document.querySelector('[data-skin-viewer]'),canvas=root?.querySelector('[data-skin-canvas]');if(!root||!canvas)return;root.querySelector('.skin-hint span')?.remove();const avatar=root.closest('main')?.querySelector('.profile-avatar')?.src||'';const uuid=(avatar.match(/avatar\\/([^/]+)/)||[])[1]||'';const label=root.querySelector('[data-skin-angle]');",
+    "const skinUrl=uuid?'https://mc-heads.net/skin/'+uuid+'/':'';const canRender=Boolean(canvas.getContext?.('webgl2')||canvas.getContext?.('webgl'));",
+    "if(window.skinview3d&&canRender){const viewer=new skinview3d.SkinViewer({canvas,width:280,height:250,skin:skinUrl});viewer.controls.enableRotate=true;viewer.controls.enableZoom=true;viewer.controls.enablePan=false;viewer.zoom=0.84;viewer.animation=new skinview3d.IdleAnimation();function updateLabel(){const rotation=viewer.playerObject?.rotation?.y??0;const degrees=Math.round((((rotation*180/Math.PI)%360)+360)%360);if(label)label.textContent=degrees+'°';}canvas.addEventListener('pointerdown',()=>root.classList.add('is-dragging'));canvas.addEventListener('pointerup',()=>root.classList.remove('is-dragging'));canvas.addEventListener('pointerleave',()=>root.classList.remove('is-dragging'));canvas.addEventListener('pointercancel',()=>root.classList.remove('is-dragging'));const tick=()=>{if(!document.documentElement.contains(root)){viewer.dispose?.();return;}updateLabel();requestAnimationFrame(tick)};requestAnimationFrame(tick);}else if(label)label.textContent='';",
+    "const recordsStyle=document.createElement('style');recordsStyle.textContent='.profile-record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.profile-record{padding:12px;border:1px solid var(--line);background:rgba(12,40,37,.5)}.profile-record strong{display:block;font-size:13px}.profile-record small{display:block;margin-top:3px;color:var(--mint);font-size:10px}.profile-record p{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.55}.profile-record a{color:var(--text);text-decoration:none}.profile-record a:hover{color:var(--accent)}@media(max-width:760px){.profile-record-grid{grid-template-columns:1fr}}';document.head.append(recordsStyle);",
+    "const makeText=(tag,value,cls='')=>{const node=document.createElement(tag);if(cls)node.className=cls;node.textContent=String(value??'');return node;};",
+    "const linkGuild=(guild)=>{if(!guild?.id)return;const row=[...root.closest('main').querySelectorAll('.equipment-row')].find((candidate)=>candidate.firstElementChild?.textContent==='길드');if(!row?.lastElementChild)return;const link=document.createElement('a');link.href='/community/guild/'+encodeURIComponent(guild.id);link.textContent=String(guild.name)+' · '+String(guild.memberCount)+'명';link.style.color='inherit';link.style.textDecoration='none';row.lastElementChild.textContent='';row.lastElementChild.append(link);};",
+    "const renderRecords=(data)=>{const layout=root.closest('main')?.querySelector('.profile-layout'),left=layout?.firstElementChild;if(!left||!data)return;const makeSection=(title,meta,items,kind)=>{const section=document.createElement('section');section.className='profile-section';const heading=document.createElement('h2');heading.append(makeText('span',title),makeText('small',meta));const grid=document.createElement('div');grid.className='profile-record-grid';if(!items?.length){grid.append(makeText('p','아직 기록이 없습니다.','muted'));}else items.forEach((item)=>{const card=document.createElement('article');card.className='profile-record';if(kind==='achievement'){card.append(makeText('strong',item.name),makeText('small',(item.tab||'기록')+' · '+(item.tier||'완료')),makeText('p',item.desc));}else{card.append(makeText('strong',item.name),makeText('small','획득한 칭호'),makeText('p',item.desc));}grid.append(card);});section.append(heading,grid);return section;};const posts=left.querySelector('.profile-posts')?.closest('.profile-section');left.insertBefore(makeSection('클리어한 도전과제',(data.achievements?.length||0)+' ACHIEVEMENTS',data.achievements,'achievement'),posts||null);left.insertBefore(makeSection('획득한 칭호',(data.titles?.length||0)+' TITLES',data.titles,'title'),posts||null);};",
+    "fetch('/community/profile/records/'+encodeURIComponent(uuid)).then((response)=>response.ok?response.json():null).then((data)=>{linkGuild(data?.guild);renderRecords(data);}).catch(()=>{});",
+    "})();"
+  ].join("\n");
+}
+
+function communityProfilePageInteractive(profile, current = null, notice = "") {
+  if (!profile) return communityLayout("프로필을 찾을 수 없음", `<main><section class="panel"><h2>연결된 프로필을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
+  const game = profile.game ?? {};
+  const displayName = String(game.name ?? profile.player_name ?? "항해자");
+  const intro = esc(profile.introduction || "아직 소개글이 없습니다. 마크에서 /프로필을 열고 소개글을 설정해 보세요.").replace(/\n/g, "<br>");
+  const uuid = encodeURIComponent(profile.minecraft_uuid);
+  const fishLevel = Number(game.fishingLevel ?? 0);
+  const currentExp = Number(game.currentExp ?? 0);
+  const requiredExp = Number(game.requiredExp ?? 0);
+  const expPercent = requiredExp > 0 ? Math.max(0, Math.min(100, Math.round(currentExp * 100 / requiredExp))) : 0;
+  const regions = Array.isArray(game.visitedRegions) ? game.visitedRegions : [];
+  const titles = Array.isArray(game.ownedTitles) ? game.ownedTitles : [];
+  const stat = (label, value, accent = "") => `<div class="profile-stat"><span>${esc(label)}</span><strong class="${accent}">${esc(String(value))}</strong></div>`;
+  const equipped = Object.entries(profile.parts ?? {}).filter(([, value]) => value).map(([slot, value]) => `<div class="equipment-row"><span>${esc(slot)}</span><b>${esc(String(value))}</b></div>`).join("") || `<p class="muted">장착한 장비 정보가 없습니다.</p>`;
+  const postCards = profile.posts.length ? profile.posts.map((post) => `<a class="profile-post" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><span>${esc(post.category)}</span><div><strong>${esc(post.title)}</strong><small>${new Date(post.created_at).toLocaleDateString("ko-KR")}</small></div><b>→</b></a>`).join("") : `<div class="empty">아직 작성한 글이 없습니다.</div>`;
+  const currentMarker = current ? " data-community-user=\"1\"" : ""; /*
+  return communityLayout("프로필", `<main${currentMarker}>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<style>.skin-canvas{display:block;width:100%;height:250px;touch-action:none;cursor:grab}.skin-canvas:active{cursor:grabbing}</style><style>
+  .profile-hero{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:28px;align-items:stretch;padding:34px 0 30px;border-bottom:1px solid var(--line)}.profile-identity{display:flex;gap:18px;align-items:center}.profile-avatar{width:76px;height:76px;object-fit:cover;border:1px solid rgba(150,217,196,.45);background:#071b1a}.profile-kicker{margin:0 0 7px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase}.profile-name{margin:0;font-size:clamp(2rem,5vw,3.7rem);font-weight:800;letter-spacing:-.1em;line-height:.95}.profile-discord{margin:9px 0 0;color:var(--muted);font-size:12px}.profile-intro{max-width:650px;margin:25px 0 0;padding:15px 17px;border-left:2px solid var(--accent);background:rgba(226,173,103,.08);color:#dce9df;font-size:14px;line-height:1.7}.profile-skin{display:flex;justify-content:center;align-items:end;min-height:255px;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%,rgba(150,217,196,.18),transparent 55%),linear-gradient(150deg,rgba(150,217,196,.13),rgba(7,27,26,.3));overflow:hidden}.skin-viewer{width:100%;min-height:255px;display:flex;flex-direction:column;align-items:center;justify-content:end;cursor:grab;touch-action:none;user-select:none}.skin-viewer:active{cursor:grabbing}.skin-stage{position:relative;width:190px;height:225px;perspective:650px}.skin-figure{position:relative;display:flex;width:180px;height:220px;align-items:end;justify-content:center;transform-origin:50% 75%;will-change:transform;transition:transform .1s ease-out}.skin-figure img{position:absolute;bottom:0;height:220px;max-width:175px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 18px 14px rgba(0,0,0,.38));transition:opacity .12s ease}.skin-figure img[hidden]{display:none}.skin-hint{display:flex;align-items:center;gap:10px;margin:3px 0 12px;color:var(--muted);font-size:10px}.skin-hint b{color:var(--mint);font-weight:800}.profile-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.profile-stat{min-height:96px;padding:15px;background:rgba(12,40,37,.74)}.profile-stat span{display:block;color:var(--muted);font-size:11px}.profile-stat strong{display:block;margin-top:9px;color:var(--text);font-size:23px;letter-spacing:-.06em}.profile-stat strong.pop{color:var(--accent)}.profile-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:26px}.profile-section{padding-top:27px;border-top:1px solid var(--line)}.profile-section h2{margin:0 0 15px;font-size:19px;letter-spacing:-.07em}.profile-section h2 small{margin-left:7px;color:var(--faint);font:500 11px ui-monospace,monospace;letter-spacing:0}.progress{height:7px;margin:12px 0 7px;background:#071b1a;border:1px solid var(--line)}.progress i{display:block;height:100%;background:var(--mint)}.progress-line{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.profile-posts{border-top:1px solid var(--line)}.profile-post{display:grid;grid-template-columns:58px minmax(0,1fr) 20px;gap:13px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.profile-post:hover strong{color:var(--accent)}.profile-post>span{color:var(--mint);font:800 10px ui-monospace,monospace}.profile-post strong{display:block;font-size:15px;font-weight:500;letter-spacing:-.04em}.profile-post small{display:block;margin-top:3px;color:var(--faint);font-size:10px}.profile-post>b{color:var(--accent);font-size:18px;font-weight:400}.equipment{border-top:1px solid var(--line)}.equipment-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.equipment-row span{color:var(--muted)}.equipment-row b{font-weight:500;text-align:right}.profile-tags{display:flex;flex-wrap:wrap;gap:6px}.profile-tag{padding:6px 9px;border:1px solid var(--line);color:var(--muted);font-size:11px}.profile-actions{display:flex;gap:9px;margin-top:20px}.profile-actions .button{min-height:38px;padding:8px 12px}@media(max-width:760px){.profile-hero{grid-template-columns:1fr}.profile-skin,.skin-viewer{min-height:235px}.profile-stats{grid-template-columns:repeat(2,1fr)}.profile-stat:last-child{grid-column:span 2}.profile-layout{grid-template-columns:1fr}}
+  return communityLayout("프로필", `<main${currentMarker}>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<style>
+}
+
+*/
+  return communityLayout("프로필", `<main${currentMarker}>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<style>
+  .profile-hero{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:28px;align-items:stretch;padding:34px 0 30px;border-bottom:1px solid var(--line)}.profile-identity{display:flex;gap:18px;align-items:center}.profile-avatar{width:76px;height:76px;object-fit:cover;border:1px solid rgba(150,217,196,.45);background:#071b1a}.profile-kicker{margin:0 0 7px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.15em;text-transform:uppercase}.profile-name{margin:0;font-size:clamp(2rem,5vw,3.7rem);font-weight:800;letter-spacing:-.1em;line-height:.95}.profile-discord{margin:9px 0 0;color:var(--muted);font-size:12px}.profile-intro{max-width:650px;margin:25px 0 0;padding:15px 17px;border-left:2px solid var(--accent);background:rgba(226,173,103,.08);color:#dce9df;font-size:14px;line-height:1.7}.profile-skin{display:flex;justify-content:center;align-items:end;min-height:255px;border:1px solid var(--line);background:radial-gradient(circle at 50% 30%,rgba(150,217,196,.18),transparent 55%),linear-gradient(150deg,rgba(150,217,196,.13),rgba(7,27,26,.3));overflow:hidden}.skin-viewer{width:100%;min-height:255px;display:flex;flex-direction:column;align-items:center;justify-content:end;cursor:grab;touch-action:none;user-select:none}.skin-viewer:active{cursor:grabbing}.skin-stage{position:relative;width:190px;height:225px;perspective:650px}.skin-figure{position:relative;display:flex;width:180px;height:220px;align-items:end;justify-content:center;transform-origin:50% 75%;will-change:transform;transition:transform .1s ease-out}.skin-figure img{position:absolute;bottom:0;height:220px;max-width:175px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 18px 14px rgba(0,0,0,.38));transition:opacity .12s ease}.skin-figure img[hidden]{display:none}.skin-hint{display:flex;align-items:center;gap:10px;margin:3px 0 12px;color:var(--muted);font-size:10px}.skin-hint b{color:var(--mint);font-weight:800}.profile-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.profile-stat{min-height:96px;padding:15px;background:rgba(12,40,37,.74)}.profile-stat span{display:block;color:var(--muted);font-size:11px}.profile-stat strong{display:block;margin-top:9px;color:var(--text);font-size:23px;letter-spacing:-.06em}.profile-stat strong.pop{color:var(--accent)}.profile-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:26px}.profile-section{padding-top:27px;border-top:1px solid var(--line)}.profile-section h2{margin:0 0 15px;font-size:19px;letter-spacing:-.07em}.profile-section h2 small{margin-left:7px;color:var(--faint);font:500 11px ui-monospace,monospace;letter-spacing:0}.progress{height:7px;margin:12px 0 7px;background:#071b1a;border:1px solid var(--line)}.progress i{display:block;height:100%;background:var(--mint)}.progress-line{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.profile-posts{border-top:1px solid var(--line)}.profile-post{display:grid;grid-template-columns:58px minmax(0,1fr) 20px;gap:13px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.profile-post:hover strong{color:var(--accent)}.profile-post>span{color:var(--mint);font:800 10px ui-monospace,monospace}.profile-post strong{display:block;font-size:15px;font-weight:500;letter-spacing:-.04em}.profile-post small{display:block;margin-top:3px;color:var(--faint);font-size:10px}.profile-post>b{color:var(--accent);font-size:18px;font-weight:400}.equipment{border-top:1px solid var(--line)}.equipment-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}.equipment-row span{color:var(--muted)}.equipment-row b{font-weight:500;text-align:right}.profile-tags{display:flex;flex-wrap:wrap;gap:6px}.profile-tag{padding:6px 9px;border:1px solid var(--line);color:var(--muted);font-size:11px}.profile-actions{display:flex;gap:9px;margin-top:20px}.profile-actions .button{min-height:38px;padding:8px 12px}@media(max-width:760px){.profile-hero{grid-template-columns:1fr}.profile-skin,.skin-viewer{min-height:235px}.profile-stats{grid-template-columns:repeat(2,1fr)}.profile-stat:last-child{grid-column:span 2}.profile-layout{grid-template-columns:1fr}}
+  </style><section class="profile-hero"><div><div class="profile-identity"><img class="profile-avatar" src="https://mc-heads.net/avatar/${uuid}/160" alt="${esc(displayName)}의 마인크래프트 스킨 머리" loading="lazy"><div><p class="profile-kicker">Barkan profile</p><h1 class="profile-name">${esc(displayName)}</h1><p class="profile-discord">${esc(profile.discord_name ?? "Discord 연결됨")} · ${esc(game.equippedTitle ?? "항해자")}</p></div></div><p class="profile-intro">${intro}</p><div class="profile-actions"><a class="button ghost" href="${COMMUNITY_BASE_URL}">커뮤니티로</a>${current ? `<a class="button ghost" href="${COMMUNITY_BASE_URL}/profile/edit">소개글 수정</a><a class="button" href="${COMMUNITY_BASE_URL}/write">글쓰기</a>` : ""}</div></div><div class="profile-skin"><div class="skin-viewer" data-skin-viewer tabindex="0" aria-label="마인크래프트 스킨 3D 회전 뷰어"><canvas class="skin-canvas" data-skin-canvas></canvas><div class="skin-hint"><span>드래그해서 360° 회전 · 휠로 확대</span><b data-skin-angle>3D</b></div></div></div></section><section class="profile-stats" aria-label="서버 기록">${stat("낚시 레벨", fishLevel)}${stat("인기도", `♥ ${profile.popularity}`, "pop")}${stat("발견 물고기", `${profile.fishCount}종`)}${stat("탐험 지역", `${profile.regionCount}곳`)}${stat("총 낚시", profile.totalFishing)}${stat("최고 콤보", Number(game.maxCombo ?? 0))}</section><div class="profile-layout"><div><section class="profile-section"><h2>성장 기록 <small>GAME PROGRESS</small></h2><div class="progress"><i style="width:${expPercent}%"></i></div><div class="progress-line"><span>낚시 경험치</span><span>${currentExp.toLocaleString("ko-KR")} / ${requiredExp.toLocaleString("ko-KR")}</span></div><div class="profile-tags" style="margin-top:17px"><span class="profile-tag">요리 Lv.${profile.cookingLevel}</span><span class="profile-tag">수집 Lv.${profile.collectionLevel}</span><span class="profile-tag">탐험 Lv.${profile.explorationLevel}</span><span class="profile-tag">도전과제 ${profile.achievementCount}개</span><span class="profile-tag">칭호 ${profile.titleCount}개</span></div></section><section class="profile-section"><h2>작성한 글 <small>${profile.posts.length} POSTS</small></h2><div class="profile-posts">${postCards}</div></section></div><aside><section class="profile-section"><h2>항해 정보</h2><div class="equipment"><div class="equipment-row"><span>길드</span><b>${profile.guild ? `${esc(profile.guild.name)} · ${profile.guild.memberCount}명` : "가입한 길드 없음"}</b></div><div class="equipment-row"><span>섬</span><b>${profile.island ? `${esc(profile.island.name)} · 방문 ${profile.island.visitCount}회` : "개인 섬 없음"}</b></div><div class="equipment-row"><span>칭호</span><b>${esc(game.equippedTitle ?? "항해자")}</b></div></div></section><section class="profile-section"><h2>장착 장비 <small>EQUIPMENT</small></h2><div class="equipment">${equipped}</div></section><section class="profile-section"><h2>발견한 지역</h2><div class="profile-tags">${regions.length ? regions.slice(0, 18).map((region) => `<span class="profile-tag">${esc(region)}</span>`).join("") : `<span class="muted">아직 기록이 없습니다.</span>`}</div></section></aside></div><script src="/assets/skinview3d.bundle.js" defer></script><script src="${COMMUNITY_BASE_URL}/profile.js" defer></script></main>`);
+}
+
+function guildRoleLabel(role) {
+  return ({ MASTER: "길드장", VICE_MASTER: "부길드장", OFFICER: "간부", MEMBER: "길드원" })[role] ?? role;
+}
+function guildDate(timestamp) {
+  return timestamp > 0 ? new Date(timestamp).toLocaleDateString("ko-KR") : "기록 없음";
+}
+function communityGuildListPage(current, guilds) {
+  const marker = current ? " data-community-user=\"1\"" : "";
+  const cards = guilds.length ? guilds.map((guild, index) => `<a class="guild-card" href="${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}">${guildEmblem(guild, "guild-emblem small", true)}<div class="guild-rank">${String(index + 1).padStart(2, "0")}</div><div class="guild-card-main"><div class="guild-card-top"><h2>${esc(guild.name)}</h2><span class="guild-visibility">${guild.isPublic ? "공개 길드" : "비공개"}</span></div><p>${esc(guild.description || "아직 길드 소개가 없습니다.")}</p><div class="guild-card-meta"><span>${guild.members.length}/${guild.maxMembers || "—"}명</span><span>시즌 기여 ${guild.submitSeason.toLocaleString("ko-KR")}</span><span>길드장 ${esc(guild.ownerId || "알 수 없음")}</span></div></div><b class="guild-arrow">→</b></a>`).join("") : `<div class="empty">아직 공개된 길드가 없습니다.</div>`;
+  return communityLayout("길드", `<main${marker}><style>.guild-directory{padding:34px 0 24px;border-bottom:1px solid var(--line)}.guild-directory h1{margin:0}.guild-directory-copy{max-width:580px;margin:18px 0 0;color:var(--muted);font-size:14px}.guild-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:24px 0 13px;color:var(--muted);font-size:12px}.guild-list{border-top:1px solid var(--line)}.guild-card{display:grid;grid-template-columns:72px 58px minmax(0,1fr) 24px;gap:16px;align-items:center;padding:23px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.guild-card:hover h2,.guild-card:hover .guild-arrow{color:var(--accent)}.guild-rank{color:var(--accent);font:800 17px ui-monospace,monospace}.guild-card-top{display:flex;align-items:center;gap:10px}.guild-card h2{margin:0;font-size:23px;font-weight:500;letter-spacing:-.07em;transition:color .15s}.guild-visibility{padding:3px 7px;border:1px solid var(--line);color:var(--faint);font-size:10px}.guild-card p{margin:7px 0 12px;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.guild-card-meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--faint);font-size:11px}.guild-arrow{color:var(--accent);font-size:19px;font-weight:400}.guild-emblem{display:grid;grid-template-columns:repeat(var(--emblem-size,8),1fr);grid-template-rows:repeat(var(--emblem-size,8),1fr);width:130px;height:130px;padding:5px;border:1px solid rgba(226,173,103,.48);background:#08121d;image-rendering:pixelated}.guild-emblem i{display:block}.guild-emblem.small{width:64px;height:64px;padding:2px;border-color:var(--line)}.guild-back{margin-top:20px}@media(max-width:720px){.guild-card{grid-template-columns:56px 40px minmax(0,1fr) 18px;gap:10px;padding:19px 0}.guild-card h2{font-size:19px}.guild-card p{font-size:12px}.guild-card-meta{gap:8px;font-size:10px}.guild-emblem.small{width:52px;height:52px}}</style><section class="guild-directory"><p class="eyebrow">Barkan guilds</p><h1>길드 목록</h1><p class="guild-directory-copy">함께 섬을 키우고, 요리와 채집을 나누며 항해하는 동료들의 기록입니다. 길드를 선택하면 구성원과 성장 현황을 볼 수 있습니다.</p></section><div class="guild-toolbar"><span>${guilds.length}개 길드</span><a class="button ghost" href="${COMMUNITY_BASE_URL}">커뮤니티로</a></div><section class="guild-list" aria-label="길드 목록">${cards}</section></main>`);
+}
+function communityGuildPage(current, guild) {
+  if (!guild) return communityLayout("길드를 찾을 수 없음", `<main><section class="panel"><h2>길드 정보를 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}/guilds">길드 목록으로 돌아가기</a></section></main>`);
+  const marker = current ? " data-community-user=\"1\"" : "";
+  const memberCards = guild.members.length ? guild.members.map((member) => {
+    const avatar = validUuid(member.uuid) ? `<img src="https://mc-heads.net/avatar/${encodeURIComponent(member.uuid)}/80" alt="${esc(member.name)} 스킨" loading="lazy">` : `<span class="guild-member-avatar"></span>`;
+    const name = member.linked ? `<a href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(member.uuid)}">${esc(member.name)}</a>` : `<span>${esc(member.name)}</span>`;
+    return `<div class="guild-member"><div class="guild-member-avatar-wrap">${avatar}</div><div><strong>${name}</strong><small>${esc(guildRoleLabel(member.role))} · 가입 ${esc(guildDate(member.joinedAt))}</small></div><b>${member.contributed.toLocaleString("ko-KR")} 기여</b></div>`;
+  }).join("") : `<div class="empty">등록된 구성원이 없습니다.</div>`;
+  const upgradeRows = [["수확기", guild.upgrades.hopper], ["액자", guild.upgrades.frame], ["가구", guild.upgrades.furniture], ["작물", guild.upgrades.crop], ["워프", guild.upgrades.warp], ["요리대", guild.upgrades.cooking]].map(([label, level]) => `<div><span>${label}</span><b>Lv.${level}</b></div>`).join("");
+  return communityLayout(guild.name, `<main${marker}><style>.guild-detail-head{display:flex;justify-content:space-between;align-items:end;gap:28px;padding:34px 0 30px;border-bottom:1px solid var(--line)}.guild-detail-kicker{margin:0 0 8px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.guild-detail-head h1{margin:0;font-size:clamp(2.7rem,6vw,5.3rem)}.guild-detail-copy{max-width:530px;margin:17px 0 0;color:var(--muted);font-size:14px}.guild-badge{display:grid;grid-template-columns:repeat(var(--emblem-size,8),1fr);grid-template-rows:repeat(var(--emblem-size,8),1fr);width:130px;height:130px;padding:5px;border:1px solid rgba(226,173,103,.48);background:#08121d;image-rendering:pixelated}.guild-badge.full{width:min(34vw,360px);height:min(34vw,360px);min-width:180px;min-height:180px}.guild-badge i{display:block}.guild-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.guild-stat{padding:16px;background:rgba(12,40,37,.74)}.guild-stat span{display:block;color:var(--muted);font-size:11px}.guild-stat strong{display:block;margin-top:8px;font-size:23px;letter-spacing:-.05em}.guild-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:27px}.guild-section{padding-top:27px;border-top:1px solid var(--line)}.guild-section h2{margin:0 0 15px;font-size:20px;letter-spacing:-.07em}.guild-members{border-top:1px solid var(--line)}.guild-member{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.guild-member-avatar-wrap,.guild-member-avatar{width:40px;height:40px;background:#071b1a;border:1px solid var(--line)}.guild-member-avatar-wrap img{display:block;width:100%;height:100%;object-fit:cover}.guild-member strong{display:block;font-size:13px}.guild-member strong a{color:var(--text);text-decoration:none}.guild-member strong a:hover{color:var(--accent)}.guild-member small{display:block;margin-top:3px;color:var(--faint);font-size:10px}.guild-member>b{color:var(--muted);font-size:11px;font-weight:500;text-align:right}.guild-upgrades{border-top:1px solid var(--line)}.guild-upgrades>div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}.guild-upgrades b{color:var(--text);font-weight:500}.guild-note{margin-top:16px;color:var(--faint);font-size:11px}.guild-back{margin-top:24px}@media(max-width:720px){.guild-detail-head{display:block}.guild-badge.full{width:min(80vw,320px);height:min(80vw,320px);margin-top:24px}.guild-stats{grid-template-columns:repeat(2,1fr)}.guild-detail-grid{grid-template-columns:1fr}.guild-member{grid-template-columns:40px minmax(0,1fr)}.guild-member>b{grid-column:2;text-align:left}}</style><div class="guild-detail-head"><div><p class="guild-detail-kicker">Guild profile</p><h1>${esc(guild.name)}</h1><p class="guild-detail-copy">${esc(guild.description || "아직 길드 소개가 없습니다.")}</p></div>${guildEmblem(guild, "guild-badge full", true)}</div><section class="guild-stats" aria-label="길드 기록"><div class="guild-stat"><span>구성원</span><strong>${guild.members.length}${guild.maxMembers ? ` / ${guild.maxMembers}` : ""}명</strong></div><div class="guild-stat"><span>시즌 기여</span><strong>${guild.submitSeason.toLocaleString("ko-KR")}</strong></div><div class="guild-stat"><span>누적 기여</span><strong>${guild.submitTotal.toLocaleString("ko-KR")}</strong></div><div class="guild-stat"><span>생성일</span><strong>${guildDate(guild.createdAt)}</strong></div></section><div class="guild-detail-grid"><section class="guild-section"><h2>구성원 <small>${guild.members.length} MEMBERS</small></h2><div class="guild-members">${memberCards}</div></section><aside><section class="guild-section"><h2>길드 성장</h2><div class="guild-upgrades">${upgradeRows}</div><p class="guild-note">길드장 ${esc(guild.ownerId || "알 수 없음")} · ${guild.pvp ? "길드 PvP 허용" : "길드 PvP 비허용"}</p></section><a class="back guild-back" href="${COMMUNITY_BASE_URL}/guilds">← 길드 목록으로</a></aside></div></main>`);
+}
+
+function communityGuildPageWithApply(current, guild, notice = "") {
+  const page = communityGuildPage(current, guild);
+  if (!guild) return page;
+  const uuid = current?.minecraft_uuid;
+  const member = uuid && guild.members.some((candidate) => candidate.uuid === uuid);
+  const pending = uuid && guild.applications?.some((application) => application.uuid === uuid);
+  const applyUrl = `${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}/apply`;
+  let panel;
+  if (!current) {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>길드 가입 신청</h2><p class="muted">Discord로 로그인하고 마인크래프트 계정과 연결하면 이 길드에 바로 신청할 수 있습니다.</p><a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 로그인</a></section>`;
+  } else if (member) {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>이미 가입한 길드입니다</h2><p class="muted">현재 ${esc(guild.name)}의 구성원으로 등록되어 있습니다.</p></section>`;
+  } else if (pending) {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>가입 신청을 검토 중입니다</h2><p class="muted">길드장 또는 간부가 마인크래프트에서 신청을 확인하고 승인합니다.</p></section>`;
+  } else if (guild.maxMembers > 0 && guild.members.length >= guild.maxMembers) {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>길드 정원이 가득 찼습니다</h2><p class="muted">현재 ${guild.members.length}/${guild.maxMembers}명입니다.</p></section>`;
+  } else {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>길드 가입 신청</h2><p class="muted">가입하고 싶은 이유나 함께 하고 싶은 플레이를 짧게 남겨 주세요. 신청은 길드장 또는 간부의 승인 후 확정됩니다.</p><form method="post" action="${applyUrl}"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="guild-application-message">신청 메시지 <span class="muted">(선택)</span></label><textarea id="guild-application-message" name="message" maxlength="200" rows="3" placeholder="예: 낚시와 섬 건축을 함께 하고 싶어요."></textarea><button class="button" type="submit">가입 신청 보내기</button></form></section>`;
+  }
+  const insertion = `${notice ? `<div class="notice" style="margin-top:28px">${esc(notice)}</div>` : ""}${panel}<div class="guild-detail-grid">`;
+  return page.replace('<div class="guild-detail-grid">', insertion);
+}
+
+async function discordOAuthUser(code) {
+  const tokenResponse = await fetch("https://discord.com/api/v10/oauth2/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: DISCORD_CLIENT_ID, client_secret: DISCORD_CLIENT_SECRET, grant_type: "authorization_code", code, redirect_uri: `${COMMUNITY_BASE_URL}/oauth/callback` }) });
+  const tokenBody = await tokenResponse.json();
+  if (!tokenResponse.ok || !tokenBody.access_token) throw new Error("Discord 로그인 승인을 확인하지 못했습니다.");
+  const userResponse = await fetch("https://discord.com/api/v10/users/@me", { headers: { Authorization: `Bearer ${tokenBody.access_token}` } });
+  const user = await userResponse.json();
+  if (!userResponse.ok || !/^\d{16,22}$/.test(String(user.id ?? ""))) throw new Error("Discord 사용자 정보를 가져오지 못했습니다.");
+  return user;
+}
+
 function transferReference() { return `BK${randomBytes(4).toString("hex").toUpperCase()}`; }
 
 async function route(req, res) {
   const url = new URL(req.url, "http://localhost");
   // Caddy handle_path /vip/* strips the complete /vip/ prefix, leaving an empty path for /vip/.
   const path = url.pathname || "/";
+  if (path === "/community" || path === "/community/") {
+    const current = await communitySession(req);
+    const category = url.searchParams.get("category") ?? "";
+    return send(res, 200, communityPage(current, await communityPosts(category), url.searchParams.get("notice") ?? "", category));
+  }
+  if (path === "/community/session" && req.method === "GET") {
+    const current = await communitySession(req);
+    return json(res, 200, { authenticated: Boolean(current), playerName: current?.player_name ?? null, profileUrl: current ? `${COMMUNITY_BASE_URL}/profile` : `${COMMUNITY_BASE_URL}/login` });
+  }
+  if (path === "/community/guilds" && req.method === "GET") {
+    return send(res, 200, communityGuildListPage(await communitySession(req), await minecraftGuildList()));
+  }
+  if (path.startsWith("/community/guild/") && path.endsWith("/apply") && req.method === "POST") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const guildIdPart = path.slice("/community/guild/".length, -"/apply".length);
+    let guildId = "";
+    try { guildId = decodeURIComponent(guildIdPart); } catch { guildId = ""; }
+    const guild = guildId ? await minecraftGuildById(guildId) : null;
+    const data = await form(req);
+    const message = String(data.message ?? "").replace(/[\r\n]+/g, " ").trim();
+    if (!guild || !requireCsrf(data, current) || message.length > 200) {
+      return send(res, 400, communityGuildPageWithApply(current, guild, "신청 정보를 확인해 주세요."));
+    }
+    try {
+      const submitted = await submitGuildApplication(current, guild.id, message);
+      if (!submitted) return send(res, 409, communityGuildPageWithApply(current, guild, "이미 가입했거나 신청이 진행 중입니다."));
+      return redirect(res, `${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}?notice=${encodeURIComponent("가입 신청을 보냈습니다. 길드장 승인 후 가입됩니다.")}`);
+    } catch (error) {
+      console.error("guild web application failed", error.message);
+      return send(res, 502, communityGuildPageWithApply(current, guild, "게임 서버와 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."));
+    }
+  }
+  if (path.startsWith("/community/guild/") && req.method === "GET") {
+    let guildId = "";
+    try { guildId = decodeURIComponent(path.slice("/community/guild/".length)); } catch { guildId = ""; }
+    return send(res, 200, communityGuildPageWithApply(await communitySession(req), guildId ? await minecraftGuildById(guildId) : null, url.searchParams.get("notice") ?? ""));
+  }
+  if (path === "/community/login" && req.method === "GET") {
+    if (!communityConfigured()) {
+      return send(res, 503, communityLayout("Discord 로그인 준비 중", `<main><section class="panel"><p class="eyebrow">Community access</p><h2>Discord 로그인 준비 중입니다.</h2><p class="muted">OAuth 앱 설정이 아직 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`));
+    }
+    const state = token(24);
+    const authorize = new URL("https://discord.com/oauth2/authorize");
+    authorize.searchParams.set("client_id", DISCORD_CLIENT_ID);
+    authorize.searchParams.set("redirect_uri", `${COMMUNITY_BASE_URL}/oauth/callback`);
+    authorize.searchParams.set("response_type", "code");
+    authorize.searchParams.set("scope", "identify");
+    authorize.searchParams.set("state", state);
+    return redirect(res, authorize.toString(), [`community_oauth_state=${encodeURIComponent(state)}; Path=/community; Max-Age=600; HttpOnly; Secure; SameSite=Lax`]);
+  }
+  if (path === "/community/oauth/callback" && req.method === "GET") {
+    const stateCookie = cookies(req).community_oauth_state;
+    const state = url.searchParams.get("state") ?? "";
+    const code = url.searchParams.get("code") ?? "";
+    const clearState = "community_oauth_state=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax";
+    if (!communityConfigured() || !stateCookie || !state || stateCookie !== state || !code) {
+      return send(res, 400, communityLayout("로그인 오류", `<main><section class="panel"><h2>로그인 요청이 만료되었습니다.</h2><p class="muted">커뮤니티에서 Discord 로그인을 다시 시작해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
+    }
+    try {
+      const user = await discordOAuthUser(code);
+      const link = await pool.query("SELECT minecraft_uuid,player_name FROM discord_links WHERE discord_id=$1", [user.id]);
+      if (!link.rowCount) {
+        return send(res, 403, communityLayout("계정 연결 필요", `<main><section class="panel"><p class="eyebrow">Link required</p><h2>게임 계정 연결이 먼저 필요합니다.</h2><p class="muted">마인크래프트에서 <code>/디스코드</code>를 실행해 계정을 인증한 뒤 다시 로그인해 주세요.</p><a class="button" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
+      }
+      const sessionToken = token();
+      const csrf = token(24);
+      const discordName = String(user.global_name ?? user.username ?? "").slice(0, 100);
+      const avatarHash = user.avatar ? `${user.id}/${user.avatar}` : null;
+      await pool.query("UPDATE discord_links SET discord_name=$1,avatar_hash=$2,updated_at=NOW() WHERE discord_id=$3", [discordName || null, avatarHash, user.id]);
+      await pool.query("INSERT INTO community_sessions (token_hash,discord_id,minecraft_uuid,player_name,discord_name,avatar_hash,csrf_token,expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW()+INTERVAL '30 days')", [hash(sessionToken), user.id, link.rows[0].minecraft_uuid, link.rows[0].player_name, discordName, avatarHash, csrf]);
+      return redirect(res, COMMUNITY_BASE_URL, [`community_session=${encodeURIComponent(sessionToken)}; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax`, "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax", clearState]);
+    } catch (error) {
+      return send(res, 502, communityLayout("로그인 오류", `<main><section class="panel"><h2>Discord 로그인에 실패했습니다.</h2><p class="muted">잠시 후 다시 시도해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
+    }
+  }
+  if (path === "/community/logout" && req.method === "GET") {
+    return redirect(res, COMMUNITY_BASE_URL, ["community_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax", "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax"]);
+  }
+  if (path === "/community/profile.js" && req.method === "GET") {
+    return send(res, 200, profileClientJs(), "application/javascript; charset=utf-8");
+  }
+  if (path.startsWith("/community/profile/records/") && req.method === "GET") {
+    const uuid = decodeURIComponent(path.slice("/community/profile/records/".length));
+    if (!validUuid(uuid)) return json(res, 404, { error: "profile_not_found" });
+    const profile = await communityProfile(uuid);
+    if (!profile) return json(res, 404, { error: "profile_not_found" });
+    return json(res, 200, { achievements: profile.achievements, titles: profile.titles, guild: profile.guild });
+  }
+  if (path === "/community/profile" && req.method === "GET") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    return send(res, 200, communityProfilePageInteractive(await communityProfile(current.minecraft_uuid), current, url.searchParams.get("notice") ?? ""));
+  }
+  if (path.startsWith("/community/user/") && req.method === "GET") {
+    const uuid = path.slice("/community/user/".length);
+    if (!validUuid(uuid)) return send(res, 404, communityLayout("프로필을 찾을 수 없음", `<main><section class="panel"><h2>프로필 주소가 올바르지 않습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`));
+    return send(res, 200, communityProfilePageInteractive(await communityProfile(uuid), await communitySession(req)));
+  }
+  if (path === "/community/profile/edit" && req.method === "GET") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const profile = await communityProfile(current.minecraft_uuid);
+    return send(res, 200, communityProfileEditPage(current, profile?.introduction ?? ""));
+  }
+  if (path === "/community/profile/edit" && req.method === "POST") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const data = await form(req);
+    const introduction = String(data.introduction ?? "").trim();
+    if (!requireCsrf(data, current) || introduction.length > 100) {
+      return send(res, 400, communityProfileEditPage(current, introduction, "소개글은 100자 이하로 입력해 주세요."));
+    }
+    await pool.query(`INSERT INTO community_profiles (minecraft_uuid,introduction,updated_at) VALUES ($1,$2,NOW())
+      ON CONFLICT (minecraft_uuid) DO UPDATE SET introduction=EXCLUDED.introduction,updated_at=NOW()`, [current.minecraft_uuid, introduction]);
+    return redirect(res, `${COMMUNITY_BASE_URL}/profile?notice=${encodeURIComponent("소개글을 저장했습니다.")}`);
+  }
+  if (path === "/community/write" && req.method === "GET") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    return send(res, 200, communityWritePage(current));
+  }
+  if (path === "/community/write" && req.method === "POST") {
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const data = await form(req);
+    const category = String(data.category ?? "").trim();
+    const title = String(data.title ?? "").trim();
+    const body = String(data.body ?? "").trim();
+    if (data.csrf !== current.csrf_token || !COMMUNITY_CATEGORIES.includes(category) || title.length < 2 || title.length > 80 || body.length < 10 || body.length > 5000) {
+      return send(res, 400, communityWritePage(current, "분류·제목·내용을 확인해 주세요. 내용은 10자 이상 5,000자 이하입니다."));
+    }
+    await pool.query("INSERT INTO community_posts (id,discord_id,minecraft_uuid,player_name,discord_name,category,title,body) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)", [randomUUID(), current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, category, title, body]);
+    return redirect(res, `${COMMUNITY_BASE_URL}?notice=${encodeURIComponent("기록을 게시했습니다.")}`);
+  }
+  if (path.startsWith("/community/post/") && path.endsWith("/heart") && req.method === "POST") {
+    const id = path.slice("/community/post/".length, -"/heart".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const post = await communityPost(id, current);
+    if (!post) return send(res, 404, communityPostPage(current, null));
+    const data = await form(req);
+    if (!requireCsrf(data, current)) return send(res, 403, communityPostPage(current, post, "요청이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요."));
+    const removed = await pool.query("DELETE FROM community_post_likes WHERE post_id=$1::uuid AND minecraft_uuid=$2::uuid RETURNING post_id", [id, current.minecraft_uuid]);
+    if (!removed.rowCount) {
+      await pool.query("INSERT INTO community_post_likes (post_id,minecraft_uuid) VALUES ($1::uuid,$2::uuid) ON CONFLICT DO NOTHING", [id, current.minecraft_uuid]);
+    }
+    return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(id)}`);
+  }
+  if (path.startsWith("/community/post/") && req.method === "GET") {
+    const id = path.slice("/community/post/".length);
+    const current = await communitySession(req);
+    const existing = await communityPost(id, current);
+    if (!existing) return send(res, 200, communityPostPage(current, null));
+    const viewer = communityViewer(req, current);
+    await pool.query("INSERT INTO community_post_views (post_id,viewer_key) VALUES ($1::uuid,$2) ON CONFLICT DO NOTHING", [id, viewer.key]);
+    const post = await communityPost(id, current);
+    return send(res, 200, communityPostPage(current, post), "text/html; charset=utf-8", viewer.cookie ? { "Set-Cookie": viewer.cookie } : {});
+  }
   if (req.method === "GET" && path === "/health") { await pool.query("SELECT 1"); return json(res, 200, { ok: true, paymentConfigured: Boolean(TOSS_CLIENT_KEY && TOSS_SECRET_KEY) }); }
   if (req.method === "GET" && path === "/") return send(res, 200, home(url.searchParams.get("tier"), url.searchParams.get("months")));
   if (req.method === "GET" && path === "/link") return send(res, 200, linkPage(selectionFrom(url.searchParams.get("tier"), url.searchParams.get("months"))));
@@ -407,6 +1087,114 @@ async function route(req, res) {
   if (path === "/internal/link-codes" && req.method === "POST") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" }); const data = await bodyJson(req); if (!validUuid(data.uuid) || !minecraftName(data.playerName)) return json(res, 400, { error: "invalid_player" });
     const code = `BK-${randomBytes(4).toString("hex").toUpperCase()}`; await pool.query("DELETE FROM link_codes WHERE minecraft_uuid=$1 AND used_at IS NULL", [data.uuid]); await pool.query("INSERT INTO link_codes (code_hash,minecraft_uuid,player_name,expires_at) VALUES ($1,$2,$3,NOW()+INTERVAL '10 minutes')", [hash(code), data.uuid, data.playerName]); return json(res, 201, { code, expiresInSeconds: 600, url: `${BASE_URL}/link` });
+  }
+  if (path === "/internal/profile/introduction" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const uuid = String(data.uuid ?? "").trim();
+    const playerName = String(data.playerName ?? "").trim();
+    const introduction = String(data.introduction ?? "").trim();
+    if (!validUuid(uuid) || !minecraftName(playerName) || introduction.length > 100) return json(res, 400, { error: "invalid_profile" });
+    await pool.query(`INSERT INTO community_profiles (minecraft_uuid,introduction,updated_at) VALUES ($1,$2,NOW())
+      ON CONFLICT (minecraft_uuid) DO UPDATE SET introduction=EXCLUDED.introduction,updated_at=NOW()`, [uuid, introduction]);
+    return json(res, 200, { synced: true, minecraftUuid: uuid, introduction });
+  }
+  if (/^\/internal\/profile\/introduction\/[0-9a-f-]+$/i.test(path) && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const uuid = path.slice("/internal/profile/introduction/".length);
+    if (!validUuid(uuid)) return json(res, 400, { error: "invalid_uuid" });
+    const found = await pool.query("SELECT introduction,updated_at FROM community_profiles WHERE minecraft_uuid=$1", [uuid]);
+    if (!found.rowCount) return json(res, 200, { configured: false, minecraftUuid: uuid });
+    return json(res, 200, { configured: true, minecraftUuid: uuid, introduction: found.rows[0].introduction, updatedAt: found.rows[0].updated_at });
+  }
+  if (path === "/internal/discord/link" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const code = String(data.code ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    const discordId = String(data.discordId ?? "").trim();
+    const discordName = String(data.discordName ?? "").trim().slice(0, 100);
+    if (!/^BK-[A-Z0-9]{8}$/.test(code) || !/^\d{16,22}$/.test(discordId)) return json(res, 400, { error: "invalid_request" });
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      const found = await client.query(
+        "SELECT minecraft_uuid,player_name,used_at FROM link_codes WHERE code_hash=$1 AND expires_at>NOW() FOR UPDATE",
+        [hash(code)]
+      );
+      if (!found.rowCount) { await client.query("ROLLBACK"); return json(res, 404, { error: "code_invalid" }); }
+      const link = found.rows[0];
+      const byMinecraft = await client.query("SELECT discord_id FROM discord_links WHERE minecraft_uuid=$1 FOR UPDATE", [link.minecraft_uuid]);
+      const byDiscord = await client.query("SELECT minecraft_uuid FROM discord_links WHERE discord_id=$1 FOR UPDATE", [discordId]);
+      // 역할 지급 실패 후 같은 사용자가 재시도할 수 있도록, 이미 연결된 동일 쌍만 멱등 처리한다.
+      // 다른 계정이 사용한 코드는 절대 재사용하지 않는다.
+      if (link.used_at) {
+        const sameMinecraft = byMinecraft.rowCount && byMinecraft.rows[0].discord_id === discordId;
+        const sameDiscord = byDiscord.rowCount && byDiscord.rows[0].minecraft_uuid === link.minecraft_uuid;
+        if (sameMinecraft && sameDiscord) {
+          await client.query("COMMIT");
+          return json(res, 200, { linked: true, minecraftUuid: link.minecraft_uuid, playerName: link.player_name, discordId, retry: true });
+        }
+        await client.query("ROLLBACK");
+        return json(res, 404, { error: "code_invalid" });
+      }
+      if (byMinecraft.rowCount && byMinecraft.rows[0].discord_id !== discordId) {
+        await client.query("ROLLBACK"); return json(res, 409, { error: "minecraft_already_linked" });
+      }
+      if (byDiscord.rowCount && byDiscord.rows[0].minecraft_uuid !== link.minecraft_uuid) {
+        await client.query("ROLLBACK"); return json(res, 409, { error: "discord_already_linked" });
+      }
+      await client.query("UPDATE link_codes SET used_at=NOW() WHERE code_hash=$1", [hash(code)]);
+      await client.query(`INSERT INTO discord_links (minecraft_uuid,player_name,discord_id,discord_name)
+        VALUES ($1,$2,$3,$4)
+        ON CONFLICT (minecraft_uuid) DO UPDATE SET player_name=EXCLUDED.player_name, discord_id=EXCLUDED.discord_id,
+          discord_name=EXCLUDED.discord_name, updated_at=NOW()`, [link.minecraft_uuid, link.player_name, discordId, discordName || null]);
+      await client.query("COMMIT");
+      return json(res, 200, { linked: true, minecraftUuid: link.minecraft_uuid, playerName: link.player_name, discordId });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally { client.release(); }
+  }
+  if (path === "/internal/discord/verified" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const minecraftUuid = String(data.minecraftUuid ?? "").trim();
+    const discordId = String(data.discordId ?? "").trim();
+    if (!validUuid(minecraftUuid) || !/^\d{16,22}$/.test(discordId)) return json(res, 400, { error: "invalid_request" });
+    const updated = await pool.query(
+      "UPDATE discord_links SET verified_at=COALESCE(verified_at,NOW()),updated_at=NOW() WHERE minecraft_uuid=$1 AND discord_id=$2 RETURNING minecraft_uuid",
+      [minecraftUuid, discordId]
+    );
+    if (!updated.rowCount) return json(res, 404, { error: "link_not_found" });
+    return json(res, 200, { verified: true, minecraftUuid, discordId });
+  }
+  if (path === "/internal/discord/reward/status" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const minecraftUuid = String(data.minecraftUuid ?? "").trim();
+    if (!validUuid(minecraftUuid)) return json(res, 400, { error: "invalid_request" });
+    const found = await pool.query(
+      "SELECT verified_at,reward_claimed_at FROM discord_links WHERE minecraft_uuid=$1",
+      [minecraftUuid]
+    );
+    if (!found.rowCount || !found.rows[0].verified_at) return json(res, 200, { eligible: false });
+    const claimed = Boolean(found.rows[0].reward_claimed_at);
+    return json(res, 200, { eligible: true, claimed, rewardId: "discord-join-v1", amount: 1000 });
+  }
+  if (path === "/internal/discord/reward/confirm" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const minecraftUuid = String(data.minecraftUuid ?? "").trim();
+    const rewardId = String(data.rewardId ?? "").trim();
+    if (!validUuid(minecraftUuid) || rewardId !== "discord-join-v1") return json(res, 400, { error: "invalid_request" });
+    const claimed = await pool.query(
+      "UPDATE discord_links SET reward_claimed_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1 AND verified_at IS NOT NULL AND reward_claimed_at IS NULL RETURNING minecraft_uuid",
+      [minecraftUuid]
+    );
+    if (claimed.rowCount) return json(res, 200, { claimed: true, rewardId });
+    const existing = await pool.query("SELECT reward_claimed_at FROM discord_links WHERE minecraft_uuid=$1 AND verified_at IS NOT NULL", [minecraftUuid]);
+    if (existing.rowCount && existing.rows[0].reward_claimed_at) return json(res, 200, { claimed: true, rewardId, alreadyClaimed: true });
+    return json(res, 409, { error: "reward_not_eligible" });
   }
   if (path === "/internal/subscriptions/grant" && req.method === "POST") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" }); const data = await bodyJson(req); const days = Number.parseInt(data.days, 10); if (!validUuid(data.uuid) || !minecraftName(data.playerName) || !TIERS[data.tier] || !Number.isInteger(days) || days < 1 || days > 366) return json(res, 400, { error: "invalid_request" });

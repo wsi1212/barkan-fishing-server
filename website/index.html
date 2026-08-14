@@ -3,108 +3,246 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#061323">
-  <meta name="description" content="낚시와 탐험, 섬 생활이 있는 마인크래프트 서버 바르칸 열도">
-  <title>바르칸 열도 — Barkan Islands</title>
+  <meta name="theme-color" content="#081516">
+  <meta name="description" content="낚시가 시작점이 되는 마인크래프트 서버, 바르칸 열도.">
+  <title>바르칸 열도 - Barkan Islands</title>
   <style>
-    :root{--ink:#061323;--night:#091c31;--sea:#0d3651;--foam:#e9f5f6;--mist:#a7c3cf;--tide:#8ce2e0;--lantern:#ffce76;--line:rgba(213,240,242,.18)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--ink);color:var(--foam);font:15px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}.shell{width:min(1180px,calc(100% - 48px));margin:auto}.hero{position:relative;min-height:760px;isolation:isolate;background:linear-gradient(180deg,rgba(7,13,26,.2),rgba(3,14,27,.84)),url('/assets/barkan-harbor-banner.png') center/cover}.hero:after{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,rgba(3,13,26,.86) 0%,rgba(3,13,26,.48) 48%,rgba(3,13,26,.08))}.nav{height:86px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{color:var(--foam);text-decoration:none}.brand strong{display:block;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:22px;letter-spacing:.13em}.brand small{display:block;margin-top:-2px;color:var(--tide);font-size:9px;font-weight:900;letter-spacing:.2em}.links{display:flex;gap:27px;align-items:center}.links a{color:#d0e2e9;text-decoration:none;font-size:13px}.links a:hover{color:#fff}.nav-shop{padding:9px 13px;border:1px solid rgba(140,226,224,.44);border-radius:999px;background:rgba(6,32,48,.38);color:var(--tide)!important}.nav-discord{display:inline-grid;flex:none;width:36px;height:36px;place-items:center;border:1px solid rgba(140,226,224,.34);border-radius:50%;background:rgba(6,32,48,.42);color:#bce9ee!important;transition:transform .18s ease,background .18s ease,border-color .18s ease}.nav-discord:hover{border-color:#8ce2e0;background:#5865f2;color:#fff!important;transform:translateY(-2px)}.nav-discord svg{width:18px;height:18px;fill:currentColor}.hero-copy{display:flex;min-height:610px;max-width:650px;flex-direction:column;justify-content:center;padding:40px 0 90px}.overline{margin:0 0 20px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.2em}.hero h1{margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:clamp(3.8rem,8vw,7.3rem);font-weight:600;letter-spacing:-.095em;line-height:.93}.hero h1 em{font-style:normal;color:var(--lantern)}.hero-copy>p:not(.overline){max-width:445px;margin:26px 0 30px;color:#d4e2e8;font-size:17px}.actions{display:flex;gap:10px;flex-wrap:wrap}.button{display:inline-flex;min-height:52px;align-items:center;justify-content:center;padding:13px 18px;border:1px solid transparent;border-radius:8px;background:var(--lantern);color:#231809;font-size:14px;font-weight:900;text-decoration:none;cursor:pointer;transition:transform .18s ease,background .18s ease}.button:hover{background:#ffe1a1;transform:translateY(-2px)}.button.ghost{border-color:rgba(238,250,251,.38);background:rgba(5,19,35,.34);color:var(--foam)}.button.ghost:hover{background:rgba(255,255,255,.12)}.server-note{margin:17px 0 0;color:#acc5d0;font-size:12px}.server-note b{color:var(--foam)}.scroll-cue{position:absolute;right:0;bottom:29px;color:#a4cbd4;font-size:11px;letter-spacing:.13em;writing-mode:vertical-rl}.scroll-cue:before{content:"";display:inline-block;width:1px;height:42px;margin:0 7px 8px;background:var(--tide)}main{overflow:hidden;background:radial-gradient(900px 480px at 9% 3%,#123c57,transparent 65%),var(--ink)}.intro{padding:112px 0 88px}.section-kicker{margin:0 0 12px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.17em}.section-title{max-width:700px;margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:clamp(2.2rem,5vw,4.4rem);font-weight:600;letter-spacing:-.075em;line-height:1.05}.section-lead{max-width:500px;margin:21px 0 0;color:var(--mist);font-size:16px}.activity-grid{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-top:44px}.activity{position:relative;min-height:300px;padding:29px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(23,60,84,.78),rgba(7,21,37,.89));overflow:hidden}.activity:after{content:"";position:absolute;right:-36px;bottom:-50px;width:200px;height:200px;border:1px solid rgba(140,226,224,.14);border-radius:50%}.activity:nth-child(2){background:linear-gradient(145deg,rgba(34,49,84,.8),rgba(9,21,37,.9))}.activity:nth-child(3){background:linear-gradient(145deg,rgba(66,43,67,.7),rgba(9,21,37,.9))}.activity .number{color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.15em}.activity h3{position:relative;margin:75px 0 9px;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:28px;font-weight:600;letter-spacing:-.06em}.activity p{position:relative;margin:0;color:#b9ced7;font-size:13px}.voyage{padding:0 0 110px}.voyage-box{display:grid;grid-template-columns:1.05fr .95fr;gap:35px;padding:49px 52px;border:1px solid rgba(255,206,118,.24);border-radius:22px;background:linear-gradient(124deg,rgba(53,39,31,.9),rgba(13,33,52,.94));box-shadow:0 28px 65px rgba(0,0,0,.22)}.voyage-box h2{margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:42px;font-weight:600;letter-spacing:-.07em}.voyage-box p{margin:14px 0 0;color:#cbd7dc}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.step{padding:15px 0;border-top:1px solid rgba(255,255,255,.22)}.step b{display:block;color:var(--lantern);font-size:11px;letter-spacing:.12em}.step span{display:block;margin-top:7px;color:#eaf1f3;font-size:13px;font-weight:750}.outlook{padding:30px 0 116px;border-top:1px solid var(--line)}.outlook-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:34px}.outlook-card{display:flex;min-height:185px;flex-direction:column;justify-content:flex-end;padding:27px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(22,43,65,.72),rgba(7,18,31,.9));text-decoration:none}.outlook-card:hover{border-color:rgba(140,226,224,.55)}.outlook-card small{color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.15em}.outlook-card h3{margin:8px 0 0;color:var(--foam);font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:30px;font-weight:600;letter-spacing:-.06em}.outlook-card p{margin:6px 0 0;color:var(--mist);font-size:13px}.footer{padding:42px 0 55px;border-top:1px solid var(--line);background:#05101e}.footer-inner{display:flex;align-items:end;justify-content:space-between;gap:24px}.footer p{margin:7px 0 0;color:#7896a5;font-size:12px}.footer a{color:#bcd5dd;text-decoration:none}.footer-links{display:flex;gap:18px;font-size:13px}@media(max-width:760px){.shell{width:min(100% - 30px,620px)}.hero{min-height:680px;background-position:58% center}.hero:after{background:linear-gradient(90deg,rgba(3,13,26,.86),rgba(3,13,26,.43))}.nav{height:72px}.links a:not(.nav-shop):not(.nav-discord){display:none}.hero-copy{min-height:545px;padding-bottom:55px}.hero h1{font-size:clamp(3.3rem,15vw,5.3rem)}.scroll-cue{display:none}.intro{padding:80px 0 62px}.activity-grid,.voyage-box,.outlook-grid{grid-template-columns:1fr}.activity{min-height:215px}.activity h3{margin-top:45px}.voyage{padding-bottom:75px}.voyage-box{gap:30px;padding:32px 27px}.voyage-box h2{font-size:34px}.footer-inner{display:block}.footer-links{margin-top:20px}.steps{gap:18px}}
-    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-medium.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}body,body *{font-family:"Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif}.activity h3{font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:28px;font-weight:800;letter-spacing:-.075em;line-height:1.12}.outlook-grid{grid-template-columns:repeat(3,1fr)}@media(max-width:760px){.outlook-grid{grid-template-columns:1fr}}
-  </style>
-  <style>
-    .showcase{height:250vh;position:relative;background:#07192b}.showcase-sticky{position:sticky;top:0;min-height:100svh;overflow:hidden;border-top:1px solid rgba(140,226,224,.18);border-bottom:1px solid rgba(140,226,224,.18);background:radial-gradient(900px 570px at 52% 43%,rgba(29,100,127,.28),transparent 66%),linear-gradient(125deg,#061220 12%,#0a263b 54%,#06111d)}.showcase-sticky:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(140,226,224,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(140,226,224,.055) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(to bottom,transparent,black 22%,black 75%,transparent);opacity:.72}.showcase-layout{position:relative;z-index:1;display:grid;grid-template-columns:minmax(230px,.76fr) minmax(420px,1.55fr) minmax(180px,.54fr);min-height:100svh;align-items:center;gap:20px}.showcase-copy{max-width:330px}.showcase-copy small,.showcase-stat small{display:block;color:var(--tide);font-size:10px;font-weight:900;letter-spacing:.18em}.showcase-copy h2{margin:14px 0 15px;font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:clamp(2rem,3.7vw,4rem);font-weight:800;letter-spacing:-.09em;line-height:1.04}.showcase-copy p{margin:0;color:#b7ced8;font-size:14px}.showcase-visual{position:relative;isolation:isolate;height:min(78vh,760px);min-height:490px}.showcase-visual:before{content:"";position:absolute;z-index:-1;inset:8% 10%;border:1px solid rgba(140,226,224,.23);border-radius:50%;box-shadow:0 0 0 38px rgba(140,226,224,.035),0 0 0 92px rgba(140,226,224,.022),0 0 90px rgba(64,189,210,.25)}.showcase-visual:after{content:"";position:absolute;z-index:-1;top:49%;left:5%;width:90%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,206,118,.7),transparent);transform:rotate(-17deg);box-shadow:0 0 20px rgba(255,206,118,.42)}.product-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 26px 22px rgba(0,0,0,.42));will-change:transform,opacity}.product-rod{transform:translate3d(calc(var(--showcase-progress,0) * -19%),calc(var(--showcase-progress,0) * 9%),0) rotate(calc(-13deg + var(--showcase-progress,0) * 38deg)) scale(calc(1.02 + var(--showcase-progress,0) * .25));opacity:calc(1 - var(--showcase-progress,0) * 1.45)}.product-fish{transform:translate3d(calc((1 - var(--showcase-progress,0)) * 25%),calc((1 - var(--showcase-progress,0)) * -8%),0) rotate(calc(10deg - var(--showcase-progress,0) * 20deg)) scale(calc(.69 + var(--showcase-progress,0) * .35));opacity:calc(var(--showcase-progress,0) * 1.65 - .34)}.showcase-orbit{position:absolute;inset:12%;border:1px dashed rgba(140,226,224,.28);border-radius:50%;transform:rotate(calc(var(--showcase-progress,0) * 180deg));transition:transform .05s linear}.showcase-stat{align-self:end;margin:0 0 17vh;padding-left:18px;border-left:2px solid var(--lantern)}.showcase-stat strong{display:block;margin:6px 0 3px;color:var(--foam);font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:30px;font-weight:800;letter-spacing:-.07em;line-height:1}.showcase-stat span{color:#a8c2cd;font-size:12px}.showcase-progress{position:absolute;right:24px;bottom:27px;display:flex;gap:7px}.showcase-progress i{display:block;width:34px;height:2px;background:rgba(213,240,242,.24)}.showcase-progress i:first-child{background:linear-gradient(90deg,var(--lantern) calc((1 - var(--showcase-progress,0)) * 100%),rgba(213,240,242,.24) 0)}.showcase-progress i:last-child{background:linear-gradient(90deg,var(--lantern) calc(var(--showcase-progress,0) * 100%),rgba(213,240,242,.24) 0)}@media(max-width:760px){.showcase{height:205vh}.showcase-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;gap:0;padding:44px 0 28px}.showcase-copy{max-width:310px}.showcase-copy h2{font-size:34px}.showcase-visual{height:auto;min-height:360px;margin:-8px -18px}.showcase-stat{align-self:auto;margin:0 0 0 18px}.showcase-progress{right:15px;bottom:18px}.showcase-visual:before{inset:6% 4%}}@media(prefers-reduced-motion:reduce){.showcase{height:auto}.showcase-sticky{position:relative}.showcase-layout{min-height:auto;padding:70px 0;grid-template-columns:1fr}.showcase-visual{height:510px}.product-rod{opacity:1;transform:rotate(-13deg) scale(.9)}.product-fish{display:none}.showcase-orbit{display:none}.showcase-stat{margin:0}}
-  </style>
-  <style>body{overflow-x:clip}main{overflow:visible}.showcase{height:auto;padding:32px 0 82px;background:transparent;--showcase-progress:0;--rod-opacity:1;--harpoon-opacity:0}.showcase-sticky{position:relative;min-height:680px;border:1px solid rgba(140,226,224,.2);border-radius:24px;cursor:ns-resize}.showcase-layout{min-height:680px}.product-art{transition:transform .75s cubic-bezier(.2,.8,.2,1),opacity .45s ease}.showcase.is-harpoon{--showcase-progress:1;--rod-opacity:0;--harpoon-opacity:1}.showcase-wheel{position:absolute;right:26px;bottom:27px;display:flex;align-items:center;gap:10px;color:#b9d8de;font-size:11px;font-weight:800;letter-spacing:.04em}.showcase-wheel:before{content:"↕";display:grid;width:29px;height:29px;place-items:center;border:1px solid rgba(140,226,224,.42);border-radius:50%;color:var(--lantern);font-size:16px;animation:wheel-nudge 1.6s ease-in-out infinite}.showcase-wheel b{color:var(--foam);font-weight:900}@keyframes wheel-nudge{50%{transform:translateY(4px)}}.showcase.is-harpoon .showcase-wheel:before{animation:none;transform:rotate(180deg)}.product-rod{opacity:var(--rod-opacity,1)}.product-harpoon{transform:translate3d(calc((1 - var(--showcase-progress,0)) * 25%),calc((1 - var(--showcase-progress,0)) * -8%),0) rotate(calc(10deg - var(--showcase-progress,0) * 20deg)) scale(calc(.69 + var(--showcase-progress,0) * .35));opacity:var(--harpoon-opacity,0)}@media(max-width:760px){.showcase{padding:22px 0 64px}.showcase-sticky,.showcase-layout{min-height:620px}.showcase-wheel{right:16px;bottom:18px}.showcase-progress{display:none}}@media(prefers-reduced-motion:reduce){.showcase{height:auto}.showcase-sticky{position:relative;cursor:default}.showcase-wheel{display:none}.product-art{transition:none}.product-rod{opacity:1;transform:rotate(-13deg) scale(.9)}.product-harpoon{display:none}}</style>
-  <style>
-    .showcase .product-art{opacity:0!important;transform:translate3d(0,32px,0) rotate(-8deg) scale(.72)!important;transition:transform .64s cubic-bezier(.2,.8,.2,1),opacity .35s ease!important}.showcase[data-stage="0"] .product-rod,.showcase[data-stage="1"] .product-harpoon,.showcase[data-stage="2"] .product-cooking,.showcase[data-stage="3"] .product-npc,.showcase[data-stage="4"] .product-guild,.showcase[data-stage="5"] .product-gathering,.showcase[data-stage="6"] .product-casino{opacity:1!important;transform:translate3d(0,0,0) rotate(0) scale(1)!important}.showcase[data-stage="1"] .product-harpoon{transform:rotate(11deg) scale(.96)!important}.showcase[data-stage="2"] .product-cooking{transform:scale(1.08)!important}.showcase[data-stage="3"] .product-npc{transform:translateY(10px) scale(1.08)!important}.showcase[data-stage="4"] .product-guild{transform:scale(1.04)!important}.showcase[data-stage="5"] .product-gathering{transform:scale(1.06)!important}.showcase[data-stage="6"] .product-casino{transform:scale(1.05)!important}.showcase-copy h2,.showcase-copy p,.showcase-stat{transition:opacity .18s ease,transform .25s ease}.showcase.is-changing .showcase-copy h2,.showcase.is-changing .showcase-copy p,.showcase.is-changing .showcase-stat{opacity:0;transform:translateY(8px)}.showcase-progress{max-width:calc(100% - 30px);gap:5px}.showcase-progress i{width:23px}.showcase-progress i.is-past,.showcase-progress i.is-current{background:var(--lantern)!important}.showcase[data-stage="2"] .showcase-sticky{background:radial-gradient(750px 430px at 52% 45%,rgba(159,85,25,.28),transparent 64%),linear-gradient(125deg,#201308,#3e2411 55%,#101827)}.showcase[data-stage="3"] .showcase-sticky{background:radial-gradient(750px 430px at 52% 45%,rgba(34,118,131,.27),transparent 64%),linear-gradient(125deg,#071d28,#103b45 55%,#101827)}.showcase[data-stage="4"] .showcase-sticky{background:radial-gradient(750px 430px at 52% 45%,rgba(177,113,37,.22),transparent 64%),linear-gradient(125deg,#151a1b,#3b2b1b 55%,#101827)}.showcase[data-stage="5"] .showcase-sticky{background:radial-gradient(750px 430px at 52% 45%,rgba(31,151,126,.23),transparent 64%),linear-gradient(125deg,#061b20,#103a35 55%,#101827)}.showcase[data-stage="6"] .showcase-sticky{background:radial-gradient(750px 430px at 52% 45%,rgba(181,125,35,.3),transparent 64%),linear-gradient(125deg,#171218,#3b261a 55%,#101827)}@media(max-width:760px){.showcase-progress i{width:17px}.showcase[data-stage="3"] .product-npc{transform:translateY(5px) scale(.92)!important}.showcase[data-stage="4"] .product-guild{transform:scale(.92)!important}}
-  </style>
-  <style>
-    /* 모바일에서는 쇼케이스 제목을 작성한 두 줄 그대로 유지한다. */
-    @media (max-width:760px) {
-      .showcase-copy { max-width:none; }
-      .showcase-copy h2 {
-        display:inline-block !important;
-        width:auto !important;
-        max-width:none !important;
-        font-size:25px !important;
-        letter-spacing:-.1em !important;
-        line-height:1.12 !important;
-        white-space:nowrap !important;
-        overflow-wrap:normal !important;
-        word-break:keep-all !important;
-      }
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-light.ttf') format('truetype');font-weight:300;font-display:swap}
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-medium.ttf') format('truetype');font-weight:500;font-display:swap}
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-bold.ttf') format('truetype');font-weight:800;font-display:swap}
+    :root{color-scheme:dark;--ink:#081516;--surface:#102a29;--surface-strong:#173936;--text:#e8eee4;--muted:#a7bbb1;--faint:#769289;--accent:#d6a05c;--line:rgba(211,231,218,.23);--soft-line:rgba(211,231,218,.13);--hero-scrim:linear-gradient(90deg,rgba(5,15,16,.92) 0%,rgba(5,15,16,.69) 45%,rgba(5,15,16,.15) 100%);--button-ink:#21170c;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--ink);color:var(--text);font-family:Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;line-height:1.6}
+    a{color:inherit}
+    button{font:inherit}
+    .shell{width:min(1160px,calc(100% - 64px));margin:0 auto}
+    .meta{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+
+    .hero{position:relative;isolation:isolate;min-height:clamp(640px,100dvh,760px);background:var(--hero-scrim),url('/assets/barkan-harbor-banner.png') center/cover}
+    .hero:after{content:"";position:absolute;z-index:-1;right:10%;bottom:0;width:1px;height:108px;background:linear-gradient(var(--accent),transparent);opacity:.8}
+    .nav{display:flex;height:72px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+    .brand{line-height:1;text-decoration:none}
+    .brand strong{display:block;font-size:20px;font-weight:800;letter-spacing:.15em}
+    .brand small{display:block;margin-top:7px;color:var(--accent);font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.22em}
+    .nav-links{display:flex;align-items:center;gap:23px}
+    .nav-links a{color:#d0ddd3;text-decoration:none;font-size:13px}
+    .nav-links a:hover,.nav-links a:focus-visible{color:var(--accent)}
+    .nav-links .nav-discord{font-family:var(--mono);font-size:10px;letter-spacing:.08em}
+    .nav-tools{display:flex;align-items:center;gap:10px}.nav-profile{display:inline-flex;min-height:36px;align-items:center;padding:7px 12px;border:1px solid var(--line);color:var(--text);font-size:12px;text-decoration:none}.nav-profile:hover,.nav-profile.is-profile{border-color:var(--accent);color:var(--accent)}.menu-toggle{display:inline-flex;min-height:36px;align-items:center;gap:9px;padding:7px 11px;border:1px solid var(--line);background:rgba(8,21,22,.3);color:var(--text);font-size:12px;cursor:pointer}.menu-toggle:hover,.menu-toggle[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}.menu-toggle i{display:grid;gap:3px;width:15px}.menu-toggle i span{display:block;height:1px;background:currentColor}.site-menu{position:absolute;z-index:20;top:calc(100% + 12px);right:0;width:min(390px,calc(100vw - 30px));padding:18px;border:1px solid var(--line);background:rgba(7,24,24,.97);box-shadow:0 18px 45px rgba(0,0,0,.34);backdrop-filter:blur(16px)}.site-menu[hidden]{display:none}.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;border-top:1px solid var(--soft-line);border-left:1px solid var(--soft-line)}.menu-grid a{display:flex;min-height:48px;align-items:center;padding:12px;border-right:1px solid var(--soft-line);border-bottom:1px solid var(--soft-line);color:var(--muted);font-size:13px;text-decoration:none}.menu-grid a:hover,.menu-grid a:focus-visible{background:rgba(35,91,78,.34);color:var(--accent)}.menu-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;color:var(--faint);font-family:var(--mono);font-size:9px;letter-spacing:.08em}.menu-foot a{color:var(--accent);text-decoration:none}.nav{position:relative}
+    .hero-grid{display:grid;min-height:calc(clamp(640px,100dvh,760px) - 72px);grid-template-columns:minmax(0,1fr) 270px;align-items:center;gap:60px;padding:56px 0 76px}
+    .hero-copy{max-width:650px}
+    .hero-copy .meta{margin:0 0 18px;color:var(--accent)}
+    .hero h1{max-width:650px;margin:0;font-size:clamp(3.7rem,8vw,7rem);font-weight:800;letter-spacing:-.13em;line-height:.94}
+    .hero h1 em{color:var(--accent);font-style:normal}
+    .hero-lead{max-width:420px;margin:26px 0 27px;color:#d0ddd3;font-size:16px}
+    .actions{display:flex;flex-wrap:wrap;gap:10px}
+    .button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:12px 17px;border:1px solid var(--accent);background:var(--accent);color:var(--button-ink);font-size:13px;font-weight:800;text-decoration:none;cursor:pointer;transition:transform .2s ease,background .2s ease,color .2s ease}
+    .button:hover,.button:focus-visible{background:#e4b878;transform:translateY(-2px)}
+    .button:active{transform:translateY(0) scale(.98)}
+    .button.ghost{border-color:var(--line);background:rgba(8,21,22,.32);color:var(--text)}
+    .button.ghost:hover,.button.ghost:focus-visible{border-color:var(--accent);background:rgba(18,54,50,.7)}
+    .hero-aside{align-self:end;margin-bottom:10px;padding-left:18px;border-left:1px solid var(--accent)}
+    .hero-aside .meta{margin:0;color:var(--accent)}
+    .hero-aside strong{display:block;margin:8px 0 2px;font-size:26px;font-weight:500;letter-spacing:-.08em}
+    .hero-aside span{display:block;color:#b4c7bd;font-family:var(--mono);font-size:10px;line-height:1.8}
+
+    main{background:var(--ink)}
+    .intro{padding:112px 0 110px;background:radial-gradient(680px 320px at 8% 3%,rgba(35,91,78,.34),transparent 70%)}
+    .intro h2,.systems h2,.arrival h2,.directory h2{max-width:700px;margin:0;font-size:clamp(2.8rem,5.8vw,5.4rem);font-weight:800;letter-spacing:-.13em;line-height:.97}
+    .intro-lead{max-width:560px;margin:22px 0 0;color:var(--muted);font-size:16px}
+    .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:57px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .fact{min-height:126px;padding:23px 20px 22px 0;border-right:1px solid var(--soft-line)}
+    .fact:not(:first-child){padding-left:20px}
+    .fact:last-child{border-right:0}
+    .fact strong{display:block;color:var(--accent);font-size:26px;font-weight:500;letter-spacing:-.08em}
+    .fact span{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+
+    .systems{padding:0 0 120px}
+    .systems h2{max-width:570px}
+    .systems-lead{max-width:510px;margin:22px 0 0;color:var(--muted);font-size:15px}
+    .system-browser{display:grid;grid-template-columns:300px minmax(0,1fr);margin-top:52px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .system-list{border-right:1px solid var(--line)}
+    .system-tab{display:grid;width:100%;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:20px 18px 20px 0;border:0;border-bottom:1px solid var(--soft-line);background:transparent;color:var(--muted);text-align:left;cursor:pointer;transition:color .2s ease,background .2s ease,padding .2s ease}
+    .system-tab:last-child{border-bottom:0}
+    .system-tab:hover,.system-tab:focus-visible,.system-tab[aria-selected="true"]{padding-left:10px;background:rgba(23,57,54,.42);color:var(--text)}
+    .system-tab[aria-selected="true"]{box-shadow:inset 2px 0 var(--accent)}
+    .system-tab b{display:block;font-size:18px;font-weight:500;letter-spacing:-.07em}
+    .system-tab small{display:block;margin-top:2px;color:inherit;font-size:11px}
+    .system-tab .arrow{color:var(--accent);font-size:18px;line-height:1;opacity:.38}
+    .system-tab[aria-selected="true"] .arrow{opacity:1}
+    .system-view{position:relative;min-height:545px;overflow:hidden;background:var(--surface)}
+    .system-view:before{content:"";position:absolute;inset:0;background:linear-gradient(112deg,rgba(27,60,55,.65),transparent 68%);pointer-events:none}
+    .system-view.is-changing .system-copy{opacity:0;transform:translateY(12px)}
+    .system-copy{position:absolute;z-index:2;left:46px;top:50%;width:min(40%,330px);transform:translateY(-50%);transition:opacity .22s ease,transform .4s cubic-bezier(.2,.8,.2,1)}
+    .system-copy .meta{margin:0 0 15px;color:var(--accent)}
+    .system-copy h3{margin:0;font-size:clamp(2.6rem,5vw,5rem);font-weight:800;letter-spacing:-.14em;line-height:.93}
+    .system-copy p{margin:18px 0 0;color:#c4d4ca;font-size:14px}
+    .system-copy a{display:inline-block;margin-top:21px;color:var(--accent);font-size:13px;font-weight:800;text-underline-offset:4px}
+    .system-art-viewport{position:absolute;z-index:1;top:0;right:0;bottom:0;width:59%;overflow:hidden;perspective:1200px;touch-action:pan-y;cursor:grab}
+    .system-art-viewport:active{cursor:grabbing}
+    .system-art-rail{display:flex;height:100%;transition:transform .58s cubic-bezier(.2,.8,.2,1);will-change:transform}
+    .system-art-slide{display:grid;flex:0 0 100%;height:100%;place-items:center;padding:35px 34px 68px}
+    .system-art-slide img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 24px 24px rgba(0,0,0,.4));transform:rotateY(-9deg) rotateX(3deg) translateZ(12px) scale(1.04);transition:transform .58s cubic-bezier(.2,.8,.2,1)}
+    .system-art-slide:nth-child(even) img{transform:rotateY(8deg) rotateX(2deg) translateZ(12px) scale(1.02)}
+    .system-controls{position:absolute;z-index:3;left:46px;bottom:26px;display:flex;align-items:center;gap:8px}
+    .system-control{display:grid;width:36px;height:36px;place-items:center;border:1px solid var(--line);background:rgba(8,21,22,.32);color:var(--text);font-size:18px;line-height:1;cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease}
+    .system-control:hover,.system-control:focus-visible{border-color:var(--accent);background:var(--accent);color:var(--button-ink)}
+    .system-control-label{margin-left:7px;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+
+    .arrival{padding:0 0 116px}
+    .arrival-grid{display:grid;grid-template-columns:.83fr 1.17fr;gap:88px;padding-top:38px;border-top:1px solid var(--line)}
+    .arrival h2{font-size:clamp(2.4rem,4.7vw,4.6rem)}
+    .arrival>p{max-width:330px;margin:20px 0 0;color:var(--muted);font-size:14px}
+    .arrival-list{margin:0;padding:0;border-top:1px solid var(--soft-line);list-style:none}
+    .arrival-list li{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:17px 0;border-bottom:1px solid var(--soft-line)}
+    .arrival-list strong{font-size:15px;font-weight:500}
+    .arrival-list span{color:var(--muted);font-family:var(--mono);font-size:11px;text-align:right}
+    .arrival-link{display:inline-block;margin-top:23px;color:var(--accent);font-size:13px;font-weight:800;text-underline-offset:4px}
+
+    .directory{padding:0 0 110px}
+    .directory h2{max-width:520px;font-size:clamp(2.3rem,4.7vw,4.5rem)}
+    .directory-links{display:grid;grid-template-columns:repeat(5,1fr);margin-top:36px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .directory-links a{padding:20px 14px 20px 0;border-right:1px solid var(--soft-line);color:var(--muted);font-size:14px;text-decoration:none;transition:color .2s ease,padding .2s ease}
+    .directory-links a:not(:first-child){padding-left:14px}
+    .directory-links a:last-child{border-right:0}
+    .directory-links a:hover,.directory-links a:focus-visible{padding-left:8px;color:var(--accent)}
+    .footer{padding:42px 0 52px;border-top:1px solid var(--line);background:#061011}
+    .footer-inner{display:flex;align-items:end;justify-content:space-between;gap:30px}
+    .footer p{margin:9px 0 0;color:#79968b;font-size:11px}
+    .footer-links{display:flex;flex-wrap:wrap;gap:20px;color:#b5c9bf;font-size:12px}
+    .footer-links a{text-decoration:none}
+    .footer-links a:hover,.footer-links a:focus-visible{color:var(--accent)}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+    @media(prefers-color-scheme:light){
+      :root{color-scheme:light;--ink:#e9eee6;--surface:#dfe9e0;--surface-strong:#d3e1d6;--text:#102421;--muted:#4f675e;--faint:#6d8278;--accent:#8b5722;--line:rgba(16,36,33,.24);--soft-line:rgba(16,36,33,.15);--hero-scrim:linear-gradient(90deg,rgba(233,238,230,.9) 0%,rgba(233,238,230,.68) 42%,rgba(233,238,230,.16) 100%);--button-ink:#fff9ee}
+      .hero h1,.hero-lead,.hero-aside strong{color:var(--text)}
+      .hero-aside span{color:var(--muted)}
+      .nav-links a{color:var(--text)}
+      .button.ghost{background:rgba(233,238,230,.34);color:var(--text)}
+      .button.ghost:hover,.button.ghost:focus-visible{background:rgba(211,225,214,.72)}
+      .button:hover,.button:focus-visible{background:#754417;color:#fff9ee}
+      .system-view:before{background:linear-gradient(112deg,rgba(211,225,214,.62),transparent 68%)}
+      .system-copy p{color:var(--muted)}
+      .footer{background:#dfe8df}
+      .footer p,.footer-links{color:var(--muted)}
     }
+    @media(max-width:820px){
+      .shell{width:min(100% - 36px,620px)}
+      .hero-grid{display:block;min-height:calc(clamp(640px,100dvh,760px) - 72px);padding-top:100px}
+      .hero-aside{position:absolute;left:0;bottom:20px;margin:0}
+      .hero:after{right:18%;height:82px}
+      .facts,.system-browser,.arrival-grid{grid-template-columns:1fr}
+      .fact{min-height:0;padding:18px 0;border-right:0;border-bottom:1px solid var(--soft-line)}
+      .fact:not(:first-child){padding-left:0}
+      .fact:last-child{border-bottom:0}
+      .system-list{border-right:0;border-bottom:1px solid var(--line)}
+      .system-tab{padding:15px 0}
+      .system-tab:hover,.system-tab:focus-visible,.system-tab[aria-selected="true"]{padding-left:8px}
+      .system-view{min-height:625px}
+      .system-copy{left:28px;top:36px;width:68%;transform:none}
+      .system-art-viewport{top:185px;right:0;bottom:48px;width:100%}
+      .system-art-slide{padding:20px 54px 15px}
+      .system-controls{left:28px;bottom:16px}
+      .arrival-grid{gap:40px}
+      .directory-links{grid-template-columns:repeat(3,1fr)}
+      .directory-links a:nth-child(3){border-right:0}
+      .directory-links a:nth-child(n+4){border-top:1px solid var(--soft-line)}
+    }
+    @media(max-width:540px){
+      .shell{width:calc(100% - 30px)}
+      .nav{height:68px}
+      .nav-tools{gap:6px}.nav-profile{padding:7px 9px;font-size:11px}.menu-toggle{padding:7px 9px}.site-menu{right:-1px}
+      .nav-links{gap:14px}
+      .nav-links a:not(.nav-shop):not(.nav-discord){display:none}
+      .nav-links .nav-discord{font-size:0}
+      .nav-links .nav-discord:after{content:'DISCORD';font-size:9px}
+      .hero-grid{min-height:calc(clamp(640px,100dvh,760px) - 68px);padding-top:88px}
+      .hero h1{font-size:clamp(3.2rem,15vw,5rem)}
+      .hero-lead{font-size:15px}
+      .intro{padding:78px 0 82px}
+      .intro h2,.systems h2{font-size:clamp(2.8rem,14vw,4.2rem)}
+      .systems{padding-bottom:84px}
+      .system-view{min-height:565px}
+      .system-copy{width:82%}
+      .system-copy h3{font-size:3.4rem}
+      .system-art-viewport{top:180px;bottom:48px}
+      .system-art-slide{padding:15px 25px 10px}
+      .arrival{padding-bottom:82px}
+      .directory{padding-bottom:82px}
+      .directory-links{grid-template-columns:repeat(2,1fr)}
+      .directory-links a:nth-child(3){border-right:1px solid var(--soft-line)}
+      .directory-links a:nth-child(n+3){border-top:1px solid var(--soft-line)}
+      .directory-links a:nth-child(even){border-right:0}
+      .footer-inner{display:block}
+      .footer-links{margin-top:24px;gap:14px}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.system-tab,.system-copy,.system-art-rail,.system-art-slide img{transition:none}}
   </style>
-  <style>
-    .activity-link{color:inherit;text-decoration:none}.activity-link small{position:relative;display:block;margin-top:14px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.08em}.activity-link:hover small{color:var(--lantern)}.outlook-grid{grid-template-columns:repeat(4,1fr)}@media(max-width:760px){.outlook-grid{grid-template-columns:1fr}}
-  </style>
+  <script src="/assets/site-nav.js" defer></script>
 </head>
 <body>
-  <header class="hero">
+  <header class="hero" id="top">
     <div class="shell">
-      <nav class="nav" aria-label="주 메뉴">
-        <a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a>
-        <div class="links"><a href="#world">세계</a><a href="/wiki/start">시작하기</a><a href="/wiki">위키</a><a href="#future">기록</a><a href="/dex">도감</a><a href="/gear">장비</a><a class="nav-discord" href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer" aria-label="바르칸 열도 디스코드 참여" title="디스코드 참여"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.32 4.37A19.8 19.8 0 0 0 15.44 2.85a.08.08 0 0 0-.08.04c-.21.37-.44.86-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.64 12.64 0 0 0-.62-1.25.08.08 0 0 0-.08-.04A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.03.03C.53 9.05-.33 13.58.09 18.06a.09.09 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.39-.3a.08.08 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.08.08 0 0 1 .09.01l.39.3c.03.03.03.09-.01.12-.59.35-1.21.65-1.87.89a.08.08 0 0 0-.04.12c.37.7.78 1.37 1.23 2a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.61-3.56-13.66a.06.06 0 0 0-.03-.03ZM8.02 15.33c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.95 2.41-2.15 2.41Zm7.95 0c-1.18 0-2.15-1.08-2.15-2.41s.95-2.41 2.15-2.41c1.21 0 2.17 1.09 2.15 2.41 0 1.33-.94 2.41-2.15 2.41Z"/></svg></a><a class="nav-shop" href="/vip/">상점</a></div>
-      </nav>
-      <section class="hero-copy">
-        <p class="overline">MINECRAFT FISHING ADVENTURE</p>
-        <h1>바다 끝의<br><em>바르칸 열도.</em></h1>
-        <p>낚시와 탐험, 그리고 섬에서의 생활. 바르칸 열도에서 당신만의 항해를 시작하세요.</p>
-        <div class="actions"><button class="button" type="button" data-server="barkan.kro.kr">서버 주소 복사</button><a class="button ghost" href="/wiki/start">처음 오셨나요?</a></div>
-        <p class="server-note"><b>JAVA · BEDROCK CROSSPLAY</b> · barkan.kro.kr · Java 1.21.4 ~ 1.26.2</p>
-      </section>
-      <span class="scroll-cue">SCROLL TO EXPLORE</span>
+      <div data-site-nav></div>
+      <div class="hero-grid">
+        <section class="hero-copy" aria-labelledby="hero-title">
+          <p class="meta">Minecraft fishing server</p>
+          <h1 id="hero-title">바다 끝의<br><em>바르칸 열도</em></h1>
+          <p class="hero-lead">낚시로 시작해 섬과 길드까지 넓어지는 마인크래프트 서버. 오늘의 한 마리가 다음 항로를 엽니다.</p>
+          <div class="actions"><button class="button" type="button" data-server="barkan.kro.kr">서버 주소 복사</button><a class="button ghost" href="/dex">도감 둘러보기</a><a class="button ghost" href="/community">커뮤니티 둘러보기</a></div>
+        </section>
+        <aside class="hero-aside" aria-label="서버 접속 정보"><p class="meta">Barkan islands</p><strong>barkan.kro.kr</strong><span>JAVA + BEDROCK<br>1.21.4 - 1.26.2</span></aside>
+      </div>
     </div>
   </header>
   <main>
-    <section class="shell intro" id="world">
-      <p class="section-kicker">PLAY IT YOUR WAY</p>
-      <h2 class="section-title">낚시 하나로 끝나지 않는<br>바르칸 열도.</h2>
-      <p class="section-lead">565종의 물고기를 찾아 도감을 채우고, 낚싯대와 작살 중 내 방식으로 성장하세요. 혼자 만든 섬은 길드와 함께 더 커집니다.</p>
-      <div class="activity-grid">
-        <a class="activity activity-link" href="/dex"><span class="number">565 / SPECIES</span><h3>565종 물고기 도감</h3><p>지역과 시간, 날씨에 따라 달라지는 어종. 희귀한 한 마리를 노리거나 도감의 빈칸부터 채워 보세요.</p><small>도감 열기 →</small></a>
-        <article class="activity"><span class="number">ROD / HARPOON</span><h3>낚싯대냐, 작살이냐</h3><p>부품과 강화로 확률을 설계할지, 깊은 물로 들어가 작살 사냥 빌드를 만들지, 같은 레벨도 완전히 다르게 즐깁니다.</p></article>
-        <article class="activity"><span class="number">ISLAND / GUILD</span><h3>혼자 꾸미고, 같이 키운다</h3><p>개인 섬에서 생활 기반을 만들고, 마음 맞는 친구들과 길드 섬과 기여를 함께 성장시키세요.</p></article>
+    <section class="intro" id="world" aria-labelledby="world-title">
+      <div class="shell">
+        <h2 id="world-title">낚시는 이 세계의<br>입구입니다.</h2>
+        <p class="intro-lead">지역과 시간, 날씨를 읽으며 물고기를 찾다 보면 장비와 섬, 길드와 항구의 이야기가 자연스럽게 이어집니다.</p>
+        <div class="facts" aria-label="바르칸 주요 콘텐츠"><div class="fact"><strong>565종</strong><span>채워 가는 물고기 도감</span></div><div class="fact"><strong>낚싯대와 작살</strong><span>두 가지 사냥 방식</span></div><div class="fact"><strong>개인 섬</strong><span>나만의 생활 기반</span></div><div class="fact"><strong>길드 섬</strong><span>함께 키우는 항구</span></div></div>
       </div>
     </section>
-    <section class="showcase" aria-label="바르칸 낚시 경험 미리보기">
-      <div class="showcase-sticky" tabindex="0" aria-label="신기루 낚싯대와 심해교역 작살 미리보기. 마우스 휠이나 탭으로 전환할 수 있습니다.">
-        <div class="shell showcase-layout">
-          <div class="showcase-copy"><small id="showcase-kicker">BUILT FOR THE CATCH</small><h2 id="showcase-heading">수백 종의 장비로,<br>낚시를 바꾼다.</h2><p id="showcase-copy">낚싯대와 부품을 조합하고 강화해, 내가 노리는 물고기에 맞는 장비를 완성하세요.</p></div>
-          <div class="showcase-visual" aria-hidden="true"><span class="showcase-orbit"></span><img class="product-art product-rod" src="/assets/product/mirage-rod.png" alt=""><img class="product-art product-harpoon" src="/assets/product/deep-trade-harpoon.png" alt=""><img class="product-art product-cooking" src="/assets/product/cooking.png" alt=""><img class="product-art product-npc" src="/assets/product/npc.png" alt=""><img class="product-art product-guild" src="/assets/product/guild.png" alt=""><img class="product-art product-gathering" src="/assets/product/gathering.png" alt=""><img class="product-art product-casino" src="/assets/product/casino.png" alt=""></div>
-          <div class="showcase-stat"><small id="showcase-label">MIRAGE ROD · A GRADE</small><strong id="showcase-value">신기루 낚싯대</strong><span id="showcase-detail">사막의 신기루를 담은 낚싯대</span></div>
+    <section class="systems" id="systems" aria-labelledby="systems-title">
+      <div class="shell">
+        <h2 id="systems-title">오늘은 어디로 갈까요?</h2>
+        <p class="systems-lead">바르칸에서는 하고 싶은 일에 따라 성장 경로가 달라집니다. 아래에서 마음에 드는 항로를 골라 보세요.</p>
+        <div class="system-browser">
+          <div class="system-list" role="tablist" aria-label="바르칸 주요 시스템">
+            <button class="system-tab" type="button" role="tab" aria-selected="true" aria-controls="system-view" data-system="0"><span><b>신기루 낚싯대</b><small>부품을 조합하는 첫 장비</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="1"><span><b>심해교역 작살</b><small>물속에서 다시 시작되는 사냥</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="2"><span><b>요리</b><small>잡은 물고기를 한 접시로</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="3"><span><b>항구의 사람들</b><small>퀘스트와 거래, 다음 목적지</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="4"><span><b>길드 생활</b><small>함께 꾸미고 성장하는 섬</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="5"><span><b>채집과 광질</b><small>낚시만 해서는 못 얻는 재료</small></span><span class="arrow">→</span></button>
+            <button class="system-tab" type="button" role="tab" aria-selected="false" aria-controls="system-view" data-system="6"><span><b>항구 카지노</b><small>밤에 이어지는 한 판</small></span><span class="arrow">→</span></button>
+          </div>
+          <div class="system-view" id="system-view" role="tabpanel" tabindex="0" aria-live="polite">
+            <div class="system-copy"><p class="meta" id="system-kicker">Built for the catch</p><h3 id="system-title">신기루<br>낚싯대</h3><p id="system-description">낚싯대와 부품을 조합하고 강화해, 내가 노리는 물고기에 맞는 장비를 완성하세요.</p><a id="system-link" href="/gear">장비 살펴보기 ↗</a></div>
+            <div class="system-art-viewport" id="system-art-viewport" aria-hidden="true"><div class="system-art-rail" id="system-art-rail"><div class="system-art-slide"><img src="/assets/product/mirage-rod.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/deep-trade-harpoon.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/cooking.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/npc.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/guild.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/gathering.png" alt=""></div><div class="system-art-slide"><img src="/assets/product/casino.png" alt=""></div></div></div>
+            <div class="system-controls"><button class="system-control" type="button" data-direction="-1" aria-label="이전 시스템">←</button><button class="system-control" type="button" data-direction="1" aria-label="다음 시스템">→</button><span class="system-control-label">옆으로 넘겨 보기</span></div>
+          </div>
         </div>
-        <div class="showcase-progress" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="showcase-wheel" aria-hidden="true"><b id="showcase-wheel-copy">휠로 다음 시스템 보기</b></div>
       </div>
     </section>
-    <section class="shell outlook" id="future">
-      <p class="section-kicker">ISLAND LOG</p><h2 class="section-title">바르칸을 더<br>알아보세요.</h2>
-      <div class="outlook-grid"><a class="outlook-card" href="/dex"><small>FISH COMPENDIUM</small><h3>물고기 도감</h3><p>어종별 서식 지역과 획득 조건을 바로 찾아보세요.</p></a><a class="outlook-card" href="/wiki"><small>FIELD GUIDE</small><h3>위키</h3><p>낚시 확률, 장비, 섬 생활과 모든 시스템을 확인하세요.</p></a><a class="outlook-card" href="/ranking"><small>HALL OF FAME</small><h3>랭킹</h3><p>바르칸 열도 모험가들의 현재 기록을 확인하세요.</p></a><a class="outlook-card" href="/vip/"><small>SHOP</small><h3>상점</h3><p>멤버십, 캐시 충전과 패키지를 확인하세요.</p></a></div>
+    <section class="arrival" id="arrival" aria-labelledby="arrival-title">
+      <div class="shell">
+        <div class="arrival-grid">
+          <div><h2 id="arrival-title">처음 오셨다면<br>이렇게 시작하세요.</h2><p>복잡한 준비 없이 서버에 들어와 바로 물가로 향하면 됩니다. 나머지는 플레이하면서 알아가세요.</p></div>
+          <div><ul class="arrival-list"><li><strong>주소를 복사합니다</strong><span>barkan.kro.kr</span></li><li><strong>마인크래프트에서 입장합니다</strong><span>JAVA + BEDROCK</span></li><li><strong>첫 낚싯대를 들고 물가로 갑니다</strong><span>초보자 안내는 위키에서</span></li></ul><a class="arrival-link" href="/wiki/start">입항 안내 읽기 ↗</a></div>
+        </div>
+      </div>
+    </section>
+    <section class="directory" id="future" aria-labelledby="directory-title">
+      <div class="shell">
+        <h2 id="directory-title">필요한 곳으로<br>바로 가기.</h2>
+        <nav class="directory-links" aria-label="바르칸 주요 페이지"><a href="/dex">물고기 도감 ↗</a><a href="/gear">장비 도감 ↗</a><a href="/catalog">재료와 채집품 ↗</a><a href="/ranking">랭킹 ↗</a><a href="/wiki">전체 위키 ↗</a></nav>
+      </div>
     </section>
   </main>
-  <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java & Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/wiki">위키</a><a href="/ranking">랭킹</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의</a></div></div></footer>
-  <script>
-    document.querySelector('[data-server]').addEventListener('click', async (event) => { const button = event.currentTarget; try { await navigator.clipboard.writeText(button.dataset.server); button.textContent = 'barkan.kro.kr 복사됨'; setTimeout(() => { button.textContent = '서버 주소 복사'; }, 1800); } catch { button.textContent = 'barkan.kro.kr'; } });
-    const showcase = document.querySelector('.showcase'); const showcaseSticky = document.querySelector('.showcase-sticky'); const showcaseKicker = document.querySelector('#showcase-kicker'); const showcaseHeading = document.querySelector('#showcase-heading'); const showcaseCopy = document.querySelector('#showcase-copy'); const showcaseLabel = document.querySelector('#showcase-label'); const showcaseValue = document.querySelector('#showcase-value'); const showcaseDetail = document.querySelector('#showcase-detail'); const showcaseWheelCopy = document.querySelector('#showcase-wheel-copy'); const showcaseSteps = [...document.querySelectorAll('.showcase-progress i')]; const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)'); const showcaseStages = [{kicker:'BUILT FOR THE CATCH',heading:'수백 종의 장비로,<br>낚시를 바꾼다.',copy:'낚싯대와 부품을 조합하고 강화해, 내가 노리는 물고기에 맞는 장비를 완성하세요.',label:'MIRAGE ROD · A GRADE',value:'신기루 낚싯대',detail:'사막의 신기루를 담은 낚싯대'},{kicker:'DIVE DEEPER',heading:'낚시의 끝은,<br>물속에서 다시 시작된다.',copy:'수영과 전투 감각을 더한 작살 사냥. 바다 깊은 곳으로 직접 들어가 사냥하세요.',label:'DEEP TRADE HARPOON · A GRADE',value:'심해교역 작살',detail:'수중호흡과 수영속도를 갖춘 심해 장비'},{kicker:'KITCHEN TO TABLE',heading:'잡은 물고기는,<br>한 접시의 요리가 된다.',copy:'요리를 먹어 버프를 받고, 필요한 곳에 제출하고, 완성품으로 판매할 수도 있습니다.',label:'COOKING · BUFF / SELL',value:'요리',detail:'먹고, 제출하고, 팔 수 있는 한 접시'},{kicker:'A LIVING HARBOR',heading:'항구의 사람들은,<br>각자 할 일이 있다.',copy:'길잡이부터 대장간, 상점, 판매와 여관까지. NPC마다 바르칸 생활의 다음 목적지가 있습니다.',label:'LIVING HARBOR NPC',value:'고퀄리티 NPC',detail:'대화와 기능이 있는 항구의 사람들'},{kicker:'MAKE A CREW',heading:'혼자 만든 섬도,<br>함께하면 길드가 된다.',copy:'마음 맞는 친구와 길드 섬을 만들고, 기여와 생활 기반을 함께 키워 보세요.',label:'GUILD ISLAND',value:'길드 생활',detail:'함께 꾸미고 성장하는 또 하나의 섬'},{kicker:'BEYOND THE SEA',heading:'낚시만 해서는,<br>못 얻는 것들.',copy:'광질과 채집, 특수작물로 다른 재료를 모으고 섬에서 나만의 생산 루트를 만드세요.',label:'GATHERING · MINING',value:'채집과 광질',detail:'광물과 특수작물로 넓어지는 생활'},{kicker:'AFTER DARK',heading:'항구의 밤엔,<br>한 판 더 걸어본다.',copy:'카지노에서 손에 땀을 쥐는 한 판. 모험의 쉬는 시간도 바르칸답게 즐겨 보세요.',label:'HARBOR CASINO',value:'카지노',detail:'항구 한켠에서 이어지는 승부'}]; let showcaseStage = 0; let showcaseTimer; const setShowcaseStage = (stage) => { if (!showcase) return; const next = Math.max(0,Math.min(showcaseStages.length - 1,stage)); if (next === showcaseStage && showcase.dataset.stage) return; showcaseStage = next; const data = showcaseStages[next]; showcase.classList.add('is-changing'); clearTimeout(showcaseTimer); showcaseTimer = setTimeout(() => { showcase.dataset.stage = String(next); showcaseKicker.textContent = data.kicker; showcaseHeading.innerHTML = data.heading; showcaseCopy.textContent = data.copy; showcaseLabel.textContent = data.label; showcaseValue.textContent = data.value; showcaseDetail.textContent = data.detail; showcaseWheelCopy.textContent = next === showcaseStages.length - 1 ? '휠로 이전 시스템 보기' : '휠로 다음 시스템 보기'; showcaseSteps.forEach((step,index) => step.className = index < next ? 'is-past' : index === next ? 'is-current' : ''); showcaseSticky.setAttribute('aria-label', `${data.value} 소개. 마우스 휠이나 탭으로 다른 시스템을 볼 수 있습니다.`); showcase.classList.remove('is-changing'); }, reducedMotion.matches ? 0 : 150); }; setShowcaseStage(0); showcaseSticky.addEventListener('wheel', (event) => { if (reducedMotion.matches || Math.abs(event.deltaY) < 4) return; if (event.deltaY > 0 && showcaseStage < showcaseStages.length - 1) { event.preventDefault(); setShowcaseStage(showcaseStage + 1); } else if (event.deltaY < 0 && showcaseStage > 0) { event.preventDefault(); setShowcaseStage(showcaseStage - 1); } }, {passive:false}); showcaseSticky.addEventListener('click', () => setShowcaseStage((showcaseStage + 1) % showcaseStages.length)); showcaseSticky.addEventListener('keydown', (event) => { if (event.key === 'ArrowDown' || event.key === 'ArrowRight') { event.preventDefault(); setShowcaseStage(showcaseStage + 1); } if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') { event.preventDefault(); setShowcaseStage(showcaseStage - 1); } });
-  </script>
-  <script>
-    (() => {
-      const nav = document.querySelector('.nav .links');
-      const gear = nav?.querySelector('a[href="/gear"]');
-      if (nav && gear && !nav.querySelector('a[href="/catalog"]')) {
-        const link = document.createElement('a');
-        link.href = '/catalog';
-        link.textContent = '재료';
-        nav.insertBefore(link, gear.nextSibling);
-      }
-      const outlook = document.querySelector('.outlook-grid');
-      if (outlook && !outlook.querySelector('a[href="/catalog"]')) {
-        outlook.classList.add('has-catalog');
-        outlook.insertAdjacentHTML('beforeend', '<a class="outlook-card" href="/catalog"><small>ITEM ARCHIVE</small><h3>재료·채집품</h3><p>제작 재료와 섬 곳곳의 채집품을 찾아보세요.</p></a>');
-        const style = document.createElement('style');
-        style.textContent = '.outlook-grid.has-catalog{grid-template-columns:repeat(5,1fr)}@media(max-width:760px){.outlook-grid.has-catalog{grid-template-columns:1fr}}';
-        document.head.appendChild(style);
-      }
-    })();
-  </script>
+  <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java &amp; Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/wiki">위키</a><a href="/ranking">랭킹</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의</a></div></div></footer>
+  <script src="/assets/home.js" defer></script>
 </body>
 </html>

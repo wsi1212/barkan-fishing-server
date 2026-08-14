@@ -163,13 +163,38 @@ def public_ranking():
                 + int(guild.get("treasury") or 0) // 10_000
             )
             owner = guild.get("ownerId") or ""
+            raw_emblem = guild.get("emblemPixels")
+            emblem = ([int(value) if isinstance(value, (int, float)) and int(value) >= -1 and int(value) < 12 else -1
+                       for value in raw_emblem[:64]]
+                      if isinstance(raw_emblem, list) and len(raw_emblem) == 64 else [-1] * 64)
+            large_emblem = guild.get("emblemCanvasPixels")
+            large_size = 64 if isinstance(large_emblem, list) and len(large_emblem) == 64 * 64 else 128 if isinstance(large_emblem, list) and len(large_emblem) == 128 * 128 else 0
+            canvas_emblem = ([int(value) if isinstance(value, (int, float)) and int(value) >= -1 and int(value) < 12 else -1
+                              for value in large_emblem]
+                             if large_size == 64 else [])
+            if large_size and all(value < 0 for value in emblem):
+                emblem = []
+                for gy in range(8):
+                    for gx in range(8):
+                        counts = [0] * 12
+                        cell = large_size // 8
+                        for y in range(cell):
+                            for x in range(cell):
+                                value = large_emblem[(gy * cell + y) * large_size + gx * cell + x]
+                                if isinstance(value, (int, float)) and 0 <= int(value) < 12:
+                                    counts[int(value)] += 1
+                        best = max(range(12), key=lambda color: counts[color], default=0)
+                        emblem.append(best if counts[best] else -1)
             guild_rows.append({
+                "id": guild_id,
                 "name": guild.get("displayName") or guild_id,
                 "skinName": owner,
                 "owner": owner,
                 "members": len(members),
                 "level": guild_level(score),
                 "score": score,
+                "emblemPixels": emblem,
+                "emblemCanvasPixels": canvas_emblem,
             })
         guild_rows.sort(key=lambda row: (-row["score"], row["name"].casefold()))
 
@@ -181,6 +206,7 @@ def public_ranking():
                 "name": f"{owner}의 섬",
                 "skinName": owner,
                 "owner": owner,
+                "uuid": island.get("ownerUuid"),
                 "visitors": visitors,
             })
         island_rows.sort(key=lambda row: (-row["visitors"], row["name"].casefold()))

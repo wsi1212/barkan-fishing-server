@@ -1,0 +1,23 @@
+[Unit]
+Description=Barkan Discord verification bot
+After=network-online.target vip-billing.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=barkanbot
+Group=barkanbot
+WorkingDirectory=/srv/barkan-discord-bot
+EnvironmentFile=/etc/barkan-discord-bot.env
+EnvironmentFile=/etc/vip-billing/vip-billing.env
+ExecStart=/usr/bin/node /srv/barkan-discord-bot/bot.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/barkan-discord-bot
+
+[Install]
+WantedBy=multi-user.target

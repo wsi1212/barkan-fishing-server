@@ -5,6 +5,10 @@ lh-bizben.duckdns.org {
 barkan.kro.kr {
     redir /vip /vip/ 308
 
+    handle /community* {
+        reverse_proxy 127.0.0.1:3100
+    }
+
     handle_path /vip/* {
         reverse_proxy 127.0.0.1:3100
     }
