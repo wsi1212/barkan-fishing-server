@@ -623,7 +623,7 @@ WHERE e.type='fish.result' AND json_extract(e.ctx,'$.res')!='도주' GROUP BY 1,
 - `nightly-restart.sh`(box, 메시지 조립 ~80행)에 1줄 추가 — python3 원라이너로 `export/stats-latest.db`의 어제 day_type/day_player 요약:
   `📊 어제: 접속 9명 · 어획 1,234(G 0) · 순발행 +52만 · 카지노 -12만 · 퀘 87건`
 - 일요일엔 커버리지 사각지대 건수 1줄 추가. 실패해도 리포트 본문은 정상 발송(|| true).
-- 스크립트 원본은 이 레포 `oracle-ops-scripts/nightly-restart.sh`도 함께 갱신(미러 유지).
+- 스크립트 원본은 이 레포 `ops/nightly-restart.sh`도 함께 갱신(미러 유지).
 
 ### 10-5. 웹 어드민 대시보드 (Phase 5) — 통계 열람의 메인 UI
 마크 채팅/인벤 GUI는 표·차트·기간 비교에 부적합하다. 인게임 `/통계`는 운영 점검(큐 상태·킬스위치·오늘 요약)용 최소 UI로 남기고, **탐색·시각화는 전부 웹**에서 한다.
@@ -786,10 +786,10 @@ catches/money_in·out/quests_done 등 정확). export/stats-latest.db VACUUM INT
 `/통계 오늘·어제·유저·돈·커버리지` 전부 무예외 실행 확인(단 RCON 툴 특성상 async 응답 캡처는 실측 불가 —
 sendMessage 로직 자체는 이미 검증된 SQL과 동일 패턴). stats-lab/queries.py 10개 쿡북 함수(C1~C9, C9는
 낚시/강화 2종) 전부 실행 성공, report.py 마크다운 생성 확인. box 스크립트(telemetry-archive.sh 신설,
-offsite-backup.sh --exclude, nightly-restart.sh 📊 줄+일요일 리마인더)는 이 레포 oracle-ops-scripts/
+offsite-backup.sh --exclude, nightly-restart.sh 📊 줄+일요일 리마인더)는 이 레포 ops/prod/
 미러에서 로컬 bash -n + PREVIEW 테스트까지 완료 — ★실제 오라클 박스 설치/크론 등록은 prod 인프라 변경이라
 별도 명시 요청 시에만(수행 안 함).
-17. CatalogSnapshot(코드 상수 덤프 포함) + srv.start 해시. 18. player/guild_snapshot, day_type/day_player 롤업+캐치업, VACUUM INTO export. 19. `/통계` 전체 서브커맨드 + 커버리지 감사. 20. stats-lab/(pull.sh, queries.py 쿡북 C1–C9, report.py, intended-curve.json). 21. box: telemetry-archive.sh+cron, offsite-backup.sh --exclude(box 실물+이 레포 oracle-ops-scripts/ 미러 동시 수정), nightly-restart.sh 리포트 1줄. 22. blockship-plugin/CLAUDE.md 규약 문안(§7) 추가. 23. TeleTypes에 §8 전 타입 등록 확인(누락=커버리지 감사가 자기 자신을 잡는지 테스트).
+17. CatalogSnapshot(코드 상수 덤프 포함) + srv.start 해시. 18. player/guild_snapshot, day_type/day_player 롤업+캐치업, VACUUM INTO export. 19. `/통계` 전체 서브커맨드 + 커버리지 감사. 20. stats-lab/(pull.sh, queries.py 쿡북 C1–C9, report.py, intended-curve.json). 21. box: telemetry-archive.sh+cron, offsite-backup.sh --exclude(box 실물+이 레포 ops/prod/ 미러 동시 수정), nightly-restart.sh 리포트 1줄. 22. blockship-plugin/CLAUDE.md 규약 문안(§7) 추가. 23. TeleTypes에 §8 전 타입 등록 확인(누락=커버리지 감사가 자기 자신을 잡는지 테스트).
 - **수용 기준**: `/통계 오늘` 정상 출력. PREVIEW=1 데일리 리포트에 📊 줄 포함. pull.sh로 Mac에서 C1 실행 성공. 커버리지에 미등록 GUI 하나 일부러 만들어 검출되는지 확인.
 
 ### Phase 5 — 웹 어드민 대시보드 (§10-5)
@@ -824,7 +824,7 @@ rate limit(주 50건)에 걸려 인증서 발급이 일시 대기 상태였음 �
 24. 운영자 사전 작업 확인(§10-5 목록): barkan.kro.kr A레코드 → Discord 앱 생성+redirect 등록 → `.env`(client id/secret) → admins.json(어드민 Discord ID+역할). — **전부 완료**.
 25. Caddyfile에 barkan.kro.kr 블록 추가(★기존 lh-bizben 블록 불변, `systemctl reload caddy` 무중단 적용) + `~/mcserver/statsweb/` FastAPI 앱(127.0.0.1:8080 바인드) + systemd `statsweb.service`(Restart=always, MemoryMax=512M, Nice=10). — **완료, 실행 확인**.
 26. Discord OAuth 로그인/세션/허용목록 + `queries.py`를 stats-lab과 공유 모듈로 패키지화 + 정적 프론트(Chart.js 동봉 → 실제로는 서버사이드 SVG로 대체). — **완료, 실로그인 성공 확인**.
-27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가 — **✅ 완료(2026-07-28)**: `oracle-ops-scripts/nightly-restart.sh`가 `127.0.0.1:8080/healthz`를 직접 curl해 `📊 통계웹 up/down` 한 단어를 붙임, prod에 스크립트 sync 후 `PREVIEW=1` 실행으로 `up` 응답 실측 확인.
+27. 페이지 ①→⑩ 순서로 구현 — **①③④만으로 1차 오픈 가능**(홈/경제/장비가 최고 가치). 데일리 리포트 헬스 줄에 statsweb up/down 1단어 추가 — **✅ 완료(2026-07-28)**: `ops/nightly-restart.sh`가 `127.0.0.1:8080/healthz`를 직접 curl해 `📊 통계웹 up/down` 한 단어를 붙임, prod에 스크립트 sync 후 `PREVIEW=1` 실행으로 `up` 응답 실측 확인.
 - **수용 기준**: 어드민 로그인 성공(wsi1212 Discord 계정으로 실제 승인→콜백→대시보드 진입 확인) + 목록 밖 계정 거부는 코드상 보장(`auth.resolve_admin`이 admins.json에 없으면 거부, 실계정으로 재현은 안 함). 미로그인 접근 시 /login 리다이렉트 확인. **기존 lh-bizben.duckdns.org 서비스 무영향 확인**(변경 전후 응답 동일). 대시보드 조회 중 게임 서버는 별도 프로세스라 mspt 무관. ※HTTPS 인증서/systemd 자동재기동(kill 후 재기동)은 아직 미실측 — 인증서는 rate limit 해제 후, 재기동은 필요 시.
 
 ### C10 — 강화 단계별(몇강) 시도/성공/실패 (2026-07-28 추가 요청, C9의 확장)
@@ -936,7 +936,7 @@ island/recommend/drill 셋이 진짜로 분리되는 것까지 확인.
 
 ### 커밋·배포 규칙 (기존 규칙 재확인)
 - blockship-plugin: Phase 단위 커밋(자동, 질문 불필요). jar 배포는 dev 먼저(`~/deploy-dev.sh`), **prod는 명시 요청 시에만**(접속자 0/운영자 단독 예외는 기존 메모리 규칙 따름). 서버 재시작 필수(plugman reload 금지).
-- 이 scripts 레포: stats-lab/, oracle-ops-scripts/ 변경 커밋. box 크론 변경은 SSH로 적용 후 미러 갱신.
+- 이 scripts 레포: stats-lab/, ops/prod/ 변경 커밋. box 크론 변경은 SSH로 적용 후 미러 갱신.
 
 ---
 

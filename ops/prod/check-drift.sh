@@ -32,9 +32,19 @@ ssh -o ConnectTimeout=20 -i "$KEY" "$PROD" \
   'cd ~/mcserver/scripts && shasum -a 256 *.sh *.py 2>/dev/null' > "$TMP/prod.txt" \
   || { echo "prod 해시 조회 실패 (SSH 확인)" >&2; exit 2; }
 
-# 저장소 쪽 — ops/ 아래 모든 .sh/.py 를 basename 으로 색인.
-# ★basename 이 겹치면 어느 쪽이 prod 에 올라간 것인지 알 수 없으므로 모호하다고 표시한다.
-find "$REPO_ROOT/ops" -type f \( -name '*.sh' -o -name '*.py' \) -print0 \
+# 저장소 쪽 — **레포 전체**의 .sh/.py 를 basename 으로 색인.
+# ★처음엔 ops/ 만 훑었는데 그게 버그였다: 같은 스크립트가 `oracle-ops-scripts/` 에도
+#   미러로 있었고(텔레메트리 작업 때 만든 관행), 그걸 못 봐서 "prod 에만 있다"고 오판해
+#   ops/prod/ 에 **세 번째 사본**을 만들었다(2026-08-15). 사본이 늘면 한쪽만 고쳐지는
+#   날이 오고, 그게 바로 이 스크립트가 막으려는 고장이다. 그래서 전체를 훑고,
+#   basename 이 겹치면 "모호"로 올려 사람이 보게 한다.
+find "$REPO_ROOT" \
+     -path '*/.git' -prune -o \
+     -path '*/.claude/worktrees' -prune -o \
+     -path '*/node_modules' -prune -o \
+     -path '*/site-packages' -prune -o \
+     -path '*/venv' -prune -o -path '*/.venv' -prune -o \
+     -type f \( -name '*.sh' -o -name '*.py' \) -print0 \
   | xargs -0 shasum -a 256 > "$TMP/repo.txt"
 
 QUIET=$QUIET python3 - "$TMP/prod.txt" "$TMP/repo.txt" "$REPO_ROOT" <<'PY'
@@ -81,9 +91,12 @@ if only_prod:
 if not quiet:
     if same:
         print(f"일치 {len(same)}건: " + ", ".join(n for n, _ in same))
+    # ★"저장소에만" 은 목록으로 찍지 않는다. 맥 전용 도구·픽셀아트 스크립트·벤더링된
+    #   파이썬 패키지까지 다 걸려서 783건이 나오고(실측), 그 노이즈가 위의 진짜 경고를
+    #   화면 밖으로 밀어낸다. 개수만 남긴다 — 이 스크립트가 답할 질문은
+    #   "prod 에 있는 것이 저장소와 같은가" 이지 "저장소에 무엇이 더 있나" 가 아니다.
     if only_repo:
-        print(f"저장소에만(정상일 수 있음 — 맥 전용 도구 등) {len(only_repo)}건: "
-              + ", ".join(only_repo))
+        print(f"(저장소에만 있는 것 {len(only_repo)}건 — 맥 전용 도구 등, 정상)")
 
 bad = bool(diff or ambig or only_prod)
 print("\n판정:", "★조치 필요" if bad else "드리프트 없음")

@@ -62,6 +62,14 @@ inputs: {"apply_now": "true"}      # promote 는 자동으로 켜진 것으로 �
 접속자가 있으면 `GRACE` 초(기본 60) 예고 후 재시작한다. 재시작 뒤 RCON 으로 부팅까지
 확인하고 실패하면 롤백 방법과 함께 Discord 로 알린다.
 
+★**누르기 전에 접속자를 사용자에게 물을 것.** CLAUDE.md 규칙은 "jar 배포는 접속자 0명일
+때만" 인데 **클라우드 세션은 접속자 수를 볼 방법이 없다**(RCON 은 localhost 전용, SSH 불가).
+GRACE 예고가 있으니 사고는 아니지만 규칙을 어기는 건 사용자 판단이다. 인게임에서
+`/list` 를 보거나 Termius 로 `~/mcserver/scripts/rcon.py list` 를 치면 된다.
+
+★**dev 확인을 마친 것만 즉시 배포한다.** 스모크는 "부팅되는가" 만 본다 — GUI 가 깨졌는지,
+드랍이 이상한지는 통과시킨다.
+
 ### 3. 결과 확인
 
 `inputs` 는 boolean 이지만 **문자열 `"true"`/`"false"` 로 넘긴다**(MCP 스키마가 그렇다).
@@ -79,6 +87,39 @@ mcp__github__get_latest_release   ← publish 가 실제로 돌았는지는 이�
 빌드+스모크는 약 2분 30초. 완료 대기는 `sleep` 을 **백그라운드 Bash** 로 띄우고
 (포그라운드 sleep 은 막혀 있다) 알림을 받은 뒤 `actions_get` 으로 확인한다.
 셸에서 GitHub API 를 폴링하는 Monitor 는 403 이라 조용히 실패한다 — 쓰지 말 것.
+
+### ★Release 발행 확인은 "배포 완료" 가 아니다
+
+여기서 확인할 수 있는 것은 **GitHub 쪽까지**다. 그 뒤 단계(당겨오기 → 검증 → 적용 →
+재시작 → 부팅)는 전부 박스에서 일어나고 **클라우드 세션은 그걸 볼 수 없다.** 그래서:
+
+| 확인 대상 | 클라우드 세션 | 어떻게 |
+|---|---|---|
+| 빌드·스모크 통과 | ✅ 가능 | `actions_get` |
+| Release 발행·마커 | ✅ 가능 | `get_latest_release`(본문에 `APPLY_NOW` 있는지) |
+| **박스가 당겨왔는지** | ❌ 불가 | Discord `📦 staging 에 새 jar` |
+| **적용·재시작·부팅** | ❌ 불가 | Discord `🚀 즉시 배포` → 완료 알림 / 실패 시 🔴 |
+| 라이브 jar 해시 | ❌ 불가 | 사용자가 Termius 로 `rollback-jar.sh list` |
+
+**그러니 "배포 완료했습니다" 로 끝내지 말 것.** 정확한 보고는
+*"스모크 통과 → Release 발행(마커 포함) 확인. 박스가 5분 안에 당겨가 적용한다 —
+Discord 알림으로 확인해 달라"* 다. 2026-08-14 사고가 정확히 이 착각이었다:
+Release 는 정상 발행됐는데 박스 스크립트가 낡아 적용이 안 됐고, 아무도 몰랐다.
+
+최대 지연은 cron `*/5` 다. **5분 넘게 Discord 알림이 없으면 적용 안 된 것이다** —
+사용자에게 `ops/prod/check-drift.sh` 또는 `tail ~/mcserver/backups/ops.log` 를 부탁한다.
+
+### 실전 검증 (2026-08-14, 접속자 0명)
+
+```
+16:55:01  cron */5 → 새 승격 감지 build-7 → build-13
+16:55:03  검증 통과 → staging 배치 → APPLY_NOW 발견 → nightly --now
+16:55:04  구 jar 백업(.bak-…) + 새 jar 적용
+16:55:49  재시작 (GRACE 60초 방송 후)
+16:56:40  Done (44.3s) · BlockShip enable 정상 · 치명 예외 0
+```
+
+Release 발행부터 라이브까지 **약 4분**. 이 값에서 크게 벗어나면 뭔가 잘못된 것이다.
 
 ## 함정
 
@@ -110,7 +151,9 @@ python3 -c "import zipfile,json,io;z=zipfile.ZipFile('rp.zip');g=json.load(io.Te
 
 ## 문제가 생기면
 
-박스에서(맥 SSH 필요):
+박스에서 — **맥이 아니어도 된다. 폰 Termius 로도 된다**(2026-08-14 폰 전용 ED25519 키를
+prod `authorized_keys` 에 등록, 실제 접속·명령 확인). 즉 맥이 없어도 복구는 가능하다.
+클라우드 세션만 SSH 가 불가능한 것이다:
 
 ```bash
 ~/mcserver/scripts/rollback-jar.sh list      # 후보 + 라이브 sha256 + staging 대기 (무해)
@@ -126,10 +169,12 @@ staging 까지 비우므로 다음날 06:00 에 깨진 jar 이 재적용되지 �
 
 ## 설치 (박스에서 한 번, 맥 SSH 필요)
 
-즉시 배포는 스크립트 두 개가 박스에 최신이어야 동작한다.
+즉시 배포는 **스크립트 세 개**가 박스에 최신이어야 동작한다. 둘이 아니다 —
+`nightly-restart.sh` 가 적용 전에 `validate-staged.py` 를 게이트로 부르므로 그것도 최신이어야 한다.
 
 ```bash
-scp -i ~/.ssh/oracle-mc.key ops/oracle/fetch-staging.sh ops/nightly-restart.sh \
+scp -i ~/.ssh/oracle-mc.key \
+    ops/oracle/fetch-staging.sh ops/nightly-restart.sh ops/validate-staged.py \
     ubuntu@168.107.8.107:~/mcserver/scripts/
 ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 \
     'chmod +x ~/mcserver/scripts/{fetch-staging,nightly-restart}.sh &&
@@ -138,5 +183,17 @@ ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 \
 # cron 을 */15 → */5 로 (즉시 배포의 지연이 이 주기다)
 ```
 
-★`oracle-ops-scripts/nightly-restart.sh` 는 낡은 사본이다(validate-staged 게이트가
-없다). 권위는 `ops/nightly-restart.sh` 다 — 헷갈리지 말 것.
+★**셋을 따로 올리지 말 것.** `fetch-staging` 만 새것이면 구 `nightly-restart` 에
+`--now` 를 넘기는데 그 버전은 그 인자를 모르고 **데일리 전체(무조건 재시작 + 리포트)를
+돌 수 있다.**
+
+### 올라갔는지 확인 — `check-drift.sh`
+
+```bash
+ops/prod/check-drift.sh          # 해시로 저장소↔prod 대조, 다르면 exit 1
+```
+
+이 검사가 없어서 실제로 사고가 났다(2026-08-14): 워크플로는 Release 본문에 `APPLY_NOW`
+를 박고 있었지만 박스의 `fetch-staging.sh` 는 낡아서 그 낱말을 몰랐다. **에러 하나 없이**
+06:00 배포로 되돌아가, "즉시 배포했다" 고 믿은 jar 이 5시간 넘게 staging 에 앉아 있었다.
+배포 계열 고장은 대개 이렇게 조용하다 — 그래서 눈으로 확인하는 단계를 둔다.
