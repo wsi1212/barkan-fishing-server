@@ -33,7 +33,7 @@ PARTS = {
         "tile": "exec-3d35f90c-1704-427e-8c5c-daca75272d16.png",
         "cell": "exec-6309bb29-dd27-4a14-8776-e710aef25438.png",
         "icons": {
-            "길드 섬": "exec-79508801-1a4c-4347-9e62-37756eefb4cd.png",
+            "길드 섬": "exec-8f6959ac-66be-4aa1-a11d-7911215704b4.png",   # 2026-08-14 교체(전: 79508801 깃발형)
             "업그레이드": "exec-df73fe9a-5ed7-4224-b0b5-ebdb71be8947.png",
             "기부": "exec-1b0b0157-778a-4a03-8564-e8200f088b79.png",
             "길드원": "exec-9966343f-774d-4e3d-90a8-832cbce3edb2.png",
