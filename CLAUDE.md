@@ -172,7 +172,10 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **★private 리포는 사전 확인으로 판단하면 안 된다.** `curl`·`gh repo view`·`git ls-remote`로 미리 찔러보면 **실재하고 권한이 있어도 404**가 뜬다(비인증 요청이라). 그 404를 보고 "없네" 하고 `add_repo`를 건너뛰는 게 정확히 위에서 말한 함정이다. 그냥 `add_repo`를 호출하고 **서버 응답**으로 판단할 것.
 - **컨테이너는 일회용이다** — 비활성 상태가 이어지면 회수되고 `/workspace/` 클론도 같이 사라진다. 세션마다 위 절차를 다시 밟아야 하고, 남길 게 있으면 **반드시 커밋·푸시**해야 한다.
 - shallow 클론이라 `git log`/`blame`/`bisect`가 필요하면 그때 `git -C /workspace/blockship-plugin fetch --unshallow`.
-- ⚠️ 원격 세션에서 **할 수 없는 것**: 맥 전용 작업(리소스팩 배포 `~/deploy-rp.sh`, dev 서버 `~/dev-mc.sh`, MCP 의존 작업, 크롬 제어). 빌드도 여기서 하지 말 것 — 검증되지 않은 jar이 배포 경로에 섞이면 안 된다(위 「배포 후 서버 풀 재시작 필수」).
+- **★플러그인 배포는 원격에서 된다** — 오히려 그게 `fetch-staging.sh`를 만든 목적이다(prod가 **당겨오는** 구조라 폰에 SSH 키가 없어도, 맥이 꺼져 있어도 돈다). 경로는 아래 「배포 파이프라인」 참조: **코드 수정 → push → Actions가 빌드+부팅스모크 → 수동 promote → Release → 오라클이 당겨감**. 즉 빌드는 **CI가** 한다.
+  - 단 `add_repo`를 `access: "read"`로 붙였으면 push가 안 된다 → 코드를 고칠 거면 **`access: "push"`로 다시 붙일 것**.
+  - **★이 컨테이너에서 `./gradlew build` 해서 나온 jar을 배포 경로에 넣지 말 것.** 빌드가 금지인 게 아니라(로컬 검증용은 무방) **스모크를 안 거친 jar이 staging에 들어가는 게** 금지다. 06:00 데일리 유지보수는 staging에 있는 걸 무조건 적용하므로 그대로 라이브로 나간다.
+- ⚠️ 원격 세션에서 **정말로 못 하는 것**: 맥 전용 작업(리소스팩 배포 `~/deploy-rp.sh` — 리소스팩은 Actions 경로가 없다 / dev 서버 `~/dev-mc.sh` / MCP·크롬 의존 작업), 그리고 **prod SSH**(키 `~/.ssh/oracle-mc.key`가 맥에만 있다 → 로그 확인·`rollback-jar.sh`·수동 재시작은 유저가 직접).
 
 ### /textride 서브커맨드 (기존 명령어에 통합, 새 명령어 등록 불필요)
 - `/textride <player> <tag>` — Paper addPassenger (기존)
@@ -227,6 +230,26 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 한 줄 실행: `~/deploy-blockship.sh`
 - 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장. = **즉시 배포**.
 - **지연 배포(스테이징)**: `~/stage-blockship.sh` — 빌드 후 오라클 `~/mcserver/staging/`에 jar만 올리고 재시작 안 함 → **매일 06:00 KST 데일리 유지보수 때 자동 적용**(Mac 꺼져있어도 미리 올려두면 됨). 설정 JSON은 `staging/BlockShip/`에 두면 같이 반영. 무인기간 배포에 적합. 적용 시 구 jar는 `backups/deployed-jars/`에 자동 백업(롤백용). ★자동배포=미검증 jar도 그대로 적용되니 dev 테스트 후 스테이징할 것.
+
+### 배포 파이프라인 — 경로 3가지 (2026-08-14 문서화)
+> 셋 다 살아있다. **어디서 작업 중이냐**로 고른다. ★공통 불변식: **부팅 스모크를 안 거친 jar은 `staging/`에 들어가면 안 된다** — 06:00 데일리 유지보수가 거기 있는 걸 무조건 적용하므로 그대로 라이브다.
+
+| 경로 | 쓰는 때 | 흐름 | 반영 시점 |
+|---|---|---|---|
+| **① 맥 즉시** `~/deploy-blockship.sh` | 맥 앞에 있고 지금 바로 | 로컬 빌드 → SCP → `systemctl restart` | 즉시 (접속자 없을 때 권장) |
+| **② 맥 스테이징** `~/stage-blockship.sh` | 맥 앞에 있지만 지금 재시작 곤란 | 로컬 빌드 → `staging/` 업로드 | 다음날 06:00 KST |
+| **③ GitHub Actions** | **맥이 없을 때(폰·웹 세션), 무인기간** | push → CI 빌드+스모크 → **수동 promote** → Release → 오라클이 당겨감 | 다음날 06:00 KST |
+
+**③ GitHub Actions 상세** — 워크플로는 **`blockship-plugin` 리포**에 있다(문서 리포 아님):
+- `.github/workflows/blockship-smoke.yml` + `ci/paper-smoke-test.sh` (★fish 리포에서 돌리면 gradle 프로젝트가 없어 실패한다고 파일 상단에 명시)
+- 잡 3개: **`build`**(temurin 21, `./gradlew build`, jar 아티팩트 14일) → **`smoke`**(Paper `MC_VERSION` 실제 부팅 + BlockShip enable 확인, timeout 240, Paper jar 캐시, 실패 시 `boot.log` 첨부) → **`publish`**(`if: workflow_dispatch && inputs.promote` — `gh release create build-<run_number>`)
+- **승격 게이트가 이 파이프라인의 핵심이다**: `push`는 빌드+스모크까지만이고 staging 근처에도 안 간다. **`workflow_dispatch` + `promote=true`일 때만** Release가 생긴다 → 그래서 `fetch-staging.sh`의 "최신 Release 존재 = 사람이 승격을 눌렀다" 전제가 성립한다. ★**push마다 Release가 생기게 바꾸면 이 전제가 깨진다**(오타 하나가 다음날 라이브로 감).
+- 스모크는 **의존 플러그인 없이** 돈다(hard depend 0이라 가능). 그래서 오히려 민감하다 — softdepend를 가드 없이 참조하는 코드가 있으면 여기서 터지는데, **오탐이 아니라 prod에서 그 플러그인이 로드 실패하면 똑같이 깨질 진짜 버그다**(위 「plugin.yml 의존성 실측」).
+- `MC_VERSION`은 워크플로 env에 하드코딩(현재 `1.21.11`). 갱신법도 주석에 있음: `ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'`
+- 실측(2026-08-14 가동 첫날): run #1·#2 실패 → #3·#4 통과 → #5 수동 promote → **Release `build-5` 발행 07:15Z**. 사슬 완주 확인됨.
+
+**전체 사슬**: `push → Actions(build+smoke) → [수동 promote] → Release build-N → fetch-staging.sh(cron */15, PAT) → ~/mcserver/staging/ → nightly-restart.sh(06:00 KST) 적용+재시작+디스코드 리포트 → 문제 시 rollback-jar.sh(수동, staging까지 비움)`
+오라클 쪽 스크립트 사본: [ops/oracle/fetch-staging.sh](ops/oracle/fetch-staging.sh) · [ops/oracle/rollback-jar.sh](ops/oracle/rollback-jar.sh) · [ops/nightly-restart.sh](ops/nightly-restart.sh)
 
 **전체 변경** — Git 백업
 - 이 폴더(설계 문서 + 설정)가 git repo
