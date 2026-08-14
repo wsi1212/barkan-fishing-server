@@ -157,7 +157,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
   - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
   - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
-  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것.
+  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것. **클라우드 세션(폰·웹)은 이 둘을 못 쓴다**(22번 포트 차단) → Actions 승격 경로, 아래 「자동 sync」 참조.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=`~/dev-mc.sh restart` — RCON 25575, **feather 미사용** / prod=`sudo systemctl restart mcserver`)
 
@@ -230,6 +230,10 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 한 줄 실행: `~/deploy-blockship.sh`
 - 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장. = **즉시 배포**.
 - **지연 배포(스테이징)**: `~/stage-blockship.sh` — 빌드 후 오라클 `~/mcserver/staging/`에 jar만 올리고 재시작 안 함 → **매일 06:00 KST 데일리 유지보수 때 자동 적용**(Mac 꺼져있어도 미리 올려두면 됨). 설정 JSON은 `staging/BlockShip/`에 두면 같이 반영. 무인기간 배포에 적합. 적용 시 구 jar는 `backups/deployed-jars/`에 자동 백업(롤백용). ★자동배포=미검증 jar도 그대로 적용되니 dev 테스트 후 스테이징할 것.
+- **클라우드 세션(폰·웹 Claude Code)에서 배포** — 위 두 스크립트는 **맥 전용**이다(SSH 키가 맥에만 있고, 클라우드 컨테이너는 **22번 포트 egress가 원천 차단**이라 키를 넣어도 SSH가 안 된다. 하네스가 git SSH URL도 HTTPS로 재작성한다). 대신 **당겨오는 경로**를 쓴다 — GitHub Actions `blockship-smoke.yml`을 수동 실행:
+  - `promote=true` → 빌드+부팅스모크 통과 시 Release 발행 → prod가 당겨 `staging/` → **06:00 적용**
+  - `apply_now=true` → Release 본문에 `APPLY_NOW` 마커 → prod가 당겨오는 **즉시 적용+재시작**(최대 지연 = cron `*/5`). promote도 켜진 것으로 본다.
+  - GitHub은 **MCP 도구로만** 다룬다(셸에서 `api.github.com` 직접 호출은 403). 절차·함정은 스킬 `deploy-prod` 참조.
 
 ### 배포 파이프라인 — 경로 3가지 (2026-08-14 문서화)
 > 셋 다 살아있다. **어디서 작업 중이냐**로 고른다. ★공통 불변식: **부팅 스모크를 안 거친 jar은 `staging/`에 들어가면 안 된다** — 06:00 데일리 유지보수가 거기 있는 걸 무조건 적용하므로 그대로 라이브다.
@@ -248,14 +252,6 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - `MC_VERSION`은 워크플로 env에 하드코딩(현재 `1.21.11`). 갱신법도 주석에 있음: `ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'`
 - 실측(2026-08-14 가동 첫날): run #1·#2 실패 → #3·#4 통과 → #5 수동 promote → **Release `build-5` 발행 07:15Z**. 사슬 완주 확인됨.
 
-**즉시 배포 (2026-08-14 신설, 베타 기간용)** — 06:00 을 기다리지 않는 경로:
-- 워크플로 수동 실행 시 **`promote=true` + `immediate=true`** → 태그가 `build-N` 대신 **`now-N`** 으로 나간다.
-- `fetch-staging.sh`(cron */15)가 태그 접두어를 보고 갈린다: `build-` = staging 만(06:00 적용) · **`now-` = 즉시 [ops/oracle/apply-staged.sh](ops/oracle/apply-staged.sh) 실행**(구 jar 백업 → 교체 → 접속자 있으면 60초 예고 → save-all flush → 재시작 → **부팅 확인** → 디스코드).
-- ★**승격 게이트는 그대로다** — 즉시 배포도 수동 promote 를 거쳐야 Release 가 생긴다. 자동으로 나가는 경로는 없다.
-- ★신호를 태그에 싣는 이유: Releases 목록만 봐도 무엇이 즉시 나갔는지 남는다. 별도 상태 파일을 두면 사고 후 추적이 안 된다.
-- 반영 지연은 최대 15분(cron 주기). 더 급하면 prod 에서 `apply-staged.sh` 직접 실행.
-- **정식 운영 전환 시**: `immediate` 를 그냥 안 쓰면 된다(기본 false). 경로를 지울 필요 없다.
-
 **제한 SSH 키 (2026-08-14 신설)** — 롤백·진단만 가능한 키. [ops/oracle/ssh-restricted-shim.sh](ops/oracle/ssh-restricted-shim.sh) + [ops/oracle/setup-restricted-key.sh](ops/oracle/setup-restricted-key.sh)
 - `authorized_keys` 에 `restrict,command="…shim.sh"` 로 묶는다 → 접속자가 무엇을 치든 shim 만 실행되고 원래 명령은 `$SSH_ORIGINAL_COMMAND` 로 들어와 **화이트리스트 검사**를 받는다.
 - 허용: `rollback list|dry|yes [to <파일>]` · `log [N]` · `ops [N]` · `status`. 그 외 전부 거부(임의 셸·파일쓰기·sudo·포트포워딩 포함). 시도는 **거부된 것까지 전부** `backups/ops.log` 에 남는다.
@@ -264,7 +260,6 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 폐기: `setup-restricted-key.sh --revoke` (다른 키는 안 건드림)
 
 **전체 사슬**: `push → Actions(build+smoke) → [수동 promote] → Release build-N → fetch-staging.sh(cron */15, PAT) → ~/mcserver/staging/ → nightly-restart.sh(06:00 KST) 적용+재시작+디스코드 리포트 → 문제 시 rollback-jar.sh(수동, staging까지 비움)`
-즉시 배포는 이 사슬에서 `nightly-restart.sh` 대신 `apply-staged.sh` 가 붙는다(나머지는 동일).
 오라클 쪽 스크립트 사본: [ops/oracle/fetch-staging.sh](ops/oracle/fetch-staging.sh) · [ops/oracle/rollback-jar.sh](ops/oracle/rollback-jar.sh) · [ops/nightly-restart.sh](ops/nightly-restart.sh)
 
 **전체 변경** — Git 백업
@@ -300,7 +295,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - **로컬 → `~/mcserver/backups/`** (`local-backup.sh <main|islands>`, 파일명 접두어 `localmain-`/`localislands-`):
   - 20:00 main(본월드) 매일 3개 / 20:10 islands 매일 7개
   - 21:00 구 `playerdata-*.tar.gz` prune(자동소멸, 신규생성 없음)
-- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작 ③데일리 리포트** 🌅(배포결과+백업 성공목록+헬스)로 하루 1회 통합 발송(노이즈 최소화). 재시작 사전예고는 `restart-warning.sh <30|10|5|1>`(각각 05:30/05:50/05:55/05:59 KST 별도 cron, 접속자 0명이면 조용히 스킵)이 담당 — nightly-restart.sh 자체는 재시작 직전 즉시 알림 1회만. ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`.
+- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작 ③데일리 리포트** 🌅(배포결과+백업 성공목록+헬스)로 하루 1회 통합 발송(노이즈 최소화). 재시작 사전예고는 `restart-warning.sh <30|10|5|1>`(각각 05:30/05:50/05:55/05:59 KST 별도 cron, 접속자 0명이면 조용히 스킵)이 담당 — nightly-restart.sh 자체는 재시작 직전 즉시 알림 1회만. ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`. ★같은 스크립트에 **즉시 모드(`--now`/`NOW=1`)** 가 있다 — `fetch-staging.sh`가 APPLY_NOW 마커를 보면 부른다(아래 무인운영 절).
 - tar는 라이브 서버 파일이 읽는중 바뀌면 exit 1(경고, 아카이브 유효)을 냄 → `tar||fail` 금지, `--warning=no-file-changed`+rc≥2만 치명+`gzip -t` 무결성검증으로 성공판정(2026-07-24 본월드 백업 오탐 사고 후 수정).
 - ★staging은 `~/mcserver/backups/offsite-stage/`로 격리(로컬 백업과 glob 충돌 방지 필수).
 - 상세·복원법: memory `project_offsite_backup_dr`. 복원 = Object Storage에서 `oci os object get`→tar 해제.
@@ -320,14 +315,16 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 
 ### 무인운영 자동화 추가분 (2026-07-24, 군입대 대비 자가복구 시리즈)
 - `~/mcserver/scripts/nightly-restart.sh` (cron 21:00 UTC=06:00 KST): staging 자동배포+**무조건** `systemctl restart`(누수 정리, 접속자 있어도 실행)+디스코드 데일리 리포트. 사전예고(30/10/5/1분 전 인게임 방송)는 `restart-warning.sh`가 별도 cron으로 담당(2026-07-27 신설).
+  - **즉시 모드 `--now`(=`NOW=1`)**: 06:00을 안 기다리고 지금 적용. `fetch-staging.sh`가 APPLY_NOW 마커를 보면 `exec`으로 넘긴다(cron의 flock이 재시작·부팅확인 끝까지 유지 → 다음 주기 안 겹침). ★**적용 로직을 복제하지 않으려고** 같은 스크립트에 모드를 붙였다 — validate-staged 게이트·리소스팩 교차검증·구 jar 백업이 전부 여기 있다. 정기와 다른 점 4개: ①staging 비면 **재시작 안 함**(정기는 누수정리라 무조건) ②예고가 없었으므로 `GRACE`초(기본 60) 방송 후 재시작 ③데일리 리포트가 아니라 배포 알림 + **`.backup-status`를 지우지 않음**(지우면 그날 06:00 리포트가 「백업 기록 없음」이 되어 진짜 실패와 구분 불가) ④재시작 후 RCON 부팅확인(40회×5초), 실패 시 롤백법과 함께 🔴. skip-once 마커는 정기 전용이라 안 건드림. 미리보기: `PREVIEW=1 NOW=1 nightly-restart.sh`.
 - `~/mcserver/scripts/disk-guard.sh` (매시간): `df /` 사용률 85%⚠️경고 / 92%🔴면 가장 오래된 로컬 백업부터 삭제해 88% 아래로 확보(★라이브 데이터·오프사이트는 절대 안 건드림).
 - `~/mcserver/scripts/heartbeat.sh` (cron 5분): MC 포트 살아있으면 healthchecks.io로 핑 → 박스 자체가 죽거나 cron이 멈추면 **박스 밖에서** 침묵 감지, 25분 무응답 시 디스코드 알림(데드맨 스위치, 온박스 워치독의 사각 커버).
-- **`~/mcserver/scripts/fetch-staging.sh` (cron `*/15`, 2026-08-14 가동)**: GitHub Release → `staging/` **당겨오기**. 방향이 핵심이다 — 폰/맥이 prod에 밀어넣는 게 아니라 prod가 당겨오므로 **폰에 SSH 키가 없어도, 맥이 꺼져 있어도 배포가 돈다.** 전제: Actions가 **수동 promote(`workflow_dispatch` + `promote=true`)일 때만** Release를 만든다 → "최신 Release 존재" = "사람이 승격을 눌렀다". ★push마다 Release가 생기게 바꾸면 이 전제가 깨지니 금지. 토큰 `~/mcserver/.github-token`(fine-grained PAT, contents:read, 600).
-  - 무변화면 **로그도 안 남긴다**(*/15 × 96줄/일이면 진짜 사건이 묻힌다). 404=아직 Release 없음(정상, 조용히 exit 0) / 401·403=진짜 실패만 🔴 알림.
+- **`~/mcserver/scripts/fetch-staging.sh` (cron `*/5`, 2026-08-14 가동)**: GitHub Release → `staging/` **당겨오기**. 방향이 핵심이다 — 폰/맥이 prod에 밀어넣는 게 아니라 prod가 당겨오므로 **폰에 SSH 키가 없어도, 맥이 꺼져 있어도 배포가 돈다.** 전제: Actions가 **수동 promote(`workflow_dispatch` + `promote=true`)일 때만** Release를 만든다 → "최신 Release 존재" = "사람이 승격을 눌렀다". ★push마다 Release가 생기게 바꾸면 이 전제가 깨지니 금지. 토큰 `~/mcserver/.github-token`(fine-grained PAT, contents:read, 600).
+  - 무변화면 **로그도 안 남긴다**(주기마다 한 줄씩 쌓이면 진짜 사건이 묻힌다 — 그래서 `*/5`로 조여도 노이즈가 안 늘었다). 404=아직 Release 없음(정상, 조용히 exit 0) / 401·403=진짜 실패만 🔴 알림.
+  - **즉시 적용**: Release 본문에 `APPLY_NOW`가 있으면 staging 배치 직후 `nightly-restart.sh --now`를 부른다. 마커는 워크플로의 `apply_now` 입력이 박아 준다. ★**문자열 매칭**이라 release notes 문구를 다듬다 그 낱말을 지우면 즉시 배포가 **에러 없이** 06:00 배포로 되돌아간다. 즉시 적용의 실제 지연 = 이 cron 주기.
   - ★**PAT 만료가 조용한 사고 지점** — 만료되면 배포가 그냥 안 온다(서버는 멀쩡). 만료일 관리 필요.
 - **`~/mcserver/scripts/rollback-jar.sh` (2026-08-14 신설, 수동 전용)**: 깨진 jar 롤백을 한 줄로. `list`(후보+라이브 sha256+staging 대기, 무해) / `dry` / `yes` / `yes to <파일>`. **하이픈 없이 쓴다** — 모바일 키보드가 `--`를 대시로 바꿔 안 먹은 실측 사례가 있어 en/em dash도 정규화한다. 보존→교체→**staging 비움**→`.fetch-staging-state` 초기화→재시작→부팅확인→알림. ★staging을 안 비우면 다음날 06:00에 깨진 jar이 재적용된다(그래서 스크립트로 묶었다).
 - 로그: `backups/watchdog.log`(프리즈워치독) · `backups/ops.log`(nightly/diskguard/**fetch-staging/rollback**) · `offsite.log` · `local.log`. ★운영 로그는 `backups/` 에 모인다 — 새 스크립트가 `scripts/ops.log`로 쓰면 장애 때 한쪽만 보게 된다.
-- 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화) / **PAT 만료** / **리소스팩·MCP 의존 작업은 여전히 맥 전용**.
+- 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화) / **PAT 만료** / **리소스팩 배포는 여전히 맥 전용**(`~/deploy-rp.sh` — 코드만 올리고 팩을 안 올리면 새 GUI 판이 네모로 뜬다). 코드 배포는 2026-08-14부터 클라우드 세션에서도 즉시 가능(APPLY_NOW).
 
 ### Resize 자동 재시도 (백그라운드)
 - 위치: `~/oracle-auto-retry/resize-retry.sh`

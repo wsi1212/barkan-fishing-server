@@ -8,12 +8,36 @@
        ↓
 GitHub Actions     빌드 → 부팅 스모크(1층) → 통과 시에만 Release 발행
        ↓                                      ※수동 promote 일 때만
-오라클 cron        fetch-staging.sh (*/15) → 검증 → ~/mcserver/staging/
+오라클 cron        fetch-staging.sh (*/5) → 검증 → ~/mcserver/staging/
        ↓
 mcdev-up.sh --jar  (2층) 폰 마크 클라로 실제 확인          ← 여기가 dev 테스트 자리
        ↓
-06:00              nightly-restart.sh 가 적용 + 구 jar 백업 + 데일리 리포트
+       ├─ 마커 없음 → 06:00  nightly-restart.sh 적용 + 구 jar 백업 + 데일리 리포트
+       └─ APPLY_NOW → 즉시   nightly-restart.sh --now (예고 후 재시작 + 부팅확인)
 ```
+
+## 즉시 배포 (APPLY_NOW)
+
+06:00 을 기다리지 않는 길. **22번 포트가 막혀 있어** 클라우드 세션에서 prod 로 밀어넣는
+건 원천 불가능하다 — 그래서 당겨오는 이 구조에 마커 한 줄만 얹었다.
+
+Actions 를 `apply_now=true` 로 수동 실행하면 Release 본문에 `APPLY_NOW` 가 박히고,
+`fetch-staging.sh` 가 그것을 보면 staging 배치 직후 `nightly-restart.sh --now` 를
+`exec` 한다(cron 의 flock 이 재시작·부팅확인 끝까지 유지돼 다음 주기가 안 겹친다).
+
+**적용 로직은 복제하지 않았다.** validate-staged 게이트·리소스팩 교차검증·구 jar 백업이
+전부 `nightly-restart.sh` 에 있고, 사본을 만들면 한쪽만 고쳐지는 날이 온다. 즉시 모드가
+정기와 다른 점은 넷뿐이다:
+
+| | 정기 06:00 | 즉시 (--now) |
+|---|---|---|
+| staging 이 비면 | 그래도 재시작(누수 정리) | **재시작 안 함** |
+| 예고 | restart-warning.sh 가 30/10/5/1분 전 | `GRACE` 초(기본 60) 방송 후 |
+| 알림 | 🌅 데일리 리포트 + `.backup-status` 소비 | 🚀 배포 알림, **status 파일 안 건드림** |
+| 부팅 확인 | 안 함(프리즈 워치독이 8분 내 잡음) | RCON 40회×5초, 실패 시 롤백법 안내 |
+
+★`APPLY_NOW` 는 문자열 매칭이다. 워크플로 release notes 문구를 다듬다 그 낱말을 지우면
+즉시 배포가 **에러 없이** 06:00 배포로 되돌아간다.
 
 ## 승격 게이트 — 이 전제를 깨지 말 것
 
@@ -37,9 +61,14 @@ chmod 600 ~/mcserver/.github-token
 # 다른 repo 를 쓸 때만 BLOCKSHIP_REPO 로 덮어쓴다.
 ~/mcserver/scripts/fetch-staging.sh --dry-run
 
-# cron
+# cron — */5 다. 즉시 배포의 실제 지연이 이 주기이고, 변화가 없으면 로그를 안 남기므로
+#        */15 에서 조여도 ops.log 노이즈가 늘지 않는다.
 ( crontab -l 2>/dev/null; \
-  echo '*/15 * * * * flock -n ~/mcserver/.fetch.lock ~/mcserver/scripts/fetch-staging.sh' ) | crontab -
+  echo '*/5 * * * * flock -n ~/mcserver/.fetch.lock ~/mcserver/scripts/fetch-staging.sh' ) | crontab -
+
+# 즉시 배포를 쓰려면 nightly-restart.sh 도 최신이어야 한다(--now 모드가 거기 있다)
+cp ../nightly-restart.sh ~/mcserver/scripts/ && chmod +x ~/mcserver/scripts/nightly-restart.sh
+PREVIEW=1 NOW=1 ~/mcserver/scripts/nightly-restart.sh   # 즉시 모드 메시지 미리보기
 ```
 
 ## 안전장치

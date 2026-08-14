@@ -14,16 +14,21 @@
 #        → ~/mcserver/staging/ 배치 → Discord 알림
 #        → 06:00 nightly-restart.sh 가 적용 + 구 jar 백업
 #
-# ★태그 접두어가 배포 시점을 정한다 (2026-08-14 추가):
-#     build-N : staging 에만 (기본) — 06:00 데일리 유지보수가 적용
-#     now-N   : 받는 즉시 apply-staged.sh 로 적용+재시작 (베타 기간용)
-#   워크플로의 immediate 입력이 이 접두어를 정한다. 승격 게이트는 그대로다 —
-#   둘 다 수동 promote 를 거쳐야 Release 가 생긴다.
+# 즉시 적용: Release 본문에 **APPLY_NOW** 가 있으면 06:00 을 기다리지 않고
+#   `nightly-restart.sh --now` 를 바로 부른다. 클라우드 세션(폰·웹)에서 SSH 없이
+#   "지금 배포" 를 하려고 낸 길이다 — 22번 포트가 막혀 밀어넣기가 원천 불가능하고,
+#   당겨오는 이 구조에는 마커 한 줄만 얹으면 되기 때문이다.
+#   ★적용 로직은 여기 두지 않는다. nightly-restart.sh 한 곳에만 있다 — validate-staged
+#     게이트·리소스팩 교차검증·구 jar 백업이 거기 있고, 사본을 만들면 한쪽만 고쳐진다.
+#   마커는 Actions 워크플로의 apply_now 입력이 Release 본문에 박아 준다.
 #
-# ★plugins/ 루트에는 절대 쓰지 않는다. staging 까지만이 이 스크립트의 권한이다.
+# ★plugins/ 루트에는 절대 쓰지 않는다. staging 까지, 그리고 nightly 를 부르는 것까지가
+#   이 스크립트의 권한이다.
 #
 # 설치:
-#   crontab:  */15 * * * * flock -n ~/mcserver/.fetch.lock ~/mcserver/scripts/fetch-staging.sh
+#   crontab:  */5 * * * * flock -n ~/mcserver/.fetch.lock ~/mcserver/scripts/fetch-staging.sh
+#             (변화가 없으면 로그를 안 남기므로 */5 로 조여도 노이즈가 안 늘고,
+#              즉시 적용의 실제 지연이 이 주기라서 */15 에서 줄였다)
 #   토큰:     ~/mcserver/.github-token  (fine-grained PAT, contents:read, chmod 600)
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
@@ -111,14 +116,17 @@ case "$CODE" in
   *)   die "Release 조회 예상 밖 응답 HTTP $CODE ($REPO)" ;;
 esac
 
-read -r TAG ASSET_ID ASSET_NAME ASSET_SIZE <<<"$(python3 - "$ASSET_GLOB" <<PY
+# ★APPLY 는 마지막 필드다 — read 변수를 안 늘리면 ASSET_SIZE 가 "크기 마커" 를 함께 먹는다.
+read -r TAG ASSET_ID ASSET_NAME ASSET_SIZE APPLY <<<"$(python3 - "$ASSET_GLOB" <<PY
 import json, sys, fnmatch
 d = json.loads('''$RESP''')
 if d.get('draft') or d.get('prerelease'):
     sys.exit('draft/prerelease 는 건너뛴다')
 for a in d.get('assets', []):
     if fnmatch.fnmatch(a['name'], sys.argv[1]):
-        print(d['tag_name'], a['id'], a['name'], a['size']); break
+        # 본문에 APPLY_NOW 가 있으면 즉시 적용 요청. 공백 없는 낱말이라 마지막 필드로 안전하다.
+        print(d['tag_name'], a['id'], a['name'], a['size'],
+              '1' if 'APPLY_NOW' in (d.get('body') or '') else '0'); break
 else:
     sys.exit('일치하는 자산이 없다')
 PY
@@ -166,22 +174,22 @@ echo "$TAG" > "$STATE_FILE"
 
 log "staging 배치 완료: $STAGING/$ASSET_NAME"
 
-# ── 즉시 배포 분기 ────────────────────────────────────────────────────
-# 태그가 now-* 면 06:00 을 기다리지 않는다. 적용·재시작·부팅확인은 전부
-# apply-staged.sh 가 한다(nightly 와 같은 규칙을 쓰려고 로직을 한 곳에 뒀다).
-if [[ "$TAG" == now-* ]]; then
-  APPLY="$MC_ROOT/scripts/apply-staged.sh"
-  if [[ ! -x "$APPLY" ]]; then
-    # staging 에는 이미 들어갔으니 데이터는 안 잃는다 — 06:00 에 적용된다.
-    log "✗ 즉시 배포 요청인데 apply-staged.sh 가 없다: $APPLY"
-    notify "🟠 **즉시 배포 불가** — \`$TAG\` 를 받았지만 \`apply-staged.sh\` 가 없다.
-staging 에는 들어갔으니 06:00 에는 적용된다. 스크립트를 설치할 것."
-    exit 0
+if [[ "$APPLY" == "1" ]]; then
+  NIGHTLY="$MC_ROOT/scripts/nightly-restart.sh"
+  if [[ -x "$NIGHTLY" ]]; then
+    log "APPLY_NOW 마커 — 06:00 을 기다리지 않고 즉시 적용한다"
+    notify "🚀 **즉시 배포 시작** — \`$ASSET_NAME\` (\`$TAG\`)
+접속자가 있으면 예고 후 재시작합니다."
+    # ★exec 하면 EXIT trap 이 안 돈다 — TMP 를 먼저 치운다(빈 디렉터리가 /tmp 에 쌓인다).
+    #   exec 로 넘기는 이유: cron 의 flock 이 재시작·부팅확인이 끝날 때까지 유지돼
+    #   다음 주기가 겹쳐 들어오지 않는다.
+    rm -rf "$TMP"; trap - EXIT
+    exec "$NIGHTLY" --now
   fi
-  log "즉시 배포 태그($TAG) — apply-staged.sh 실행"
-  notify "⚡ **즉시 배포 시작** — \`$ASSET_NAME\` (\`$TAG\`)
-곧 재시작한다. 결과는 이어서 알린다."
-  exec "$APPLY"
+  log "⚠ APPLY_NOW 인데 $NIGHTLY 가 없거나 실행권한이 없다 — staging 에 두고 끝낸다"
+  notify "⚠️ **즉시 적용 불가** — \`$ASSET_NAME\` 은 staging 에 있고 06:00 에 적용된다.
+\`$NIGHTLY\` 설치·실행권한을 확인할 것."
+  exit 0
 fi
 
 notify "📦 **staging 에 새 jar** — \`$ASSET_NAME\` (\`$TAG\`)

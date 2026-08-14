@@ -114,6 +114,7 @@ NPC 머리 위 표시 이름의 색코드는 역할별로 통일한다. ★표�
   - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
   - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
   - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것.
+  - **클라우드 세션(폰·웹)은 이 둘을 못 쓴다** — 22번 포트 egress가 원천 차단이라 SSH 자체가 불가능하다(키를 넣어도 안 되고, git SSH URL도 HTTPS로 재작성된다). 대신 **당겨오는 경로**를 쓴다: GitHub Actions `blockship-smoke.yml` 수동 실행 → `promote=true`(스모크 통과 시 Release 발행 → prod가 staging으로 당겨 06:00 적용) 또는 `apply_now=true`(Release 본문에 `APPLY_NOW` 마커 → prod가 당겨오는 즉시 적용+재시작, 최대 지연 cron `*/5`). GitHub은 셸 curl이 403이므로 MCP 도구로만 다룬다. 상세는 CLAUDE.md 「자동 sync」·스킬 `deploy-prod`.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=feather UI 재시작 / prod=`sudo systemctl restart mcserver`)
 
