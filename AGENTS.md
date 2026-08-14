@@ -1,11 +1,16 @@
 # Fish - 바르칸 열도 낚시 서버
 
 ## 프로젝트 개요
-마크 서버용 종합 낚시 게임. **Paper 1.21 + Java 21.** 모든 게임 로직은 BlockShip 자바 플러그인(`/Users/user/development/blockship-plugin/src/main/java/com/blockship/`)에 기능별 패키지(`fishing/` `enhance/` `parts/` `quest/` `npc/` `ferry/` `region/` `market/` `economy/` `profile/` `ranking/` `mining/` `guild/` `inn/` `portal/` `island/` 등)로 구현돼 있다.
+마크 서버용 종합 낚시 게임. **Paper 1.21.11 + Java 21 툴체인(런타임 JVM 은 Java 25).** 모든 게임 로직은 BlockShip 자바 플러그인에 기능별 패키지로 구현돼 있다 — **자바 359파일 / `com/blockship/` 아래 70개 패키지**(2026-08-14 실측). 낚시는 그중 하나일 뿐이고 채집·채굴·요리·카지노·길드·섬·보스까지 한 플러그인에 다 들어있다.
+- **소스(Mac 로컬)**: `/Users/user/development/blockship-plugin/src/main/java/com/blockship/`
+- **소스(GitHub)**: `wsi1212/blockship-plugin` (**private**) — 맥이 없는 환경에서는 이쪽을 클론해서 본다. 루트에 라이브 JSON(`fish.json` `parts.json` `quests.json` `npc.json` 등)도 같이 있다.
+- 이 리포(`wsi1212/barkan-fishing-server`)는 **설계 문서 + 에셋 파이프라인 + 운영 스크립트**만 있고 게임 코드는 없다. 둘은 별개 리포다.
+
 상세 설계: [design.md](design.md) | 수치 밸런스: [balance.md](balance.md) | 스토리: [story.md](story.md)
 
 ## 기술 스택
-- **Paper 1.21 + Java 21 — BlockShip 자바 플러그인이 모든 게임 시스템** (빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`, 상세는 아래 「BlockShip Java 플러그인」 섹션)
+- **Paper 1.21.11 + Java 21 툴체인 — BlockShip 자바 플러그인이 모든 게임 시스템** (빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`, 상세는 아래 「BlockShip Java 플러그인」 섹션)
+- 빌드 환경: **Gradle 9.0** + paperweight-userdev **2.0.0-beta.21** + shadow 9.0.0-beta4, `paperDevBundle("1.21.11-R0.1-SNAPSHOT")`
 
 ## 핵심 시스템 요약
 > 각 시스템은 `com/blockship/` 아래 자바 패키지에 구현. 표의 패키지는 대략 위치이니 정확한 클래스는 해당 패키지에서 확인.
@@ -28,10 +33,17 @@
 | **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
 | **배** | `ship/` (ShipManager·ShipFactory·ShipMover) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | BlockDisplay+Shulker, 프리셋 3종 |
 
-**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager) · 잠수(AFK) `afk/` · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+
+> **★위 표·목록은 요약이라 전수가 아니다 (2026-08-14).** 여기 없는 패키지가 25개 더 있다 —
+> `skilltree/`(숙련 특성 트리) `forage/`(채집) `harpoon/`(작살) `drill/`·`islandmine/`(채굴 2종, 서로 별개) `casino/`(34파일) `telemetry/`(20파일, **신규 시스템 계측 필수**) `hud/`(BetterHud) `misc/MenuManager`(메뉴 허브) `boss/`(이무기) `bgm/` `emote/` `nav/`(길찾기) `mail/`(우편함) `drawbridge/`(도개교) `horse/`(말대여) `emblem/` `furniture/` `sit/`(계단앉기) `survival/`(회복너프) `cutscene/` `subscription/`(VIP 결제) `vote/`(추천보상) `stats/` `help/` `diagnostics/` 등.
+> **각각의 설계 의도·함정은 [CLAUDE.md](CLAUDE.md)의 「핵심 시스템 요약」·「기타 시스템 위치 ②」가 권위다** — 이 문서에 다시 복붙하면 또 갈라지므로 그쪽을 읽을 것.
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
+- **★명령어는 `plugin.yml`이 아니라 런타임 등록이다** (2026-08-14 명문화). `plugin.yml`에 있는 건 **`ship` · `textride` · `bgm` 딱 3개**뿐이고, 나머지 **177개**는 `BlockShipPlugin.java`에서 `getServer().getCommandMap().register("blockship", <Command 객체>)` 로 등록한다.
+  - 새 명령: `org.bukkit.command.Command` 상속 → 생성자에서 `super("한글명")` + `setDescription` + `setAliases(...)` + (OP면) `setPermission("blockship.admin")` → `BlockShipPlugin`에 `cmdMap.register` 한 줄. **plugin.yml은 건드리지 않는다.**
+  - 표본: `sit/StairSitCommand` · 전체 목록: `grep -n 'cmdMap.register' BlockShipPlugin.java`
 - **한글 명령어 영타 별칭 필수** (OP 전용 명령어는 제외): 한글→영타 매핑: ㅂ=q ㅈ=w ㄷ=e ㄱ=r ㅅ=t ㅛ=y ㅕ=u ㅑ=i ㅐ=o ㅔ=p ㅁ=a ㄴ=s ㅇ=d ㄹ=f ㅎ=g ㅗ=h ㅓ=j ㅏ=k ㅣ=l ㅋ=z ㅌ=x ㅊ=c ㅍ=v ㅠ=b ㅜ=n ㅡ=m
 - **초성 별칭은 자주 쓰는 핵심 명령어에만** (선택 — 영타와 달리 필수 아님): 한글 명령어의 초성으로 짧은 별칭을 부여. 예: 섬→`ㅅ`, 상점→`ㅅㅈ`, 판매→`ㅍㅁ`, 스폰→`ㅅㅍ`, 레벨→`ㄹㅂ`. 영타 별칭과 함께 `setAliases(List.of("영타", "초성"))`에 추가한다. **모든 명령어에 달지 말 것** — 플레이어가 반복해서 치는 명령어만. 초성끼리만 충돌 검사하고, 겹치면 한쪽만 부여(예: 수표·스폰 둘 다 `ㅅㅍ` → 스폰만).
 - **탭 자동완성 필수** (OP 전용 명령어는 제외): 인자가 있는 모든 명령어에 TabCompleter 구현

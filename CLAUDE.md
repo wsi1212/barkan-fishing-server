@@ -1,7 +1,11 @@
 # Fish - 바르칸 열도 낚시 서버
 
 ## 프로젝트 개요
-마크 서버용 종합 낚시 게임. **Paper 1.21.11 + Java 21 툴체인(런타임 JVM 은 Java 25).** 모든 게임 로직은 BlockShip 자바 플러그인(`/Users/user/development/blockship-plugin/src/main/java/com/blockship/`)에 기능별 패키지(`fishing/` `enhance/` `parts/` `quest/` `npc/` `ferry/` `region/` `market/` `economy/` `profile/` `ranking/` `mining/` `guild/` `inn/` `portal/` `island/` 등)로 구현돼 있다.
+마크 서버용 종합 낚시 게임. **Paper 1.21.11 + Java 21 툴체인(런타임 JVM 은 Java 25).** 모든 게임 로직은 BlockShip 자바 플러그인에 기능별 패키지로 구현돼 있다 — **자바 359파일 / `com/blockship/` 아래 70개 패키지**(2026-08-14 실측). 낚시는 그중 하나일 뿐이고 채집·채굴·요리·카지노·길드·섬·보스까지 한 플러그인에 다 들어있다.
+- **소스(Mac 로컬)**: `/Users/user/development/blockship-plugin/src/main/java/com/blockship/`
+- **소스(GitHub)**: `wsi1212/blockship-plugin` (**private**) — 맥이 없는 환경(웹/모바일 세션)에서는 이쪽을 클론해서 본다. 루트에 라이브 JSON(`fish.json` `parts.json` `quests.json` `npc.json` `enhance.json` `materials.json` `recipes.json` `titles.json` `dialogue.json`)도 같이 들어있다.
+- 이 리포(`wsi1212/barkan-fishing-server`)는 **설계 문서 + 에셋 파이프라인 + 운영 스크립트**만 있고 게임 코드는 없다. 둘은 별개 리포다.
+
 상세 설계: [design.md](design.md) | 수치 밸런스: [balance.md](balance.md) | 스토리: [story.md](story.md)
 
 ## 기술 스택
@@ -25,13 +29,47 @@
 | **페리** | `ferry/FerryManager` | 지역간 자동 이동 (노선, 요금, 보스바) |
 | **지역** | `region/RegionManager` (RegionData·RegionTracker·RegionCommand) | Java 데이터(regions.json) |
 | **날씨** | `region/WeatherManager` (WeatherCommand·WeatherInfoCommand) | 지역별 독립 날씨, 파티클, 사운드, 시야 제한 |
-| **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
-| **배** | `ship/` (ShipManager·ShipFactory·ShipMover) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | BlockDisplay+Shulker, 프리셋 3종 |
+| **사이드바** | `sidebar/SidebarManager` | 스코어보드 — **콤보만 남음**. 레벨·소지금·위치·환경 4줄은 2026-08-09에 `hud/StatusHud`(BetterHud 그래픽 HUD)로 이관. 위치·환경 **문자열 자체는 여전히 SidebarManager가 만든다**(지역 부모체인·날씨예외 재사용) → 되돌릴 땐 양쪽 같이 볼 것 |
+| **화면 HUD** | `hud/StatusHud` (BetterHud) | `barkan_status`(우상단: 소지금·낚시Lv+경험치·캐시) / `barkan_place`(좌상단: 위치·환경). 숫자포맷·경험치바 칸수는 **자바가 완성해서** 넣는다(yml에서 조립 금지 — 규칙 두 곳 분기) |
+| **메뉴 허브** | `misc/MenuManager` | `/메뉴` 타일형 3장(메뉴·내 정보·상점) + Shift+F 단축키. ★**타일은 아이템이 아니라 그림이다** — 배경 글리프에 아이콘·라벨까지 구워두고(`gui-forge/compose_gui3_imagegen.py`) 칸엔 아무것도 안 올린다(올리면 겹쳐 가림). 클릭은 슬롯 번호로만 판정. 3열 타일 기준(9열을 3+3+3) |
+| **숙련 특성 트리** | `skilltree/SkillTreeManager` (RewardRevealFx) | 설계 전거 [skill-tree-dopamine-design.md](skill-tree-dopamine-design.md). 레벨업마다 숙련 포인트 +1 **소급**(가용 = (레벨-1) - 총투자, 별도 지급절차 없음). 저장=PlayerData.extraNums(`특성<숙련>.<노드id>`), 초기화 처음 10P 무료·이후 P당 5000원. 한 행동에 대형 잭팟 1종만 |
+| **채집** | `forage/ForageManager` | 지역 채집물 노드(ItemDisplay+Interaction, crop과 동일 네이티브 방식) + **유저별 쿨타임**(수확자에게만 hideEntity, 남들은 그대로 캠) + 리듬 연타 미니게임. 쿨 흔함 90분 / 희귀 20시간 |
+| **작살(창낚시)** | `harpoon/` (HarpoonManager·FishHitbox) | 1.21.11 창(spear) 기반. 물고기=ItemDisplay 1개, **투명몹 히트박스 없음** — 판정은 서버측 ray↔OBB 교차로 렌더 변환을 그대로 역산(회전·크기·위치 정의상 일치) |
+| **채굴 (2종, ★별개)** | `drill/` (mine 월드) vs `islandmine/` (island_world·guild_world) | **드릴**=PDC 티어 곡괭이, block_break_speed ×0 잠금 후 우리가 직접 파괴·균열 렌더·재생 예약. **섬 광산**=코블스톤 생성기 방식(물↔참나무 울타리 사이 공기칸이 광석으로 참, 캐면 즉시 재생, 저장 불필요·상시부하 0). 서로 무관하니 헷갈리지 말 것 |
+| **카지노** | `casino/` (34파일 — `slot/` `table/` `card/` `blackjack/` `holdem/` `seotda/` `roulette/`) | ★2026-07-14 구 GUI 카지노(로비+GUI 카드게임) **전면 폐지** — 카드·룰렛은 전부 **물리 테이블**(`casino.table`), `CasinoManager`는 슬롯머신 캐비닛 흐름만. 베팅은 판 종료 후 **net만 반영**, roundId+viewSeq로 오래된 GUI·더블클릭 이중정산 차단 |
+| **텔레메트리** | `telemetry/` (20파일 — Telemetry 파사드·TeleWriter·TeleDb) | 설계 전거 [stats-system-plan.md](stats-system-plan.md). **어떤 메서드도 예외를 호출부로 전파하지 않는다**(통계가 죽어도 게임은 안 죽는다). 호출은 큐 삽입까지만(µs), 직렬화·디스크 IO는 TeleWriter 전용 스레드. ★**신규 시스템은 계측 필수** — 플러그인 리포 CLAUDE.md의 「텔레메트리 계측 규약」 참조 |
+| **도전과제** | `misc/AchievementManager` | 카탈로그 권위 = `BlockShip/achievements.json`. **카탈로그 버전이 바뀌면 `PlayerData.completedAchievements` 전체 리셋**(베타 정책 — 구 ID가 새 과제 오염시키는 것 방지). 조건은 이벤트가 아니라 PlayerData 현재 상태를 읽어 평가 |
+| **이무기 보스** | `boss/` (ImugiBossManager·ImugiBattle·ImugiRig) | 리그 데이터 `plugins/BlockShip/imugi_rig.json` (`imugi-boss/` 변환 파이프라인 산출물). 보스 엔티티 `persistent=false`(배와 동일 정책) + PDC 태그 고아 sweep 이중방어 |
+| **배** | `ship/` (ShipManager·ShipFactory·ShipTickTask) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | BlockDisplay+Shulker, 프리셋 3종. ★**`ShipMover`는 호출자 0건인 죽은 코드** — 실제 이동은 `task/ShipTickTask`이고 `pilot.getCurrentInput()`에 하드결합(파일럿 없으면 감속 후 강제도킹). 그래서 컷씬은 배 시스템을 안 쓴다(`cutscene/` 참조) |
 
-**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager·ChestLockListener — 아래 「상자 잠금 규약」) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager·TradeLog) · 길드 `guild/`(GuildManager·IslandBuilder·SchematicPaster·GuildBuffEffects·GuildCookingManager) · 섬 `island/`(IslandManager·IslandProtectionListener·IslandFlyManager·IslandAutoPlantManager·IslandSubmitManager) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui·CookingQueueManager·CampfireManager, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader·ArtifactAppraisalGui 유물감정) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/`(PortalManager·PadManager) · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager·ChestLockListener — 아래 「상자 잠금 규약」) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP, AfkShopGui) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec·GuiFrame·GuiTitle·ItemFlavor·Plates)
+
+**기타 시스템 위치 ②** (2026-08-14 추가 — 위 목록에 아예 빠져 있던 것들):
+- **BGM** `bgm/BgmManager` — 지역·날씨별 배경음악. **"이동 스피커" 방식**: 플레이어마다 보이지 않는 ItemDisplay 스피커를 두고 모노 사운드를 AMBIENT로 재생, 매 틱 플레이어에게 TP. 볼륨은 못 바꾸지만 MC 클라가 **모노 사운드 볼륨을 거리로 실시간 갱신**하므로 스피커를 위로 멀리 보내면 재트리거·끊김 없는 진짜 페이드아웃이 된다. ★아머스텐드 등 다른 엔티티는 이 서버에서 엔티티부착 사운드가 **무음**, ItemDisplay만 정상(2026-07-15 실측)
+- **이모트/버스커** `emote/`(EmoteManager·EmoteGui·BuskerRegistry) — 'steve' 플레이어 limb 모델로 본인을 디스가이즈 후 애니 재생(짚라인과 동일 메커니즘). 춤(loop)은 움직이면 정지, 감정표현(once)은 1회 후 자동해제. 피격·사망·탑승·퇴장 시 즉시 해제(디스가이즈 잔류 방지). **BetterModel 클래스를 직접 참조** → 플러그인 존재 확인 후에만 인스턴스화. 관련 스킬: `mocap-emote`
+- **길찾기** `nav/`(NavigationManager·NavTarget·NavCommand) — 발 높이 지면에 눕는 ▷ BlockDisplay 화살표. 점프해도 안 흔들리게 Y를 착지높이 고정, 목적지가 지역이면 매 틱 최근접점 조준. **방문한 지역만** 수동 길찾기 가능(퀘스트 자동안내는 미방문도 허용). Citizens 미사용
+- **우편함** `mail/`(MailboxManager·MailboxGui·MailboxLoginListener) — 수령 전용. 구 `PlayerData.mail`의 ItemCodec 문자열도 읽어 7일짜리 아이템 우편으로 전환. **인벤 지급과 우편 삭제는 같은 PlayerData 저장이 성공할 때만 확정**
+- **도개교** `drawbridge/`(DrawbridgeManager·Drawbridge) — 경첩축 회전, 체인은 앵커→발판끝 매 틱 재계산. **열쇠(`extraFlags["열쇠"]`) 보유자만** 성문 우클릭 개폐(잠긴문 시스템과 열쇠 저장소 공유). 휴지=실블록, 여닫는 동안만 디스플레이 전환. 디스플레이 전부 non-persistent → 재시작 시 `drawbridges.json`에서 재구성
+- **말 대여** `horse/`(HorseRentalManager·HorseRentalGui) — 1000원, 300초 뒤 자동회수, 1인 1마리, 소환자만 탑승. `setPersistent(false)` + 스코어보드 태그 sweep 이중안전
+- **엠블럼** `emblem/EmblemCommand` — `/엠블럼`(op) 길드 엠블럼 item_display를 벽에 부착 후 크기·회전·롤·이동 전부 명령으로 제어
+- **가구 크기** `furniture/FurnitureSizeManager` — OP 전용, **새로 설치하는** CraftEngine 가구만. CE 가구는 인스턴스 단위 리사이즈가 불가(스케일이 immutable config에만 존재)라, 기존 `ground` variant는 **절대 안 건드리고** 명령마다 새 `blockship_size_N` variant를 추가 → FurniturePlaceEvent에서 새 가구만 전환. 그래야 기존 배치 가구 크기가 청크 리로드·재시작 후에도 유지된다
+- **계단 앉기** `sit/`(StairSitManager) — 빈 ItemStack ItemDisplay 좌석을 **클릭 시점에만** 스폰, 하차 즉시 제거(계단당 상시 엔티티 0)
+- **자연회복 너프** `survival/RegenManager` — 난이도 평화로움 + SATIATED/REGEN 회복 취소, **60초당 1hp**만. 실질 회복은 체력포션(DishSpecs `PURPOSE_HEAL`). MAGIC/MAGIC_REGEN은 통과. ★**Multiverse-Core가 onEnable에 자기 worlds.yml 난이도(easy)를 재적용**해 덮어쓴다 → 부팅 루프를 1틱 지연 + WorldLoadEvent MONITOR로 이후 로드 월드(길드섬 등)까지 계속 강제
+- **컷씬** `cutscene/`(BoatArrivalCutscene·IntroChatFilter) — 튜토리얼 3막 입항 컷씬. 설계 전거 [tutorial-cutscene.md](tutorial-cutscene.md). **기존 배 시스템 미사용**(위 「배」 행의 ShipMover 死코드 사유 참조)
+- **VIP 구독** `subscription/`(SubscriptionManager·SubscriptionCommand·DiscordCommand) — 결제 권위는 **Oracle PostgreSQL**, 플러그인은 내부 Bearer 토큰으로 조회/연결코드/수동지급만 요청. ★**API 토큰은 서버 config.yml에만** — PlayerData·채팅에 절대 기록 금지. 관련 디렉터리 `vip-billing/`
+- **추천(투표) 보상** `vote/`(MineListVoteRewardManager 외) — VotifierPlus의 MineList.kr 추천 신호 → 추천코인. 마인리스트는 **at-least-once** 전송이라 "추천 받은 날짜"를 PlayerData에 영속해 같은 날짜 재전송은 거절. 코인+영수증을 **함께 저장하고 실패 시 메모리까지 롤백**
+- **스탯 GUI** `stats/StatsGui` — `/능력치` 6행 54칸 read-only 집계뷰(레벨+부품5+낚싯대강화+도핑+환경 합산 → 12스탯 아이콘). 스탯.sk 완전 이관
+- **중앙 도움말** `help/HelpManager` — `/<명령> 도움말|help|?|ehdnaakf` 을 PlayerCommandPreprocessEvent에서 가로채 큐레이팅 도움말 출력. 등록된 게 없으면 통과
+- **진단** `diagnostics/PacketBlackbox` — 아래 「클라이언트 크래시 자동감지」 참조. ★ProtocolLib은 softdepend라 **존재 확인 후 참조 필수**
+- **기타 잡동사니** `misc/`(27파일) — 도전과제·메뉴 외에 금지템(BannedItem*)·쓰레기통·아이템청소·인벤보기·카메라툴·사거리툴·쉐이더 안내·맵보호(MapProtectionListener)·폭발/드래곤알 가드·워프·스폰·팁(TipManager)·설정GUI(SettingsGui)·대장간허브(SmithyHubGui)·어드민(AdminManager)
+- **배 부속** `listener/`(PlayerInteractListener·ShipEntityListener·ChunkListener) · `persistence/`(ShipSerializer·JsonShipStorage) · `player/PlayerStateManager`(탑승중인 배 추적) · `selection/`(SelectionManager·SelectionRegion, pos1/pos2 영역선택) · `task/ShipTickTask`
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
+- **★명령어는 `plugin.yml`이 아니라 런타임 등록이다** (2026-08-14 명문화). `plugin.yml`에 있는 건 **`ship` · `textride` · `bgm` 딱 3개**뿐이고, 나머지 **177개**는 `BlockShipPlugin.java`에서 `getServer().getCommandMap().register("blockship", <Command 객체>)` 로 등록한다.
+  - 새 명령 만들 때: `org.bukkit.command.Command`를 상속하고 생성자에서 `super("한글명")` + `setDescription` + `setAliases(...)` + (OP면) `setPermission("blockship.admin")` → `BlockShipPlugin`에서 `cmdMap.register` 한 줄 추가. **plugin.yml은 건드리지 않는다.**
+  - 표본: `sit/StairSitCommand` (짧고 별칭·tabComplete 규약을 다 갖춘 모범 사례)
+  - **전체 명령 목록을 알고 싶으면 `grep -n 'cmdMap.register' BlockShipPlugin.java`** — 문서의 「주요 명령어」는 큐레이팅이라 전수가 아니다.
 - **명령어 별칭 규칙 → 전역 훅이 강제** (`~/.claude/hooks/guard-security.py`, 두벌식 변환·초성 검출 내장): 한글 플레이어 명령엔 영타 별칭(두벌식) 부여, 자주 쓰는 건 초성도(선택). **초성 별칭을 달면 그 초성의 영타(영키보드 로마자)도 함께** 부여(예 ㅅㅍ→tv·ㅅㅈ→tw·ㅅ→t, 한/영 안 바꿔도 먹히게 — 단 1~3자라 충돌 주의). **OP 전용 명령(setPermission blockship.admin)엔 영타·초성 별칭 금지** — 위반 시 훅이 경고. (구 CLAUDE.md의 매핑표·초성 예시는 훅으로 이관됨)
 - **탭 자동완성 필수** (OP 전용 명령어는 제외): 인자가 있는 모든 명령어에 TabCompleter 구현
   - 인자가 **플레이어 닉네임**이면: 접속 중인 플레이어 이름 목록
@@ -88,11 +126,15 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 모든 UI(상점/장비/스탯/도핑/강화)에서 동일 용어 사용. 상세: balance.md 6장 참조.
 
 ## 주요 명령어
-- `/레벨` `/장비` `/강화` `/칭호` `/부품상점` `/판매` `/작물`
+> **큐레이팅 목록이다 — 전수 아님.** 실제 등록은 **177개**이고 권위는 `BlockShipPlugin.java`의 `cmdMap.register` 호출이다(위 「코드 컨벤션」 참조). 여기 없다고 없는 명령이 아니다.
+
+- `/레벨` `/장비` `/강화` `/칭호` `/부품상점` `/판매` `/작물` `/능력치` `/메뉴`
 - `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>` `/잠수` (잠수대 토글 — 10분 방치 시 자동)
 - `/상자잠금` (섬/길드섬 컨테이너 자물쇠 — 잠그는 건 표지판, 이 명령은 정보·명단수정·해제)
 - `/콤보` (조회=일반, `/콤보 <n>` 설정만 op) · `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
+- **추가분(2026-08-14 반영)**: `/채집` `/카지노` `/이모트` `/버스커` `/길찾기` `/우편함` `/도전과제` `/통계` `/구독` `/디스코드` `/추천` `/추천보상` `/말대여` `/브금` `/계단앉기`(의자) `/도개교` `/드릴` `/섬` `/플라이` `/자동심기` `/낚시대회` `/보물상자` `/이무기`·`/심해전왕` `/짚라인` `/조합대` `/재료제작` `/수리` `/분해` `/거래` `/우편함` `/설정` `/화면` `/팁` `/쓰레기통` `/접속시간`
+- **OP 추가분**: `/엠블럼` `/가구크기` `/사거리툴` `/쉐이더` `/랜덤블럭10` `/스탯관리` `/퀘스트관리` `/도감관리` `/npc관리` `/금지템` `/매크로의심` `/초음파탐지기` `/지역이동` `/데이터리로드`
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
 - `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — 비,뇌우,태풍,안개,모래바람,눈보라,열대야,땡볕
 - **중요**: 서버 최초 설정 시 `/gamerule doWeatherCycle false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
@@ -104,9 +146,13 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **Lv.100**: 하드코어 (~517시간)
 - 상세: balance.md 참조
 
-## BlockShip Java 플러그인 (배 + 칭호)
-- 소스: `/Users/user/development/blockship-plugin/`
+## BlockShip Java 플러그인 (= 게임 로직 전부)
+> 섹션 제목이 오래 「배 + 칭호」였는데 **한참 전에 틀린 말이 됐다** — 지금은 낚시·채집·채굴·요리·카지노·길드·섬·보스·텔레메트리까지 전부 이 플러그인 하나다(70패키지/359파일).
+
+- 소스(Mac): `/Users/user/development/blockship-plugin/`
+- 소스(GitHub): `wsi1212/blockship-plugin` (**private**). 맥이 없는 세션은 `git clone --depth 1` 로 받아서 읽는다 — 코드 대조 없이 이 문서만 믿고 작업하지 말 것(문서가 드리프트한다).
 - 빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`
+- 빌드 환경: **Gradle 9.0** + paperweight-userdev **2.0.0-beta.21** + shadow 9.0.0-beta4, `paperDevBundle("1.21.11-R0.1-SNAPSHOT")` (아래 「MC/Paper 버전」의 드리프트 경고 참조)
 - 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
   - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
