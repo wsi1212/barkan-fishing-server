@@ -7,7 +7,21 @@
 #      이미 함 — 여기선 재시작 직전 즉시 알림 1회만 + save-all flush
 #   ③ 데일리 리포트: 배포결과 + 백업 성공목록 + 헬스 스냅샷을 한 메시지로
 #   ★실패 백업은 각 스크립트가 이미 즉시 개별 🔴 발송(여기 요약과 별개).
+#
+# 즉시 모드 (--now / NOW=1) — fetch-staging.sh 가 APPLY_NOW 마커를 보면 부른다.
+#   06:00 을 기다리지 않고 지금 적용한다. 적용·검증 로직을 복제하지 않으려고
+#   같은 스크립트에 모드를 붙였다 — validate-staged 게이트·리소스팩 교차검증·구 jar
+#   백업이 전부 여기 있고, 사본을 만들면 한쪽만 고쳐지는 날이 온다.
+#   정기 실행과 다른 점 네 가지:
+#     ① staging 이 비어 있으면 재시작하지 않는다(정기는 누수정리 목적이라 무조건 재시작)
+#     ② 예고 방송이 없었으므로 GRACE 초(기본 60) 를 주고 재시작
+#     ③ 데일리 리포트가 아니라 배포 알림을 보내고, **.backup-status 를 지우지 않는다**
+#        (지우면 그날 06:00 리포트가 "백업 성공 기록 없음" 으로 나온다)
+#     ④ 부팅까지 확인하고 실패하면 롤백 방법과 함께 알린다(사람이 안 볼 시간대라서)
+#   skip-once 마커는 정기 재시작용이라 즉시 모드에선 건드리지 않는다.
+#
 # env: PREVIEW=1(발송·배포·재시작 없이 메시지 출력) / DRY=1(재시작·배포 실제로 안 함)
+#      NOW=1(즉시 모드) / GRACE=초(즉시 모드 예고 시간, 기본 60)
 #      RESTART_CMD / STATUS_FILE / WEBHOOK_FILE / STAGING
 # =====================================================================
 set -uo pipefail
@@ -19,6 +33,9 @@ STAGING=${STAGING:-$HOME/mcserver/staging}
 PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
 JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
+IMMEDIATE=${NOW:-0}
+case "${1:-}" in --now|now) IMMEDIATE=1 ;; esac
+GRACE=${GRACE:-60}
 LABEL="[바르칸 prod]"
 log(){ echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) [daily] $*"; }
 notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE")
@@ -30,7 +47,7 @@ SKIP_MARK="$DIR/.skip-nightly-once"
 today=$(date -u +%Y-%m-%d)
 
 # --- 오늘 밤만 스킵 요청 있으면: 배포/재시작/방송 전부 건너뜀(1회성, 자동 소모) ---
-if [ -f "$SKIP_MARK" ]; then
+if [ "$IMMEDIATE" = "0" ] && [ -f "$SKIP_MARK" ]; then
   rm -f "$SKIP_MARK"
   if [ "${PREVIEW:-0}" = "1" ]; then echo "(스킵 마커 있음 — 오늘밤 재시작 생략됨)"; exit 0; fi
   notify "$LABEL ⏭️ 오늘 06:00 정기 재시작 — 요청에 의해 1회 스킵됨(내일부터 정상 진행)."
@@ -86,6 +103,13 @@ $rejlist"
 fi
 [ -z "$deploy_lines" ] && deploy_summary="배포 없음" || deploy_summary=$(printf '%s' "$deploy_lines")
 
+# ★즉시 모드는 "적용할 게 있어서" 불린 것이다. 비어 있으면 재시작할 이유가 없다 —
+#   정기 재시작(누수정리)과 달리 여기서 서버를 내리면 순수 손해다.
+if [ "$IMMEDIATE" = "1" ] && [ -z "$deploy_lines" ]; then
+  log "즉시 모드인데 staging 이 비어 있다 — 재시작하지 않고 끝낸다"
+  exit 0
+fi
+
 # --- 리소스팩 공개 파일과 server.properties SHA1 교차검증 ---
 # `latest` asset을 교체하면 URL은 같고 파일만 바뀐다. 이 검증 없이 재시작하면
 # require-resource-pack=true 환경에서 모든 접속자가 리소스팩 다운로드에 실패한다.
@@ -95,9 +119,17 @@ if [ "$DRYRUN" = "0" ] && ! "$DIR/resourcepack-guard.sh" --repair; then
   exit 1
 fi
 
-# --- ② 재시작 직전 즉시 알림 (사전예고 30/10/5/1분은 restart-warning.sh가 이미 방송함) ---
+# --- ② 재시작 예고 ---
+#   정기: restart-warning.sh 가 30/10/5/1분 전 방송을 이미 했다 → 직전 1회만.
+#   즉시: 예고가 아예 없었다 → GRACE 초를 주고 그 끝에 한 번 더.
 if [ "$n" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
-  rcon "say [서버] 서버 재부팅합니다 (정기 점검 06:00~06:10). 06:10 이후 다시 접속해 주세요."
+  if [ "$IMMEDIATE" = "1" ]; then
+    rcon "say [서버] 업데이트 적용으로 ${GRACE}초 후 재시작합니다. 곧 다시 들어올 수 있어요."
+    sleep "$GRACE"
+    rcon "say [서버] 지금 재시작합니다."
+  else
+    rcon "say [서버] 서버 재부팅합니다 (정기 점검 06:00~06:10). 06:10 이후 다시 접속해 주세요."
+  fi
 fi
 
 # --- 저장 플러시 (서버 응답할 때) ---
@@ -113,7 +145,15 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
-msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
+if [ "$IMMEDIATE" = "1" ]; then
+  msg="$LABEL 🚀 즉시 배포 ($(date -u -d '+9 hours' '+%Y-%m-%d %H:%M') KST)
+
+$deploy_summary
+
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np
+※ Release 에 APPLY_NOW 마커가 있어 06:00 을 기다리지 않고 적용했습니다."
+else
+  msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
 🔄 정기 재시작 실행
 $deploy_summary
@@ -122,15 +162,37 @@ $deploy_summary
 $backups
 
 💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
+fi
 
 # --- PREVIEW: 출력만 ---
 if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
 
 notify "$msg"
-> "$STATUS_FILE"
+# ★즉시 배포는 .backup-status 를 비우지 않는다. 비우면 그날 06:00 데일리 리포트가
+#   "백업 성공 기록 없음" 으로 나가고, 그게 진짜 백업 실패와 구분되지 않는다.
+if [ "$IMMEDIATE" = "0" ]; then > "$STATUS_FILE"; fi
 log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 없음 || echo 있음), 백업 ${bcount}건, 접속 ${np})"
 
 # --- ③ 재시작 (무조건) ---
 if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; exit 0; fi
 eval "$RESTART_CMD"
 log "restarted"
+
+# 즉시 배포는 아무도 안 보고 있을 시간에 돌 수 있다 — 부팅까지 확인하고 실패면 알린다.
+# (정기 06:00 은 이 확인을 하지 않는다. 프리즈 워치독이 8분 안에 잡는 경로가 이미 있고,
+#  여기서 3분을 더 잡으면 뒤따르는 cron 과 겹친다.)
+if [ "$IMMEDIATE" = "1" ]; then
+  for i in $(seq 1 40); do
+    if systemctl is-active --quiet mcserver && "$DIR/rcon.py" list >/dev/null 2>&1; then
+      log "부팅 확인 완료 (${i}회 체크)"
+      notify "$LABEL ✅ 즉시 배포 후 서버 정상 (부팅 확인 ${i}회)."
+      exit 0
+    fi
+    sleep 5
+  done
+  log "재시작했지만 부팅 확인 실패"
+  notify "$LABEL 🔴 **즉시 배포 후 부팅 확인 실패** — RCON 무응답.
+로그: \`tail -50 ~/mcserver/logs/latest.log\`
+롤백: \`~/mcserver/scripts/rollback-jar.sh list\` → \`rollback-jar.sh yes\`"
+  exit 1
+fi
