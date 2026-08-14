@@ -184,7 +184,12 @@ if [[ "$APPLY" == "1" ]]; then
     #   exec 로 넘기는 이유: cron 의 flock 이 재시작·부팅확인이 끝날 때까지 유지돼
     #   다음 주기가 겹쳐 들어오지 않는다.
     rm -rf "$TMP"; trap - EXIT
-    exec "$NIGHTLY" --now
+    # ★nightly 의 출력을 ops.log 로 넘긴다. 이 스크립트의 cron 줄은 stdout 을 /dev/null 로
+    #   보내므로(자기 log() 가 이미 파일에 쓰니 중복 방지) 그냥 exec 하면 **즉시 적용의
+    #   적용·재시작 기록이 로컬에 하나도 안 남는다** — 정기 06:00 경로는 자기 cron 줄이
+    #   ops.log 에 붙여서 남는데 즉시 경로만 사라져 사후 추적이 갈린다.
+    #   2026-08-14 첫 실전 즉시배포에서 실측(디스코드 알림은 갔지만 ops.log 는 비어 있었다).
+    exec "$NIGHTLY" --now >>"$LOG_FILE" 2>&1
   fi
   log "⚠ APPLY_NOW 인데 $NIGHTLY 가 없거나 실행권한이 없다 — staging 에 두고 끝낸다"
   notify "⚠️ **즉시 적용 불가** — \`$ASSET_NAME\` 은 staging 에 있고 06:00 에 적용된다.
