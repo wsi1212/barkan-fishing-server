@@ -23,15 +23,21 @@
 낸다")와도 어긋난다 → **하겐에게 재배정**하고, `튜토11` 졸업 설명에 하겐으로 가라는
 길잡이 한 줄을 붙인다(졸업 후 어디로 가야 하는지가 어디에도 없었다).
 
+★★재배정에는 **`dialogue.json`의 대화 노드 6개 이관이 딸려 온다.** 퀘스트만 옮기면
+하겐에게 말을 걸었을 때 `인사/본섬01`이 없어 기본 대사로 떨어지고, 길드접수원에는
+아무도 도달하지 못하는 죽은 노드가 남는다. 같은 디렉터리에 `dialogue.json`이 있으면
+자동으로 옮기고, 없으면 경고만 찍는다.
+
 사용법 — quests.json·npc.json이 있는 디렉터리에서:
     python3 fix_desc_goal_sync.py
 """
-import json, re, shutil, sys
+import json, os, re, shutil, sys
 
-QP, NP = "quests.json", "npc.json"
+QP, NP, DP = "quests.json", "npc.json", "dialogue.json"
 Q = json.load(open(QP, encoding="utf-8"))
 N = json.load(open(NP, encoding="utf-8"))
 QUESTS, NPCS = Q["퀘스트"], N["npcs"]
+DLG = json.load(open(DP, encoding="utf-8")) if os.path.exists(DP) else None
 log = []
 
 
@@ -142,6 +148,38 @@ for qid in ("본섬02", "본섬01"):
     if qid not in hg:
         hg.insert(0, qid)
 
+# ★대화 노드도 함께 옮긴다 — 퀘스트만 옮기면 하겐에게 말을 걸었을 때
+#   `인사/본섬01` 노드가 없어 기본 대사로 떨어지고, 길드접수원에는 죽은 노드가 남는다.
+if DLG is not None:
+    src, dst = DLG.get("길드접수원", {}), DLG.setdefault("하겐", {})
+    moved = []
+    for pre in ("인사/", "진행중/", "퀘스트완료/"):
+        for qid in ("본섬01", "본섬02"):
+            k = pre + qid
+            if k in src:
+                dst[k] = src.pop(k)
+                moved.append(k)
+    if moved:
+        log.append(("dialogue", [f"길드접수원 {len(moved)}노드"],
+                    [f"하겐 {' '.join(moved)}"], "(대화 이관)"))
+    # ★`본섬01`은 튜토 직후 **하겐과의 첫 대면**이다. 자동생성 템플릿은
+    #   "지난 일이 잘 마무리돼서 다행이네"로 시작해 만난 적도 없는 사이를 전제한다.
+    #   여기만 손으로 쓴다(할아버지가 "그 영감"이라 부르던 옛 창립 동료).
+    if "인사/본섬01" in dst:
+        dst["인사/본섬01"]["lines"] = [
+            "자네가 그 영감이 보낸 신참인가. 얘기는 들었네.",
+            "낚시사 길드에 온 걸 환영하네. 여기선 실력이 이름을 대신하지.",
+            "우선 낚싯대를 제대로 걸고, 이 섬의 대표어 붕어를 3마리 잡아 오게.",
+        ]
+    if "퀘스트완료/본섬01" in dst:
+        dst["퀘스트완료/본섬01"]["lines"] = [
+            "손놀림을 보니 영감이 대충 가르치진 않았군.",
+            "이제부터가 진짜일세. 보상은 챙겨 가게.",
+        ]
+else:
+    print("※ dialogue.json이 없어 대화 노드 이관을 건너뜁니다 — "
+          "본섬01·02 노드를 길드접수원 → 하겐으로 직접 옮길 것")
+
 # 졸업 후 어디로 가야 하는지가 어디에도 없었다
 setdesc("튜토11", [
     "&7B등급 이상 &f물고기&7를 1마리 잡아 실력을 증명하세요.",
@@ -150,7 +188,7 @@ setdesc("튜토11", [
 ])
 
 # ══ 저장 ═════════════════════════════════════════════════════════════════════
-for path, obj in ((QP, Q), (NP, N)):
+for path, obj in [(QP, Q), (NP, N)] + ([(DP, DLG)] if DLG is not None else []):
     shutil.copy(path, path + ".pre-descsync")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
