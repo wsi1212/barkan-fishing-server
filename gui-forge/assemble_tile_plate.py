@@ -43,12 +43,15 @@ PARTS = {
     },
 }
 
-# ★발주서의 띠 값(40)을 그대로 쓰면 안 된다. 실제로 온 액자는 테두리가 두꺼워 구멍이
-#   169x96 뿐이라, 거기서 40+여백을 빼면 아이콘이 36px 짜리 점이 된다(첫 조립 실측).
-#   글자는 30px 띠면 충분하고, 아이콘은 안쪽 베벨 위로 조금 걸쳐도 자연스럽다.
-LABEL_BAND = 30                # 타일 아래 글자 자리
+# 아이콘은 **타일을 꽉 채우고 글자가 그 위에 얹힌다**. 글자 자리를 따로 비워 두면
+# (발주서의 40px 띠) 구멍이 169x96 뿐인 이 액자에서는 아이콘이 36px 짜리 점이 된다.
+# 그래서 띠를 없애고 구멍 + 베벨까지 아이콘에 내준 다음, 라벨을 아래쪽에 겹쳐 굽는다.
+# 겹쳐도 읽히게 테두리(stroke)를 두껍게 준다 — 그림 위 글자는 stroke 가 전부다.
 ICON_PAD = 2
-ICON_BLEED = 14                # 구멍 밖(액자 안쪽 베벨)으로 아이콘이 번져도 되는 폭
+ICON_BLEED = 16                # 구멍 밖(액자 안쪽 베벨)으로 아이콘이 번져도 되는 폭
+LABEL_DROP = 2                 # 라벨 밑단을 구멍 아래에서 띄우는 여유
+SCRIM_H = 42                   # 라벨 뒤에 까는 어둠의 높이
+SCRIM_A = 165                  # 그 어둠의 최대 불투명도
 
 
 def font(px):
@@ -105,18 +108,29 @@ def build(name):
         x0, y0 = box[0], box[1]
         bg.alpha_composite(tile, (x0, y0))
         icon = sprite(spec["icons"][label])
-        area_w = hx1 - hx0 + 2 * ICON_BLEED - 2 * ICON_PAD
-        area_h = hy1 - hy0 + ICON_BLEED - LABEL_BAND - 2 * ICON_PAD
+        area_w = hx1 - hx0 + 2 * (ICON_BLEED - ICON_PAD)
+        area_h = hy1 - hy0 + 2 * (ICON_BLEED - ICON_PAD)
         icon = fit(icon, area_w, area_h)
-        top = y0 + hy0 - ICON_BLEED + ICON_PAD
-        bg.alpha_composite(icon, (x0 + hx0 + (hx1 - hx0 - icon.width) // 2,
-                                  top + (area_h - icon.height) // 2))
-        # 라벨 — 아그로체로 굽는다. 테두리(stroke)를 줘야 나무결 위에서 읽힌다.
+        cx = x0 + (hx0 + hx1) // 2
+        cy = y0 + (hy0 + hy1) // 2
+        bg.alpha_composite(icon, (cx - icon.width // 2, cy - icon.height // 2))
+        # ★금색 글자가 금색 아이콘 위에 겹치면 게임 크기에서 뭉갠다(실측 — 랭킹 메달·기부
+        #   금화가 그랬다). 아이콘은 그대로 두고 글자 아래에만 어둠을 깔아 대비를 만든다.
+        #   아래로 갈수록 짙어지는 그라데이션이라 띠처럼 보이지 않는다.
+        scrim = Image.new("RGBA", (hx1 - hx0, SCRIM_H), (0, 0, 0, 0))
+        sp = scrim.load()
+        for yy in range(SCRIM_H):
+            a = int(SCRIM_A * (yy / (SCRIM_H - 1)) ** 1.6)
+            for xx in range(scrim.width):
+                sp[xx, yy] = (12, 9, 7, a)
+        bg.alpha_composite(scrim, (x0 + hx0, y0 + hy1 - SCRIM_H))
+        # 라벨은 아이콘 **위에** 얹는다. 그림 위 글자라 stroke 가 두꺼워야 읽힌다.
         f = font(26)
-        bb = d.textbbox((0, 0), label, font=f, stroke_width=3)
-        d.text((x0 + hx0 + (hx1 - hx0 - (bb[2] - bb[0])) // 2,
-                y0 + hy1 - LABEL_BAND + (LABEL_BAND - (bb[3] - bb[1])) // 2 - 4),
-               label, font=f, fill=GOLD_HI, stroke_width=3, stroke_fill=INK)
+        bb = d.textbbox((0, 0), label, font=f, stroke_width=4)
+        # ★textbbox 는 (0,0) 기준 상자다 — 높이만 빼면 bb[1] 만큼 위로 뜬다. 밑단을 맞추려면
+        #   bb[3] 을 빼야 한다. 그렇게 안 해서 글자가 아이콘 한가운데 걸쳤다(실측).
+        d.text((cx - (bb[0] + bb[2]) // 2, y0 + hy1 - LABEL_DROP - bb[3]),
+               label, font=f, fill=GOLD_HI, stroke_width=4, stroke_fill=INK)
 
     # ── 작은 칸(정보칸 · 아래 버튼 줄 · 플레이어 인벤) ────────
     cell = A.make_frame(spec["cell"])          # 구멍이 정확히 64px 인 72x72
