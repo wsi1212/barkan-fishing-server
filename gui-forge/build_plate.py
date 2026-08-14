@@ -47,6 +47,8 @@ PLATES = {
     "workbench": (3, "wbench_", 0xE7B0),
     # 길드 허브(/길드) — 타일형. assemble_tile_plate.py 가 배경+액자+아이콘+라벨을 조립한다.
     "guild": (6, "guild_", 0xE7C0),
+    # 길드 업그레이드(/길드 → 업그레이드) — 좌우 3x3 두 격자. 액자는 아트에 그려져 있다.
+    "guildupgrade": (6, "gupgrade_", 0xE7D0),
 }
 
 
