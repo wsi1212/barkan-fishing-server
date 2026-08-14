@@ -45,6 +45,8 @@ PLATES = {
     "npcdialog": (4, "npcdlg_", 0xE7A0),
     # 장비 작업대(/장비) — 배경+액자 분리 발주분을 assemble_plate 로 조립해 쓴다
     "workbench": (3, "wbench_", 0xE7B0),
+    # 길드 허브(/길드) — 타일형. assemble_tile_plate.py 가 배경+액자+아이콘+라벨을 조립한다.
+    "guild": (6, "guild_", 0xE7C0),
 }
 
 

@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""타일형 허브 조립 — 배경 + 타일 액자 + 아이콘 + 라벨을 코드가 앉힌다.
+
+assemble_plate 의 타일판이다. 다른 점은 셋뿐이다.
+  · 액자가 두 종류다 — 큰 타일(3열x2행)과 작은 칸(1칸).
+  · 타일 안에 **아이콘과 글자**가 들어간다. 아이콘은 따로 받고, 글자는 여기서 굽는다
+    (발주 글자는 폰트·자간이 매번 달라 판마다 따로 논다).
+  · 아이콘 자리는 액자 구멍에서 아래 라벨 띠를 뺀 만큼이다.
+
+사용: python3 assemble_tile_plate.py <허브이름>
+산출: src/<이름>/bg_source.png (+ .assembled 마커)
+"""
+import os
+import sys
+
+from PIL import Image, ImageDraw, ImageFont
+
+import assemble_plate as A
+import build_plate
+import make_page_layouts as L
+import make_tile_order as T
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+GEN = A.GEN
+S, GX, GY, CELL, COLS = L.SCALE, L.GRID_X, L.GRID_Y, L.CELL, L.COLS
+FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_bold.ttf")
+GOLD_HI, INK = (247, 214, 138), (26, 20, 14)
+
+# 허브: 배경 · 큰 타일 액자 · 작은 칸 액자 · {타일 라벨: 아이콘}
+PARTS = {
+    "guild": {
+        "bg": "exec-57c21d2c-03ff-4a64-9235-dafa476562d9.png",     # ★타일 없는 쪽(발주대로)
+        "tile": "exec-3d35f90c-1704-427e-8c5c-daca75272d16.png",
+        "cell": "exec-6309bb29-dd27-4a14-8776-e710aef25438.png",
+        "icons": {
+            "길드 섬": "exec-79508801-1a4c-4347-9e62-37756eefb4cd.png",
+            "업그레이드": "exec-df73fe9a-5ed7-4224-b0b5-ebdb71be8947.png",
+            "기부": "exec-1b0b0157-778a-4a03-8564-e8200f088b79.png",
+            "길드원": "exec-9966343f-774d-4e3d-90a8-832cbce3edb2.png",
+            "랭킹": "exec-635348e0-08fb-4272-8f9c-ada9f036029a.png",
+            "엠블럼": "exec-b4679f69-89b3-40f9-83c5-6423a4b2972d.png",
+        },
+    },
+}
+
+# ★발주서의 띠 값(40)을 그대로 쓰면 안 된다. 실제로 온 액자는 테두리가 두꺼워 구멍이
+#   169x96 뿐이라, 거기서 40+여백을 빼면 아이콘이 36px 짜리 점이 된다(첫 조립 실측).
+#   글자는 30px 띠면 충분하고, 아이콘은 안쪽 베벨 위로 조금 걸쳐도 자연스럽다.
+LABEL_BAND = 30                # 타일 아래 글자 자리
+ICON_PAD = 2
+ICON_BLEED = 14                # 구멍 밖(액자 안쪽 베벨)으로 아이콘이 번져도 되는 폭
+
+
+def font(px):
+    try:
+        return ImageFont.truetype(FONT_TTF, px)
+    except Exception:
+        return ImageFont.load_default()
+
+
+def sprite(path):
+    """마젠타를 지우고 그림만 남긴 RGBA. 알파로 온 그림은 그대로 쓴다."""
+    raw = Image.open(os.path.join(GEN, path))
+    keyed = raw.mode == "RGBA" and raw.getchannel("A").getextrema()[0] < 250
+    return A.tight(raw.convert("RGBA") if keyed else A.dekey(raw))
+
+
+def hole_of(im):
+    """액자 안쪽 빈 곳(알파 0)의 상자. 아이콘·글자가 들어갈 자리다."""
+    a = im.getchannel("A").load()
+    w, h = im.size
+    cx, cy = w // 2, h // 2
+    def go(dx, dy):
+        k = 0
+        while 0 <= cx + dx * (k + 1) < w and 0 <= cy + dy * (k + 1) < h \
+                and a[cx + dx * (k + 1), cy + dy * (k + 1)] < 32:
+            k += 1
+        return k
+    return cx - go(-1, 0), cy - go(0, -1), cx + go(1, 0), cy + go(0, 1)
+
+
+def fit(im, box_w, box_h):
+    """비율 유지로 상자 안에 넣는다."""
+    k = min(box_w / im.width, box_h / im.height)
+    return im.resize((max(1, round(im.width * k)), max(1, round(im.height * k))), Image.LANCZOS)
+
+
+def build(name):
+    spec = PARTS[name]
+    rows = build_plate.PLATES[name][0] if name in build_plate.PLATES else 6
+    W, H = 176 * S, (114 + rows * CELL) * S
+
+    bg = Image.open(os.path.join(GEN, spec["bg"])).convert("RGBA")
+    if bg.size != (W, H):
+        print(f"  배경 {bg.size} → {W}x{H}")
+        bg = bg.resize((W, H), Image.LANCZOS)
+
+    # ── 큰 타일 ─────────────────────────────────────────────
+    tw, th = CELL * 3 * S, CELL * 2 * S
+    tile = sprite(spec["tile"]).resize((tw, th), Image.LANCZOS)
+    hx0, hy0, hx1, hy1 = hole_of(tile)
+    print(f"  타일 액자 {tw}x{th} · 구멍 ({hx0},{hy0})~({hx1},{hy1})")
+    d = ImageDraw.Draw(bg)
+    for label, box in T.tile_boxes(name):
+        x0, y0 = box[0], box[1]
+        bg.alpha_composite(tile, (x0, y0))
+        icon = sprite(spec["icons"][label])
+        area_w = hx1 - hx0 + 2 * ICON_BLEED - 2 * ICON_PAD
+        area_h = hy1 - hy0 + ICON_BLEED - LABEL_BAND - 2 * ICON_PAD
+        icon = fit(icon, area_w, area_h)
+        top = y0 + hy0 - ICON_BLEED + ICON_PAD
+        bg.alpha_composite(icon, (x0 + hx0 + (hx1 - hx0 - icon.width) // 2,
+                                  top + (area_h - icon.height) // 2))
+        # 라벨 — 아그로체로 굽는다. 테두리(stroke)를 줘야 나무결 위에서 읽힌다.
+        f = font(26)
+        bb = d.textbbox((0, 0), label, font=f, stroke_width=3)
+        d.text((x0 + hx0 + (hx1 - hx0 - (bb[2] - bb[0])) // 2,
+                y0 + hy1 - LABEL_BAND + (LABEL_BAND - (bb[3] - bb[1])) // 2 - 4),
+               label, font=f, fill=GOLD_HI, stroke_width=3, stroke_fill=INK)
+
+    # ── 작은 칸(정보칸 · 아래 버튼 줄 · 플레이어 인벤) ────────
+    cell = A.make_frame(spec["cell"])          # 구멍이 정확히 64px 인 72x72
+    def put(gx, gy):
+        bg.alpha_composite(cell, (gx * S + A.PAD - A.PAD_OUT, gy * S + A.PAD - A.PAD_OUT))
+    _, roles, _ = L.PAGES[name]
+    small = sorted(s for s, (r, _) in roles.items() if r != "장식")
+    for slot in small:
+        r, c = divmod(slot, COLS)
+        put(GX + CELL * c, GY + CELL * r)
+    inv_y0 = 30 + rows * CELL
+    inv_rows = [inv_y0, inv_y0 + CELL, inv_y0 + 2 * CELL, inv_y0 + 58]
+    for gy in inv_rows:
+        for c in range(COLS):
+            put(GX + CELL * c, gy)
+
+    out_dir = os.path.join(HERE, "src", name)
+    os.makedirs(out_dir, exist_ok=True)
+    bg.convert("RGB").save(os.path.join(out_dir, "bg_source.png"))
+    open(os.path.join(out_dir, ".assembled"), "w").write("assemble_tile_plate.py\n")
+    print(f"  {name} 타일 {len(L.TILES[name])} + 작은칸 {len(small)} + 인벤 {len(inv_rows) * COLS}"
+          f" → {out_dir}/bg_source.png")
+
+
+if __name__ == "__main__":
+    for n in sys.argv[1:] or PARTS:
+        build(n)
