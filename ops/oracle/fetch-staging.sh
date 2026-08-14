@@ -14,6 +14,12 @@
 #        → ~/mcserver/staging/ 배치 → Discord 알림
 #        → 06:00 nightly-restart.sh 가 적용 + 구 jar 백업
 #
+# ★태그 접두어가 배포 시점을 정한다 (2026-08-14 추가):
+#     build-N : staging 에만 (기본) — 06:00 데일리 유지보수가 적용
+#     now-N   : 받는 즉시 apply-staged.sh 로 적용+재시작 (베타 기간용)
+#   워크플로의 immediate 입력이 이 접두어를 정한다. 승격 게이트는 그대로다 —
+#   둘 다 수동 promote 를 거쳐야 Release 가 생긴다.
+#
 # ★plugins/ 루트에는 절대 쓰지 않는다. staging 까지만이 이 스크립트의 권한이다.
 #
 # 설치:
@@ -159,6 +165,25 @@ mv "$TMP/$ASSET_NAME" "$STAGING/"
 echo "$TAG" > "$STATE_FILE"
 
 log "staging 배치 완료: $STAGING/$ASSET_NAME"
+
+# ── 즉시 배포 분기 ────────────────────────────────────────────────────
+# 태그가 now-* 면 06:00 을 기다리지 않는다. 적용·재시작·부팅확인은 전부
+# apply-staged.sh 가 한다(nightly 와 같은 규칙을 쓰려고 로직을 한 곳에 뒀다).
+if [[ "$TAG" == now-* ]]; then
+  APPLY="$MC_ROOT/scripts/apply-staged.sh"
+  if [[ ! -x "$APPLY" ]]; then
+    # staging 에는 이미 들어갔으니 데이터는 안 잃는다 — 06:00 에 적용된다.
+    log "✗ 즉시 배포 요청인데 apply-staged.sh 가 없다: $APPLY"
+    notify "🟠 **즉시 배포 불가** — \`$TAG\` 를 받았지만 \`apply-staged.sh\` 가 없다.
+staging 에는 들어갔으니 06:00 에는 적용된다. 스크립트를 설치할 것."
+    exit 0
+  fi
+  log "즉시 배포 태그($TAG) — apply-staged.sh 실행"
+  notify "⚡ **즉시 배포 시작** — \`$ASSET_NAME\` (\`$TAG\`)
+곧 재시작한다. 결과는 이어서 알린다."
+  exec "$APPLY"
+fi
+
 notify "📦 **staging 에 새 jar** — \`$ASSET_NAME\` (\`$TAG\`)
 06:00 데일리 유지보수가 적용한다.
 검증하려면: \`mcdev-up.sh --jar $STAGING/$ASSET_NAME\`

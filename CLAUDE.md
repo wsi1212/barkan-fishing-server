@@ -248,7 +248,23 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - `MC_VERSION`은 워크플로 env에 하드코딩(현재 `1.21.11`). 갱신법도 주석에 있음: `ssh prod 'grep -o "1\.21\.[0-9]*" ~/mcserver/version_history.json | tail -1'`
 - 실측(2026-08-14 가동 첫날): run #1·#2 실패 → #3·#4 통과 → #5 수동 promote → **Release `build-5` 발행 07:15Z**. 사슬 완주 확인됨.
 
+**즉시 배포 (2026-08-14 신설, 베타 기간용)** — 06:00 을 기다리지 않는 경로:
+- 워크플로 수동 실행 시 **`promote=true` + `immediate=true`** → 태그가 `build-N` 대신 **`now-N`** 으로 나간다.
+- `fetch-staging.sh`(cron */15)가 태그 접두어를 보고 갈린다: `build-` = staging 만(06:00 적용) · **`now-` = 즉시 [ops/oracle/apply-staged.sh](ops/oracle/apply-staged.sh) 실행**(구 jar 백업 → 교체 → 접속자 있으면 60초 예고 → save-all flush → 재시작 → **부팅 확인** → 디스코드).
+- ★**승격 게이트는 그대로다** — 즉시 배포도 수동 promote 를 거쳐야 Release 가 생긴다. 자동으로 나가는 경로는 없다.
+- ★신호를 태그에 싣는 이유: Releases 목록만 봐도 무엇이 즉시 나갔는지 남는다. 별도 상태 파일을 두면 사고 후 추적이 안 된다.
+- 반영 지연은 최대 15분(cron 주기). 더 급하면 prod 에서 `apply-staged.sh` 직접 실행.
+- **정식 운영 전환 시**: `immediate` 를 그냥 안 쓰면 된다(기본 false). 경로를 지울 필요 없다.
+
+**제한 SSH 키 (2026-08-14 신설)** — 롤백·진단만 가능한 키. [ops/oracle/ssh-restricted-shim.sh](ops/oracle/ssh-restricted-shim.sh) + [ops/oracle/setup-restricted-key.sh](ops/oracle/setup-restricted-key.sh)
+- `authorized_keys` 에 `restrict,command="…shim.sh"` 로 묶는다 → 접속자가 무엇을 치든 shim 만 실행되고 원래 명령은 `$SSH_ORIGINAL_COMMAND` 로 들어와 **화이트리스트 검사**를 받는다.
+- 허용: `rollback list|dry|yes [to <파일>]` · `log [N]` · `ops [N]` · `status`. 그 외 전부 거부(임의 셸·파일쓰기·sudo·포트포워딩 포함). 시도는 **거부된 것까지 전부** `backups/ops.log` 에 남는다.
+- ★**`~/.ssh/oracle-mc.key`(맥 만능 키)를 재사용하지 말 것.** 별도 키여야 문제 시 이것만 폐기할 수 있다 — 만능 키를 폐기하면 맥 배포·백업이 같이 끊긴다.
+- ★shim 에 "편의상" 명령을 더하지 말 것. 더할수록 키가 새면 잃는 게 커진다. 새 작업은 전용 스크립트를 만들어 그것만 화이트리스트에 넣는다.
+- 폐기: `setup-restricted-key.sh --revoke` (다른 키는 안 건드림)
+
 **전체 사슬**: `push → Actions(build+smoke) → [수동 promote] → Release build-N → fetch-staging.sh(cron */15, PAT) → ~/mcserver/staging/ → nightly-restart.sh(06:00 KST) 적용+재시작+디스코드 리포트 → 문제 시 rollback-jar.sh(수동, staging까지 비움)`
+즉시 배포는 이 사슬에서 `nightly-restart.sh` 대신 `apply-staged.sh` 가 붙는다(나머지는 동일).
 오라클 쪽 스크립트 사본: [ops/oracle/fetch-staging.sh](ops/oracle/fetch-staging.sh) · [ops/oracle/rollback-jar.sh](ops/oracle/rollback-jar.sh) · [ops/nightly-restart.sh](ops/nightly-restart.sh)
 
 **전체 변경** — Git 백업
