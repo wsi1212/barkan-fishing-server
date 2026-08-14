@@ -22,7 +22,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-REPO="${BLOCKSHIP_REPO:-mlid-P/blockship-plugin}"   # ★실제 repo 이름으로 확인
+REPO="${BLOCKSHIP_REPO:-wsi1212/blockship-plugin}"  # 2026-08-14 실측 확인 (private)
 MC_ROOT="${MC_ROOT:-$HOME/mcserver}"
 STAGING="$MC_ROOT/staging"
 STATE_FILE="$MC_ROOT/.fetch-staging-state"

@@ -33,8 +33,9 @@ cp fetch-staging.sh ~/mcserver/scripts/ && chmod +x ~/mcserver/scripts/fetch-sta
 printf '%s' 'github_pat_...' > ~/mcserver/.github-token
 chmod 600 ~/mcserver/.github-token
 
-# repo 이름 확인 (기본값 mlid-P/blockship-plugin)
-BLOCKSHIP_REPO=owner/repo ~/mcserver/scripts/fetch-staging.sh --dry-run
+# 기본 repo = wsi1212/blockship-plugin (2026-08-14 실측 확인, private).
+# 다른 repo 를 쓸 때만 BLOCKSHIP_REPO 로 덮어쓴다.
+~/mcserver/scripts/fetch-staging.sh --dry-run
 
 # cron
 ( crontab -l 2>/dev/null; \
