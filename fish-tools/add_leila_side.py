@@ -25,12 +25,13 @@
 사용법 — quests.json·npc.json이 있는 디렉터리에서 실행:
     python3 add_leila_side.py
 """
-import json, shutil, sys
+import json, os, shutil, sys
 
-QP, NP = "quests.json", "npc.json"
+QP, NP, DP = "quests.json", "npc.json", "dialogue.json"
 Q = json.load(open(QP, encoding="utf-8"))
 N = json.load(open(NP, encoding="utf-8"))
 QUESTS, NPCS = Q["퀘스트"], N["npcs"]
+DLG = json.load(open(DP, encoding="utf-8")) if os.path.exists(DP) else None
 
 if "레일라" not in NPCS:
     sys.exit("✗ npc.json에 레일라 없음")
@@ -90,7 +91,43 @@ for qid, *_ in LINE:
     if qid not in cur:
         cur.append(qid)
 
-for path, obj in ((QP, Q), (NP, N)):
+
+# ── 대화 3단 (레일라는 요체다 — 자동생성 템플릿을 쓰지 않는다) ────────────────
+ASK = [{"id": "c1", "text": "부탁을 들어볼게요", "action": "퀘스트목록", "next": "x"},
+       {"id": "c2", "text": "조금 더 생각해볼게요", "action": "닫기", "next": "x"}]
+TAKE = [{"id": "c1", "text": "보상 받기", "action": "퀘스트목록", "next": "x"}]
+DIALOGUE = {
+    "상사이드_레일라04": (
+        ["…소문 들으셨죠. 이제 다들 저를 밀고자라고 불러요.",
+         "옳은 일을 했는데 일자리랑 이름을 같이 잃었네요.",
+         "그래도 먹고는 살아야죠. 신선한 B등급으로 5마리만 부탁드려요."],
+        ["아직인가요. 급하진 않아요, 시간은 남아도니까."],
+        ["고마워요. …후회는 안 해요. 다만 좀 외로울 뿐이지."]),
+    "상사이드_레일라05": (
+        ["창고 장부는 전부 압수됐어요. 그런데 제 머릿속까지 가져가진 못했죠.",
+         "기함에 아직 남아 있을 거예요 — 장부에 없던 항로가.",
+         "배에 올라가서 A등급으로 4마리만. 겸사겸사 확인 좀 부탁드려요."],
+        ["기함은 왕실에 압류됐지만 출입은 될 거예요."],
+        ["역시. 제가 기억하던 그 선이 맞네요.",
+         "…제가 넘긴 서류가 헛되지 않았다는 뜻이겠죠."]),
+    "상사이드_레일라06": (
+        ["오아시스 감시원을 뽑는대요. 지원했어요.",
+         "물류를 알던 사람이 물을 지키는 것도 나쁘지 않잖아요?",
+         "가시는 김에 오아시스에서 A등급 5마리만 봐 주세요. 물이 돌아왔는지."],
+        ["다음 배로 떠날 생각이에요. 그 전에 확인만 해 주시면."],
+        ["차오르고 있군요. 상단 펌프가 멈춘 뒤로 계속 그렇대요.",
+         "제가 끊으려 했던 물길을, 이제 제가 지키게 됐네요.",
+         "…이상하죠. 이게 제일 마음이 편해요."]),
+}
+if DLG is not None:
+    d = DLG.setdefault("레일라", {})
+    for qid, (g, p, c) in DIALOGUE.items():
+        d[f"인사/{qid}"] = {"lines": g, "choices": ASK}
+        d[f"진행중/{qid}"] = {"lines": p, "choices": []}
+        d[f"퀘스트완료/{qid}"] = {"lines": c, "choices": TAKE}
+    print("대화 9노드 신설 — 레일라")
+
+for path, obj in [(QP, Q), (NP, N)] + ([(DP, DLG)] if DLG is not None else []):
     shutil.copy(path, path + ".pre-leila")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)

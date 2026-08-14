@@ -22,13 +22,29 @@
 사용법 — quests.json·npc.json이 있는 디렉터리에서:
     python3 fix_story_gaps.py
 """
-import json, shutil, sys
+import json, os, shutil, sys
 
-QP, NP = "quests.json", "npc.json"
+QP, NP, DP = "quests.json", "npc.json", "dialogue.json"
 Q = json.load(open(QP, encoding="utf-8"))
 N = json.load(open(NP, encoding="utf-8"))
 QUESTS, NPCS = Q["퀘스트"], N["npcs"]
+DLG = json.load(open(DP, encoding="utf-8")) if os.path.exists(DP) else None
 log = []
+
+ASK = [{"id": "c1", "text": "부탁을 들어볼게요", "action": "퀘스트목록", "next": "x"},
+       {"id": "c2", "text": "조금 더 생각해볼게요", "action": "닫기", "next": "x"}]
+TAKE = [{"id": "c1", "text": "보상 받기", "action": "퀘스트목록", "next": "x"}]
+
+
+def dnodes(npc, qid, greet, doing, done):
+    """★신설 퀘스트엔 대화 노드가 따라와야 한다 — 없으면 NPC가 기본 대사로 떨어진다."""
+    if DLG is None:
+        return
+    d = DLG.setdefault(npc, {})
+    d[f"인사/{qid}"] = {"lines": greet, "choices": ASK}
+    d[f"진행중/{qid}"] = {"lines": doing, "choices": []}
+    d[f"퀘스트완료/{qid}"] = {"lines": done, "choices": TAKE}
+    log.append((f"{npc}.*/{qid}", "대화 3노드 신설"))
 
 
 def q(qid):
@@ -120,6 +136,40 @@ for qid, lv, typ, name, giver, goals, desc in NEW:
         cur.insert(0, qid)          # 메인은 사이드보다 앞에
     log.append((qid, f"신설 Lv{lv} {goals} (수여 {giver})"))
 
+
+# ── 신설 4개의 대화 ──────────────────────────────────────────────────────────
+dnodes("사관", "왕도08b",
+       ["또 뵙는군요. 왕도에서 오셨다니… 짐작은 갑니다.",
+        "궁정이 손대지 못한 사본이 여기 남아 있습니다.",
+        "영주께서 보고를 미루신 덕이지요. 아이러니한 일입니다."],
+       ["서고 안쪽입니다. 천천히 보십시오."],
+       ["대조가 끝났군요. 왕도의 원본이 위조라는 것이 이걸로 증명됩니다.",
+        "…이 기록을 지운 자는 궁정 안에 있습니다. 조심하십시오."])
+
+dnodes("금서고지기", "왕도09b",
+       ["열쇠는 있소. 다만 공짜는 아니지.",
+        "봉인 서가를 여는 데도 대가가 드는 법이오.",
+        "재료 20개를 모아 오시오."],
+       ["아직 부족하오. 봉인은 값을 치러야 열리는 법이지."],
+       ["됐소. 이제 그 문을 열어 드리리다.",
+        "…들어가고 나면, 못 본 걸로 하고 싶어질 거요."])
+
+dnodes("종지기", "왕도11b",
+       ["신호는 밤에만 올라간다오. 종탑 아래서 밤을 새워야 하지요.",
+        "기다리는 동안 손은 놀리지 마시오.",
+        "신선도를 지킨 A등급 이상으로 4마리."],
+       ["아직 밤이 깊지 않았소. 종은 내가 지키리다."],
+       ["보셨소? 저 불빛. 매일 같은 각도로 바다 너머를 향하지요.",
+        "저건 신호요. 이 성 안 누군가가 보내는."])
+
+dnodes("은둔학자", "왕도12b",
+       ["…손님이 온 게 몇 해 만인지 모르겠군.",
+        "보다시피 도구는 죄다 삭았네. 첨탑 꼭대기라 습기가 심해서.",
+        "조합 네 번이면 쓸 만하게 갈아 끼울 수 있을 걸세."],
+       ["급할 것 없네. 나는 여기서 삼십 년을 기다렸으니."],
+       ["오, 손에 맞는군. 고맙네.",
+        "…이제 자네가 찾는 이야기를 해도 되겠구먼. 앉게."])
+
 for a, b in LINK:
     q(a)["다음퀘스트"] = b
     q(b)["선행퀘스트"] = a
@@ -127,7 +177,7 @@ log.append(("체인", " → ".join(["왕도08", "왕도08b", "왕도09", "왕도
                                 "왕도11", "왕도11b", "왕도12", "왕도12b", "왕도13"])))
 
 # ══ 저장 ═════════════════════════════════════════════════════════════════════
-for path, obj in ((QP, Q), (NP, N)):
+for path, obj in [(QP, Q), (NP, N)] + ([(DP, DLG)] if DLG is not None else []):
     shutil.copy(path, path + ".pre-gaps")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)

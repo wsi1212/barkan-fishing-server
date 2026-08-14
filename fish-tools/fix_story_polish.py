@@ -23,13 +23,29 @@
 사용법 — quests.json·npc.json이 있는 디렉터리에서:
     python3 fix_story_polish.py
 """
-import json, shutil, sys
+import json, os, shutil, sys
 
-QP, NP = "quests.json", "npc.json"
+QP, NP, DP = "quests.json", "npc.json", "dialogue.json"
 Q = json.load(open(QP, encoding="utf-8"))
 N = json.load(open(NP, encoding="utf-8"))
 QUESTS, NPCS = Q["퀘스트"], N["npcs"]
+DLG = json.load(open(DP, encoding="utf-8")) if os.path.exists(DP) else None
 log = []
+
+ASK = [{"id": "c1", "text": "부탁을 들어볼게요", "action": "퀘스트목록", "next": "x"},
+       {"id": "c2", "text": "조금 더 생각해볼게요", "action": "닫기", "next": "x"}]
+TAKE = [{"id": "c1", "text": "보상 받기", "action": "퀘스트목록", "next": "x"}]
+
+
+def dnodes(npc, qid, greet, doing, done):
+    """수여 NPC에 대화 3노드를 심는다. dialogue.json이 없으면 조용히 넘어간다."""
+    if DLG is None:
+        return
+    d = DLG.setdefault(npc, {})
+    d[f"인사/{qid}"] = {"lines": greet, "choices": ASK}
+    d[f"진행중/{qid}"] = {"lines": doing, "choices": []}
+    d[f"퀘스트완료/{qid}"] = {"lines": done, "choices": TAKE}
+    log.append((f"{npc}.*/{qid}", {"대화": "없음"}, {"대화": "3노드 신설"}))
 
 
 def q(qid):
@@ -112,6 +128,50 @@ for key, qids in ASSIGN.items():
     for i, qid in enumerate(qids):                     # 메인을 앞에 다시 꽂는다
         cur.insert(i, qid)
 
+# ★대화 노드도 수여자를 따라가야 한다 — 옮기지 않으면 새 수여자는 기본 대사로
+#   떨어지고, 옛 수여자에겐 아무도 도달 못 하는 죽은 노드가 남는다.
+if DLG is not None:
+    for qid, new in (("영주02", "영주"), ("영주03", "근위병"), ("영주04", "사관"),
+                     ("영주05", "영주")):
+        for pre in ("인사/", "진행중/", "퀘스트완료/"):
+            k = pre + qid
+            for old, nodes in DLG.items():
+                if old != new and isinstance(nodes, dict) and k in nodes:
+                    DLG.setdefault(new, {})[k] = nodes.pop(k)
+                    log.append((f"{k}", {"수여": old}, {"수여": new}))
+
+# 영주 라인은 발데마르의 냉담함이 핵심인데 자동생성 템플릿은 다정하다. 손으로 쓴다.
+dnodes("영주", "영주02",
+       ["문장 깃발이 걸린 대전이다. 발데마르는 어부를 오래 보지 않는다.",
+        "강은 왕의 것이 아니다. 여기 일은 여기서 끝낸다.",
+        "…무슨 볼일인지는 들어보겠다."],
+       ["아직 할 말이 남았나."],
+       ["그래. 얼굴은 봤으니 됐다.", "쓸모를 보이든가. 말은 그다음이다."])
+
+dnodes("근위병", "영주03",
+       ["영주께서 쓸모를 보이라 하셨다.",
+        "거창한 건 아니고, 성문을 지키는 이들의 저녁거리다.",
+        "신선도 70 이상 C등급으로 6마리. 상한 건 안 받는다."],
+       ["아직 다 못 채웠군. 수비대는 굶고 기다린다."],
+       ["…생각보다 쓸 만하군.", "가져가라. 영주께는 내가 전하겠다."])
+
+dnodes("사관", "영주04",
+       ["사관 게르하르트입니다. 지역 어류지를 정리하고 있습니다.",
+        "늪지대와 정상, 두 곳의 도감 14종을 채워 주시면",
+        "그 대가로 옛 봉인 기록의 사본을 보여 드리지요."],
+       ["기록에는 그렇게 적혀 있습니다 — 물이 기억하는 대로요.",
+        "아직 채워지지 않은 항목이 있군요."],
+       ["채워졌군요. 약속대로 사본을 보여 드리겠습니다.",
+        "…왕도에서는 지워진 이름이 여기엔 남아 있습니다. 이유는 저도 모릅니다."])
+
+dnodes("영주", "영주05",
+       ["증명은 됐다. 마지막으로 하나.",
+        "내 상에 오를 물건이다. 55cm 아래로는 올리지 마라."],
+       ["아직인가. 물건은 물건다워야 한다."],
+       ["…이 정도면 왕도가 보낸 조사관보다 낫겠군.",
+        "동쪽 사막의 물이 줄고 있다. 가서 보고 오너라.",
+        "칭찬은 없다. 다만 일은 맡기겠다."])
+
 # ══ ③ 조각 획득 순간 ═════════════════════════════════════════════════════════
 setq("본섬09", 설명=[
     "&7세르간: \"비 오는 밤에만 올라오는 놈이 있네.\"",
@@ -132,7 +192,7 @@ setq("사막14", 이름="&6두 번째 조각", 설명=[
 ])
 
 # ══ 저장 ═════════════════════════════════════════════════════════════════════
-for path, obj in ((QP, Q), (NP, N)):
+for path, obj in [(QP, Q), (NP, N)] + ([(DP, DLG)] if DLG is not None else []):
     shutil.copy(path, path + ".pre-polish")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
