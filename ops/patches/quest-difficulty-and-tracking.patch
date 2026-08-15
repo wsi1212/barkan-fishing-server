@@ -234,10 +234,10 @@ index f5fd95c..b65e058 100644
          String cat = quests.getQuestField(qid, "카테고리");
          if ("일일".equals(cat) || "주간".equals(cat)) return true;
 diff --git a/src/main/java/com/blockship/quest/QuestManager.java b/src/main/java/com/blockship/quest/QuestManager.java
-index a29a949..aa4eac7 100644
+index a29a949..4792d2d 100644
 --- a/src/main/java/com/blockship/quest/QuestManager.java
 +++ b/src/main/java/com/blockship/quest/QuestManager.java
-@@ -254,6 +254,52 @@ public class QuestManager {
+@@ -254,6 +254,54 @@ public class QuestManager {
      public Collection<String> getQuestIds() { return quests.keySet(); }
      public int getQuestCount() { return quests.size(); }
  
@@ -284,13 +284,15 @@ index a29a949..aa4eac7 100644
 +            if (!c.equals(cur)) { sb.append(c); cur = c; }   // 같은 색이면 코드 반복 생략
 +            sb.append('|');
 +        }
-+        return sb.append(" &8").append(n).append("/20").toString();
++        // ★숫자(7/20)는 안 붙인다 — 바의 **길이**가 곧 난이도다. 숫자를 같이 띄우면
++        //   시선이 숫자로 가서 바가 장식이 되고, 로어 한 줄이 길어져 지저분하다(2026-08-15).
++        return sb.toString();
 +    }
 +
      public String getQuestField(String id, String field) {
          var q = quests.get(id);
          if (q == null) return null;
-@@ -495,7 +541,7 @@ public class QuestManager {
+@@ -495,7 +543,7 @@ public class QuestManager {
          return v == null ? s : com.blockship.util.Num.fmt(v);
      }
  
@@ -299,7 +301,7 @@ index a29a949..aa4eac7 100644
          String v = getQuestField(id, field);
          if (v == null || v.isEmpty()) return def;
          try { return (int) Double.parseDouble(v.trim()); } catch (Exception e) { return def; }
-@@ -513,6 +559,87 @@ public class QuestManager {
+@@ -513,6 +561,87 @@ public class QuestManager {
          return qid.startsWith("일일_") || qid.startsWith("주간_");
      }
  
@@ -387,7 +389,7 @@ index a29a949..aa4eac7 100644
      // ===================================================================
      // state 헬퍼 (PlayerData 직접 read/write)
      // ===================================================================
-@@ -1104,6 +1231,14 @@ public class QuestManager {
+@@ -1104,6 +1233,14 @@ public class QuestManager {
          String next = getQuestField(qid, "다음퀘스트");
          if (next != null && !next.isEmpty()) {
              setStatus(d, next, "대기");
@@ -402,7 +404,7 @@ index a29a949..aa4eac7 100644
          }
          logQuestDone(p, qid, rMoney, exp);
          msg(p, "&8[&d 퀘스트 &8] &a잘했어요! &f" + nameOf(qid) + " 완료");
-@@ -1115,7 +1250,7 @@ public class QuestManager {
+@@ -1115,7 +1252,7 @@ public class QuestManager {
      private void guideToQuestGiver(Player p, String qid) {
          if (p == null || qid == null || qid.isEmpty() || nav == null || !nav.isAuto(p)) return;
          com.blockship.nav.NavTarget target = null;
@@ -411,7 +413,7 @@ index a29a949..aa4eac7 100644
          if (npcId != null && !npcId.isEmpty() && npcs != null) {
              org.bukkit.Location live = npcs.liveLocationOf(npcId);
              if (live != null) {
-@@ -1980,6 +2115,35 @@ public class QuestManager {
+@@ -1980,6 +2117,35 @@ public class QuestManager {
          checkWeekly(p);
      }
  
