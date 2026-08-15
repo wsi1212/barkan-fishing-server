@@ -21,11 +21,50 @@ git apply         ~/barkan-fishing-server/ops/patches/<이름>.patch
 
 | 패치 | 내용 | 적용 |
 |---|---|---|
-| [`quest-difficulty-bar.patch`](quest-difficulty-bar.patch) | **퀘스트 난이도 바** — `QuestManager.difficultyLore()` 신설 + 로어 렌더 5곳 | ⏸ 미적용 |
+| [`quest-difficulty-and-tracking.patch`](quest-difficulty-and-tracking.patch) | **① 퀘스트 난이도 바** + **② 메인 퀘스트 추적/길잡이** | ⏸ 미적용 |
+
+★옛 `quest-difficulty-bar.patch`는 이 파일에 **흡수됐다.** 둘 다 미적용 상태였고 같은
+파일(`QuestManager`·`QuestGui`)을 건드려 따로 두면 적용 순서에 따라 충돌한다. **하나만 적용할 것.**
 
 ---
 
-## `quest-difficulty-bar.patch` 상세
+## ② 메인 퀘스트 추적 · 길잡이 (2026-08-15)
+
+**증상** — 튜토를 졸업하면 메인 흐름이 끊기고, 사이드를 하나 밀거나 오랜만에 접속하면
+메인 퀘스트를 찾을 수가 없다.
+
+**원인 넷** (전부 실측으로 확인)
+
+| | |
+|---|---|
+| **A** | `complete()`가 다음 퀘스트 안내를 **안 한다.** `completeTravel()`(visit 퀘)만 화살표를 이어 준다. 튜토는 `튜토_이동1~7` 같은 visit 퀘가 촘촘해 안 끊기지만, 졸업하면 낚기·조합 위주라 전부 `complete()`로 빠진다 — **정확히 「튜토 끝나면 끊긴다」의 원인** |
+| **B** | 「대기」 상태 메인은 `activeQuests`에 없다. 사이드바(`getObjectiveActiveQuestId`)도 저널(슬롯13)도 `activeQuests`만 봐서 **둘 다 못 본다.** 저널은 심지어 *"진행 중인 메인 퀘스트가 없습니다"*라고 **거짓말**을 했다 |
+| **C** | 사이드바는 `activeQuests`의 **첫** non-special, 저널은 **마지막** non-special을 집었다 — 서로 다른 걸 가리켰고, 카테고리를 안 봐서 사이드가 「메인 퀘스트」 자리를 차지했다 |
+| **D** | `guideToQuestGiver`가 `npcNameOfQuest`(**표시이름**)를 `liveLocationOf`(**NPC 키**)에 넘기고 있었다. 키가 `하겐`인데 `길드장 하겐`으로 찾으니 항상 null → **실시간 위치 경로가 통째로 죽어 있었다**(2026-08-06에 고쳤다던 그 버그) |
+
+**고친 것**
+
+| 파일 | 내용 |
+|---|---|
+| `QuestManager` | `getTrackedMainQuest` / `getPendingMain` / `getLastClearedMain` / `questGiverName` / `startGuideTo` / `isMainLine` 신설 — 사이드바·저널·화살표가 **한 곳에서 같은 답**을 쓴다 |
+| `QuestManager.complete()` | 다음 퀘스트가 열리면 채팅 안내 + `guideToQuestGiver()` (A 해결) |
+| `QuestManager.greetOnJoin()` | 접속 80틱 뒤 「진행 중 / 반납 대상 / 다음 메인」 한 줄 + `/길잡이` 안내 |
+| `NpcManager.npcIdOfQuest()` | 퀘스트 → NPC **키**. `guideToQuestGiver`가 이걸 쓰도록 교체 (D 해결) |
+| `SidebarManager` | line 4~3에 **메인 이정표** 한 줄 (`다음 ▸ <퀘스트> / → <NPC>에게`, 레벨 미달이면 `Lv30 필요`). 트래커와 같은 퀘면 생략, 체인 완주면 `메인 완주 ▸ <마지막>` |
+| `QuestGui` 슬롯13 | `getTrackedMainQuest` 사용. **대기 메인은 나침반 아이콘 + 수여 NPC + 「클릭 — 여기로 길안내」**. 일반 클릭 = 길안내, 쉬프트 = 포기(단 **대기 상태는 포기 불가** — 체인이 끊기면 복구 경로가 없다) |
+| `QuestGui` 잠금 | *"다른 퀘스트를 먼저 완료해주세요"*에 **진행 중인 퀘스트 이름과 반납 NPC**를 로어로 |
+| `BlockShipPlugin` | **`/길잡이`** 신설 (별칭 `rlfwkqdl` · `rwd` · `길안내` · `fnxm`) — 추적 중인 메인으로 화살표 재점화 |
+
+★**진행도는 이정표에 안 붙인다.** 활성 퀘스트는 통틀어 **하나뿐**이고(`QuestGui`의
+`hasOtherMain` 잠금) 대기 퀘는 수락 자체가 잠겨 있다. 진행도를 띄우면 「둘을 동시에 민다」로
+읽혀 오해를 산다 — 이건 표지판이지 트래커가 아니다.
+
+★**NPC 머리 위 `!` 마커는 이미 있다**(`QuestMarkerManager`, 2026-08-02). 근처까지 가면
+찾을 수 있었고, 문제는 **어느 NPC로 가야 하는지 몰랐던 것**이다. 이 패치가 그걸 채운다.
+
+---
+
+## ① 퀘스트 난이도 바
 
 퀘스트 아이템 로어에 난이도를 **`\|` 바**로 그린다. 바의 **길이**가 곧 난이도다.
 
