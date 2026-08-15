@@ -262,6 +262,11 @@ for key, (name, role) in NPC_DEFS.items():
     print(f"  {key:12} {name:16} {role}")
 print("  (citizensId가 비면 길안내 화살표가 실시간 위치를 못 찾아 안내좌표로만 떨어진다)")
 print("★건물 좌표가 정해지면 각 퀘스트에 `안내좌표`(월드,x,y,z)도 넣을 것.")
+print("★지역 등록(인게임 `/지역 생성`) — 심해 월드 쪽:")
+print("  협곡바닥      심해 월드 도착지. `심해27`의 area 목표가 이걸 본다")
+print("  이름있는자리   도망친 심해어 마을. 부모섬을 `협곡바닥`으로 걸 것")
+print("                → 그러면 dogam|협곡바닥|N 하나로 마을까지 포함된다")
+print("  심해교단본부   성소 내부 (`심해28`)")
 print("★「심해 어보」는 아직 못 만든다 — fish.json에 `심해` 지역이 없다.")
 print("  심해 어종이 생기면 add_village_capstones.py 에 다섯 번째 항목으로 추가할 것.")
 
