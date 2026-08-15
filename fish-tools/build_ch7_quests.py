@@ -52,10 +52,20 @@
   `심해협곡` 지역(실좌표) · 심해 월드 · `심해어가면` 아이템 + 레시피
   `심해교단본부` 지역 · `무명의낱장` 재료(성소 기록고에서 회수) · `심해전왕의핵` 드롭
 """
-import json, re, sys, shutil, collections
+import json, os, re, sys, shutil, collections
 
 BASE = "."
-NEED_SRC = "/Users/user/development/blockship-plugin/src/main/java/com/blockship/fishing/FishingLevelManager.java"
+# 레벨 곡선의 권위는 자바 소스다. 플러그인 저장소 위치가 환경마다 다르므로
+# (Mac 작업본 / 컨테이너 체크아웃) 후보를 순서대로 훑는다.
+NEED_REL = "src/main/java/com/blockship/fishing/FishingLevelManager.java"
+NEED_ROOTS = [os.environ.get("BLOCKSHIP_SRC", ""),
+              os.path.expanduser("~/development/blockship-plugin"),
+              "/Users/user/development/blockship-plugin",
+              "/workspace/blockship-plugin"]
+NEED_SRC = next((os.path.join(r, NEED_REL) for r in NEED_ROOTS
+                 if r and os.path.exists(os.path.join(r, NEED_REL))), None)
+if NEED_SRC is None:
+    sys.exit("✗ FishingLevelManager.java 를 못 찾았다 — BLOCKSHIP_SRC 로 플러그인 소스 경로를 알려줄 것")
 
 # ── 레벨 곡선 읽기 ────────────────────────────────────────────────────────────
 src = open(NEED_SRC, encoding="utf-8").read()
