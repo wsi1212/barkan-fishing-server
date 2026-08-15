@@ -375,6 +375,11 @@ EXP = [max(1000, int(round(BUDGET * x / tw / 100.0)) * 100) for x in w]
 # 보상돈 — 6챕터(50,000)에서 이어 올린다
 MONEY = [60000 + int(round((q[2] - 50) / 20.0 * 140000 / 1000)) * 1000 for q in Qs]
 
+# ── 난이도 수동값 — 규칙으로 안 잡히는 전투 퀘스트만 ─────────────────────────
+#   나머지는 `add_quest_difficulty.py`가 목표에서 계산한다. 여기 값도 그 스크립트의
+#   MANUAL과 같아야 한다(두 곳에 있는 게 아니라, 저기가 원본이고 여기는 사본이다).
+DIFFICULTY = {"심해31": 17, "심해32": 18, "심해33": 20}
+
 # ── quests.json 패치 ─────────────────────────────────────────────────────────
 qp = f"{BASE}/quests.json"
 QJ = json.load(open(qp, encoding="utf-8"))
@@ -386,6 +391,12 @@ for i, (qid, giver, lv, typ, name, desc, goals, town, title) in enumerate(Qs):
         "카테고리": "메인", "필요레벨": lv,
         "보상돈": MONEY[i], "보상경험치": EXP[i], "마을": town,
     }
+    # ★난이도(1~20) — 로어에 `|` 바로 뜬다. 규칙은 `add_quest_difficulty.py`가 권위이고,
+    #   여기서는 **생성 직후 그 스크립트를 돌리면 덮인다.** 다만 보스처럼 규칙으로 안
+    #   잡히는 것은 거기 MANUAL에 박혀 있으므로 그대로 살아남는다.
+    e["난이도"] = DIFFICULTY.get(qid, 0) or None
+    if e["난이도"] is None:
+        del e["난이도"]
     # ★심해01의 선행은 6챕터 종점이다 — 비워 두면 Lv50만 찍고 5·6챕터를 건너뛴 채
     #   수락이 가능해진다(2026-08-14 라이브 수리분). 나머지는 직전 퀘스트로 사슬을 잇는다.
     e["선행퀘스트"] = Qs[i - 1][0] if i > 0 else "왕도15"

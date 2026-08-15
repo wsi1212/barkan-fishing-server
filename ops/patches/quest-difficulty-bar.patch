@@ -1,0 +1,114 @@
+diff --git a/src/main/java/com/blockship/quest/QuestCatalogGui.java b/src/main/java/com/blockship/quest/QuestCatalogGui.java
+index 83f2d31..578f355 100644
+--- a/src/main/java/com/blockship/quest/QuestCatalogGui.java
++++ b/src/main/java/com/blockship/quest/QuestCatalogGui.java
+@@ -274,6 +274,8 @@ public class QuestCatalogGui implements Listener {
+         List<String> desc = quests.getQuestListField(id, "설명");
+         if (desc.isEmpty()) lore.add("  §7(설명 없음)");
+         else for (String dl : desc) lore.add("  " + dl);
++        String diff = quests.difficultyLore(id);
++        if (diff != null) { lore.add(""); lore.add("  " + diff); }
+         lore.add("");
+ 
+         // 달성 조건
+diff --git a/src/main/java/com/blockship/quest/QuestGui.java b/src/main/java/com/blockship/quest/QuestGui.java
+index f5fd95c..428ca98 100644
+--- a/src/main/java/com/blockship/quest/QuestGui.java
++++ b/src/main/java/com/blockship/quest/QuestGui.java
+@@ -188,6 +188,8 @@ public class QuestGui implements Listener {
+         if (name == null) name = qid;
+         List<String> lore = new ArrayList<>();
+         for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++        String diff = quests.difficultyLore(qid);
++        if (diff != null) { lore.add(""); lore.add(diff); }
+         lore.add("");
+ 
+         Material icon;
+@@ -271,6 +273,8 @@ public class QuestGui implements Listener {
+             if (mName == null) mName = mainQid;
+             List<String> lore = new ArrayList<>();
+             for (String dl : quests.getQuestListField(mainQid, "설명")) lore.add(dl);
++            String mDiff = quests.difficultyLore(mainQid);
++            if (mDiff != null) { lore.add(""); lore.add(mDiff); }
+             lore.add("");
+             if ("완료대기".equals(mStatus)) {
+                 lore.add("§a★ NPC에게 보상을 받으세요!");
+@@ -635,6 +639,8 @@ public class QuestGui implements Listener {
+         if (name == null) name = qid;
+         List<String> lore = new ArrayList<>();
+         for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++        String jDiff = quests.difficultyLore(qid);
++        if (jDiff != null) { lore.add(""); lore.add(jDiff); }
+         lore.add("");
+         if ("완료".equals(st)) {
+             lore.add("§a★ 완료!");
+diff --git a/src/main/java/com/blockship/quest/QuestManager.java b/src/main/java/com/blockship/quest/QuestManager.java
+index a29a949..c74541a 100644
+--- a/src/main/java/com/blockship/quest/QuestManager.java
++++ b/src/main/java/com/blockship/quest/QuestManager.java
+@@ -254,6 +254,52 @@ public class QuestManager {
+     public Collection<String> getQuestIds() { return quests.keySet(); }
+     public int getQuestCount() { return quests.size(); }
+ 
++    // ══ 난이도 바 ═══════════════════════════════════════════════════════════
++    /**
++     * 난이도 램프 — 1~20칸. 길어질수록 짙어진다.
++     * 초록 → 노랑 → 주황 → 빨강 → 진빨강 → 보라 → 진보라 → 회색 → 검정.
++     * ★레거시 색코드만 쓴다. 로어 직렬화기가 legacySection()/legacyAmpersand() 평범
++     *   빌드라 hex(§x…)를 못 읽는다. `&`로 내보내면 세 GUI 모두에서 안전하다
++     *   (QuestGui·QuestCatalogGui는 &→§ 정규화 후, VillageQuestGui는 legacyAmpersand).
++     */
++    private static final String[] DIFF_COLORS = {
++        "&a", "&a", "&a", "&a",       //  1~ 4  초록
++        "&e", "&e", "&e",             //  5~ 7  노랑
++        "&6", "&6",                   //  8~ 9  주황
++        "&c", "&c", "&c",             // 10~12  빨강
++        "&4", "&4",                   // 13~14  진빨강
++        "&d", "&d",                   // 15~16  보라
++        "&5", "&5",                   // 17~18  진보라
++        "&8",                         // 19     회색
++        "&0",                         // 20     검정 (최고극악)
++    };
++
++    /**
++     * 퀘스트 로어에 넣을 난이도 줄. `난이도` 필드가 없으면 null을 준다
++     * (필드를 아직 안 넣은 퀘스트가 있어도 로어가 깨지지 않게).
++     * 바의 <b>길이</b>가 곧 난이도다.
++     */
++    public String difficultyLore(String qid) {
++        String raw = getQuestField(qid, "난이도");
++        if (raw == null || raw.isEmpty()) return null;
++        int n;
++        try {
++            n = (int) Double.parseDouble(raw.trim());
++        } catch (NumberFormatException e) {
++            return null;
++        }
++        if (n < 1) n = 1;
++        if (n > DIFF_COLORS.length) n = DIFF_COLORS.length;
++        StringBuilder sb = new StringBuilder("&7난이도 ");
++        String cur = null;
++        for (int i = 0; i < n; i++) {
++            String c = DIFF_COLORS[i];
++            if (!c.equals(cur)) { sb.append(c); cur = c; }   // 같은 색이면 코드 반복 생략
++            sb.append('|');
++        }
++        return sb.append(" &8").append(n).append("/20").toString();
++    }
++
+     public String getQuestField(String id, String field) {
+         var q = quests.get(id);
+         if (q == null) return null;
+diff --git a/src/main/java/com/blockship/quest/VillageQuestGui.java b/src/main/java/com/blockship/quest/VillageQuestGui.java
+index 1595b47..b4a7dcb 100644
+--- a/src/main/java/com/blockship/quest/VillageQuestGui.java
++++ b/src/main/java/com/blockship/quest/VillageQuestGui.java
+@@ -146,6 +146,8 @@ public class VillageQuestGui implements Listener {
+             lore.add(stLabel);
+             lore.add("");
+             for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++            String diff = quests.difficultyLore(qid);
++            if (diff != null) { lore.add(""); lore.add(diff); }
+             inv.setItem(slot, named(icon, name, lore));
+             slot++;
+         }
