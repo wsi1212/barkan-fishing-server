@@ -161,11 +161,11 @@ NEW = [
     # ── 사막 꼬리 ──────────────────────────────────────────────────────────
     dict(id="사막13b", after="사막13", giver="나디아", 마을="사막마을", lv=27,
          이름="&6모래가 남긴 목록", 타입="복합", 돈=26000, exp=1750,
-         목표=["dogam|오아시스,붉은사막|48", "fish|아무|S|2|0"],
+         목표=["dogam|오아시스,붉은사막|48", "fish|아무|A|4|0"],
          설명=["&7촌장 나디아가 낡은 장부를 펼칩니다.",
               "&7\"이 땅을 떠나기 전에 하나만 남기고 가시오.\"",
               "&7\"우리가 무엇과 같이 살았는지 — &f목록&7 말이오.\"",
-              "&7&f오아시스·붉은사막 도감 48종&7 · &fS등급 2마리&7.",
+              "&7&f오아시스·붉은사막 도감 48종&7 · &fA등급 4마리&7.",
               "&8사막이 다음 사람에게 물려줄 유일한 재산입니다.",
               "&8의뢰: &7나디아"]),
     # ── 상단 꼬리 ──────────────────────────────────────────────────────────
@@ -246,7 +246,7 @@ NEW = [
 DLG = {
     "사막13b": (["떠날 사람 얼굴이오. 알겠소, 붙잡지 않겠소.",
                 "다만 하나만 남기고 가시오 — 이 땅의 목록 말이오.",
-                "오아시스와 붉은사막에서 마흔여덟, 그리고 S등급 둘이오."],
+                "오아시스와 붉은사막에서 마흔여덟, 그리고 A등급 넷이오."],
                ["장부는 급히 쓰면 틀리오. 천천히 하시오."],
                ["…이제 이 마을에도 물려줄 게 하나 생겼소.",
                 "다음에 오는 사람은 당신 이름부터 읽게 될 거요."]),
@@ -360,7 +360,7 @@ for kind, qid, b, a, goals in log:
 # ══ 검증 ═══════════════════════════════════════════════════════════════════
 # ★수치는 「산정 모델 v2」(2026-08-15) 기준이다. v1 수치를 그대로 두면 안 맞는다 —
 #   v1은 얕은 도감을 4~6배 부풀리고 S등급을 4배 헐값으로 쳤다.
-CH = [("스폰", ("본섬", "영주"), 10, 0, 5),
+CH = [("스폰", ("본섬", "영주"), 9, 0, 5),
       ("사막", ("사막", "붉은사막"), 11, 2, 8),
       ("상단", ("본상단", "배상단"), 13, 3, 11),
       ("왕도", ("왕도",), 14, 4, 11)]
@@ -398,6 +398,30 @@ miss = [s["id"] for s in NEW
         or f"인사/{s['id']}" not in D.get(s["giver"], {})]
 print("배선 누락:", miss if miss else "없음")
 
+# 레벨-등급 상한 (fix_grade_gates.py와 같은 규칙) — 여기서 목표를 새로 쓰므로 재검사한다
+RANK = {"E": 1, "D": 2, "C": 3, "B": 4, "A": 5, "S": 6, "M": 7, "L": 8, "G": 9}
+FISHDEF = json.load(open("fish.json", encoding="utf-8"))["fish"] if os.path.exists("fish.json") else {}
+
+
+def _cap(lv):
+    return "B" if lv < 16 else ("A" if lv < 30 else None)
+
+
+over = []
+for k, v in QUESTS.items():
+    c = _cap(v["필요레벨"])
+    if c is None:
+        continue
+    for g in v["목표"]:
+        pp = g.split("|")
+        if pp[0] not in ("fish", "fish_fresh", "harpoon"):
+            continue
+        gr = FISHDEF.get(pp[1], {}).get("grade", pp[2]) if pp[1] not in ("아무", "") else pp[2]
+        gr = gr.split("~")[0] if "~" in gr else gr
+        if gr in RANK and RANK[gr] > RANK[c]:
+            over.append(f"{k}(Lv{v['필요레벨']}) {g} — 상한 {c}")
+print("레벨-등급 상한 위반:", over if over else "없음")
+
 # visit 목표에 다른 목표가 섞였는지 (onVisit 즉시완료 함정 — visit 하나만 맞아도 완료된다)
 # ★`심해*`는 뒤이어 `build_ch7_quests.py`가 통째로 재생성하므로 여기 상태는 무의미하다.
 mix = [k for k, v in QUESTS.items()
@@ -405,7 +429,7 @@ mix = [k for k, v in QUESTS.items()
        and not k.startswith("심해")]
 print("visit 혼합:", mix if mix else "없음")
 
-if miss or mix or not ok:
+if miss or mix or over or not ok:
     sys.exit("✗ 검증 실패")
 print(f"\n{'(드라이런 — 저장 안 함)' if DRY else '✓ 완료.'} "
       "★다음: add_village_capstones.py → add_quest_difficulty.py")
