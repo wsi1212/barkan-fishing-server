@@ -1,0 +1,256 @@
+<title>바르칸 열도 이야기</title>
+<style>
+:root {
+  --paper:#EAEDEC; --surface:#F7F9F8; --ink:#14201F; --soft:#4E625F; --faint:#849693;
+  --accent:#0E6A6E; --deep:#8A3324; --rule:rgba(20,32,31,.15); --rule-soft:rgba(20,32,31,.08);
+  --font-display:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman','Apple SD Gothic Neo','Malgun Gothic',serif;
+  --font-body:'Iowan Old Style',Georgia,'Apple SD Gothic Neo','Malgun Gothic','Noto Serif KR',serif;
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#0B1211; --surface:#121C1B; --ink:#DCE5E3; --soft:#93A8A4; --faint:#65797B;
+    --accent:#4FB0A9; --deep:#D08268; --rule:rgba(220,229,227,.16); --rule-soft:rgba(220,229,227,.08);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#0B1211; --surface:#121C1B; --ink:#DCE5E3; --soft:#93A8A4; --faint:#65797B;
+  --accent:#4FB0A9; --deep:#D08268; --rule:rgba(220,229,227,.16); --rule-soft:rgba(220,229,227,.08);
+}
+
+body { background:var(--paper); color:var(--ink); font-family:var(--font-body); line-height:1.85; font-size:17px; }
+.wrap { max-width:40rem; margin:0 auto; padding:clamp(2.5rem,6vw,5rem) clamp(1.2rem,5vw,2rem) 6rem; }
+p { margin:0; }
+h1,h2 { font-family:var(--font-display); font-weight:600; text-wrap:balance; letter-spacing:-.015em; }
+
+/* 표지 */
+.cover { text-align:center; padding-bottom:3rem; border-bottom:1px solid var(--rule); }
+.cover .kicker { font-family:var(--font-ui); font-size:.7rem; letter-spacing:.26em; text-transform:uppercase; color:var(--accent); }
+.cover h1 { font-size:clamp(2.4rem,8vw,3.6rem); line-height:1.1; margin:1.1rem 0 0; }
+.cover .sub { margin-top:1rem; color:var(--soft); font-size:1.05rem; }
+.cover .meta { margin-top:1.6rem; font-family:var(--font-ui); font-size:.74rem; color:var(--faint); letter-spacing:.04em; }
+
+/* 장 */
+.ch { margin-top:4.5rem; }
+.ch__meta { font-family:var(--font-ui); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); display:flex; align-items:baseline; gap:.7rem; }
+.ch__n { font-family:var(--font-display); font-size:1.5rem; line-height:1; color:var(--accent); letter-spacing:0; }
+.ch h2 { font-size:1.9rem; margin:.5rem 0 1.4rem; }
+.ch p + p { margin-top:1.05rem; }
+.ch p.lead::first-letter {
+  float:left; font-family:var(--font-display); font-size:3.4rem; line-height:.86;
+  padding:.1rem .5rem .1rem 0; color:var(--accent);
+}
+
+/* 인용 */
+blockquote {
+  margin:1.8rem 0; padding:0 0 0 1.2rem; border-left:2px solid var(--accent);
+  font-size:1.12rem; line-height:1.7; color:var(--ink);
+}
+blockquote cite { display:block; margin-top:.5rem; font-family:var(--font-ui); font-size:.76rem; font-style:normal; color:var(--faint); letter-spacing:.05em; }
+blockquote.dark { border-left-color:var(--deep); }
+
+em.key { font-style:normal; color:var(--deep); }
+strong { font-weight:600; }
+
+/* 막간 */
+.aside {
+  margin:2.2rem 0; padding:1.2rem 1.3rem; background:var(--surface);
+  border:1px solid var(--rule-soft); border-radius:2px;
+  font-family:var(--font-ui); font-size:.9rem; line-height:1.7; color:var(--soft);
+}
+.aside b { color:var(--ink); }
+.aside .t { display:block; font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:.5rem; }
+
+hr.div { border:0; border-top:1px solid var(--rule); margin:4rem 0 0; }
+.end { margin-top:4rem; padding-top:1.5rem; border-top:1px solid var(--rule); font-family:var(--font-ui); font-size:.78rem; color:var(--faint); line-height:1.9; }
+</style>
+
+<div class="wrap">
+
+<header class="cover">
+  <p class="kicker">바르칸 열도 · 메인 스토리</p>
+  <h1>깊은 바다에는<br>세계의 기억이<br>잠들어 있다</h1>
+  <p class="sub">신참 어부가 낚싯대를 처음 쥐는 아침부터, 사람의 몸을 입은 신을 바다 밑에서 끌어내리는 밤까지.</p>
+  <p class="meta">전 7장 · Lv 1 → 70 · 1부 완결 · 퀘스트 302개 · 메인 줄기 150(튜토 30 포함) · 곁이야기 117 · 일일·주간 32 · 히든 3</p>
+</header>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">0</span> 프롤로그</p>
+  <h2>죽은 신들의 땅</h2>
+  <p class="lead">바르칸 열도는 고대의 거대 물고기 <strong>심연어</strong>들이 죽으며 몸이 굳어 생긴 땅이다. 섬마다 공기가 다른 이유는 단순하다 — 그 땅이 된 심연어의 속성이 달랐기 때문이다. 담수와 생명의 <strong>바르칸</strong>이 본섬이 되었고, 불과 건조의 <strong>이프리트</strong>가 동쪽 사막이 되었다. 나머지 셋은 이름이 지워졌다.</p>
+  <p>육체는 죽어 땅이 되었지만 혼은 소멸하지 않았다. 물과 물고기에 스며 <strong>잔향</strong>으로 남았다. 그래서 이 열도에서 낚시는 생업이 아니라 <strong>땅의 기억을 읽는 행위</strong>로 여겨진다. 전설급 물고기는 그 잔향이 가장 짙게 응축된 개체이고, 그 몸 안에 「심연어의 조각」이 들어 있다.</p>
+  <p>심해 교단은 그 조각을 모아 잠든 심연어를 깨우려 한다. 어부는 낚싯대 하나로 그것을 먼저 건져 올린다. <em class="key">교단이 어부를 적대하는 진짜 이유가 그것이다</em> — 신앙의 문제가 아니라 선착순의 문제다.</p>
+  <p>심연어는 이 땅의 신이 아니었다. 바깥에서 <strong>도망쳐 온</strong> 존재였다. 그러니 열도 너머에 무엇인가가 있다.</p>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">1</span> Lv 1–5 · 스폰마을</p>
+  <h2>낚싯대가 손에 익는 시간</h2>
+  <p class="lead">배에서 내린 신참에게 세계관을 설명해 주는 사람은 없다. 길드 접수원 요한이 마을 한복판의 할아버지에게 보내고, 할아버지는 물고기 세 마리를 잡아 오라고 한다. 그게 전부다.</p>
+  <p>도시를 한 바퀴 돈다. 시장의 마르타에게 파는 법과 신선도를 배우고, 대장간의 펠릭스에게 제 손으로 낚싯대를 만드는 법과 강화를 배우고, 주방의 베티나에게 요리를 배운다. 통발을 놓아 보고, 작살을 처음 쥐어 본다.</p>
+  <p>마지막에 할아버지가 B등급 한 마리를 요구한다. 그것을 올려놓으면 노인은 졸업을 인정하고 <strong>길드장 하겐</strong>에게 보낸다. 옛 길드 창립 동료를 그는 여전히 "그 영감"이라 부른다.</p>
+  <p>이 장에는 신도, 교단도, 조각도 나오지 않는다. 손에 낚싯대가 익는 시간이다.</p>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">2</span> Lv 5–15 · 강 · 대수림 · 영주성</p>
+  <h2>첫 번째 조각</h2>
+  <p class="lead">하겐이 입단 시험을 내고 낚시터를 열어 준다. 마을에서 조금 벗어난 깊은 숲에 늙은 어부가 혼자 산다. 기억은 가물가물해도 물때 하나는 정확해서, 폭포 아래 웅덩이처럼 물고기가 모이는 자리를 하나씩 흘려 준다. 그리고 은퇴한 전설 어부 <strong>세르간</strong>이 처음으로 심연어 이야기를 꺼낸다.</p>
+  <p><strong>대수림</strong> 깊은 곳에 <strong>폐사당</strong>이 있다. 오래전에 버려진 자리인데 사람이 다녀간 흔적만 새것이다. 교단이었다.</p>
+  <p>제단 아래로 물길이 지나고, 그 물은 <em class="key">마을 앞 강으로 내려온다.</em> 의식을 치른 자들이 쓰고 버린 <strong>제기</strong>가 거기 떠내려와 걸린다. 교단은 물을 더럽히지 않는다 — 물은 저들에게도 신의 기억이 담긴 그릇이다. 저들이 건드리는 것은 <em class="key">기록과 사람이다.</em> 흔적은 숲 깊은 곳에 있는데 버린 물건은 코앞에 있다. 위협은 이미 마을에 닿아 있었다.</p>
+  <p>섬을 오십 마리만큼 알게 되었을 때, 물이 비로소 무언가를 보여준다. 달이 뜬 밤 강에서 전설어 <strong>바르칸의심연</strong>이 걸린다. 세르간은 그것을 손에 받아 들고 이름을 붙인다 — <strong>심연어의 조각</strong>. 다섯 중 하나가 어부의 손에 들어온 순간이다.</p>
+  <blockquote>다섯 중 둘의 이름만 남았소. 바르칸과 이프리트. 나머지 셋은… 누군가 지웠지.<cite>세르간</cite></blockquote>
+  <p>정상의 옛 은둔처에 조각을 맡기고 나면 하겐이 어부의 자격을 인정한다. 그리고 북쪽 고지의 <strong>영주성</strong>으로 길이 이어진다.</p>
+  <p>영주 <strong>발데마르</strong>는 냉담하다. 왕실보다 오래 이 강을 지켜 왔다는 자부심이 있고, 중앙을 경멸하지는 않지만 신뢰하지도 않는다. 그는 교단의 그림자를 이미 눈치챘으면서 왕도에 보고하지 않고 있다 — 보고하면 왕실 조사관이 내려와 영주가의 권한을 잠식할 것을 알기 때문이다. 대신 제 손 안의 어부에게 일을 맡긴다.</p>
+  <blockquote>강은 왕의 것이 아니다. 여기 일은 여기서 끝낸다.<cite>영주 발데마르, 첫 대면</cite></blockquote>
+  <p>수비대의 저녁거리부터 맡는다. 사관의 서고에서 어류지를 채워 주고, 그 대가로 <strong>옛 봉인 기록의 사본</strong>을 본다 — 왕도가 지운 것이 지방에는 남아 있다는 사실을, 어부는 이때 아무 의미 없이 스쳐 지나간다.</p>
+  <p>마지막으로 대물 한 마리를 영주의 상에 올린다.</p>
+  <blockquote>…이 정도면 왕도가 보낸 조사관보다 낫겠군. 동쪽 사막의 물이 줄고 있다. 가서 보고 오너라.<cite>영주 발데마르</cite></blockquote>
+  <p>시험을 통과해도 칭찬은 없다. 다만 동쪽 사막을 조사하라는 명이 떨어진다. 어부는 <em class="key">왕의 부름을 받은 것이 아니라 영주에게 떠밀린 것이다.</em></p>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">3</span> Lv 15–28 · 사막 · 붉은사막</p>
+  <h2>이프리트의 등뼈</h2>
+  <p class="lead">동쪽의 건조한 땅에는 비가 오지 않는다. 모래바람과 땡볕과 열대야뿐이다. 원래 이름은 <strong>이프리트의 등뼈</strong> — 불의 심연어가 죽어 굳은 땅이다. 중심의 오아시스는 그가 마지막으로 흘린 눈물이라 전해지고, 그 물의 물고기들은 <strong>갈망</strong>을 품는다. 물을 갈망한 불의 존재라는 역설이 그대로 맛으로 남는다.</p>
+  <p>그런데 그 물이 줄고 있다. 우물이 마르고, 촌장 나디아의 마을이 흔들린다. 상단이 지하수를 퍼가고 있다는 사실이 드러나고, 상단 내부의 레일라가 양심과 소속 사이에서 흔들리다 입을 연다.</p>
+  <p>부두에서 낚아 올린 것은 물고기가 아니었다. <strong>교단의 인장</strong>이었다. 그리고 그 문양은 본섬 상단항구의 화물 꼬리표에 찍힌 것과 같았다. 도란에서 마르코로, 마르코에서 교단으로 — 상단 전체가 한 줄로 꿰인다.</p>
+  <p>불의 제단에는 의식을 치른 흔적이 남아 있다. 재와 불의 땅 붉은사막까지 발을 넓히고, 마침내 살아 있는 전설 <strong>실러캔스</strong>를 건져 올린다. <strong>두 번째 조각, 이프리트.</strong></p>
+  <p>이 장의 진짜 산출물은 조각이 아니라 <em class="key">인장</em>이다. 그것을 보고서야 발데마르는 미루던 보고를 왕도에 올린다. 다만 우물은 아직 마른 채다 — 그 문제는 여기서 풀리지 않고 <strong>왕명에 실려</strong> 다음 장으로 간다.</p>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">4</span> Lv 28–32 · 왕도</p>
+  <h2>기록의 도시</h2>
+  <p class="lead">소환장이 내려온다. 어부가 대단해서가 아니라 <em class="key">증거가 대단해서다.</em> 원형 성벽 안의 중세 도시, 그 중심에 <strong>왕궁</strong>. 그 안에서 가장 넓은 방이 옥좌실이 아니라 <em class="key">도서관</em>이라는 점이 이 왕국의 성격을 말해 준다.</p>
+  <p>어부는 여기서 처음으로 자기가 작다고 느낀다.</p>
+  <p>국왕은 열도의 근심을 토로하고, 왕실이 옛 왕국 시대부터 교단을 추적하고 <strong>봉인</strong>해 왔다고 말한다. 자랑처럼 말한다. 대사서는 "물고기의 기억"을 연구 중이라며 표본을 청하고, 근위대장은 창을 들 힘이 있는지 확인한다.</p>
+  <blockquote>짐의 선대는 그 이름들을 지워 봉인했다. 이름을 부르면 답이 오기 때문이다.<cite>바르칸 국왕</cite></blockquote>
+  <p>그리고 첫 왕명이 떨어진다 — <strong>상단을 조사하라.</strong> <em class="key">"사막의 우물은 아직 마른 채다. 물길을 끊은 자를 찾아라."</em></p>
+  <div class="aside">
+    <span class="t">여기 씨앗이 하나 심긴다</span>
+    왕실은 <b>봉인</b>을 자랑처럼 말한다. 그러나 봉인은 곧 <b>검열</b>이다. 6장의 반전은 이 한 문장에서 자란다.
+  </div>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">5</span> Lv 32–40 · 상단마을 · 은빛 갈매기호</p>
+  <h2>은빛 갈매기호</h2>
+  <p class="lead">상단 지부장 도란은 환대한다. 사업은 신뢰가 전부라고 말하며 웃는다. 그런데 군영에는 병력이 늘어 있고, 잠긴 창고에서는 교단 문양이 찍힌 화물이 밤마다 오간다.</p>
+  <p>그 화물의 실체는 항구에 정박한 대형 갤리온, <strong>은빛 갈매기호</strong>다.</p>
+  <p>배에 오르면 방마다 사람이 있다. 갑판장 마테오는 밥값부터 요구하고, 포수장 엔리코는 폭풍에 젖은 화약을 걱정한다. 신참 피노는 밤마다 적재실에서 소리가 난다고 겁을 먹는다. 화물지기 조반니는 장부에 없는 상자를 끝내 실토하고, 열쇠는 이미 바다에 버렸다고 말한다.</p>
+  <p>그 열쇠를 바다에서 도로 낚아 올려 상자를 연다. 안에는 <strong>밀랍봉인문서</strong>가 들어 있다. 사막에서 본 것과 같은 문양이다.</p>
+  <p>선장 이자벨라도 속았다. 명령은 본부의 <em class="key">"그분"</em>에게서 내려왔다고 한다. 그가 누구인지는 아무도 모른다.</p>
+  <p>배를 떠나기 전, 주돛대 망대의 견시 니코가 말을 건다.</p>
+  <blockquote>안개 낀 날, 수평선 너머에 검은 게 있어. 섬인 줄 알았지 — 근데 솟은 게 아니야. <em class="key">물이 꺼져 있었어.</em> 세 번 봤다고. 아무도 안 믿지만.<cite>견시 니코</cite></blockquote>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">6</span> Lv 40–50 · 왕도 봉인서고</p>
+  <h2>지워진 세 이름</h2>
+  <p class="lead">안개 너머의 그것을 목격한 어부는 진실을 좇아 왕도로 돌아온다. 왕궁 도서관의 대사서가 사람을 물리고 문을 닫는다.</p>
+  <blockquote>봉인이 무엇이라 생각하시오? 자물쇠? 아니오. <em class="key">이름을 아는 자가 세상에 없게 만드는 것</em> — 그게 봉인이오.<cite>왕립 대사서</cite></blockquote>
+  <p>선대 왕들은 세 이름을 모든 기록에서 긁어냈다. 비문에서도, 노래에서도. 이름을 부르면 답이 오기 때문이다. 다만 왕실마저 완전히 잊으면 그건 봉인이 아니라 망각이다 — 무엇을 봉인했는지 알아야 다시 봉인할 수 있으니까. 그래서 <strong>딱 한 권에만 남겼다.</strong> 세상에 하나뿐인 사본. 그게 <strong>금서</strong>다.</p>
+  <p><em class="key">그 책이 곧 봉인 그 자체다.</em> 한 쪽이라도 사라지면, 봉인은 그만큼 뚫린 것이다.</p>
+  <p>필사실의 필경사가 그 금서를 베껴 쓰려고 폈다가 손을 멈춘다. <strong>쪽이 없다. 하나도 아니고 셋이나.</strong> 뜯긴 면이 아직 거칠다 — 오래된 자국이 아니다.</p>
+  <p>옛날부터 없었는지 최근에 뜯긴 것인지부터 가려야 한다. 궁정이 바꿔치지 못한 옛 사본이 하나 남아 있다. <strong>영주성 서고</strong>다. 발데마르가 보고를 미루느라 새 사본을 받지 않은 덕이다. 그 사본에는 <em class="key">그 쪽이 남아 있었다.</em> 최근에 뜯긴 것이다. 그것도 궁정 안에서.</p>
+  <p>금서고의 열쇠는 있다. 다만 공짜가 아니다 — 봉인 서가를 여는 데도 값을 치른다. 종탑에서는 누군가 교단에 신호를 보내고 있는데, 그 신호는 밤에만 올라간다. 종 아래에서 밤을 새우며 낚싯대를 놓지 않는다. 첨탑 정상에는 늙은 은둔 학자가 산다. 도구는 죄다 삭았고, 손님이 온 게 몇 해 만인지 모르겠다고 한다. 그 삭은 것들을 갈아 끼워 주고 나서야 이야기가 시작된다.</p>
+  <p>종이는 끝내 못 찾는다. 그런데 첨탑의 늙은 학자가 말한다.</p>
+  <blockquote>종이는 지울 수 있네. 그러나 <em class="key">물은 못 지우지.</em> 이름이 지워져도 그 이름의 주인은 실재해 — 지금 이 순간에도.<cite>첨탑의 은둔 학자</cite></blockquote>
+  <p>성 남동쪽 기억의 연못에서, 그를 기억하는 놈이 걸려 올라온다. <strong>레비아.</strong> 심해와 압력의 심연어. 지워진 셋째다. <em class="key">종이는 저들이 가져갔지만 이름은 어부가 먼저 되찾았다.</em></p>
+  <p>금서고를 연 기록은 남는다. 최근에 그것을 연 이름은 하나뿐이었다. <strong>차석 사서</strong> — 5장에서 상단을 움직이던 "그분"이 바로 그였다.</p>
+  <p>어부가 왕 앞에 서서 고하는 것은 진실이 아니라 <em class="key">경보</em>다. 봉인은 옳았다. 다만 이미 뚫렸다. 부를 수 있는 유일한 사본이 저들 손에 있으니, 저들은 앞으로 부르는 게 아니라 <strong>이미 부를 수 있는</strong> 상태다.</p>
+  <p>그가 받은 칭호는 <strong>심연의 증인</strong>이었다.</p>
+</section>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">7</span> Lv 50–70 · 원양 · 협곡 · 심해</p>
+  <h2>심해</h2>
+  <p class="lead">국왕이 낚시사 길드에 총동원령을 내린다. 바다를 아는 자들이 앞장서야 한다는 것이다. 하겐은 잠시 생각하다 답한다 — 왕명이라. 좋다, 우리가 나선다.</p>
+  <p>상단이 무너진 뒤 왕실에 압류돼 있던 은빛 갈매기호를 되찾고, 흩어진 선원들을 하나씩 다시 불러 모은다. 포수장 엔리코가 창을 쥐여 준다.</p>
+  <blockquote>심해에선 낚싯대를 던질 여유가 없어. 찌를 수 있어야 산다. 창을 잡아.<cite>포수장 엔리코</cite></blockquote>
+  <p>여기서부터 무기가 바뀐다. 여섯 장 동안 물가에 서서 찌를 던지던 어부가, 이제 물속으로 들어간다.</p>
+
+  <p>연안을 벗어난 원양에서 길드가 파견한 심해조사관 <strong>테클라</strong>가 물을 떠 보더니 고개를 젓는다 — 깨끗해, 이 물엔 아무 짓도 안 했어. <em class="key">저들은 물이 아니라 사람을 산 거야. 상단처럼.</em> 대신 걸려 올라온 것은 누군가 배 밖으로 던진 <strong>교단의 해도</strong>다. 거기 적힌 항로는 어느 해도에도 없다. 선장 이자벨라는 고래를 쫓으라 한다. 고래가 가는 곳에 심해가 있다.</p>
+  <p>그리고 니코가 알아본다. 저 안개, 내가 그때 본 그 안개야. <em class="key">안개는 날씨가 아니라 경계였다.</em></p>
+
+  <p>안개가 옅어진 자리에 검은 것이 있다. 니코가 섬이라 불렀던 그것이다. 그런데 가까이서 보니 <em class="key">솟은 게 아니라 꺼져 있다.</em> 바다 한가운데가 통째로 내려앉아 있는 것이다.</p>
+  <p>해도에 없는 지형이다. 물어볼 데가 한 곳뿐이다 — 스폰마을 앞 물 위 바위섬의 <strong>마탑</strong>. 도개교는 오래전에 올라간 채였고, 열쇠는 세르간이 갖고 있었다. 은둔 마법사 <strong>알비스</strong>와 그 노인은 옛 동료였다.</p>
+  <p>알비스는 어부가 가져온 표본을 하나씩 읽는다. 어부는 잡을 수 있어도 그것이 어디서 왔는지 모르고, 마법사는 읽을 수 있어도 잡지 못한다. 그리고 그중 하나가 다르다 — 하늘빛이 아니라 <strong>아래에서 새어 나온 빛</strong>을 먹고 자란 물고기.</p>
+  <blockquote>바닷물은 제가 어디서 왔는지를 기억하거든. 단, 오래 죽은 표본은 기억이 흐려지지.<cite>마법사 알비스</cite></blockquote>
+  <p>그 물이 짚어 주는 것은 둘이다. 꺼진 자리의 좌표, 그리고 <strong>저들이 박아 둔 표식</strong>의 자리.</p>
+  <p>교단은 물 위에 아무것도 짓지 않는다. 대신 자기들이 길을 잃지 않도록 자리를 표시해 뒀을 뿐이다. 그 표식 몇 개를 건져 올리자 새겨진 문자에 <em class="key">왕도의 필사체</em>가 섞여 있다. 수감된 차석 사서를 찾아가자 그가 웃으며 말한다.</p>
+  <blockquote class="dark">내가 지운 건 이름이오. 셋. …그중 하나를 그들이 이미 불렀소.<cite>차석 사서</cite></blockquote>
+  <p>이름을 맞추려면 사막의 기록이 필요하다. 오아시스의 학자 <strong>사피르</strong>가 편지를 보내온다 — 상단의 펌프가 멈춘 뒤로 물이 조금씩 차오르고 있고, 옛 기록에만 있던 물고기들이 다시 보인다고. <em class="key">어부가 3장에서 남기고 온 문제가 그렇게 답을 보낸다.</em></p>
+  <p>차석 사서가 한 가지를 더 흘린다 — 원래 계획은 <strong>조각 다섯으로 다섯을 깨우는 것</strong>이었는데, 어부가 둘을 먼저 가져간 뒤로 그들은 <em class="key">하나면 된다</em>고 말을 바꿨다는 것이다.</p>
+  <p>왕립 대사서가 마지막 봉인을 푼다. 지워진 셋째의 이름 — <strong>레비아</strong>. 심해와 압력의 심연어.</p>
+
+  <p>왕실은 이름을 지우면서 <em class="key">자리까지 함께 지웠다.</em> 검열이 지운 것은 이름만이 아니었던 것이다 — 그래서 알비스의 물이 필요했다.</p>
+
+  <p>문은 뭍에 없었다. 바다 한가운데, 해도에 없는 <strong>협곡</strong>이었다. 잠수장 하르트무트가 협곡 가장자리에 줄을 내려 깊이를 잰다 — 여긴 물이 아니라 무게요.</p>
+  <p>압력을 견딜 몸을 만들고, 천 초를 버틸 창을 벼리고, 빛이 닿지 않는 곳을 볼 눈을 단다. 준비가 끝나자 이자벨라가 협곡 바로 위에 배를 세운다. 내 배에서 내려보내는 건 여기까지다. 그 아래는 선장도 책임 못 진다.</p>
+
+  <p>협곡 입구는 뚫려 있는데도 지나갈 수가 없다. 결계가 <strong>심해어의 기척</strong>만 통과시키기 때문이다. 테클라가 잠시 생각하다 말한다 — 그럼 그런 척하면 되죠, 저것들의 비늘로.</p>
+  <p>교단이 제 수조에서 길러 낸 것들의 비늘로 가면을 만들어 쓴다. <em class="key">교단이 만든 것이 교단의 문을 여는 열쇠가 된다.</em> 그리고 그 가면은 훔친 것이 아니라 어부가 제 손으로 만든 것이다. 여섯 장 동안 해 온 일 — 잡고, 재료를 얻고, 만든다 — 이 마지막 관문의 해법이 된다.</p>
+
+  <p>문을 넘으면 빛도 수면도 없는 세계다. <em class="key">협곡 아래가 아니라, 협곡 너머의 다른 세계다.</em> 그 전부가 교단의 본거지이고, 한가운데 그들의 성소가 서 있다. 이름을 지운 자들이 사는 곳이라 이름이 없다 — <strong>「무명의 성소」</strong>.</p>
+
+  <p>그런데 성소에서 떨어진 어둠 속에 <strong>불빛이 몇 점</strong> 있다. 눈이 퇴화하지 않은 심해어들이 거기 산다. 교단이 기른 것들 중 <em class="key">도망친 것들</em>이다. 지상으로는 못 나간다 — 물 밖에서 못 사니까. 교단도 굳이 쫓지 않는다. 어차피 갈 데가 없으니까.</p>
+  <p>그들이 다가오는 어부를 본다. 정확히는 <strong>어부가 쓰고 있는 얼굴</strong>을 본다.</p>
+  <blockquote class="dark">…멈춰라. 그 얼굴. 어디서 났나.<br>…대답 안 해도 된다. 나는 안다. 저 아래 수조에서 났다.<br>벗어라. 우리 앞에서는 벗어라.<cite>모르</cite></blockquote>
+  <p>그들에게는 이름이 없었다. <strong>번호</strong>가 있었다. 등의 비늘에 새겼고, 지우려면 비늘째 뜯어야 했다. 촌장 격인 자는 전에 <em class="key">사-일</em>이었고, 지금은 스스로 붙인 이름으로 산다 — <strong>모르</strong>.</p>
+  <p>6장에서 배운 것이 「봉인이란 이름을 아는 자가 세상에 없게 만드는 것」이었고, 견습 사서 니나의 답이 「전부 적어 두면 아무도 못 지워요」였다. <em class="key">여기 그 반대편이 살아 있다</em> — 이름을 빼앗긴 채로.</p>
+  <p>그중 하나는 아직 번호로만 불린다. 어리고, 단어를 띄엄띄엄 놓는다.</p>
+  <blockquote>나. 이름. 없다. 일곱-셋. 그건 자리다. 이름 아니다.<br>위에는— 이름. 많다? 보여줘. 나. 고른다.<cite>일곱-셋</cite></blockquote>
+  <p>그리고 백 년을 수조 곁에 서 있던 옛 파수가 어부에게 성소 안을 일러 주며 하나를 덧붙인다.</p>
+  <blockquote class="dark">수조의 것들은 되돌릴 수 없다. 이미 그릇이다.<br>네가 그것들을 어찌하든, 그건 죽이는 게 아니다. 이미 죽어 있다.<cite>가라앉은 하</cite></blockquote>
+
+  <p>사육 수조에는 눈이 퇴화한 것들이 빽빽이 헤엄친다. 파수로 쓰고, 남는 것은 그릇으로 쓰려고 길러 온 사역어다 — 어부가 쓰고 들어온 가면도 여기 비늘로 만든 것이다. 기록고 벽에는 왕도에서 훔쳐 낸 사본이 빼곡하고, 그 끝에 액자 셋이 나란히 걸려 있다. <strong>왕궁 금서에서 뜯겨 나간 그 낱장들이다.</strong> 여기 있었다. 첫 장은 가장자리가 그을렸다 — 이미 다 썼다는 뜻이다. <em class="key">남은 둘은 아직 손대지 않은 채다.</em></p>
+
+  <p>성소 가장 깊은 방. 대사제 <strong>볼프람</strong>에게는 물러설 곳이 없다. 수조도, 기록고도, 이름도 전부 어부의 손에 넘어갔다. 그는 도망치는 대신 <strong>계획을 앞당긴다.</strong></p>
+  <p>조각 둘은 이미 어부의 손에 있다. 모자란 것은 <strong>사람</strong>으로 메운다. 혼만 남은 신이 현세에 나오려면 담을 몸이 필요하다. 교단이 그토록 오래 준비한 이유가 그것이었고, 볼프람은 처음부터 마지막 재료가 자기 자신임을 알고 있었다.</p>
+  <blockquote class="dark">그릇이 모자라면— 내가 되면 그만이지.<cite>대사제 볼프람</cite></blockquote>
+  <p>사람의 몸에 신을 담자 몸이 신의 크기로 찢겨 나간다. <strong>심해전왕 레비아.</strong></p>
+  <p>준비가 끝나지 않은 강림이었다. <em class="key">그래서 어부에게도 승산이 있었다.</em></p>
+  <p>바다가 잠잠해진다. 왕도의 종이 울린다.</p>
+</section>
+
+<div class="aside">
+  <span class="t">곁이야기 · 이름 있는 자리</span>
+  성소 밖 그 마을에는 <b>이름 있는 자리</b>라는 이름이 붙어 있다. 교단의 <b>무명의 성소</b>와
+  같은 세계 안에서 마주 서 있는 이름이다 — 저쪽은 이름을 지우고, 이쪽은 스스로 이름을 짓는다.<br><br>
+  <b>모르</b>(촌장, 옛 번호 사-일) · <b>일곱-셋</b>(아직 이름이 없는 어린 개체) ·
+  <b>가라앉은 하</b>(백 년을 선 옛 파수) · <b>비늘 짜는 이</b>(산 것에서는 안 뜯는다, 죽은 것에서만 받는다) ·
+  <b>울지 않는 것</b>(그릇으로 개조되다 만 개체 — 말을 못 한다).<br><br>
+  일곱 갈래의 곁이야기가 여기서 갈라진다. 번호가 새겨진 비늘을 거두고, 버려진 부화장의 유해를 수습하고,
+  이름 없는 아이에게 <b>위의 물에서 본 이름들</b>을 보여 주고, 가라앉은 배에서 <b>사람의 이름표</b>를 건져 올린다.
+  마지막 것은 언젠가 지상에서 그 이름을 찾는 사람에게 닿을 것이다.
+</div>
+
+<section class="ch">
+  <p class="ch__meta"><span class="ch__n">·</span> 에필로그</p>
+  <h2>반쯤 깨어난 신</h2>
+  <p class="lead">길드 회관으로 돌아온 어부에게 하겐이 말한다. 어부가 신을 끌어내렸다, 기록될 일이야. 그리고 잠시 뜸을 들인 뒤 덧붙인다.</p>
+  <blockquote>…다만 그건 반쯤 깨어난 신이었지. 온전했다면 어땠을까.<cite>길드장 하겐</cite></blockquote>
+  <p>다섯 조각 중 둘이 어부의 손에 있다. 바르칸과 이프리트. 셋은 여전히 어디에도 없다. 손에 남은 것은 조각이 아니라 <strong>부를 수 있는 이름 둘</strong>이다.</p>
+  <p>지워진 세 이름 중 하나는 불려 나왔고 끌어내려졌다. 남은 두 낱장은 어부의 품 안에 있다.</p>
+  <p><em class="key">그리고 읽힌다.</em> 왕실이 왜 이걸 지웠는지 이제 알 것 같다. 봉인이란 자물쇠가 아니라 이름을 아는 자가 세상에 없게 만드는 것이었는데 — <strong>이제 그것을 아는 사람이 어부다.</strong></p>
+  <p>열도 안의 싸움은 여기서 한 번 닫힌다. 그러나 심연어들은 애초에 이 땅의 신이 아니었다. 바깥에서 도망쳐 온 존재들이었다.</p>
+  <p><strong>그들이 무엇으로부터 도망쳐 왔는지는, 아직 아무도 묻지 않았다.</strong></p>
+</section>
+
+<hr class="div">
+
+<div class="aside" style="margin-top:2.5rem">
+  <span class="t">한눈에</span>
+  <b>1장</b> 낚시 입문 · <b>2장</b> 길드와 영주, 첫 조각(바르칸) · <b>3장</b> 사막, 둘째 조각(이프리트)과 교단의 인장 · <b>4장</b> 왕도 소환과 첫 왕명 · <b>5장</b> 상단이 교단의 물류였다, 안개 너머 꺼진 자리 목격 · <b>6장</b> 궁정의 검열자와 지워진 세 이름 · <b>7장</b> 마탑이 좌표를 짚고, 협곡 너머 교단 본거지로 넘어가, 대사제가 그릇이 되어 강림한 레비아를 끌어내린다. 성소 밖에는 <b>도망친 심해어들</b>이 산다.
+</div>
+
+<footer class="end">
+  세력 · 낚시사 길드(우호) · 바르칸 영주가(냉담→조건부) · 바르칸 왕실(후원) · 왕국 상선단(중립→적대) · 심해 교단(적대) · 원주민 부족(경외)<br>
+  심연어 다섯 · 바르칸(담수·생명) · 이프리트(불·건조) · <b>레비아</b>(심해·압력) · 그리고 봉인된 두 이름<br>
+  7장 무대 · <b>안개 해역</b>(교단이 친 경계) → <b>꺼진 자리</b>(위에서 본 협곡) → <b>심해 협곡</b>(문) →
+  <b>심해 교단 본거지</b>(문 너머의 세계) → <b>무명의 성소</b>(그 안) · <b>이름 있는 자리</b>(성소 밖 마을)
+</footer>
+
+</div>

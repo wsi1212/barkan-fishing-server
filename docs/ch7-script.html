@@ -1,0 +1,669 @@
+<title>심해 챕터 대본</title>
+<style>
+:root {
+  --paper:#E7ECEE; --surface:#F6F9F9; --sunk:#DDE4E6;
+  --ink:#132228; --muted:#5B6E76; --faint:#8A9BA1;
+  --accent:#0D6B77; --danger:#9C3A2E; --mile:#8A6A20;
+  --rule:rgba(19,34,40,.14); --rule-soft:rgba(19,34,40,.07);
+  --water:rgba(13,107,119,.10); --deep:rgba(13,107,119,.22);
+  --font-display:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman','Apple SD Gothic Neo','Malgun Gothic',serif;
+  --font-body:-apple-system,BlinkMacSystemFont,'Segoe UI','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',system-ui,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#0A1216; --surface:#111E23; --sunk:#0D181C;
+    --ink:#DAE4E7; --muted:#8CA1A8; --faint:#647A81;
+    --accent:#4BAEB9; --danger:#D87563; --mile:#C9A452;
+    --rule:rgba(218,228,231,.16); --rule-soft:rgba(218,228,231,.08);
+    --water:rgba(75,174,185,.10); --deep:rgba(75,174,185,.20);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#0A1216; --surface:#111E23; --sunk:#0D181C;
+  --ink:#DAE4E7; --muted:#8CA1A8; --faint:#647A81;
+  --accent:#4BAEB9; --danger:#D87563; --mile:#C9A452;
+  --rule:rgba(218,228,231,.16); --rule-soft:rgba(218,228,231,.08);
+  --water:rgba(75,174,185,.10); --deep:rgba(75,174,185,.20);
+}
+
+body {
+  background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:16px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:52rem; margin:0 auto; padding:clamp(2rem,5vw,4.5rem) clamp(1.1rem,4vw,2rem) 5rem; }
+h1,h2,h3 { font-family:var(--font-display); font-weight:600; text-wrap:balance; letter-spacing:-.01em; }
+p { margin:0; }
+.sep { color:var(--faint); padding:0 .15em; }
+code { font-family:var(--font-mono); font-size:.82em; }
+
+/* ── hero ── */
+.hero { display:flex; flex-direction:column; gap:1.15rem; padding-bottom:2rem; border-bottom:1px solid var(--rule); }
+.eyebrow {
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.19em; text-transform:uppercase;
+  color:var(--accent);
+}
+.hero h1 { font-size:clamp(2.1rem,6vw,3.1rem); line-height:1.12; margin:0; }
+.hero h1 .en { display:block; font-size:.42em; letter-spacing:.06em; color:var(--muted); font-weight:400; margin-top:.7rem; }
+.lede { font-size:1.05rem; color:var(--muted); max-width:40rem; }
+.facts { display:flex; flex-wrap:wrap; gap:.5rem 2rem; font-family:var(--font-mono); font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+.facts b { color:var(--ink); font-weight:600; }
+
+/* ── generic block ── */
+.block { margin-top:3.25rem; }
+.block > h2 { font-size:1.45rem; margin:0 0 .3rem; }
+.block__note { color:var(--muted); font-size:.94rem; max-width:40rem; }
+.rows { margin-top:1.15rem; display:flex; flex-direction:column; gap:0; }
+.row { display:grid; grid-template-columns:8.5rem 1fr; gap:.35rem 1.1rem; padding:.7rem 0; border-top:1px solid var(--rule-soft); }
+.row:last-child { border-bottom:1px solid var(--rule-soft); }
+.row dt { font-family:var(--font-mono); font-size:.74rem; letter-spacing:.06em; color:var(--faint); text-transform:uppercase; padding-top:.22rem; }
+.row dd { margin:0; }
+@media (max-width:34rem) { .row { grid-template-columns:1fr; } }
+
+/* ── diagram ── */
+.figure { margin-top:1.5rem; background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:1.1rem; overflow-x:auto; }
+.figure svg { display:block; width:100%; min-width:34rem; height:auto; }
+.figure figcaption { margin-top:.85rem; font-size:.82rem; color:var(--muted); }
+.dg-label { font-family:var(--font-mono); font-size:11px; fill:var(--muted); letter-spacing:.04em; }
+.dg-key { font-family:var(--font-mono); font-size:11px; fill:var(--accent); letter-spacing:.1em; }
+.dg-strong { font-family:var(--font-mono); font-size:11.5px; fill:var(--ink); }
+
+/* ── acts ── */
+.act { margin-top:4rem; }
+.act__head { border-top:2px solid var(--accent); padding-top:.9rem; }
+.act__mark { display:flex; align-items:baseline; gap:.75rem; }
+.act__n {
+  font-family:var(--font-display); font-size:1.6rem; line-height:1; color:var(--accent); font-weight:600;
+}
+.act__stage { font-family:var(--font-mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); }
+.act__name { font-size:1.75rem; margin:.25rem 0 .2rem; }
+.act__lv { font-family:var(--font-mono); font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+.act__blurb { margin-top:.7rem; color:var(--muted); max-width:38rem; }
+.act__quests { margin-top:1.75rem; display:flex; flex-direction:column; gap:1.6rem; }
+
+/* ── quest ── */
+.q { padding-left:1rem; border-left:2px solid var(--rule); }
+.q--mile { border-left-color:var(--mile); }
+.q--danger { border-left-color:var(--danger); }
+.q__head { display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap; }
+.q__id { font-family:var(--font-mono); font-size:.74rem; letter-spacing:.05em; color:var(--faint); }
+.q__name { font-size:1.12rem; margin:0; }
+.q--mile .q__name { color:var(--mile); }
+.q--danger .q__name { color:var(--danger); }
+.q__meta { font-family:var(--font-mono); font-size:.75rem; color:var(--muted); margin-top:.1rem; }
+.q__body { margin-top:.7rem; display:flex; flex-direction:column; gap:.25rem; }
+.ln { font-size:.95rem; }
+.ln--speech { color:var(--ink); font-family:var(--font-display); font-size:1.02rem; }
+.q__goals { list-style:none; margin:.8rem 0 0; padding:0; display:flex; flex-wrap:wrap; gap:.4rem; }
+.q__goals code {
+  display:inline-block; background:var(--sunk); border:1px solid var(--rule-soft);
+  padding:.16rem .5rem; border-radius:2px; color:var(--muted);
+}
+.reward {
+  display:inline-block; margin-top:.6rem; font-family:var(--font-mono); font-size:.72rem;
+  letter-spacing:.09em; color:var(--mile); border:1px solid var(--mile); padding:.15rem .5rem; border-radius:2px;
+}
+
+/* ── callout ── */
+.callout { margin-top:3rem; background:var(--surface); border:1px solid var(--rule); border-radius:3px; padding:1.5rem 1.4rem; }
+.callout h2 { font-size:1.25rem; margin:0 0 .5rem; }
+.callout p + p { margin-top:.7rem; }
+.callout .rows { margin-top:1.1rem; }
+
+/* ── status ── */
+.status { display:flex; flex-direction:column; gap:.55rem; margin-top:1.15rem; }
+.item { display:grid; grid-template-columns:5.4rem 1fr; gap:.9rem; align-items:start; padding:.6rem 0; border-top:1px solid var(--rule-soft); }
+.item:last-child { border-bottom:1px solid var(--rule-soft); }
+.tag {
+  font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; text-align:center;
+  padding:.18rem .3rem; border-radius:2px; border:1px solid currentColor; margin-top:.2rem;
+}
+.tag--live { color:var(--accent); }
+.tag--wait { color:var(--mile); }
+.tag--block { color:var(--danger); }
+.item p { font-size:.95rem; }
+.item p .k { font-family:var(--font-mono); font-size:.82em; color:var(--muted); }
+@media (max-width:34rem) { .item { grid-template-columns:1fr; gap:.3rem; } .tag { justify-self:start; padding:.18rem .55rem; } }
+
+footer.foot { margin-top:4rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-family:var(--font-mono); font-size:.74rem; color:var(--faint); line-height:1.9; }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">바르칸 열도 · 7챕터 · 베타 종점</p>
+  <h1>심해<span class="en">Barkan Vs Deep Dark Sea</span></h1>
+  <p class="lede">교단이 지워진 이름 셋 중 하나를 불러냈다. 어부는 조각을 모으는 쪽이었고 교단은 부르는 쪽이었는데, 부르는 쪽이 먼저 성공했다. 39개 퀘스트로 이어지는 강하와 결전 — 이 장의 끝이 1부의 완결이다.</p>
+  <p class="facts"><span>Lv <b>50 → 70</b></span><span>퀘스트 <b>39</b></span><span>경험치 <b>577,200</b> (요구량의 47%)</span><span>보상 <b>60,000 → 200,000</b>원</span></p>
+</header>
+
+<section class="block">
+  <h2>진입</h2>
+  <p class="block__note">6챕터 종점에서 곧바로 이어진다. 자동 수락은 없다 — 해금된 퀘스트는 <b>그 퀘스트를 가진 NPC와 대화</b>해야 진행으로 바뀐다.</p>
+  <dl class="rows">
+    <div class="row"><dt>직전</dt><dd><code>왕도15</code> 「왕에게 진실을」 · Lv50 · 칭호 <code>심연의증인</code> — 궁정의 그림자를 왕에게 고한 직후</dd></div>
+    <div class="row"><dt>연결</dt><dd><code>왕도15.다음퀘스트 = 심해01</code> / <code>심해01.선행퀘스트 = 왕도15</code></dd></div>
+    <div class="row"><dt>첫 수여</dt><dd>바르칸 국왕 (왕도 대전) — 낚시사 길드에 내리는 총동원령</dd></div>
+    <div class="row"><dt>전진기지</dt><dd>은빛 갈매기호 (지역 <code>상단기함</code>) — 5챕터에서 탄 그 갤리온. 신규 건축 0</dd></div>
+    <div class="row"><dt>신규 인물</dt><dd>심해조사관 <b>테클라</b> (퀘스트 6개) · 잠수장 <b>하르트무트</b> (4개) — 갑판 아래 통로</dd></div>
+    <div class="row"><dt>무기 축</dt><dd>낚싯대 → <b>작살</b>. 작살은 완전 수중 전용이라 이 장이 유일한 제 무대다 (낚싯대 병행 가능)</dd></div>
+  </dl>
+</section>
+
+<section class="block">
+  <h2>강하 경로</h2>
+  <p class="block__note">챕터는 문자 그대로 내려간다. 연안 → 원양 → 안개 → 협곡 → 그 아래의 별도 월드.</p>
+  <figure class="figure">
+    <svg viewBox="0 0 860 430" role="img" aria-label="연안에서 원양·안개 해역을 지나 바다 한가운데의 협곡으로, 그 아래 심해 월드와 교단 본부로 내려가는 단면도. 수면 위에는 교단의 표식 몇 개뿐이고 솟은 지형은 없다">
+      <rect x="0" y="70" width="860" height="262" fill="var(--water)"/>
+      <rect x="0" y="332" width="860" height="98" fill="var(--deep)"/>
+      <line x1="0" y1="70" x2="860" y2="70" stroke="var(--accent)" stroke-width="1.5"/>
+      <path d="M0,300 L180,296 L330,286 L520,282" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+      <path d="M740,286 L860,292" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+      <path d="M520,282 L566,332" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+      <path d="M740,286 L694,332" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+      <line x1="0" y1="332" x2="860" y2="332" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 5"/>
+      <line x1="566" y1="332" x2="694" y2="332" stroke="var(--paper)" stroke-width="3"/>
+      <line x1="572" y1="318" x2="688" y2="318" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <g transform="translate(78,52)">
+        <path d="M-26,10 L26,10 L20,20 L-20,20 Z" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        <line x1="0" y1="10" x2="0" y2="-16" stroke="var(--ink)" stroke-width="1.5"/>
+        <path d="M2,-14 L18,4 L2,4 Z" fill="var(--accent)" opacity=".55"/>
+      </g>
+      <g opacity=".85">
+        <line x1="330" y1="86" x2="470" y2="86" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 6"/>
+        <line x1="330" y1="100" x2="470" y2="100" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 6"/>
+        <line x1="330" y1="114" x2="470" y2="114" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 6"/>
+      </g>
+      <g opacity=".9">
+        <path d="M486,70 L486,58 M486,58 L494,62 L486,66" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+        <path d="M508,70 L508,60 M508,60 L516,64 L508,68" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+        <path d="M528,70 L528,56 M528,56 L536,60 L528,64" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+      </g>
+      <text class="dg-label" x="52" y="132">1막 · 연안 / 마탑</text>
+      <text class="dg-label" x="212" y="132">2막 · 원양</text>
+      <text class="dg-label" x="330" y="146">3막 · 안개 해역</text>
+      <text class="dg-strong" x="470" y="34">교단의 표식 — 건물은 없다</text>
+      <text class="dg-label" x="596" y="262">4·5막 · 협곡</text>
+      <text class="dg-key" x="572" y="310">가면 결계</text>
+      <g transform="translate(300,352)">
+        <path d="M0,46 L0,14 L14,0 L28,14 L28,46 Z" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        <path d="M28,46 L28,22 L40,12 L52,22 L52,46 Z" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+        <line x1="14" y1="24" x2="14" y2="46" stroke="var(--danger)" stroke-width="1.5"/>
+      </g>
+      <text class="dg-strong" x="366" y="386">6막 · 무명의 성소 (교단 본부)</text>
+      <text class="dg-label" x="576" y="410">7막 · 성소 아래 균열 — 레비아</text>
+      <text class="dg-label" x="16" y="352">월드 경계</text>
+    </svg>
+    <figcaption>입구는 뭍이 아니라 <b>바다 한가운데의 협곡</b>이다. 협곡 입구의 결계는 심해어의 기척만 통과시키므로, 가면 없이는 아래로 내려갈 수 없다. 내려가면 교단 본부 <b>「무명의 성소」</b>가 서 있고, 그 아래 균열에서 레비아가 올라온다. 폭포 뒤 동굴은 이 경로와 무관하다 — 그쪽은 이무기·꽃으로 가는 사이드 계단이다.</figcaption>
+  </figure>
+</section>
+
+<section class="act" id="act1">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">1</span><span class="act__stage">연안 · 항구</span></p>
+<h2 class="act__name">출항 준비</h2>
+<p class="act__lv">Lv 50–53 <span class="sep">/</span> 심해01–07</p>
+<p class="act__blurb">왕명이 길드를 움직이고, 왕실에 압류된 배를 다시 띄운다. 낚싯대에서 작살로 무기 축이 넘어가는 장.</p>
+</header>
+<div class="act__quests"><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해01</span>
+<h3 class="q__name">전면전의 서막</h3>
+</header>
+<p class="q__meta">Lv 50 <span class="sep">/</span> 바르칸 국왕 · 왕도</p>
+<div class="q__body"><p class="ln">국왕이 낚시사 길드에 총동원령을 내렸습니다.</p><p class="ln ln--speech">&quot;바다를 아는 자들이 앞장서야 한다.&quot;</p><p class="ln">길드 회관의 길드장 하겐에게 왕명을 전하세요.</p></div>
+<ul class="q__goals"><li><code>visit|하겐|길드장 하겐</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해02</span>
+<h3 class="q__name">길드장의 결단</h3>
+</header>
+<p class="q__meta">Lv 50 <span class="sep">/</span> 길드장 하겐 · 길드 회관</p>
+<div class="q__body"><p class="ln ln--speech">하겐: &quot;왕명이라. 좋다 — 우리가 나선다.&quot;</p><p class="ln ln--speech">&quot;길드가 배와 사람을 댄다. 다만 아래까지 내려갈 수 있는 건 한 명이야.&quot;</p><p class="ln ln--speech">&quot;왜 너냐고? 그 검은 비늘을 처음 건져 올린 게 너니까.&quot;</p><p class="ln ln--speech">&quot;조사관 테클라와 잠수장 하르트무트를 붙여 주지. 자금은 네가 대라.&quot;</p><p class="ln">원정 자금 2,000,000원을 마련하세요.</p></div>
+<ul class="q__goals"><li><code>money|2000000</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해03</span>
+<h3 class="q__name">선원 재소집</h3>
+</header>
+<p class="q__meta">Lv 51 <span class="sep">/</span> 갑판장 마테오 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln">상단이 무너진 뒤 은빛 갈매기호는 왕실에 압류됐습니다.</p><p class="ln ln--speech">갑판장 마테오: &quot;배는 있어. 사람이 흩어졌지.&quot;</p><p class="ln ln--speech">&quot;포수부터 찾아. 엔리코만 오면 나머지는 제가 끌고 온다.&quot;</p><p class="ln">포수 엔리코를 찾아가세요.</p></div>
+<ul class="q__goals"><li><code>visit|엔리코|포수 엔리코</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해04</span>
+<h3 class="q__name">작살 훈련</h3>
+</header>
+<p class="q__meta">Lv 51 <span class="sep">/</span> 포수장 엔리코 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln ln--speech">엔리코: &quot;심해에선 낚싯대를 던질 여유가 없어.&quot;</p><p class="ln ln--speech">&quot;찌를 수 있어야 산다. 창을 잡아.&quot;</p><p class="ln">작살로만 B등급 이상 15마리를 잡으세요.</p></div>
+<ul class="q__goals"><li><code>harpoon|아무|B|15|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해05</span>
+<h3 class="q__name">보급 적재</h3>
+</header>
+<p class="q__meta">Lv 52 <span class="sep">/</span> 화물지기 조반니 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln ln--speech">조반니: &quot;원양은 보름이야. 미끼도, 자재도 다 실어야 해.&quot;</p><p class="ln">재료 24개를 낚아 화물칸을 채우세요.</p></div>
+<ul class="q__goals"><li><code>material|아무|24</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해06</span>
+<h3 class="q__name">항로 계산</h3>
+</header>
+<p class="q__meta">Lv 52 <span class="sep">/</span> 선장 이자벨라 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln ln--speech">이자벨라: &quot;바다를 읽는 건 물고기를 읽는 것과 같다.&quot;</p><p class="ln">대양 도감 20종을 채워 항로를 예측하세요.</p></div>
+<ul class="q__goals"><li><code>dogam|대양|20</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해07</span>
+<h3 class="q__name">출항</h3>
+</header>
+<p class="q__meta">Lv 53 <span class="sep">/</span> 갑판장 마테오 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln">돛이 올랐습니다. 뒤에 남는 건 육지의 소문뿐.</p><p class="ln">3,000블록을 항해해 연안을 벗어나세요.</p></div>
+<ul class="q__goals"><li><code>sail|3000</code></li></ul>
+
+</article></div>
+</section>
+<section class="act" id="act2">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">2</span><span class="act__stage">열도 밖 먼 바다</span></p>
+<h2 class="act__name">원양</h2>
+<p class="act__lv">Lv 54–58 <span class="sep">/</span> 심해08–13</p>
+<p class="act__blurb">버려진 해도를 건져 연안을 벗어난다. 고래가 가는 길이 심해로 가는 길이다.</p>
+</header>
+<div class="act__quests"><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해08</span>
+<h3 class="q__name">원양의 첫 그물</h3>
+</header>
+<p class="q__meta">Lv 54 <span class="sep">/</span> 견시 니코 · 망대</p>
+<div class="q__body"><p class="ln ln--speech">견시 니코: &quot;여긴 연안이랑 달라. 걸리는 놈들이 굵어.&quot;</p><p class="ln">A등급 이상 12마리를 잡아 원양 조업에 적응하세요.</p></div>
+<ul class="q__goals"><li><code>fish|아무|A|12|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해09</span>
+<h3 class="q__name">해도에 없는 항로</h3>
+</header>
+<p class="q__meta">Lv 55 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">테클라가 물을 떠 보더니 고개를 젓습니다.</p><p class="ln ln--speech">&quot;...깨끗해. 이 물엔 아무 짓도 안 했어.&quot;</p><p class="ln ln--speech">&quot;저들은 물이 아니라 사람을 산 거야. 상단처럼.&quot;</p><p class="ln">버려진 교단의 해도를 건져 올리세요.</p></div>
+<ul class="q__goals"><li><code>fish|교단의해도|아무|1|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해10</span>
+<h3 class="q__name">정박지 없는 밤</h3>
+</header>
+<p class="q__meta">Lv 55 <span class="sep">/</span> 갑판원 피노 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln ln--speech">피노: &quot;닻 내릴 바닥이 없어. 밤새 떠 있어야 해.&quot;</p><p class="ln">밤샘 당직에도 손은 놀리지 않습니다.</p><p class="ln">신선도를 지킨 A등급 이상 6마리를 올리세요.</p></div>
+<ul class="q__goals"><li><code>fish_fresh|아무|A|6|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해11</span>
+<h3 class="q__name">고래의 길</h3>
+</header>
+<p class="q__meta">Lv 56 <span class="sep">/</span> 선장 이자벨라 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln ln--speech">이자벨라: &quot;고래가 가는 곳에 심해가 있다.&quot;</p><p class="ln">향유고래 1마리를 잡아 그 길을 확인하세요.</p><p class="ln">L등급 — 쉽게 걸리지 않습니다.</p></div>
+<ul class="q__goals"><li><code>fish|향유고래|아무|1|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해12</span>
+<h3 class="q__name">안개의 벽</h3>
+</header>
+<p class="q__meta">Lv 57 <span class="sep">/</span> 견시 니코 · 망대</p>
+<div class="q__body"><p class="ln ln--speech">니코: &quot;저 안개... 내가 그때 본 그 안개야.&quot;</p><p class="ln">안개는 날씨가 아닙니다. 여기만 걷히지 않습니다.</p><p class="ln">8,000블록을 더 항해해 안개의 벽에 닿으세요.</p></div>
+<ul class="q__goals"><li><code>sail|8000</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해13</span>
+<h3 class="q__name">안개해역 돌파</h3>
+</header>
+<p class="q__meta">Lv 58 <span class="sep">/</span> 갑판장 마테오 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln">해도에 없는 물길입니다. 뱃머리를 밀어 넣으세요.</p><p class="ln">12,000블록 항해 + 작살로 A등급 이상 10마리.</p></div>
+<ul class="q__goals"><li><code>sail|12000</code></li><li><code>harpoon|아무|A|10|0</code></li></ul>
+<span class="reward">칭호 · 심해탐험대</span>
+</article></div>
+</section>
+<section class="act" id="act3">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">3</span><span class="act__stage">안개 해역 · 마탑 · 왕도 · 오아시스</span></p>
+<h2 class="act__name">마탑과 표식</h2>
+<p class="act__lv">Lv 58–62 <span class="sep">/</span> 심해14–19</p>
+<p class="act__blurb">안개는 날씨가 아니라 경계였다. 그리고 니코가 섬이라 불렀던 것은 섬이 아니었다 — 솟은 게 아니라 꺼져 있었다. 기록이 이름과 함께 자리까지 지웠으므로 기록이 아니라 물에게 묻는다. 잠긴 도개교를 열고 들어가 알비스가 표본을 읽어 꺼진 자리와 표식의 자리를 함께 짚고, 바다에 박힌 표식을 건지면 그 문자가 왕도의 필체다. 이름을 맞추는 자리에 사막의 학자가 돌아온다.</p>
+</header>
+<div class="act__quests"><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해14</span>
+<h3 class="q__name">섬이 아니었다</h3>
+</header>
+<p class="q__meta">Lv 58 <span class="sep">/</span> 견시 니코 · 망대</p>
+<div class="q__body"><p class="ln">안개가 옅어진 자리에 검게 꺼진 바다가 있습니다.</p><p class="ln ln--speech">니코: &quot;저거야. 내가 섬이라고 했던 거.&quot;</p><p class="ln ln--speech">&quot;...근데 섬이 아니야. 솟은 게 아니라 꺼져 있어.&quot;</p><p class="ln">테클라에게 보고하세요.</p></div>
+<ul class="q__goals"><li><code>visit|테클라|심해조사관 테클라</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">알비스00</span>
+<h3 class="q__name">닫힌 도개교</h3>
+</header>
+<p class="q__meta">Lv 58 <span class="sep">/</span> 길드장 하겐 · 길드 회관</p>
+<div class="q__body"><p class="ln ln--speech">테클라: &quot;꺼진 자리라... 해도엔 없는 지형이에요. 물어볼 데가 있나요?&quot;</p><p class="ln">스폰마을 앞 물 위 바위섬의 마탑. 성문 도개교가 올라가 있습니다.</p><p class="ln ln--speech">하겐: &quot;그 탑? 알비스 영감이 제 손으로 걸어 잠갔지.&quot;</p><p class="ln ln--speech">&quot;열쇠는 하나뿐이야 — 세르간이 갖고 있어. 둘이 옛 동료거든.&quot;</p><p class="ln">세르간을 찾아가 도개교 열쇠를 받으세요.</p></div>
+<ul class="q__goals"><li><code>visit|세르간|은퇴한 어부 세르간</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">알비스01</span>
+<h3 class="q__name">물에게 묻다</h3>
+</header>
+<p class="q__meta">Lv 59 <span class="sep">/</span> 마법사 알비스 · 마탑 (스폰 앞섬)</p>
+<div class="q__body"><p class="ln">그 자리가 어디인지는 어느 기록에도 없습니다.</p><p class="ln">왕실은 이름을 지우면서 자리까지 함께 지웠습니다.</p><p class="ln ln--speech">마탑의 은둔 마법사 알비스: &quot;기록이 없으면 물에게 묻게.&quot;</p><p class="ln ln--speech">&quot;바닷물은 제가 어디서 왔는지를 기억하거든. 단, 오래 죽은 표본은 기억이 흐려지지.&quot;</p><p class="ln">신선도를 지킨 S등급 이상 6마리를 표본으로 가져오세요.</p></div>
+<ul class="q__goals"><li><code>fish_fresh|아무|S|6|0</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">알비스02</span>
+<h3 class="q__name">빛이 새는 자리</h3>
+</header>
+<p class="q__meta">Lv 59 <span class="sep">/</span> 마법사 알비스 · 마탑 (스폰 앞섬)</p>
+<div class="q__body"><p class="ln ln--speech">알비스가 표본을 하나씩 읽습니다. &quot;...전부 얕은 물이군. 쓸모없어.&quot;</p><p class="ln ln--speech">&quot;단 하나, 빛을 먹고 자란 놈이 있네. 하늘빛이 아니야 — 아래에서 새어 나온 빛이지.&quot;</p><p class="ln">그 물고기가 잡히는 자리가 곧 꺼진 자리 위입니다.</p><p class="ln">같은 물을 읽어 저들이 박아 둔 표식의 자리도 함께 짚어 줍니다.</p><p class="ln">성광어 1마리를 낚아 오세요.</p></div>
+<ul class="q__goals"><li><code>fish|성광어|아무|1|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해15</span>
+<h3 class="q__name">바다에 남은 표식</h3>
+</header>
+<p class="q__meta">Lv 60 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln ln--speech">테클라: &quot;건물은 없어요. 저들은 물 위에 아무것도 안 지어요.&quot;</p><p class="ln ln--speech">&quot;대신 자리를 표시해 뒀죠 — 자기들이 길을 잃지 않으려고.&quot;</p><p class="ln">알비스가 짚어 준 자리에서 교단의 표식 3개를 건져 올리세요.</p></div>
+<ul class="q__goals"><li><code>fish|교단의표식|아무|3|0</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해16</span>
+<h3 class="q__name">붙잡힌 배신자</h3>
+</header>
+<p class="q__meta">Lv 60 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">표식에 새겨진 문자에 왕도 필사체가 섞여 있습니다.</p><p class="ln ln--speech">&quot;...그 사람 필체군요.&quot;</p><p class="ln">끝에 받는 이의 이름이 적혀 있습니다 — 대사제 볼프람.</p><p class="ln">왕도에 수감된 차석 사서를 찾아가세요.</p></div>
+<ul class="q__goals"><li><code>visit|차석사서|차석 사서</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해17</span>
+<h3 class="q__name">배신자의 입</h3>
+</header>
+<p class="q__meta">Lv 60 <span class="sep">/</span> 차석 사서 · 왕도 (수감)</p>
+<div class="q__body"><p class="ln ln--speech">차석 사서: &quot;내가 지운 건 이름이오. 셋.&quot;</p><p class="ln ln--speech">&quot;조각 다섯을 모아 다섯을 깨우는 게 원래 계획이었지.&quot;</p><p class="ln ln--speech">&quot;…당신이 둘을 먼저 가져간 뒤로 그들은 계획을 바꿨소. 하나면 된다고.&quot;</p><p class="ln">기억의연못 도감 5종으로 그 말의 진위를 가리세요.</p></div>
+<ul class="q__goals"><li><code>dogam|기억의연못|5</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해18</span>
+<h3 class="q__name">지워진 셋째</h3>
+</header>
+<p class="q__meta">Lv 61 <span class="sep">/</span> 첨탑의 은둔 학자 · 왕도</p>
+<div class="q__body"><p class="ln">첨탑의 은둔 학자가 낡은 낱장을 펼칩니다.</p><p class="ln ln--speech">&quot;이름을 복원하려면 물이 기억한 재료가 필요하네.&quot;</p><p class="ln">재료 30개를 모아 오세요.</p></div>
+<ul class="q__goals"><li><code>material|아무|30</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해18b</span>
+<h3 class="q__name">이프리트를 아는 자</h3>
+</header>
+<p class="q__meta">Lv 61 <span class="sep">/</span> 학자 사피르 · 오아시스 (사막)</p>
+<div class="q__body"><p class="ln">사막에서 편지가 왔습니다. 오아시스의 학자 사피르입니다.</p><p class="ln ln--speech">&quot;상단의 펌프가 멈춘 뒤로 오아시스가 조금씩 차오르고 있습니다.&quot;</p><p class="ln ln--speech">&quot;물이 돌아오니 옛 기록에만 있던 놈들이 다시 보이는군요 — 흥미롭습니다.&quot;</p><p class="ln">셋째 이름을 맞추려면 이프리트의 기록과 대조해야 합니다.</p><p class="ln">오아시스 도감 24종을 채워 사피르에게 보내세요.</p></div>
+<ul class="q__goals"><li><code>dogam|오아시스|24</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해19</span>
+<h3 class="q__name">이름을 읽다</h3>
+</header>
+<p class="q__meta">Lv 62 <span class="sep">/</span> 왕립 대사서 · 왕궁 도서관</p>
+<div class="q__body"><p class="ln">금서의 뜯긴 자리를 물의 기억으로 메웁니다.</p><p class="ln">대사서가 마지막 봉인을 풉니다 — 지워진 셋째의 이름은</p><p class="ln">레비아. 심해와 압력의 심연어입니다.</p><p class="ln">종이는 저들이 가져갔지만, 이름은 우리가 먼저 되찾았습니다.</p><p class="ln">A등급 이상 4마리의 기억으로 낱장을 마무리하세요.</p></div>
+<ul class="q__goals"><li><code>fish|아무|A|4|0</code></li></ul>
+
+</article></div>
+</section>
+<section class="act" id="act4">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">4</span><span class="act__stage">심해 협곡 · 대장간</span></p>
+<h2 class="act__name">강하 장비</h2>
+<p class="act__lv">Lv 62–66 <span class="sep">/</span> 심해20–25</p>
+<p class="act__blurb">좌표는 이미 손에 있다. 남은 것은 몸이다 — 압력을 견딜 몸, 천 초를 버틸 창, 빛이 닿지 않는 곳을 볼 눈.</p>
+</header>
+<div class="act__quests"><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해20</span>
+<h3 class="q__name">바다 한가운데의 협곡</h3>
+</header>
+<p class="q__meta">Lv 62 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln">알비스가 짚어 준 좌표를 하르트무트가 해도에 옮깁니다.</p><p class="ln ln--speech">&quot;...여긴 아무것도 없는 자린데. 뭍의 동굴만 뒤졌으니 못 찾았지.&quot;</p><p class="ln">심해 협곡까지 배를 몰아 입구를 확인하세요.</p></div>
+<ul class="q__goals"><li><code>area|심해협곡</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해21</span>
+<h3 class="q__name">압력에 맞서는 몸</h3>
+</header>
+<p class="q__meta">Lv 63 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln">하르트무트가 협곡 가장자리에 줄을 내려 깊이를 잽니다.</p><p class="ln ln--speech">&quot;여긴 물이 아니라 무게요. 창을 쥔 몸부터 만들어야 하고.&quot;</p><p class="ln">낚시 특성 작살 계열(잠영·찌르기)에 20 이상을 투자하세요.</p></div>
+<ul class="q__goals"><li><code>skill|5</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해22</span>
+<h3 class="q__name">심해 작살의 벼림</h3>
+</header>
+<p class="q__meta">Lv 64 <span class="sep">/</span> 펠릭스 · 스폰도시 대장간</p>
+<div class="q__body"><p class="ln">협곡의 깊이를 적은 쪽지를 들고 대장간으로 갑니다.</p><p class="ln ln--speech">펠릭스: &quot;천 초를 버틸 창이라... 해보지. 대신 재료는 네가 대라.&quot;</p><p class="ln">재료 40개를 모으고 조합 5회로 심해 작살의 골격을 만드세요.</p></div>
+<ul class="q__goals"><li><code>craft|아무|5</code></li><li><code>material|아무|40</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해23</span>
+<h3 class="q__name">천 초의 숨</h3>
+</header>
+<p class="q__meta">Lv 64 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln ln--speech">하르트무트: &quot;숨은 창에 붙이는 거요. 몸에 붙이는 게 아니지.&quot;</p><p class="ln">협곡 입구까지 내려갔다 오기를 반복하며</p><p class="ln">강화 15회로 호흡 기관을 안정시키세요.</p><p class="ln">완성되면 심해 작살이 물속 호흡을 크게 늘려줍니다.</p></div>
+<ul class="q__goals"><li><code>enhance|15</code></li></ul>
+
+</article><article class="q q--plain">
+<header class="q__head">
+<span class="q__id">심해24</span>
+<h3 class="q__name">어둠을 보는 눈</h3>
+</header>
+<p class="q__meta">Lv 65 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln ln--speech">테클라: &quot;협곡 아래로는 빛이 한 뼘도 안 내려가요.&quot;</p><p class="ln ln--speech">&quot;눈은 따로 만들어 달아야 해요.&quot;</p><p class="ln">발광버섯 12개를 채집해 작살에 야간투시 기관을 다세요.</p></div>
+<ul class="q__goals"><li><code>forage|barkan:forage_z_glowshroom|12</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해25</span>
+<h3 class="q__name">강하 허가</h3>
+</header>
+<p class="q__meta">Lv 66 <span class="sep">/</span> 선장 이자벨라 · 은빛 갈매기호</p>
+<div class="q__body"><p class="ln">이자벨라가 협곡 바로 위에 배를 세웁니다.</p><p class="ln ln--speech">&quot;내 배에서 내려보내는 건 여기까지다. 그 아래는 선장도 책임 못 진다.&quot;</p><p class="ln">Lv.66 + 대양 도감 30종 — 강하 자격을 증명하세요.</p></div>
+<ul class="q__goals"><li><code>level|66</code></li><li><code>dogam|대양|30</code></li></ul>
+
+</article></div>
+</section>
+<section class="act" id="act5">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">5</span><span class="act__stage">결계 · 심해 월드</span></p>
+<h2 class="act__name">강하</h2>
+<p class="act__lv">Lv 67–68 <span class="sep">/</span> 심해26–27</p>
+<p class="act__blurb">결계는 심해어의 기척만 통과시킨다. 가면을 쓰고 문을 넘으면 빛도 수면도 없는 아래쪽 세계다.</p>
+</header>
+<div class="act__quests"><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해26</span>
+<h3 class="q__name">심해어의 얼굴</h3>
+</header>
+<p class="q__meta">Lv 67 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">협곡 입구는 뚫려 있는데도 지나갈 수가 없습니다.</p><p class="ln ln--speech">테클라: &quot;결계예요. 심해어의 기척만 통과시켜요.&quot;</p><p class="ln ln--speech">&quot;...그럼 그런 척하면 되죠. 저것들의 비늘로.&quot;</p><p class="ln">작살로 A등급 이상 10마리 + 심해어의 가면 1개를 만드세요.</p></div>
+<ul class="q__goals"><li><code>harpoon|아무|A|10|0</code></li><li><code>craft|심해어가면|1</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해27</span>
+<h3 class="q__name">가면을 쓰고, 문을 넘다</h3>
+</header>
+<p class="q__meta">Lv 67 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln">심해어의 가면을 쓰고 협곡 입구를 넘습니다.</p><p class="ln">결계가 어부를 심해어로 착각하고 길을 엽니다.</p><p class="ln">빛도 수면도 없는 아래쪽 세계 — 심해입니다.</p><p class="ln">가면을 장착하고 심해에 도달하세요.</p></div>
+<ul class="q__goals"><li><code>equip|심해어가면|1</code></li><li><code>area|심해</code></li></ul>
+
+</article></div>
+</section>
+<section class="act" id="act6">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">6</span><span class="act__stage">심해 교단 본부</span></p>
+<h2 class="act__name">무명의 성소</h2>
+<p class="act__lv">Lv 68–69 <span class="sep">/</span> 심해28–30</p>
+<p class="act__blurb">교단의 본부. 사역어를 길러 온 사육 수조가 여기 있고, 훔쳐 낸 기록들 끝에 지워진 세 이름의 원본이 걸려 있다.</p>
+</header>
+<div class="act__quests"><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해28</span>
+<h3 class="q__name">무명의 성소</h3>
+</header>
+<p class="q__meta">Lv 68 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">어둠 속에서 건물이 솟아오릅니다. 교단의 본부입니다.</p><p class="ln ln--speech">테클라: &quot;바다 위엔 표식 몇 개뿐이더니— 전부 여기 있었군요.&quot;</p><p class="ln">이름을 지운 자들이 이름 없는 성소에 삽니다.</p><p class="ln">심해 교단 본부에 잠입하세요.</p></div>
+<ul class="q__goals"><li><code>area|심해교단본부</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해29</span>
+<h3 class="q__name">사육 수조</h3>
+</header>
+<p class="q__meta">Lv 68 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">성소 안쪽은 거대한 수조들입니다. 눈이 퇴화한 것들이 빽빽이 헤엄칩니다.</p><p class="ln ln--speech">테클라: &quot;기르고 있었어요. 파수로 쓰고— 남는 건 그릇으로 쓰려고.&quot;</p><p class="ln">당신이 쓰고 들어온 가면도 여기서 나온 비늘로 만든 것입니다.</p><p class="ln">작살로 A등급 이상 15마리 — 사육 수조를 비우세요.</p></div>
+<ul class="q__goals"><li><code>harpoon|아무|A|15|0</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해30</span>
+<h3 class="q__name">무명의 기록고</h3>
+</header>
+<p class="q__meta">Lv 68 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln">벽을 메운 사본들 끝에, 액자 셋이 나란히 걸려 있습니다.</p><p class="ln">왕도의 금서에서 뜯겨 나간 그 낱장들입니다. 여기 있었습니다.</p><p class="ln">첫 장은 이미 다 썼는지 가장자리가 그을렸습니다 — 레비아.</p><p class="ln">남은 둘은 아직 손대지 않은 채입니다.</p><p class="ln">무명의 낱장 1개를 회수하세요.</p></div>
+<ul class="q__goals"><li><code>material|무명의낱장|1</code></li></ul>
+
+</article></div>
+</section>
+<section class="act" id="act7">
+<header class="act__head">
+<p class="act__mark"><span class="act__n">7</span><span class="act__stage">성소 아래 균열</span></p>
+<h2 class="act__name">결전</h2>
+<p class="act__lv">Lv 69–70 <span class="sep">/</span> 심해31–35</p>
+<p class="act__blurb">궁지에 몰린 대사제가 도망 대신 계획을 앞당긴다 — 혼만 남은 신에게 필요한 것은 담을 몸이었다.</p>
+</header>
+<div class="act__quests"><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해31</span>
+<h3 class="q__name">궁지에 몰린 대사제</h3>
+</header>
+<p class="q__meta">Lv 69 <span class="sep">/</span> 잠수장 하르트무트 · 갑판 아래</p>
+<div class="q__body"><p class="ln">제단의 문서에서 본 그 이름입니다. 성소 가장 깊은 방,</p><p class="ln">물러설 곳 없는 자리에서 볼프람이 돌아섭니다.</p><p class="ln">수조도, 기록고도, 지워진 이름도 전부 어부의 손에 넘어갔습니다.</p><p class="ln ln--speech">&quot;...여기까지 올 줄은 몰랐다. 아직 준비가 덜 됐는데.&quot;</p><p class="ln">작살로 M등급 이상 1마리 — 그의 수호물을 꺾으세요.</p></div>
+<ul class="q__goals"><li><code>harpoon|아무|M|1|0</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해32</span>
+<h3 class="q__name">앞당겨진 의식</h3>
+</header>
+<p class="q__meta">Lv 69 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">볼프람이 방을 버리고 균열로 내려갑니다. 의식을 앞당길 셈입니다.</p><p class="ln">조각 둘은 이미 어부의 손에 있습니다. 모자란 것은 사람으로 메웁니다.</p><p class="ln ln--speech">&quot;그릇이 모자라면— 내가 되면 그만이지.&quot;</p><p class="ln ln--speech">테클라: &quot;막아요! 저 사람, 자기를 쓰려고 해요!&quot;</p><p class="ln">작살로 S등급 이상 12마리 — 균열로 내려가는 길을 뚫으세요.</p></div>
+<ul class="q__goals"><li><code>harpoon|아무|S|12|0</code></li></ul>
+
+</article><article class="q q--danger">
+<header class="q__head">
+<span class="q__id">심해33</span>
+<h3 class="q__name">Barkan Vs Deep Dark Sea</h3>
+</header>
+<p class="q__meta">Lv 69 <span class="sep">/</span> 심해조사관 테클라 · 갑판 아래</p>
+<div class="q__body"><p class="ln">볼프람이 스스로를 의식에 던집니다. 혼만 남은 신에게 필요한 건 그릇이었습니다.</p><p class="ln">사람의 몸에 신을 담자 몸이 신의 크기로 찢겨 나갑니다 — 심해전왕 레비아.</p><p class="ln">준비가 끝나지 않은 강림입니다. 그래서 어부에게도 승산이 있습니다.</p><p class="ln">심해전왕의 핵 1개를 회수해 심연을 끝내세요.</p></div>
+<ul class="q__goals"><li><code>material|심해전왕의핵|1</code></li></ul>
+<span class="reward">칭호 · 바다의영웅</span>
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해34</span>
+<h3 class="q__name">개선</h3>
+</header>
+<p class="q__meta">Lv 70 <span class="sep">/</span> 바르칸 국왕 · 왕도</p>
+<div class="q__body"><p class="ln">바다가 잠잠해졌습니다. 왕도의 종이 울립니다.</p><p class="ln">국왕 앞에 서서 심해 원정의 끝을 보고하세요.</p></div>
+<ul class="q__goals"><li><code>visit|국왕|바르칸 국왕</code></li></ul>
+
+</article><article class="q q--mile">
+<header class="q__head">
+<span class="q__id">심해35</span>
+<h3 class="q__name">바다의 영웅</h3>
+</header>
+<p class="q__meta">Lv 70 <span class="sep">/</span> 길드장 하겐 · 길드 회관</p>
+<div class="q__body"><p class="ln ln--speech">하겐: &quot;어부가 신을 끌어내렸다. 기록될 일이야.&quot;</p><p class="ln ln--speech">&quot;...다만 그건 반쯤 깨어난 신이었지. 온전했다면 어땠을까.&quot;</p><p class="ln">품 안에 낱장 둘이 남아 있습니다. 봉인이 뜯겨 나간 그 쪽들입니다.</p><p class="ln">그리고 읽힙니다. 왕실이 왜 이걸 지웠는지 이제 알 것 같습니다.</p><p class="ln">부를 수 있는 사람이 이제 어부입니다.</p><p class="ln">길드 회관으로 돌아와 원정을 마무리하세요.</p></div>
+<ul class="q__goals"><li><code>visit|하겐|길드장 하겐</code></li></ul>
+
+</article></div>
+</section>
+
+<section class="callout">
+  <h2>협곡 · 가면 · 월드</h2>
+  <p>4막과 5막을 잇는 장치다. 정면 돌파가 아니라 <b>위장</b>이라는 점, 그리고 그 가면을 훔치는 것이 아니라 <b>어부가 만들어 낸다</b>는 점이 이 장의 마지막 논리다 — 1챕터부터 해 온 "잡고 · 재료를 얻고 · 만든다"가 신의 문을 여는 해법이 된다.</p>
+  <dl class="rows">
+    <div class="row"><dt>입구</dt><dd>바다 한가운데의 협곡 (<code>심해협곡</code>). 해도에 없는 해구이고 배로만 닿는다 — 2막의 항해가 그대로 4막의 이동 수단이 된다</dd></div>
+    <div class="row"><dt>아래</dt><dd>별도의 <b>심해 월드</b>. 기존 바다의 깊은 물이 아니다. 무대가 바뀌는 것 자체가 최종막의 신호다</dd></div>
+    <div class="row"><dt>결계</dt><dd>입구는 뚫려 있는데도 사람은 지나갈 수 없다. 심해어의 기척만 통과시킨다</dd></div>
+    <div class="row"><dt>가면 재료</dt><dd>교단이 성소 수조에서 기른 <b>사역어의 비늘</b>(<code>심해29</code>에서 그 수조를 본다). 교단이 제 손으로 길러 낸 것이 교단의 문을 여는 열쇠가 된다</dd></div>
+    <div class="row"><dt>가면 스탯</dt><dd><b>없다.</b> 의식용 위장구지 전투 장비가 아니다 — 수중호흡·야간투시는 작살 담당이다</dd></div>
+    <div class="row"><dt>마탑 진입</dt><dd><b>도개교가 잠겨 있다.</b> 알비스가 제 손으로 걸어 잠갔고 열쇠는 <b>세르간</b>이 갖고 있다 — 둘은 옛 동료다. 규약대로 다리는 내려가지 않고 <b>열쇠 보유자만 안쪽으로 TP</b>된다</dd></div>
+    <div class="row"><dt>좌표 추적</dt><dd><b>마탑의 알비스.</b> 왕실은 이름을 지우면서 자리까지 지웠다 — 그래서 기록이 아니라 <b>물에게 묻는다</b>. 어부는 잡을 수 있어도 어디서 왔는지 모르고, 마법사는 읽을 수 있어도 잡지 못한다</dd></div>
+    <div class="row"><dt>본부</dt><dd>심해 월드 안에 <b>「무명의 성소」</b> — 교단 본부. 문지기 회랑 · <b>사육 수조</b>(사역어·가면 재료의 출처) · <b>기록고</b>(훔쳐 낸 사본과 지워진 세 이름의 원본) · 대사제의 방 · 그 아래 소환 의식장</dd></div>
+    <div class="row"><dt>보스 아레나</dt><dd><b>성소 아래 균열.</b> 협곡이 「심연 균열」의 입구이고 교단은 그 상처 위에 본부를 올렸다 — 성소가 왜 거기 있는지와 최종전이 왜 그 아래인지가 같이 풀린다. 반경 14 물 공간, <b>완전 수중</b>(작살 조건), 1인 인스턴스</dd></div>
+    <div class="row"><dt>남은 두 이름</dt><dd>기록고에서 <b>보이는데도 읽히지 않는다.</b> 회수물은 <code>무명의낱장</code> — 후속 챕터의 씨앗을 손에 쥔 채 1부가 끝난다</dd></div>
+  </dl>
+</section>
+
+<section class="block">
+  <h2>결말 — 닫는 것과 여는 것</h2>
+  <p class="block__note">베타 플레이어에게 남는 감각은 "끝났다"가 아니라 <b>"한 판을 이겼다"</b> 여야 한다.</p>
+  <dl class="rows">
+    <div class="row"><dt>닫는다</dt><dd>교단의 소환 의식 · 심해전왕 레비아 · 열도 안의 싸움. 조각 다섯 중 둘(바르칸·이프리트)을 쥔 채 1부가 끝난다</dd></div>
+    <div class="row"><dt>볼프람</dt><dd><b>그가 레비아가 된다.</b> 성소 심부에서 몰리자 도망 대신 계획을 앞당겨 스스로를 의식에 던진다 — 혼만 남은 심연어에게 필요한 건 담을 몸이었다. 악역의 퇴장이 곧 보스전이고, <b>미완성 강림</b>이라 어부에게 승산이 생긴다</dd></div>
+    <div class="row"><dt>연다</dt><dd>남은 <b>두 이름</b> · 바깥 바다의 나머지 · 조각 셋의 행방 · <b>온전한 강림이었다면</b> 이라는 질문</dd></div>
+    <div class="row"><dt>경계선</dt><dd><code>심해30</code> 마지막 줄 — "남은 두 이름은 아직 봉인돼 있습니다."</dd></div>
+    <div class="row"><dt>칭호</dt><dd><code>심해탐험대</code> (2막 끝, 안개 해역 돌파) · <code>바다의영웅</code> (레비아 격파)</dd></div>
+  </dl>
+</section>
+
+<section class="block">
+  <h2>현재 상태</h2>
+  <p class="block__note">서사와 퀘스트는 확정됐고, 무대와 보스가 건축·구현 대기다.</p>
+  <div class="status">
+    <div class="item"><span class="tag tag--live">라이브</span><p>퀘스트 <b>심해01~30</b> · 신규 인물 2인 · 칭호 2종 — prod·dev 반영 완료. 체인 끊김 0, NPC 배정 30/30</p></div>
+    <div class="item"><span class="tag tag--live">수리됨</span><p><span class="k">심해01</span> 선행퀘스트 = 왕도15 (없으면 5·6챕터 스킵 가능) · <span class="k">심해17</span> 기억의연못 도감 6 → 5 (어종이 5종뿐)</p></div>
+    <div class="item"><span class="tag tag--wait">대기</span><p><b>본부 신설분 5개</b> — <span class="k">심해31~35</span>는 아직 라이브에 없고, <span class="k">심해28~30</span>은 성소 3단으로 내용이 교체됐다(옛 레비아·개선·마무리는 31·34·35로 이동)</p></div>
+    <div class="item"><span class="tag tag--wait">대기</span><p><span class="k">심해협곡</span> 지역 실좌표 — <span class="k">심해20</span>이 참조. 스텁 좌표는 금지</p></div>
+    <div class="item"><span class="tag tag--wait">대기</span><p>심해 월드 생성 + cross-world 이동 — 월드 이름을 dimension key로 쓰면 텔레포트가 조용히 무시된다</p></div>
+    <div class="item"><span class="tag tag--wait">대기</span><p>「심해어의 가면」 아이템 + 레시피 — <span class="k">심해26</span>(craft) · <span class="k">심해27</span>(equip)가 참조. 협곡 입구 결계 판정도 함께</p></div>
+    <div class="item"><span class="tag tag--wait">대기</span><p><span class="k">심해교단본부</span> 지역 + 「무명의 성소」 건축 — <span class="k">심해28~32</span>의 무대. <span class="k">무명의낱장</span> 재료도 함께(<span class="k">심해30</span>)</p></div>
+    <div class="item"><span class="tag tag--block">블록</span><p><span class="k">심해28</span> — <span class="k">심해전왕의핵</span>이 어떤 dropTable에도 없다. 보스 미구현이라 최종전이 닫히지 않는다</p></div>
+    <div class="item"><span class="tag tag--block">미정</span><p>심해 월드에는 육지가 없어 <b>호흡 소진 처리</b>가 무력화된다 — <span class="k">waterteleport.json</span>의 rescue 폴백 좌표를 넣지 않으면 강제 귀환이 걸리지 않고 안내만 반복된다</p></div>
+    
+  </div>
+</section>
+
+<footer class="foot">
+  권위 · fish-tools/build_ch7_quests.py (퀘스트 생성기) · story.md (서사) · chapter7-handoff.md (구현 지시서)<br>
+  퀘스트 텍스트는 생성기에서 그대로 추출했다 — 색코드만 제거했다. quests.json 손편집 금지.
+</footer>
+
+</div>
