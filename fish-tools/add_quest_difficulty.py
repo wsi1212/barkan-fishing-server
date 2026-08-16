@@ -126,6 +126,23 @@ def dex_minutes(regionspec, k):
     return BASE_CAST * GEAR * tot / w[k - 1]
 
 
+# ── 특수작물 — 실시간 성장이 곧 난이도다 (2026-08-16, 마인팜 라인) ────────────
+#   `CropSpecs.ALL`의 (수확 산출 개수, 성장 분). 낚시와 달리 **기다리는 시간**이 비용이라
+#   따로 센다. 밭을 여러 칸 굴리면 병렬이 되므로 「섬 작물 한도 중간값」으로 나눈다.
+CROP = {"밀": (3, 20), "당근": (2, 30), "감자": (2, 45), "토마토": (2, 60),
+        "양배추": (2, 25), "버섯": (3, 40), "수박": (4, 1440)}
+PLOTS = 8              # 섬 작물 한도 중간값 (CROP_LIMIT = 4/8/12/20/32)
+WAIT_WEIGHT = 0.25     # 기다리는 동안 낚시를 하므로 대기시간은 4분의 1만 친다
+
+
+def crop_minutes(crop_id, items):
+    """특수작물 `items`개를 손에 넣는 데 드는 시간(분)."""
+    outq, grow = CROP.get(crop_id, (2, 30))
+    harvests = -(-int(items) // outq)                 # 올림
+    batches = -(-harvests // PLOTS)
+    return harvests * 2.0 + batches * grow * WAIT_WEIGHT
+
+
 def goal_minutes(g):
     """목표 하나의 예상 소요(분)."""
     p = g.split("|")
@@ -173,6 +190,19 @@ def goal_minutes(g):
         return 2.0 * int(p[2]) * (1.0 if p[1] == "아무" else 1.5)
     if v == "deliver":
         return 3.0 * int(p[2])
+    if v == "harvest":
+        return crop_minutes(p[1], int(p[2]) * CROP.get(p[1], (2, 30))[0])
+    if v == "submitmat":
+        # 특수작물 산출물이면 재배 시간을, 그 외 조합 재료면 material과 같은 값을 쓴다.
+        if p[1].startswith("작물_"):
+            return crop_minutes(p[1][len("작물_"):], int(p[2]))
+        return 1.5 * int(p[2]) * 4.0
+    if v == "farmland":
+        # 괭이질 자체는 빠르지만 흙·물·평탄화가 붙는다. 3,000칸 ≒ 2시간.
+        return 0.04 * int(p[1])
+    if v == "islandvisit":
+        # ★남이 올려 주는 수치다 — 혼자 어떻게 할 수 없는 유일한 목표라 비싸게 친다.
+        return 4.0 * int(p[1])
     if v == "sell":
         return 0.6 * int(p[1])
     if v == "money":

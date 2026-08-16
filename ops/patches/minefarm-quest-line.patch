@@ -1,0 +1,584 @@
+diff --git a/src/main/java/com/blockship/BlockShipPlugin.java b/src/main/java/com/blockship/BlockShipPlugin.java
+index e340c5e..6c35711 100644
+--- a/src/main/java/com/blockship/BlockShipPlugin.java
++++ b/src/main/java/com/blockship/BlockShipPlugin.java
+@@ -2822,6 +2822,9 @@ public class BlockShipPlugin extends JavaPlugin {
+         //  →작물별 고정 실시간 성장(setVariant 단계 교체)→우클릭 1회 수확(FurnitureInteractEvent). crops.json + 섬 한도(업그레이드형).
+         //  가구 에셋(barkan:crop_*, variants sprout/grown/ripe)은 RP 준비 시 CropSpecs에서 연결.
+         var cropManager = new com.blockship.crop.CropManager(this, islandManager, guildManager);
++        // 퀘스트 보상 "cropseed:<작물id>:<수>" — 씨앗 PDC 마커(SEED_KEY)가 인스턴스 소유라 주입이 필요하다.
++        // ★그전까지 특수작물 씨앗은 op /작물 지급 말고는 얻을 길이 없었다(2026-08-16, 마인팜 라인).
++        questManager.setCropManager(cropManager);
+         if (getServer().getPluginManager().getPlugin("CraftEngine") != null)
+             getServer().getPluginManager().registerEvents(cropManager, this);
+         else getLogger().warning("[Crop] CraftEngine 미탑재 — 특수 작물 비활성(가구 기반)");
+diff --git a/src/main/java/com/blockship/crop/CropManager.java b/src/main/java/com/blockship/crop/CropManager.java
+index 77906ba..c15fa04 100644
+--- a/src/main/java/com/blockship/crop/CropManager.java
++++ b/src/main/java/com/blockship/crop/CropManager.java
+@@ -444,6 +444,30 @@ public class CropManager implements Listener {
+         if (c != null) pullCrop(c, e.getPlayer(), null, "break");
+     }
+ 
++    // ===== 압축 작물 꾸러미 해제 (마인팜 퀘스트 보상, 2026-08-16) =====
++    /**
++     * 압축 꾸러미 우클릭 → {@link CropSpecs#BUNDLE_QTY}개로 푼다.
++     * 심기({@link #onPlant})와 같은 이벤트를 쓰지만 꾸러미는 씨앗이 아니라 서로 겹치지 않는다.
++     * ★{@code ignoreCancelled}를 걸지 않는다 — 섬 보호 리스너가 「블록 우클릭」을 취소해도
++     *   꾸러미 해제는 순수 인벤토리 조작이라 막을 이유가 없다.
++     */
++    @EventHandler
++    public void onBundleOpen(PlayerInteractEvent e) {
++        if (!e.getAction().name().startsWith("RIGHT_") || e.getHand() != EquipmentSlot.HAND) return;
++        ItemStack hand = e.getItem();
++        String cropId = CropSpecs.bundleIdOf(hand);
++        if (cropId == null) return;
++        e.setCancelled(true);
++        Player p = e.getPlayer();
++        ItemStack out = CropSpecs.outputItem(cropId, CropSpecs.BUNDLE_QTY);
++        if (out == null) return;
++        hand.setAmount(hand.getAmount() - 1);
++        for (ItemStack lo : p.getInventory().addItem(out).values())
++            p.getWorld().dropItemNaturally(p.getLocation(), lo);
++        msg(p, "§a꾸러미를 풀었습니다! §7" + CropSpecs.nameOf(cropId) + " §fx" + CropSpecs.BUNDLE_QTY);
++        p.playSound(p.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.8f, 1.2f);
++    }
++
+     // ===== /작물 명령 =====
+     public void info(Player p) {
+         msg(p, "§6━━━━━ §e특수 작물 §6━━━━━");
+diff --git a/src/main/java/com/blockship/crop/CropSpecs.java b/src/main/java/com/blockship/crop/CropSpecs.java
+index 6aa0c60..39d3b34 100644
+--- a/src/main/java/com/blockship/crop/CropSpecs.java
++++ b/src/main/java/com/blockship/crop/CropSpecs.java
+@@ -118,6 +118,70 @@ public final class CropSpecs {
+         return it;
+     }
+ 
++    // ===================================================================
++    // 압축 작물 꾸러미 — 「마인팜」 퀘스트 보상 (2026-08-16)
++    // ===================================================================
++    /**
++     * 꾸러미 하나에 든 산출물 개수. 스택 한도(64)와 맞춰 뒀다 —
++     * 풀면 정확히 한 스택이 되어 인벤토리에 깔끔히 들어간다.
++     */
++    public static final int BUNDLE_QTY = 64;
++    /** lore 마커 접두 — {@link CropManager}의 우클릭 해제가 이걸 읽는다. */
++    public static final String BUNDLE_TAG = "§8#cropbundle:";
++
++    /** 꾸러미 겉모습. 「눌러 담은 농산물」로 읽히는 블록을 쓴다. */
++    private static Material bundleMat(Spec s) {
++        return switch (s.id) {
++            case "밀" -> Material.HAY_BLOCK;
++            case "수박" -> Material.MELON;
++            case "버섯" -> Material.BROWN_MUSHROOM_BLOCK;
++            default -> Material.BARREL;
++        };
++    }
++
++    /**
++     * 압축 작물 꾸러미 아이템. 우클릭하면 {@link #BUNDLE_QTY}개로 풀린다.
++     *
++     * <p>★조합법은 <b>일부러 없다.</b> 이건 퀘스트 보상 전용 — 「난이도가 오를수록 낱개 대신
++     * 꾸러미로 준다」는 보상 등급 표현이지, 새 압축 경제를 여는 물건이 아니다.
++     * 압축→해제만 되고 해제→압축은 안 되므로 증식 경로가 생기지 않는다.
++     */
++    public static ItemStack bundleItem(String id, int amount) {
++        Spec s = byId(id);
++        if (s == null) return null;
++        ItemStack it = new ItemStack(bundleMat(s), Math.max(1, Math.min(amount, 64)));
++        ItemMeta m = it.getItemMeta();
++        m.displayName(LEG.deserialize("§6압축 " + stripColor(s.name) + " 꾸러미").decoration(IT, false));
++        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
++        line(lore, "§7" + stripColor(s.name) + " " + BUNDLE_QTY + "개를 눌러 담은 꾸러미.");
++        line(lore, "§7우클릭하여 풀 수 있습니다.");
++        line(lore, "");
++        line(lore, BUNDLE_TAG + s.id);
++        m.lore(lore);
++        it.setItemMeta(m);
++        return it;
++    }
++
++    /** 이 아이템이 압축 꾸러미면 작물 id, 아니면 null. */
++    public static String bundleIdOf(ItemStack it) {
++        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return null;
++        ItemMeta m = it.getItemMeta();
++        List<net.kyori.adventure.text.Component> lore = m == null ? null : m.lore();
++        if (lore == null) return null;
++        for (net.kyori.adventure.text.Component c : lore) {
++            String plain = LEG.serialize(c);
++            if (plain.startsWith(BUNDLE_TAG)) {
++                String id = plain.substring(BUNDLE_TAG.length()).trim();
++                return ALL.containsKey(id) ? id : null;
++            }
++        }
++        return null;
++    }
++
++    private static String stripColor(String s) {
++        return s == null ? "" : s.replaceAll("§[0-9a-fk-orA-FK-OR]", "");
++    }
++
+     private static void line(List<net.kyori.adventure.text.Component> lore, String s) {
+         lore.add(LEG.deserialize(s).decoration(IT, false));
+     }
+diff --git a/src/main/java/com/blockship/island/IslandFarmlandCounter.java b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
+new file mode 100644
+index 0000000..b31ed56
+--- /dev/null
++++ b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
+@@ -0,0 +1,155 @@
++package com.blockship.island;
++
++import com.blockship.region.RegionData;
++import org.bukkit.Bukkit;
++import org.bukkit.Chunk;
++import org.bukkit.ChunkSnapshot;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.entity.Player;
++import org.bukkit.plugin.java.JavaPlugin;
++import org.bukkit.scheduler.BukkitTask;
++
++import java.util.ArrayDeque;
++import java.util.Deque;
++import java.util.Map;
++import java.util.UUID;
++import java.util.concurrent.ConcurrentHashMap;
++import java.util.concurrent.ConcurrentLinkedQueue;
++import java.util.function.IntConsumer;
++
++/**
++ * 섬 경작지(FARMLAND) 칸수 세기 — 「마인팜」 계열 퀘스트 목표 {@code farmland|<수>} 판정용.
++ *
++ * <p><b>왜 증분 카운터가 아니라 스캔인가.</b> 호퍼·액자·가구는 {@code IslandData}에 개수를
++ * 들고 있지만(설치 이벤트가 명확하므로) 경작지는 그렇게 못 센다. 괭이질·물 마름·밟기·
++ * 용암·피스톤으로 <b>이벤트 없이</b> 생기고 사라진다. 증분 카운터를 두면 곧 실제와 어긋나고,
++ * 이미 밭을 다 갈아 둔 기존 섬은 0부터 시작한다. 스캔은 느리지만 언제나 맞다.
++ *
++ * <p><b>비용 관리 — 두 스레드로 쪼갠다.</b>
++ * <ul>
++ *   <li>메인 스레드는 <b>틱당 {@value #CHUNKS_PER_TICK}청크</b>만 스냅샷을 뜬다.
++ *       (스냅샷 생성은 메인 스레드에서만 가능하다.)</li>
++ *   <li>실제 블록 순회는 <b>비동기</b> 스레드가 큐에서 꺼내 돌린다.
++ *       반경 150 · Y 380칸이면 3,400만 블록이라 메인에서 돌리면 서버가 멈춘다.</li>
++ * </ul>
++ * 그래서 반경 50짜리 섬(441청크)은 약 <b>4초</b>, 최대 크기(반경 150 · 2,809청크)는
++ * 약 <b>24초</b> 걸린다. 결과는 {@value #CACHE_MS}ms 캐시한다 — 퀘스트 진행도 갱신이
++ * 주기 작업이라 매번 새로 세면 그것만으로 서버가 죽는다.
++ *
++ * <p>Y 범위는 섬 region의 pos1/pos2를 월드 높이로 클램프해 쓴다. <b>층층이 쌓은 밭</b>이
++ * 마인팜의 본질이라 「지표만」으로 줄일 수 없다.
++ */
++public class IslandFarmlandCounter {
++
++    /** 메인 스레드에서 한 틱에 뜰 스냅샷 수. 올리면 빨라지지만 틱 점유가 늘어난다. */
++    private static final int CHUNKS_PER_TICK = 4;
++    /** 같은 플레이어를 이 시간 안에 다시 세지 않는다. */
++    private static final long CACHE_MS = 45_000L;
++
++    private final JavaPlugin plugin;
++    private final IslandManager islands;
++
++    /** uuid → {측정시각ms, 칸수}. */
++    private final Map<UUID, long[]> cache = new ConcurrentHashMap<>();
++    /** 진행 중인 스캔 — 같은 사람을 겹쳐 세지 않는다. */
++    private final java.util.Set<UUID> running = ConcurrentHashMap.newKeySet();
++
++    public IslandFarmlandCounter(JavaPlugin plugin, IslandManager islands) {
++        this.plugin = plugin;
++        this.islands = islands;
++    }
++
++    /** 마지막으로 잰 값(없으면 -1). 캐시 만료와 무관하게 남아 있다 — 진행도 표시용. */
++    public int lastKnown(UUID uuid) {
++        long[] c = cache.get(uuid);
++        return c == null ? -1 : (int) c[1];
++    }
++
++    /** 캐시가 살아 있나 — 살아 있으면 새 스캔을 걸 필요가 없다. */
++    public boolean fresh(UUID uuid) {
++        long[] c = cache.get(uuid);
++        return c != null && System.currentTimeMillis() - c[0] < CACHE_MS;
++    }
++
++    /**
++     * 그 플레이어 <b>소유</b> 섬의 경작지 칸수를 센다(멤버로 얹혀 있는 섬은 세지 않는다 —
++     * 남의 밭으로 퀘스트를 깨는 걸 막는다).
++     *
++     * @param done 완료 콜백. 메인 스레드에서 호출된다. 섬이 없거나 이미 스캔 중이면 호출되지 않는다.
++     */
++    public void count(Player p, IntConsumer done) {
++        UUID uuid = p.getUniqueId();
++        if (!running.add(uuid)) return;                       // 이미 세는 중
++        IslandData isl = islands.getIslandByOwner(uuid.toString());
++        RegionData r = isl == null ? null : islands.getRegionMgr().getRegion(isl.getId());
++        World world = Bukkit.getWorld(IslandManager.ISLAND_WORLD);
++        if (r == null || !r.hasCoordinates() || world == null) { running.remove(uuid); return; }
++
++        int[] a = r.getPos1(), b = r.getPos2();
++        final int minX = Math.min(a[0], b[0]), maxX = Math.max(a[0], b[0]);
++        final int minZ = Math.min(a[2], b[2]), maxZ = Math.max(a[2], b[2]);
++        final int minY = Math.max(world.getMinHeight(), Math.min(a[1], b[1]));
++        final int maxY = Math.min(world.getMaxHeight() - 1, Math.max(a[1], b[1]));
++
++        Deque<long[]> todo = new ArrayDeque<>();
++        for (int cx = minX >> 4; cx <= (maxX >> 4); cx++)
++            for (int cz = minZ >> 4; cz <= (maxZ >> 4); cz++)
++                todo.add(new long[]{cx, cz});
++
++        // 스냅샷 큐 — 메인이 채우고 비동기가 비운다. done 플래그로 종료를 알린다.
++        ConcurrentLinkedQueue<ChunkSnapshot> queue = new ConcurrentLinkedQueue<>();
++        java.util.concurrent.atomic.AtomicBoolean feeding = new java.util.concurrent.atomic.AtomicBoolean(true);
++        java.util.concurrent.atomic.AtomicInteger total = new java.util.concurrent.atomic.AtomicInteger();
++
++        // ── 메인: 틱당 CHUNKS_PER_TICK개씩 스냅샷 ──────────────────────────────
++        //   ★스스로를 취소해야 하므로 BukkitTask를 배열에 담아 람다 안에서 참조한다
++        //     (람다가 자기 자신의 task를 캡처할 방법이 없다 — 자바 초기화 순서 제약).
++        final BukkitTask[] feeder = new BukkitTask[1];
++        feeder[0] = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
++            for (int i = 0; i < CHUNKS_PER_TICK && !todo.isEmpty(); i++) {
++                long[] c = todo.poll();
++                // 언로드된 청크는 여기서 동기 로드된다. 공허 월드라 대부분 비어 있어 싸다.
++                Chunk ch = world.getChunkAt((int) c[0], (int) c[1]);
++                queue.add(ch.getChunkSnapshot(false, false, false));
++            }
++            if (todo.isEmpty()) {
++                feeding.set(false);
++                if (feeder[0] != null) feeder[0].cancel();
++            }
++        }, 1L, 1L);
++
++        // ── 비동기: 스냅샷을 꺼내 FARMLAND를 센다 ─────────────────────────────
++        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
++            try {
++                while (feeding.get() || !queue.isEmpty()) {
++                    ChunkSnapshot s = queue.poll();
++                    if (s == null) {
++                        try { Thread.sleep(20L); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); return; }
++                        continue;
++                    }
++                    int baseX = s.getX() << 4, baseZ = s.getZ() << 4;
++                    int n = 0;
++                    for (int lx = 0; lx < 16; lx++) {
++                        int wx = baseX + lx;
++                        if (wx < minX || wx > maxX) continue;
++                        for (int lz = 0; lz < 16; lz++) {
++                            int wz = baseZ + lz;
++                            if (wz < minZ || wz > maxZ) continue;
++                            for (int y = minY; y <= maxY; y++)
++                                if (s.getBlockType(lx, y, lz) == Material.FARMLAND) n++;
++                        }
++                    }
++                    total.addAndGet(n);
++                }
++            } finally {
++                int result = total.get();
++                Bukkit.getScheduler().runTask(plugin, () -> {
++                    cache.put(uuid, new long[]{System.currentTimeMillis(), result});
++                    running.remove(uuid);
++                    done.accept(result);
++                });
++            }
++        });
++    }
++}
+diff --git a/src/main/java/com/blockship/quest/QuestGui.java b/src/main/java/com/blockship/quest/QuestGui.java
+index b65e058..c24d97d 100644
+--- a/src/main/java/com/blockship/quest/QuestGui.java
++++ b/src/main/java/com/blockship/quest/QuestGui.java
+@@ -124,10 +124,10 @@ public class QuestGui implements Listener {
+         inv.setItem(4, named(Material.BOOK, "§e" + npcName + "의 퀘스트", null));
+         inv.setItem(8, named(Material.BARRIER, "§c닫기", null));
+ 
+-        // 다른 메인 퀘스트 진행 중인지 (일일/주간 제외)
++        // 다른 메인 퀘스트 진행 중인지 (일일/주간 + 동시진행 퀘스트 제외)
+         boolean hasOtherMain = false;
+         for (String aq : d.getActiveQuests()) {
+-            if (!isSpecial(aq)) { hasOtherMain = true; break; }
++            if (!isSpecial(aq) && !isConcurrent(aq)) { hasOtherMain = true; break; }
+         }
+ 
+         // NPC 퀘스트 중 첫 번째 표시 가능한 1개 (완료 스킵, 선행 미완 스킵)
+@@ -167,10 +167,12 @@ public class QuestGui implements Listener {
+         } else {
+             String st = status.get(show);
+             // 다른 메인퀘 진행중 + 이 퀘스트 미수락 → 잠금
+-            if (hasOtherMain && !"진행".equals(st) && !"완료대기".equals(st)) {
++            //   ★동시진행 퀘스트는 잠기지도, 남을 잠그지도 않는다.
++            if (hasOtherMain && !isConcurrent(show) && !"진행".equals(st) && !"완료대기".equals(st)) {
+                 // ★어떤 퀘스트인지 안 알려주면 그 자체가 미아 제조기다(2026-08-15).
+                 String busy = null;
+-                for (String aq : d.getActiveQuests()) if (!isSpecial(aq)) { busy = aq; break; }
++                for (String aq : d.getActiveQuests())
++                    if (!isSpecial(aq) && !isConcurrent(aq)) { busy = aq; break; }
+                 List<String> lore = new java.util.ArrayList<>();
+                 String bn = busy == null ? null : quests.getQuestField(busy, "이름");
+                 if (bn != null) {
+@@ -832,6 +834,25 @@ public class QuestGui implements Listener {
+         return qid.startsWith("일일_") || qid.startsWith("주간_");
+     }
+ 
++    /**
++     * 「한 번에 하나」 잠금에서 빠지는 퀘스트 — quests.json의 {@code "동시진행": true}.
++     *
++     * <p><b>왜 필요한가.</b> 잠금은 「퀘스트 하나 붙잡고 끝내라」는 좋은 규칙이지만,
++     * <b>혼자 힘으로 못 끝내는 목표</b>에는 독이다. 마인팜 마지막 두 칸은 「섬 방문 25·40회」를
++     * 요구하는데 이건 <b>남이</b> 올려 주는 수치라, 수락한 채로 몇 주를 기다리는 동안 메인도
++     * 사이드도 전부 잠긴다 — 사실상 「이 퀘스트를 받지 마라」가 된다.
++     *
++     * <p>이건 「두 퀘스트를 동시에 미는 이중 수확」과 다르다. 이 플래그를 다는 퀘스트의 목표는
++     * 낚시 목표와 <b>한 동작도 겹치지 않아야</b> 한다(밭 칸수·방문 횟수·작물 성장 시간처럼).
++     * 한 번 낚아서 둘이 같이 오르는 목표에 달면 그게 정확히 그 이중 수확이다.
++     *
++     * <p>남용 주의 — 이걸 달면 그 퀘스트는 <b>양방향으로</b> 투명해진다(자기도 안 잠기고
++     * 남도 안 잠근다). 「지금 이거 하나만」이라는 서사 압력이 필요한 퀘스트엔 달지 말 것.
++     */
++    private boolean isConcurrent(String qid) {
++        return "true".equalsIgnoreCase(quests.getQuestField(qid, "동시진행"));
++    }
++
+     private boolean isRepeatable(String qid) {
+         String cat = quests.getQuestField(qid, "카테고리");
+         return "일일".equals(cat) || "주간".equals(cat) || "반복".equals(cat);
+diff --git a/src/main/java/com/blockship/quest/QuestManager.java b/src/main/java/com/blockship/quest/QuestManager.java
+index 4792d2d..59ddfef 100644
+--- a/src/main/java/com/blockship/quest/QuestManager.java
++++ b/src/main/java/com/blockship/quest/QuestManager.java
+@@ -104,10 +104,22 @@ public class QuestManager {
+     public void setNavigationManager(com.blockship.nav.NavigationManager n) { this.nav = n; }
+     // 졸업 보상(보상섬) — 개인 섬 생성/텔포. (선택 주입)
+     private com.blockship.island.IslandManager islandManager;
+-    public void setIslandManager(com.blockship.island.IslandManager m) { this.islandManager = m; }
++    public void setIslandManager(com.blockship.island.IslandManager m) {
++        this.islandManager = m;
++        if (m != null) {
++            this.farmlandCounter = new com.blockship.island.IslandFarmlandCounter(plugin, m);
++            startIslandGoalRefresh();
++        }
++    }
++    /** 섬 경작지 스캐너 — {@code farmland} 목표 전용. islandManager 주입 시 함께 생긴다. */
++    private com.blockship.island.IslandFarmlandCounter farmlandCounter;
++    private boolean islandGoalTaskStarted = false;
+     // 채집물 typeId → 표시이름 (진행도 텍스트용). 선택 주입.
+     private com.blockship.forage.ForageManager forageManager;
+     public void setForageManager(com.blockship.forage.ForageManager m) { this.forageManager = m; }
++    /** 특수작물 씨앗 보상 빌더 — 보상아이템 "cropseed:<작물id>[:<수>]" (crop/, 2026-08-16). */
++    private com.blockship.crop.CropManager cropManager;
++    public void setCropManager(com.blockship.crop.CropManager m) { this.cropManager = m; }
+     /** 창(작살) 보상 빌더 — 보상아이템 "harpoon:<이름>" spec 처리용 (harpoon/, 2026-07-31). */
+     private com.blockship.harpoon.HarpoonItemFactory harpoonFactory;
+     public void setHarpoonFactory(com.blockship.harpoon.HarpoonItemFactory f) { this.harpoonFactory = f; }
+@@ -494,6 +506,10 @@ public class QuestManager {
+                 case "sail": result = "§7배 항해: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "블록"; break;
+                 case "submit": result = "§7제출: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "회"; break;
+                 case "deliver": result = "§7" + pgGet(o, 1) + " 납품: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "개"; break;
++                // ── 마인팜 계열 (2026-08-16) ──────────────────────────────────
++                case "submitmat": result = "§7" + matDisplay(pgGet(o, 1)) + " 제출: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "개"; break;
++                case "farmland": result = "§7섬 경작지: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "칸"; break;
++                case "islandvisit": result = "§7섬 방문 누적: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "회"; break;
+                 case "material": {
+                     String matName = pgGet(o, 1), target = pgGet(o, 2);
+                     if ("아무".equals(matName)) result = "§7재료 낚기: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(target) + "개";
+@@ -914,6 +930,16 @@ public class QuestManager {
+         return n;
+     }
+ 
++    // ── submitmat 목표 — deliver의 재료판 (2026-08-16) ──────────────────────────
++    //   deliver는 부품 PDC로만 정체를 판별한다. 특수작물 수확물·조합 재료는 PDC가 없고
++    //   lore의 "mat:<id>" 마커가 정체라, CraftingManager의 판정/회수를 그대로 빌려 쓴다.
++    //   ★모루 개명 위조는 여기서도 불가능하다 — 표시이름이 아니라 lore 마커를 보기 때문.
++    /** 인벤토리의 {@code mat:<matId>} 재료 개수. CraftingManager 미주입이면 0(=제출 불가). */
++    private int countSubmitMat(Player p, String matId) {
++        if (crafting == null || matId == null || matId.isEmpty()) return 0;
++        return crafting.customMaterialCount(p, matId);
++    }
++
+     /** 실제 회수 — 필요 개수만큼 인벤토리에서 제거. @return 실제로 회수한 개수 */
+     private int consumeDeliverable(Player p, String wantName, int need) {
+         int left = need;
+@@ -930,7 +956,7 @@ public class QuestManager {
+     }
+ 
+     /**
+-     * 보상 수령 직전 호출 — deliver 목표의 실물을 회수한다.
++     * 보상 수령 직전 호출 — deliver·submitmat 목표의 실물을 회수한다.
+      * @return 모두 회수했으면 true. 하나라도 부족하면(그 사이 버렸거나 장착한 경우)
+      *         아무것도 안 뺏고 false — 보상 지급을 막아 아이템 손실 없이 되돌린다.
+      */
+@@ -946,6 +972,15 @@ public class QuestManager {
+                 return false;
+             }
+         }
++        for (String g : goals) {                     // submitmat도 같은 규약 — 전량 확인이 먼저다
++            String[] o = g.split("\\|", -1);
++            if (!"submitmat".equals(o[0])) continue;
++            int need = parseInt(get(o, 2));
++            if (countSubmitMat(p, get(o, 1)) < need) {
++                msg(p, "&8[&d 퀘스트 &8] &c제출할 &e" + matDisplay(get(o, 1)) + " " + need + "개&c가 부족합니다.");
++                return false;
++            }
++        }
+         // 2차: 실제 회수
+         for (String g : goals) {
+             String[] o = g.split("\\|", -1);
+@@ -954,6 +989,13 @@ public class QuestManager {
+             int got = consumeDeliverable(p, get(o, 1), need);
+             msg(p, "&8[&d 퀘스트 &8] &7" + get(o, 1) + " &f" + got + "개&7를 건네주었습니다.");
+         }
++        for (String g : goals) {
++            String[] o = g.split("\\|", -1);
++            if (!"submitmat".equals(o[0])) continue;
++            int need = parseInt(get(o, 2));
++            crafting.removeCustomMaterial(p, get(o, 1), need);
++            msg(p, "&8[&d 퀘스트 &8] &7" + matDisplay(get(o, 1)) + " &f" + need + "개&7를 건네주었습니다.");
++        }
+         return true;
+     }
+ 
+@@ -1089,6 +1131,16 @@ public class QuestManager {
+                 cur = countDeliverable(p, get(o, 1));
+                 setProgress(d, qid, idx, Math.min(cur, target));
+             }
++            // ★submitmat = "재료를 모아서 가져다주기". deliver의 재료판 — deliver는 부품 PDC만
++            //   보므로 특수작물·조합재료는 제출할 방법이 아예 없었다(2026-08-16, 마인팜 라인).
++            //   판정·회수 모두 CraftingManager의 lore "mat:<id>" 규약에 위임한다.
++            case "submitmat" -> {
++                target = parseInt(get(o, 2));
++                cur = countSubmitMat(p, get(o, 1));
++                setProgress(d, qid, idx, Math.min(cur, target));
++            }
++            // 섬 경영 목표 — 카운터가 아니라 「지금 섬의 상태」다. 갱신은 refreshIslandGoals()가 한다.
++            case "farmland", "islandvisit" -> target = parseInt(get(o, 1));
+             default -> target = 0;
+         }
+         return cur >= target;
+@@ -1485,6 +1537,75 @@ public class QuestManager {
+         }
+     }
+ 
++    // ===================================================================
++    // 섬 경영 목표 — farmland / islandvisit (「마인팜」 라인, 2026-08-16)
++    // ===================================================================
++    /**
++     * 이 둘은 <b>이벤트로 잡히지 않는 상태 목표</b>다. 경작지는 괭이질·물 마름·밟기로
++     * 조용히 늘고 줄고, 방문 누적은 <b>남이</b> 올린다. 그래서 카운터를 세는 대신
++     * 10초마다 다시 잰다.
++     *
++     * <p>비용 방어 3겹 —
++     * ① 그 목표를 가진 <b>진행 중</b> 퀘스트가 있는 사람만,
++     * ② 경작지는 {@code island_world}에 <b>서 있을 때만</b>(밭은 거기서 만든다),
++     * ③ {@link com.blockship.island.IslandFarmlandCounter}가 45초 캐시 + 중복 스캔 차단.
++     */
++    private void startIslandGoalRefresh() {
++        if (islandGoalTaskStarted) return;
++        islandGoalTaskStarted = true;
++        Bukkit.getScheduler().runTaskTimer(plugin, this::refreshIslandGoals, 200L, 200L);
++    }
++
++    private void refreshIslandGoals() {
++        if (pdm == null || islandManager == null) return;
++        for (Player p : Bukkit.getOnlinePlayers()) {
++            PlayerData d = pdm.get(p.getUniqueId());
++            if (d == null) continue;
++            boolean wantFarmland = false, wantVisit = false;
++            for (String qid : new ArrayList<>(d.getActiveQuests())) {
++                if (!"진행".equals(status(d, qid))) continue;
++                for (String g : getQuestListField(qid, "목표")) {
++                    if (g.startsWith("farmland|")) wantFarmland = true;
++                    else if (g.startsWith("islandvisit|")) wantVisit = true;
++                }
++            }
++            if (wantVisit) {
++                com.blockship.island.IslandData isl =
++                        islandManager.getIslandByOwner(p.getUniqueId().toString());
++                if (isl != null)
++                    applyIslandGoal(p, d, "islandvisit",
++                            (int) Math.min(isl.getVisitCount(), Integer.MAX_VALUE));
++            }
++            if (!wantFarmland || farmlandCounter == null) continue;
++            // 마지막으로 잰 값이 있으면 먼저 반영한다(섬 밖에서도 진행도가 보이게).
++            int known = farmlandCounter.lastKnown(p.getUniqueId());
++            if (known >= 0) applyIslandGoal(p, d, "farmland", known);
++            if (!com.blockship.island.IslandManager.ISLAND_WORLD.equals(p.getWorld().getName())) continue;
++            if (farmlandCounter.fresh(p.getUniqueId())) continue;
++            farmlandCounter.count(p, n -> {
++                PlayerData pd = pdm.get(p.getUniqueId());
++                if (p.isOnline() && pd != null) applyIslandGoal(p, pd, "farmland", n);
++            });
++        }
++    }
++
++    /** 상태 목표 진행도를 그 verb의 모든 목표 칸에 반영하고 완료를 체크한다. */
++    private void applyIslandGoal(Player p, PlayerData d, String verb, int value) {
++        for (String qid : new ArrayList<>(d.getActiveQuests())) {
++            if (!"진행".equals(status(d, qid))) continue;
++            List<String> goals = getQuestListField(qid, "목표");
++            boolean touched = false;
++            for (int i = 0; i < goals.size(); i++) {
++                String[] o = goals.get(i).split("\\|", -1);
++                if (!verb.equals(o[0])) continue;
++                int target = parseInt(get(o, 1));
++                setProgress(d, qid, i + 1, Math.min(value, target));
++                touched = true;
++            }
++            if (touched) checkProgress(p, d, qid);
++        }
++    }
++
+     /** 드릴로 광석 1칸 채굴 — {@code mine|<블록id>|<수>}. blockId는 {@code minecraft:} 접두 없는 소문자. */
+     public void onMine(Player p, String blockId) { bumpIdCounter(p, "mine", blockId); }
+ 
+@@ -1821,6 +1942,27 @@ public class QuestManager {
+             try {
+                 switch (a[0]) {
+                     case "crop" -> { if (a.length >= 2) it = com.blockship.crop.CropSpecs.outputItem(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // cropseed:<작물id>[:<수>] — 특수작물 씨앗. 이게 없으면 특수작물 재배 자체를
++                    //   시작할 방법이 없다(그전엔 op /작물 지급 전용이었다).
++                    case "cropseed" -> { if (a.length >= 2 && cropManager != null) it = cropManager.makeSeed(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // cropbundle:<작물id>[:<꾸러미 수>] — 압축 작물 꾸러미(1개 = 산출물 64개).
++                    //   난이도가 오를수록 낱개 대신 꾸러미로 준다(마인팜 라인, 2026-08-16).
++                    case "cropbundle" -> { if (a.length >= 2) it = com.blockship.crop.CropSpecs.bundleItem(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // fly:<분>[:<장수>] / autoplant:<횟수>[:<장수>] — 섬 편의권.
++                    //   ★캐시샵·잠수상점과 같은 실물 티켓이다(우클릭 사용). 여기서 즉시 적립하지
++                    //     않는 이유: 퀘스트 보상은 창고에 쌓아 두거나 거래할 수 있어야 한다.
++                    case "fly" -> {
++                        if (a.length >= 2) {
++                            it = com.blockship.island.IslandFlyManager.makeTicket(Integer.parseInt(a[1]));
++                            if (a.length >= 3) it.setAmount(Math.max(1, Math.min(Integer.parseInt(a[2]), 64)));
++                        }
++                    }
++                    case "autoplant" -> {
++                        if (a.length >= 2) {
++                            it = com.blockship.island.IslandAutoPlantManager.makeTicket(Integer.parseInt(a[1]));
++                            if (a.length >= 3) it.setAmount(Math.max(1, Math.min(Integer.parseInt(a[2]), 64)));
++                        }
++                    }
+                     case "dish" -> { if (a.length >= 2) it = com.blockship.cooking.DishSpecs.buildDish(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
+                     case "trap" -> {
+                         if (a.length >= 2) {
+@@ -2418,6 +2560,24 @@ public class QuestManager {
+         return (n == null || n.isEmpty()) ? typeId : n;
+     }
+ 
++    /**
++     * {@code submitmat} 목표의 재료 표시이름. 특수작물 산출물은 materials.json에 없고
++     * {@link com.blockship.crop.CropSpecs}가 소유하므로("작물_밀" 같은 matId) 그쪽을 먼저 본다.
++     */
++    private String matDisplay(String matId) {
++        if (matId == null || matId.isEmpty()) return "재료";
++        if (matId.startsWith("작물_")) {
++            String cropId = matId.substring("작물_".length());
++            if (com.blockship.crop.CropSpecs.byId(cropId) != null)
++                return org.bukkit.ChatColor.stripColor(com.blockship.crop.CropSpecs.nameOf(cropId));
++        }
++        if (materials != null) {
++            MaterialLoader.Material m = materials.getMaterial(matId);
++            if (m != null && m.name != null && !m.name.isEmpty()) return m.name;
++        }
++        return matId;
++    }
++
+     /** 수집품 발견 (퀘스트_수집품) — collectible 목표. CollectibleManager.found()에서 호출. collectible|<수>. */
+     public void onCollectible(Player p) {
+         if (pdm == null) return;
