@@ -248,4 +248,15 @@ client.once("ready", ready => {
 
 client.on("error", error => console.error("[Discord] client error", error));
 process.on("unhandledRejection", error => console.error("[Discord] unhandled rejection", error));
-client.login(TOKEN);
+
+// GuildMembers 는 특권 인텐트라 포털에서 꺼져 있으면 로그인 자체가 거부된다(게이트웨이 4014).
+// 그대로 두면 systemd 가 무한 재시작하면서 원인 모를 장애처럼 보이므로, 진단을 분명히 남기고 죽는다.
+client.login(TOKEN).catch(error => {
+  const message = String(error?.message ?? error);
+  if (error?.code === "DisallowedIntents" || /disallowed intent/i.test(message)) {
+    console.error("[Discord] SERVER MEMBERS INTENT 가 꺼져 있어 로그인이 거부됐습니다.");
+    console.error("[Discord] 개발자 포털 → Bot → Privileged Gateway Intents 에서 SERVER MEMBERS INTENT 를 켠 뒤 재시작하세요.");
+  }
+  console.error("[Discord] login failed", error);
+  process.exit(1);
+});
