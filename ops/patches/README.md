@@ -139,6 +139,41 @@ O(1)이다. 섬 간격이 2,000블록이고 최대 지름이 301이라 청크가
 없어 **영영 안 세진다.** 하필 「대지주」가 요구하는 게 그 경계 확장이라 조용히 못 깨는
 퀘스트가 된다. region 경계가 바뀌면 상태를 버리고 다시 뿌린다(배치 처리 중이면 다음 회차로).
 
+### 배선 전수 확인 (2026-08-16)
+
+「데이터만 넣고 배선을 빼먹으면 조용히 안 된다」가 이 패치의 유일한 실패 모드라, 27개
+연결점을 전부 짚었다.
+
+| 대상 | 확인한 것 |
+|---|---|
+| `farmland` | 표시 · 판정 · 갱신(`pump`) · 카운터 리스너 등록 · `setIslandManager` |
+| `harvest` | `CropManager:330`의 `quests.onHarvest` · `cropManager.setQuestManager` · `goalDone` 타깃 파싱 |
+| `submitmat` | 표시 · 판정 · **회수**(`removeCustomMaterial`) · `CropSpecs`의 `mat:` 마커 · `setCraftingManager` |
+| `islandvisit` | `IslandProtectionListener:213`의 적립 · `getVisitCount` 읽기 |
+| `cropseed` | 빌드 · `questManager.setCropManager` |
+| `cropbundle` | 빌드 · `CropManager.onBundleOpen` 해제 |
+| `fly` / `autoplant` | 빌드 · 티켓 소비 리스너 · `registerEvents` |
+| 칭호 | `rewardTitle` · `Material.matchMaterial`(`hay block`/`grass block` 유효) |
+| `동시진행` | `QuestGui.isConcurrent` |
+
+**★특수작물 전체가 CraftEngine에 물려 있다** — `BlockShipPlugin:2828`에서 CE가 없으면
+`CropManager` 리스너를 아예 등록 안 한다(심기·수확 사망 → `harvest` 목표 영구 0).
+prod에는 깔려 있는 걸 확인했다. 다만 **`plugin.yml` softdepend에 `CraftEngine`이 없다** —
+가드가 있어 CNFE로 죽진 않지만 의존이 문서화 안 된 상태라, 나중에 CE API를 enable 단계에서
+부르게 되면 로드 순서 문제가 난다. 넣어 두는 게 맞다.
+
+★**심기(plant)에는 퀘스트 훅이 없다.** `CropManager`가 `quests.`를 부르는 곳은 수확 한 줄뿐.
+「몇 포기 심어라」 퀘스트를 만들려면 훅부터 추가해야 한다.
+
+★수확 카운트는 **한 포기 = 1회**다(풍년 수량 배수는 안 셈). `harvest|밀|3` = 3포기 = 특수 밀 9개.
+
+★**압축 꾸러미는 `submitmat`에 안 잡힌다** — 꾸러미 lore는 `#cropbundle:밀`이지 `mat:작물_밀`이
+아니다. 풀어야 제출된다(의도).
+
+★꾸러미가 건초더미·수박 같은 **블록 아이템**이라, 상자·화로처럼 열리는 블록을 우클릭하면
+해제를 **비켜 준다**(`Material.isInteractable()`). 안 그러면 꾸러미를 든 채로는 상자를 못 연다.
+웅크리면 = 블록을 놓겠다는 자세이므로 그때는 꾸러미를 푼다.
+
 ### 새 보상 타입 4종 (`보상아이템`)
 
 | spec | 주는 것 |

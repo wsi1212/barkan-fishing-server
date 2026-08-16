@@ -13,10 +13,10 @@ index e340c5e..6c35711 100644
              getServer().getPluginManager().registerEvents(cropManager, this);
          else getLogger().warning("[Crop] CraftEngine 미탑재 — 특수 작물 비활성(가구 기반)");
 diff --git a/src/main/java/com/blockship/crop/CropManager.java b/src/main/java/com/blockship/crop/CropManager.java
-index 77906ba..c15fa04 100644
+index 77906ba..6991795 100644
 --- a/src/main/java/com/blockship/crop/CropManager.java
 +++ b/src/main/java/com/blockship/crop/CropManager.java
-@@ -444,6 +444,30 @@ public class CropManager implements Listener {
+@@ -444,6 +444,35 @@ public class CropManager implements Listener {
          if (c != null) pullCrop(c, e.getPlayer(), null, "break");
      }
  
@@ -33,7 +33,12 @@ index 77906ba..c15fa04 100644
 +        ItemStack hand = e.getItem();
 +        String cropId = CropSpecs.bundleIdOf(hand);
 +        if (cropId == null) return;
-+        e.setCancelled(true);
++        // ★상자·화로처럼 «열리는» 블록을 우클릭한 거면 비켜 준다. 꾸러미가 건초더미·수박 같은
++        //   **블록 아이템**이라 이걸 안 하면 꾸러미를 든 채로는 상자를 못 연다.
++        //   웅크리면(바닐라에선 블록을 놓는 자세) 열지 않겠다는 뜻이니 그때는 꾸러미를 푼다.
++        Block clicked = e.getClickedBlock();
++        if (clicked != null && clicked.getType().isInteractable() && !e.getPlayer().isSneaking()) return;
++        e.setCancelled(true);          // 여기서부터는 블록 설치를 막고 꾸러미를 푼다
 +        Player p = e.getPlayer();
 +        ItemStack out = CropSpecs.outputItem(cropId, CropSpecs.BUNDLE_QTY);
 +        if (out == null) return;
