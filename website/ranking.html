@@ -70,12 +70,17 @@
       const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
       const skinUrl = name => `https://mc-heads.net/body/${encodeURIComponent(name)}/250`;
       const headUrl = name => `https://mc-heads.net/avatar/${encodeURIComponent(name)}/80`;
-      const EMBLEM_COLORS = ['#141b27','#eff4f2','#d34d5a','#f08f49','#f5c757','#68cd8f','#42a67e','#58cddd','#4980d0','#8169c4','#d270bc','#9f6948'];
+      // 색표는 /api/ranking 이 인게임 팔레트에서 그대로 실어 보낸다. 여기에 복사해 두면
+      // 팔레트를 늘렸을 때 웹만 옛 색으로 남는다.
+      const emblemColors = () => Array.isArray(data?.emblemColors) ? data.emblemColors : [];
+      const emblemEmpty = () => data?.emblemBackground || '#08121d';
       const guildEmblem = (item, className = 'ranking-emblem', full = true) => {
+        const colors = emblemColors();
+        const empty = emblemEmpty();
         const canvas = full && Array.isArray(item?.emblemCanvasPixels) && item.emblemCanvasPixels.length === 64 * 64 ? item.emblemCanvasPixels : null;
         const pixels = canvas || (Array.isArray(item?.emblemPixels) && item.emblemPixels.length === 64 ? item.emblemPixels : Array(64).fill(-1));
         const size = canvas ? 64 : 8;
-        return `<span class="${className}" style="--emblem-size:${size}" aria-label="${escapeHtml(item?.name ?? '길드')} 엠블럼">${pixels.map(value => `<i style="background:${Number.isInteger(value) && value >= 0 && value < EMBLEM_COLORS.length ? EMBLEM_COLORS[value] : '#08121d'}"></i>`).join('')}</span>`;
+        return `<span class="${className}" style="--emblem-size:${size}" aria-label="${escapeHtml(item?.name ?? '길드')} 엠블럼">${pixels.map(value => `<i style="background:${Number.isInteger(value) && value >= 0 && value < colors.length ? colors[value] : empty}"></i>`).join('')}</span>`;
       };
       const profileHref = item => active === 'guild'
         ? `/community/guild/${encodeURIComponent(item?.id ?? item?.name ?? '')}`

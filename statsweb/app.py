@@ -153,6 +153,20 @@ def public_ranking():
                           190_000, 250_000, 330_000, 430_000, 560_000, 720_000, 920_000)
             return sum(score >= threshold for threshold in thresholds)
 
+        # 엠블럼 색표는 BlockShip이 기동마다 다시 뽑는다(emblem-palette.json). 여기서 베껴 두면
+        # 인게임 팔레트를 늘렸을 때 웹만 옛 색으로 남는다.
+        emblem_palette = read_plugin_json("emblem-palette.json")
+        emblem_colors = [entry.get("hex") for entry in (emblem_palette.get("colors") or [])
+                         if isinstance(entry, dict) and entry.get("hex")]
+        palette_size = len(emblem_colors)
+
+        def emblem_array(raw, expected):
+            """팔레트 범위를 벗어난 값은 빈 픽셀로 떨어뜨린다."""
+            if not isinstance(raw, list) or len(raw) != expected:
+                return [-1] * expected
+            return [int(value) if isinstance(value, (int, float)) and 0 <= int(value) < palette_size else -1
+                    for value in raw]
+
         guild_rows = []
         for guild_id, guild in read_plugin_json("guilds.json").items():
             members = guild.get("members") or {}
@@ -163,28 +177,11 @@ def public_ranking():
                 + int(guild.get("treasury") or 0) // 10_000
             )
             owner = guild.get("ownerId") or ""
-            raw_emblem = guild.get("emblemPixels")
-            emblem = ([int(value) if isinstance(value, (int, float)) and int(value) >= -1 and int(value) < 12 else -1
-                       for value in raw_emblem[:64]]
-                      if isinstance(raw_emblem, list) and len(raw_emblem) == 64 else [-1] * 64)
-            large_emblem = guild.get("emblemCanvasPixels")
-            large_size = 64 if isinstance(large_emblem, list) and len(large_emblem) == 64 * 64 else 128 if isinstance(large_emblem, list) and len(large_emblem) == 128 * 128 else 0
-            canvas_emblem = ([int(value) if isinstance(value, (int, float)) and int(value) >= -1 and int(value) < 12 else -1
-                              for value in large_emblem]
-                             if large_size == 64 else [])
-            if large_size and all(value < 0 for value in emblem):
-                emblem = []
-                for gy in range(8):
-                    for gx in range(8):
-                        counts = [0] * 12
-                        cell = large_size // 8
-                        for y in range(cell):
-                            for x in range(cell):
-                                value = large_emblem[(gy * cell + y) * large_size + gx * cell + x]
-                                if isinstance(value, (int, float)) and 0 <= int(value) < 12:
-                                    counts[int(value)] += 1
-                        best = max(range(12), key=lambda color: counts[color], default=0)
-                        emblem.append(best if counts[best] else -1)
+            # 8×8·64×64 미리보기는 둘 다 BlockShip이 권위 캔버스에서 파생해 넣어 준다.
+            emblem = emblem_array(guild.get("emblemPixels"), 8 * 8)
+            canvas_emblem = emblem_array(guild.get("emblemCanvasPixels"), 64 * 64)
+            if all(value < 0 for value in canvas_emblem):
+                canvas_emblem = []
             guild_rows.append({
                 "id": guild_id,
                 "name": guild.get("displayName") or guild_id,
@@ -272,6 +269,8 @@ def public_ranking():
 
         return {
             "updatedAt": latest,
+            "emblemColors": emblem_colors,
+            "emblemBackground": emblem_palette.get("background"),
             "categories": {
                 "level": {"label": "낚시 레벨", "field": "level", "suffix": "Lv.", "rows": level_rows},
                 "fish": {"label": "누적 어획", "field": "total_fish", "suffix": "마리", "rows": leaders("CAST(total_fish AS REAL) DESC, CAST(level AS REAL) DESC")},
