@@ -124,10 +124,10 @@ index 6aa0c60..39d3b34 100644
      }
 diff --git a/src/main/java/com/blockship/island/IslandFarmlandCounter.java b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
 new file mode 100644
-index 0000000..81d5ae5
+index 0000000..37e7dda
 --- /dev/null
 +++ b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
-@@ -0,0 +1,260 @@
+@@ -0,0 +1,320 @@
 +package com.blockship.island;
 +
 +import com.blockship.region.RegionData;
@@ -205,7 +205,14 @@ index 0000000..81d5ae5
 +
 +    /** 한 배치에 스냅샷 뜰 청크 수. 스냅샷 생성만 메인 스레드고, 세는 건 비동기다. */
 +    private static final int CHUNKS_PER_BATCH = 4;
-+    /** 할 일이 없는 회차마다 순회 재검증할 청크 수 — 놓친 이벤트의 자가 치유. */
++    /**
++     * 할 일이 없는 회차마다 순회 재검증할 청크 수 — 놓친 이벤트의 자가 치유.
++     *
++     * <p>이게 순수 증분 대비 유일한 <b>유휴 비용</b>이다(추적 1명당 10초마다 청크 2개 ≒
++     * 비동기 0.6ms + 메인 0.3ms). 보험이 필요 없다고 판단되면 <b>0으로 두면 유휴 비용이
++     * 문자 그대로 사라진다</b> — 그러면 「내가 잡는 이벤트가 전부다」에 전적으로 기댄다.
++     * 커버 못 하는 경로는 WorldEdit·{@code /setblock}처럼 이벤트를 안 내는 외부 변경이다.
++     */
 +    private static final int HEAL_PER_PASS = 2;
 +
 +    private final JavaPlugin plugin;
@@ -213,14 +220,26 @@ index 0000000..81d5ae5
 +
 +    /** 섬 region id → 상태. <b>비어 있으면 리스너가 아무 일도 안 한다.</b> */
 +    private final Map<String, State> byIsland = new HashMap<>();
++    /**
++     * 청크키 → 그 청크를 가진 섬의 상태. <b>추적 중인 섬의 청크만</b> 들어 있다.
++     *
++     * <p>★이게 없으면 {@link #mark}가 {@code RegionManager.getRegionAt}을 부르는데, 그건
++     * <b>전체 region을 매번 순회</b>한다. 섬이 1,000개면 물 한 칸 흐를 때마다
++     * ({@code BlockFromTo}!) 1,000회 반복이다. 청크키 해시 한 번으로 끝내면
++     * <b>섬이 몇 개든 O(1)</b>이다. 섬 간격이 2,000블록이라(최대 지름 301) 청크가 겹칠 일도 없다.
++     */
++    private final Map<Long, State> chunkIndex = new HashMap<>();
 +
 +    private static final class State {
-+        final Map<Long, Integer> perChunk = new HashMap<>();     // 청크 → 확정 경작지 수
++        final LinkedHashSet<Long> keys = new LinkedHashSet<>();   // 이 섬에 속한 청크 전부(색인 회수용)
++        final Map<Long, Integer> perChunk = new HashMap<>();      // 청크 → 확정 경작지 수
 +        final LinkedHashSet<Long> dirty = new LinkedHashSet<>();  // 다시 셀 청크
 +        final Deque<Long> healQueue = new ArrayDeque<>();         // 순회 재검증 순서
 +        int total = 0;
 +        boolean seeded = false;      // 첫 전수 스캔을 걸었나
 +        boolean scanning = false;    // 배치 처리 중
++        /** 씨를 뿌릴 때의 섬 경계(x1,z1,x2,z2). 달라지면 = 경계 업그레이드 → 재파종. */
++        int[] bounds = null;
 +    }
 +
 +    public IslandFarmlandCounter(JavaPlugin plugin, IslandManager islands) {
@@ -255,14 +274,29 @@ index 0000000..81d5ae5
 +        int[] a = r.getPos1(), b = r.getPos2();
 +        final int minY = Math.max(w.getMinHeight(), Math.min(a[1], b[1]));
 +        final int maxY = Math.min(w.getMaxHeight() - 1, Math.max(a[1], b[1]));
++        int[] now = {Math.min(a[0], b[0]), Math.min(a[2], b[2]),
++                     Math.max(a[0], b[0]), Math.max(a[2], b[2])};
 +
-+        if (!st.seeded) {                       // 첫 만남 = 전수 스캔 예약
++        // ★경계 업그레이드 감지. 안 보면 새로 생긴 바깥 링이 색인에 없어 **영영 안 세진다** —
++        //   하필 「대지주」가 요구하는 게 바로 그 경계 확장이라 조용히 못 깨는 퀘스트가 된다.
++        //   스캔 중이면 배치가 끝난 다음 회차로 미룬다(자료구조를 밑에서 갈아치우면 안 된다).
++        if (st.seeded && !java.util.Arrays.equals(st.bounds, now)) {
++            if (st.scanning) { done.accept(st.total); return; }
++            chunkIndex.keySet().removeAll(st.keys);
++            byIsland.remove(isl.getId());
++            st = byIsland.computeIfAbsent(isl.getId(), k -> new State());
++        }
++
++        if (!st.seeded) {                       // 첫 만남 = 전수 스캔 예약 + 청크 색인 구축
 +            st.seeded = true;
++            st.bounds = now;
 +            for (int cx = Math.min(a[0], b[0]) >> 4; cx <= (Math.max(a[0], b[0]) >> 4); cx++)
 +                for (int cz = Math.min(a[2], b[2]) >> 4; cz <= (Math.max(a[2], b[2]) >> 4); cz++) {
 +                    long k = key(cx, cz);
++                    st.keys.add(k);
 +                    st.dirty.add(k);
 +                    st.healQueue.add(k);
++                    chunkIndex.put(k, st);
 +                }
 +        } else if (st.dirty.isEmpty()) {         // 할 일 없음 → 순회 재검증 몇 칸
 +            for (int i = 0; i < HEAL_PER_PASS && !st.healQueue.isEmpty(); i++) {
@@ -329,13 +363,12 @@ index 0000000..81d5ae5
 +     * <b>다시 세서 덮어쓰므로</b> 과하게 잡는 건 공짜고, 덜 잡는 것만 위험하다.
 +     */
 +    private void mark(Location loc) {
-+        if (byIsland.isEmpty() || loc == null || loc.getWorld() == null) return;   // 아무도 안 세는 중
++        if (chunkIndex.isEmpty() || loc == null || loc.getWorld() == null) return;  // 아무도 안 세는 중
 +        if (!IslandManager.ISLAND_WORLD.equals(loc.getWorld().getName())) return;
-+        IslandData isl = islands.getIslandAt(loc);
-+        if (isl == null) return;
-+        State st = byIsland.get(isl.getId());
-+        if (st == null || !st.seeded) return;
-+        st.dirty.add(key(loc.getBlockX() >> 4, loc.getBlockZ() >> 4));
++        // ★해시 한 번. RegionManager를 부르지 않는다 — 그건 전체 region 순회다.
++        long k = key(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
++        State st = chunkIndex.get(k);
++        if (st != null) st.dirty.add(k);
 +    }
 +
 +    private void mark(Block b) { if (b != null) mark(b.getLocation()); }
@@ -370,6 +403,17 @@ index 0000000..81d5ae5
 +        for (Block b : e.getBlocks()) mark(b);
 +    }
 +
++    /** 폭발 — ★비교하며 빠뜨렸던 구멍. 크리퍼·TNT가 밭을 날려도 위 이벤트는 안 뜬다. */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent e) {
++        for (Block b : e.blockList()) mark(b);
++    }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent e) {
++        for (Block b : e.blockList()) mark(b);
++    }
++
 +    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 +    public void onPistonPull(BlockPistonRetractEvent e) {
 +        mark(e.getBlock());
@@ -377,16 +421,32 @@ index 0000000..81d5ae5
 +    }
 +
 +    // ===================================================================
-+    // 정리
++    // 정리 — ★안 하면 샌다
 +    // ===================================================================
-+    /** 그 플레이어의 섬 상태를 버린다 — 퀘스트를 끝냈거나 접속을 끊었을 때. */
++    /**
++     * 그 플레이어의 섬 상태를 버린다 — 퀘스트를 끝냈거나 접속을 끊었을 때.
++     *
++     * <p>★<b>퇴장 정리가 없으면 진짜로 샌다.</b> 퀘스트를 켠 채 로그아웃한 사람의 상태가
++     * 영원히 남고, 큰 섬 하나가 400청크 × 두 자료구조라 사람이 갈릴수록 쌓인다.
++     * 게다가 {@link #chunkIndex}가 안 비면 {@link #mark}의 「아무도 안 세는 중」 지름길이
++     * 영원히 안 걸려서 <b>모든 물 흐름이 해시 조회를 계속 낸다.</b>
++     */
 +    public void forget(UUID owner) {
 +        IslandData isl = islands.getIslandByOwner(owner.toString());
-+        if (isl != null) byIsland.remove(isl.getId());
++        if (isl == null) return;
++        State st = byIsland.remove(isl.getId());
++        if (st != null) chunkIndex.keySet().removeAll(st.keys);
 +    }
++
++    /** 접속 종료 → 즉시 정리. 다시 들어오면 전수 스캔 한 번으로 재동기화된다. */
++    @EventHandler(priority = EventPriority.MONITOR)
++    public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) { forget(e.getPlayer().getUniqueId()); }
 +
 +    /** 지금 추적 중인 섬 수 — 진단용. */
 +    public int trackedIslands() { return byIsland.size(); }
++
++    /** 색인에 올라 있는 청크 수 — 진단용(누수 감시). */
++    public int indexedChunks() { return chunkIndex.size(); }
 +}
 diff --git a/src/main/java/com/blockship/quest/QuestGui.java b/src/main/java/com/blockship/quest/QuestGui.java
 index b65e058..c24d97d 100644
