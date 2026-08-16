@@ -1,0 +1,522 @@
+diff --git a/src/main/java/com/blockship/BlockShipPlugin.java b/src/main/java/com/blockship/BlockShipPlugin.java
+index 9503839..e340c5e 100644
+--- a/src/main/java/com/blockship/BlockShipPlugin.java
++++ b/src/main/java/com/blockship/BlockShipPlugin.java
+@@ -2574,6 +2574,35 @@ public class BlockShipPlugin extends JavaPlugin {
+                 return java.util.Collections.emptyList();
+             }
+         });
++        // /길잡이 (rlfwkqdl /rwd) — 지금 추적 중인 메인 퀘스트로 화살표를 다시 켠다. (2026-08-15 신설)
++        //   「오랜만에 접속했더니 메인이 어디였는지 모르겠다」의 답. 사이드를 밀다가 메인을
++        //   놓쳐도 이 한 줄이면 복귀한다. OP 전용이 아니므로 영타·초성 별칭을 단다(CLAUDE.md 규약).
++        cmdMap.register("blockship", new org.bukkit.command.Command("길잡이") {
++            { setAliases(java.util.List.of("rlfwkqdl", "rwd", "길안내", "fnxm")); }
++            @Override public boolean execute(org.bukkit.command.CommandSender s, String l, String[] a) {
++                if (!(s instanceof Player p)) return true;
++                String qid = questManager.getTrackedMainQuest(p);
++                if (qid == null) {
++                    p.sendMessage("§8[§d 퀘스트 §8] §7추적 중인 메인 퀘스트가 없습니다.");
++                    return true;
++                }
++                String name = org.bukkit.ChatColor.stripColor(
++                        org.bukkit.ChatColor.translateAlternateColorCodes('&',
++                                String.valueOf(questManager.getQuestField(qid, "이름"))));
++                String giver = questManager.questGiverName(qid);
++                if (questManager.startGuideTo(p, qid)) {
++                    p.sendMessage("§8[§d 퀘스트 §8] §f" + name + "§7 — 화살표를 따라가세요"
++                            + (giver != null && !giver.isEmpty() ? " §8(" + giver + ")" : ""));
++                } else {
++                    p.sendMessage("§8[§d 퀘스트 §8] §f" + name + " §7— 길안내 지점을 못 찾았습니다"
++                            + (giver != null && !giver.isEmpty() ? " §8(" + giver + "에게 가세요)" : ""));
++                }
++                return true;
++            }
++            @Override public java.util.List<String> tabComplete(org.bukkit.command.CommandSender s, String al, String[] a) {
++                return java.util.Collections.emptyList();
++            }
++        });
+         cmdMap.register("blockship", new org.bukkit.command.Command("도전과제") {
+             { setAliases(java.util.List.of("ehwjsrhkwp")); }
+             @Override public boolean execute(org.bukkit.command.CommandSender s, String l, String[] a) {
+@@ -3389,6 +3418,10 @@ public class BlockShipPlugin extends JavaPlugin {
+                 Bukkit.getScheduler().runTaskLater(BlockShipPlugin.this, () -> {
+                     if (jp.isOnline()) questManager.onJoin(jp);
+                 }, 15L);
++                // 「나 뭐 하던 중이었지」 — 추적 중인 메인 한 줄 안내. 접속 잡음이 잦아든 뒤에 띄운다.
++                Bukkit.getScheduler().runTaskLater(BlockShipPlugin.this, () -> {
++                    if (jp.isOnline()) questManager.greetOnJoin(jp);
++                }, 80L);
+                 // 낚시레벨 on-join 정산 (낚시레벨_bridge.sk on join 이관) — PlayerData restore 후 밀린 레벨업 정산 + 경험치바 동기화.
+                 Bukkit.getScheduler().runTaskLater(BlockShipPlugin.this, () -> {
+                     if (jp.isOnline()) fishingLevelManager.onJoinSettle(jp);
+diff --git a/src/main/java/com/blockship/npc/NpcManager.java b/src/main/java/com/blockship/npc/NpcManager.java
+index ae57cc3..dc39e8d 100644
+--- a/src/main/java/com/blockship/npc/NpcManager.java
++++ b/src/main/java/com/blockship/npc/NpcManager.java
+@@ -169,6 +169,24 @@ public class NpcManager {
+     /** 퀘스트 id → 그 퀘스트를 주는 NPC의 순수 이름 역조회. 여러 NPC가 줘도 첫 번째.
+      *  퀘스트 안내에서 "[NPC이름] X 클리어하세요" 형식용으로 쓴다.
+      *  NPC name의 색코드(&/§)와 역할 태그([길잡이]·[Q] 등 맨 앞 [...])를 벗긴 순수 이름 반환. */
++    /**
++     * 그 퀘스트를 주는 NPC의 <b>키</b>(npc.json 맵 키). {@link #liveLocationOf}·{@link #getNpc}가
++     * 받는 값은 표시이름이 아니라 이 키다.
++     *
++     * <p>★2026-08-15: {@code guideToQuestGiver}가 {@link #npcNameOfQuest}(표시이름)를
++     * {@code liveLocationOf}에 그대로 넘기고 있었다. 키가 "하겐"인데 "길드장 하겐"으로 찾으니
++     * 항상 null이 나와 <b>실시간 위치 경로가 통째로 죽어 있었고</b>, 매번 하드코딩
++     * {@code 안내좌표}로 폴백했다 — 2026-08-06에 고쳤다던 그 버그가 그대로 남아 있었다.
++     */
++    public String npcIdOfQuest(String qid) {
++        if (qid == null) return null;
++        for (var e : npcs.entrySet()) {
++            if (e.getValue().quests != null && e.getValue().quests.contains(qid)) return e.getKey();
++        }
++        return null;
++    }
++
++    /** 그 퀘스트를 주는 NPC의 <b>표시이름</b>(태그·색 제거). 위치 조회엔 {@link #npcIdOfQuest}를 쓸 것. */
+     public String npcNameOfQuest(String qid) {
+         if (qid == null) return null;
+         for (var e : npcs.entrySet()) {
+diff --git a/src/main/java/com/blockship/quest/QuestCatalogGui.java b/src/main/java/com/blockship/quest/QuestCatalogGui.java
+index 83f2d31..578f355 100644
+--- a/src/main/java/com/blockship/quest/QuestCatalogGui.java
++++ b/src/main/java/com/blockship/quest/QuestCatalogGui.java
+@@ -274,6 +274,8 @@ public class QuestCatalogGui implements Listener {
+         List<String> desc = quests.getQuestListField(id, "설명");
+         if (desc.isEmpty()) lore.add("  §7(설명 없음)");
+         else for (String dl : desc) lore.add("  " + dl);
++        String diff = quests.difficultyLore(id);
++        if (diff != null) { lore.add(""); lore.add("  " + diff); }
+         lore.add("");
+ 
+         // 달성 조건
+diff --git a/src/main/java/com/blockship/quest/QuestGui.java b/src/main/java/com/blockship/quest/QuestGui.java
+index f5fd95c..b65e058 100644
+--- a/src/main/java/com/blockship/quest/QuestGui.java
++++ b/src/main/java/com/blockship/quest/QuestGui.java
+@@ -168,7 +168,19 @@ public class QuestGui implements Listener {
+             String st = status.get(show);
+             // 다른 메인퀘 진행중 + 이 퀘스트 미수락 → 잠금
+             if (hasOtherMain && !"진행".equals(st) && !"완료대기".equals(st)) {
+-                inv.setItem(13, named(Material.GRAY_STAINED_GLASS_PANE, "§c다른 퀘스트를 먼저 완료해주세요", null));
++                // ★어떤 퀘스트인지 안 알려주면 그 자체가 미아 제조기다(2026-08-15).
++                String busy = null;
++                for (String aq : d.getActiveQuests()) if (!isSpecial(aq)) { busy = aq; break; }
++                List<String> lore = new java.util.ArrayList<>();
++                String bn = busy == null ? null : quests.getQuestField(busy, "이름");
++                if (bn != null) {
++                    lore.add("§7진행 중: §f" + bn);
++                    String bg = quests.questGiverName(busy);
++                    if (bg != null && !bg.isEmpty()) lore.add("§7반납: §f" + bg);
++                }
++                lore.add("§8퀘스트는 한 번에 하나만 진행할 수 있습니다");
++                inv.setItem(13, named(Material.GRAY_STAINED_GLASS_PANE,
++                        "§c다른 퀘스트를 먼저 완료해주세요", lore.isEmpty() ? null : lore));
+             } else {
+                 renderNpcIcon(inv, h, 13, show, status, d);
+             }
+@@ -188,6 +200,8 @@ public class QuestGui implements Listener {
+         if (name == null) name = qid;
+         List<String> lore = new ArrayList<>();
+         for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++        String diff = quests.difficultyLore(qid);
++        if (diff != null) { lore.add(""); lore.add(diff); }
+         lore.add("");
+ 
+         Material icon;
+@@ -254,23 +268,49 @@ public class QuestGui implements Listener {
+         inv.setItem(4, named(Material.BOOK, !showMain ? "§e일일·주간 퀘스트" : "§e퀘스트 목록", null));
+         inv.setItem(8, named(Material.BARRIER, "§c닫기", null));
+ 
+-        // 메인 퀘스트 (slot 13, 2번째 줄 가운데) — 활성 중 일일/주간 아닌 것
+-        String mainQid = null;
+-        for (String aq : d.getActiveQuests()) {
+-            if (!isSpecial(aq)) mainQid = aq;
+-        }
++        // 메인 퀘스트 (slot 13, 2번째 줄 가운데)
++        // ★2026-08-15: 예전엔 activeQuests의 마지막 non-special을 집었다. 그래서
++        //   ① 사이드를 수락하면 그게 "메인 퀘스트" 자리를 차지했고
++        //   ② 「대기」는 activeQuests에 없어 **"진행 중인 메인 퀘스트가 없습니다"라고 거짓말**을 했다.
++        //   이제 QuestManager.getTrackedMainQuest 하나만 쓴다(사이드바와 같은 답).
++        String mainQid = quests.getTrackedMainQuest(p);
+         h.mainQid = mainQid;
++        String mainState = mainQid == null ? null : status.get(mainQid);
+         if (!showMain) {
+             // 일일/주간 전용 뷰 — 메인 슬롯(13) 생략(필러 유지)
+         } else if (mainQid == null) {
++            String last = quests.getLastClearedMain(p);
+             inv.setItem(13, named(Material.GRAY_STAINED_GLASS_PANE, "§7메인 퀘스트",
+-                List.of("§7진행 중인 메인 퀘스트가 없습니다")));
++                last == null ? List.of("§7아직 시작하지 않았습니다")
++                             : List.of("§7메인 이야기를 끝까지 마쳤습니다",
++                                       "§8마지막: " + plainName(quests.getQuestField(last, "이름")))));
++        } else if ("대기".equals(mainState)) {
++            // 아직 수락 전 — **어디로 가면 되는지**를 띄우고, 클릭하면 화살표를 켠다.
++            List<String> lore = new ArrayList<>();
++            for (String dl : quests.getQuestListField(mainQid, "설명")) lore.add(dl);
++            String mDiff = quests.difficultyLore(mainQid);
++            if (mDiff != null) { lore.add(""); lore.add(mDiff); }
++            lore.add("");
++            String giver = quests.questGiverName(mainQid);
++            int needLv = quests.getQuestInt(mainQid, "필요레벨", 0);
++            if (needLv > d.getFishingLevel()) {
++                lore.add("§c● 낚시 레벨 " + needLv + " 필요 §7(현재 " + d.getFishingLevel() + ")");
++            } else {
++                lore.add("§6● 아직 수락하지 않았습니다");
++            }
++            if (giver != null && !giver.isEmpty()) lore.add("§7수여: §f" + giver);
++            lore.add("");
++            lore.add("§e▶ 클릭 — 여기로 길안내");
++            inv.setItem(13, named(Material.COMPASS,
++                quests.getQuestField(mainQid, "이름"), lore));
+         } else {
+-            String mStatus = status.get(mainQid);
++            String mStatus = mainState;
+             String mName = quests.getQuestField(mainQid, "이름");
+             if (mName == null) mName = mainQid;
+             List<String> lore = new ArrayList<>();
+             for (String dl : quests.getQuestListField(mainQid, "설명")) lore.add(dl);
++            String mDiff = quests.difficultyLore(mainQid);
++            if (mDiff != null) { lore.add(""); lore.add(mDiff); }
+             lore.add("");
+             if ("완료대기".equals(mStatus)) {
+                 lore.add("§a★ NPC에게 보상을 받으세요!");
+@@ -320,9 +360,24 @@ public class QuestGui implements Listener {
+             return;
+         }
+         if (slot == 13) {
+-            if (h.showMain && click == ClickType.SHIFT_LEFT && h.mainQid != null) {
+-                quests.abandon(p, h.mainQid);
+-                renderJournal(p);
++            if (h.mainQid == null || !h.showMain) return;
++            if (click == ClickType.SHIFT_LEFT) {
++                // 포기는 **진행 중일 때만** — 아직 수락도 안 한 대기 메인을 포기시키면
++                // 체인이 끊겨 복구 경로가 없다.
++                PlayerData pd = pdm.getOrCreate(p.getUniqueId(), p.getName());
++                if (!"대기".equals(pd.getQuestStatus().get(h.mainQid))) {
++                    quests.abandon(p, h.mainQid);
++                    renderJournal(p);
++                }
++                return;
++            }
++            // ★일반 클릭 = 길안내(2026-08-15 신설). 「다음 메인이 어디였더라」의 답.
++            if (quests.startGuideTo(p, h.mainQid)) {
++                p.closeInventory();
++                p.sendMessage("§8[§d 퀘스트 §8] §f" + plainName(quests.getQuestField(h.mainQid, "이름"))
++                        + " §7으로 길안내를 시작합니다.");
++            } else {
++                p.sendMessage("§8[§d 퀘스트 §8] §c길안내 지점을 찾지 못했습니다.");
+             }
+             return;
+         }
+@@ -635,6 +690,8 @@ public class QuestGui implements Listener {
+         if (name == null) name = qid;
+         List<String> lore = new ArrayList<>();
+         for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++        String jDiff = quests.difficultyLore(qid);
++        if (jDiff != null) { lore.add(""); lore.add(jDiff); }
+         lore.add("");
+         if ("완료".equals(st)) {
+             lore.add("§a★ 완료!");
+@@ -761,6 +818,13 @@ public class QuestGui implements Listener {
+     // ===================================================================
+     // util
+     // ===================================================================
++    /** 퀘스트 이름에서 색코드(&/§)만 벗긴다 — 로어 보조 줄용. */
++    private static String plainName(String n) {
++        if (n == null) return "";
++        return org.bukkit.ChatColor.stripColor(
++                org.bukkit.ChatColor.translateAlternateColorCodes('&', n));
++    }
++
+     private boolean isSpecial(String qid) {
+         String cat = quests.getQuestField(qid, "카테고리");
+         if ("일일".equals(cat) || "주간".equals(cat)) return true;
+diff --git a/src/main/java/com/blockship/quest/QuestManager.java b/src/main/java/com/blockship/quest/QuestManager.java
+index a29a949..4792d2d 100644
+--- a/src/main/java/com/blockship/quest/QuestManager.java
++++ b/src/main/java/com/blockship/quest/QuestManager.java
+@@ -254,6 +254,54 @@ public class QuestManager {
+     public Collection<String> getQuestIds() { return quests.keySet(); }
+     public int getQuestCount() { return quests.size(); }
+ 
++    // ══ 난이도 바 ═══════════════════════════════════════════════════════════
++    /**
++     * 난이도 램프 — 1~20칸. 길어질수록 짙어진다.
++     * 초록 → 노랑 → 주황 → 빨강 → 진빨강 → 보라 → 진보라 → 회색 → 검정.
++     * ★레거시 색코드만 쓴다. 로어 직렬화기가 legacySection()/legacyAmpersand() 평범
++     *   빌드라 hex(§x…)를 못 읽는다. `&`로 내보내면 세 GUI 모두에서 안전하다
++     *   (QuestGui·QuestCatalogGui는 &→§ 정규화 후, VillageQuestGui는 legacyAmpersand).
++     */
++    private static final String[] DIFF_COLORS = {
++        "&a", "&a", "&a", "&a",       //  1~ 4  초록
++        "&e", "&e", "&e",             //  5~ 7  노랑
++        "&6", "&6",                   //  8~ 9  주황
++        "&c", "&c", "&c",             // 10~12  빨강
++        "&4", "&4",                   // 13~14  진빨강
++        "&d", "&d",                   // 15~16  보라
++        "&5", "&5",                   // 17~18  진보라
++        "&8",                         // 19     회색
++        "&0",                         // 20     검정 (최고극악)
++    };
++
++    /**
++     * 퀘스트 로어에 넣을 난이도 줄. `난이도` 필드가 없으면 null을 준다
++     * (필드를 아직 안 넣은 퀘스트가 있어도 로어가 깨지지 않게).
++     * 바의 <b>길이</b>가 곧 난이도다.
++     */
++    public String difficultyLore(String qid) {
++        String raw = getQuestField(qid, "난이도");
++        if (raw == null || raw.isEmpty()) return null;
++        int n;
++        try {
++            n = (int) Double.parseDouble(raw.trim());
++        } catch (NumberFormatException e) {
++            return null;
++        }
++        if (n < 1) n = 1;
++        if (n > DIFF_COLORS.length) n = DIFF_COLORS.length;
++        StringBuilder sb = new StringBuilder("&7난이도 ");
++        String cur = null;
++        for (int i = 0; i < n; i++) {
++            String c = DIFF_COLORS[i];
++            if (!c.equals(cur)) { sb.append(c); cur = c; }   // 같은 색이면 코드 반복 생략
++            sb.append('|');
++        }
++        // ★숫자(7/20)는 안 붙인다 — 바의 **길이**가 곧 난이도다. 숫자를 같이 띄우면
++        //   시선이 숫자로 가서 바가 장식이 되고, 로어 한 줄이 길어져 지저분하다(2026-08-15).
++        return sb.toString();
++    }
++
+     public String getQuestField(String id, String field) {
+         var q = quests.get(id);
+         if (q == null) return null;
+@@ -495,7 +543,7 @@ public class QuestManager {
+         return v == null ? s : com.blockship.util.Num.fmt(v);
+     }
+ 
+-    private int getQuestInt(String id, String field, int def) {
++    public int getQuestInt(String id, String field, int def) {
+         String v = getQuestField(id, field);
+         if (v == null || v.isEmpty()) return def;
+         try { return (int) Double.parseDouble(v.trim()); } catch (Exception e) { return def; }
+@@ -513,6 +561,87 @@ public class QuestManager {
+         return qid.startsWith("일일_") || qid.startsWith("주간_");
+     }
+ 
++    // ===================================================================
++    // 「추적 중인 메인」 — 사이드바·저널·길안내가 **한 곳에서** 같은 답을 쓴다. (2026-08-15 신설)
++    //
++    // ★왜 필요했나: 예전엔 사이드바가 activeQuests의 **첫** non-special, 저널이 **마지막**
++    //   non-special을 각자 집었다. 둘이 다른 걸 가리켰고, 무엇보다 **「대기」 상태는
++    //   activeQuests에 없어서 둘 다 못 봤다.** 그래서 메인을 깨고 다음이 대기로 열린 뒤
++    //   사이드를 하나 밀고 오면 사이드바는 빈 줄, 저널은 "진행 중인 메인 퀘스트가 없습니다"
++    //   — 대기 중인 메인이 세상 어디에도 안 보였다. 「메인을 못 찾겠다」의 원인.
++    // ===================================================================
++
++    /** 메인 줄기(메인·튜토)인가. 사이드·히든·일일·주간은 제외. */
++    public boolean isMainLine(String qid) {
++        String c = category(qid);
++        return "메인".equals(c) || "튜토".equals(c);
++    }
++
++    /** 아직 수락하지 않은 다음 메인(「대기」). 여럿이면 필요레벨이 낮은 쪽 = 체인상 앞. */
++    public String getPendingMain(Player p) {
++        if (pdm == null) return null;
++        PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
++        String best = null;
++        int bestLv = Integer.MAX_VALUE;
++        for (Map.Entry<String, String> e : d.getQuestStatus().entrySet()) {
++            if (!"대기".equals(e.getValue()) || !isMainLine(e.getKey())) continue;
++            int lv = getQuestInt(e.getKey(), "필요레벨", 0);
++            if (lv < bestLv || (lv == bestLv && best != null && e.getKey().compareTo(best) < 0)) {
++                best = e.getKey(); bestLv = lv;
++            }
++        }
++        return best;
++    }
++
++    /** 사이드바·저널이 고정으로 띄울 메인 퀘스트. 진행 → 완료대기 → 대기 순. 없으면 null. */
++    public String getTrackedMainQuest(Player p) {
++        if (pdm == null) return null;
++        PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
++        String waiting = null;
++        for (String qid : d.getActiveQuests()) {
++            if (!isMainLine(qid)) continue;
++            if ("진행".equals(status(d, qid))) return qid;
++            if ("완료대기".equals(status(d, qid))) waiting = qid;
++        }
++        if (waiting != null) return waiting;
++        return getPendingMain(p);
++    }
++
++    /** 메인 체인을 끝까지 깬 뒤의 폴백 — 마지막으로 완료한 메인. */
++    public String getLastClearedMain(Player p) {
++        if (pdm == null) return null;
++        PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
++        String best = null;
++        int bestLv = -1;
++        for (Map.Entry<String, String> e : d.getQuestStatus().entrySet()) {
++            if (!"완료".equals(e.getValue()) || !isMainLine(e.getKey())) continue;
++            int lv = getQuestInt(e.getKey(), "필요레벨", 0);
++            if (lv > bestLv) { best = e.getKey(); bestLv = lv; }
++        }
++        return best;
++    }
++
++    /** 그 퀘스트를 주는 NPC의 표시이름(태그·색 제거). 없으면 null. */
++    public String questGiverName(String qid) {
++        return npcs == null ? null : npcs.npcNameOfQuest(qid);
++    }
++
++    /** 밖에서 길안내를 다시 켠다 (저널 클릭 · 접속 안내 · /길잡이). */
++    public boolean startGuideTo(Player p, String qid) {
++        if (p == null || qid == null || qid.isEmpty() || nav == null) return false;
++        com.blockship.nav.NavTarget t = null;
++        String npcId = npcs == null ? null : npcs.npcIdOfQuest(qid);
++        if (npcId != null && !npcId.isEmpty()) {
++            org.bukkit.Location live = npcs.liveLocationOf(npcId);
++            if (live != null) t = new com.blockship.nav.NavTarget(live.getWorld().getName(),
++                    live.getX(), live.getY(), live.getZ(), navLabel(qid));
++        }
++        if (t == null) t = com.blockship.nav.NavTarget.parse(getQuestField(qid, "안내좌표"), navLabel(qid));
++        if (t == null) return false;
++        nav.start(p, t);
++        return true;
++    }
++
+     // ===================================================================
+     // state 헬퍼 (PlayerData 직접 read/write)
+     // ===================================================================
+@@ -1104,6 +1233,14 @@ public class QuestManager {
+         String next = getQuestField(qid, "다음퀘스트");
+         if (next != null && !next.isEmpty()) {
+             setStatus(d, next, "대기");
++            // ★여기가 「튜토 끝나면 흐름이 끊긴다」의 원인이었다(2026-08-15).
++            //   completeTravel()(visit 퀘)만 다음 수여자로 화살표를 이어 주고 있었다.
++            //   튜토는 `튜토_이동1~7` 같은 visit 퀘가 촘촘해 안 끊겼지만, 졸업하면 낚기·조합
++            //   위주라 전부 이 경로로 빠지고 **안내가 아예 없었다.** 같은 처리를 여기도 한다.
++            String gn = questGiverName(next);
++            msg(p, "&8[&d 퀘스트 &8] &7다음 — &e" + nameOf(next)
++                    + (gn != null ? " &7· &f" + gn + "&7에게" : ""));
++            guideToQuestGiver(p, next);
+         }
+         logQuestDone(p, qid, rMoney, exp);
+         msg(p, "&8[&d 퀘스트 &8] &a잘했어요! &f" + nameOf(qid) + " 완료");
+@@ -1115,7 +1252,7 @@ public class QuestManager {
+     private void guideToQuestGiver(Player p, String qid) {
+         if (p == null || qid == null || qid.isEmpty() || nav == null || !nav.isAuto(p)) return;
+         com.blockship.nav.NavTarget target = null;
+-        String npcId = npcs == null ? null : npcs.npcNameOfQuest(qid);
++        String npcId = npcs == null ? null : npcs.npcIdOfQuest(qid);
+         if (npcId != null && !npcId.isEmpty() && npcs != null) {
+             org.bukkit.Location live = npcs.liveLocationOf(npcId);
+             if (live != null) {
+@@ -1980,6 +2117,35 @@ public class QuestManager {
+         checkWeekly(p);
+     }
+ 
++    /**
++     * 접속 시 1회 — 추적 중인 메인을 한 줄로 알려 준다. (2026-08-15 신설)
++     *
++     * <p>오랜만에 들어온 유저가 가장 먼저 잃어버리는 정보가 「나 뭐 하던 중이었지」다.
++     * 사이드바 이정표가 상시로 받쳐 주지만, 접속 순간엔 눈이 채팅으로 가므로 여기서도 한 번 준다.
++     * ★화살표는 여기서 켜지 않는다 — 접속하자마자 바닥에 화살표가 깔리면 성가시다.
++     * {@code /길잡이}로 직접 켜게 두는 편이 낫다.
++     */
++    public void greetOnJoin(Player p) {
++        String qid = getTrackedMainQuest(p);
++        if (qid == null) return;
++        PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
++        String st = status(d, qid);
++        String name = navLabel(qid);
++        String giver = questGiverName(qid);
++        if ("진행".equals(st)) {
++            msg(p, "&8[&d 퀘스트 &8] &7진행 중 — &f" + name);
++            List<String> pl = getProgressLines(qid, d);
++            if (!pl.isEmpty()) msg(p, "  &8" + org.bukkit.ChatColor.stripColor(pl.get(pl.size() - 1)));
++        } else if ("완료대기".equals(st)) {
++            msg(p, "&8[&d 퀘스트 &8] &a완료! &f" + name + "&7 — "
++                    + (giver != null ? "&f" + giver + "&7에게 반납하세요" : "NPC에게 반납하세요"));
++        } else {
++            msg(p, "&8[&d 퀘스트 &8] &7다음 메인 — &f" + name
++                    + (giver != null ? " &7· &f" + giver + "&7에게" : ""));
++        }
++        msg(p, "  &8/길잡이 &7로 길안내를 켤 수 있습니다");
++    }
++
+     // ===================================================================
+     // 9개 진행 훅
+     // ===================================================================
+diff --git a/src/main/java/com/blockship/quest/VillageQuestGui.java b/src/main/java/com/blockship/quest/VillageQuestGui.java
+index 1595b47..b4a7dcb 100644
+--- a/src/main/java/com/blockship/quest/VillageQuestGui.java
++++ b/src/main/java/com/blockship/quest/VillageQuestGui.java
+@@ -146,6 +146,8 @@ public class VillageQuestGui implements Listener {
+             lore.add(stLabel);
+             lore.add("");
+             for (String dl : quests.getQuestListField(qid, "설명")) lore.add(dl);
++            String diff = quests.difficultyLore(qid);
++            if (diff != null) { lore.add(""); lore.add(diff); }
+             inv.setItem(slot, named(icon, name, lore));
+             slot++;
+         }
+diff --git a/src/main/java/com/blockship/sidebar/SidebarManager.java b/src/main/java/com/blockship/sidebar/SidebarManager.java
+index db9801d..b20b051 100644
+--- a/src/main/java/com/blockship/sidebar/SidebarManager.java
++++ b/src/main/java/com/blockship/sidebar/SidebarManager.java
+@@ -165,6 +165,40 @@ public class SidebarManager {
+         // ""로 두면 빈 행이 그대로 남아 사이드바만 길어진다.
+         for (int n = 1; n <= 5; n++) lines[n] = null;
+ 
++        // === line 4~3: 메인 이정표 (2026-08-15 신설) =========================
++        // 위 트래커(line 7~6)는 **지금 진행 중인 것**을 보여준다 — 사이드일 수도 있다.
++        // 그런데 활성 퀘스트는 통틀어 **하나뿐**이라(QuestGui의 hasOtherMain 잠금),
++        // 사이드를 하나 받는 순간 메인은 「대기」로 밀려나고 activeQuests에서 사라진다.
++        // 그러면 사이드바에도 저널에도 메인이 안 보여서 **돌아갈 자리를 잃는다.**
++        // ⇒ 대기 중인 메인을 회색 한 줄로 **항상** 깔아 둔다.
++        //   ★진행도는 안 붙인다. 대기 퀘는 수락 자체가 잠겨 있어 진행이 안 되고,
++        //     진행도를 띄우면 "둘을 동시에 미는" 것처럼 읽혀 오해를 산다. 이건 표지판이다.
++        if (questMgr != null) {
++            String main = questMgr.getTrackedMainQuest(p);
++            if (main != null && !main.equals(qid)) {          // 트래커와 같으면 중복이니 생략
++                String mName = questMgr.getQuestField(main, "이름");
++                if (mName == null) mName = main;
++                lines[5] = "&f  ";
++                lines[4] = " &8다음 ▸ &7" + strip(mName);
++                String giver = questMgr.questGiverName(main);
++                int needLv = questMgr.getQuestInt(main, "필요레벨", 0);
++                int myLv = d.getFishingLevel();
++                if (needLv > myLv) {
++                    lines[3] = "   &8Lv." + needLv + " 필요";
++                } else if (giver != null && !giver.isEmpty()) {
++                    lines[3] = "   &8→ " + giver + "에게";
++                }
++            } else if (main == null && qid == null) {
++                // 메인 체인을 끝까지 깼다 — 마지막으로 깬 것을 남겨 「어디까지 왔는지」를 보여준다.
++                String last = questMgr.getLastClearedMain(p);
++                if (last != null) {
++                    String lName = questMgr.getQuestField(last, "이름");
++                    lines[5] = "&f  ";
++                    lines[4] = " &8메인 완주 ▸ &7" + strip(lName == null ? last : lName);
++                }
++            }
++        }
++
+         // === 잠수대 전용 오버라이드: 소지금 아래 잠수포인트 + 퀘스트 영역=나가기 안내 ===
+         if (p.getWorld().getName().equals(com.blockship.afk.AfkManager.WORLD_NAME)) {
+             long afkPts = d == null ? 0 : d.getExtraNum(com.blockship.afk.AfkManager.POINTS_KEY, 0);
+@@ -290,6 +324,12 @@ public class SidebarManager {
+     }
+ 
+     // ===== 길드명 (길드정보 이름 fallback id) =====
++    /** 사이드바 표시용 — 퀘스트 이름의 색코드만 벗긴다(이정표 줄은 회색으로 통일). */
++    private static String strip(String s) {
++        return s == null ? "" : org.bukkit.ChatColor.stripColor(
++                org.bukkit.ChatColor.translateAlternateColorCodes('&', s));
++    }
++
+     private String guildName(Player p) {
+         if (guildMgr == null) return null;
+         GuildData g = guildMgr.getGuildByPlayer(p.getUniqueId().toString());

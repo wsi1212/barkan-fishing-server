@@ -1,0 +1,1964 @@
+diff --git a/src/main/java/com/blockship/BlockShipPlugin.java b/src/main/java/com/blockship/BlockShipPlugin.java
+index e340c5e..c022bef 100644
+--- a/src/main/java/com/blockship/BlockShipPlugin.java
++++ b/src/main/java/com/blockship/BlockShipPlugin.java
+@@ -18,6 +18,10 @@ import org.bukkit.plugin.java.JavaPlugin;
+  */
+ public class BlockShipPlugin extends JavaPlugin {
+ 
++    /** 길드 GUI 참조 — 주간 길드 퀘스트를 나중에 주입하기 위해 들고 있는다. */
++    private com.blockship.guild.GuildGui guildGuiRef;
++
++
+     // NamespacedKeys
+     private NamespacedKey shipIdKey;
+     private NamespacedKey wandKey;
+@@ -630,6 +634,7 @@ public class BlockShipPlugin extends JavaPlugin {
+         guildCommand.setDisbandConfirm(guildDisbandConfirm);
+         // 길드 GUI 5종 (길드.sk 이관) — GuildManager 직접 read
+         final com.blockship.guild.GuildGui guildGui = new com.blockship.guild.GuildGui(guildManager);
++        this.guildGuiRef = guildGui;   // 주간 길드 퀘스트 배선용(아래 GuildQuestManager 생성부)
+         getServer().getPluginManager().registerEvents(guildGui, this);
+         guildCommand.setGui(guildGui);
+         // 서버 재시작 뒤 기존 액자의 빈 지도 ID를 최신 길드 전용 지도 ID로 교체한다.
+@@ -2822,6 +2827,25 @@ public class BlockShipPlugin extends JavaPlugin {
+         //  →작물별 고정 실시간 성장(setVariant 단계 교체)→우클릭 1회 수확(FurnitureInteractEvent). crops.json + 섬 한도(업그레이드형).
+         //  가구 에셋(barkan:crop_*, variants sprout/grown/ripe)은 RP 준비 시 CropSpecs에서 연결.
+         var cropManager = new com.blockship.crop.CropManager(this, islandManager, guildManager);
++        // === 주간 길드 퀘스트 (2026-08-16) ===
++        //   축 3개에서 주당 3개, 목표는 길드 레벨 16단으로 스케일. 보상은 금고 몰빵.
++        //   ★개인 주간과 저장소가 완전히 분리돼 있어 QuestGui 의 「한 번에 하나」 잠금과 안 얽힌다.
++        final var guildQuestSpecs = new com.blockship.guild.GuildQuestSpecs(this);
++        final var guildQuestManager = new com.blockship.guild.GuildQuestManager(this, guildManager, guildQuestSpecs);
++        questManager.setGuildQuests(guildQuestManager);   // ★이벤트 fan-out — 빠지면 목표가 영원히 0
++        guildCommand.setGuildQuests(guildQuestManager);
++        guildManager.setQuestManager(questManager);        // guilddonate 훅
++        guildCommand.setQuestManagerRef(questManager);     // guildspend 훅
++        guildGuiRef.setGuildQuests(guildQuestManager);
++        // 바닐라 작물 수확(farm verb) + 놓고부수기 설치 표시. island_world·guild_world 한정.
++        final var vanillaFarmListener = new com.blockship.crop.VanillaFarmListener(this);
++        vanillaFarmListener.setQuestManager(questManager);
++        getServer().getPluginManager().registerEvents(vanillaFarmListener, this);
++        getLogger().info("[GuildQuest] 주간 길드 퀘스트 활성 (/길드 임무)");
++
++        // 퀘스트 보상 "cropseed:<작물id>:<수>" — 씨앗 PDC 마커(SEED_KEY)가 인스턴스 소유라 주입이 필요하다.
++        // ★그전까지 특수작물 씨앗은 op /작물 지급 말고는 얻을 길이 없었다(2026-08-16, 마인팜 라인).
++        questManager.setCropManager(cropManager);
+         if (getServer().getPluginManager().getPlugin("CraftEngine") != null)
+             getServer().getPluginManager().registerEvents(cropManager, this);
+         else getLogger().warning("[Crop] CraftEngine 미탑재 — 특수 작물 비활성(가구 기반)");
+@@ -3417,6 +3441,8 @@ public class BlockShipPlugin extends JavaPlugin {
+                 final Player jp = e.getPlayer();
+                 Bukkit.getScheduler().runTaskLater(BlockShipPlugin.this, () -> {
+                     if (jp.isOnline()) questManager.onJoin(jp);
++                    // 길드는 「접속」이 없다 — 길드원 아무나 들어올 때 길드 주차를 확인한다.
++                    if (jp.isOnline()) guildQuestManager.onJoin(jp);
+                 }, 15L);
+                 // 「나 뭐 하던 중이었지」 — 추적 중인 메인 한 줄 안내. 접속 잡음이 잦아든 뒤에 띄운다.
+                 Bukkit.getScheduler().runTaskLater(BlockShipPlugin.this, () -> {
+diff --git a/src/main/java/com/blockship/crop/CropManager.java b/src/main/java/com/blockship/crop/CropManager.java
+index 77906ba..6991795 100644
+--- a/src/main/java/com/blockship/crop/CropManager.java
++++ b/src/main/java/com/blockship/crop/CropManager.java
+@@ -444,6 +444,35 @@ public class CropManager implements Listener {
+         if (c != null) pullCrop(c, e.getPlayer(), null, "break");
+     }
+ 
++    // ===== 압축 작물 꾸러미 해제 (마인팜 퀘스트 보상, 2026-08-16) =====
++    /**
++     * 압축 꾸러미 우클릭 → {@link CropSpecs#BUNDLE_QTY}개로 푼다.
++     * 심기({@link #onPlant})와 같은 이벤트를 쓰지만 꾸러미는 씨앗이 아니라 서로 겹치지 않는다.
++     * ★{@code ignoreCancelled}를 걸지 않는다 — 섬 보호 리스너가 「블록 우클릭」을 취소해도
++     *   꾸러미 해제는 순수 인벤토리 조작이라 막을 이유가 없다.
++     */
++    @EventHandler
++    public void onBundleOpen(PlayerInteractEvent e) {
++        if (!e.getAction().name().startsWith("RIGHT_") || e.getHand() != EquipmentSlot.HAND) return;
++        ItemStack hand = e.getItem();
++        String cropId = CropSpecs.bundleIdOf(hand);
++        if (cropId == null) return;
++        // ★상자·화로처럼 «열리는» 블록을 우클릭한 거면 비켜 준다. 꾸러미가 건초더미·수박 같은
++        //   **블록 아이템**이라 이걸 안 하면 꾸러미를 든 채로는 상자를 못 연다.
++        //   웅크리면(바닐라에선 블록을 놓는 자세) 열지 않겠다는 뜻이니 그때는 꾸러미를 푼다.
++        Block clicked = e.getClickedBlock();
++        if (clicked != null && clicked.getType().isInteractable() && !e.getPlayer().isSneaking()) return;
++        e.setCancelled(true);          // 여기서부터는 블록 설치를 막고 꾸러미를 푼다
++        Player p = e.getPlayer();
++        ItemStack out = CropSpecs.outputItem(cropId, CropSpecs.BUNDLE_QTY);
++        if (out == null) return;
++        hand.setAmount(hand.getAmount() - 1);
++        for (ItemStack lo : p.getInventory().addItem(out).values())
++            p.getWorld().dropItemNaturally(p.getLocation(), lo);
++        msg(p, "§a꾸러미를 풀었습니다! §7" + CropSpecs.nameOf(cropId) + " §fx" + CropSpecs.BUNDLE_QTY);
++        p.playSound(p.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.8f, 1.2f);
++    }
++
+     // ===== /작물 명령 =====
+     public void info(Player p) {
+         msg(p, "§6━━━━━ §e특수 작물 §6━━━━━");
+diff --git a/src/main/java/com/blockship/crop/CropSpecs.java b/src/main/java/com/blockship/crop/CropSpecs.java
+index 6aa0c60..39d3b34 100644
+--- a/src/main/java/com/blockship/crop/CropSpecs.java
++++ b/src/main/java/com/blockship/crop/CropSpecs.java
+@@ -118,6 +118,70 @@ public final class CropSpecs {
+         return it;
+     }
+ 
++    // ===================================================================
++    // 압축 작물 꾸러미 — 「마인팜」 퀘스트 보상 (2026-08-16)
++    // ===================================================================
++    /**
++     * 꾸러미 하나에 든 산출물 개수. 스택 한도(64)와 맞춰 뒀다 —
++     * 풀면 정확히 한 스택이 되어 인벤토리에 깔끔히 들어간다.
++     */
++    public static final int BUNDLE_QTY = 64;
++    /** lore 마커 접두 — {@link CropManager}의 우클릭 해제가 이걸 읽는다. */
++    public static final String BUNDLE_TAG = "§8#cropbundle:";
++
++    /** 꾸러미 겉모습. 「눌러 담은 농산물」로 읽히는 블록을 쓴다. */
++    private static Material bundleMat(Spec s) {
++        return switch (s.id) {
++            case "밀" -> Material.HAY_BLOCK;
++            case "수박" -> Material.MELON;
++            case "버섯" -> Material.BROWN_MUSHROOM_BLOCK;
++            default -> Material.BARREL;
++        };
++    }
++
++    /**
++     * 압축 작물 꾸러미 아이템. 우클릭하면 {@link #BUNDLE_QTY}개로 풀린다.
++     *
++     * <p>★조합법은 <b>일부러 없다.</b> 이건 퀘스트 보상 전용 — 「난이도가 오를수록 낱개 대신
++     * 꾸러미로 준다」는 보상 등급 표현이지, 새 압축 경제를 여는 물건이 아니다.
++     * 압축→해제만 되고 해제→압축은 안 되므로 증식 경로가 생기지 않는다.
++     */
++    public static ItemStack bundleItem(String id, int amount) {
++        Spec s = byId(id);
++        if (s == null) return null;
++        ItemStack it = new ItemStack(bundleMat(s), Math.max(1, Math.min(amount, 64)));
++        ItemMeta m = it.getItemMeta();
++        m.displayName(LEG.deserialize("§6압축 " + stripColor(s.name) + " 꾸러미").decoration(IT, false));
++        List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
++        line(lore, "§7" + stripColor(s.name) + " " + BUNDLE_QTY + "개를 눌러 담은 꾸러미.");
++        line(lore, "§7우클릭하여 풀 수 있습니다.");
++        line(lore, "");
++        line(lore, BUNDLE_TAG + s.id);
++        m.lore(lore);
++        it.setItemMeta(m);
++        return it;
++    }
++
++    /** 이 아이템이 압축 꾸러미면 작물 id, 아니면 null. */
++    public static String bundleIdOf(ItemStack it) {
++        if (it == null || it.getType().isAir() || !it.hasItemMeta()) return null;
++        ItemMeta m = it.getItemMeta();
++        List<net.kyori.adventure.text.Component> lore = m == null ? null : m.lore();
++        if (lore == null) return null;
++        for (net.kyori.adventure.text.Component c : lore) {
++            String plain = LEG.serialize(c);
++            if (plain.startsWith(BUNDLE_TAG)) {
++                String id = plain.substring(BUNDLE_TAG.length()).trim();
++                return ALL.containsKey(id) ? id : null;
++            }
++        }
++        return null;
++    }
++
++    private static String stripColor(String s) {
++        return s == null ? "" : s.replaceAll("§[0-9a-fk-orA-FK-OR]", "");
++    }
++
+     private static void line(List<net.kyori.adventure.text.Component> lore, String s) {
+         lore.add(LEG.deserialize(s).decoration(IT, false));
+     }
+diff --git a/src/main/java/com/blockship/crop/VanillaFarmListener.java b/src/main/java/com/blockship/crop/VanillaFarmListener.java
+new file mode 100644
+index 0000000..d0dbc5f
+--- /dev/null
++++ b/src/main/java/com/blockship/crop/VanillaFarmListener.java
+@@ -0,0 +1,181 @@
++package com.blockship.crop;
++
++import org.bukkit.Location;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.block.Block;
++import org.bukkit.block.data.Ageable;
++import org.bukkit.entity.Player;
++import org.bukkit.event.EventHandler;
++import org.bukkit.event.EventPriority;
++import org.bukkit.event.Listener;
++import org.bukkit.event.block.BlockBreakEvent;
++import org.bukkit.event.block.BlockGrowEvent;
++import org.bukkit.event.block.BlockPlaceEvent;
++import org.bukkit.event.block.BlockSpreadEvent;
++import org.bukkit.plugin.java.JavaPlugin;
++
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Map;
++import java.util.Set;
++
++/**
++ * 바닐라 작물 수확 → 퀘스트 목표 {@code farm|<작물|아무>|<수>}.
++ *
++ * <h2>왜 필요한가</h2>
++ * 「밀 20,000개」는 특수 밀로 불가능하다(한 포기 3개 · 20분 · 섬 작물 한도 32칸 = 6,667포기).
++ * 바닐라여야 하는데, {@code SkillManager.onHarvest}는 <b>밀·당근·감자·비트 4종만</b> 알고
++ * 퀘스트 훅도 없다. 그래서 8작물을 보는 전용 분류기를 둔다.
++ *
++ * <h2>★놓고 부수기 — 규칙 하나로 8작물을 전부 덮는다</h2>
++ *
++ * <blockquote><b>플레이어가 놓은 블록엔 표시를 남긴다. 서버가 자라게 한 블록엔 표시가 없다.
++ * 표시 없는 것만 센다.</b></blockquote>
++ *
++ * 표시는 <b>{@link BlockGrowEvent}(자연 성장)에서만 지운다.</b> 이게 전부다.
++ *
++ * <table>
++ *   <tr><th>상황</th><th>흐름</th><th>판정</th></tr>
++ *   <tr><td>정상 밀농사</td><td>심기=표시ON → <b>성장=표시OFF</b> → 수확</td><td>인정</td></tr>
++ *   <tr><td>심고 바로 캐기</td><td>표시ON 유지</td><td>거부</td></tr>
++ *   <tr><td>심고 <b>뼈가루</b>→캐기</td><td>뼈가루는 {@code BlockFertilizeEvent}라 <b>성장이 아니다</b></td><td>거부</td></tr>
++ *   <tr><td>정상 사탕수수</td><td>자라며 <b>새 마디</b>가 생김 = 표시 없음</td><td>인정</td></tr>
++ *   <tr><td>사탕수수 쌓고 캐기</td><td>손으로 놓은 마디 = 표시ON</td><td>거부</td></tr>
++ *   <tr><td>정상 수박·호박</td><td>줄기가 <b>열매를 생성</b> = 표시 없음</td><td>인정</td></tr>
++ *   <tr><td>수박·호박 놓고 캐기</td><td>손으로 놓은 열매 = 표시ON</td><td>거부</td></tr>
++ * </table>
++ *
++ * <p><b>작물별 임시방편이 0개다.</b> 줄기 방향 검사도, 아래 마디 검사도, 좌표 쿨다운도 필요 없다
++ * (좌표 쿨다운은 애초에 못 쓴다 — <b>정상 농장이 바로 같은 자리에서 계속 자라고 계속 캔다</b>).
++ *
++ * <p>★<b>뼈가루 구멍이 이 규칙으로 자동으로 막힌다.</b> 완숙({@code age==max}) 검사만 했으면
++ * 심고 뼈가루 뿌려 캐는 게 그대로 통과했다 — 컴포스터로 뼈가루가 무한 생산되므로 실제 위협이다.
++ * mcMMO가 실전에서 겪은 버그가 정확히 이것이다(놓임 표시가 뼈가루에 지워지던 문제).
++ *
++ * <h2>선행 조사</h2>
++ * mcMMO는 청크마다 놓임 플래그를 디스크에 저장하고(chunkstore), Jobs Reborn은
++ * {@code PlaceAndBreakProtection}을 <b>인메모리(재시작까지)</b>로 굴린다.
++ * 여기는 Jobs 쪽 수준을 택했다 — 재시작 공백을 노리려면 「데일리 재시작 직전에 수천 칸을
++ * 손으로 심어 두기」를 해야 하는데 <b>그건 그냥 농사짓는 것보다 느리다.</b>
++ * 부족하면 청크 PDC 영속(mcMMO식)으로 올리면 된다.
++ *
++ * <h2>비용</h2>
++ * 대상 월드는 {@code island_world}·{@code guild_world}뿐이고 추적 대상은 <b>8작물(+씨앗)</b>뿐이다.
++ * 다른 블록 설치는 첫 줄에서 반환한다.
++ */
++public class VanillaFarmListener implements Listener {
++
++    /** 농사가 일어나는 월드만 본다. */
++    private static final Set<String> WORLDS = Set.of("island_world", "guild_world");
++
++    /** 블록 → 작물 id(한글). 이 맵에 없는 블록은 아예 안 본다. */
++    private static final Map<Material, String> CROP = new HashMap<>();
++    /** 심을 때 놓이는 블록(씨앗이 변한 것) → 작물 id. 표시를 붙일 대상. */
++    private static final Map<Material, String> PLANTED = new HashMap<>();
++    /** 완숙 판정이 필요한 것 — {@code Ageable}이고 age == max 여야 수확이다. */
++    private static final Set<Material> NEEDS_RIPE = Set.of(
++            Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, Material.COCOA);
++
++    static {
++        CROP.put(Material.WHEAT, "밀");
++        CROP.put(Material.CARROTS, "당근");
++        CROP.put(Material.POTATOES, "감자");
++        CROP.put(Material.BEETROOTS, "비트");
++        CROP.put(Material.COCOA, "코코아콩");
++        CROP.put(Material.MELON, "수박");
++        CROP.put(Material.PUMPKIN, "호박");
++        CROP.put(Material.SUGAR_CANE, "사탕수수");
++        PLANTED.putAll(CROP);   // 심는 순간의 블록도 같은 재질이다(씨앗 아이템 → 작물 블록)
++    }
++
++    private final JavaPlugin plugin;
++    /** 월드별 「플레이어가 놓았다」 표시. packed position. */
++    private final Map<String, Set<Long>> placed = new HashMap<>();
++    private com.blockship.quest.QuestManager quests;
++
++    public VanillaFarmListener(JavaPlugin plugin) { this.plugin = plugin; }
++
++    public void setQuestManager(com.blockship.quest.QuestManager q) { this.quests = q; }
++
++    /** 진단용 — 표시 중인 블록 수. */
++    public int markedBlocks() {
++        int n = 0;
++        for (Set<Long> s : placed.values()) n += s.size();
++        return n;
++    }
++
++    // ===================================================================
++    // 표시 on/off
++    // ===================================================================
++    private static long key(int x, int y, int z) {
++        // y 를 12비트(-2048~2047 오프셋)로 눌러 담는다 — 월드 높이 -64~320 을 충분히 덮는다.
++        return ((long) (x & 0x3FFFFFF) << 38) | ((long) ((y + 2048) & 0xFFF) << 26) | (z & 0x3FFFFFFL);
++    }
++
++    private Set<Long> setFor(World w) {
++        return placed.computeIfAbsent(w.getName(), k -> new HashSet<>());
++    }
++
++    private boolean watched(Block b) {
++        return WORLDS.contains(b.getWorld().getName()) && CROP.containsKey(b.getType());
++    }
++
++    /** 플레이어가 놓았다 → 표시 ON. */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onPlace(BlockPlaceEvent e) {
++        Block b = e.getBlockPlaced();
++        if (!WORLDS.contains(b.getWorld().getName())) return;
++        if (!PLANTED.containsKey(b.getType())) return;
++        setFor(b.getWorld()).add(key(b.getX(), b.getY(), b.getZ()));
++    }
++
++    /**
++     * 자연 성장 → 표시 OFF. <b>이 한 곳에서만 지운다.</b>
++     *
++     * <p>{@code BlockGrowEvent}는 작물 단계 상승·줄기의 열매 생성에서 뜬다.
++     * {@code BlockSpreadEvent}는 사탕수수·대나무가 위로 뻗을 때 뜬다.
++     * <b>뼈가루({@code BlockFertilizeEvent})는 여기 안 들어온다</b> — 그게 핵심이다.
++     */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onGrow(BlockGrowEvent e) { clear(e.getBlock()); }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onSpread(BlockSpreadEvent e) { clear(e.getBlock()); }
++
++    private void clear(Block b) {
++        if (!WORLDS.contains(b.getWorld().getName())) return;
++        Set<Long> s = placed.get(b.getWorld().getName());
++        if (s != null && !s.isEmpty()) s.remove(key(b.getX(), b.getY(), b.getZ()));
++    }
++
++    // ===================================================================
++    // 수확 집계
++    // ===================================================================
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onBreak(BlockBreakEvent e) {
++        Block b = e.getBlock();
++        if (!watched(b)) return;
++        long k = key(b.getX(), b.getY(), b.getZ());
++        Set<Long> s = placed.get(b.getWorld().getName());
++        boolean wasPlaced = s != null && s.remove(k);   // 부수면 표시도 같이 사라진다
++        if (wasPlaced) return;                          // ★놓고 부수기 — 집계 안 함
++
++        if (NEEDS_RIPE.contains(b.getType())) {
++            // 완숙만 수확으로 친다. 표시 규칙과 «둘 다» 거는 이유는, 자연 생성된 미성숙 작물을
++            // 부수는 것까지 수확으로 세면 밭을 갈아엎는 게 곧 진행도가 되기 때문이다.
++            if (!(b.getBlockData() instanceof Ageable age) || age.getAge() < age.getMaximumAge()) return;
++        }
++        String cropId = CROP.get(b.getType());
++        if (cropId != null && quests != null) quests.onFarm(e.getPlayer(), cropId);
++    }
++
++    /** 월드 언로드/재시작 대비 정리 훅은 두지 않는다 — 인메모리라 재시작이 곧 초기화다. */
++    public void clearWorld(String worldName) { placed.remove(worldName); }
++
++    /** 좌표 하나가 지금 「플레이어가 놓음」으로 표시돼 있나 — 테스트/진단용. */
++    public boolean isMarked(Location loc) {
++        Set<Long> s = placed.get(loc.getWorld().getName());
++        return s != null && s.contains(key(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
++    }
++}
+diff --git a/src/main/java/com/blockship/guild/GuildCommand.java b/src/main/java/com/blockship/guild/GuildCommand.java
+index 5720c03..a111d67 100644
+--- a/src/main/java/com/blockship/guild/GuildCommand.java
++++ b/src/main/java/com/blockship/guild/GuildCommand.java
+@@ -13,6 +13,15 @@ import java.util.stream.Collectors;
+  */
+ public class GuildCommand extends Command {
+ 
++    /** 지출 퀘스트 훅(guildspend) — 선택 주입. */
++    private com.blockship.quest.QuestManager quests;
++    public void setQuestManagerRef(com.blockship.quest.QuestManager q) { this.quests = q; }
++
++    /** 주간 길드 퀘스트 — /길드 임무. 미주입이면 안내만 띄운다. */
++    private com.blockship.guild.GuildQuestManager guildQuests;
++    public void setGuildQuests(com.blockship.guild.GuildQuestManager m) { this.guildQuests = m; }
++
++
+     private final GuildManager mgr;
+     private GuildGui gui;
+     private com.blockship.playerdata.MoneyBridge money;
+@@ -86,6 +95,10 @@ public class GuildCommand extends Command {
+             case "목록" -> handleList(p);
+             case "랭킹" -> handleRanking(p, args);
+             case "섬" -> handleIsland(p);
++            case "임무" -> {                       // 주간 길드 퀘스트 (2026-08-16)
++                if (guildQuests != null) guildQuests.printStatus(p);
++                else p.sendMessage("§c길드 임무 기능이 비활성 상태입니다.");
++            }
+             case "홍보" -> handlePromote(p);
+             default -> sendHelp(p);
+         }
+@@ -569,6 +582,7 @@ public class GuildCommand extends Command {
+             return;
+         }
+         mgr.purchaseBuff(g.getId(), buffId);
++        if (quests != null) quests.onGuildSpend(p, cost);   // guildspend|<금액>
+         com.blockship.telemetry.Telemetry.log("guild.buff", p, java.util.Map.of("gid", g.getId(), "kind", buffId, "lv", currentLv + 1, "price", cost));
+         p.sendMessage("§a" + def.displayName() + " §aLv." + (currentLv+1) + " 구매 완료! (§f" +
+             com.blockship.util.Num.fmt(cost) + "원 §a차감)");
+@@ -593,6 +607,7 @@ public class GuildCommand extends Command {
+         }
+         int before = g.getMaxMembers();
+         mgr.expandSlots(g.getId());
++        if (quests != null) quests.onGuildSpend(p, cost);   // guildspend|<금액>
+         com.blockship.telemetry.Telemetry.log("guild.expand", p, java.util.Map.of("gid", g.getId(), "kind", "members", "lv", g.getMaxMembers(), "price", cost));
+         p.sendMessage("§a슬롯 확장! §f" + before + "명 → " + g.getMaxMembers() + "명 §7(" +
+             com.blockship.util.Num.fmt(cost) + "원 차감)");
+@@ -811,6 +826,7 @@ public class GuildCommand extends Command {
+             return;
+         }
+         g.setTreasury(g.getTreasury() - cost);
++        if (quests != null) quests.onGuildSpend(p, cost);   // guildspend|<금액>
+         mgr.expandIslandSize(g.getId(), newSize);
+         mgr.update(g);
+         com.blockship.telemetry.Telemetry.log("guild.expand", p, java.util.Map.of("gid", g.getId(), "kind", "island", "lv", newSize, "price", cost));
+@@ -1002,7 +1018,7 @@ public class GuildCommand extends Command {
+         if (args.length == 1) {
+             return filter(List.of("생성", "해산", "신청", "신청목록", "수락", "거절",
+                 "탈퇴", "추방", "위임", "간부", "설정", "엠블럼", "기부", "계좌", "버프", "확장",
+-                "섬확장", "워프", "워프설정", "워프삭제", "정보", "목록", "랭킹", "섬", "홍보", "부길드장"), args[0]);
++                "섬확장", "워프", "워프설정", "워프삭제", "정보", "목록", "랭킹", "섬", "홍보", "부길드장", "임무"), args[0]);
+         }
+         if (args.length == 2) {
+             String sub = args[0];
+diff --git a/src/main/java/com/blockship/guild/GuildData.java b/src/main/java/com/blockship/guild/GuildData.java
+index 29403f7..55fbe42 100644
+--- a/src/main/java/com/blockship/guild/GuildData.java
++++ b/src/main/java/com/blockship/guild/GuildData.java
+@@ -54,6 +54,16 @@ public class GuildData {
+     private Map<String, ApplicationData> pendingApplications; // UUID → 신청 데이터
+     private List<ChatMessage> chatLog;                  // 최근 채팅 로그
+ 
++    // ===== 주간 길드 퀘스트 (2026-08-16) =====
++    // ★개인 주간(PlayerData.weeklyQuests)과 완전히 분리된 저장소다. 섞으면 QuestGui 의
++    //   「한 번에 하나」 잠금(hasOtherMain)에 길드퀘가 끌려 들어간다.
++    private String questWeek;                                    // "2026-W34" (KoreanTime.sundayWeekKey)
++    private List<String> questIds = new ArrayList<>();           // 이번 주 배정된 템플릿 3개
++    private Map<String, Integer> questTarget = new LinkedHashMap<>();   // qid → 주 시작 시점에 «확정»된 목표치
++    private Map<String, Integer> questProgress = new LinkedHashMap<>(); // qid → 진행도
++    private Map<String, String>  questStatus = new LinkedHashMap<>();   // qid → 진행 / 완료
++    private Map<String, Long>    questContrib = new LinkedHashMap<>();  // 멤버UUID → 이번 주 기여 (표시 전용)
++
+     public GuildData() {}
+ 
+     public GuildData(String id, String ownerName, String ownerUuid) {
+@@ -349,6 +359,25 @@ public class GuildData {
+     }
+     public void resetSubmitSeason() { submitSeason = 0; }
+ 
++    // ===== 주간 길드 퀘스트 접근자 =====
++    public String getQuestWeek() { return questWeek == null ? "" : questWeek; }
++    public void setQuestWeek(String w) { questWeek = w; }
++    public List<String> getQuestIds() { if (questIds == null) questIds = new ArrayList<>(); return questIds; }
++    public Map<String, Integer> getQuestTarget() { if (questTarget == null) questTarget = new LinkedHashMap<>(); return questTarget; }
++    public Map<String, Integer> getQuestProgress() { if (questProgress == null) questProgress = new LinkedHashMap<>(); return questProgress; }
++    public Map<String, String> getQuestStatus() { if (questStatus == null) questStatus = new LinkedHashMap<>(); return questStatus; }
++    public Map<String, Long> getQuestContrib() { if (questContrib == null) questContrib = new LinkedHashMap<>(); return questContrib; }
++
++    /** 주간 길드 퀘스트 상태 전체 초기화 — 새 주차 진입 시. */
++    public void resetGuildQuests(String week) {
++        questWeek = week;
++        getQuestIds().clear();
++        getQuestTarget().clear();
++        getQuestProgress().clear();
++        getQuestStatus().clear();
++        getQuestContrib().clear();
++    }
++
+     /** 채팅 로그 추가 (최대 50개) */
+     public void addChatMessage(String sender, String message) {
+         if (chatLog == null) chatLog = new ArrayList<>();
+diff --git a/src/main/java/com/blockship/guild/GuildGui.java b/src/main/java/com/blockship/guild/GuildGui.java
+index 3b831e1..53404c3 100644
+--- a/src/main/java/com/blockship/guild/GuildGui.java
++++ b/src/main/java/com/blockship/guild/GuildGui.java
+@@ -52,6 +52,11 @@ import java.util.*;
+  */
+ public class GuildGui implements Listener {
+ 
++    /** 주간 길드 퀘스트 — 미주입이면 슬롯16을 그리지 않는다(길드 기능은 그대로 동작). */
++    private com.blockship.guild.GuildQuestManager guildQuests;
++    public void setGuildQuests(com.blockship.guild.GuildQuestManager m) { this.guildQuests = m; }
++
++
+     private static final LegacyComponentSerializer LEG = LegacyComponentSerializer.legacyAmpersand();
+ 
+     private final GuildManager mgr;
+@@ -1128,6 +1133,32 @@ public class GuildGui implements Listener {
+         inv.setItem(15, named(Material.GOLD_INGOT, "&e길드 계좌 기부",
+             "&7계좌 잔액: &6" + com.blockship.util.Num.fmt(g.getTreasury()) + "원", "", "&e클릭하여 금액 선택"));
+ 
++        // 슬롯16 — 이번 주 길드 임무 (주간 길드 퀘스트, 2026-08-16)
++        if (guildQuests != null) {
++            guildQuests.checkWeekly(g);
++            java.util.List<String> lore = new java.util.ArrayList<>();
++            int doneN = 0;
++            for (String qid : g.getQuestIds()) {
++                var t = guildQuests.specs().get(qid);
++                if (t == null) continue;
++                int cur = guildQuests.progress(g, qid), tg = guildQuests.target(g, qid);
++                boolean fin = guildQuests.done(g, qid);
++                if (fin) doneN++;
++                lore.add(t.name + (fin ? " &a✔" : ""));
++                lore.add("  &7" + com.blockship.util.Num.fmt(cur) + "&8/&7" + com.blockship.util.Num.fmt(tg));
++            }
++            if (lore.isEmpty()) lore.add("&7이번 주 임무가 없습니다.");
++            lore.add("");
++            lore.add("&7퀘당 금고 &6+" + com.blockship.util.Num.fmt(
++                    guildQuests.specs().rewardFor(mgr.guildLevel(g))) + "원");
++            lore.add("&8개인 배당은 없습니다 — 금고는 버프·확장에 쓰입니다");
++            lore.add("");
++            lore.add("&e클릭하여 상세 보기");
++            inv.setItem(16, named(Material.FILLED_MAP,
++                    "&b이번 주 길드 임무 &7(" + doneN + "/" + g.getQuestIds().size() + ")",
++                    lore.toArray(new String[0])));
++        }
++
+         // 행3 — 관리
+         inv.setItem(20, named(Material.PLAYER_HEAD, "&b길드원",
+             "&7전체 &f" + g.getMemberCount() + "명 &7· 기여 순위" + (isVice ? " &7· 등급 관리" : ""),
+@@ -1222,6 +1253,7 @@ public class GuildGui implements Listener {
+             case 11 -> { p.closeInventory(); p.performCommand("rlfem 섬"); }
+             case 13 -> { p.closeInventory(); openUpgradeHub(p); }
+             case 15 -> { p.closeInventory(); openDonate(p); }
++            case 16 -> { p.closeInventory(); if (guildQuests != null) guildQuests.printStatus(p); }
+             case 20 -> { p.closeInventory(); openMemberRanking(p, "낚시"); }
+             case 22 -> { p.closeInventory(); openGuildSettings(p); }
+             case 24 -> { if (isOfficer) { p.closeInventory(); openAppList(p); } }
+diff --git a/src/main/java/com/blockship/guild/GuildManager.java b/src/main/java/com/blockship/guild/GuildManager.java
+index 6ffd63e..6bdb414 100644
+--- a/src/main/java/com/blockship/guild/GuildManager.java
++++ b/src/main/java/com/blockship/guild/GuildManager.java
+@@ -24,6 +24,11 @@ import java.util.stream.Collectors;
+  */
+ public class GuildManager {
+ 
++    /** 기부 퀘스트 훅(guilddonate) — 선택 주입. 미주입이면 조용히 무시. */
++    private com.blockship.quest.QuestManager quests;
++    public void setQuestManager(com.blockship.quest.QuestManager q) { this.quests = q; }
++
++
+     private final JavaPlugin plugin;
+     private final RegionManager regionMgr;
+     private com.blockship.playerdata.PlayerDataManager pdm; // 길드 레벨 산정용(길드원 낚시레벨). 부팅 후 주입.
+@@ -472,6 +477,12 @@ public class GuildManager {
+         if (g == null || amount <= 0) return false;
+         g.setTreasury(g.getTreasury() + amount);
+         save();
++        // 퀘스트 훅 — guilddonate|<금액>. ★모든 기부 경로가 이 메서드를 지나므로 여기 하나면 된다.
++        //   단 퀘스트 «보상»으로 들어온 입금은 기부가 아니다 → contributor==null 이면 건너뛴다.
++        if (quests != null && contributor != null) {
++            org.bukkit.entity.Player dp = Bukkit.getPlayer(contributor);
++            if (dp != null) quests.onGuildDonate(dp, amount);
++        }
+         com.blockship.telemetry.Telemetry.money(contributor, contributorName, "guild", amount, g.getTreasury(),
+                 com.blockship.telemetry.TxnReason.GUILD_DEPOSIT, guildId);
+         return true;
+diff --git a/src/main/java/com/blockship/guild/GuildQuestManager.java b/src/main/java/com/blockship/guild/GuildQuestManager.java
+new file mode 100644
+index 0000000..955742e
+--- /dev/null
++++ b/src/main/java/com/blockship/guild/GuildQuestManager.java
+@@ -0,0 +1,303 @@
++package com.blockship.guild;
++
++import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
++import org.bukkit.Bukkit;
++import org.bukkit.Sound;
++import org.bukkit.entity.Player;
++import org.bukkit.plugin.java.JavaPlugin;
++
++import java.util.ArrayList;
++import java.util.Comparator;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Map;
++
++/**
++ * 주간 길드 퀘스트 엔진 — 축 3개에서 주당 3개, 길드 레벨로 목표가 갈린다.
++ *
++ * <h2>개인 주간과 완전히 분리돼 있다</h2>
++ * 진행도는 {@link GuildData}에 있고 {@code PlayerData.weeklyQuests}를 안 건드린다.
++ * 섞으면 {@code QuestGui.hasOtherMain}의 「한 번에 하나」 잠금에 길드퀘가 끌려 들어간다.
++ *
++ * <h2>리셋 — 길드는 「접속」이 없다</h2>
++ * 개인 주간은 그 사람이 접속할 때 리셋된다. 길드는 그런 순간이 없어서
++ * <b>길드원 아무나 접속할 때</b> 길드 주차를 확인한다({@link #checkWeekly}).
++ *
++ * <h2>★목표치는 주 시작 시점에 «확정»한다</h2>
++ * 매번 다시 계산하면 주중에 길드가 레벨업했을 때 목표가 늘어나 <b>진행도가 뒤로 가는</b> 꼴이 된다.
++ * 그래서 배정할 때 계산해 {@link GuildData#getQuestTarget()}에 박아 둔다.
++ *
++ * <h2>보상 = 금고 몰빵</h2>
++ * 개인 배당은 없다. 금고는 <b>개인 지갑으로 나갈 수 없어서</b>(소비처가 버프·확장뿐)
++ * 넣은 만큼 전부 싱크로 돌아온다 — 크게 줘도 서버 경제에 안 샌다.
++ * 그리고 개인 보상이 없으므로 <b>길드 갈아타기로 먹을 게 없다.</b>
++ * 무임승차는 기여도를 GUI에 노출해 눈으로 막는다({@link #topContributors}) — 지급 로직엔 안 쓴다.
++ *
++ * <p>완료 시 <b>금고에 즉시 자동 입금</b>한다. 「받기」를 두면 아무도 안 눌러 날린다.
++ */
++public class GuildQuestManager {
++
++    private static final LegacyComponentSerializer AMP = LegacyComponentSerializer.legacyAmpersand();
++
++    private final JavaPlugin plugin;
++    private final GuildManager guilds;
++    private final GuildQuestSpecs specs;
++
++    // ── 핫패스 방어 ────────────────────────────────────────────────────────
++    //   bump() 는 «물고기 한 마리마다» 불린다. 여기서 하는 일이 곧 서버 부하다.
++    /** uuid → 길드 id 메모. {@code getGuildByPlayer}가 O(길드 수) 순회라 그대로 두면 안 된다. */
++    private final Map<java.util.UUID, String> guildOf = new java.util.HashMap<>();
++    /** 주차 문자열 캐시 — 날짜 포매팅을 이벤트마다 돌릴 이유가 없다. */
++    private String weekCache = "";
++    private long weekCacheAt = 0L;
++    /** 지연 저장 — guilds.save()는 guilds.json «전체»를 동기 직렬화한다. 이벤트마다 부르면 죽는다. */
++    private boolean dirty = false;
++
++    public GuildQuestManager(JavaPlugin plugin, GuildManager guilds, GuildQuestSpecs specs) {
++        this.plugin = plugin;
++        this.guilds = guilds;
++        this.specs = specs;
++        // 30초마다 한 번만 실제로 쓴다. 완료·주차리셋처럼 «돈이 오가는» 순간은 즉시 저장한다.
++        Bukkit.getScheduler().runTaskTimer(plugin, this::flush, 600L, 600L);
++    }
++
++    public GuildQuestSpecs specs() { return specs; }
++
++    /** 지연 저장 표시. */
++    private void saveSoon() { dirty = true; }
++
++    /** 밀린 저장을 실제로 쓴다. 종료 훅에서도 부를 수 있게 public. */
++    public void flush() {
++        if (!dirty) return;
++        dirty = false;
++        guilds.save();
++    }
++
++    private String thisWeek() {
++        long now = System.currentTimeMillis();
++        if (now - weekCacheAt > 60_000L || weekCache.isEmpty()) {
++            weekCache = com.blockship.util.KoreanTime.sundayWeekKey();
++            weekCacheAt = now;
++        }
++        return weekCache;
++    }
++
++    /**
++     * 그 플레이어의 길드 — 메모 우선, 빗나가면 전체 순회 후 재기억.
++     *
++     * <p>메모가 낡아도(탈퇴·이적) {@code isMember} 확인에서 걸러져 자동으로 고쳐진다.
++     * 확인은 맵 조회 두 번이라 순회보다 압도적으로 싸다.
++     */
++    private GuildData guildOf(Player p) {
++        java.util.UUID id = p.getUniqueId();
++        String uuid = id.toString();
++        String gid = guildOf.get(id);
++        if (gid != null) {
++            GuildData g = guilds.getGuild(gid);
++            if (g != null && g.isMember(uuid)) return g;
++            guildOf.remove(id);                       // 낡음 — 아래로 떨어뜨려 다시 찾는다
++        }
++        GuildData g = guilds.getGuildByPlayer(uuid);
++        if (g != null) guildOf.put(id, g.getId());
++        return g;
++    }
++
++    /** 길드 소속 여부 — 「길드필요」 퀘스트 게이트용. 메모를 타므로 싸다. */
++    public boolean hasGuild(Player p) { return guildOf(p) != null; }
++
++    private void msg(Player p, String s) { p.sendMessage(AMP.deserialize(s)); }
++
++    // ===================================================================
++    // 주차 확인 / 배정
++    // ===================================================================
++    /** 접속 훅. 길드원이면 그 길드의 주차를 확인하고 필요하면 새 주를 연다. */
++    public void onJoin(Player p) {
++        GuildData g = guildOf(p);
++        if (g == null) return;
++        if (checkWeekly(g)) announceNewWeek(g);
++    }
++
++    /**
++     * 주차가 바뀌었으면 리셋 + 배정. 목표치는 <b>이 시점의 길드 레벨</b>로 확정된다.
++     *
++     * @return 새 주를 열었으면 true
++     */
++    public boolean checkWeekly(GuildData g) {
++        String week = thisWeek();
++        if (week.equals(g.getQuestWeek()) && !g.getQuestIds().isEmpty()) return false;
++        int lv = guilds.guildLevel(g);
++        g.resetGuildQuests(week);
++        for (String qid : specs.pickForWeek(week)) {
++            GuildQuestSpecs.Tpl t = specs.get(qid);
++            if (t == null) continue;
++            g.getQuestIds().add(qid);
++            g.getQuestTarget().put(qid, GuildQuestSpecs.targetFor(t, lv));   // ★여기서 확정
++            g.getQuestProgress().put(qid, 0);
++            g.getQuestStatus().put(qid, "진행");
++        }
++        guilds.save();      // 주차 경계는 즉시 — 여기서 날리면 한 주가 통째로 꼬인다
++        return true;
++    }
++
++    private void announceNewWeek(GuildData g) {
++        int lv = guilds.guildLevel(g);
++        for (Player m : onlineMembers(g)) {
++            msg(m, "&8[&b 길드 임무 &8] &e이번 주 길드 임무 &a" + g.getQuestIds().size() + "개&f가 시작됐습니다! &7(길드 Lv." + lv + ")");
++            for (String qid : g.getQuestIds()) {
++                GuildQuestSpecs.Tpl t = specs.get(qid);
++                if (t != null) msg(m, "  &8· " + t.name + " &7— " + com.blockship.util.Num.fmt(target(g, qid)));
++            }
++            msg(m, "  &7확인: &f/길드 임무");
++        }
++    }
++
++    private List<Player> onlineMembers(GuildData g) {
++        List<Player> out = new ArrayList<>();
++        for (String uuid : g.getMembers().keySet()) {
++            try {
++                Player m = Bukkit.getPlayer(java.util.UUID.fromString(uuid));
++                if (m != null && m.isOnline()) out.add(m);
++            } catch (IllegalArgumentException ignored) { }
++        }
++        return out;
++    }
++
++    // ===================================================================
++    // 진행 가산 — QuestManager 의 이벤트 훅들이 그대로 흘려보낸다
++    // ===================================================================
++    /**
++     * 이벤트 하나를 길드 임무에 반영한다.
++     *
++     * <p>★<b>이 메서드는 조용히 실패해선 안 되는 지점이다.</b> {@code QuestManager}의 훅 하나가
++     * 여기로 안 흘러오면 그 목표만 영원히 0으로 남는다. 배선은
++     * {@code ops/patches} 의 검증 스크립트가 전수 확인한다.
++     *
++     * @param verb  fish / harpoon / farm / harvest / sell / submit / material / submitpts …
++     * @param arg   어종·작물id·제출종류. 매칭에 안 쓰면 ""
++     * @param grade fish/harpoon 의 등급. 그 외 ""
++     * @param n     증가량
++     */
++    public void bump(Player p, String verb, String arg, String grade, int n) {
++        if (p == null || n <= 0) return;
++        GuildData g = guildOf(p);
++        if (g == null) return;
++        if (checkWeekly(g)) announceNewWeek(g);
++        if (g.getQuestIds().isEmpty()) return;
++
++        boolean touched = false;
++        for (String qid : new ArrayList<>(g.getQuestIds())) {
++            if (!"진행".equals(g.getQuestStatus().get(qid))) continue;
++            GuildQuestSpecs.Tpl t = specs.get(qid);
++            if (t == null || !t.verb.equals(verb)) continue;
++            if (!argMatch(t.arg, arg)) continue;
++            if (!gradeMatch(t.grade, grade)) continue;
++
++            int target = target(g, qid);
++            int cur = g.getQuestProgress().getOrDefault(qid, 0);
++            if (cur >= target) continue;
++            int next = Math.min(target, cur + n);
++            g.getQuestProgress().put(qid, next);
++            // 기여도 — 표시 전용(§보상은 금고 몰빵이라 지급 로직엔 안 쓴다)
++            String uuid = p.getUniqueId().toString();
++            g.getQuestContrib().merge(uuid, (long) (next - cur), Long::sum);
++            touched = true;
++            if (next >= target) complete(g, qid);
++        }
++        if (touched) saveSoon();   // ★진행도는 지연 저장 — 이벤트마다 전체 직렬화하면 서버가 죽는다
++    }
++
++    /** 인자 없는 verb(sell·submit 등)용 단축. */
++    public void bump(Player p, String verb, int n) { bump(p, verb, "", "", n); }
++
++    private static boolean argMatch(String want, String got) {
++        if (want == null || want.isEmpty() || "아무".equals(want)) return true;
++        return want.equals(got);
++    }
++
++    /** 등급은 「그 등급 이상」이다 — 개인 퀘스트의 gradeMatch 와 같은 규약. */
++    private static boolean gradeMatch(String want, String got) {
++        if (want == null || want.isEmpty() || "아무".equals(want)) return true;
++        if (got == null || got.isEmpty()) return false;
++        return gradeNum(got) >= gradeNum(want);
++    }
++
++    private static int gradeNum(String g) {
++        return switch (g) {
++            case "E" -> 1; case "D" -> 2; case "C" -> 3; case "B" -> 4; case "A" -> 5;
++            case "S" -> 6; case "M" -> 7; case "L" -> 8; case "G" -> 9; default -> 0;
++        };
++    }
++
++    // ===================================================================
++    // 완료 — 금고 즉시 입금
++    // ===================================================================
++    private void complete(GuildData g, String qid) {
++        g.getQuestStatus().put(qid, "완료");
++        long reward = specs.rewardFor(guilds.guildLevel(g));
++        guilds.deposit(g.getId(), reward);
++        dirty = false;                 // deposit 이 이미 저장했다 — 중복 쓰기 방지
++        GuildQuestSpecs.Tpl t = specs.get(qid);
++        String name = t == null ? qid : t.name;
++        for (Player m : onlineMembers(g)) {
++            msg(m, "&8[&b 길드 임무 &8] &a완료! &f" + name);
++            msg(m, "  &7길드 계좌 &6+" + com.blockship.util.Num.fmt(reward) + "원 &8(잔액 "
++                    + com.blockship.util.Num.fmt(g.getTreasury()) + ")");
++            m.playSound(m.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.7f, 1f);
++        }
++        Bukkit.getScheduler().runTask(plugin, () -> com.blockship.telemetry.Telemetry.log(
++                "guildquest.done", null, Map.of("gid", g.getId(), "qid", qid, "reward", reward)));
++    }
++
++    // ===================================================================
++    // 조회 (GUI/명령어용)
++    // ===================================================================
++    public int target(GuildData g, String qid) { return g.getQuestTarget().getOrDefault(qid, 0); }
++    public int progress(GuildData g, String qid) { return g.getQuestProgress().getOrDefault(qid, 0); }
++    public boolean done(GuildData g, String qid) { return "완료".equals(g.getQuestStatus().get(qid)); }
++
++    /** 이번 주 기여 상위 n명 — 이름과 수치. 무임승차를 «눈으로» 막는 장치다. */
++    public List<Map.Entry<String, Long>> topContributors(GuildData g, int n) {
++        List<Map.Entry<String, Long>> rows = new ArrayList<>(g.getQuestContrib().entrySet());
++        rows.sort(Comparator.comparingLong((Map.Entry<String, Long> e) -> e.getValue()).reversed());
++        return rows.size() <= n ? rows : rows.subList(0, n);
++    }
++
++    public String memberName(GuildData g, String uuid) {
++        GuildData.MemberData m = g.getMembers().get(uuid);
++        return m == null || m.name == null ? uuid.substring(0, 8) : m.name;
++    }
++
++    /** {@code /길드 임무} 텍스트 출력. */
++    public void printStatus(Player p) {
++        GuildData g = guildOf(p);
++        if (g == null) { msg(p, "&c길드에 가입되어 있지 않습니다."); return; }
++        checkWeekly(g);
++        int lv = guilds.guildLevel(g);
++        msg(p, "&8&m                                        ");
++        msg(p, " &b이번 주 길드 임무 &7(길드 Lv." + lv + " · 주차 " + g.getQuestWeek() + ")");
++        for (String qid : g.getQuestIds()) {
++            GuildQuestSpecs.Tpl t = specs.get(qid);
++            if (t == null) continue;
++            int cur = progress(g, qid), tg = target(g, qid);
++            String bar = bar(cur, tg);
++            msg(p, "  " + t.name + (done(g, qid) ? " &a✔" : "")
++                    + "\n    " + bar + " &f" + com.blockship.util.Num.fmt(cur) + "&7/&f" + com.blockship.util.Num.fmt(tg));
++        }
++        long reward = specs.rewardFor(lv);
++        msg(p, " &7퀘당 금고 보상 &6" + com.blockship.util.Num.fmt(reward) + "원 &8(개인 배당 없음 — 금고는 버프·확장에 쓰입니다)");
++        List<Map.Entry<String, Long>> top = topContributors(g, 5);
++        if (!top.isEmpty()) {
++            msg(p, " &7이번 주 기여 —");
++            int i = 1;
++            for (Map.Entry<String, Long> e : top)
++                msg(p, "   &8" + (i++) + ". &f" + memberName(g, e.getKey()) + " &7" + com.blockship.util.Num.fmt(e.getValue()));
++        }
++        msg(p, "&8&m                                        ");
++    }
++
++    private static String bar(int cur, int target) {
++        if (target <= 0) return "&8[..........]";
++        int filled = (int) Math.round(10.0 * Math.min(1.0, (double) cur / target));
++        return "&8[&a" + "■".repeat(filled) + "&7" + "□".repeat(10 - filled) + "&8]";
++    }
++}
+diff --git a/src/main/java/com/blockship/guild/GuildQuestSpecs.java b/src/main/java/com/blockship/guild/GuildQuestSpecs.java
+new file mode 100644
+index 0000000..e47d688
+--- /dev/null
++++ b/src/main/java/com/blockship/guild/GuildQuestSpecs.java
+@@ -0,0 +1,209 @@
++package com.blockship.guild;
++
++import com.google.gson.Gson;
++import com.google.gson.GsonBuilder;
++import com.google.gson.reflect.TypeToken;
++import org.bukkit.plugin.java.JavaPlugin;
++
++import java.io.*;
++import java.lang.reflect.Type;
++import java.nio.charset.StandardCharsets;
++import java.util.ArrayList;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Map;
++
++/**
++ * 주간 길드 퀘스트 정의 — `guild-quests.json` (Java 소유, 없으면 코드 내장 기본값을 write 후 load).
++ *
++ * <h2>왜 템플릿 + 배수인가</h2>
++ * 길드 레벨은 0~15다. 3구간으로 뭉치면 Lv4와 Lv5 사이에 절벽이 생기고, 레벨마다 퀘스트를
++ * 따로 쓰면 16×22 = 352개가 된다. 그래서 <b>템플릿 24개 + 배수표 16칸</b>으로 푼다 —
++ * 실제 목표 = {@code round(기준값 × MULT[길드레벨])}.
++ *
++ * <p>배수는 {@code 1.145^lv}(Lv15 = 7.62)다. 「목표 ≒ 활성인원 × 개인 주간 × 1.5」가 되도록 맞췄다.
++ *
++ * <h2>축 3개 · 주당 3개</h2>
++ * 매주 <b>축마다 하나씩</b> 뽑는다. 뽑는 기준은 <b>주차 문자열 해시</b>라
++ * <b>전 서버 길드가 같은 3개</b>를 받는다(목표 수치만 레벨별로 다름) — 비교·공지가 하나로 된다.
++ *
++ * <h2>목표는 가산적인 것만</h2>
++ * 여러 명이 나눠 미는 물건이라 {@code visit}·{@code area}·{@code equip}·{@code level}처럼
++ * 「한 사람이 하면 끝」인 verb, {@code farmland}·{@code islandvisit}처럼 상태를 보는 verb는 못 쓴다.
++ */
++public final class GuildQuestSpecs {
++
++    /** 길드 레벨 0~15 → 목표 배수. */
++    public static final double[] MULT = {
++        1.00, 1.15, 1.31, 1.50, 1.72, 1.97, 2.25, 2.58,
++        2.95, 3.38, 3.87, 4.43, 5.08, 5.81, 6.66, 7.62
++    };
++
++    public static final String AXIS_FISH = "조업";
++    public static final String AXIS_FARM = "농사";
++    public static final String AXIS_HELP = "기여";
++    public static final List<String> AXES = List.of(AXIS_FISH, AXIS_FARM, AXIS_HELP);
++
++    /**
++     * 템플릿 하나.
++     *
++     * @param id    내부 키
++     * @param axis  축 (조업/농사/기여)
++     * @param name  표시명 (& 색코드)
++     * @param verb  목표 verb — fish / harpoon / farm / harvest / sell / submit / material / submitpts
++     * @param arg   verb 인자 (어종·등급·작물id·제출종류). 없으면 ""
++     * @param grade fish/harpoon 전용 등급칸. 그 외 ""
++     * @param base  Lv0 기준값. 실제 목표 = round(base × MULT[lv])
++     */
++    public static final class Tpl {
++        public String id, axis, name, verb, arg, grade;
++        public int base;
++        public Tpl() {}
++        Tpl(String id, String axis, String name, String verb, String arg, String grade, int base) {
++            this.id = id; this.axis = axis; this.name = name;
++            this.verb = verb; this.arg = arg; this.grade = grade; this.base = base;
++        }
++    }
++
++    private static final class Root {
++        /** 퀘스트 하나당 금고 보상 = rewardBase × MULT[lv]. */
++        long rewardBase = 200_000L;
++        LinkedHashMap<String, Tpl> templates = new LinkedHashMap<>();
++    }
++
++    private final JavaPlugin plugin;
++    private final File file;
++    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
++    private Root root = new Root();
++
++    public GuildQuestSpecs(JavaPlugin plugin) {
++        this.plugin = plugin;
++        this.file = new File(plugin.getDataFolder(), "guild-quests.json");
++        load();
++    }
++
++    // ===================================================================
++    // 기본값 — 템플릿 22종
++    // ===================================================================
++    private static LinkedHashMap<String, Tpl> defaults() {
++        LinkedHashMap<String, Tpl> m = new LinkedHashMap<>();
++        // ── 조업 3 ────────────────────────────────────────────────────────
++        put(m, new Tpl("길퀘_대조업", AXIS_FISH, "&b한 주의 대조업", "fish", "아무", "아무", 130));
++        put(m, new Tpl("길퀘_상급어장", AXIS_FISH, "&b상급 어장", "fish", "아무", "B", 26));
++        put(m, new Tpl("길퀘_작살부대", AXIS_FISH, "&b작살 부대", "harpoon", "아무", "A", 11));
++        // ── 농사 15 = 밭농사 8 + 특작 7 ───────────────────────────────────
++        //   밭농사는 바닐라 작물 수확(farm). ★설치 표시로 놓고부수기를 막는다(VanillaFarmListener).
++        put(m, new Tpl("길퀘_밀밭", AXIS_FARM, "&a밀밭 지대", "farm", "밀", "", 2600));
++        put(m, new Tpl("길퀘_당근밭", AXIS_FARM, "&a당근 두렁", "farm", "당근", "", 2600));
++        put(m, new Tpl("길퀘_감자밭", AXIS_FARM, "&a감자 두렁", "farm", "감자", "", 2600));
++        put(m, new Tpl("길퀘_비트밭", AXIS_FARM, "&a비트 두렁", "farm", "비트", "", 2600));
++        put(m, new Tpl("길퀘_사탕수수", AXIS_FARM, "&a사탕수수 강변", "farm", "사탕수수", "", 2600));
++        //   ★코코아·수박·호박은 밀 계열의 30% — 정글나무/줄기 설치가 선행이라 진입 비용이 다르다.
++        put(m, new Tpl("길퀘_코코아", AXIS_FARM, "&a정글의 코코아", "farm", "코코아콩", "", 790));
++        put(m, new Tpl("길퀘_수박밭", AXIS_FARM, "&a수박밭", "farm", "수박", "", 790));
++        put(m, new Tpl("길퀘_호박밭", AXIS_FARM, "&a호박밭", "farm", "호박", "", 790));
++        //   특작은 성장시간 반비례 — 밀 20분 400 … 수박 24시간 50. 균일하게 박으면
++        //   수박은 불가능하고 밀은 시시해진다.
++        put(m, new Tpl("길퀘_특작밀", AXIS_FARM, "&2특수 밀 재배단", "harvest", "밀", "", 52));
++        put(m, new Tpl("길퀘_특작양배추", AXIS_FARM, "&2특수 양배추 재배단", "harvest", "양배추", "", 47));
++        put(m, new Tpl("길퀘_특작당근", AXIS_FARM, "&2특수 당근 재배단", "harvest", "당근", "", 42));
++        put(m, new Tpl("길퀘_특작버섯", AXIS_FARM, "&2특수 버섯 재배단", "harvest", "버섯", "", 37));
++        put(m, new Tpl("길퀘_특작감자", AXIS_FARM, "&2특수 감자 재배단", "harvest", "감자", "", 34));
++        put(m, new Tpl("길퀘_특작토마토", AXIS_FARM, "&2특수 토마토 재배단", "harvest", "토마토", "", 29));
++        put(m, new Tpl("길퀘_특작수박", AXIS_FARM, "&2특수 수박 재배단", "harvest", "수박", "", 7));
++        // ── 기여 4 ────────────────────────────────────────────────────────
++        put(m, new Tpl("길퀘_어시장", AXIS_HELP, "&e어시장 장악", "sell", "", "", 91));
++        put(m, new Tpl("길퀘_곳간", AXIS_HELP, "&e곳간을 채워라", "material", "아무", "", 91));
++        //   ★제출은 «횟수»가 아니라 «점수»로 센다. submit|N 은 1개만 들고 눌러도 1카운트라
++        //     (submitMaterial 이 removeAllType 으로 전부 가져가므로) 자원 비용 0의 클릭 노가다가 된다.
++        put(m, new Tpl("길퀘_어창헌납", AXIS_HELP, "&e어창 헌납", "submitpts", "물고기", "", 800));
++        put(m, new Tpl("길퀘_연회", AXIS_HELP, "&e길드 연회", "submitpts", "요리", "", 20000));
++        //   ★기부·지출 — 금고를 «채우고 쓰게» 만드는 축. 기부는 개인 지갑 → 금고 이동이라
++        //     서버 통화를 줄이고, 지출은 쟁여만 두는 길드를 움직이게 한다.
++        put(m, new Tpl("길퀘_기부", AXIS_HELP, "&e금고를 채워라", "guilddonate", "", "", 130000));
++        put(m, new Tpl("길퀘_금고소비", AXIS_HELP, "&e쟁여 두지 마라", "guildspend", "", "", 130000));
++        return m;
++    }
++
++    private static void put(Map<String, Tpl> m, Tpl t) { m.put(t.id, t); }
++
++    // ===================================================================
++    // 로드 / 저장
++    // ===================================================================
++    public void load() {
++        if (!file.exists()) {
++            root = new Root();
++            root.templates = defaults();
++            write();
++            plugin.getLogger().info("[GuildQuest] guild-quests.json 생성 (템플릿 " + root.templates.size() + ")");
++            return;
++        }
++        try (Reader r = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
++            Type t = new TypeToken<Root>() {}.getType();
++            Root loaded = gson.fromJson(r, t);
++            if (loaded == null || loaded.templates == null || loaded.templates.isEmpty()) {
++                root = new Root(); root.templates = defaults();
++            } else {
++                root = loaded;
++            }
++            plugin.getLogger().info("[GuildQuest] 템플릿 " + root.templates.size() + "개 로드");
++        } catch (Exception e) {
++            plugin.getLogger().warning("[GuildQuest] guild-quests.json 로드 실패, 기본값 사용: " + e.getMessage());
++            root = new Root(); root.templates = defaults();
++        }
++    }
++
++    private void write() {
++        try {
++            if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdirs();
++            try (Writer w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
++                gson.toJson(root, w);
++            }
++        } catch (Exception e) {
++            plugin.getLogger().warning("[GuildQuest] guild-quests.json 저장 실패: " + e.getMessage());
++        }
++    }
++
++    // ===================================================================
++    // 조회
++    // ===================================================================
++    public Tpl get(String id) { return root.templates.get(id); }
++    public Map<String, Tpl> all() { return root.templates; }
++
++    public List<Tpl> byAxis(String axis) {
++        List<Tpl> out = new ArrayList<>();
++        for (Tpl t : root.templates.values()) if (axis.equals(t.axis)) out.add(t);
++        return out;
++    }
++
++    /** 길드 레벨을 배수표 범위로 자른다. */
++    public static double multOf(int guildLevel) {
++        return MULT[Math.max(0, Math.min(guildLevel, MULT.length - 1))];
++    }
++
++    /** 그 레벨에서의 실제 목표치. 1 미만으로는 안 내려간다. */
++    public static int targetFor(Tpl t, int guildLevel) {
++        return Math.max(1, (int) Math.round(t.base * multOf(guildLevel)));
++    }
++
++    /** 퀘스트 하나당 금고 보상. */
++    public long rewardFor(int guildLevel) {
++        return Math.round(root.rewardBase * multOf(guildLevel));
++    }
++
++    /**
++     * 그 주차에 배정할 3개(축마다 하나). <b>주차 문자열 해시</b>로 고르므로
++     * 전 서버 길드가 같은 세트를 받는다 — 같은 주에 같은 목표를 두고 비교가 된다.
++     */
++    public List<String> pickForWeek(String week) {
++        List<String> out = new ArrayList<>();
++        for (int i = 0; i < AXES.size(); i++) {
++            List<Tpl> pool = byAxis(AXES.get(i));
++            if (pool.isEmpty()) continue;
++            // 축마다 다른 시드를 써야 세 축이 같은 인덱스로 몰리지 않는다.
++            int h = Math.abs((week + "#" + AXES.get(i)).hashCode());
++            out.add(pool.get(h % pool.size()).id);
++        }
++        return out;
++    }
++}
+diff --git a/src/main/java/com/blockship/island/IslandFarmlandCounter.java b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
+new file mode 100644
+index 0000000..37e7dda
+--- /dev/null
++++ b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
+@@ -0,0 +1,320 @@
++package com.blockship.island;
++
++import com.blockship.region.RegionData;
++import org.bukkit.Bukkit;
++import org.bukkit.ChunkSnapshot;
++import org.bukkit.Location;
++import org.bukkit.Material;
++import org.bukkit.World;
++import org.bukkit.block.Block;
++import org.bukkit.entity.Player;
++import org.bukkit.event.EventHandler;
++import org.bukkit.event.EventPriority;
++import org.bukkit.event.Listener;
++import org.bukkit.event.block.BlockBreakEvent;
++import org.bukkit.event.block.BlockFadeEvent;
++import org.bukkit.event.block.BlockFromToEvent;
++import org.bukkit.event.block.BlockPistonExtendEvent;
++import org.bukkit.event.block.BlockPistonRetractEvent;
++import org.bukkit.event.block.BlockPlaceEvent;
++import org.bukkit.event.entity.EntityChangeBlockEvent;
++import org.bukkit.event.player.PlayerInteractEvent;
++import org.bukkit.plugin.java.JavaPlugin;
++
++import java.util.ArrayDeque;
++import java.util.ArrayList;
++import java.util.Deque;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.LinkedHashSet;
++import java.util.List;
++import java.util.Map;
++import java.util.UUID;
++import java.util.function.IntConsumer;
++
++/**
++ * 섬 경작지(FARMLAND) 칸수 — 「마인팜」 퀘스트 목표 {@code farmland|<수>} 판정용.
++ *
++ * <h2>왜 「청크 단위 더티 추적」인가 (2026-08-16 재설계)</h2>
++ *
++ * 두 가지 뻔한 방법이 둘 다 틀렸다.
++ *
++ * <p><b>① 순수 증분 카운터(설치/파괴 때 ±1)</b> — 호퍼·액자가 쓰는 방식이지만 경작지엔 안 맞는다.
++ * 경작지는 <b>플레이어 없이도</b> 생기고 사라진다: 물이 마르고(BlockFade), 밟히고
++ * (EntityChangeBlock), 피스톤에 밀리고, 용암에 덮인다. 하나만 놓쳐도 카운터가 영구히 어긋나고
++ * <b>유저가 고칠 방법이 없다.</b> 게다가 이미 밭을 다 갈아 둔 기존 섬은 0부터 시작한다.
++ *
++ * <p><b>② 주기적 전수 스캔</b> — 항상 맞지만 <b>아무것도 안 변해도 매번 3,400만 블록을 다시 센다.</b>
++ * 더 나쁜 건 {@code getChunkAt}이 <b>생성도 안 된 공허 청크를 만들어 버린다</b>는 것 —
++ * 섬 대부분이 빈 공간인데 스캔할 때마다 청크가 생성·언로드를 반복한다.
++ *
++ * <p><b>③ 그래서 둘을 합쳤다.</b> 블록이 바뀐 <b>청크만 더럽다고 표시</b>하고, 더러운 청크만
++ * <b>실제 블록에서 다시 센다.</b>
++ * <ul>
++ *   <li>증분처럼 싸다 — 밭 100칸을 갈아도 보통 청크 두어 개만 다시 센다(청크당 ≒1ms).</li>
++ *   <li>스캔처럼 안 틀린다 — 청크 값을 <b>더하는</b> 게 아니라 <b>다시 세서 덮어쓴다.</b>
++ *       이벤트를 과하게 잡아도(관계없는 블록까지) 결과는 언제나 정확하다.</li>
++ *   <li>이벤트를 <b>놓쳐도</b> 스스로 낫는다 — 할 일이 없는 회차마다 가장 오래 검증 안 된
++ *       청크 {@value #HEAL_PER_PASS}개를 순회 재검증한다(400청크 섬이 약 1시간에 한 바퀴).</li>
++ * </ul>
++ *
++ * <h2>추가로 줄인 것</h2>
++ * <ul>
++ *   <li><b>미생성 청크는 건드리지 않는다</b>({@code isChunkGenerated}) — 공허 월드의 빈 공간이
++ *       스캔 때문에 생성되는 사고를 막는다.</li>
++ *   <li><b>기둥마다 최고 블록까지만</b> 훑는다({@code getHighestBlockYAt}). Y 380칸을 다 보지 않으므로
++ *       평평한 섬에서 읽는 블록 수가 한 자릿수 배로 줄어든다. 다층 밭은 그대로 다 센다 —
++ *       위에서부터 내려오므로 <b>높이를 가리지 않는다.</b></li>
++ *   <li>퀘스트를 가진 사람이 하나도 없으면 리스너가 <b>첫 줄에서 즉시 반환</b>한다.</li>
++ * </ul>
++ *
++ * <p>상태는 메모리에만 둔다 — 재시작하면 섬마다 전수 스캔 한 번을 다시 하고, 그게 곧
++ * 「진실과의 재동기화」다. 영속시키면 서버가 꺼진 사이의 변화를 놓친 채 굳는다.
++ */
++public class IslandFarmlandCounter implements Listener {
++
++    /** 한 배치에 스냅샷 뜰 청크 수. 스냅샷 생성만 메인 스레드고, 세는 건 비동기다. */
++    private static final int CHUNKS_PER_BATCH = 4;
++    /**
++     * 할 일이 없는 회차마다 순회 재검증할 청크 수 — 놓친 이벤트의 자가 치유.
++     *
++     * <p>이게 순수 증분 대비 유일한 <b>유휴 비용</b>이다(추적 1명당 10초마다 청크 2개 ≒
++     * 비동기 0.6ms + 메인 0.3ms). 보험이 필요 없다고 판단되면 <b>0으로 두면 유휴 비용이
++     * 문자 그대로 사라진다</b> — 그러면 「내가 잡는 이벤트가 전부다」에 전적으로 기댄다.
++     * 커버 못 하는 경로는 WorldEdit·{@code /setblock}처럼 이벤트를 안 내는 외부 변경이다.
++     */
++    private static final int HEAL_PER_PASS = 2;
++
++    private final JavaPlugin plugin;
++    private final IslandManager islands;
++
++    /** 섬 region id → 상태. <b>비어 있으면 리스너가 아무 일도 안 한다.</b> */
++    private final Map<String, State> byIsland = new HashMap<>();
++    /**
++     * 청크키 → 그 청크를 가진 섬의 상태. <b>추적 중인 섬의 청크만</b> 들어 있다.
++     *
++     * <p>★이게 없으면 {@link #mark}가 {@code RegionManager.getRegionAt}을 부르는데, 그건
++     * <b>전체 region을 매번 순회</b>한다. 섬이 1,000개면 물 한 칸 흐를 때마다
++     * ({@code BlockFromTo}!) 1,000회 반복이다. 청크키 해시 한 번으로 끝내면
++     * <b>섬이 몇 개든 O(1)</b>이다. 섬 간격이 2,000블록이라(최대 지름 301) 청크가 겹칠 일도 없다.
++     */
++    private final Map<Long, State> chunkIndex = new HashMap<>();
++
++    private static final class State {
++        final LinkedHashSet<Long> keys = new LinkedHashSet<>();   // 이 섬에 속한 청크 전부(색인 회수용)
++        final Map<Long, Integer> perChunk = new HashMap<>();      // 청크 → 확정 경작지 수
++        final LinkedHashSet<Long> dirty = new LinkedHashSet<>();  // 다시 셀 청크
++        final Deque<Long> healQueue = new ArrayDeque<>();         // 순회 재검증 순서
++        int total = 0;
++        boolean seeded = false;      // 첫 전수 스캔을 걸었나
++        boolean scanning = false;    // 배치 처리 중
++        /** 씨를 뿌릴 때의 섬 경계(x1,z1,x2,z2). 달라지면 = 경계 업그레이드 → 재파종. */
++        int[] bounds = null;
++    }
++
++    public IslandFarmlandCounter(JavaPlugin plugin, IslandManager islands) {
++        this.plugin = plugin;
++        this.islands = islands;
++        Bukkit.getPluginManager().registerEvents(this, plugin);
++    }
++
++    private static long key(int cx, int cz) { return ((long) cx << 32) | (cz & 0xFFFFFFFFL); }
++
++    // ===================================================================
++    // 조회 — QuestManager가 주기적으로 부른다
++    // ===================================================================
++    /**
++     * 그 플레이어 <b>소유</b> 섬의 경작지 수를 갱신하고 돌려준다(멤버로 얹혀 있는 섬은 세지 않는다 —
++     * 남의 밭으로 퀘스트를 깨는 걸 막는다).
++     *
++     * <p>할 일이 없으면 캐시된 합계로 <b>즉시</b> 콜백한다. 더러운 청크가 있으면 그것만 다시
++     * 센 뒤 콜백한다. 첫 호출은 전수 스캔이라 시간이 걸리며, 그동안은 <b>부분 합계</b>가 오간다
++     * (실제보다 작을 뿐 절대 크지 않으므로 퀘스트가 먼저 완료되는 일은 없다).
++     *
++     * @param done 완료 콜백. 항상 메인 스레드. 섬이 없으면 호출되지 않는다.
++     */
++    public void pump(Player p, IntConsumer done) {
++        IslandData isl = islands.getIslandByOwner(p.getUniqueId().toString());
++        if (isl == null) return;
++        RegionData r = islands.getRegionMgr().getRegion(isl.getId());
++        World w = Bukkit.getWorld(IslandManager.ISLAND_WORLD);
++        if (r == null || !r.hasCoordinates() || w == null) return;
++
++        State st = byIsland.computeIfAbsent(isl.getId(), k -> new State());
++        int[] a = r.getPos1(), b = r.getPos2();
++        final int minY = Math.max(w.getMinHeight(), Math.min(a[1], b[1]));
++        final int maxY = Math.min(w.getMaxHeight() - 1, Math.max(a[1], b[1]));
++        int[] now = {Math.min(a[0], b[0]), Math.min(a[2], b[2]),
++                     Math.max(a[0], b[0]), Math.max(a[2], b[2])};
++
++        // ★경계 업그레이드 감지. 안 보면 새로 생긴 바깥 링이 색인에 없어 **영영 안 세진다** —
++        //   하필 「대지주」가 요구하는 게 바로 그 경계 확장이라 조용히 못 깨는 퀘스트가 된다.
++        //   스캔 중이면 배치가 끝난 다음 회차로 미룬다(자료구조를 밑에서 갈아치우면 안 된다).
++        if (st.seeded && !java.util.Arrays.equals(st.bounds, now)) {
++            if (st.scanning) { done.accept(st.total); return; }
++            chunkIndex.keySet().removeAll(st.keys);
++            byIsland.remove(isl.getId());
++            st = byIsland.computeIfAbsent(isl.getId(), k -> new State());
++        }
++
++        if (!st.seeded) {                       // 첫 만남 = 전수 스캔 예약 + 청크 색인 구축
++            st.seeded = true;
++            st.bounds = now;
++            for (int cx = Math.min(a[0], b[0]) >> 4; cx <= (Math.max(a[0], b[0]) >> 4); cx++)
++                for (int cz = Math.min(a[2], b[2]) >> 4; cz <= (Math.max(a[2], b[2]) >> 4); cz++) {
++                    long k = key(cx, cz);
++                    st.keys.add(k);
++                    st.dirty.add(k);
++                    st.healQueue.add(k);
++                    chunkIndex.put(k, st);
++                }
++        } else if (st.dirty.isEmpty()) {         // 할 일 없음 → 순회 재검증 몇 칸
++            for (int i = 0; i < HEAL_PER_PASS && !st.healQueue.isEmpty(); i++) {
++                Long k = st.healQueue.poll();
++                st.dirty.add(k);
++                st.healQueue.add(k);             // 뒤로 돌려 라운드로빈
++            }
++        }
++
++        if (st.scanning) { done.accept(st.total); return; }   // 이미 돌고 있다 — 중복 배치 금지
++        st.scanning = true;
++        drain(st, w, minY, maxY, done);
++    }
++
++    /** 더러운 청크를 배치로 비운다. 스냅샷=메인, 세기=비동기, 반영=메인. 배치마다 한 틱 이상 쉰다. */
++    private void drain(State st, World w, int minY, int maxY, IntConsumer done) {
++        if (st.dirty.isEmpty()) { st.scanning = false; done.accept(st.total); return; }
++
++        List<Long> keys = new ArrayList<>(CHUNKS_PER_BATCH);
++        Iterator<Long> it = st.dirty.iterator();
++        for (int i = 0; i < CHUNKS_PER_BATCH && it.hasNext(); i++) { keys.add(it.next()); it.remove(); }
++
++        List<ChunkSnapshot> snaps = new ArrayList<>(keys.size());
++        for (long k : keys) {
++            int cx = (int) (k >> 32), cz = (int) k;
++            // ★미생성 청크는 만들지 않는다. 공허 월드에서 이걸 빼먹으면 스캔이 곧 지형 생성이 된다.
++            snaps.add(w.isChunkGenerated(cx, cz)
++                    ? w.getChunkAt(cx, cz).getChunkSnapshot(true, false, false)
++                    : null);
++        }
++
++        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
++            int[] res = new int[keys.size()];
++            for (int i = 0; i < keys.size(); i++)
++                res[i] = snaps.get(i) == null ? 0 : countIn(snaps.get(i), minY, maxY);
++            Bukkit.getScheduler().runTask(plugin, () -> {
++                for (int i = 0; i < keys.size(); i++) {
++                    Integer old = st.perChunk.put(keys.get(i), res[i]);
++                    st.total += res[i] - (old == null ? 0 : old);   // 더하는 게 아니라 덮어쓴다
++                }
++                drain(st, w, minY, maxY, done);
++            });
++        });
++    }
++
++    /** 청크 하나의 FARMLAND 수. 기둥마다 <b>최고 블록까지만</b> 내려간다 — 위쪽 빈 공간을 안 읽는다. */
++    private static int countIn(ChunkSnapshot s, int minY, int maxY) {
++        int n = 0;
++        for (int lx = 0; lx < 16; lx++)
++            for (int lz = 0; lz < 16; lz++) {
++                int top = Math.min(maxY, s.getHighestBlockYAt(lx, lz));
++                for (int y = minY; y <= top; y++)
++                    if (s.getBlockType(lx, y, lz) == Material.FARMLAND) n++;
++            }
++        return n;
++    }
++
++    // ===================================================================
++    // 더티 마킹 — 「이 청크에서 뭔가 바뀌었다」만 말한다
++    // ===================================================================
++    /**
++     * ★<b>블록이 경작지인지 따지지 않는다.</b> 흙을 놓고 물을 대면 나중에 경작지가 되는 식이라,
++     * 「경작지 이벤트」만 잡으려 들면 반드시 새는 경로가 생긴다. 청크를 더럽다고만 표시하고
++     * <b>다시 세서 덮어쓰므로</b> 과하게 잡는 건 공짜고, 덜 잡는 것만 위험하다.
++     */
++    private void mark(Location loc) {
++        if (chunkIndex.isEmpty() || loc == null || loc.getWorld() == null) return;  // 아무도 안 세는 중
++        if (!IslandManager.ISLAND_WORLD.equals(loc.getWorld().getName())) return;
++        // ★해시 한 번. RegionManager를 부르지 않는다 — 그건 전체 region 순회다.
++        long k = key(loc.getBlockX() >> 4, loc.getBlockZ() >> 4);
++        State st = chunkIndex.get(k);
++        if (st != null) st.dirty.add(k);
++    }
++
++    private void mark(Block b) { if (b != null) mark(b.getLocation()); }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onPlace(BlockPlaceEvent e) { mark(e.getBlock()); }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onBreak(BlockBreakEvent e) { mark(e.getBlock()); }
++
++    /** 괭이질 — 흙→경작지 전환은 전용 이벤트가 없어 상호작용으로 잡는다(한 틱 뒤에 세면 된다). */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onInteract(PlayerInteractEvent e) {
++        if (e.getClickedBlock() != null && e.getAction().name().startsWith("RIGHT_")) mark(e.getClickedBlock());
++    }
++
++    /** 물이 빠져 경작지가 마르는 경우. */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onFade(BlockFadeEvent e) { mark(e.getBlock()); }
++
++    /** 밟기(엔티티가 경작지를 흙으로 되돌림). */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onTrample(EntityChangeBlockEvent e) { mark(e.getBlock()); }
++
++    /** 물·용암이 흘러 밭을 적시거나 덮는 경우. */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onFlow(BlockFromToEvent e) { mark(e.getToBlock()); }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onPistonPush(BlockPistonExtendEvent e) {
++        mark(e.getBlock());
++        for (Block b : e.getBlocks()) mark(b);
++    }
++
++    /** 폭발 — ★비교하며 빠뜨렸던 구멍. 크리퍼·TNT가 밭을 날려도 위 이벤트는 안 뜬다. */
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent e) {
++        for (Block b : e.blockList()) mark(b);
++    }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent e) {
++        for (Block b : e.blockList()) mark(b);
++    }
++
++    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
++    public void onPistonPull(BlockPistonRetractEvent e) {
++        mark(e.getBlock());
++        for (Block b : e.getBlocks()) mark(b);
++    }
++
++    // ===================================================================
++    // 정리 — ★안 하면 샌다
++    // ===================================================================
++    /**
++     * 그 플레이어의 섬 상태를 버린다 — 퀘스트를 끝냈거나 접속을 끊었을 때.
++     *
++     * <p>★<b>퇴장 정리가 없으면 진짜로 샌다.</b> 퀘스트를 켠 채 로그아웃한 사람의 상태가
++     * 영원히 남고, 큰 섬 하나가 400청크 × 두 자료구조라 사람이 갈릴수록 쌓인다.
++     * 게다가 {@link #chunkIndex}가 안 비면 {@link #mark}의 「아무도 안 세는 중」 지름길이
++     * 영원히 안 걸려서 <b>모든 물 흐름이 해시 조회를 계속 낸다.</b>
++     */
++    public void forget(UUID owner) {
++        IslandData isl = islands.getIslandByOwner(owner.toString());
++        if (isl == null) return;
++        State st = byIsland.remove(isl.getId());
++        if (st != null) chunkIndex.keySet().removeAll(st.keys);
++    }
++
++    /** 접속 종료 → 즉시 정리. 다시 들어오면 전수 스캔 한 번으로 재동기화된다. */
++    @EventHandler(priority = EventPriority.MONITOR)
++    public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) { forget(e.getPlayer().getUniqueId()); }
++
++    /** 지금 추적 중인 섬 수 — 진단용. */
++    public int trackedIslands() { return byIsland.size(); }
++
++    /** 색인에 올라 있는 청크 수 — 진단용(누수 감시). */
++    public int indexedChunks() { return chunkIndex.size(); }
++}
+diff --git a/src/main/java/com/blockship/island/IslandSubmitManager.java b/src/main/java/com/blockship/island/IslandSubmitManager.java
+index 38a4893..ecc9ab1 100644
+--- a/src/main/java/com/blockship/island/IslandSubmitManager.java
++++ b/src/main/java/com/blockship/island/IslandSubmitManager.java
+@@ -156,6 +156,7 @@ public class IslandSubmitManager implements Listener {
+         if (removed <= 0) { p.sendMessage("§c보유한 §f" + mat.name() + "§c이(가) 없습니다."); com.blockship.util.UiSounds.cancel(p); return; }
+         long pts = com.blockship.util.Num.mulMoney(per, removed); // 오버플로 없이 포화
+         applyAward(isl, g, uuid, pts);
++        questPoints(p, "재료", pts);
+         logSubmit(p, "material", mat.name(), removed, pts, isl, g);
+         p.sendMessage("§8[§a 제출 §8] §f" + mat.name() + " §7×" + com.blockship.util.Num.fmt(removed) + " §8→ §b+" + com.blockship.util.Num.fmt(pts) + "점");
+         com.blockship.util.UiSounds.reward(p);
+@@ -188,6 +189,7 @@ public class IslandSubmitManager implements Listener {
+         }
+         if (n <= 0) { p.sendMessage("§c제출할 물고기가 없습니다."); com.blockship.util.UiSounds.cancel(p); return; }
+         applyAward(isl, g, uuid, pts);
++        questPoints(p, "물고기", pts);
+         logSubmit(p, "fish", "all", n, pts, isl, g);
+         p.sendMessage("§8[§a 제출 §8] §b물고기 §7×" + com.blockship.util.Num.fmt(n) + " §8→ §b+" + com.blockship.util.Num.fmt(pts) + "점");
+         com.blockship.util.UiSounds.reward(p);
+@@ -216,6 +218,7 @@ public class IslandSubmitManager implements Listener {
+         }
+         if (removed <= 0) { p.sendMessage("§c보유한 요리가 없습니다."); com.blockship.util.UiSounds.cancel(p); return; }
+         applyAward(isl, g, uuid, pts);
++        questPoints(p, "요리", pts);
+         logSubmit(p, "dish", dishId, removed, pts, isl, g);
+         p.sendMessage("§8[§a 제출 §8] §f" + com.blockship.cooking.DishSpecs.nameOf(dishId) + " §7×" + com.blockship.util.Num.fmt(removed) + " §8→ §b+" + com.blockship.util.Num.fmt(pts) + "점");
+         com.blockship.util.UiSounds.reward(p);
+@@ -237,6 +240,14 @@ public class IslandSubmitManager implements Listener {
+         return removed;
+     }
+ 
++    /**
++     * 제출 «점수» 퀘스트 훅 — {@code submitpts|<종류|아무>|<점수>}.
++     * ★{@code onSubmit}(제출 «횟수»)과 별개다. 횟수는 1개씩 스무 번 넣으면 끝나서 큰 목표에 못 쓴다.
++     */
++    private void questPoints(Player p, String kind, long pts) {
++        if (quests != null && pts > 0) quests.onSubmitPoints(p, kind, pts);
++    }
++
+     private void applyAward(IslandData isl, GuildData g, String uuid, long pts) {
+         if (isl != null) { isl.addSubmit(uuid, pts); islandMgr.save(); }
+         if (g != null) {
+diff --git a/src/main/java/com/blockship/quest/QuestGui.java b/src/main/java/com/blockship/quest/QuestGui.java
+index b65e058..c24d97d 100644
+--- a/src/main/java/com/blockship/quest/QuestGui.java
++++ b/src/main/java/com/blockship/quest/QuestGui.java
+@@ -124,10 +124,10 @@ public class QuestGui implements Listener {
+         inv.setItem(4, named(Material.BOOK, "§e" + npcName + "의 퀘스트", null));
+         inv.setItem(8, named(Material.BARRIER, "§c닫기", null));
+ 
+-        // 다른 메인 퀘스트 진행 중인지 (일일/주간 제외)
++        // 다른 메인 퀘스트 진행 중인지 (일일/주간 + 동시진행 퀘스트 제외)
+         boolean hasOtherMain = false;
+         for (String aq : d.getActiveQuests()) {
+-            if (!isSpecial(aq)) { hasOtherMain = true; break; }
++            if (!isSpecial(aq) && !isConcurrent(aq)) { hasOtherMain = true; break; }
+         }
+ 
+         // NPC 퀘스트 중 첫 번째 표시 가능한 1개 (완료 스킵, 선행 미완 스킵)
+@@ -167,10 +167,12 @@ public class QuestGui implements Listener {
+         } else {
+             String st = status.get(show);
+             // 다른 메인퀘 진행중 + 이 퀘스트 미수락 → 잠금
+-            if (hasOtherMain && !"진행".equals(st) && !"완료대기".equals(st)) {
++            //   ★동시진행 퀘스트는 잠기지도, 남을 잠그지도 않는다.
++            if (hasOtherMain && !isConcurrent(show) && !"진행".equals(st) && !"완료대기".equals(st)) {
+                 // ★어떤 퀘스트인지 안 알려주면 그 자체가 미아 제조기다(2026-08-15).
+                 String busy = null;
+-                for (String aq : d.getActiveQuests()) if (!isSpecial(aq)) { busy = aq; break; }
++                for (String aq : d.getActiveQuests())
++                    if (!isSpecial(aq) && !isConcurrent(aq)) { busy = aq; break; }
+                 List<String> lore = new java.util.ArrayList<>();
+                 String bn = busy == null ? null : quests.getQuestField(busy, "이름");
+                 if (bn != null) {
+@@ -832,6 +834,25 @@ public class QuestGui implements Listener {
+         return qid.startsWith("일일_") || qid.startsWith("주간_");
+     }
+ 
++    /**
++     * 「한 번에 하나」 잠금에서 빠지는 퀘스트 — quests.json의 {@code "동시진행": true}.
++     *
++     * <p><b>왜 필요한가.</b> 잠금은 「퀘스트 하나 붙잡고 끝내라」는 좋은 규칙이지만,
++     * <b>혼자 힘으로 못 끝내는 목표</b>에는 독이다. 마인팜 마지막 두 칸은 「섬 방문 25·40회」를
++     * 요구하는데 이건 <b>남이</b> 올려 주는 수치라, 수락한 채로 몇 주를 기다리는 동안 메인도
++     * 사이드도 전부 잠긴다 — 사실상 「이 퀘스트를 받지 마라」가 된다.
++     *
++     * <p>이건 「두 퀘스트를 동시에 미는 이중 수확」과 다르다. 이 플래그를 다는 퀘스트의 목표는
++     * 낚시 목표와 <b>한 동작도 겹치지 않아야</b> 한다(밭 칸수·방문 횟수·작물 성장 시간처럼).
++     * 한 번 낚아서 둘이 같이 오르는 목표에 달면 그게 정확히 그 이중 수확이다.
++     *
++     * <p>남용 주의 — 이걸 달면 그 퀘스트는 <b>양방향으로</b> 투명해진다(자기도 안 잠기고
++     * 남도 안 잠근다). 「지금 이거 하나만」이라는 서사 압력이 필요한 퀘스트엔 달지 말 것.
++     */
++    private boolean isConcurrent(String qid) {
++        return "true".equalsIgnoreCase(quests.getQuestField(qid, "동시진행"));
++    }
++
+     private boolean isRepeatable(String qid) {
+         String cat = quests.getQuestField(qid, "카테고리");
+         return "일일".equals(cat) || "주간".equals(cat) || "반복".equals(cat);
+diff --git a/src/main/java/com/blockship/quest/QuestManager.java b/src/main/java/com/blockship/quest/QuestManager.java
+index 4792d2d..c4dfd89 100644
+--- a/src/main/java/com/blockship/quest/QuestManager.java
++++ b/src/main/java/com/blockship/quest/QuestManager.java
+@@ -104,10 +104,36 @@ public class QuestManager {
+     public void setNavigationManager(com.blockship.nav.NavigationManager n) { this.nav = n; }
+     // 졸업 보상(보상섬) — 개인 섬 생성/텔포. (선택 주입)
+     private com.blockship.island.IslandManager islandManager;
+-    public void setIslandManager(com.blockship.island.IslandManager m) { this.islandManager = m; }
++    public void setIslandManager(com.blockship.island.IslandManager m) {
++        this.islandManager = m;
++        if (m != null) {
++            this.farmlandCounter = new com.blockship.island.IslandFarmlandCounter(plugin, m);
++            startIslandGoalRefresh();
++        }
++    }
++    /** 섬 경작지 스캐너 — {@code farmland} 목표 전용. islandManager 주입 시 함께 생긴다. */
++    private com.blockship.island.IslandFarmlandCounter farmlandCounter;
++    private boolean islandGoalTaskStarted = false;
+     // 채집물 typeId → 표시이름 (진행도 텍스트용). 선택 주입.
+     private com.blockship.forage.ForageManager forageManager;
+     public void setForageManager(com.blockship.forage.ForageManager m) { this.forageManager = m; }
++    /**
++     * 주간 길드 퀘스트 — 개인 퀘스트 이벤트를 길드 쪽으로도 흘려보낸다(fan-out).
++     *
++     * <p>★<b>이 배선이 이 기능의 유일한 실패 모드다.</b> 훅 하나가 빠지면 그 목표만 영원히 0이고
++     * 아무 에러도 안 난다. 그래서 가산 지점을 {@code bumpIdCounter}/{@code bumpPlainCounter}
++     * 같은 <b>공용 헬퍼</b>로 모아 두고, 개별 훅에서 새로 부르는 자리를 최소화했다.
++     */
++    private com.blockship.guild.GuildQuestManager guildQuests;
++    public void setGuildQuests(com.blockship.guild.GuildQuestManager m) { this.guildQuests = m; }
++    /** 길드 fan-out — 미주입이면 조용히 무시(길드 기능 없이도 개인 퀘스트는 돌아야 한다). */
++    private void gq(Player p, String verb, String arg, String grade, int n) {
++        if (guildQuests != null) guildQuests.bump(p, verb, arg, grade, n);
++    }
++
++    /** 특수작물 씨앗 보상 빌더 — 보상아이템 "cropseed:<작물id>[:<수>]" (crop/, 2026-08-16). */
++    private com.blockship.crop.CropManager cropManager;
++    public void setCropManager(com.blockship.crop.CropManager m) { this.cropManager = m; }
+     /** 창(작살) 보상 빌더 — 보상아이템 "harpoon:<이름>" spec 처리용 (harpoon/, 2026-07-31). */
+     private com.blockship.harpoon.HarpoonItemFactory harpoonFactory;
+     public void setHarpoonFactory(com.blockship.harpoon.HarpoonItemFactory f) { this.harpoonFactory = f; }
+@@ -494,6 +520,26 @@ public class QuestManager {
+                 case "sail": result = "§7배 항해: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "블록"; break;
+                 case "submit": result = "§7제출: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "회"; break;
+                 case "deliver": result = "§7" + pgGet(o, 1) + " 납품: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "개"; break;
++                // ── 마인팜 계열 (2026-08-16) ──────────────────────────────────
++                case "farm": {
++                    String c = pgGet(o, 1);
++                    result = "§7" + ("아무".equals(c) ? "작물" : c) + " 수확: §f"
++                            + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "개";
++                    break;
++                }
++                case "guilddonate": result = "§7길드 계좌 기부: §f"
++                        + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "원"; break;
++                case "guildspend": result = "§7길드 계좌 지출: §f"
++                        + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "원"; break;
++                case "submitpts": {
++                    String k = pgGet(o, 1);
++                    result = "§7" + ("아무".equals(k) ? "제출" : k + " 제출") + " 점수: §f"
++                            + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "점";
++                    break;
++                }
++                case "submitmat": result = "§7" + matDisplay(pgGet(o, 1)) + " 제출: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 2)) + "개"; break;
++                case "farmland": result = "§7섬 경작지: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "칸"; break;
++                case "islandvisit": result = "§7섬 방문 누적: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(pgGet(o, 1)) + "회"; break;
+                 case "material": {
+                     String matName = pgGet(o, 1), target = pgGet(o, 2);
+                     if ("아무".equals(matName)) result = "§7재료 낚기: §f" + com.blockship.util.Num.fmt(cur) + "/" + pgFmtField(target) + "개";
+@@ -879,6 +925,15 @@ public class QuestManager {
+         }
+     }
+ 
++    /** quests.json 의 {@code "길드필요": true} — 길드원만 받는 퀘스트. */
++    private boolean needsGuild(String qid) {
++        return "true".equalsIgnoreCase(getQuestField(qid, "길드필요"));
++    }
++
++    private boolean inGuild(Player p) {
++        return guildQuests != null && guildQuests.hasGuild(p);
++    }
++
+     private String nameOf(String qid) {
+         String n = getQuestField(qid, "이름");
+         return n == null ? qid : n;
+@@ -914,6 +969,16 @@ public class QuestManager {
+         return n;
+     }
+ 
++    // ── submitmat 목표 — deliver의 재료판 (2026-08-16) ──────────────────────────
++    //   deliver는 부품 PDC로만 정체를 판별한다. 특수작물 수확물·조합 재료는 PDC가 없고
++    //   lore의 "mat:<id>" 마커가 정체라, CraftingManager의 판정/회수를 그대로 빌려 쓴다.
++    //   ★모루 개명 위조는 여기서도 불가능하다 — 표시이름이 아니라 lore 마커를 보기 때문.
++    /** 인벤토리의 {@code mat:<matId>} 재료 개수. CraftingManager 미주입이면 0(=제출 불가). */
++    private int countSubmitMat(Player p, String matId) {
++        if (crafting == null || matId == null || matId.isEmpty()) return 0;
++        return crafting.customMaterialCount(p, matId);
++    }
++
+     /** 실제 회수 — 필요 개수만큼 인벤토리에서 제거. @return 실제로 회수한 개수 */
+     private int consumeDeliverable(Player p, String wantName, int need) {
+         int left = need;
+@@ -930,7 +995,7 @@ public class QuestManager {
+     }
+ 
+     /**
+-     * 보상 수령 직전 호출 — deliver 목표의 실물을 회수한다.
++     * 보상 수령 직전 호출 — deliver·submitmat 목표의 실물을 회수한다.
+      * @return 모두 회수했으면 true. 하나라도 부족하면(그 사이 버렸거나 장착한 경우)
+      *         아무것도 안 뺏고 false — 보상 지급을 막아 아이템 손실 없이 되돌린다.
+      */
+@@ -946,6 +1011,15 @@ public class QuestManager {
+                 return false;
+             }
+         }
++        for (String g : goals) {                     // submitmat도 같은 규약 — 전량 확인이 먼저다
++            String[] o = g.split("\\|", -1);
++            if (!"submitmat".equals(o[0])) continue;
++            int need = parseInt(get(o, 2));
++            if (countSubmitMat(p, get(o, 1)) < need) {
++                msg(p, "&8[&d 퀘스트 &8] &c제출할 &e" + matDisplay(get(o, 1)) + " " + need + "개&c가 부족합니다.");
++                return false;
++            }
++        }
+         // 2차: 실제 회수
+         for (String g : goals) {
+             String[] o = g.split("\\|", -1);
+@@ -954,6 +1028,13 @@ public class QuestManager {
+             int got = consumeDeliverable(p, get(o, 1), need);
+             msg(p, "&8[&d 퀘스트 &8] &7" + get(o, 1) + " &f" + got + "개&7를 건네주었습니다.");
+         }
++        for (String g : goals) {
++            String[] o = g.split("\\|", -1);
++            if (!"submitmat".equals(o[0])) continue;
++            int need = parseInt(get(o, 2));
++            crafting.removeCustomMaterial(p, get(o, 1), need);
++            msg(p, "&8[&d 퀘스트 &8] &7" + matDisplay(get(o, 1)) + " &f" + need + "개&7를 건네주었습니다.");
++        }
+         return true;
+     }
+ 
+@@ -1076,10 +1157,12 @@ public class QuestManager {
+             case "fish", "fish_fresh", "harpoon" -> target = parseInt(get(o, 3));
+             case "sell", "level", "money", "login", "quest_daily", "earn", "trap", "enhance", "skill", "collectible",
+                  "iceboxbuy", "iceboxstore",
+-                 "sail", "submit", "usebait" -> target = parseInt(get(o, 1));
++                 "sail", "submit", "usebait",
++                 "guilddonate", "guildspend" -> target = parseInt(get(o, 1));
+             case "casino" -> target = parseInt(get(o, 2));
+             case "area", "visit", "action" -> target = 1;
+-            case "craft", "material", "dogam", "eatdish", "forage", "mine", "harvest" -> target = parseInt(get(o, 2));
++            case "craft", "material", "dogam", "eatdish", "forage", "mine", "harvest",
++                 "farm", "submitpts" -> target = parseInt(get(o, 2));
+             // equip = equip|부품종류|부품이름 — 장착 1회가 완료 조건이다.
+             case "equip" -> target = 1;
+             // ★deliver = "만들어서 가져다주기" — 카운터가 아니라 인벤토리 상태를 즉석 판정한다.
+@@ -1089,6 +1172,16 @@ public class QuestManager {
+                 cur = countDeliverable(p, get(o, 1));
+                 setProgress(d, qid, idx, Math.min(cur, target));
+             }
++            // ★submitmat = "재료를 모아서 가져다주기". deliver의 재료판 — deliver는 부품 PDC만
++            //   보므로 특수작물·조합재료는 제출할 방법이 아예 없었다(2026-08-16, 마인팜 라인).
++            //   판정·회수 모두 CraftingManager의 lore "mat:<id>" 규약에 위임한다.
++            case "submitmat" -> {
++                target = parseInt(get(o, 2));
++                cur = countSubmitMat(p, get(o, 1));
++                setProgress(d, qid, idx, Math.min(cur, target));
++            }
++            // 섬 경영 목표 — 카운터가 아니라 「지금 섬의 상태」다. 갱신은 refreshIslandGoals()가 한다.
++            case "farmland", "islandvisit" -> target = parseInt(get(o, 1));
+             default -> target = 0;
+         }
+         return cur >= target;
+@@ -1309,6 +1402,7 @@ public class QuestManager {
+     // 요리 먹기(eatdish) — CookingManager.onConsume에서 호출. eatdish|<dishId|아무>|<수>.
+     // ===================================================================
+     public void onEatDish(Player p, String dishId) {
++        gq(p, "eatdish", dishId, "", 1);          // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -1408,7 +1502,12 @@ public class QuestManager {
+      * 공용 카운터 증가 — verb가 {@code id}(2번째 필드)와 개수(3번째)를 갖는 형태.
+      * {@code <verb>|<id>|<수>}, id가 "아무"면 전부 매칭. (onForage와 동일 규약)
+      */
+-    private void bumpIdCounter(Player p, String verb, String id) {
++    private void bumpIdCounter(Player p, String verb, String id) { bumpIdCounter(p, verb, id, 1); }
++
++    private void bumpIdCounter(Player p, String verb, String id, int amount) {
++        // ★길드 fan-out은 여기서 한 번에 처리한다 — mine/harvest/farm/craft/submitpts 가
++        //   전부 이 헬퍼를 지나므로 훅마다 따로 부를 필요가 없다(누락 위험 감소).
++        if (!"submitpts".equals(verb)) gq(p, verb, id, "", amount);
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -1423,7 +1522,7 @@ public class QuestManager {
+                 int target = parseInt(get(o, 2));
+                 int cur = progress(d, qid, idx);
+                 if (cur < target) {
+-                    cur++;
++                    cur = Math.min(target, cur + amount);
+                     setProgress(d, qid, idx, cur);
+                     String show = showMode(qid, verb, "", target);
+                     if ("title".equals(show)) title(p, "&7" + nameOf(qid) + " &f" + cur + "&7/" + target);
+@@ -1437,6 +1536,7 @@ public class QuestManager {
+     /** 공용 카운터 증가 — verb가 개수만 갖는 형태. {@code <verb>|<수>}. amount만큼 더한다. */
+     private void bumpPlainCounter(Player p, String verb, int amount) {
+         if (pdm == null || amount <= 0) return;
++        gq(p, verb, "", "", amount);   // ★길드 fan-out — sail/submit/trap/enhance/skill/usebait 공통
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+             if (!"진행".equals(status(d, qid))) continue;
+@@ -1459,6 +1559,7 @@ public class QuestManager {
+      * harpoon은 작살로만 올라간다 ("작살로만 낚으세요" 퀘스트용).
+      */
+     public void onHarpoon(Player p, String fishName, String grade, double size) {
++        gq(p, "harpoon", fishName, grade, 1);     // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -1485,12 +1586,124 @@ public class QuestManager {
+         }
+     }
+ 
++    // ===================================================================
++    // 섬 경영 목표 — farmland / islandvisit (「마인팜」 라인, 2026-08-16)
++    // ===================================================================
++    /**
++     * 이 둘은 <b>이벤트로 잡히지 않는 상태 목표</b>다. 경작지는 괭이질·물 마름·밟기로
++     * 조용히 늘고 줄고, 방문 누적은 <b>남이</b> 올린다. 그래서 카운터를 세는 대신
++     * 10초마다 다시 잰다.
++     *
++     * <p>비용 방어 3겹 —
++     * ① 그 목표를 가진 <b>진행 중</b> 퀘스트가 있는 사람만(없어지면 즉시 {@code forget}),
++     * ② 경작지는 {@code island_world}에 <b>서 있을 때만</b>(밭은 거기서 만든다),
++     * ③ {@link com.blockship.island.IslandFarmlandCounter}가 <b>바뀐 청크만</b> 다시 센다 —
++     *    아무것도 안 변했으면 캐시된 합계를 즉시 돌려준다.
++     */
++    private void startIslandGoalRefresh() {
++        if (islandGoalTaskStarted) return;
++        islandGoalTaskStarted = true;
++        Bukkit.getScheduler().runTaskTimer(plugin, this::refreshIslandGoals, 200L, 200L);
++    }
++
++    private void refreshIslandGoals() {
++        if (pdm == null || islandManager == null) return;
++        for (Player p : Bukkit.getOnlinePlayers()) {
++            PlayerData d = pdm.get(p.getUniqueId());
++            if (d == null) continue;
++            boolean wantFarmland = false, wantVisit = false;
++            for (String qid : new ArrayList<>(d.getActiveQuests())) {
++                if (!"진행".equals(status(d, qid))) continue;
++                for (String g : getQuestListField(qid, "목표")) {
++                    if (g.startsWith("farmland|")) wantFarmland = true;
++                    else if (g.startsWith("islandvisit|")) wantVisit = true;
++                }
++            }
++            if (wantVisit) {
++                com.blockship.island.IslandData isl =
++                        islandManager.getIslandByOwner(p.getUniqueId().toString());
++                if (isl != null)
++                    applyIslandGoal(p, d, "islandvisit",
++                            (int) Math.min(isl.getVisitCount(), Integer.MAX_VALUE));
++            }
++            if (farmlandCounter == null) continue;
++            if (!wantFarmland) {
++                // 목표가 사라졌으면 그 섬의 청크 캐시를 버린다 — 안 그러면 리스너가 계속 일한다.
++                farmlandCounter.forget(p.getUniqueId());
++                continue;
++            }
++            // ★섬 밖에서는 재지 않는다. 밭은 거기서만 변하고, 카운터가 청크 단위로 상태를
++            //   들고 있어서 다시 들어와도 이어서 센다(처음부터 다시 세지 않는다).
++            if (!com.blockship.island.IslandManager.ISLAND_WORLD.equals(p.getWorld().getName())) continue;
++            farmlandCounter.pump(p, n -> {
++                PlayerData pd = pdm.get(p.getUniqueId());
++                if (p.isOnline() && pd != null) applyIslandGoal(p, pd, "farmland", n);
++            });
++        }
++    }
++
++    /** 상태 목표 진행도를 그 verb의 모든 목표 칸에 반영하고 완료를 체크한다. */
++    private void applyIslandGoal(Player p, PlayerData d, String verb, int value) {
++        for (String qid : new ArrayList<>(d.getActiveQuests())) {
++            if (!"진행".equals(status(d, qid))) continue;
++            List<String> goals = getQuestListField(qid, "목표");
++            boolean touched = false;
++            for (int i = 0; i < goals.size(); i++) {
++                String[] o = goals.get(i).split("\\|", -1);
++                if (!verb.equals(o[0])) continue;
++                int target = parseInt(get(o, 1));
++                setProgress(d, qid, i + 1, Math.min(value, target));
++                touched = true;
++            }
++            if (touched) checkProgress(p, d, qid);
++        }
++    }
++
+     /** 드릴로 광석 1칸 채굴 — {@code mine|<블록id>|<수>}. blockId는 {@code minecraft:} 접두 없는 소문자. */
+     public void onMine(Player p, String blockId) { bumpIdCounter(p, "mine", blockId); }
+ 
+     /** 특수작물 수확 — {@code harvest|<작물id>|<수>}. 수량 배수(풍년)는 호출 횟수로 반영한다. */
+     public void onHarvest(Player p, String cropId) { bumpIdCounter(p, "harvest", cropId); }
+ 
++    /**
++     * 바닐라 작물 수확 — {@code farm|<작물id|아무>|<수>}. {@code crop.VanillaFarmListener}가 호출한다.
++     * ★놓고 부수기 판정은 그쪽에서 이미 끝난 상태로 들어온다(여기선 세기만 한다).
++     */
++    public void onFarm(Player p, String cropId) { bumpIdCounter(p, "farm", cropId); }
++
++    /**
++     * 제출 «점수» 누적 — {@code submitpts|<종류|아무>|<점수>}. {@code IslandSubmitManager}가 호출한다.
++     * ★{@code submit}(제출 «횟수»)과 다르다 — 횟수는 1개씩 스무 번 넣으면 끝나서 큰 목표에 못 쓴다.
++     */
++    public void onSubmitPoints(Player p, String kind, long pts) {
++        if (pts <= 0) return;
++        int n = (int) Math.min(pts, Integer.MAX_VALUE);
++        bumpIdCounter(p, "submitpts", kind, n);
++        gq(p, "submitpts", kind, "", n);
++    }
++
++    /**
++     * 길드 계좌 <b>기부</b> — {@code guilddonate|<금액>}. {@code GuildManager.deposit}에서 호출.
++     *
++     * <p>개인 일일 퀘스트와 주간 길드 퀘스트가 <b>같은 verb</b>를 쓴다. 기부는 개인 지갑 →
++     * 금고로 가는 <b>이동</b>이고 금고는 밖으로 못 나가므로, 이 목표는 서버 통화를 줄이는 쪽이다.
++     */
++    public void onGuildDonate(Player p, long amount) {
++        if (amount <= 0) return;
++        bumpPlainCounter(p, "guilddonate", (int) Math.min(amount, Integer.MAX_VALUE));
++    }
++
++    /**
++     * 길드 계좌 <b>지출</b> — {@code guildspend|<금액>}. 버프 구매·슬롯 확장·섬 확장에서 호출.
++     *
++     * <p>★소비처가 전부 유한하다(버프 6×3 · 슬롯 30명 · 섬 500칸). 전부 만렙인 길드는
++     * 이 목표를 못 깬다 — 로테이션 한 칸이라 그 주만 손해지만, 알고는 있을 것.
++     */
++    public void onGuildSpend(Player p, long amount) {
++        if (amount <= 0) return;
++        bumpPlainCounter(p, "guildspend", (int) Math.min(amount, Integer.MAX_VALUE));
++    }
++
+     /** 배 항해 — {@code sail|<블록거리>}. ShipMover가 이동 성공 1회마다 이동 블록 수로 호출. */
+     public void onSail(Player p, int blocks) { bumpPlainCounter(p, "sail", blocks); }
+ 
+@@ -1821,6 +2034,27 @@ public class QuestManager {
+             try {
+                 switch (a[0]) {
+                     case "crop" -> { if (a.length >= 2) it = com.blockship.crop.CropSpecs.outputItem(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // cropseed:<작물id>[:<수>] — 특수작물 씨앗. 이게 없으면 특수작물 재배 자체를
++                    //   시작할 방법이 없다(그전엔 op /작물 지급 전용이었다).
++                    case "cropseed" -> { if (a.length >= 2 && cropManager != null) it = cropManager.makeSeed(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // cropbundle:<작물id>[:<꾸러미 수>] — 압축 작물 꾸러미(1개 = 산출물 64개).
++                    //   난이도가 오를수록 낱개 대신 꾸러미로 준다(마인팜 라인, 2026-08-16).
++                    case "cropbundle" -> { if (a.length >= 2) it = com.blockship.crop.CropSpecs.bundleItem(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
++                    // fly:<분>[:<장수>] / autoplant:<횟수>[:<장수>] — 섬 편의권.
++                    //   ★캐시샵·잠수상점과 같은 실물 티켓이다(우클릭 사용). 여기서 즉시 적립하지
++                    //     않는 이유: 퀘스트 보상은 창고에 쌓아 두거나 거래할 수 있어야 한다.
++                    case "fly" -> {
++                        if (a.length >= 2) {
++                            it = com.blockship.island.IslandFlyManager.makeTicket(Integer.parseInt(a[1]));
++                            if (a.length >= 3) it.setAmount(Math.max(1, Math.min(Integer.parseInt(a[2]), 64)));
++                        }
++                    }
++                    case "autoplant" -> {
++                        if (a.length >= 2) {
++                            it = com.blockship.island.IslandAutoPlantManager.makeTicket(Integer.parseInt(a[1]));
++                            if (a.length >= 3) it.setAmount(Math.max(1, Math.min(Integer.parseInt(a[2]), 64)));
++                        }
++                    }
+                     case "dish" -> { if (a.length >= 2) it = com.blockship.cooking.DishSpecs.buildDish(a[1], a.length >= 3 ? Integer.parseInt(a[2]) : 1); }
+                     case "trap" -> {
+                         if (a.length >= 2) {
+@@ -2043,6 +2277,9 @@ public class QuestManager {
+         }
+         setExStr(d, "일일퀘스트난이도", difficulty);
+         for (String qid : pool) {
++            // ★「길드필요」 퀘스트는 길드원에게만 준다. acceptDaily 는 «풀 전체»를 배정하므로
++            //   이 게이트가 없으면 길드 없는 사람의 그날 목록에 «절대 못 깨는 칸»이 하나 생긴다.
++            if (needsGuild(qid) && !inGuild(p)) continue;
+             d.getDailyQuests().add(qid);
+             setStatus(d, qid, "진행");
+             if (!d.getActiveQuests().contains(qid)) d.getActiveQuests().add(qid);
+@@ -2093,6 +2330,7 @@ public class QuestManager {
+             int reqLv = getQuestInt(qid, "필요레벨", 1);
+             if (lv < reqLv) continue;
+             if (d.getWeeklyQuests().contains(qid)) continue;
++            if (needsGuild(qid) && !inGuild(p)) continue;   // 주간에도 같은 게이트
+             d.getWeeklyQuests().add(qid);
+             setStatus(d, qid, "진행");
+             if (!d.getActiveQuests().contains(qid)) d.getActiveQuests().add(qid);
+@@ -2152,6 +2390,7 @@ public class QuestManager {
+ 
+     /** 물고기 낚음 (퀘스트_물고기) — fish / fish_fresh 목표. */
+     public void onFish(Player p, String fishName, String grade, double size, double quality) {
++        gq(p, "fish", fishName, grade, 1);        // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -2317,6 +2556,7 @@ public class QuestManager {
+ 
+     /** 판매 (퀘스트_판매) — sell / money 목표. */
+     public void onSell(Player p, int count, double price) {
++        gq(p, "sell", "", "", Math.max(1, count));  // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         // 주간 획득 골드 누적 (물고기 판매 수익) — earn 목표 진행도 기준
+@@ -2359,6 +2599,7 @@ public class QuestManager {
+ 
+     /** 재료 획득 (퀘스트_재료) — material 목표. */
+     public void onMaterial(Player p, String matId) {
++        gq(p, "material", matId, "", 1);          // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -2386,6 +2627,7 @@ public class QuestManager {
+ 
+     /** 채집물 채집 성공 (퀘스트_채집) — forage 목표. ForageManager.succeed()에서 호출. forage|<typeId|아무>|<수>. */
+     public void onForage(Player p, String typeId) {
++        gq(p, "forage", typeId, "", 1);           // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         for (String qid : new ArrayList<>(d.getActiveQuests())) {
+@@ -2418,6 +2660,24 @@ public class QuestManager {
+         return (n == null || n.isEmpty()) ? typeId : n;
+     }
+ 
++    /**
++     * {@code submitmat} 목표의 재료 표시이름. 특수작물 산출물은 materials.json에 없고
++     * {@link com.blockship.crop.CropSpecs}가 소유하므로("작물_밀" 같은 matId) 그쪽을 먼저 본다.
++     */
++    private String matDisplay(String matId) {
++        if (matId == null || matId.isEmpty()) return "재료";
++        if (matId.startsWith("작물_")) {
++            String cropId = matId.substring("작물_".length());
++            if (com.blockship.crop.CropSpecs.byId(cropId) != null)
++                return org.bukkit.ChatColor.stripColor(com.blockship.crop.CropSpecs.nameOf(cropId));
++        }
++        if (materials != null) {
++            MaterialLoader.Material m = materials.getMaterial(matId);
++            if (m != null && m.name != null && !m.name.isEmpty()) return m.name;
++        }
++        return matId;
++    }
++
+     /** 수집품 발견 (퀘스트_수집품) — collectible 목표. CollectibleManager.found()에서 호출. collectible|<수>. */
+     public void onCollectible(Player p) {
+         if (pdm == null) return;
+@@ -2450,6 +2710,7 @@ public class QuestManager {
+ 
+     /** 조합 완료 (퀘스트_조합) — craft 목표. craftName 공백→밑줄 정규화. */
+     public void onCraft(Player p, String craftName) {
++        gq(p, "craft", craftName, "", 1);         // ★길드 fan-out
+         if (pdm == null) return;
+         PlayerData d = pdm.getOrCreate(p.getUniqueId(), p.getName());
+         String cn = craftName.replace(" ", "_");
