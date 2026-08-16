@@ -1,4 +1,4 @@
-# 배포 런북 — 마인팜 라인 + 미적용 패치 2종 (2026-08-16)
+# 배포 런북 — 미적용 패치 3종 + 데이터 파이프라인 21단 (2026-08-16)
 
 원격 세션에서는 **prod에 손이 닿지 않는다**(SSH 키 없음, 22 차단). 아래는 **Mac에서** 도는 순서다.
 
@@ -19,20 +19,31 @@
 `&a[Q] 오스발트`로 맞춘다(초록 = 퀘스트 주는 NPC. **stop → 편집 → start**).
 반영은 `/npc동기화`.
 
-### 2. 자바 패치 2종이 dev에서 한 번도 안 돌았다
+### 1-b. 길드 임무는 NPC가 필요 없다 — 대신 **패치가 없으면 일퀘가 하나 죽는다**
+
+주간 길드 퀘스트는 `/길드` GUI(슬롯 16)와 `/길드 임무`로만 돌아가 배치 작업이 없다.
+다만 **일일 기부 4종**은 `길드필요: true` 게이트가 엔진에 있어야 한다 —
+없으면 길드 미가입자의 그날 목록에 **절대 못 깨는 칸**이 하나 생긴다.
+⇒ 20번 스크립트를 돌릴 거면 **패치 ④를 반드시 같이** 올릴 것.
+
+### 2. 자바 패치 3종이 dev에서 한 번도 안 돌았다
 
 빌드만 통과했지 **실행은 안 해 봤다.** 특히 이번 패치가 얹는 것:
 - `IslandFarmlandCounter` — `BlockPlace`/`BlockBreak`/**`BlockFromTo`**(물 흐름 = 핫패스)에
   리스너를 건다
+- `VanillaFarmListener` — 같은 계열의 리스너를 하나 더 건다(설치 표시)
+- **`GuildQuestManager.bump()`가 물고기 한 마리마다 불린다** — 지연 저장·메모·주차 캐시를
+  넣어 뒀지만 실측은 dev에서 해야 한다
 - 비동기 청크 스냅샷 스캔 태스크
 - `PlayerInteractEvent` 핸들러 하나 추가(`CropManager.onBundleOpen`)
 
 CLAUDE.md의 「★자동배포=미검증 jar도 그대로 적용되니 **dev 테스트 후** 스테이징할 것」이
 정확히 이 경우다. **`~/deploy-dev.sh`로 dev에 먼저 올리고** 섬에서 밭 갈아 보고 prod로 갈 것.
 
-### 3. 「싹다」의 범위 — 파이프라인 20개는 마인팜만이 아니다
+### 3. 「싹다」의 범위 — 파이프라인 21개는 이번 작업만이 아니다
 
-19번만 마인팜이다. 1~18을 같이 돌리면 **이번 세션 전체**가 한꺼번에 라이브에 들어간다:
+이번 세션에서 새로 추가한 건 **19(마인팜)·20(일일 기부)** 둘뿐이다.
+1~18을 같이 돌리면 **그 앞의 작업 전체**가 한꺼번에 라이브에 들어간다:
 7챕터 39개 재생성 · 메인 b퀘스트 9개 신설 · 마을 어보 4개 · 심해 사이드 7개 +
 심해어 NPC 5명 · 저레벨 S 하향 · 난이도 전면 재부여. **되돌리기 어렵다.**
 마인팜만 올릴 생각이었으면 아래 「B안」을 쓸 것.
@@ -60,7 +71,7 @@ ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 '~/mcserver/scripts/rcon.py lis
 
 ```bash
 cd ~/development/blockship-plugin
-for P in quest-difficulty-and-tracking minefarm-quest-line; do
+for P in quest-difficulty-and-tracking minefarm-quest-line guild-weekly-quest; do
   git apply --check ~/barkan-fishing-server/ops/patches/$P.patch \
     && git apply    ~/barkan-fishing-server/ops/patches/$P.patch \
     && echo "✓ $P" || { echo "✗ $P — 충돌, 중단"; break; }
@@ -68,7 +79,8 @@ done
 ./gradlew build
 ```
 
-③은 ①이 적용된 트리에서 뜬 diff다. 순서를 바꾸면 `QuestManager`·`QuestGui`에서 충돌한다.
+뒤 패치는 앞 패치가 적용된 트리에서 뜬 diff다. 순서를 바꾸면 `QuestManager`·`QuestGui`에서
+충돌한다. **체크포인트에서 ①→③→④ 순서 적용 후 clean 빌드 통과를 실측 확인했다.**
 충돌하면 `git apply -3`을 먼저 시도할 것.
 적용 후 [`ops/patches/README.md`](patches/README.md) 표를 **적용 완료로 고칠 것**(두 번 적용 방지).
 
@@ -83,14 +95,16 @@ for S in fix_waterfall_cave_refs fix_desert_thread add_leila_side fix_story_poli
          fix_story_gaps fix_desc_goal_sync drop_blackscale_line fix_canyon_setting \
          fix_forbidden_book seed_ash_vessel spread_side_difficulty fix_dialogue_blackscale \
          fix_dialogue_tone fix_grade_gates build_ch7_quests build_ch7_side \
-         spread_main_difficulty add_village_capstones add_minefarm_line add_quest_difficulty; do
+         spread_main_difficulty add_village_capstones add_minefarm_line \
+         add_guild_donate_daily add_quest_difficulty; do
   echo "── $S"
   python3 ~/barkan-fishing-server/fish-tools/$S.py || { echo "✗ $S 에서 중단"; break; }
 done
 ```
 
-**B안 — 마인팜만:** 19·20번 둘만 돌린다(`add_minefarm_line` → `add_quest_difficulty`).
-20번은 전 퀘스트 난이도를 다시 계산하므로 **항상 마지막에 한 번**은 돌아야 한다.
+**B안 — 이번 작업만:** 19·20·21번 셋만 돌린다
+(`add_minefarm_line` → `add_guild_donate_daily` → `add_quest_difficulty`).
+21번은 전 퀘스트 난이도를 다시 계산하므로 **항상 마지막에 한 번**은 돌아야 한다.
 
 ## 3. dev 검증
 
@@ -108,7 +122,11 @@ done
 | 제출 | 특수 밀 6개 들고 오스발트 → 인벤에서 실제로 회수됨 |
 | 꾸러미 | 압축 꾸러미 들고 **상자 우클릭 → 상자가 열려야 함**(안 풀림) / 웅크림+우클릭 → 풀림 |
 | 티켓 | 자심권 500·플라이권 우클릭 사용 |
-| 렉 | 밭 갈면서 `/tps` — 20 유지 |
+| **놓고부수기** | 밀 **심고 바로 캐기** → 진행도 **안 오름** / 자라서 캐기 → **오름** / 심고 **뼈가루** 뿌려 캐기 → **안 오름** ★이번 안티어뷰징의 핵심 |
+| 길드 임무 | `/길드 임무` 출력 · `/길드` 슬롯16 · 물고기 잡아 진행도 오름 · 완료 시 금고 자동 입금 |
+| 기부·지출 | `/길드` 기부 → `guilddonate` 오름 / 버프 구매 → `guildspend` 오름 |
+| **길드 미가입자** | 일퀘 받았을 때 **기부 칸이 안 뜨는지**(길드필요 게이트) |
+| 렉 | 밭 갈면서·낚시하면서 `/tps` — 20 유지. `guilds.json` 쓰기가 몰리지 않는지 |
 
 ## 4. prod 배포
 
