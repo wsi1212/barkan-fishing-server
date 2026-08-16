@@ -124,10 +124,10 @@ index 6aa0c60..39d3b34 100644
      }
 diff --git a/src/main/java/com/blockship/island/IslandFarmlandCounter.java b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
 new file mode 100644
-index 0000000..b31ed56
+index 0000000..894af4f
 --- /dev/null
 +++ b/src/main/java/com/blockship/island/IslandFarmlandCounter.java
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,161 @@
 +package com.blockship.island;
 +
 +import com.blockship.region.RegionData;
@@ -163,9 +163,15 @@ index 0000000..b31ed56
 + *   <li>실제 블록 순회는 <b>비동기</b> 스레드가 큐에서 꺼내 돌린다.
 + *       반경 150 · Y 380칸이면 3,400만 블록이라 메인에서 돌리면 서버가 멈춘다.</li>
 + * </ul>
-+ * 그래서 반경 50짜리 섬(441청크)은 약 <b>4초</b>, 최대 크기(반경 150 · 2,809청크)는
-+ * 약 <b>24초</b> 걸린다. 결과는 {@value #CACHE_MS}ms 캐시한다 — 퀘스트 진행도 갱신이
-+ * 주기 작업이라 매번 새로 세면 그것만으로 서버가 죽는다.
++ * 실측 비용 — 섬 한 변은 {@code 2r+1}이라 청크 수가 생각보다 훨씬 적다:
++ * <pre>
++ *   반경  25   2,601칸    25청크    1.0M블록   ≒ 0.3초
++ *   반경  50  10,201칸    64청크    3.9M블록   ≒ 0.8초
++ *   반경  75  22,801칸   121청크    8.7M블록   ≒ 1.5초
++ *   반경 150  90,601칸   400청크   34.4M블록   ≒ 5.0초   (최대 크기)
++ * </pre>
++ * 결과는 {@value #CACHE_MS}ms 캐시한다 — 퀘스트 진행도 갱신이 주기 작업이라
++ * 매번 새로 세면 그것만으로 서버가 죽는다.
 + *
 + * <p>Y 범위는 섬 region의 pos1/pos2를 월드 높이로 클램프해 쓴다. <b>층층이 쌓은 밭</b>이
 + * 마인팜의 본질이라 「지표만」으로 줄일 수 없다.
