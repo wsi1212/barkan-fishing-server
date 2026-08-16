@@ -250,6 +250,21 @@ async function migrate() {
       PRIMARY KEY (post_id, viewer_key)
     );
     CREATE INDEX IF NOT EXISTS community_post_views_post_idx ON community_post_views (post_id);
+    CREATE TABLE IF NOT EXISTS community_comments (
+      id UUID PRIMARY KEY, post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+      discord_id TEXT NOT NULL, minecraft_uuid UUID NOT NULL, player_name TEXT NOT NULL,
+      discord_name TEXT, body TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), hidden BOOLEAN NOT NULL DEFAULT FALSE
+    );
+    CREATE INDEX IF NOT EXISTS community_comments_post_idx ON community_comments (post_id, hidden, created_at ASC);
+    CREATE INDEX IF NOT EXISTS community_comments_author_idx ON community_comments (minecraft_uuid, created_at DESC);
+    CREATE TABLE IF NOT EXISTS community_comment_likes (
+      comment_id UUID NOT NULL REFERENCES community_comments(id) ON DELETE CASCADE,
+      minecraft_uuid UUID NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (comment_id, minecraft_uuid)
+    );
+    CREATE INDEX IF NOT EXISTS community_comment_likes_comment_idx ON community_comment_likes (comment_id);
     CREATE TABLE IF NOT EXISTS community_profiles (
       minecraft_uuid UUID PRIMARY KEY, introduction TEXT NOT NULL DEFAULT '', updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -398,7 +413,8 @@ async function communityPosts(category = "") {
   const selected = COMMUNITY_CATEGORIES.includes(category) ? category : "";
   const stats = `
     COALESCE((SELECT COUNT(*) FROM community_post_likes l WHERE l.post_id=p.id), 0)::int AS like_count,
-    COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count`;
+    COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count,
+    COALESCE((SELECT COUNT(*) FROM community_comments c WHERE c.post_id=p.id AND c.hidden=FALSE), 0)::int AS comment_count`;
   const result = selected
     ? await pool.query(`SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,${stats} FROM community_posts p WHERE p.hidden=FALSE AND p.category=$1 ORDER BY p.created_at DESC LIMIT 60`, [selected])
     : await pool.query(`SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,${stats} FROM community_posts p WHERE p.hidden=FALSE ORDER BY p.created_at DESC LIMIT 60`);
@@ -410,6 +426,7 @@ async function communityPost(id, current = null) {
     SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,
       COALESCE((SELECT COUNT(*) FROM community_post_likes l WHERE l.post_id=p.id), 0)::int AS like_count,
       COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count,
+      COALESCE((SELECT COUNT(*) FROM community_comments c WHERE c.post_id=p.id AND c.hidden=FALSE), 0)::int AS comment_count,
       ($2::uuid IS NOT NULL AND EXISTS (
         SELECT 1 FROM community_post_likes l WHERE l.post_id=p.id AND l.minecraft_uuid=$2::uuid
       )) AS liked
@@ -422,7 +439,33 @@ function communityCount(value) {
 }
 function communityPostStats(post, includeLike = false) {
   const likeLabel = includeLike ? `${post.liked ? "♥" : "♡"} ${communityCount(post.like_count)}` : `♥ ${communityCount(post.like_count)}`;
-  return `<span class="post-stat${post.liked ? " liked" : ""}">${likeLabel}</span><span class="post-stat">조회 ${communityCount(post.view_count)}</span>`;
+  return `<span class="post-stat${post.liked ? " liked" : ""}">${likeLabel}</span><span class="post-stat">조회 ${communityCount(post.view_count)}</span><span class="post-stat">댓글 ${communityCount(post.comment_count)}</span>`;
+}
+async function communityComments(postId, current = null) {
+  if (!validUuid(postId)) return [];
+  const result = await pool.query(`
+    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,
+      COALESCE((SELECT COUNT(*) FROM community_comment_likes l WHERE l.comment_id=c.id), 0)::int AS like_count,
+      ($2::uuid IS NOT NULL AND EXISTS (
+        SELECT 1 FROM community_comment_likes l WHERE l.comment_id=c.id AND l.minecraft_uuid=$2::uuid
+      )) AS liked
+    FROM community_comments c
+    WHERE c.post_id=$1::uuid AND c.hidden=FALSE
+    ORDER BY c.created_at ASC
+    LIMIT 200`, [postId, current?.minecraft_uuid ?? null]);
+  return result.rows;
+}
+async function communityComment(id, current = null) {
+  if (!validUuid(id)) return null;
+  const result = await pool.query(`
+    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,
+      COALESCE((SELECT COUNT(*) FROM community_comment_likes l WHERE l.comment_id=c.id), 0)::int AS like_count,
+      ($2::uuid IS NOT NULL AND EXISTS (
+        SELECT 1 FROM community_comment_likes l WHERE l.comment_id=c.id AND l.minecraft_uuid=$2::uuid
+      )) AS liked
+    FROM community_comments c
+    WHERE c.id=$1::uuid AND c.hidden=FALSE`, [id, current?.minecraft_uuid ?? null]);
+  return result.rows[0] ?? null;
 }
 async function readMinecraftJson(file, fallback) {
   try { return JSON.parse(await readFile(file, "utf8")); } catch { return fallback; }
@@ -617,12 +660,25 @@ function communityPage(current, posts, notice = "", selectedCategory = "") {
 function communityWritePage(current, error = "") {
   return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log</p><h2>새 기록 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">분류</label><select id="category" name="category">${COMMUNITY_CATEGORIES.map((category) => `<option value="${category}">${category}</option>`).join("")}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
 }
-function communityPostPage(current, post, error = "") {
+function communityPostPage(current, post, error = "", comments = []) {
   if (!post) return communityLayout("글을 찾을 수 없음", `<main><section class="panel"><h2>기록을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
+  const postId = encodeURIComponent(post.id);
   const heart = current
-    ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}/heart" class="heart-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="heart-button${post.liked ? " active" : ""}" type="submit" aria-label="${post.liked ? "하트 취소" : "하트 보내기"}">${post.liked ? "♥" : "♡"} <span>${communityCount(post.like_count)}</span></button></form>`
+    ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${postId}/heart" class="heart-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="heart-button${post.liked ? " active" : ""}" type="submit" aria-label="${post.liked ? "하트 취소" : "하트 보내기"}">${post.liked ? "♥" : "♡"} <span>${communityCount(post.like_count)}</span></button></form>`
     : `<a class="heart-button" href="${COMMUNITY_BASE_URL}/login">♡ <span>${communityCount(post.like_count)}</span></a>`;
-  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}</style><article class="detail"><div class="detail-head"><p class="eyebrow">${esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span><span class="view-count">조회 ${communityCount(post.view_count)}</span></p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span></div><div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a></article></main>`);
+  const commentCards = comments.length ? comments.map((comment) => {
+    const commentHeart = current
+      ? `<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/heart" class="comment-heart-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="comment-heart${comment.liked ? " active" : ""}" type="submit" aria-label="${comment.liked ? "댓글 하트 취소" : "댓글에 하트 보내기"}">${comment.liked ? "♥" : "♡"} <span>${communityCount(comment.like_count)}</span></button></form>`
+      : `<a class="comment-heart" href="${COMMUNITY_BASE_URL}/login" aria-label="로그인하고 댓글에 하트 보내기">♡ <span>${communityCount(comment.like_count)}</span></a>`;
+    const deleteAction = current?.minecraft_uuid === comment.minecraft_uuid
+      ? `<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/delete" class="comment-delete-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="comment-delete" type="submit">삭제</button></form>`
+      : "";
+    return `<article class="community-comment"><div class="comment-rail" aria-hidden="true"></div><div class="comment-main"><header class="comment-header"><div><a class="comment-author" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(comment.minecraft_uuid)}">${esc(comment.player_name)}</a><span class="comment-date">${new Date(comment.created_at).toLocaleString("ko-KR")}</span></div><div class="comment-actions">${commentHeart}${deleteAction}</div></header><p class="comment-body">${esc(comment.body)}</p></div></article>`;
+  }).join("") : `<div class="comments-empty">아직 댓글이 없습니다. 이 항해 기록에 첫 번째 목소리를 남겨 보세요.</div>`;
+  const composer = current
+    ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${postId}/comment" class="comment-composer"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="comment-body">댓글 남기기</label><textarea id="comment-body" name="body" maxlength="1000" rows="4" required placeholder="이 기록에 대한 경험이나 질문을 남겨 주세요."></textarea><div class="comment-composer-footer"><small>최대 1,000자 · 게임 계정 이름으로 표시됩니다.</small><button class="button" type="submit">댓글 등록</button></div></form>`
+    : `<div class="comment-login"><p>Discord로 로그인하면 이 기록에 댓글을 남길 수 있습니다.</p><a class="button ghost" href="${COMMUNITY_BASE_URL}/login">로그인하고 댓글 쓰기</a></div>`;
+  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}.comments-section{margin-top:58px;padding-top:30px;border-top:1px solid var(--line)}.comments-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:19px}.comments-heading h2{margin:0;font-size:21px;letter-spacing:-.07em}.comments-heading span{color:var(--faint);font-size:11px}.comments-list{border-top:1px solid var(--line)}.community-comment{display:grid;grid-template-columns:13px minmax(0,1fr);gap:14px;padding:19px 0;border-bottom:1px solid var(--line)}.comment-rail{position:relative;width:5px;margin:4px 0 3px;background:rgba(150,217,196,.25)}.comment-rail:before{position:absolute;top:0;left:-2px;width:9px;height:9px;border:1px solid var(--mint);border-radius:50%;background:var(--ink);content:""}.comment-main{min-width:0}.comment-header{display:flex;align-items:start;justify-content:space-between;gap:14px}.comment-author{color:var(--text);font-size:13px;font-weight:800;text-decoration:none}.comment-author:hover{color:var(--accent)}.comment-date{margin-left:9px;color:var(--faint);font-size:10px}.comment-actions{display:flex;align-items:center;gap:9px}.comment-heart{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(226,173,103,.35);background:transparent;color:var(--accent);font:800 12px Barkan;text-decoration:none;cursor:pointer}.comment-heart:hover,.comment-heart.active{border-color:var(--accent);background:rgba(226,173,103,.12)}.comment-heart.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.comment-heart-form,.comment-delete-form{margin:0}.comment-delete{padding:3px 0;border:0;background:transparent;color:var(--faint);font:500 11px Barkan;cursor:pointer}.comment-delete:hover{color:var(--danger)}.comment-body{margin:11px 0 0;color:#d7e5dc;font-size:14px;line-height:1.75;white-space:pre-wrap}.comments-empty{padding:22px 0;color:var(--muted);font-size:13px}.comment-composer,.comment-login{margin-top:28px;padding:20px;border:1px solid var(--line);background:rgba(12,40,37,.42)}.comment-composer label{display:block;margin:0 0 9px;color:var(--text);font-size:14px}.comment-composer textarea{min-height:112px;margin:0;resize:vertical}.comment-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:11px}.comment-composer-footer small{color:var(--faint);font-size:10px}.comment-login{display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px}.comment-login p{margin:0}@media(max-width:720px){.comments-heading{display:block}.comments-heading span{display:block;margin-top:5px}.comment-header{display:block}.comment-actions{margin-top:9px}.comment-composer-footer,.comment-login{display:block}.comment-composer-footer .button,.comment-login .button{width:100%;margin-top:13px}}</style><article class="detail"><div class="detail-head"><p class="eyebrow">${esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span><span class="view-count">조회 ${communityCount(post.view_count)}</span><span class="view-count">댓글 ${communityCount(post.comment_count)}</span></p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span></div><div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a><section class="comments-section" id="comments" aria-labelledby="comments-title"><div class="comments-heading"><h2 id="comments-title">댓글</h2><span>${communityCount(post.comment_count)}개의 항해 메모</span></div><div class="comments-list">${commentCards}</div>${composer}</section></article></main>`);
 }
 function communityViewer(req, current) {
   if (current) return { key: `user:${current.minecraft_uuid}`, cookie: null };
@@ -904,6 +960,21 @@ async function route(req, res) {
     await pool.query("INSERT INTO community_posts (id,discord_id,minecraft_uuid,player_name,discord_name,category,title,body) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)", [randomUUID(), current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, category, title, body]);
     return redirect(res, `${COMMUNITY_BASE_URL}?notice=${encodeURIComponent("기록을 게시했습니다.")}`);
   }
+  if (path.startsWith("/community/post/") && path.endsWith("/comment") && req.method === "POST") {
+    const id = path.slice("/community/post/".length, -"/comment".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const post = await communityPost(id, current);
+    if (!post) return send(res, 404, communityPostPage(current, null));
+    const data = await form(req);
+    const body = String(data.body ?? "").trim();
+    const comments = await communityComments(id, current);
+    if (!requireCsrf(data, current) || body.length < 1 || body.length > 1000) {
+      return send(res, 400, communityPostPage(current, post, "댓글은 1자 이상 1,000자 이하로 입력해 주세요.", comments));
+    }
+    await pool.query("INSERT INTO community_comments (id,post_id,discord_id,minecraft_uuid,player_name,discord_name,body) VALUES ($1,$2::uuid,$3,$4,$5,$6,$7)", [randomUUID(), id, current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, body]);
+    return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(id)}#comments`);
+  }
   if (path.startsWith("/community/post/") && path.endsWith("/heart") && req.method === "POST") {
     const id = path.slice("/community/post/".length, -"/heart".length);
     const current = await communitySession(req);
@@ -911,12 +982,43 @@ async function route(req, res) {
     const post = await communityPost(id, current);
     if (!post) return send(res, 404, communityPostPage(current, null));
     const data = await form(req);
-    if (!requireCsrf(data, current)) return send(res, 403, communityPostPage(current, post, "요청이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요."));
+    if (!requireCsrf(data, current)) return send(res, 403, communityPostPage(current, post, "요청이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.", await communityComments(id, current)));
     const removed = await pool.query("DELETE FROM community_post_likes WHERE post_id=$1::uuid AND minecraft_uuid=$2::uuid RETURNING post_id", [id, current.minecraft_uuid]);
     if (!removed.rowCount) {
       await pool.query("INSERT INTO community_post_likes (post_id,minecraft_uuid) VALUES ($1::uuid,$2::uuid) ON CONFLICT DO NOTHING", [id, current.minecraft_uuid]);
     }
     return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(id)}`);
+  }
+  if (path.startsWith("/community/comment/") && path.endsWith("/heart") && req.method === "POST") {
+    const id = path.slice("/community/comment/".length, -"/heart".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const comment = await communityComment(id, current);
+    if (!comment) return send(res, 404, communityPostPage(current, null));
+    const data = await form(req);
+    if (!requireCsrf(data, current)) {
+      const post = await communityPost(comment.post_id, current);
+      return send(res, 403, communityPostPage(current, post, "요청이 만료되었습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.", await communityComments(comment.post_id, current)));
+    }
+    const removed = await pool.query("DELETE FROM community_comment_likes WHERE comment_id=$1::uuid AND minecraft_uuid=$2::uuid RETURNING comment_id", [id, current.minecraft_uuid]);
+    if (!removed.rowCount) {
+      await pool.query("INSERT INTO community_comment_likes (comment_id,minecraft_uuid) VALUES ($1::uuid,$2::uuid) ON CONFLICT DO NOTHING", [id, current.minecraft_uuid]);
+    }
+    return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(comment.post_id)}#comments`);
+  }
+  if (path.startsWith("/community/comment/") && path.endsWith("/delete") && req.method === "POST") {
+    const id = path.slice("/community/comment/".length, -"/delete".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const comment = await communityComment(id, current);
+    if (!comment) return send(res, 404, communityPostPage(current, null));
+    const data = await form(req);
+    if (!requireCsrf(data, current) || comment.minecraft_uuid !== current.minecraft_uuid) {
+      const post = await communityPost(comment.post_id, current);
+      return send(res, 403, communityPostPage(current, post, "댓글을 삭제할 수 없습니다.", await communityComments(comment.post_id, current)));
+    }
+    await pool.query("UPDATE community_comments SET hidden=TRUE,updated_at=NOW() WHERE id=$1::uuid AND minecraft_uuid=$2::uuid", [id, current.minecraft_uuid]);
+    return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(comment.post_id)}#comments`);
   }
   if (path.startsWith("/community/post/") && req.method === "GET") {
     const id = path.slice("/community/post/".length);
@@ -926,7 +1028,7 @@ async function route(req, res) {
     const viewer = communityViewer(req, current);
     await pool.query("INSERT INTO community_post_views (post_id,viewer_key) VALUES ($1::uuid,$2) ON CONFLICT DO NOTHING", [id, viewer.key]);
     const post = await communityPost(id, current);
-    return send(res, 200, communityPostPage(current, post), "text/html; charset=utf-8", viewer.cookie ? { "Set-Cookie": viewer.cookie } : {});
+    return send(res, 200, communityPostPage(current, post, "", await communityComments(id, current)), "text/html; charset=utf-8", viewer.cookie ? { "Set-Cookie": viewer.cookie } : {});
   }
   if (req.method === "GET" && path === "/health") { await pool.query("SELECT 1"); return json(res, 200, { ok: true, paymentConfigured: Boolean(TOSS_CLIENT_KEY && TOSS_SECRET_KEY) }); }
   if (req.method === "GET" && path === "/") return send(res, 200, home(url.searchParams.get("tier"), url.searchParams.get("months")));
