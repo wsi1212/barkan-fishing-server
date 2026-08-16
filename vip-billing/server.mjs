@@ -285,7 +285,75 @@ async function migrate() {
       reason TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'PENDING', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       decided_at TIMESTAMPTZ, decided_by TEXT
     );
+    -- 길드 디스코드 연동. 게임(BlockShip)이 길드 명부 전체를 주기적으로 밀어넣고(guild_mirror/guild_member_mirror),
+    -- 백엔드가 직전 상태와 비교해 필요한 작업만 큐에 넣는다. 봇은 큐만 비운다.
+    -- 이벤트가 아니라 스냅샷 diff 인 이유: 이벤트 한 번 유실되면 그 길드는 영원히 어긋난 채로 남는다.
+    CREATE TABLE IF NOT EXISTS guild_mirror (
+      guild_id TEXT PRIMARY KEY, owner_uuid UUID, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS guild_member_mirror (
+      guild_id TEXT NOT NULL REFERENCES guild_mirror(guild_id) ON DELETE CASCADE,
+      minecraft_uuid UUID NOT NULL, guild_rank TEXT NOT NULL,
+      PRIMARY KEY (guild_id, minecraft_uuid)
+    );
+    CREATE INDEX IF NOT EXISTS guild_member_mirror_player_idx ON guild_member_mirror (minecraft_uuid);
+    CREATE TABLE IF NOT EXISTS guild_discord (
+      guild_id TEXT PRIMARY KEY, role_id TEXT, category_id TEXT,
+      text_channel_id TEXT, voice_channel_id TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS guild_discord_jobs (
+      id BIGSERIAL PRIMARY KEY,
+      kind TEXT NOT NULL CHECK (kind IN ('guild_create','guild_delete','guild_members')),
+      guild_id TEXT NOT NULL, payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+      attempts INTEGER NOT NULL DEFAULT 0, run_after TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      claimed_at TIMESTAMPTZ, done_at TIMESTAMPTZ, last_error TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS guild_discord_jobs_queue_idx ON guild_discord_jobs (run_after, id) WHERE done_at IS NULL;
+    -- 같은 길드에 같은 종류의 작업이 두 번 쌓이지 않게. 재요청은 run_after 를 당기는 것으로 갈음한다.
+    CREATE UNIQUE INDEX IF NOT EXISTS guild_discord_jobs_pending_idx ON guild_discord_jobs (kind, guild_id) WHERE done_at IS NULL;
   `);
+}
+
+// 게임 안 직책. 디스코드 공용 역할 이름과의 대응은 봇이 들고 있다.
+const GUILD_RANKS = new Set(["MASTER", "VICE_MASTER", "OFFICER", "MEMBER"]);
+
+async function guildDiscordRow(guildId) {
+  const row = await pool.query(
+    "SELECT role_id,category_id,text_channel_id,voice_channel_id FROM guild_discord WHERE guild_id=$1",
+    [guildId]
+  );
+  if (!row.rowCount) return null;
+  const found = row.rows[0];
+  return {
+    roleId: found.role_id, categoryId: found.category_id,
+    textChannelId: found.text_channel_id, voiceChannelId: found.voice_channel_id,
+  };
+}
+
+/** 길드원 중 디스코드를 연결한 사람만. 미연동자는 목록에서 빠지고, 나중에 연결하는 순간 재동기화된다. */
+async function guildMemberTargets(guildId) {
+  const rows = await pool.query(
+    `SELECT m.minecraft_uuid, m.guild_rank, d.discord_id, d.player_name
+       FROM guild_member_mirror m JOIN discord_links d ON d.minecraft_uuid = m.minecraft_uuid
+      WHERE m.guild_id=$1`,
+    [guildId]
+  );
+  return rows.rows.map((row) => ({
+    minecraftUuid: row.minecraft_uuid, playerName: row.player_name,
+    rank: row.guild_rank, discordId: row.discord_id,
+  }));
+}
+
+/** 대기 중이면 즉시 재실행하도록 당기고, 없으면 새로 넣는다. 모든 작업은 멱등이라 중복 실행은 무해하다. */
+async function enqueueGuildJob(client, kind, guildId, payload = {}) {
+  await client.query(
+    `INSERT INTO guild_discord_jobs (kind,guild_id,payload) VALUES ($1,$2,$3::jsonb)
+     ON CONFLICT (kind,guild_id) WHERE done_at IS NULL
+     DO UPDATE SET run_after=NOW(), claimed_at=NULL, payload=EXCLUDED.payload`,
+    [kind, guildId, JSON.stringify(payload)]
+  );
 }
 
 async function session(req) {
@@ -1250,6 +1318,9 @@ async function route(req, res) {
         VALUES ($1,$2,$3,$4)
         ON CONFLICT (minecraft_uuid) DO UPDATE SET player_name=EXCLUDED.player_name, discord_id=EXCLUDED.discord_id,
           discord_name=EXCLUDED.discord_name, updated_at=NOW()`, [link.minecraft_uuid, link.player_name, discordId, discordName || null]);
+      // 연동 직후 소속 길드 역할을 바로 받게 한다. 미연동 상태로 이미 가입해 있던 사람이 여기서 구제된다.
+      const joined = await client.query("SELECT guild_id FROM guild_member_mirror WHERE minecraft_uuid=$1", [link.minecraft_uuid]);
+      for (const row of joined.rows) await enqueueGuildJob(client, "guild_members", row.guild_id);
       await client.query("COMMIT");
       return json(res, 200, { linked: true, minecraftUuid: link.minecraft_uuid, playerName: link.player_name, discordId });
     } catch (error) {
@@ -1269,6 +1340,164 @@ async function route(req, res) {
     );
     if (!updated.rowCount) return json(res, 404, { error: "link_not_found" });
     return json(res, 200, { verified: true, minecraftUuid, discordId });
+  }
+  // === 길드 디스코드 연동 ===
+  // 게임이 길드 명부 전체를 밀어넣으면 직전 스냅샷과 비교해 작업만 큐에 남긴다.
+  if (path === "/internal/guild/sync" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    if (!Array.isArray(data.guilds)) return json(res, 400, { error: "invalid_request" });
+    const snapshot = new Map();
+    for (const raw of data.guilds) {
+      const guildId = String(raw?.id ?? "").trim();
+      if (!guildId || guildId.length > 64) return json(res, 400, { error: "invalid_guild_id" });
+      const members = [];
+      for (const m of Array.isArray(raw.members) ? raw.members : []) {
+        const uuid = String(m?.uuid ?? "").trim();
+        const rank = String(m?.rank ?? "MEMBER").trim().toUpperCase();
+        if (!validUuid(uuid) || !GUILD_RANKS.has(rank)) continue;
+        members.push({ uuid, rank });
+      }
+      const ownerUuid = String(raw?.ownerUuid ?? "").trim();
+      snapshot.set(guildId, { ownerUuid: validUuid(ownerUuid) ? ownerUuid : null, members });
+    }
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      // 대량 삭제 방어. 게임 쪽에서 guilds.json 을 못 읽었거나 반쯤 로드된 상태로 스냅샷이 오면
+      // 그대로 반영할 경우 멀쩡한 길드 채널을 통째로 지운다(2026-08 staging JSON 덮어쓰기 사고와 같은 계열).
+      // 정상적인 대량 해체는 force:true 로 명시해야 통과한다.
+      const provisionedBefore = await client.query("SELECT guild_id FROM guild_discord");
+      const dropping = provisionedBefore.rows.filter((row) => !snapshot.has(row.guild_id)).length;
+      // 1~2개가 사라지는 건 평범한 해체다. "한 번에 여럿이, 그것도 절반 넘게" 사라질 때만 막는다.
+      // (마지막 남은 길드가 해체돼 스냅샷이 비는 것도 정상이라 빈 스냅샷 자체를 막으면 안 된다.)
+      const suspicious = dropping > 2 && dropping * 2 > provisionedBefore.rowCount;
+      if (suspicious && data.force !== true) {
+        await client.query("ROLLBACK");
+        console.warn(`[Guild] refused snapshot: ${dropping}/${provisionedBefore.rowCount} guilds would be deleted`);
+        return json(res, 409, { error: "suspicious_snapshot", dropping, provisioned: provisionedBefore.rowCount });
+      }
+      const before = await client.query("SELECT guild_id,minecraft_uuid,guild_rank FROM guild_member_mirror");
+      const beforeSig = new Map();
+      for (const row of before.rows) {
+        if (!beforeSig.has(row.guild_id)) beforeSig.set(row.guild_id, new Set());
+        beforeSig.get(row.guild_id).add(`${row.minecraft_uuid}:${row.guild_rank}`);
+      }
+      const ids = [...snapshot.keys()];
+      await client.query("DELETE FROM guild_mirror WHERE NOT (guild_id = ANY($1::text[]))", [ids]);
+      for (const [guildId, guild] of snapshot) {
+        await client.query(
+          `INSERT INTO guild_mirror (guild_id,owner_uuid,updated_at) VALUES ($1,$2,NOW())
+           ON CONFLICT (guild_id) DO UPDATE SET owner_uuid=EXCLUDED.owner_uuid, updated_at=NOW()`,
+          [guildId, guild.ownerUuid]
+        );
+        await client.query("DELETE FROM guild_member_mirror WHERE guild_id=$1", [guildId]);
+        for (const member of guild.members) {
+          await client.query(
+            "INSERT INTO guild_member_mirror (guild_id,minecraft_uuid,guild_rank) VALUES ($1,$2,$3)",
+            [guildId, member.uuid, member.rank]
+          );
+        }
+      }
+      const provisionedIds = new Set(provisionedBefore.rows.map((row) => row.guild_id));
+      let queued = 0;
+      for (const [guildId, guild] of snapshot) {
+        if (!provisionedIds.has(guildId)) { await enqueueGuildJob(client, "guild_create", guildId); queued += 1; }
+        const after = new Set(guild.members.map((m) => `${m.uuid}:${m.rank}`));
+        const previous = beforeSig.get(guildId) ?? new Set();
+        const changed = after.size !== previous.size || [...after].some((sig) => !previous.has(sig));
+        if (changed) { await enqueueGuildJob(client, "guild_members", guildId); queued += 1; }
+      }
+      for (const guildId of provisionedIds) {
+        if (!snapshot.has(guildId)) { await enqueueGuildJob(client, "guild_delete", guildId); queued += 1; }
+      }
+      await client.query("COMMIT");
+      return json(res, 200, { synced: true, guilds: snapshot.size, queued });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally { client.release(); }
+  }
+  // 봇이 처리할 작업을 선점한다. 실패한 작업은 run_after 로 밀려 있다가 다시 잡힌다.
+  if (path === "/internal/guild/jobs" && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const claimed = await pool.query(
+      `UPDATE guild_discord_jobs SET claimed_at=NOW(), attempts=attempts+1
+        WHERE id IN (SELECT id FROM guild_discord_jobs WHERE done_at IS NULL AND run_after <= NOW()
+                      ORDER BY id LIMIT 3 FOR UPDATE SKIP LOCKED)
+        RETURNING id,kind,guild_id,payload,attempts`
+    );
+    const jobs = [];
+    // UPDATE ... RETURNING 의 행 순서는 보장되지 않는다. id 순으로 세우지 않으면 같은 배치 안에서
+    // guild_delete 가 guild_create/guild_members 보다 먼저 처리돼 지운 채널이 되살아난다.
+    claimed.rows.sort((a, b) => Number(a.id) - Number(b.id));
+    for (const job of claimed.rows) {
+      // 이미 해체된 길드의 잔여 작업. 그대로 두면 provisionGuild 가 채널을 다시 만든다.
+      if (job.kind !== "guild_delete") {
+        const alive = await pool.query("SELECT 1 FROM guild_mirror WHERE guild_id=$1", [job.guild_id]);
+        if (!alive.rowCount) {
+          await pool.query("UPDATE guild_discord_jobs SET done_at=NOW(), last_error='guild_gone' WHERE id=$1", [job.id]);
+          continue;
+        }
+      }
+      jobs.push({
+        id: Number(job.id), kind: job.kind, guildId: job.guild_id,
+        attempts: job.attempts, payload: job.payload,
+        discord: await guildDiscordRow(job.guild_id),
+        members: job.kind === "guild_delete" ? [] : await guildMemberTargets(job.guild_id),
+      });
+    }
+    return json(res, 200, { jobs });
+  }
+  if (path === "/internal/guild/jobs/result" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    // id 0 은 큐에서 나온 작업이 아니라 봇의 정기 점검 결과다. 매핑만 갱신하고 큐는 건드리지 않는다.
+    const id = Number(data.id);
+    if (!Number.isInteger(id) || id < 0) return json(res, 400, { error: "invalid_request" });
+    if (data.ok) {
+      const discord = data.discord ?? null;
+      if (discord && typeof discord === "object") {
+        await pool.query(
+          `INSERT INTO guild_discord (guild_id,role_id,category_id,text_channel_id,voice_channel_id,updated_at)
+           VALUES ($1,$2,$3,$4,$5,NOW())
+           ON CONFLICT (guild_id) DO UPDATE SET role_id=EXCLUDED.role_id, category_id=EXCLUDED.category_id,
+             text_channel_id=EXCLUDED.text_channel_id, voice_channel_id=EXCLUDED.voice_channel_id, updated_at=NOW()`,
+          [String(data.guildId ?? ""), discord.roleId ?? null, discord.categoryId ?? null,
+           discord.textChannelId ?? null, discord.voiceChannelId ?? null]
+        );
+      }
+      if (data.removed) await pool.query("DELETE FROM guild_discord WHERE guild_id=$1", [String(data.guildId ?? "")]);
+      if (id > 0) await pool.query("UPDATE guild_discord_jobs SET done_at=NOW(), last_error=NULL WHERE id=$1", [id]);
+      return json(res, 200, { acknowledged: true });
+    }
+    if (id === 0) return json(res, 200, { acknowledged: true });
+    // 실패는 지수 백오프로 되돌린다. 10회를 넘기면 포기하고 기록만 남긴다 — 다음 전체 동기화가 다시 큐에 넣는다.
+    const failure = String(data.error ?? "unknown").slice(0, 500);
+    await pool.query(
+      `UPDATE guild_discord_jobs
+          SET last_error=$2,
+              run_after=NOW() + (LEAST(attempts,6) * INTERVAL '30 seconds'),
+              claimed_at=NULL,
+              done_at=CASE WHEN attempts >= 10 THEN NOW() ELSE NULL END
+        WHERE id=$1 AND done_at IS NULL`,
+      [id, failure]
+    );
+    return json(res, 200, { acknowledged: true, retried: true });
+  }
+  // 봇 재접속·주기 점검용 전체 기대 상태.
+  if (path === "/internal/guild/state" && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const rows = await pool.query("SELECT guild_id FROM guild_mirror ORDER BY guild_id");
+    const guilds = [];
+    for (const row of rows.rows) {
+      guilds.push({
+        guildId: row.guild_id,
+        discord: await guildDiscordRow(row.guild_id),
+        members: await guildMemberTargets(row.guild_id),
+      });
+    }
+    return json(res, 200, { guilds });
   }
   if (path === "/internal/discord/reward/status" && req.method === "POST") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" });

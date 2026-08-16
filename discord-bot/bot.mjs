@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits, MessageFlags, REST, Routes, SlashCommandBuilder } from "discord.js";
+import { deprovisionGuild, ensureRankRoles, provisionGuild, syncMembers } from "./guild-sync.mjs";
 
 const required = (name) => {
   const value = process.env[name]?.trim();
@@ -12,8 +13,12 @@ const ROLE_ID = required("DISCORD_VERIFIED_ROLE_ID");
 const API_URL = (process.env.DISCORD_LINK_API_URL ?? "http://127.0.0.1:3100").replace(/\/$/, "");
 const INTERNAL_TOKEN = (process.env.DISCORD_INTERNAL_TOKEN ?? process.env.INTERNAL_API_TOKEN ?? "").trim();
 if (!INTERNAL_TOKEN) throw new Error("DISCORD_INTERNAL_TOKEN or INTERNAL_API_TOKEN is not set");
+// 해체된 길드의 채팅은 지우기 전에 여기에 JSONL 로 남긴다. systemd ReadWritePaths 안이어야 쓸 수 있다.
+const ARCHIVE_DIR = process.env.GUILD_ARCHIVE_DIR ?? "/srv/barkan-discord-bot/archive";
+const CATEGORY_PREFIX = process.env.GUILD_CATEGORY_PREFIX ?? "길드";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// GuildMembers 는 특권 인텐트다. 개발자 포털에서 켜지 않으면 역할 회수와 재입장 복구가 조용히 동작하지 않는다.
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 const command = new SlashCommandBuilder()
   .setName("인증")
   .setDescription("마인크래프트 계정을 이 Discord 서버에 연결합니다.")
@@ -27,6 +32,15 @@ function messageFor(error) {
     invalid_request: "인증 코드 형식이 올바르지 않아요. 예: BK-AB12CD34",
     role_missing_permissions: "연결은 확인됐지만 인증 역할을 지급할 권한이 없어요. 서버 관리자에게 봇 역할을 '인증됨' 역할보다 위로 올려달라고 해주세요. 역할을 올린 뒤 게임에서 /디스코드를 다시 입력하면 됩니다.",
   }[error] ?? "인증 처리 중 문제가 생겼어요. 잠시 후 다시 시도해주세요.";
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: { Authorization: `Bearer ${INTERNAL_TOKEN}`, "Content-Type": "application/json", ...(options.headers ?? {}) },
+  });
+  if (!response.ok) throw new Error(`api_${response.status}_${path}`);
+  return response.json();
 }
 
 async function linkCode(code, discordId, discordName) {
@@ -70,10 +84,6 @@ async function registerCommands(user) {
     if (!registerTimer) registerTimer = setInterval(() => registerCommands(user), 30_000);
   }
 }
-
-client.once("ready", ready => {
-  void registerCommands(ready.user);
-});
 
 client.on("interactionCreate", interaction => {
   if (!interaction.isChatInputCommand() || interaction.commandName !== "인증") return;
@@ -133,6 +143,108 @@ async function handleVerification(interaction) {
     console.warn(`[Discord] link failed for discord=${interaction.user.id}: ${error.message}`);
   }
 }
+
+// ===== 길드 전용 채널·역할 =====
+// 백엔드(vip-billing)가 게임 길드 명부와 디스코드 현황을 비교해 작업만 큐에 남긴다. 여기서는 큐를 비운다.
+// 실제 조작 로직은 guild-sync.mjs 에 있다(테스트 가능하게 분리).
+
+const rankRoleIds = new Map();
+
+async function homeGuild() {
+  return client.guilds.cache.get(GUILD_ID) ?? await client.guilds.fetch(GUILD_ID);
+}
+
+async function runJob(job) {
+  const guild = await homeGuild();
+  if (job.kind === "guild_delete") {
+    await deprovisionGuild(guild, job.guildId, job.discord, ARCHIVE_DIR);
+    return { removed: true };
+  }
+  await ensureRankRoles(guild, rankRoleIds);
+  const discord = await provisionGuild(guild, job.guildId, job.discord, CATEGORY_PREFIX);
+  await syncMembers(guild, job.guildId, discord, job.members ?? [], rankRoleIds);
+  return { discord };
+}
+
+let draining = false;
+async function drainGuildJobs() {
+  if (draining || !client.isReady()) return;
+  draining = true;
+  try {
+    const { jobs } = await api("/internal/guild/jobs");
+    for (const job of jobs ?? []) {
+      try {
+        const outcome = await runJob(job);
+        await api("/internal/guild/jobs/result", {
+          method: "POST",
+          body: JSON.stringify({ id: job.id, guildId: job.guildId, ok: true, ...outcome }),
+        });
+        console.log(`[Guild] ${job.kind} ${job.guildId} done`);
+      } catch (error) {
+        await api("/internal/guild/jobs/result", {
+          method: "POST",
+          body: JSON.stringify({ id: job.id, guildId: job.guildId, ok: false, error: String(error?.message ?? error) }),
+        }).catch(() => {});
+        console.warn(`[Guild] ${job.kind} ${job.guildId} failed (attempt ${job.attempts}): ${error?.message ?? error}`);
+      }
+    }
+  } catch (error) {
+    console.warn(`[Guild] job poll failed: ${error?.message ?? error}`);
+  } finally {
+    draining = false;
+  }
+}
+
+/** 관리자가 채널을 지웠거나 봇이 꺼져 있는 동안 벌어진 어긋남을 주기적으로 되돌린다. */
+async function reconcileGuilds() {
+  if (!client.isReady()) return;
+  try {
+    const guild = await homeGuild();
+    await ensureRankRoles(guild, rankRoleIds);
+    const { guilds } = await api("/internal/guild/state");
+    for (const entry of guilds ?? []) {
+      try {
+        const discord = await provisionGuild(guild, entry.guildId, entry.discord, CATEGORY_PREFIX);
+        await syncMembers(guild, entry.guildId, discord, entry.members ?? [], rankRoleIds);
+        const changed = !entry.discord || Object.entries(discord).some(([key, value]) => entry.discord[key] !== value);
+        if (changed) {
+          await api("/internal/guild/jobs/result", {
+            method: "POST",
+            body: JSON.stringify({ id: 0, guildId: entry.guildId, ok: true, discord }),
+          });
+          console.log(`[Guild] reconciled ${entry.guildId}`);
+        }
+      } catch (error) {
+        console.warn(`[Guild] reconcile ${entry.guildId} failed: ${error?.message ?? error}`);
+      }
+    }
+  } catch (error) {
+    console.warn(`[Guild] reconcile failed: ${error?.message ?? error}`);
+  }
+}
+
+// 디스코드를 나갔다 들어오면 역할이 전부 사라진다. 소속 길드를 찾아 다시 채워준다.
+client.on("guildMemberAdd", member => {
+  if (member.guild.id !== GUILD_ID) return;
+  void (async () => {
+    try {
+      const { guilds } = await api("/internal/guild/state");
+      const mine = (guilds ?? []).find(entry => (entry.members ?? []).some(m => m.discordId === member.id));
+      if (!mine?.discord) return;
+      await syncMembers(member.guild, mine.guildId, mine.discord, mine.members, rankRoleIds);
+      console.log(`[Guild] restored roles for rejoining member ${member.id} (${mine.guildId})`);
+    } catch (error) {
+      console.warn(`[Guild] rejoin restore failed for ${member.id}: ${error?.message ?? error}`);
+    }
+  })();
+});
+
+client.once("ready", ready => {
+  void registerCommands(ready.user);
+  setInterval(() => void drainGuildJobs(), 5_000);
+  setInterval(() => void reconcileGuilds(), 30 * 60_000);
+  setTimeout(() => void reconcileGuilds(), 20_000);
+});
 
 client.on("error", error => console.error("[Discord] client error", error));
 process.on("unhandledRejection", error => console.error("[Discord] unhandled rejection", error));
