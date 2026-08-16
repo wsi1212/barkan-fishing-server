@@ -356,13 +356,24 @@ if miss:
     ok = False
 
 # ⑥ 보상 spec이 자바가 아는 타입인가 (오타 = 조용히 아무것도 안 줌)
+#    ★조용히 실패하는 게 이 필드의 성질이다 — `rewardItems`는 빌드가 null이면 그냥 넘어간다.
+#      타입 오타도, 작물 id 오타도 예외 하나 없이 「보상이 안 나왔다」로만 보인다.
 KNOWN = {"crop", "cropseed", "cropbundle", "dish", "trap", "mat", "harpoon", "part",
          "fly", "autoplant"}
+CROP_IDS = set(D_.CROP)          # CropSpecs.ALL 미러 (밀·당근·감자·토마토·양배추·버섯·수박)
+AUTOPLANT_UNITS = {500, 1000, 2000}      # 발권 최소 단위 500 — 그 아래는 밭 한 판이면 동난다
+FLY_UNITS = {5, 10, 20}                  # IslandFlyManager.TICKET_MINUTES
 for c in LINE:
     for entry in c["아이템"].split(","):
-        head = entry.split(":")[0].strip()
-        if head not in KNOWN:
-            print(f"✗ {c['id']}: 알 수 없는 보상 타입 '{head}'"); ok = False
+        a = [x.strip() for x in entry.split(":")]
+        if a[0] not in KNOWN:
+            print(f"✗ {c['id']}: 알 수 없는 보상 타입 '{a[0]}'"); ok = False
+        elif a[0] in ("crop", "cropseed", "cropbundle") and a[1] not in CROP_IDS:
+            print(f"✗ {c['id']}: 특수작물이 아닌 id '{a[1]}' — 조용히 아무것도 안 준다"); ok = False
+        elif a[0] == "autoplant" and int(a[1]) not in AUTOPLANT_UNITS:
+            print(f"✗ {c['id']}: 자심권 {a[1]}회는 최소 단위(500) 밖이다"); ok = False
+        elif a[0] == "fly" and int(a[1]) not in FLY_UNITS:
+            print(f"✗ {c['id']}: 플라이권 {a[1]}분은 발권 단위가 아니다"); ok = False
 
 # ⑦ 자바 패치 전제 — 새 verb를 자바가 모르면 진행도가 영원히 0이다
 NEW_VERBS = {"submitmat", "farmland", "islandvisit"}
