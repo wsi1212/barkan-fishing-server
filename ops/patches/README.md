@@ -23,7 +23,7 @@ git apply         ~/barkan-fishing-server/ops/patches/<이름>.patch
 |---|---|---|
 | [`quest-difficulty-and-tracking.patch`](quest-difficulty-and-tracking.patch) | **① 퀘스트 난이도 바** + **② 메인 퀘스트 추적/길잡이** | ⏸ 미적용 |
 | [`minefarm-quest-line.patch`](minefarm-quest-line.patch) | **③ 마인팜 라인 받침대** — 목표 verb 3종 · 보상 타입 4종 · `동시진행` 플래그 · 청크 더티 추적 경작지 카운터 | ⏸ 미적용 |
-| [`guild-weekly-quest.patch`](guild-weekly-quest.patch) | **④ 주간 길드 퀘스트** — 엔진 · 템플릿 22종 · `farm`/`submitpts` verb · 놓고부수기 설치 표시 | ⏸ 미적용 |
+| [`guild-weekly-quest.patch`](guild-weekly-quest.patch) | **④ 주간 길드 퀘스트** — 엔진 · 템플릿 24종 · `farm`/`submitpts`/`guilddonate`/`guildspend` verb · 놓고부수기 설치 표시 · `길드필요` 게이트 | ⏸ 미적용 |
 
 ★**적용 순서: ① → ③ → ④.** 뒤 패치는 앞 패치가 적용된 트리에서 뜬 diff라 순서를 바꾸면
 `QuestManager`·`QuestGui`에서 충돌한다. **체크포인트에서 ①→③→④ 순서로 적용 후 clean 빌드 통과를 실측 확인했다.**
@@ -304,11 +304,20 @@ prod에는 깔려 있는 걸 확인했다. 다만 **`plugin.yml` softdepend에 `
 | `guild/GuildQuestManager` | 주차 리셋 · **목표 확정** · 진행 가산 · 기여 기록 · 금고 입금 · `/길드 임무` 출력 |
 | `crop/VanillaFarmListener` | `farm` verb 발생원 — 8작물 분류기 + **놓고부수기 설치 표시** |
 
-### 새 verb 2종
+### 새 verb 4종
 
 - **`farm|<작물\|아무>|<수>`** — 바닐라 작물 수확. 밀·당근·감자·비트·코코아콩·수박·호박·사탕수수
 - **`submitpts|<종류\|아무>|<점수>`** — 제출 **점수** 누적(`요리`/`물고기`/`재료`/`아무`).
-  `submit`(제출 **횟수**)은 1개씩 스무 번이면 끝나서 큰 목표에 못 쓴다
+  `submit`(제출 **횟수**)은 제출소가 `removeAllType`으로 전부 가져가는데 훅은 클릭당 +1이라
+  **1개만 들고 눌러도 1카운트**다 — 자원 비용 0의 클릭 노가다라 큰 목표에 못 쓴다
+- **`guilddonate|<금액>`** — 길드 계좌 기부 누적. 훅은 `GuildManager.deposit` 한 곳
+  (모든 기부 경로가 여기를 지난다). ★퀘스트 보상 입금은 `contributor==null`이라 제외된다
+- **`guildspend|<금액>`** — 길드 계좌 지출 누적. 훅은 `GuildCommand` 3곳(버프·슬롯·섬 확장)
+
+### `길드필요: true` — 길드원 전용 퀘스트
+
+`acceptDaily`는 그 난이도 **풀 전체**를 배정한다. 기부 일퀘를 그냥 넣으면 길드 미가입자의
+그날 목록에 **절대 못 깨는 칸**이 생긴다. `acceptDaily`·`checkWeekly` 양쪽에 게이트를 걸었다.
 
 ### ★놓고 부수기 — 규칙 하나로 8작물을 덮는다
 

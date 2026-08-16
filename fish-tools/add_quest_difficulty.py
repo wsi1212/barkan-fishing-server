@@ -207,6 +207,11 @@ def goal_minutes(g):
         return 0.6 * int(p[1])
     if v == "money":
         return int(p[1]) / 4000.0       # 체감 시급 ≒ 4,000원/분
+    if v in ("guilddonate", "guildspend"):
+        # 길드 계좌 기부·지출 — 돈을 버는 시간이 곧 비용이다(money 와 같은 시급).
+        # ★지출은 「이미 금고에 있는 돈」이라 실제론 더 싸지만, 그 돈도 누군가 벌어 넣은 것이라
+        #   같은 값으로 친다.
+        return int(p[1]) / 4000.0
     if v == "sail":
         return int(p[1]) / 250.0        # 배 속도 ≒ 250블록/분
     if v == "enhance":
