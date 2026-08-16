@@ -133,7 +133,10 @@ def rescale_quests(need, cum, write=False):
         if seg <= 0: seg = cum[min(g+2,100)] - cum[min(g,98)]
         budget = seg * QUEST_SHARE
         grp = by_gate[g]
-        ws = [1.0 + min(15, max(1, v.get('난이도',1)))/15.0 for v in grp]   # 난이도 1~15 → 1.0~2.0배
+        # 난이도 가중은 선형 (0.5 + d). d1 → 1.5, d15 → 15.5 = 약 10배 차이.
+        # ★구 버전 (1 + d/15) 은 최대 1.9배라 같은 게이트 안에서 난이도1 과 난이도11 이
+        #   1.6배밖에 안 벌어졌다 — 사실상 차등이 없었다.
+        ws = [0.5 + min(15, max(1, v.get('난이도',1))) for v in grp]
         tw = sum(ws)
         for v, w in zip(grp, ws):
             changes.append([v['id'], v.get('보상경험치', 0), budget * w / tw, v.get('필요레벨',1), v.get('카테고리'), v])
