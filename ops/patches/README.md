@@ -23,9 +23,10 @@ git apply         ~/barkan-fishing-server/ops/patches/<이름>.patch
 |---|---|---|
 | [`quest-difficulty-and-tracking.patch`](quest-difficulty-and-tracking.patch) | **① 퀘스트 난이도 바** + **② 메인 퀘스트 추적/길잡이** | ⏸ 미적용 |
 | [`minefarm-quest-line.patch`](minefarm-quest-line.patch) | **③ 마인팜 라인 받침대** — 목표 verb 3종 · 보상 타입 4종 · `동시진행` 플래그 · 청크 더티 추적 경작지 카운터 | ⏸ 미적용 |
+| [`guild-weekly-quest.patch`](guild-weekly-quest.patch) | **④ 주간 길드 퀘스트** — 엔진 · 템플릿 22종 · `farm`/`submitpts` verb · 놓고부수기 설치 표시 | ⏸ 미적용 |
 
-★**적용 순서: ① → ③.** ③은 ①이 적용된 트리에서 뜬 diff라 순서를 바꾸면 `QuestManager`·
-`QuestGui`에서 충돌한다.
+★**적용 순서: ① → ③ → ④.** 뒤 패치는 앞 패치가 적용된 트리에서 뜬 diff라 순서를 바꾸면
+`QuestManager`·`QuestGui`에서 충돌한다. **체크포인트에서 ①→③→④ 순서로 적용 후 clean 빌드 통과를 실측 확인했다.**
 
 ★옛 `quest-difficulty-bar.patch`는 ①에 **흡수됐다.** 둘 다 미적용 상태였고 같은
 파일(`QuestManager`·`QuestGui`)을 건드려 따로 두면 적용 순서에 따라 충돌한다. **하나만 적용할 것.**
@@ -286,3 +287,62 @@ prod에는 깔려 있는 걸 확인했다. 다만 **`plugin.yml` softdepend에 `
 숫자는 [`fish-tools/add_quest_difficulty.py`](../../fish-tools/add_quest_difficulty.py)가
 `quests.json`의 각 퀘스트에 `난이도`(1~20)로 넣는다. **패치만 적용하고 데이터를 안 넣으면
 아무것도 안 보인다** — 둘 다 필요하다.
+
+
+---
+
+## ④ 주간 길드 퀘스트 (2026-08-16)
+
+설계 전문: [`guild-weekly-quest.md`](../../guild-weekly-quest.md).
+축 3개에서 **주당 3개**, 목표는 **길드 레벨 16단**으로 스케일, 보상은 **금고 몰빵**.
+
+### 새 파일
+
+| 파일 | 역할 |
+|---|---|
+| `guild/GuildQuestSpecs` | 템플릿 22종 + 배수표(`1.145^lv`) + `guild-quests.json` 로더. 주차 해시로 축마다 1개 선택 |
+| `guild/GuildQuestManager` | 주차 리셋 · **목표 확정** · 진행 가산 · 기여 기록 · 금고 입금 · `/길드 임무` 출력 |
+| `crop/VanillaFarmListener` | `farm` verb 발생원 — 8작물 분류기 + **놓고부수기 설치 표시** |
+
+### 새 verb 2종
+
+- **`farm|<작물\|아무>|<수>`** — 바닐라 작물 수확. 밀·당근·감자·비트·코코아콩·수박·호박·사탕수수
+- **`submitpts|<종류\|아무>|<점수>`** — 제출 **점수** 누적(`요리`/`물고기`/`재료`/`아무`).
+  `submit`(제출 **횟수**)은 1개씩 스무 번이면 끝나서 큰 목표에 못 쓴다
+
+### ★놓고 부수기 — 규칙 하나로 8작물을 덮는다
+
+> **플레이어가 놓은 블록엔 표시를 남긴다. 서버가 자라게 한 블록엔 표시가 없다. 표시 없는 것만 센다.**
+
+표시는 **`BlockGrowEvent`/`BlockSpreadEvent`(자연 성장)에서만 지운다.**
+줄기 방향 검사도, 아래 마디 검사도, 좌표 쿨다운도 필요 없다
+(좌표 쿨다운은 애초에 못 쓴다 — **정상 농장이 바로 같은 자리에서 계속 자라고 계속 캔다**).
+
+★**뼈가루 구멍이 자동으로 막힌다** — 뼈가루는 `BlockFertilizeEvent`라 성장이 아니어서 표시가
+안 지워진다. 완숙(`age==max`) 검사만 했으면 심고 뼈가루 뿌려 캐는 게 그대로 통과했다
+(컴포스터로 뼈가루가 무한 생산되므로 실제 위협). **mcMMO가 실전에서 겪은 버그가 정확히 이것이다.**
+
+선행 조사 — mcMMO는 청크마다 놓임 플래그를 디스크에 저장하고(chunkstore),
+Jobs Reborn은 `PlaceAndBreakProtection`을 **인메모리(재시작까지)**로 굴린다.
+여기는 Jobs 쪽 수준이다. 부족하면 청크 PDC 영속으로 올린다.
+대상은 **`island_world`·`guild_world` + 8작물**뿐이라 그 밖의 설치는 첫 줄에서 반환한다.
+
+### ★핫패스 방어 — `bump()`는 물고기 한 마리마다 불린다
+
+구현 중 실측으로 잡은 두 가지. 안 고쳤으면 그대로 사고였다.
+
+| 문제 | 고친 것 |
+|---|---|
+| `guilds.save()`가 **guilds.json 전체를 동기 직렬화**한다 — 이벤트마다 부르면 죽는다 | **30초 지연 저장**(`saveSoon`/`flush`). 주차 경계·완료처럼 **돈이 오가는** 순간만 즉시 |
+| `getGuildByPlayer`가 **O(길드 수) 순회** | uuid→길드id **메모**. 낡으면 `isMember` 확인에서 걸러져 자동으로 고쳐진다 |
+| `KoreanTime.sundayWeekKey()`를 이벤트마다 포매팅 | 60초 캐시 |
+
+### 배선 검증
+
+`QuestManager` 훅이 하나라도 길드로 안 흘러가면 **그 목표만 영원히 0**이고 에러도 안 난다.
+그래서 [`fish-tools/verify_guild_quest_wiring.py`](../../fish-tools/verify_guild_quest_wiring.py)가
+소스를 직접 읽어 대조한다 — 템플릿 22종의 verb 도달 · **중복 집계**(같은 이벤트를 두 번 세면
+목표가 반값) · 신설 verb의 표시/판정/훅/발생원 · 엔진 규약 · Lv15 수치 스냅샷.
+
+fan-out은 `bumpIdCounter`/`bumpPlainCounter` **공용 헬퍼에 모아** 훅마다 새로 부르는 자리를 줄였다.
+`submitpts`만 직접 호출이라 `bumpIdCounter`에 **제외 가드**가 걸려 있다(이중 집계 방지).

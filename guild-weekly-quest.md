@@ -1,6 +1,7 @@
 # 주간 길드 퀘스트 — 설계 (2026-08-16)
 
-> 상태: **기획 확정.** 보상=금고 몰빵 · 주당 3개 · 길드 레벨 16단 스케일링 · 템플릿 22종. 구현 대기.
+> 상태: **구현 완료** (2026-08-16). 자바는 [`ops/patches/guild-weekly-quest.patch`](ops/patches/guild-weekly-quest.patch) ⏸ 미적용.
+> 배선 검증: [`fish-tools/verify_guild_quest_wiring.py`](fish-tools/verify_guild_quest_wiring.py) — 전수 통과.
 
 ---
 
