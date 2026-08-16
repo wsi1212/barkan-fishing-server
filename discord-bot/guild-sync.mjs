@@ -111,13 +111,21 @@ export async function ensureRankRoles(guild, rankRoleIds) {
   return rankRoleIds;
 }
 
-/** 없는 것만 만든다. 관리자가 채널을 지웠거나 작업이 중간에 끊겼어도 다시 돌리면 복구된다. */
+/**
+ * 없는 것만 만든다. 관리자가 채널을 지웠거나 작업이 중간에 끊겼어도 다시 돌리면 복구된다.
+ *
+ * ★저장된 id 가 없어도 먼저 "이름이 같은 역할"과 "그 역할이 걸린 채널"을 찾아본다.
+ * 이 탐색이 없으면, 만들어 놓고 결과를 저장하기 전에 실패한 작업이 재시도될 때마다
+ * 역할·채널을 새로 찍어내 중복이 쌓인다(2026-08-17 배포에서 러지 길드가 5벌까지 늘었다).
+ */
 export async function provisionGuild(guild, guildId, existing, categoryPrefix) {
   const current = existing ?? {};
+  const roleName = `${GUILD_ROLE_PREFIX}${guildId}`.slice(0, 100);
   let role = current.roleId ? await guild.roles.fetch(current.roleId).catch(() => null) : null;
+  if (!role) role = [...guild.roles.cache.values()].find(r => r.name === roleName) ?? null;
   if (!role) {
     role = await guild.roles.create({
-      name: `${GUILD_ROLE_PREFIX}${guildId}`.slice(0, 100),
+      name: roleName,
       permissions: [], hoist: false, mentionable: false, reason: `길드 ${guildId} 채널 접근용`,
     });
   }
@@ -125,6 +133,13 @@ export async function provisionGuild(guild, guildId, existing, categoryPrefix) {
   let text = await fetchChannel(current.textChannelId);
   let voice = await fetchChannel(current.voiceChannelId);
   let category = await fetchChannel(current.categoryId);
+  // 길드 역할은 길드마다 유일하므로, 그 역할에 오버라이트가 걸린 채널이 곧 이 길드의 채널이다.
+  // 이름 대조보다 정확하다(길드 이름이 정규화 과정에서 겹칠 수 있다).
+  if (!text || !voice) {
+    const owned = [...guild.channels.cache.values()].filter(c => c.permissionOverwrites?.cache?.has(role.id));
+    text = text ?? owned.find(c => c.type === ChannelType.GuildText) ?? null;
+    voice = voice ?? owned.find(c => c.type === ChannelType.GuildVoice) ?? null;
+  }
   if (!category) category = text?.parent ?? voice?.parent ?? await pickCategory(guild, categoryPrefix);
 
   const overwrites = allow => ([
@@ -204,13 +219,23 @@ export async function deprovisionGuild(guild, guildId, discord, archiveDir, log 
   }
 }
 
+// 전체 멤버 목록 요청(게이트웨이 opcode 8)은 레이트리밋이 빡빡하다. 길드 작업마다 부르면
+// 여러 길드를 연달아 동기화할 때 바로 걸린다. GuildMembers 인텐트가 켜져 있으면 이후 변동은
+// 이벤트로 캐시에 반영되므로, 처음 한 번만 받아오고 캐시가 비어 보일 때만 다시 받는다.
+const hydrated = new Set();
+async function hydrateMembers(guild) {
+  if (hydrated.has(guild.id) && guild.members.cache.size >= (guild.memberCount ?? 0)) return;
+  await guild.members.fetch();
+  hydrated.add(guild.id);
+}
+
 /** 계획을 세우고 실제 역할 부여/회수까지 수행한다. */
 export async function syncMembers(guild, guildId, discord, targets, rankRoleIds) {
   if (!discord?.roleId) throw new Error("guild_role_not_provisioned");
   const role = await guild.roles.fetch(discord.roleId).catch(() => null);
   if (!role) throw new Error("guild_role_gone");
   await ensureRankRoles(guild, rankRoleIds);
-  await guild.members.fetch();
+  await hydrateMembers(guild);
 
   const allGuildRoleIds = new Set(
     [...guild.roles.cache.values()].filter(r => r.name.startsWith(GUILD_ROLE_PREFIX)).map(r => r.id)

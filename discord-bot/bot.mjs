@@ -162,6 +162,15 @@ async function runJob(job) {
   }
   await ensureRankRoles(guild, rankRoleIds);
   const discord = await provisionGuild(guild, job.guildId, job.discord, CATEGORY_PREFIX);
+  // ★만든 즉시 저장한다. 뒤이은 멤버 동기화가 실패하면 작업 전체가 실패로 보고되는데,
+  //   그때 id 가 저장돼 있지 않으면 재시도가 역할·채널을 새로 찍어내 중복이 쌓인다.
+  const changed = !job.discord || Object.entries(discord).some(([key, value]) => job.discord[key] !== value);
+  if (changed) {
+    await api("/internal/guild/jobs/result", {
+      method: "POST",
+      body: JSON.stringify({ id: 0, guildId: job.guildId, ok: true, discord }),
+    });
+  }
   await syncMembers(guild, job.guildId, discord, job.members ?? [], rankRoleIds);
   return { discord };
 }
