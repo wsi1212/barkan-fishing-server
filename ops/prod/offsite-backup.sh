@@ -20,7 +20,10 @@ LABEL="[바르칸 prod]"
 KEEP_REMOTE=30     # 원격 보관 개수 (일 1회면 30일)
 KEEP_LOCAL=7       # 로컬 staging 보관 개수
 
-TS=$(date -u +%Y%m%d-%H%M%S)
+# ★KST 기준 파일명(2026-08-17). 19:00 UTC = KST 다음 날 04:00 이라 date -u 로는 하루 빨랐다.
+#   운영자·CLAUDE.md·디스코드 리포트가 전부 KST 로 말하므로 이름도 KST 로 맞춘다.
+#   원격 보존은 개수 기반이고 이름이 여전히 단조증가하므로 영향 없다.
+TS=$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)
 NAME=blockship-$TS.tar.gz
 LOCAL=$STAGE/$NAME
 REMOTE=blockship/$NAME

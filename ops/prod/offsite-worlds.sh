@@ -28,7 +28,10 @@ case "$GROUP" in
   *) echo "usage: $0 <islands|main>" >&2; exit 2;;
 esac
 
-TS=$(date -u +%Y%m%d-%H%M%S)
+# ★KST 기준 파일명(2026-08-17) — offsite-backup.sh 와 같은 이유.
+#   ★격주 본월드는 cron 이 «UTC 1·15일» 이라 KST 로는 1·15일 05:45 에 돈다. 이름을 KST 로
+#     바꿔도 그 스케줄은 그대로다(cron 자체를 옮기지는 않았다).
+TS=$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)
 NAME=${PREFIX}-${TS}.tar.gz
 LOCAL=$STAGE/$NAME
 REMOTE=${PREFIX}/${NAME}

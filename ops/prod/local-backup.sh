@@ -26,7 +26,12 @@ case "$GROUP" in
   *) echo "usage: $0 <main|islands>" >&2; exit 2;;
 esac
 
-TS=$(date -u +%Y%m%d)
+# ★파일명은 KST 기준이다(2026-08-17 변경). 박스는 Etc/UTC 이고 이 백업은 20:00 UTC 에 도는데,
+#   그건 KST 로 «다음 날 05:00» 이다. date -u 를 쓰던 동안에는 파일명이 실제 내용보다 하루
+#   빨랐다 — 실측: localmain-20260815.tar.gz 의 생성 시각이 2026-08-15 20:01 UTC(=KST 08-16 05:01).
+#   장애 때 「어제 백업」을 찾는 사람은 KST 로 생각하므로 하루를 헛짚게 된다.
+#   보존 로직은 ls -1t(mtime 기준)라 파일명 변경에 영향받지 않는다. 기존 파일명은 그대로 둔다.
+TS=$(TZ=Asia/Seoul date +%Y%m%d)
 NAME=${PREFIX}-${TS}.tar.gz
 LOCAL=$STAGE/$NAME
 
