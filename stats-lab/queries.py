@@ -395,17 +395,23 @@ def c14_ore_breakdown(months=None):
     return rows
 
 
-# ── C15: 섬 광산(imine) 요약 — 한도 도달 빈도 ─────────────────────────
+# ── C15: 섬 광산(imine) 요약 ──────────────────────────────────────────
 def c15_island_mine_summary(months=None):
-    """imine.min(§8-12, 섬광산)은 유저별 채굴 한도가 있음(capped 플래그) — capped_rate가
-    높으면 한도가 너무 낮아 유저가 자주 막힌다는 뜻, 낮으면 한도가 사실상 무의미(체감 없음)."""
+    """imine.min(§8-12, 섬광산)의 분당 집계 요약 — flush 수 / 광물 총량 / xp 총량.
+
+    ★capped_rate 를 제거했다(2026-08-17). 이 docstring 은 그걸 「유저별 채굴 한도에 걸린
+    비율」로 설명했는데 «그런 게임플레이 한도는 존재하지 않았다» — 플러그인 쪽 실체는
+    분당 200개 초과 시 켜지는 «매크로 의심 진단» 플래그였고 제재도 없었다. 그래서 해석이
+    거꾸로였다: 값이 높으면 「한도가 박하다」가 아니라 「분당 200개 넘게 캐는 사람이 많다」였다.
+    채굴 매크로는 서버측 판정으로 근본적으로 막을 수 없고 상한은 깔때기 개수·광질 경험치
+    상한으로 이미 걸려 있어서, 플래그 자체를 플러그인에서 없앴다.
+    """
     c, aliases = _conn_with_events(months)
     union = _union_ev(aliases)
     sql = f"""
     WITH ev AS ({union})
     SELECT COUNT(*) flushes, SUM(json_extract(ctx,'$.n')) total_ore,
-           SUM(json_extract(ctx,'$.xp')) total_xp,
-           SUM(CASE WHEN json_extract(ctx,'$.capped')=1 THEN 1 ELSE 0 END) * 1.0 / COUNT(*) capped_rate
+           SUM(json_extract(ctx,'$.xp')) total_xp
     FROM ev WHERE type='imine.min'
     """
     rows = [dict(r) for r in c.execute(sql)]

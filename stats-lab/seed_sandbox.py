@@ -301,9 +301,10 @@ def build_events_db(rng, people, month_key, n_events):
             for ore in rng.sample(ORE_NAMES, k=rng.randint(1, 2)):
                 ores[ore] = rng.randint(1, 8)
             n_total = sum(ores.values())
+            # capped 제거(2026-08-17) — 플러그인이 더 이상 이 필드를 쏘지 않는다.
+            # 샌드박스 시드가 실제 이벤트 모양과 어긋나면 쿼리 검증이 거짓으로 통과한다.
             ins(ts, "imine.min", u, name, {"ores": ores, "n": n_total,
-                                           "xp": round(n_total * rng.uniform(0.5, 1.0), 1),
-                                           "capped": 1 if rng.random() < 0.15 else 0}, op=op)
+                                           "xp": round(n_total * rng.uniform(0.5, 1.0), 1)}, op=op)
         elif kind == "shop_buy_island":
             item = rng.choice(list(ISLAND_SHOP_ITEMS.keys()))
             unit_lo, unit_hi = ISLAND_SHOP_ITEMS[item]

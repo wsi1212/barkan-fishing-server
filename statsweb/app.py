@@ -744,7 +744,9 @@ def production(request: Request):
 
     # ── 섬 광산 요약(C15) ──
     imine = queries.c15_island_mine_summary()
-    imine_rows = _fmt_rows(imine, {"flushes": _num1, "total_ore": _num1, "total_xp": _num1, "capped_rate": _pct1})
+    # capped_rate 제거(2026-08-17) — 「채굴 한도에 걸린 비율」이라 설명했지만 그런 한도는 없었다.
+    # 실체는 분당 200개 초과 시 켜지는 매크로 의심 진단 플래그였고, 해석이 거꾸로였다.
+    imine_rows = _fmt_rows(imine, {"flushes": _num1, "total_ore": _num1, "total_xp": _num1})
 
     sections = [
         {"heading": "작물 ROI(C4)", "chart_svg": crop_chart,
@@ -759,7 +761,7 @@ def production(request: Request):
         {"heading": "광물별 채굴량(C14)", "chart_svg": ore_chart,
          "table_cols": ["ore", "qty", "events"], "table_rows": ore_rows},
         {"heading": "섬 광산 요약(C15)",
-         "table_cols": ["flushes", "total_ore", "total_xp", "capped_rate"], "table_rows": imine_rows},
+         "table_cols": ["flushes", "total_ore", "total_xp"], "table_rows": imine_rows},
     ]
     return templates.TemplateResponse(request, "listing.html", {
         "request": request, "user": admin, "active": "production", "page_title": "⑤ 생산",
@@ -771,8 +773,7 @@ def production(request: Request):
                      "<b>통발</b> break_rate=설치 대비 파손 비율(높으면 내구도 확인 필요) · "
                      "avg_wait_s=회수까지 평균 대기시간.<br>"
                      "<b>드릴</b> ore_per_flush=분당(60초 집계 1건당) 채굴 개수.<br>"
-                     "<b>섬 광산</b> capped_rate=유저별 채굴 한도에 걸린 비율(너무 높으면 한도가 박함, "
-                     "너무 낮으면 한도가 사실상 무의미).",
+                     "<b>섬 광산</b> total_ore=집계 구간의 광물 총량 · total_xp=광질 경험치 총량.",
         "sections": sections,
     })
 
