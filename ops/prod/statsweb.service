@@ -8,6 +8,14 @@ After=network.target
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/ubuntu/mcserver/statsweb
+# ★KST 고정 — prod 박스는 Etc/UTC 다. 이걸 빼면 app.py 의 date.today()·time.localtime() 이
+#   UTC 로 돌면서, BlockShip 이 KST 로 써 놓은 날짜 키(day_player.date 등)와 어긋난다.
+#   증상: 홈 대시보드 「오늘」 카드가 09:00 KST 를 기준으로 뒤집힌다 —
+#     00:00~09:00 KST 엔 «어제» 행이 "오늘"로 표시되고(등락 배지 비교군까지 오염),
+#     09:00~24:00 KST 엔 오늘 행이 아직 롤업 전이라 전부 0 으로 보인다.
+#   코드 5곳(:99 :332 :432 :944 :987)을 각각 고치는 대신 프로세스 존을 맞춘다 —
+#   이 대시보드는 KST 게임 데이터를 한국 운영자에게 보여주는 게 전부라 UTC 로 돌 이유가 없다.
+Environment=TZ=Asia/Seoul
 EnvironmentFile=/home/ubuntu/mcserver/statsweb/.env
 ExecStart=/home/ubuntu/mcserver/statsweb/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8080
 Restart=always

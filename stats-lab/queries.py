@@ -212,7 +212,11 @@ def c7_usage(days=7):
     c = _stats_conn()
     sql = """
     SELECT type, SUM(n) n, SUM(players) players FROM day_type
-    WHERE date >= date('now', ?) GROUP BY type ORDER BY n DESC
+    -- ★SQLite 의 date('now') 는 «호스트 TZ 와 무관하게 항상 UTC» 다(localtime 수식어가 없으면).
+    --   day_type.date 는 BlockShip 이 KST 로 쓴 키라, 그냥 비교하면 00:00~09:00 KST 구간에
+    --   창의 하단 경계가 하루 앞당겨져 최근 7일이 8일치로 집계된다. +9 시간으로 KST 로 맞춘다
+    --   (한국은 서머타임이 없어 +9 고정이 안전하다).
+    WHERE date >= date('now', '+9 hours', ?) GROUP BY type ORDER BY n DESC
     """
     rows = [dict(r) for r in c.execute(sql, (f"-{days} days",))]
     c.close()
@@ -562,7 +566,8 @@ def home_kpis(days=7):
     SELECT date, COUNT(*) players, SUM(playtime_s) playtime_s, SUM(catches) catches,
            SUM(money_in) money_in, SUM(money_out) money_out, SUM(casino_net) casino_net,
            SUM(quests_done) quests_done, SUM(crafts) crafts, SUM(submits) submits
-    FROM day_player WHERE date >= date('now', ?) GROUP BY date ORDER BY date DESC
+    -- ★date('now') 는 항상 UTC — KST 키와 맞추려면 +9 시간(위 c7_usage 주석 참조)
+    FROM day_player WHERE date >= date('now', '+9 hours', ?) GROUP BY date ORDER BY date DESC
     """
     rows = [dict(r) for r in c.execute(sql, (f"-{days} days",))]
     c.close()
