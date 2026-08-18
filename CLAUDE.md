@@ -96,7 +96,13 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - `/ship create/destroy/save/spawn/edit` (배)
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
 - `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — 비,뇌우,태풍,안개,모래바람,눈보라,열대야,땡볕
-- **중요**: 서버 최초 설정 시 `/gamerule doWeatherCycle false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
+- **중요**: 서버 최초 설정 시 `/gamerule advance_weather false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
+- **⚠️ 1.21.11 게임룰 개명 — 옛 camelCase 이름은 전부 없는 이름이다.** 콘솔/RCON 에서 `gamerule doWeatherCycle` 같은 걸 치면 `Incorrect argument for command` 만 나오고 **에러 원인이 안 보인다**(룰이 없다는 말을 안 해 준다). 이름은 level.dat `game_rules` 가 권위 — snake_case 인데다 **뜻까지 바뀐 게 있다**:
+  - `doDaylightCycle` → **`advance_time`** · `doWeatherCycle` → **`advance_weather`**
+  - `doMobGriefing` → `mob_griefing` · `keepInventory` → `keep_inventory` · `commandBlockOutput` → `command_block_output` 등 나머지는 단순 snake_case
+  - 목록 확인: `python3 -c "import gzip,re;print(sorted(set(x.decode() for x in re.findall(rb'[a-z_]{4,30}', gzip.open('world/level.dat','rb').read()))))"`
+  - Bukkit API 쪽 `GameRule.DO_DAYLIGHT_CYCLE` 상수는 그대로 동작한다(deprecated 경고만) — 깨지는 건 명령어 문자열뿐.
+- **시간 흐름**: prod 메인월드는 2026-08-18 부터 `advance_time=true` (그 전까지는 `false` 로 daytime 1000 에 얼어 있었다 — 밤/새벽 전용 어종과 심야 날씨(오로라·유성우·열대야)가 전부 발동 불가였던 원인). 시간대 구간표는 **`com.blockship.util.DayPeriod` 단일 권위**(새벽 22000~999 / 낮 1000~10999 / 저녁 11000~14999 / 밤 15000~21999) — 복제 금지.
 
 ## 밸런스 핵심 수치
 - **등급업 캡 30%**, 크리배율 캡 80%, 슈퍼크리 2%
