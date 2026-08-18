@@ -324,7 +324,7 @@ VARIANTS = {
                 surface='patchwork', surfc='canvas',
                 layer2='suspenders', l2c='leather',
                 eye_y=5, iris='blue', jaw='narrow', fringe=3, marks='freckles', bootrows=3),
-    '17': dict(file='ingrid', cid=17, label='잉그리드 — 길드 접수',
+    '17': dict(file='ingrid', hstyle='pulled', cid=17, label='잉그리드 — 길드 접수',
                # 길드 GUI 담당. 마을에서 가장 격식 있는 여성 — 장부와 인장
                # 대청 파랑 — 마을에서 가장 격식 있는 여성이라 비싼 염료가 명분이 된다
                female=True, skin='d0a57f', hair='b9903f', hem=10, sleeve=7,
