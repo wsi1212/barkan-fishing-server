@@ -24,17 +24,17 @@ import sys
 sys.path.insert(0, str(pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'))
 
 import garments as g                      # noqa: E402
-from skinlib import Skin, mix, ramp       # noqa: E402
+from skinlib import Skin, mix, ramp, hair_ramp       # noqa: E402
 
 OUT = pathlib.Path(__file__).parent / 'out'
 
 # ── 마을 공용 색. 개인은 여기서 골라 쓰고, 새 색을 함부로 들이지 않는다 ──────────
 C = dict(
     teal='4f6f6a', teal_d='39544f', slate='55606b', navy='3c4756',
-    oat='a89880', linen='b0a793', canvas='6f6a5c', sand='8d7f66',
+    oat='c2b298', linen='c8c0ac', canvas='847e6e', sand='ab967a',
     leather='6b4f36', leather_d='45362a', boot='3f342a', boot_d='352c24',
-    rust='8a5340', wine='6e3a3a', moss='5c6b4a', olive='4f5548',
-    grey='6b665e', charcoal='413c36', flour='b6b0a2', mustard='9a8446',
+    rust='8a5340', wine='6e3a3a', moss='6f8358', olive='616a58',
+    grey='837d73', charcoal='413c36', flour='b6b0a2', mustard='c4a44f',
     brass='b08d3c', iron='8a8e93',
     # ── 2026-08-03 다양성 패스 추가분 ─────────────────────────────────────
     # 왜: 위 색만으로 37명을 입혔더니 명도가 전부 한 구간(0.36~0.82)에 몰려
@@ -52,7 +52,7 @@ C = dict(
     #     소수에게만 주면 오히려 '이 사람은 좀 산다'가 읽힌다(가수·길드·전령·상단)
     madder='9c3a2c',      # 꼭두서니 빨강
     woad='2f4f7e',        # 대청 파랑
-    weld='b8912e',        # 웰드 노랑
+    weld='d6aa3c',        # 웰드 노랑
     verdigris='2a6b5e',   # 녹청
     # (4) 장신구 전용 (2026-08-07) — 옷 색과 같은 값을 쓰면 목걸이가 옷에
     #     묻힌다. 금속·보석은 <b>주변보다 확실히 밝거나 확실히 어두워야</b> 읽힌다.
@@ -84,6 +84,10 @@ LIT_COMP = True     # 앞면 = 선언색 (끄면 v2 동작)
 SAT_LIFT = 1.22     # 램프 상단 채도 손실 + 뮤트 과다 보정
 
 
+_DEEP = False   # ★현재 빌드 중인 NPC 가 '진짜 더러워야 하는' 사람인가
+                #   (spec 의 grime=True). True 면 옛 대칭 램프를 그대로 쓴다.
+
+
 def R(key, spread=0.55):
     """마을 색을 램프로. ★spread를 명도에 맞춰 자동으로 좁힌다(양끝 클리핑 방지) +
     앞면에 선언색이 그대로 나오도록 한 단 내리고 채도를 보정한다.
@@ -101,7 +105,7 @@ def R(key, spread=0.55):
         sp = min(sp, 2 * (0.95 - v), 2 * (v - 0.06))
     r, g_, b = colorsys.hsv_to_rgb(h, s, v)
     return ramp('%02x%02x%02x' % (round(r * 255), round(g_ * 255), round(b * 255)),
-                spread=sp)
+                spread=sp, deep=_DEEP)
 
 
 # ── 변주 표 ────────────────────────────────────────────────────────────────
@@ -111,7 +115,7 @@ def R(key, spread=0.55):
 # prop: None / sack / net / ledger / lantern / tools / basket / yarn / pouch / book
 VARIANTS = {
     # ── 항구 노동자 ──────────────────────────────────────────────────────
-    '134': dict(file='ralf', cid=134, label='랄프 — 항구 짐꾼',
+    '134': dict(file='ralf', grime=True, cid=134, label='랄프 — 항구 짐꾼',
                 # "짐이 무거워도 이 일이 좋아" → 등짐꾼. 소매 없는 튜닉 + 어깨 짐받이
                 skin=SKIN['deep'], hair='4a3a2a', beard='stubble',
                 garb='jerkin', cloth='leather', under='oat', legs='canvas', boot='boot',
@@ -119,7 +123,7 @@ VARIANTS = {
                 surface=('patchwork', 'seams'), surfc='canvas',
                 layer2='suspenders', l2c='canvas',
                 eye_y=5, iris='dark', jaw='square', brow_w=2, mouth_w=3, marks='scar', bootrows=6),
-    '133': dict(file='feder', cid=133, label='페더 — 그물 손질',
+    '133': dict(file='feder', grime=True, cid=133, label='페더 — 그물 손질',
                 # "그물 손질은 손끝 감각이 전부지" → 어망 수선공. 그물을 어깨에 건다
                 skin=SKIN['olive'], hair='6b6154', beard='full', age=True,
                 cloth='teal', under='oat', legs='grey', boot='boot',
@@ -127,7 +131,7 @@ VARIANTS = {
                 surface='seams', surfc='oat',
                 garb='wrap', cross=5,
                 eye_y=4, iris='grey', jaw='long', fringe=1, marks='ruddy', bootrows=3),
-    '106': dict(file='dirk', cid=106, label='디르크 — 부두 관리',
+    '106': dict(file='dirk', grime=True, cid=106, label='디르크 — 부두 관리',
                 # "부두 관리가 제 일입니다" → 관리자. 마을에서 가장 갖춰 입은 축
                 # ★도란73(상단)과 코트+캡+염소수염이 겹쳐 사실상 쌍둥이였다(픽셀차 9.2).
                 #   대청 파랑 관복 + 흑발로 갈라 놓는다(도란은 녹청).
@@ -136,7 +140,7 @@ VARIANTS = {
                 head='cap', headc='woad', prop='ledger', accent='brass',
                 surface=('placket', 'buttons'), surfc='brass',
                 eye_y=3, iris='hazel', jaw='narrow', brow_a=1, mouth_y=6, bootrows=5),
-    '139': dict(file='walter', cid=139, label='발터 — 야경꾼',
+    '139': dict(file='walter', grime=True, cid=139, label='발터 — 야경꾼',
                 # "밤에도 누군가는 항구를 지켜야지" → 후드 망토 + 등불
                 # ★마을의 '가장 어두운 사람' 자리 — 야경꾼이라 명분도 맞는다
                 skin='b0855e', hair='4f4a42', beard='full', age=True,
@@ -167,7 +171,7 @@ VARIANTS = {
                 eye_y=4, iris='blue', jaw='long', fringe=3, cheek=True, bootrows=2),
 
     # ── 여성 주민 ────────────────────────────────────────────────────────
-    '103': dict(file='gretchen', cid=103, label='그레첸 — 빵집',
+    '103': dict(file='gretchen', hstyle='bob', cid=103, label='그레첸 — 빵집',
                 # "갓 구운 빵 냄새 좋지 않나요?" → 밀가루 앞치마 + 두건
                 female=True, skin=SKIN['pale'], hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
@@ -176,7 +180,7 @@ VARIANTS = {
                 prop='basket', apron=True,
                 surface=('pocket', 'trim'), surfc='rust',
                 eye_y=4, iris='green', jaw='oval', cheek=True, marks='freckles', mouth_y=6),
-    '105': dict(file='inga', cid=105, label='잉가 — 물 긷는 여인',
+    '105': dict(file='inga', hstyle='wave', cid=105, label='잉가 — 물 긷는 여인',
                 # "물 길으러 나왔어요" → 가장 소박한 차림. 금속 0곳
                 female=True, skin='b58b65', hair='d9bb63', bare=True, hem=10, sleeve=2,
                 cloth='moss', under='oat', legs='moss', boot='boot',
@@ -184,7 +188,7 @@ VARIANTS = {
                 surface='seams', surfc='oat',
                 garb='overdress', over='canvas',
                 eye_y=5, iris='grey', jaw='narrow', backhair=9, marks='ruddy'),
-    '136': dict(file='mia', cid=136, label='미아 — 생선 손질',
+    '136': dict(file='mia', hstyle='sideswept', cid=136, label='미아 — 생선 손질',
                 # "생선은 손질이 반이랍니다" → 방수 앞치마 + 걷은 소매 + 비늘
                 # 방수 앞치마는 타르를 먹인 검정이 실물에 맞다 — 어물전 3인(헬가·그레타)과
                 # 앞치마 색으로 갈리고, 마을의 '어두운 사람' 쿼터도 여기서 하나 채운다
@@ -194,7 +198,7 @@ VARIANTS = {
                 prop='scales', apron=True, roll=5,
                 surface='pocket', surfc='teal',
                 eye_y=4, iris='dark', jaw='narrow', backhair=9, brow_a=-1),
-    '138': dict(file='frieda', cid=138, label='프리다 — 항구 가수',
+    '138': dict(file='frieda', hstyle='sideswept', cid=138, label='프리다 — 항구 가수',
                 # "항구엔 늘 노랫거리가 있죠" → 마을에서 유일하게 색을 좀 쓴다
                 # ★그 '색을 쓴다'가 말뿐이었다(와인색=채도 0.28). 꼭두서니 빨강 + 웰드
                 #   노랑 숄로 실제 유채색 자리를 준다 — 무대에 서는 사람이니 명분도 맞다
@@ -231,7 +235,7 @@ VARIANTS = {
                 #   (socket은 눈썹 y와 같은 행이라 항상 덮여 무의미했으므로 제거)
                 eye_y=4, iris='grey', jaw='long', fringe=0,
                 brow_w=1, brow_c='5b544c'),
-    '72': dict(file='marie', cid=72, label='마리 — 조합 재료상',
+    '72': dict(file='marie', hstyle='twin', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
                female=True, skin='cfa47e', hair='241f1c', bare=True, sleeve=5,
                garb='kirtle', cloth='olive', under='linen', extra='canvas',
@@ -249,7 +253,7 @@ VARIANTS = {
                accent='brass',
                 surface=('placket', 'buttons'), surfc='brass',
                 eye_y=3, iris='dark', jaw='narrow', brow_a=1, bootrows=5),
-    '108': dict(file='brigitte', cid=108, label='브리기테 — 직조공',
+    '108': dict(file='brigitte', hstyle='sideswept', cid=108, label='브리기테 — 직조공',
                 # "옷감을 짜는 게 제 일이에요" → 실타래와 부드러운 옷감
                 # 적발 — 마을에 없던 머리색. 실타래를 다루는 사람이라 색이 붙어도 안 튄다
                 female=True, skin='d0a57f', hair='8f4a24', hem=10, sleeve=7,
@@ -266,7 +270,7 @@ VARIANTS = {
                 surface='seams', surfc='leather',
                 folds=(2,),
                 eye_y=4, iris='green', jaw='square', brow_w=2, socket=True, bootrows=6),
-    '110': dict(file='astrid', cid=110, label='아스트리드 — 20년 장사꾼',
+    '110': dict(file='astrid', hstyle='centerpart', cid=110, label='아스트리드 — 20년 장사꾼',
                 # "장사 20년, 단골들이 물고기를 찾는답니다" → 억센 상인 여성
                 female=True, age=True, skin='ba8f68', hair='7a6e5f', wrapshawl='wine', hem=11, sleeve=9,
                 cloth='rust', under='oat', extra='rust',
@@ -293,7 +297,7 @@ VARIANTS = {
                 surface='placket', surfc='canvas',
                 garb='wrap', cross=3,
                 eye_y=5, iris='brown', jaw='narrow', fringe=3, mouth_w=3, bootrows=2),
-    '29': dict(file='marta', cid=29, label='마르타 — 시장 안내',
+    '29': dict(file='marta', hstyle='centerpart', cid=29, label='마르타 — 시장 안내',
                # "싱싱한 건 제값 쳐주는 게 시장 인심이죠" → 활기찬 시장 상인
                female=True, skin='bf9878', hair='9c7a4e', bootrows=2, bare=True, hem=7, sleeve=2,
                # 앞치마는 크림이 아니라 표백 흰색이어야 금색 드레스와 값이 갈린다
@@ -302,7 +306,7 @@ VARIANTS = {
                apron=True, braid=True,
                 surface='stripe_v', surfc='linen',
                 eye_y=4, iris='brown', jaw='oval', backhair=8, cheek=True, mouth_w=3),
-    '30': dict(file='bettina', cid=30, label='베티나 — 요리 안내',
+    '30': dict(file='bettina', hstyle='bob', cid=30, label='베티나 — 요리 안내',
                # "이 주방에선 잡은 걸로 근사한 요리를 만든답니다" → 주방 보조
                female=True, skin='cfa47e', hair='2b2118', bootrows=2, bare=True, hem=7, sleeve=5, braid=True,
                garb='kirtle', cloth='moss', under='linen', extra='chalk',
@@ -330,7 +334,7 @@ VARIANTS = {
                 eye_y=3, iris='grey', jaw='narrow', backhair=9, brow_a=1),
 
     # ── 기능 NPC (&b) ────────────────────────────────────────────────────
-    '9': dict(file='gunter', cid=9, label='군터 — 마을 대장간',
+    '9': dict(file='gunter', grime=True, cid=9, label='군터 — 마을 대장간',
               # ★왕실 대장장이 지크하르트117과 갈라야 한다: 지크=검댕 가죽·민머리·불똥.
               #   군터는 시골 노장 — 낡은 앞치마 + 머리 동여맨 천 + 흰 수염
               # 앞치마를 그을음색으로 — 대장간 사람이 마을에서 가장 어두운 축이 되는 게 맞다
@@ -349,15 +353,15 @@ VARIANTS = {
                legs='canvas', boot='boot', head=None, prop='ladle', roll=5,
                 surface='pocket', surfc='teal',
                 eye_y=5, iris='brown', jaw='oval', fringe=3, cheek=True, mouth_w=3),
-    '6': dict(file='helga', cid=6, label='헬가 — 물고기 판매',
+    '6': dict(file='helga', hstyle='wave', cid=6, label='헬가 — 물고기 판매',
               # 오토14·그레타13과 한 어물전. 공통=방수 가죽 앞치마+비늘 / 개인=색과 나이
-              female=True, skin='b08762', hair='7a2f3a', bootrows=2, bare=True, hem=7, sleeve=5,
+              female=True, skin='b08762', hair='b0505e', bootrows=2, bare=True, hem=7, sleeve=5,
               garb='kirtle', cloth='slate', under='oat', extra='leather',
               legs='linen', boot='boot', head='kerchief', headc='mustard',
               prop='scales', apron=True, roll=6,
                 surface='pocket', surfc='mustard',
                 eye_y=4, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
-    '13': dict(file='greta', cid=13, label='그레타 — 물고기 판매',
+    '13': dict(file='greta', hstyle='straight', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
                female=True, age=True, skin='a88c73', hair='9a938a', wrapshawl='woad', hem=10, sleeve=7,
                cloth='grey', under='oat', extra='leather',
@@ -453,7 +457,7 @@ VARIANTS = {
                 # ★eye_y=3으로 올리면 코이프(0~3행)가 눈을 덮는다 — lint가 잡음
                 eye_y=4, iris='grey', jaw='long', socket=True, brow_w=2, brow_a=1),
 
-    '75': dict(file='rina', cid=75, label='리나 — 어부 지망 소녀',
+    '75': dict(file='rina', hstyle='wave', cid=75, label='리나 — 어부 지망 소녀',
                # "저도 언젠가 훌륭한 어부가 되고 싶어요" → 어른 옷을 줄여 입은 소녀
                female=True, child=True, skin='c29a76', hair='7a5f3a',
                # ★브리기테108(슬레이트 커틀)과 쌍둥이가 돼서 어부색으로 바꾼다 —
@@ -466,8 +470,15 @@ VARIANTS = {
 
 
 # ── 빌더 ───────────────────────────────────────────────────────────────────
+def _set_deep(v):
+    """'진짜 더러워야 하는' 직군만 옛 진흙 램프를 유지한다(오너 지시 2026-08-18)."""
+    global _DEEP
+    _DEEP = bool(v.get('grime'))
+
+
 def head(s, v, seed):
-    skin, hair = ramp(v['skin']), ramp(v['hair'])
+    _set_deep(v)
+    skin, hair = ramp(v['skin']), hair_ramp(v['hair'])
     g.head_base(s, skin, seed=seed)
     g.ears(s, skin, y=4)
     # ★얼굴 개인차 (2026-08-03) — 부위별 측정에서 머리가 가장 닮은 부위로 나왔다
@@ -482,7 +493,7 @@ def head(s, v, seed):
     if v.get('beard'):
         # ★수염 시작 행은 눈보다 반드시 아래여야 한다 — 눈 높이를 사람마다 다르게
         #   한 뒤로 eye_y=5인 사람은 고정값 5와 충돌해 눈이 지워졌다(실측 3명)
-        g.beard(s, ramp(v['hair']), style=v['beard'],
+        g.beard(s, hair_ramp(v['hair']), style=v['beard'],
                 y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
                 seed=seed, ragged=False)
     if v.get('age'):
@@ -506,12 +517,21 @@ def head(s, v, seed):
     if v.get('female'):
         # ★2행 눈 — 흰자 면적이 남성용 eyes()의 4배. 레퍼런스와의 유일한 결정적 차이였다
         #   (우리 2px vs 레퍼런스 10~11px). garments.female_eyes_big 주석 참고.
-        g.female_eyes_big(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
+        g.female_eyes_big(s, v.get('sclera', 'ece8dd'), ramp(g.IRIS[v.get('iris', 'brown')]),
                           skin, hair, eye_y=eye_y, gaze=v.get('gaze', 0), iris_idx=iris_i)
     else:
-        g.eyes(s, v.get('sclera', 'c9c4b8'), ramp(g.IRIS[v.get('iris', 'brown')]),
+        g.eyes(s, v.get('sclera', 'ece8dd'), ramp(g.IRIS[v.get('iris', 'brown')]),
                y=eye_y, gaze=v.get('gaze', 0), socket=skin[1] if v.get('socket') else None,
                iris_idx=iris_i)
+    # ★코 기둥(2026-08-18) — 하이픽셀 얼굴 공통 구조. x3~4 를 눈 행부터 한 단 밝게 해
+    #   볼(어두움)과 갈라 준다. 이게 없으면 얼굴이 평평한 살색 판으로 읽힌다.
+    _fh = s.f('head', 'front')
+    for _y in range(eye_y, min(8, eye_y + 3)):
+        for _x in (3, 4):
+            _cur = _fh.get(_x, _y)
+            if _cur[3]:
+                _fh.px(_x, _y, mix(_cur, skin[4], 0.45))
+
     # ★눈 지워짐 검사 — desertfolk/dealers엔 있었는데 townsfolk엔 없어서 잉그리드의
     #   먹힌 눈을 빌드가 조용히 통과시켰다. 같은 가드를 여기도 둔다.
     _ef = s.f('head', 'front')
@@ -616,6 +636,25 @@ def body(s, v, seed):
         for part in ('leg_r', 'leg_l'):
             s.form_fill(part, skin, 8, 11, base_idx=3, bottom=True)
             s.shade_col_falloff(part, skin, 8, 11)
+
+    # ★다리 비대칭 (2026-08-18, 오너 지적 "다리가 둘 다 똑같은 게 맘에 안 든다")
+    #   기존에도 무릎 패치 같은 게 있었지만 1~2px라 인게임 배율에서 좌우가 같아 보였다.
+    #   레퍼런스 73장은 «전원» 좌우가 다르다. 읽히는 크기(가로 띠 2행 또는 무릎 블록)로
+    #   한쪽 다리에만 넣는다. 무엇을 넣을지는 이름 해시로 정해 결정적이다.
+    import zlib as _z
+    _pick = _z.crc32(v['file'].encode()) % 3
+    _side = 'leg_l' if (_z.crc32((v['file'] + 'side').encode()) % 2) else 'leg_r'
+    _lr = legs
+    if _pick == 0:                      # 한쪽만 바짓단을 접어 올림 = 밝은 가로 띠 2행
+        _y = max(2, 11 - boot_rows - 1)
+        s.band(_side, _y - 1, _y, _lr[4])
+        s.band(_side, _y + 1, _y + 1, _lr[1])
+    elif _pick == 1:                    # 한쪽 무릎에 덧댄 천 (3x3)
+        s.f(_side, 'front').rect(0, 4, 2, 6, _lr[1])
+        s.f(_side, 'front').rect(0, 4, 2, 4, _lr[3])
+    else:                               # 한쪽 정강이에 끈 각반 2줄
+        for _y in (5, 8):
+            s.band(_side, _y, _y, _lr[0])
 
     # ★재단 개인차 (2026-08-03) — 지금까지 같은 재단이면 칼라·헴·주름 열이 코드
     #   수준에서 동일했다(주름은 전원 cols=(1,6)). 사람마다 옷을 다시 재단한다.
@@ -938,11 +977,16 @@ def feminize(s, v, seed):
     # ★머리 볼륨(옆·뒤·정수리)은 머리에 아무것도 안 쓴 사람만 — 이 패스는 모자를 그린
     #   뒤에 돌기 때문에 켜면 두건·모자·바이저 crown을 머리카락이 덮어쓴다.
     #   등으로 흘러내리는 길이(shoulders)는 머리쓰개와 무관하므로 항상 준다.
-    g.female_hair_length(s, ramp(v['hair']), seed=seed,
-                         # 뒷머리 길이 스펙(backhair 7~9)을 앞·어깨로 흘리는 길이와 연동한다
-                         drop=max(3, min(6, v.get('backhair', 7) - 4)),
+    _drop = max(5, min(9, v.get('backhair', 7) - 1))
+    # ★머리 «볼륨»(정수리·옆·뒤)만 이쪽에서. 앞머리·흘러내림은 스타일 함수가 그린다.
+    g.female_hair_length(s, hair_ramp(v['hair']), seed=seed, drop=_drop,
                          head_volume=(v.get('head') is None and not v.get('visor')),
-                         shoulders=v.get('head') not in ('hood', 'coif', 'veil'))
+                         shoulders=False, front=False)
+    # 스타일 6종 — 하이픽셀 여성 10명 분류에서 뽑았다(garments.female_hair_style 주석 참고).
+    #   머리쓰개로 앞이 막힌 사람(hood/coif/veil)은 스타일을 그리지 않는다.
+    if v.get('head') not in ('hood', 'coif', 'veil'):
+        g.female_hair_style(s, hair_ramp(v['hair']), style=v.get('hstyle', 'straight'),
+                            drop=_drop, seed=seed)
     adorn(s, v, seed)
 
 
@@ -967,7 +1011,7 @@ def adorn(s, v, seed):
     #   lessons 10장). adorn은 7개 모듈 전부에 배선돼 있으므로 여기가 맞다.
     #   ponytail()은 뒤로 가서 인게임에서 볼 일이 없다(lookclose).
     if v.get('fbraid'):
-        g.braid_front(s, ramp(v['hair']), side=v.get('fbraidside'),
+        g.braid_front(s, hair_ramp(v['hair']), side=v.get('fbraidside'),
                       drop=v.get('fbraiddrop', 6), seed=seed,
                       tie=R(v['fbraidtie']) if v.get('fbraidtie') else None)
     # ★피부는 팔레트 키가 아니라 hex다 — R()이 아니라 ramp()를 쓴다
