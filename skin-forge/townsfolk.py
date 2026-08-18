@@ -178,7 +178,7 @@ VARIANTS = {
                 eye_y=4, iris='blue', jaw='long', fringe=3, cheek=True, bootrows=2),
 
     # ── 여성 주민 ────────────────────────────────────────────────────────
-    '103': dict(file='gretchen', hstyle='bob', cid=103, label='그레첸 — 빵집',
+    '103': dict(file='gretchen', mouth=True, hstyle='bob', cid=103, label='그레첸 — 빵집',
                 # "갓 구운 빵 냄새 좋지 않나요?" → 밀가루 앞치마 + 두건
                 female=True, skin='dec3af', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
@@ -217,7 +217,7 @@ VARIANTS = {
                 eye_y=3, iris='green', jaw='oval', backhair=9, cheek=True, lip='a8484a'),
 
     # ── 아이 / 젊은이 ────────────────────────────────────────────────────
-    '137': dict(file='leo', mstyle='crop', cid=137, label='레오 — 부두 아이',
+    '137': dict(file='leo', mouth=True, mstyle='crop', cid=137, label='레오 — 부두 아이',
                 # "갈매기들이 자꾸 생선을 훔쳐가요!" → 헐렁한 물려받은 옷, 맨발
                 skin='c29b83', hair='8a6a3f', child=True,
                 cloth='seafoam', under='cream', legs='moss_d', boot=None,
@@ -242,7 +242,7 @@ VARIANTS = {
                 #   (socket은 눈썹 y와 같은 행이라 항상 덮여 무의미했으므로 제거)
                 eye_y=4, iris='grey', jaw='long', fringe=0,
                 brow_w=1, brow_c='5b544c'),
-    '72': dict(file='marie', hstyle='twin', cid=72, label='마리 — 조합 재료상',
+    '72': dict(file='marie', mouth=True, hstyle='twin', cid=72, label='마리 — 조합 재료상',
                # "조합에 쓸 재료가 늘 부족해요" → 재료를 다루는 손. 도구 앞치마
                female=True, skin='c7a483', hair='241f1c', bare=True, sleeve=5,
                garb='kirtle', cloth='olive', under='bone', extra='canvas',
@@ -377,7 +377,7 @@ VARIANTS = {
                 surface='check', surfc='oat',
                 garb='overdress', over='charcoal',
                 eye_y=4, iris='grey', jaw='long', backhair=6, socket=True),
-    '7': dict(file='klaus', mstyle='sidepart', cid=7, label='클라우스 — 잡화 상점',
+    '7': dict(file='klaus', mouth=True, mstyle='sidepart', cid=7, label='클라우스 — 잡화 상점',
               # ★모래색 코트+가죽 캡+파우치는 '사냥꾼'으로 읽힌다(유저 지적).
               #   가게를 지키는 사람은 앞치마와 장부로 말한다 — 모자를 벗기고
               #   와인색 조끼 위에 상점 앞치마를 두른다
@@ -452,7 +452,7 @@ VARIANTS = {
                 surface='quilt', surfc='rust',
                 layer2='vest', l2c='rust',
                 eye_y=4, iris='blue', jaw='oval', fringe=1, socket=True, marks='ruddy'),
-    '146': dict(file='chief', mstyle='plain', cid=146, label='촌장',
+    '146': dict(file='chief', mouth=True, mstyle='plain', cid=146, label='촌장',
                 # ★구스킨은 바닐라 주민(빌리저) 텍스처 — 사람이 아니라 몹으로 읽힌다.
                 #   마을에서 가장 격식 있는 평민: 긴 코트 + 놋쇠 직위 사슬 + 마을 장부
                 skin='c09471', hair='9a938a', beard='full', age=True,
@@ -564,7 +564,14 @@ def head(s, v, seed):
            y=eye_y - (2 if brow_up else 1),
            weight=v.get('brow_w', 1), angle=v.get('brow_a', 0))
     f = s.f('head', 'front')
-    if v.get('female'):
+    # ★입은 «기본 없음» (2026-08-19). 하이픽셀 69명 실측: 코 22% · 입 13% 뿐이고
+    #   나머지는 콧수염·수염이 그 자리를 대신하거나 그냥 비어 있다. 우리는 68%가 입을
+    #   그려서 이목구비가 과했다(오너 지적 "하이픽셀은 코랑 입이 없어 보인다" — 실측 결과
+    #   코는 우리가 이미 0% 라 맞는 지적의 절반은 입 쪽이었다).
+    #   캐릭터성이 있는 소수만 spec 에 mouth=True 로 켠다.
+    if not v.get('mouth'):
+        pass
+    elif v.get('female'):
         # ★입술 — 2행 눈이 eye_y+1까지 차지하므로 그 아래 행에 놓는다. 그리고 아주 연하게:
         #   레퍼런스 여성 스킨은 대부분 입이 아예 없었고, 우리 입은 진한 갈색 사각형이라
         #   남성적 인상을 강화하고 있었다(실측). 피부에 절반 섞어 '암시'만 남긴다.
