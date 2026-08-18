@@ -168,7 +168,7 @@ VARIANTS = {
     '107': dict(file='helmut', mstyle='shaggy', cid=107, label='헬무트 — 방앗간',
                 # "밀가루 먼지 마실 날이 없어요" → 온몸에 하얀 가루. 자루를 진다
                 # ★마을의 '가장 밝은 사람' 자리 — 밀가루를 뒤집어쓰는 직업이라 명분도 맞는다
-                skin='e5d8c7', hair='7a6a52', beard='stubble',
+                skin='decbb1', hair='7a6a52', beard='stubble',
                 # ★모자까지 흰색으로 하면 머리와 몸통이 한 덩어리가 된다(1패스 자기비평).
                 #   모자는 밀가루 안 묻은 낡은 캔버스로 눌러 얼굴선을 살린다
                 cloth='cream', under='cream', legs='linen', boot='boot',
@@ -180,7 +180,7 @@ VARIANTS = {
     # ── 여성 주민 ────────────────────────────────────────────────────────
     '103': dict(file='gretchen', hstyle='bob', cid=103, label='그레첸 — 빵집',
                 # "갓 구운 빵 냄새 좋지 않나요?" → 밀가루 앞치마 + 두건
-                female=True, skin='e0c5b1', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
+                female=True, skin='dec3af', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=5, backhair=8,
                 # 두건까지 표백 흰색이면 창백한 얼굴과 붙는다 — 두건만 한 단 낮춘다
                 garb='kirtle', cloth='rust', under='pearl', extra='chalk',
                 legs='charcoal', boot='boot', head='kerchief', headc='linen',
