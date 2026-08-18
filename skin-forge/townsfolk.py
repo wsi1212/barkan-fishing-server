@@ -222,7 +222,7 @@ VARIANTS = {
                 skin='cba37c', hair='8a6a3f', child=True,
                 cloth='seafoam', under='cream', legs='moss_d', boot=None,
                 head=None, prop=None, roll=4, patch='leg_l',
-                surface='patchwork', surfc='oat',
+                surface='seams', surfc='oat',
                 garb='smock', yoke=3,
                 eye_y=5, iris='hazel', fringe=4, marks='freckles', bootrows=0),
     # ── 퀘스트를 주는 주민 (&a[Q]) ────────────────────────────────────────
@@ -328,7 +328,7 @@ VARIANTS = {
                garb='apron', cloth='canvas', under='linen', extra='leather',
                legs='ink', boot='boot', head=None, prop='tools', roll=5,
                patch='leg_l',
-                surface='patchwork', surfc='canvas',
+                surface='seams', surfc='canvas',
                 layer2='suspenders', l2c='leather',
                 eye_y=5, iris='blue', jaw='narrow', fringe=3, marks='freckles', bootrows=3),
     '17': dict(file='ingrid', hstyle='pulled', cid=17, label='잉그리드 — 길드 접수',
@@ -471,7 +471,7 @@ VARIANTS = {
                #   어부 지망 소녀가 어른 어부 옷을 줄여 입은 것으로 읽힌다
                garb='kirtle', cloth='teal_d', under='flour', legs='soot', boot='boot',
                head=None, prop='basket', braid=True, patch='leg_r',
-                surface='patchwork', surfc='linen',
+                surface='seams', surfc='linen',
                 eye_y=5, iris='green', backhair=9, fringe=3, marks='freckles', bootrows=2),
 }
 
@@ -954,7 +954,7 @@ def surface(s, v, seed):
             g.lacing(s, r2, x=(3, 4), y0=1, y1=6, layer=L)
         elif k == 'seams':
             g.seams(s, 'body', r2, y0=0, y1=10, layer=L)
-        elif k == 'patchwork':
+        elif k == 'seams':
             g.patchwork(s, 'body', r2, n=2, seed=seed, y0=2, y1=10, layer=L)
         elif k == 'pocket':
             g.pocket(s, r2, x=(1, 3), y=(7, 9), layer=L)
