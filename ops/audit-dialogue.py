@@ -191,7 +191,11 @@ def audit(npcs, dlg, qroot, full=False):
                 else:
                     warn("인사/<qid> 없음 — 제네릭 인사로 폴백(그 퀘스트 부탁 내용이 사라진다)",
                          f"{nid} → {q} ({uncolor(quests[q].get('이름'))})")
-            if f"퀘스트완료/{q}" not in nodes and "퀘스트완료" not in nodes:
+            # ★방문 퀘스트의 완료는 «방문 대상» NPC에서 일어난다 — 준 NPC 는 완료대기를 보지 못한다.
+            #   그래서 목표가 다른 NPC를 가리키면 준 쪽의 퀘스트완료 노드는 애초에 필요 없다
+            #   (예: 요한이 준 튜토00 의 목표는 할아버지 방문 → 요한에게 완료 대사는 사문화).
+            elsewhere = vtarget.get(q) is not None and vtarget[q] != nid
+            if not elsewhere and f"퀘스트완료/{q}" not in nodes and "퀘스트완료" not in nodes:
                 warn("퀘스트완료 대사가 퀘스트별·제네릭 둘 다 없다 — 엔진 하드코딩 폴백(「목표를 해냈구먼!」)으로 나간다",
                      f"{nid} → {q} ({uncolor(quests[q].get('이름'))})")
             if f"진행중/{q}" not in nodes and "진행중" not in nodes:
