@@ -39,6 +39,35 @@ Actions 를 `apply_now=true` 로 수동 실행하면 Release 본문에 `APPLY_NO
 ★`APPLY_NOW` 는 문자열 매칭이다. 워크플로 release notes 문구를 다듬다 그 낱말을 지우면
 즉시 배포가 **에러 없이** 06:00 배포로 되돌아간다.
 
+## 모바일 리소스팩 배포
+
+리소스팩은 BlockShip jar와 별도 흐름이다. 폰에서 GitHub 저장소의
+**Actions → Mobile production resource pack → Run workflow**를 열고 다음처럼 실행한다.
+
+| 입력 | 동작 |
+|---|---|
+| `promote=false` | 빌드·구조검증만 하고 Release를 만들지 않음 |
+| `promote=true`, `apply_now=false` | `MOBILE_RP_PROMOTE` Release 발행, prod가 설정만 갱신하고 다음 재시작 때 적용 |
+| `promote=true`, `apply_now=true` | `MOBILE_RP_PROMOTE` + `APPLY_NOW` Release 발행, prod가 최대 5분 안에 예고 후 재시작 |
+
+prod의 `fetch-resourcepack.sh`가 cron(`*/5`)으로 Release를 당겨온다. 본문에
+`MOBILE_RP_PROMOTE`가 있고 `barkan-resourcepack.zip` 자산이 있는 Release만 대상이며,
+일반 Release·`latest`·dev 업로드는 무시한다. 따라서 폰에 SSH 키를 넣을 필요가 없다.
+
+오라클 최초 설치:
+
+```bash
+cp fetch-resourcepack.sh ~/mcserver/scripts/
+cp resourcepack-restart.sh ~/mcserver/scripts/
+chmod +x ~/mcserver/scripts/fetch-resourcepack.sh ~/mcserver/scripts/resourcepack-restart.sh
+~/mcserver/scripts/fetch-resourcepack.sh --dry-run
+( crontab -l 2>/dev/null | grep -v 'fetch-resourcepack.sh' || true; \
+  echo '*/5 * * * * flock -n ~/mcserver/.fetch-rp.lock ~/mcserver/scripts/fetch-resourcepack.sh >> ~/mcserver/backups/ops.log 2>&1' ) | crontab -
+```
+
+`apply_now=true`는 접속자에게 60초 예고 후 전체 재시작한다. 적용 전 공개 URL의 SHA1,
+ZIP 무결성, `pack.mcmeta`, `assets/barkan/`을 다시 검사하고, 부팅 뒤 RCON까지 확인한다.
+
 ## 승격 게이트 — 이 전제를 깨지 말 것
 
 Actions 는 **수동 promote 일 때만** Release 를 만든다. 그래서
