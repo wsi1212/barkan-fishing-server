@@ -40,6 +40,8 @@ VIRTUAL_DIALOGUE = {"인트로"}
 ROLE_FLAGS = ["ferry", "shop", "inn", "smithy", "islandShop", "scrollShop", "guild", "submit",
               "cooking", "drillShop", "heal", "horseRental", "market", "quest", "casino",
               "appraisal", "villageQuest", "ranking"]
+# 「처음 만난 사람」에게만 성립하는 문장 — 제네릭 인사 노드에 이게 있으면 폴백이 참사가 된다
+FIRST_MEET = re.compile(r"처음 (보는|뵙|만나|보네|손을|맡는)|신참|초면|누구(시|신)|낯선|어디서 왔")
 # 자동생성 티가 나는 문구 — 퀘스트 목표를 기계적으로 문장화한 흔적
 BOILERPLATE = ["이번에 맡길 일은", "해야 할 일은", "이번에도 네 솜씨 믿어도", "지난 도움 안 잊었",
                "이 정도면 충분해", "아직 기다리고 있", "다 끝내고 다시 얘기하자",
@@ -170,6 +172,41 @@ def audit(npcs, dlg, qroot, full=False):
         if not giver[nx]:
             err("체인으로 해금되는데 제공 NPC가 없다 — 그 지점에서 영구 진행불가",
                 f"{q} → «{nx}» ({uncolor(quests[nx].get('이름'))})")
+
+    # 퀘스트를 여러 개 주는 NPC에서 «중간 대사 빈 곳» — 인사/<qid> 가 없으면 제네릭 인사로 폴백한다.
+    # 제네릭 인사에 첫대면 문장이 들어 있으면, 이미 열 번 만난 상대에게 "자네 같은 신참에게"를 다시 말한다.
+    # (2026-08-20 실측: 하겐이 퀘스트 12개 중 알비스00·심해35 에서 정확히 이 상태였다.)
+    for nid, n in npcs.items():
+        qs = [q for q in (n.get("quests") or []) if q in quests]
+        if not qs:
+            continue
+        nodes = dlg.get(nid, {})
+        greeting = " ".join(nodes.get("인사", {}).get("lines") or [])
+        first_meet_greeting = bool(FIRST_MEET.search(greeting))
+        for q in qs:
+            if f"인사/{q}" not in nodes:
+                if first_meet_greeting:
+                    err("인사/<qid> 가 없어 «첫대면 문장이 든 제네릭 인사»로 폴백한다 — 구면에게 초면 대사",
+                        f"{nid}/인사/{q} 없음 → 제네릭 인사: «{greeting[:40]}…»")
+                else:
+                    warn("인사/<qid> 없음 — 제네릭 인사로 폴백(그 퀘스트 부탁 내용이 사라진다)",
+                         f"{nid} → {q} ({uncolor(quests[q].get('이름'))})")
+            if f"퀘스트완료/{q}" not in nodes and "퀘스트완료" not in nodes:
+                warn("퀘스트완료 대사가 퀘스트별·제네릭 둘 다 없다 — 엔진 하드코딩 폴백(「목표를 해냈구먼!」)으로 나간다",
+                     f"{nid} → {q} ({uncolor(quests[q].get('이름'))})")
+            if f"진행중/{q}" not in nodes and "진행중" not in nodes:
+                warn("진행중 대사가 퀘스트별·제네릭 둘 다 없다 — 엔진 하드코딩 폴백으로 나간다",
+                     f"{nid} → {q}")
+
+    # 첫만남 노드가 «영구 미표시»인 NPC — 첫 퀘스트에 선행이 걸려 있으면 shouldShowFirstMeeting 이 항상 false
+    for nid, n in npcs.items():
+        qs = [q for q in (n.get("quests") or []) if q in quests]
+        if not qs or "첫만남" not in dlg.get(nid, {}):
+            continue
+        prereq = quests[qs[0]].get("선행퀘스트")
+        if prereq:
+            warn("첫만남 노드가 뜰 수 없다 — 첫 퀘스트에 선행퀘스트가 있어 항상 중간 진입으로 판정된다",
+                 f"{nid}/첫만남 (첫 퀘스트 {qs[0]} 의 선행={prereq})")
 
     byname = collections.defaultdict(list)
     for nid, n in npcs.items():

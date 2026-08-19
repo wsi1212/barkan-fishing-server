@@ -2,7 +2,7 @@ lh-bizben.duckdns.org {
     reverse_proxy localhost:3000
 }
 
-barkan.kro.kr {
+barkan.kr, www.barkan.kr, barkan.kro.kr {
     redir /vip /vip/ 308
     handle_path /vip/* {
         reverse_proxy 127.0.0.1:3100

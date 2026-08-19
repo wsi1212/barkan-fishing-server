@@ -180,6 +180,23 @@
     }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.system-tab,.system-copy,.system-art-rail,.system-art-slide img{transition:none}}
   </style>
+  <style>
+    /* Keep Korean headings on intentional word boundaries at wide desktop sizes. */
+    h1,h2,h3,h4 { word-break:keep-all; overflow-wrap:normal; text-wrap:balance; }
+    .hero h1,
+    .masthead h1,
+    .heading h1 { font-weight:500; letter-spacing:-.055em; }
+    .detail h2 { font-weight:500; letter-spacing:-.055em; }
+    .intro h2,.systems h2,.arrival h2,.directory h2 { letter-spacing:-.055em; }
+    .directory h2 { font-size:clamp(2.2rem,3.8vw,3.5rem); }
+    .system-copy h3 { font-size:clamp(2.25rem,3.8vw,3.25rem); font-weight:500; letter-spacing:-.055em; line-height:.98; }
+    @media(min-width:821px){
+      .system-copy { width:48%; }
+      .system-art-viewport { width:46.5%; }
+      .system-copy h3 { font-size:clamp(2.25rem,3.4vw,3rem); }
+      .arrival h2 { font-size:clamp(2.4rem,4vw,3.2rem); }
+    }
+  </style>
   <script src="/assets/site-nav.js" defer></script>
 </head>
 <body>
@@ -191,9 +208,9 @@
           <p class="meta">Minecraft fishing server</p>
           <h1 id="hero-title">바다 끝의<br><em>바르칸 열도</em></h1>
           <p class="hero-lead">낚시로 시작해 섬과 길드까지 넓어지는 마인크래프트 서버. 오늘의 한 마리가 다음 항로를 엽니다.</p>
-          <div class="actions"><button class="button" type="button" data-server="barkan.kro.kr">서버 주소 복사</button><a class="button ghost" href="/dex">도감 둘러보기</a><a class="button ghost" href="/community">커뮤니티 둘러보기</a></div>
+          <div class="actions"><button class="button" type="button" data-server="barkan.kr">서버 주소 복사</button><a class="button ghost" href="/dex">도감 둘러보기</a><a class="button ghost" href="/community">커뮤니티 둘러보기</a></div>
         </section>
-        <aside class="hero-aside" aria-label="서버 접속 정보"><p class="meta">Barkan islands</p><strong>barkan.kro.kr</strong><span>JAVA + BEDROCK<br>1.21.4 - 1.26.2</span></aside>
+        <aside class="hero-aside" aria-label="서버 접속 정보"><p class="meta">Barkan islands</p><strong>barkan.kr</strong><span>JAVA + BEDROCK<br>1.21.4 - 1.26.2</span></aside>
       </div>
     </div>
   </header>
@@ -231,7 +248,7 @@
       <div class="shell">
         <div class="arrival-grid">
           <div><h2 id="arrival-title">처음 오셨다면<br>이렇게 시작하세요.</h2><p>복잡한 준비 없이 서버에 들어와 바로 물가로 향하면 됩니다. 나머지는 플레이하면서 알아가세요.</p></div>
-          <div><ul class="arrival-list"><li><strong>주소를 복사합니다</strong><span>barkan.kro.kr</span></li><li><strong>마인크래프트에서 입장합니다</strong><span>JAVA + BEDROCK</span></li><li><strong>첫 낚싯대를 들고 물가로 갑니다</strong><span>초보자 안내는 위키에서</span></li></ul><a class="arrival-link" href="/wiki/start">입항 안내 읽기 ↗</a></div>
+          <div><ul class="arrival-list"><li><strong>주소를 복사합니다</strong><span>barkan.kr</span></li><li><strong>마인크래프트에서 입장합니다</strong><span>JAVA + BEDROCK</span></li><li><strong>첫 낚싯대를 들고 물가로 갑니다</strong><span>초보자 안내는 위키에서</span></li></ul><a class="arrival-link" href="/wiki/start">입항 안내 읽기 ↗</a></div>
         </div>
       </div>
     </section>

@@ -55,6 +55,14 @@ def main():
     image_src = (HERE / "npc-dialogue-image.yml").read_text(encoding="utf-8")
     layout_src = (HERE / "npc-dialogue-layout.yml").read_text(encoding="utf-8")
     layout_blocks = blocks(layout_src, "npc_dialogue_layout_")
+    layout_templates = {}
+    for sid, _ in SIZES:
+        template_key = next(
+            (key for key in layout_blocks if key.endswith(f"_base_{sid}")), None
+        )
+        if template_key is None:
+            raise KeyError(f"npc_dialogue_layout_*_base_{sid}")
+        layout_templates[sid] = (template_key, layout_blocks[template_key])
 
     image_extra = []
     layout_extra = []
@@ -84,12 +92,12 @@ def main():
                         f"  file: dialogue/{out_name}\n"
                         f"  setting:\n    scale: {round(1.0 / hd, 4)}\n"
                     )
-                    base = layout_blocks[f"npc_dialogue_layout_{sid}"]
+                    template_key, base = layout_templates[sid]
                     block = base.replace(
-                        f"npc_dialogue_layout_{sid}:",
+                        f"{template_key}:",
                         f"npc_dialogue_layout_{key}_{sid}:", 1)
                     block = block.replace(
-                        f"name: npc_dialogue_portrait_{sid}",
+                        f"name: {template_key.replace('npc_dialogue_layout_', 'npc_dialogue_portrait_', 1)}",
                         f"name: npc_dialogue_portrait_{key}_{sid}", 1)
                     layout_extra.append(block)
                     hud_extra.append(

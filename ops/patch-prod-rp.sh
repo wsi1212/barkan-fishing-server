@@ -40,7 +40,7 @@ RP_URL=$(ssh -i "$HOME/.ssh/oracle-mc.key" -o StrictHostKeyChecking=no ubuntu@16
 #   GitHub 릴리스로 옮겨갔는데 그걸 모르고 돌렸더니, 아무도 안 보는 로컬 zip 에 패치하고
 #   **server.properties 의 sha1 만 그 파일 해시로 덮어** 팩이 통째로 안 받아지는 상태를 만들었다.
 case "$RP_URL" in
-    *barkan.kro.kr*) : ;;
+    *barkan.kr*|*barkan.kro.kr*) : ;;
     *) echo "✋ 지금 prod 리소스팩은 박스에서 서빙되지 않는다:"; echo "   $RP_URL"
        echo "   이 스크립트는 쓰지 말고 ops/rp-deploy.sh prod 로 배포할 것."; exit 1 ;;
 esac

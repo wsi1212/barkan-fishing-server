@@ -8,9 +8,9 @@ import pg from "pg";
 const { Pool } = pg;
 
 const PORT = Number.parseInt(process.env.PORT ?? "3100", 10);
-const BASE_URL = (process.env.PUBLIC_BASE_URL ?? "https://barkan.kro.kr/vip").replace(/\/$/, "");
+const BASE_URL = (process.env.PUBLIC_BASE_URL ?? "https://barkan.kr/vip").replace(/\/$/, "");
 // 운영 도구의 단일 진입점은 기존 Discord 인증 통계 대시보다.
-const STATS_ADMIN_URL = process.env.STATS_ADMIN_URL ?? "https://barkan.kro.kr/admin/membership";
+const STATS_ADMIN_URL = process.env.STATS_ADMIN_URL ?? "https://barkan.kr/admin/membership";
 const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN ?? "";
 const TOSS_CLIENT_KEY = process.env.TOSS_CLIENT_KEY ?? "";
 const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY ?? "";
@@ -22,7 +22,7 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID ?? "";
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET ?? "";
-const COMMUNITY_BASE_URL = (process.env.COMMUNITY_BASE_URL ?? "https://barkan.kro.kr/community").replace(/\/$/, "");
+const COMMUNITY_BASE_URL = (process.env.COMMUNITY_BASE_URL ?? "https://barkan.kr/community").replace(/\/$/, "");
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID ?? "972075275342983199";
 const MINECRAFT_PLAYERDATA_DIR = process.env.MINECRAFT_PLAYERDATA_DIR ?? "/home/ubuntu/mcserver/plugins/BlockShip/playerdata";
 const MINECRAFT_GUILDS_FILE = process.env.MINECRAFT_GUILDS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/guilds.json";
@@ -230,10 +230,12 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS community_sessions_expiry_idx ON community_sessions (expires_at);
     CREATE TABLE IF NOT EXISTS community_posts (
       id UUID PRIMARY KEY, discord_id TEXT NOT NULL, minecraft_uuid UUID NOT NULL,
-      player_name TEXT NOT NULL, discord_name TEXT, category TEXT NOT NULL CHECK (category IN ('공략','질문','후기','소식')),
+      player_name TEXT NOT NULL, discord_name TEXT, category TEXT NOT NULL CHECK (category IN ('공지','공략','인사글','판매글','홍보글','자유게시판','구인구직','질문','후기','소식')),
       title TEXT NOT NULL, body TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), hidden BOOLEAN NOT NULL DEFAULT FALSE
     );
+    ALTER TABLE community_posts DROP CONSTRAINT IF EXISTS community_posts_category_check;
+    ALTER TABLE community_posts ADD CONSTRAINT community_posts_category_check CHECK (category IN ('공지','공략','인사글','판매글','홍보글','자유게시판','구인구직','질문','후기','소식'));
     CREATE INDEX IF NOT EXISTS community_posts_feed_idx ON community_posts (hidden, created_at DESC);
     CREATE INDEX IF NOT EXISTS community_posts_author_idx ON community_posts (minecraft_uuid, created_at DESC);
     CREATE TABLE IF NOT EXISTS community_post_likes (
@@ -458,7 +460,19 @@ function linkPage(selection, error = "") {
   return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p></div>`);
 }
 
-const COMMUNITY_CATEGORIES = Object.freeze(["공략", "질문", "후기", "소식"]);
+const COMMUNITY_CATEGORIES = Object.freeze(["공지", "공략", "인사글", "판매글", "홍보글", "자유게시판", "구인구직", "질문", "후기", "소식"]);
+const COMMUNITY_CATEGORY_META = Object.freeze({
+  "공지": "운영 안내",
+  "공략": "낚시와 성장 노하우",
+  "인사글": "새 항해자의 인사",
+  "판매글": "아이템과 재화 거래",
+  "홍보글": "섬·길드·콘텐츠 소개",
+  "자유게시판": "바르칸 이야기",
+  "구인구직": "길드원과 일손 찾기",
+  "질문": "궁금한 점 묻기",
+  "후기": "플레이 경험 공유",
+  "소식": "서버의 새 소식"
+});
 const communityConfigured = () => Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET);
 async function communitySession(req) {
   const value = cookies(req).community_session;
@@ -541,6 +555,11 @@ async function readMinecraftJson(file, fallback) {
 async function minecraftProfileData(uuid) {
   if (!validUuid(uuid)) return {};
   return readMinecraftJson(`${MINECRAFT_PLAYERDATA_DIR}/${uuid}.json`, {});
+}
+function collectibleDiscoveryIds(game) {
+  const discovered = game?.extraFlags?.["수집품발견"];
+  if (!Array.isArray(discovered)) return [];
+  return [...new Set(discovered.filter((id) => typeof id === "string" && id.length > 0))];
 }
 async function minecraftGuildFor(uuid) {
   const guild = (await minecraftGuildList()).find((candidate) => candidate.members.some((member) => member.uuid === uuid));
@@ -715,18 +734,24 @@ async function communityProfile(uuid) {
   };
 }
 function communityPage(current, posts, notice = "", selectedCategory = "") {
+  const selected = COMMUNITY_CATEGORIES.includes(selectedCategory) ? selectedCategory : "";
+  const boardTitle = selected || "커뮤니티";
+  const boardDescription = selected ? COMMUNITY_CATEGORY_META[selected] : "바르칸에서 먼저 알아낸 방법과 오늘의 발견을 나누는 공간입니다.";
   const userMarker = current ? " data-community-user=\"1\"" : "";
   const cards = posts.length ? posts.map((post) => `<article class="post"><div class="post-category">${esc(post.category)}</div><a class="post-content" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><h2 class="post-title">${esc(post.title)}</h2><p class="post-excerpt">${esc(post.body)}</p><div class="post-stats">${communityPostStats(post)}</div></a><a class="post-meta" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(post.minecraft_uuid)}">${esc(post.player_name)}<br>${new Date(post.created_at).toLocaleDateString("ko-KR")}</a></article>`).join("") : `<div class="empty">아직 첫 항해 기록이 없습니다. 게임에서 겪은 팁과 발견을 남겨 보세요.</div>`;
-  const action = current ? `<a class="button" href="${COMMUNITY_BASE_URL}/write">글쓰기</a>` : `<a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 시작하기</a>`;
+  const writeUrl = selected ? `${COMMUNITY_BASE_URL}/write?category=${encodeURIComponent(selected)}` : `${COMMUNITY_BASE_URL}/write`;
+  const action = current ? `<a class="button" href="${writeUrl}">글쓰기</a>` : `<a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 시작하기</a>`;
   const categories = ["전체", ...COMMUNITY_CATEGORIES].map((category) => {
-    const active = category === "전체" ? !selectedCategory : category === selectedCategory;
+    const active = category === "전체" ? !selected : category === selected;
     const href = category === "전체" ? COMMUNITY_BASE_URL : `${COMMUNITY_BASE_URL}?category=${encodeURIComponent(category)}`;
-    return `<a class="filter${active ? " active" : ""}" href="${href}">${category}</a>`;
+    return `<a class="board-tab${active ? " active" : ""}" href="${href}"><strong>${category}</strong><small>${category === "전체" ? "모든 항해 기록" : COMMUNITY_CATEGORY_META[category]}</small></a>`;
   }).join("");
-  return communityLayout("커뮤니티", `<main${userMarker}><style>.post-content{display:block;min-width:0;color:inherit;text-decoration:none}.post-meta{display:block;text-decoration:none}.post-meta:hover{color:var(--accent)}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.post-stat.liked{color:var(--danger)}.post-stat:first-child{color:var(--accent)}</style><section class="intro"><div><p class="eyebrow">Barkan community</p><h1>커뮤니티</h1></div><p class="intro-copy">바르칸에서 먼저 알아낸 방법과 오늘의 발견을 나누는 공간입니다. 게임 계정과 연결된 Discord로 글을 남겨 보세요.</p></section>${notice ? `<div class="notice">${esc(notice)}</div>` : ""}<div class="toolbar"><div class="filters">${categories}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${current ? `<a class="button ghost" href="${COMMUNITY_BASE_URL}/profile">내 프로필</a>` : ""}${action}</div></div><section class="feed" aria-label="커뮤니티 글">${cards}</section></main>`);
+  return communityLayout(selected ? `${selected} · 커뮤니티` : "커뮤니티", `<main${userMarker}><style>.post-content{display:block;min-width:0;color:inherit;text-decoration:none}.post-meta{display:block;text-decoration:none}.post-meta:hover{color:var(--accent)}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.post-stat.liked{color:var(--danger)}.post-stat:first-child{color:var(--accent)}.board-picker{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}.board-tab{display:block;min-width:0;padding:12px 13px;background:rgba(7,27,26,.56);color:var(--muted);text-decoration:none;transition:background .15s ease,color .15s ease}.board-tab strong{display:block;overflow:hidden;font-size:13px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.board-tab small{display:block;overflow:hidden;margin-top:3px;color:var(--faint);font-size:10px;text-overflow:ellipsis;white-space:nowrap}.board-tab:hover,.board-tab.active{background:rgba(226,173,103,.1);color:var(--accent)}.board-tab.active small{color:var(--mint)}.board-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.board-heading{display:flex;align-items:baseline;justify-content:space-between;gap:15px;margin:34px 0 15px}.board-heading h2{margin:0;font-size:18px;letter-spacing:-.06em}.board-heading span{color:var(--faint);font-size:11px}@media(max-width:720px){.board-picker{grid-template-columns:repeat(2,minmax(0,1fr))}.board-heading{display:block}.board-heading span{display:block;margin-top:4px}}</style><section class="intro"><div><p class="eyebrow">Barkan community · boards</p><h1>${esc(boardTitle)}</h1></div><p class="intro-copy">${esc(boardDescription)}<br>게임 계정과 연결된 Discord로 글을 남겨 보세요.</p></section>${notice ? `<div class="notice">${esc(notice)}</div>` : ""}<div class="toolbar"><nav class="board-picker" aria-label="게시판 종류">${categories}</nav><div class="board-actions">${current ? `<a class="button ghost" href="${COMMUNITY_BASE_URL}/profile">내 프로필</a>` : ""}${action}</div></div><div class="board-heading"><h2>${esc(boardTitle === "커뮤니티" ? "최근 항해 기록" : `${boardTitle} 게시판`)}</h2><span>${posts.length}개의 글</span></div><section class="feed" aria-label="${esc(boardTitle)} 게시글">${cards}</section></main>`);
 }
-function communityWritePage(current, error = "") {
-  return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log</p><h2>새 기록 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">분류</label><select id="category" name="category">${COMMUNITY_CATEGORIES.map((category) => `<option value="${category}">${category}</option>`).join("")}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
+function communityWritePage(current, error = "", selectedCategory = "") {
+  const selected = COMMUNITY_CATEGORIES.includes(selectedCategory) ? selectedCategory : "자유게시판";
+  const options = COMMUNITY_CATEGORIES.map((category) => `<option value="${category}"${category === selected ? " selected" : ""}>${category}</option>`).join("");
+  return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log · ${esc(selected)}</p><h2>${esc(selected)}에 새 글 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
 }
 function communityPostPage(current, post, error = "", comments = []) {
   if (!post) return communityLayout("글을 찾을 수 없음", `<main><section class="panel"><h2>기록을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
@@ -902,6 +927,12 @@ async function route(req, res) {
     const current = await communitySession(req);
     return json(res, 200, { authenticated: Boolean(current), playerName: current?.player_name ?? null, profileUrl: current ? `${COMMUNITY_BASE_URL}/profile` : `${COMMUNITY_BASE_URL}/login` });
   }
+  if (path === "/community/collection" && req.method === "GET") {
+    const current = await communitySession(req);
+    if (!current) return json(res, 200, { authenticated: false, discovered: [] });
+    const game = await minecraftProfileData(current.minecraft_uuid);
+    return json(res, 200, { authenticated: true, discovered: collectibleDiscoveryIds(game) });
+  }
   if (path === "/community/guilds" && req.method === "GET") {
     return send(res, 200, communityGuildListPage(await communitySession(req), await minecraftGuildList()));
   }
@@ -1013,7 +1044,7 @@ async function route(req, res) {
   if (path === "/community/write" && req.method === "GET") {
     const current = await communitySession(req);
     if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
-    return send(res, 200, communityWritePage(current));
+    return send(res, 200, communityWritePage(current, "", url.searchParams.get("category") ?? ""));
   }
   if (path === "/community/write" && req.method === "POST") {
     const current = await communitySession(req);
@@ -1023,7 +1054,7 @@ async function route(req, res) {
     const title = String(data.title ?? "").trim();
     const body = String(data.body ?? "").trim();
     if (data.csrf !== current.csrf_token || !COMMUNITY_CATEGORIES.includes(category) || title.length < 2 || title.length > 80 || body.length < 10 || body.length > 5000) {
-      return send(res, 400, communityWritePage(current, "분류·제목·내용을 확인해 주세요. 내용은 10자 이상 5,000자 이하입니다."));
+      return send(res, 400, communityWritePage(current, "게시판·제목·내용을 확인해 주세요. 내용은 10자 이상 5,000자 이하입니다.", category));
     }
     await pool.query("INSERT INTO community_posts (id,discord_id,minecraft_uuid,player_name,discord_name,category,title,body) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)", [randomUUID(), current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, category, title, body]);
     return redirect(res, `${COMMUNITY_BASE_URL}?notice=${encodeURIComponent("기록을 게시했습니다.")}`);

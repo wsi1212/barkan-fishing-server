@@ -67,7 +67,7 @@ else:
 
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get("SESSION_SECRET", "dev-only-insecure-key"))
 
-# Caddy가 barkan.kro.kr/admin/* → 127.0.0.1:8080/* 로 프리픽스를 벗겨서 프록시하므로(handle_path),
+# Caddy가 barkan.kr/admin/* → 127.0.0.1:8080/* 로 프리픽스를 벗겨서 프록시하므로(handle_path),
 # 이 앱 자체는 자기가 /admin 밑에서 서빙되는 걸 모른다. 그래서 앱이 내보내는 절대경로 링크·리다이렉트는
 # 전부 BASE_PATH를 붙여야 브라우저가 다시 /admin/* 으로 들어와 Caddy 라우팅을 통과한다.
 # 로컬 개발(prefix 없음)은 .env에 BASE_PATH를 비워두면 된다.

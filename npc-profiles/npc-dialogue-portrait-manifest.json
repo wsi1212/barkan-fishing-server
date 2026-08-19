@@ -1621,7 +1621,7 @@
         "base": {
           "key": "101_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_101_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/101_지오반나.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/101_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1633,7 +1633,7 @@
         "base": {
           "key": "102_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_102_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/102_하인리히.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/102_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1645,7 +1645,7 @@
         "base": {
           "key": "103_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_103_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch10-skin-confirmed/framed/103_그레첸.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/103_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1771,7 +1771,7 @@
         "base": {
           "key": "111_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_111_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/111_라시드4.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/111_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1795,7 +1795,7 @@
         "base": {
           "key": "113_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/113_유누스.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/113_base_monoheadwear_v1.png"
         },
         "progress": {
           "key": "113_progress",
@@ -1817,7 +1817,7 @@
         "base": {
           "key": "114_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_114_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/114_파티마.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/114_base_monoheadwear_v1.png"
         },
         "progress": {
           "key": "114_progress",
@@ -1861,7 +1861,7 @@
         "base": {
           "key": "116_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_116_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch11-skin-confirmed/framed/116_누르.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/116_base_monoheadwear_v1.png"
         },
         "progress": {
           "key": "116_progress",
@@ -1907,7 +1907,7 @@
         "base": {
           "key": "119_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_119_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/119_로테.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/119_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1931,7 +1931,7 @@
         "base": {
           "key": "121_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_121_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/121_알브레히트.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/121_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1943,7 +1943,7 @@
         "base": {
           "key": "122_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_122_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/122_힐데.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/122_base_monoheadwear_v1.png"
         }
       }
     },
@@ -1955,7 +1955,7 @@
         "base": {
           "key": "132_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_132_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/132_군나르.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/132_base_harborcap_v1.png"
         }
       }
     },
@@ -1979,7 +1979,7 @@
         "base": {
           "key": "134_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_134_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/headwear-correction/134_랄프_base.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/134_base_monoheadwear_v1.png"
         }
       }
     },
@@ -2013,7 +2013,7 @@
         "base": {
           "key": "136_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_136_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch12-skin-confirmed/framed/136_미아.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/136_base_monoheadwear_v1.png"
         }
       }
     },
@@ -2037,7 +2037,7 @@
         "base": {
           "key": "138_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_138_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/138_프리다.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/138_base_monoheadwear_v1.png"
         }
       }
     },
@@ -2049,7 +2049,7 @@
         "base": {
           "key": "139_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_139_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/139_발터.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/139_base_monoheadwear_v1.png"
         }
       }
     },
@@ -2415,7 +2415,7 @@
         "base": {
           "key": "167_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_167_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/167_인트로선장.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/167_base_hatfix_v4_admiral.png"
         }
       }
     },
@@ -2439,7 +2439,7 @@
         "base": {
           "key": "169_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_169_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/169_인트로취사.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/169_base_cookcap_v1.png"
         }
       }
     },
@@ -2451,7 +2451,7 @@
         "base": {
           "key": "170_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_170_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch15-skin-confirmed/framed/170_인트로돛담당.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/170_base_sailorcap_v1.png"
         }
       }
     },

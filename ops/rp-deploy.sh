@@ -94,7 +94,7 @@ echo "   sha1: ${CUR_SHA:-(없음)}"
 
 case "$CUR_URL" in
   https://github.com/*) MODE=github ;;
-  https://barkan.kro.kr/*)
+  https://barkan.kr/*|https://www.barkan.kr/*|https://barkan.kro.kr/*)
     cat >&2 <<EOF
 ❌ 이 대상은 Caddy 자체 호스팅을 쓰고 있다 — 이 스크립트는 GitHub 릴리스 경로만 검증했다.
    Caddy 로 올릴 때의 순서(구 URL 을 살려둔 무중단 방식):
