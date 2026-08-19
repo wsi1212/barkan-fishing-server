@@ -27,6 +27,12 @@
             "timeout": 10,
             "statusMessage": "docs-index 갱신 중...",
             "description": "프로젝트 최상위 .md 편집 시 docs-index.md 자동 재생성"
+          },
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/ops/hooks/guard-security.py\"",
+            "statusMessage": "경제/동시성/별칭/OP권한 검사",
+            "description": "유저 설정에도 같은 훅이 있다(맥에서 blockship-plugin 레포까지 커버). 여기 등록은 클라우드 세션용 — 겹치는 구간은 스크립트의 already_ran() 이 5초 TTL 마커로 한 번만 말하게 한다."
           }
         ]
       },

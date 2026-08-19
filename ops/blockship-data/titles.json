@@ -1,0 +1,230 @@
+{
+  "order": [
+    "뉴비",
+    "콤보",
+    "레벨",
+    "서포터",
+    "신살자",
+    "세계여행자",
+    "백전노장",
+    "천마리전설",
+    "백만장자",
+    "억만장자",
+    "도감박사",
+    "백과사전",
+    "장인",
+    "만렙전설",
+    "불꽃연타",
+    "극한강화",
+    "왕실의사명",
+    "왕실의사명자",
+    "강의조사관",
+    "화염정복자",
+    "건축가",
+    "프리미엄골드",
+    "프리미엄무지개",
+    "프리미엄불꽃",
+    "은빛갈매기",
+    "왕실어부",
+    "심연의증인",
+    "심해탐험대",
+    "바다의영웅",
+    "마인팜장",
+    "대지주"
+  ],
+  "titles": {
+    "뉴비": {
+      "name": "&a뉴비",
+      "color": "&a",
+      "desc": "&7처음 시작하는 어부",
+      "icon": "lime dye"
+    },
+    "콤보": {
+      "name": "&d콤보",
+      "color": "&d",
+      "desc": "&7100 연속 낚시 달성",
+      "icon": "magenta dye"
+    },
+    "레벨": {
+      "name": "&eLv.",
+      "color": "&e",
+      "desc": "&7현재 낚시 레벨 표시 (자동 갱신)",
+      "icon": "experience bottle"
+    },
+    "서포터": {
+      "name": "&d❤ Supporter",
+      "color": "&d",
+      "desc": "&7서버를 후원해주신 분께 드리는 칭호",
+      "icon": "pink dye",
+      "animation": true
+    },
+    "신살자": {
+      "name": "&4神殺者",
+      "color": "&4",
+      "desc": "&7바다의 신을 낚아올린 전설적인 어부",
+      "icon": "nether star",
+      "animation": true
+    },
+    "세계여행자": {
+      "name": "&a세계 여행자",
+      "color": "&a",
+      "desc": "&73개 이상의 지역을 방문한 탐험가",
+      "icon": "filled map"
+    },
+    "백전노장": {
+      "name": "&b백전노장",
+      "color": "&b",
+      "desc": "&7100마리 이상의 물고기를 낚은 어부",
+      "icon": "cod"
+    },
+    "천마리전설": {
+      "name": "&b천 마리의 전설",
+      "color": "&b",
+      "desc": "&71000마리의 물고기를 낚아올린 전설",
+      "icon": "tropical fish"
+    },
+    "백만장자": {
+      "name": "&6백만장자",
+      "color": "&6",
+      "desc": "&7100만원을 보유한 부자",
+      "icon": "gold block"
+    },
+    "억만장자": {
+      "name": "&6억만장자",
+      "color": "&6",
+      "desc": "&71억을 보유한 재벌",
+      "icon": "beacon"
+    },
+    "도감박사": {
+      "name": "&c물고기 박사",
+      "color": "&c",
+      "desc": "&750종의 물고기를 등록한 학자",
+      "icon": "enchanted book"
+    },
+    "백과사전": {
+      "name": "&c백과사전",
+      "color": "&c",
+      "desc": "&7100종의 물고기를 등록한 박학다식",
+      "icon": "knowledge book"
+    },
+    "장인": {
+      "name": "&5장인",
+      "color": "&5",
+      "desc": "&7낚시 레벨 50에 도달한 장인",
+      "icon": "netherite ingot"
+    },
+    "만렙전설": {
+      "name": "&4만렙의 전설",
+      "color": "&4",
+      "desc": "&7낚시 레벨 100에 도달한 전설",
+      "icon": "nether star"
+    },
+    "불꽃연타": {
+      "name": "&d불꽃 연타",
+      "color": "&d",
+      "desc": "&7200 콤보를 달성한 집중력의 화신",
+      "icon": "blaze rod"
+    },
+    "극한강화": {
+      "name": "&5극한 강화",
+      "color": "&5",
+      "desc": "&7+10 강화를 달성한 장인",
+      "icon": "netherite ingot"
+    },
+    "왕실의사명": {
+      "name": "&b왕실의 사명",
+      "color": "&b",
+      "desc": "&7왕실의 의뢰로 사막에 파견된 어부",
+      "icon": "paper"
+    },
+    "왕실의사명자": {
+      "name": "&9왕실의 사명자",
+      "color": "&9",
+      "desc": "&7심해 교단의 음모를 밝혀 왕실에 보고한 자",
+      "icon": "heart of the sea"
+    },
+    "강의조사관": {
+      "name": "&b강의 조사관",
+      "color": "&b",
+      "desc": "&7바르칸의 강과 물길을 조사한 어부",
+      "icon": "filled map"
+    },
+    "화염정복자": {
+      "name": "&c火 화염 정복자",
+      "color": "&c",
+      "desc": "&7붉은사막 심층에서 이프리트의 분노를 낚은 자",
+      "icon": "blaze powder",
+      "animation": true
+    },
+    "건축가": {
+      "name": "&6&o⚒ Architect",
+      "color": "&6",
+      "desc": "&7바르칸 열도를 건설한 위대한 건축가",
+      "icon": "brick",
+      "animation": true
+    },
+    "프리미엄골드": {
+      "name": "&6✦ Gold",
+      "color": "&6",
+      "desc": "&7프리미엄 금색 칭호",
+      "icon": "gold ingot",
+      "animation": true
+    },
+    "프리미엄무지개": {
+      "name": "&c무&6지&e개",
+      "color": "&d",
+      "desc": "&7프리미엄 무지개 칭호",
+      "icon": "painting",
+      "animation": true
+    },
+    "프리미엄불꽃": {
+      "name": "&c🔥 불꽃",
+      "color": "&c",
+      "desc": "&7프리미엄 불꽃 칭호",
+      "icon": "blaze powder",
+      "animation": true
+    },
+    "은빛갈매기": {
+      "name": "&b은빛 갈매기",
+      "color": "&b",
+      "desc": "&7은빛 갈매기호의 맹우",
+      "icon": "feather"
+    },
+    "왕실어부": {
+      "name": "&9왕실 어부",
+      "color": "&9",
+      "desc": "&7국왕의 어부로 임명된 자",
+      "icon": "gold_ingot"
+    },
+    "심연의증인": {
+      "name": "&5심연의 증인",
+      "color": "&5",
+      "desc": "&7봉인된 진실을 밝혀낸 자",
+      "icon": "ender_eye"
+    },
+    "심해탐험대": {
+      "name": "&3심해 탐험대",
+      "color": "&3",
+      "desc": "&7안개 해역을 넘어 꺼진 자리에 닿은 자",
+      "icon": "heart_of_the_sea"
+    },
+    "바다의영웅": {
+      "name": "&b바다의 &9영웅",
+      "color": "&b",
+      "desc": "&7심해전왕 레비아를 끌어내린 자",
+      "icon": "nautilus_shell"
+    },
+    "마인팜장": {
+      "name": "&2마인팜장",
+      "color": "&2",
+      "desc": "&7섬을 통째로 밭으로 만든 사람",
+      "icon": "hay block"
+    },
+    "대지주": {
+      "name": "&5대지주",
+      "color": "&5",
+      "desc": "&7섬 만 칸을 밭으로 갈아엎은 사람",
+      "icon": "grass block"
+    }
+  }
+}

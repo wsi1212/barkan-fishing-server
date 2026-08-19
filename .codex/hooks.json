@@ -57,6 +57,18 @@
             "statusMessage": "경제/동시성 보안 검사"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/audit-dialogue.py' --hook",
+            "timeout": 20,
+            "statusMessage": "NPC·대사 정합성 검사 중...",
+            "description": "Claude Code 쪽 .claude/settings.json 과 같은 검사. npc/dialogue/quests.json 을 건드린 호출에서만 동작."
+          }
+        ]
       }
     ]
   }
