@@ -242,7 +242,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
   - ★**PAT 만료가 조용한 사고 지점** — 만료되면 배포가 그냥 안 온다(서버는 멀쩡). 만료일 관리 필요.
 - **`~/mcserver/scripts/rollback-jar.sh` (2026-08-14 신설, 수동 전용)**: 깨진 jar 롤백을 한 줄로. `list`(후보+라이브 sha256+staging 대기, 무해) / `dry` / `yes` / `yes to <파일>`. **하이픈 없이 쓴다** — 모바일 키보드가 `--`를 대시로 바꿔 안 먹은 실측 사례가 있어 en/em dash도 정규화한다. 보존→교체→**staging 비움**→`.fetch-staging-state` 초기화→재시작→부팅확인→알림. ★staging을 안 비우면 다음날 06:00에 깨진 jar이 재적용된다(그래서 스크립트로 묶었다).
 - 로그: `backups/watchdog.log`(프리즈워치독) · `backups/ops.log`(nightly/diskguard/**fetch-staging/rollback**) · `offsite.log` · `local.log`. ★운영 로그는 `backups/` 에 모인다 — 새 스크립트가 `scripts/ops.log`로 쓰면 장애 때 한쪽만 보게 된다.
-- **모바일 리소스팩 배포**: `minecraft-fish-resource-pack` 저장소 Actions의 `Mobile production resource pack`을 수동 실행한다. `promote=true`면 `MOBILE_RP_PROMOTE` Release가 생기고, `apply_now=true`면 `APPLY_NOW`까지 붙어 prod의 `fetch-resourcepack.sh`가 최대 5분 안에 받아 검증·재시작한다. 폰에 SSH 키는 필요 없다. 일반 Release와 dev 업로드는 puller가 무시한다.
+- **모바일 리소스팩 배포**: `minecraft-fish-resource-pack`은 `develop`(검증) → `main`(prod) 흐름이다. `develop` push는 빌드만 하고, `main` push/merge가 검증 통과 시 `MOBILE_RP_PROMOTE` + `APPLY_NOW` Release를 자동 발행한다. prod의 `fetch-resourcepack.sh`가 최대 5분 안에 받아 검증·60초 예고·재시작한다. 폰에 SSH 키는 필요 없다. 일반 Release와 dev 업로드는 puller가 무시한다.
 - 잔여 리스크(인지함, 미자동화): 박스 자체 재구축(결제 필요, 유저 몫) / 기능적 플러그인 고장(서버는 살아있는데 게임 로직만 깨짐 — RCON 헬스체크로 감지 불가) / 손상 데이터가 백업을 덮는 경우(버전관리+보관기간으로만 완화) / **PAT 만료**. 코드·리소스팩 배포는 2026-08-19부터 클라우드 세션에서도 가능(APPLY_NOW).
 
 ### Resize 자동 재시도 (백그라운드)
@@ -262,7 +262,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)
 - 서버 자동 적용: `server.properties`에 GitHub Releases URL+SHA1 설정됨 (`require-resource-pack=true`)
 - **맥 즉시 배포: `~/deploy-rp.sh`** (zip 생성 → GitHub Release 업로드 → SHA1 갱신 → server.properties 업데이트) → 서버 재시작하면 접속자에게 자동 적용. zip 파일명은 반드시 `barkan-resourcepack.zip`.
-- **모바일 배포: GitHub Actions `Mobile production resource pack` 수동 실행**. `promote=true`로 승격하고, 바로 적용할 때만 `apply_now=true`를 선택한다. prod가 `MOBILE_RP_PROMOTE` 마커 Release만 당겨오므로 폰에 SSH 키가 필요 없다.
+- **모바일 배포: 기본은 `develop` → `main` 머지**. `main` push가 자동으로 prod Release를 만들고 `APPLY_NOW`로 적용한다. 수동 실행도 가능하지만 `main`에서만 `promote=true`가 실제 승격으로 동작한다.
 - **커스텀 사운드**: `assets/barkan/sounds.json`에 등록, `assets/barkan/sounds/weather/*.ogg`에 파일 배치
   - ogg (Vorbis) 형식만 지원, wav→ogg 변환: `ffmpeg -i input.wav -c:a libvorbis -q:a 5 output.ogg`
   - 페이드아웃: `ffmpeg -i input.wav -t 19 -af "afade=t=out:st=16:d=3" -c:a libvorbis -q:a 5 output.ogg`

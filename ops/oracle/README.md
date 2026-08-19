@@ -41,14 +41,19 @@ Actions 를 `apply_now=true` 로 수동 실행하면 Release 본문에 `APPLY_NO
 
 ## 모바일 리소스팩 배포
 
-리소스팩은 BlockShip jar와 별도 흐름이다. 폰에서 GitHub 저장소의
-**Actions → Mobile production resource pack → Run workflow**를 열고 다음처럼 실행한다.
+리소스팩은 BlockShip jar와 별도 흐름이다. 브랜치는 `develop`(작업·검증)과
+`main`(prod)을 나눈다. `develop`을 `main`에 머지하면 GitHub Actions가 자동으로
+빌드·검증·Release 발행까지 하고, prod가 최대 5분 안에 당겨서 적용한다.
 
 | 입력 | 동작 |
 |---|---|
-| `promote=false` | 빌드·구조검증만 하고 Release를 만들지 않음 |
-| `promote=true`, `apply_now=false` | `MOBILE_RP_PROMOTE` Release 발행, prod가 설정만 갱신하고 다음 재시작 때 적용 |
-| `promote=true`, `apply_now=true` | `MOBILE_RP_PROMOTE` + `APPLY_NOW` Release 발행, prod가 최대 5분 안에 예고 후 재시작 |
+| `develop` push | 빌드·구조검증만 하고 Release를 만들지 않음 |
+| `main` push/merge | 검증 통과 시 `MOBILE_RP_PROMOTE` + `APPLY_NOW` 자동 발행, prod가 예고 후 재시작 |
+| 수동 `promote=false` | 빌드·구조검증만 하고 Release를 만들지 않음 |
+| 수동 `promote=true` (main에서만) | `apply_now=false/true`에 따라 예약/즉시 적용 |
+
+폰에서 수동으로 할 때는 **Actions → Mobile production resource pack → Run workflow**를
+열면 된다. 수동 승격도 `main`에서 실행한 경우에만 허용한다.
 
 prod의 `fetch-resourcepack.sh`가 cron(`*/5`)으로 Release를 당겨온다. 본문에
 `MOBILE_RP_PROMOTE`가 있고 `barkan-resourcepack.zip` 자산이 있는 Release만 대상이며,
