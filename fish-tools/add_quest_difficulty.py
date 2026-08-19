@@ -48,6 +48,9 @@ FISH = json.load(open(FP, encoding="utf-8"))["fish"] if os.path.exists(FP) else 
 #
 # ── 등급별 실제 출현율 (스탯 0, GradeRoller 2026-08-04 실측 주석) ─────────────
 #   E 34.6 · D 33.2 · C 21.5 · B 6.0 · A 2.5 · S 1.0 · M 0.82 · L 0.36 · G 0.033 (%)
+# ★산정 규칙이 없는 목표 verb 수집통 — 아래 검증에서 하드 실패시킨다.
+UNKNOWN = collections.Counter()
+
 RATE = {"E": .346, "D": .332, "C": .215, "B": .060, "A": .025,
         "S": .010, "M": .0082, "L": .0036, "G": .00033}
 ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
@@ -143,6 +146,49 @@ def crop_minutes(crop_id, items):
     return harvests * 2.0 + batches * grow * WAIT_WEIGHT
 
 
+# ── 숨겨진 수집품 — 남은 게 줄면 급격히 비싸진다 (2026-08-19) ─────────────────
+#   `collectible|N`은 「이 퀘스트에서 N개를 새로 찾아라」가 아니라 **누적 발견 수**다
+#   (`PlayerData.extraFlags["수집품발견"]` 크기 = `CollectibleManager.found()` 권위).
+#   그래서 비용은 「풀 P개 중 N개를 찾는 시간」이고, 이 목표의 본질은 **어디를 안 봤는지
+#   모른다**는 것이다. 남은 게 r개면 그 한 개를 찾으려고 도시를 처음부터 다시 훑는다.
+#
+#   ★하모닉(비용 ∝ P/r)으로는 안 맞는다. P=77에서 20개:70개가 1:8밖에 안 되는데 실제
+#     체감은 1:100 쪽이다 — 앞쪽 20개는 길 걷다 줍고, 마지막 10개는 전수색이다.
+#     그래서 남은 비율의 **세제곱**을 쓴다. 앵커 두 개로 잡은 값이다:
+#       20개 ≒ 40분(8칸, 도시 한 바퀴)  ·  70개 ≒ 87시간(20칸, 사실상 전수집)
+#   ★P는 collectibles.json 실측이다. 수집품을 더 심으면 같은 목표가 쉬워진다(옳다).
+#   ★단순화 — 도시 안 해바라기와 월드 곳곳의 「어드민의 수집품」을 같은 비용으로 본다.
+#     후자가 훨씬 멀지만, 목표 카운터가 둘을 구분하지 않으므로 모델도 구분하지 않는다.
+COLLECT_POOL = 77          # collectibles.json 이 없을 때의 보수적 기본값
+if os.path.exists("collectibles.json"):
+    COLLECT_POOL = max(1, len(json.load(open("collectibles.json", encoding="utf-8"))))
+COLLECT_UNIT, COLLECT_EXP = 1.3, 3.0
+
+
+def collect_minutes(n):
+    """수집품 누적 n개를 찾는 데 드는 시간(분). n이 풀보다 크면 풀에서 멈춘다."""
+    P = COLLECT_POOL
+    n = min(int(n), P)
+    return sum(COLLECT_UNIT * (P / (P - k + 1)) ** COLLECT_EXP for k in range(1, n + 1))
+
+
+# ── 카지노 — 기대값이 음수인 게 곧 난이도다 (2026-08-19) ─────────────────────
+#   카운터별 (1회 성공 확률, 한 판 소요분). 확률은 자바 실데이터를 그대로 쓴다.
+#     `슬롯트리플` — SlotRules.OutcomeType 트리플 티켓 합 340/10,000 = 3.4%
+#     `블랙잭승`   — 딜러 우위를 감안한 실플레이 승률 ≒ 43%
+CASINO_ODDS = {"슬롯트리플": (0.034, 0.25), "블랙잭승": (0.43, 1.2)}
+#   `카지노순익 N` — 슬롯 RTP 93.92%, 즉 **기대 순익이 음수**다. 목표 순익은 변동성으로만
+#   얻으므로 잃은 걸 되메우는 시간이 붙는다. 낚시 시급(4,000원/분)의 1/4로 친다 =
+#   같은 돈을 카지노로 남기는 데 4배 걸린다.
+CASINO_PROFIT_RATE = 1000.0
+
+# ── 확률이 지독한 action (2026-08-19) ────────────────────────────────────────
+#   `action|<이름>`은 대개 UI 조작(0.3분)이다. 그런데 확률 이벤트가 섞여 있다 —
+#   `슬롯777`은 SEVEN_TRIPLE 10/10,000 = 0.1%, 기대 1,000스핀이다. 평평한 0.3분으로 두면
+#   Lv20 퀘스트가 1칸으로 뜬다(실제로 그랬다 — `카지노_슬롯02`).
+ACTION_MINUTES = {"슬롯777": 1000 * 0.25}   # 기대 1,000스핀 × 스핀당 0.25분
+
+
 def goal_minutes(g):
     """목표 하나의 예상 소요(분)."""
     p = g.split("|")
@@ -233,10 +279,31 @@ def goal_minutes(g):
     if v in ("visit", "area"):
         return 2.0                      # 이동
     if v == "action":
-        return 0.3
+        return ACTION_MINUTES.get(p[1], 0.3)
+    if v == "collectible":
+        return collect_minutes(p[1])
+    if v == "earn":
+        # 누적 수익 — `money`와 같은 시급. money 는 「들고 있어라」, 이쪽은 「벌어라」다.
+        return int(p[1]) / 4000.0
+    if v == "login":
+        # ★달력 제약이라 분으로 옮길 수 없다 — 7일 개근은 아무리 잘해도 7일 걸린다.
+        #   하루치 구속을 8분으로 쳐서 「못 서두른다」만 반영한다.
+        return 8.0 * int(p[1])
+    if v == "casino":
+        if p[1] == "카지노순익":
+            return int(p[2]) / CASINO_PROFIT_RATE
+        odds = CASINO_ODDS.get(p[1])
+        if odds is None:
+            UNKNOWN["casino|" + p[1]] += 1
+            return 3.0 * int(p[2])
+        return int(p[2]) / odds[0] * odds[1]
     if v == "level":
         return 0.0                      # ★게이트 — 이미 그 레벨이어야 수락된다
-    return 1.0                          # 미지 verb는 보수적으로 작게
+    # ★미지 verb 를 조용히 1.0분으로 넘기면 그 퀘스트는 **1칸**이 된다. 극악 퀘스트가
+    #   1칸으로 뜨는 사고가 실제로 났다 — `collectible`·`earn`·`login`·`casino` 12건이
+    #   1칸으로 방치돼 있었다(2026-08-19). 아래 검증에서 저장 전에 하드 실패시킨다.
+    UNKNOWN[v] += 1
+    return 1.0
 
 
 # ── 규칙으로 안 잡히는 것 (보스 등) ─────────────────────────────────────────
@@ -267,6 +334,14 @@ for qid, e in sorted(QUESTS.items()):
     rows.append((qid, rank, mins, e.get("카테고리", ""), e["필요레벨"],
                  " + ".join(e["목표"])))
 
+# ★저장 **전에** 막는다 — 규칙 없는 verb 로 계산한 난이도를 quests.json 에 굳히면
+#   그때부터 아무도 그게 틀렸다는 걸 모른다.
+if UNKNOWN:
+    print("\n✗ 산정 규칙이 없는 목표 verb —")
+    for _v, _n in UNKNOWN.most_common():
+        print(f"    {_v}  {_n}건")
+    sys.exit("  goal_minutes() 에 규칙을 넣어라. 안 넣으면 그 퀘스트가 1칸으로 뜬다.")
+
 if not DRY:
     shutil.copy(QP, QP + ".pre-difficulty")
     with open(QP, "w", encoding="utf-8") as f:
@@ -293,7 +368,12 @@ for qid, rank, mins, cat, lv, goals in sorted(rows, key=lambda r: r[1])[:5]:
 bad = [qid for qid, e in QUESTS.items()
        if not isinstance(e.get("난이도"), int) or not 1 <= e["난이도"] <= 20]
 print("\n범위 이탈:", bad if bad else "없음")
-if bad:
+
+# 수집품 목표가 풀보다 크면 **완료 불가**다 — 끝까지 찾아도 카운터가 목표에 못 닿는다.
+over = [f"{qid} {g}(풀 {COLLECT_POOL})" for qid, e in QUESTS.items() for g in e["목표"]
+        if g.split("|")[0] == "collectible" and int(g.split("|")[1]) > COLLECT_POOL]
+print("수집품 풀 초과(완료 불가):", over if over else "없음")
+if bad or over:
     sys.exit("✗ 검증 실패")
 
 # 메인 체인은 뒤로 갈수록 대체로 어려워져야 한다 — 역행이 심하면 경고
