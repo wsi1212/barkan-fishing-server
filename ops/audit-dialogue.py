@@ -201,7 +201,7 @@ def audit(npcs, dlg, qroot, full=False):
     # 첫만남 노드가 «영구 미표시»인 NPC — 첫 퀘스트에 선행이 걸려 있으면 shouldShowFirstMeeting 이 항상 false
     for nid, n in npcs.items():
         qs = [q for q in (n.get("quests") or []) if q in quests]
-        if not qs or "첫만남" not in dlg.get(nid, {}):
+        if not full or not qs or "첫만남" not in dlg.get(nid, {}):
             continue
         prereq = quests[qs[0]].get("선행퀘스트")
         if prereq:
