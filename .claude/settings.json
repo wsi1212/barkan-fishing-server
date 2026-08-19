@@ -29,6 +29,18 @@
             "description": "프로젝트 최상위 .md 편집 시 docs-index.md 자동 재생성"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/ops/audit-dialogue.py\" --hook",
+            "timeout": 20,
+            "statusMessage": "NPC·대사 정합성 검사 중...",
+            "description": "npc.json/dialogue.json/quests.json 을 건드린 호출에서만 동작. 오타 action·없는 노드 참조·영구 진행불가·이름 중복·내부 id 노출·볼드를 ERROR로 차단(exit 2). 컷씬이 8/6~8/20 조용히 죽어 있던 사고 재발 방지."
+          }
+        ]
       }
     ]
   }
