@@ -193,7 +193,11 @@
       const quickLocations = [...towns, '오아시스','광산','카지노'].map(item => typeof item === 'string' ? areaById.get(item) : item).filter(Boolean);
       let selected = areaById.get('스폰도시') || towns[0];
       const esc = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
-      const points = area => area.polygon.map(([x,z]) => `${x},${z}`).join(' ');
+      const polygonSegments = area => {
+        const cuts = [0, ...(area.polygonBreaks || []), area.polygon.length];
+        return cuts.slice(0, -1).map((start, index) => area.polygon.slice(start, cuts[index + 1]));
+      };
+      const points = polygon => polygon.map(([x,z]) => `${x},${z}`).join(' ');
       const center = area => { const [minX,maxX,minZ,maxZ] = area.bounds; return [(minX+maxX)/2,(minZ+maxZ)/2]; };
       const label = area => area.category === 'town' ? '주요 마을·항구' : area.category === 'poi' ? '탐험·기능 지점' : area.category === 'ocean' ? '해역' : '자연 권역';
       const typeCopy = area => area.category === 'town' ? `${area.name} · 주요 거점` : area.category === 'poi' ? `${area.name} · 탐험 포인트` : area.category === 'ocean' ? `${area.name} · 해역` : `${area.name} · 바르칸 권역`;
@@ -213,7 +217,7 @@
           group.setAttribute('tabindex','0');
           group.setAttribute('role','button');
           group.setAttribute('aria-label',`${area.name} 지역 열기`);
-          group.innerHTML = `<polygon class="area-shape" points="${points(area)}"></polygon><text class="area-label" x="${cx}" y="${cz}">${esc(area.name)}</text>`;
+          group.innerHTML = `${polygonSegments(area).map(segment => `<polygon class="area-shape" points="${points(segment)}"></polygon>`).join('')}<text class="area-label" x="${cx}" y="${cz}">${esc(area.name)}</text>`;
           group.addEventListener('mouseenter', () => preview(area));
           group.addEventListener('mouseleave', () => { if (selected) renderDetail(selected, false); });
           group.addEventListener('focus', () => preview(area));
