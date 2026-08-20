@@ -157,7 +157,7 @@
             </svg>
           </div>
           <div class="map-hud"><div class="map-hud-note"><strong id="hover-label">스폰도시를 선택해 보세요</strong><span id="hover-note">주요 마을의 영역과 실제 좌표를 확인할 수 있습니다.</span></div><div class="map-scale"><b></b>약 500 blocks</div></div>
-          <div class="map-zoom" aria-label="지도 이동 확대축소 및 회전"><button type="button" data-rotate="left" aria-label="지도 왼쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H3V3"/><path d="M3.5 8A8.5 8.5 0 1 1 5 17"/></svg></button><button type="button" data-rotate="right" aria-label="지도 오른쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8h5V3"/><path d="M20.5 8A8.5 8.5 0 1 0 19 17"/></svg></button><button type="button" data-zoom="in" aria-label="지도 확대">+</button><button type="button" data-zoom="out" aria-label="지도 축소">−</button><button type="button" data-zoom="reset" aria-label="지도 전체 보기">⌂</button></div>
+          <div class="map-zoom" aria-label="지도 이동 확대축소 및 회전"><button type="button" data-pitch="up" aria-label="더 위에서 보기">↑</button><button type="button" data-pitch="down" aria-label="더 낮게 보기">↓</button><button type="button" data-rotate="left" aria-label="지도 왼쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H3V3"/><path d="M3.5 8A8.5 8.5 0 1 1 5 17"/></svg></button><button type="button" data-rotate="right" aria-label="지도 오른쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8h5V3"/><path d="M20.5 8A8.5 8.5 0 1 0 19 17"/></svg></button><button type="button" data-zoom="in" aria-label="지도 확대">+</button><button type="button" data-zoom="out" aria-label="지도 축소">−</button><button type="button" data-zoom="reset" aria-label="지도 전체 보기">⌂</button></div>
         </div>
         <div class="map-legend"><span class="legend-item town"><i></i> 주요 마을·항구 영역</span><span class="legend-item"><i></i> 지역 경계</span><span class="legend-item poi"><i></i> 탐험·기능 지점</span><span class="legend-item ocean"><i></i> 해역·원양</span></div>
       </div>
@@ -174,8 +174,8 @@
     <nav class="location-strip" id="location-strip" aria-label="주요 거점 바로가기"></nav>
     <div class="map-note"><strong>좌표 출처 · BlockShip 운영 서버의 <span style="font-family:var(--mono)">plugins/BlockShip/regions.json</span> prod 스냅샷</strong><span>표시는 Minecraft X/Z 평면을 기준으로 하며, 경계가 없는 포인트형 지역은 영역이 있는 실측 지역 위주로 표시했습니다. 실제 게임의 보호·이동 판정이 바뀌면 이 지도도 다시 스냅샷해야 합니다.</span></div>
   </main>
-  <script src="/assets/terrain-data.js?v=2"></script>
-  <script src="/assets/voxel-map.js?v=5"></script>
+  <script src="/assets/terrain-data.js?v=3"></script>
+  <script src="/assets/voxel-map.js?v=6"></script>
   <script>
     (() => {
       const data = window.BARKAN_MAP_DATA;

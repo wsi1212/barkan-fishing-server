@@ -17,13 +17,17 @@
   const materialBytes = decode(terrainData.materials);
   const maskBytes = decode(terrainData.mask);
   const heightBytes = decode(terrainData.heights);
+  const detailBytes = terrainData.details ? decode(terrainData.details) : new Uint8Array();
   const gridWidth = terrainData.gridWidth;
   const gridDepth = terrainData.gridDepth;
   const cellSize = terrainData.cellSize;
   const baseY = 60;
   const globalView = [-5200, -5200, 10400, 10400];
   const legend = terrainData.legend || [];
+  const detailRegions = terrainData.detailRegions || [];
+  const inDetailRegion = (x, z) => detailRegions.some(region => x >= region.x1 && x <= region.x2 && z >= region.z1 && z <= region.z2);
   const cells = [];
+  const detailHeightMap = new Map();
   const heightAt = (i, j) => {
     if (i < 0 || j < 0 || i >= gridWidth || j >= gridDepth) return baseY;
     const index = j * gridWidth + i;
@@ -37,9 +41,21 @@
     for (let i = 0; i < gridWidth; i += 1) {
       const index = j * gridWidth + i;
       const height = heightAt(i, j);
-      if (!maskBytes[index] || (materialBytes[index] === 0 && height <= baseY)) continue;
-      cells.push({ i, j, x: terrainData.xOrigin + i * cellSize, z: terrainData.zOrigin + j * cellSize, height, material: materialBytes[index] });
+      const x = terrainData.xOrigin + i * cellSize;
+      const z = terrainData.zOrigin + j * cellSize;
+      if (!maskBytes[index] || (materialBytes[index] === 0 && height <= baseY) || inDetailRegion(x + cellSize / 2, z + cellSize / 2)) continue;
+      cells.push({ i, j, x, z, height, material: materialBytes[index], size: cellSize });
     }
+  }
+  const detailStep = Number(terrainData.detailStep) || 4;
+  for (let i = 0; i < Number(terrainData.detailCount || 0); i += 1) {
+    const offset = i * 7;
+    const x = (detailBytes[offset] | (detailBytes[offset + 1] << 8)) - 4096;
+    const z = (detailBytes[offset + 2] | (detailBytes[offset + 3] << 8)) - 4096;
+    const height = (detailBytes[offset + 4] | (detailBytes[offset + 5] << 8)) - 128;
+    const material = detailBytes[offset + 6];
+    detailHeightMap.set(`${x},${z}`, height);
+    cells.push({ x, z, height, material, size: detailStep, detail: true });
   }
 
   const camera = { cx: 0, cz: 0, viewWidth: globalView[2], yaw: -0.34, pitch: 0.9 };
@@ -198,13 +214,13 @@
       return ((a.x - camera.cx) * s + (a.z - camera.cz) * c) - ((b.x - camera.cx) * s + (b.z - camera.cz) * c);
     });
     ordered.forEach(cell => {
-      const x = cell.x; const z = cell.z; const h = cell.height;
-      const top = [project(x, z, h), project(x + cellSize, z, h), project(x + cellSize, z + cellSize, h), project(x, z + cellSize, h)];
+      const x = cell.x; const z = cell.z; const h = cell.height; const size = cell.size || cellSize;
+      const top = [project(x, z, h), project(x + size, z, h), project(x + size, z + size, h), project(x, z + size, h)];
       const color = materialColor(cell.material, h);
-      const east = heightAt(cell.i + 1, cell.j);
-      const south = heightAt(cell.i, cell.j + 1);
-      if (east < h - 1) quad([top[1], top[2], project(x + cellSize, z + cellSize, east), project(x + cellSize, z, east)], shade(color, -42));
-      if (south < h - 1) quad([top[3], top[2], project(x + cellSize, z + cellSize, south), project(x, z + cellSize, south)], shade(color, -26));
+      const east = cell.detail ? (detailHeightMap.get(`${x + size},${z}`) ?? baseY) : heightAt(cell.i + 1, cell.j);
+      const south = cell.detail ? (detailHeightMap.get(`${x},${z + size}`) ?? baseY) : heightAt(cell.i, cell.j + 1);
+      if (east < h - 1) quad([top[1], top[2], project(x + size, z + size, east), project(x + size, z, east)], shade(color, -42));
+      if (south < h - 1) quad([top[3], top[2], project(x + size, z + size, south), project(x, z + size, south)], shade(color, -26));
       quad(top, color, 'rgba(4,20,21,.14)');
     });
 
@@ -224,8 +240,8 @@
 
   viewport.addEventListener('contextmenu', event => event.preventDefault());
   viewport.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || event.target.closest('button, a')) return;
-    dragging = { x: event.clientX, y: event.clientY, cx: camera.cx, cz: camera.cz, yaw: camera.yaw, pitch: camera.pitch, orbit: event.shiftKey || event.altKey };
+    if (![0, 2].includes(event.button) || event.target.closest('button, a')) return;
+    dragging = { x: event.clientX, y: event.clientY, cx: camera.cx, cz: camera.cz, yaw: camera.yaw, pitch: camera.pitch, orbit: event.button === 2 || event.shiftKey || event.altKey };
     moved = false;
     viewport.classList.add('is-dragging');
     viewport.setPointerCapture(event.pointerId);
@@ -284,6 +300,10 @@
 
   document.querySelectorAll('[data-rotate]').forEach(button => button.addEventListener('click', () => {
     camera.yaw += button.dataset.rotate === 'left' ? -.55 : .55;
+    draw();
+  }));
+  document.querySelectorAll('[data-pitch]').forEach(button => button.addEventListener('click', () => {
+    camera.pitch = clamp(camera.pitch + (button.dataset.pitch === 'up' ? .1 : -.1), .42, 1.36);
     draw();
   }));
   document.querySelectorAll('[data-zoom]').forEach(button => button.addEventListener('click', () => {
