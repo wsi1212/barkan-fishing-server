@@ -167,6 +167,13 @@ def public_ranking():
             return [int(value) if isinstance(value, (int, float)) and 0 <= int(value) < palette_size else -1
                     for value in raw]
 
+        def emblem_rgb_array(raw, expected):
+            """고급 RGB 팔레트로 저장된 실제 RGB 미리보기."""
+            if not isinstance(raw, list) or len(raw) != expected:
+                return []
+            return [int(value) if isinstance(value, (int, float)) and 0 <= int(value) <= 0xFFFFFF else 0
+                    for value in raw]
+
         guild_rows = []
         for guild_id, guild in read_plugin_json("guilds.json").items():
             members = guild.get("members") or {}
@@ -182,6 +189,7 @@ def public_ranking():
             canvas_emblem = emblem_array(guild.get("emblemCanvasPixels"), 64 * 64)
             if all(value < 0 for value in canvas_emblem):
                 canvas_emblem = []
+            canvas_rgb = emblem_rgb_array(guild.get("emblemCanvasRgb"), 64 * 64)
             guild_rows.append({
                 "id": guild_id,
                 "name": guild.get("displayName") or guild_id,
@@ -192,6 +200,7 @@ def public_ranking():
                 "score": score,
                 "emblemPixels": emblem,
                 "emblemCanvasPixels": canvas_emblem,
+                "emblemCanvasRgb": canvas_rgb,
             })
         guild_rows.sort(key=lambda row: (-row["score"], row["name"].casefold()))
 

@@ -661,6 +661,13 @@ function normalizeGuild(key, guild) {
           return -1;
         })
       : [];
+  const rawCanvasRgb = Array.isArray(source.emblemCanvasRgb) && source.emblemCanvasRgb.length === 64 * 64
+    ? source.emblemCanvasRgb
+    : [];
+  const canvasRgb = rawCanvasRgb.map((value) => {
+    const number = Number(value);
+    return Number.isInteger(number) && number >= 0 && number <= 0xFFFFFF ? number : 0;
+  });
   return {
     id: String(source.id ?? key),
     name: String(source.displayName ?? source.id ?? key),
@@ -677,18 +684,24 @@ function normalizeGuild(key, guild) {
     upgrades: { hopper: Number(source.hopperLevel ?? 0), frame: Number(source.frameLevel ?? 0), furniture: Number(source.furnitureLevel ?? 0), crop: Number(source.cropLevel ?? 0), warp: Number(source.warpLevel ?? 0), cooking: Number(source.cookingStations ?? 0) },
     emblemPixels,
     emblemCanvasPixels: canvasPixels,
+    emblemCanvasRgb: canvasRgb,
     members,
     applications
   };
 }
 function guildEmblem(guild, className = "guild-emblem", full = false) {
   refreshEmblemPalette();
-  const pixels = full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
+  const rgbPixels = full && Array.isArray(guild?.emblemCanvasRgb) && guild.emblemCanvasRgb.length === 64 * 64
+    ? guild.emblemCanvasRgb
+    : null;
+  const pixels = rgbPixels || (full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
     ? guild.emblemCanvasPixels
-    : Array.isArray(guild?.emblemPixels) && guild.emblemPixels.length === 64 ? guild.emblemPixels : Array(64).fill(-1);
+    : Array.isArray(guild?.emblemPixels) && guild.emblemPixels.length === 64 ? guild.emblemPixels : Array(64).fill(-1));
   const size = full && pixels.length === 64 * 64 ? 64 : 8;
   const cells = pixels.map((value) => {
-    const color = Number.isInteger(value) && value >= 0 && value < emblemColors.length ? emblemColors[value] : "#08121d";
+    const color = rgbPixels
+      ? `#${Number(value).toString(16).padStart(6, "0")}`
+      : Number.isInteger(value) && value >= 0 && value < emblemColors.length ? emblemColors[value] : "#08121d";
     return `<i style="background:${color}"></i>`;
   }).join("");
   return `<span class="${className}" style="--emblem-size:${size}" aria-label="${esc(guild?.name ?? "길드")} 엠블럼">${cells}</span>`;

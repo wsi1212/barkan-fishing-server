@@ -85,10 +85,12 @@
       const guildEmblem = (item, className = 'ranking-emblem', full = true) => {
         const colors = emblemColors();
         const empty = emblemEmpty();
+        const canvasRgb = full && Array.isArray(item?.emblemCanvasRgb) && item.emblemCanvasRgb.length === 64 * 64 ? item.emblemCanvasRgb : null;
         const canvas = full && Array.isArray(item?.emblemCanvasPixels) && item.emblemCanvasPixels.length === 64 * 64 ? item.emblemCanvasPixels : null;
         const pixels = canvas || (Array.isArray(item?.emblemPixels) && item.emblemPixels.length === 64 ? item.emblemPixels : Array(64).fill(-1));
-        const size = canvas ? 64 : 8;
-        return `<span class="${className}" style="--emblem-size:${size}" aria-label="${escapeHtml(item?.name ?? '길드')} 엠블럼">${pixels.map(value => `<i style="background:${Number.isInteger(value) && value >= 0 && value < colors.length ? colors[value] : empty}"></i>`).join('')}</span>`;
+        const visual = canvasRgb || pixels;
+        const size = canvasRgb || canvas ? 64 : 8;
+        return `<span class="${className}" style="--emblem-size:${size}" aria-label="${escapeHtml(item?.name ?? '길드')} 엠블럼">${visual.map(value => `<i style="background:${canvasRgb ? `#${Number(value).toString(16).padStart(6, '0')}` : Number.isInteger(value) && value >= 0 && value < colors.length ? colors[value] : empty}"></i>`).join('')}</span>`;
       };
       const profileHref = item => active === 'guild'
         ? `/community/guild/${encodeURIComponent(item?.id ?? item?.name ?? '')}`
