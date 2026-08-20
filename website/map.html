@@ -201,6 +201,7 @@
         outerOcean.anchor = [0, 62, 0];
         outerOcean.bounds = [-5000, 5000, -5000, 5000];
         outerOcean.polygon = [[-5000,-5000],[5000,-5000],[5000,5000],[-5000,5000]];
+        outerOcean.parent = null;
         delete outerOcean.polygonBreaks;
       }
       const visibleAreas = data.areas.filter(area => Array.isArray(area.polygon) && area.polygon.length >= 3);
