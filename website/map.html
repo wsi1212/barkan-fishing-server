@@ -57,7 +57,8 @@
     .area[data-category=town] .area-shape{fill:rgba(232,183,103,.27);stroke:var(--gold);stroke-width:7}
     .area[data-category=poi] .area-shape{fill:rgba(238,142,112,.24);stroke:var(--coral);stroke-width:5;stroke-dasharray:12 7}
     .area[data-category=ocean] .area-shape{fill:rgba(37,111,151,.18);stroke:rgba(132,211,232,.54);stroke-dasharray:17 12}
-    .area[data-id=원양]{pointer-events:none}
+    /* 대양·원양은 배경 해역이다. 본섬 위를 덮어 클릭을 가로채지 않게 한다. */
+    .area[data-category=ocean]{pointer-events:none}
     .area[data-id=바르칸] .area-shape{fill:rgba(45,133,122,.08);stroke:rgba(123,224,208,.5);stroke-width:9}
     .area:not(.is-selected):hover .area-shape,.area.is-preview .area-shape{fill:rgba(123,224,208,.36);stroke:#d6fff2;filter:drop-shadow(0 0 8px rgba(123,224,208,.76))}
     .area[data-category=town]:not(.is-selected):hover .area-shape,.area[data-category=town].is-preview .area-shape{fill:rgba(232,183,103,.48);stroke:#ffe7a7}
