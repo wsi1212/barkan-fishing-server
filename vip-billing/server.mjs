@@ -687,6 +687,7 @@ function normalizeGuild(key, guild) {
     submitTotal: Number(source.submitTotal ?? 0),
     submitSeason: Number(source.submitSeason ?? 0),
     maxMembers: Number(source.maxMembers ?? 0),
+    createdAt: Number(source.createdAt ?? 0),
     islandId: String(source.islandId ?? ""),
     upgrades: { hopper: Number(source.hopperLevel ?? 0), frame: Number(source.frameLevel ?? 0), furniture: Number(source.furnitureLevel ?? 0), crop: Number(source.cropLevel ?? 0), warp: Number(source.warpLevel ?? 0), cooking: Number(source.cookingStations ?? 0) },
     emblemPixels,
