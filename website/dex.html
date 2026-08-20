@@ -52,7 +52,8 @@
       const gradeRow = document.querySelector('#grade-row'), resultCount = document.querySelector('#result-count');
       const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
       const label = value => value.replaceAll('_', ' ');
-      const gradeOrder = ['E','D','C','B','A','S','G','L','M'];
+      // 기본 등급은 기존 순서를 유지하고, 서버의 특수 등급은 높은 순으로 표시한다.
+      const gradeOrder = ['E','D','C','B','A','S','M','L','G'];
       let activeGrade = '', selected = null;
       if (!data?.fish?.length) { grid.innerHTML = '<p class="empty show">도감 데이터를 불러오지 못했습니다.</p>'; return; }
       const regions = [...new Set(data.fish.flatMap(item => item.regions))].sort((a,b) => a.localeCompare(b, 'ko'));
