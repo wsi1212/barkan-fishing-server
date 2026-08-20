@@ -1,6 +1,7 @@
 import http from "node:http";
 import net from "node:net";
 import process from "node:process";
+import { readFileSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import pg from "pg";
@@ -29,6 +30,7 @@ const MINECRAFT_GUILDS_FILE = process.env.MINECRAFT_GUILDS_FILE ?? "/home/ubuntu
 const MINECRAFT_ISLANDS_FILE = process.env.MINECRAFT_ISLANDS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/islands.json";
 const MINECRAFT_ACHIEVEMENTS_FILE = process.env.MINECRAFT_ACHIEVEMENTS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/achievements.json";
 const MINECRAFT_TITLES_FILE = process.env.MINECRAFT_TITLES_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/titles.json";
+const MINECRAFT_EMBLEM_PALETTE_FILE = process.env.MINECRAFT_EMBLEM_PALETTE_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/emblem-palette.json";
 const MC_RCON_HOST = process.env.MC_RCON_HOST ?? "127.0.0.1";
 const MC_RCON_PORT = Number.parseInt(process.env.MC_RCON_PORT ?? "25575", 10);
 const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
@@ -586,7 +588,31 @@ async function minecraftTitleDefinitions() {
   const order = Array.isArray(root.order) ? root.order : Object.keys(source);
   return order.map((id) => ({ id, ...(source[id] && typeof source[id] === "object" ? source[id] : {}) }));
 }
+const FALLBACK_EMBLEM_COLORS = Object.freeze([
+  "#fffcf5", "#ababab", "#515151", "#191919", "#5b3c22", "#bd3031", "#d87f33", "#d7cd42",
+  "#6db015", "#485924", "#167e86", "#4fbcb7", "#2c4199", "#6d3699", "#9941ba", "#d06d8e",
+  "#976d4d", "#8e3c2e", "#ba8524", "#4c3e5c"
+]);
+let emblemColors = FALLBACK_EMBLEM_COLORS;
+let emblemPaletteMtime = -1;
+
+function refreshEmblemPalette() {
+  try {
+    const mtime = statSync(MINECRAFT_EMBLEM_PALETTE_FILE).mtimeMs;
+    if (mtime === emblemPaletteMtime) return;
+    const parsed = JSON.parse(readFileSync(MINECRAFT_EMBLEM_PALETTE_FILE, "utf8"));
+    const colors = Array.isArray(parsed?.colors)
+      ? parsed.colors.map((entry) => String(entry?.hex ?? "").trim()).filter((hex) => /^#[0-9a-f]{6}$/i.test(hex))
+      : [];
+    if (colors.length > 0) emblemColors = Object.freeze(colors);
+    emblemPaletteMtime = mtime;
+  } catch {
+    // BlockShip 기동 전에도 커뮤니티가 뜨도록 새 20색 팔레트를 폴백으로 사용한다.
+  }
+}
+
 function normalizeGuild(key, guild) {
+  refreshEmblemPalette();
   const source = guild && typeof guild === "object" ? guild : {};
   const members = source.members && typeof source.members === "object" ? Object.entries(source.members).map(([uuid, member]) => ({
     uuid,
@@ -599,7 +625,7 @@ function normalizeGuild(key, guild) {
     ? Object.entries(source.pendingApplications).map(([uuid, application]) => ({ uuid, name: String(application?.name ?? "알 수 없음") }))
     : [];
   let emblemPixels = Array.isArray(source.emblemPixels) && source.emblemPixels.length === 64
-    ? source.emblemPixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < 12 ? Number(value) : -1)
+    ? source.emblemPixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < emblemColors.length ? Number(value) : -1)
     : Array(64).fill(-1);
   // 64×64 논리 캔버스와 구버전 128×128 캔버스 모두 웹 미리보기로 복원한다.
   const rawLargePixels = Array.isArray(source.emblemCanvasPixels)
@@ -607,12 +633,12 @@ function normalizeGuild(key, guild) {
     : null;
   const largeSize = rawLargePixels ? Math.sqrt(rawLargePixels.length) : 0;
   const largePixels = rawLargePixels
-    ? rawLargePixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < 12 ? Number(value) : -1)
+    ? rawLargePixels.map((value) => Number.isInteger(Number(value)) && Number(value) >= -1 && Number(value) < emblemColors.length ? Number(value) : -1)
     : null;
   if (largePixels && emblemPixels.every((value) => value < 0)) {
     emblemPixels = Array.from({ length: 64 }, (_, index) => {
       const gx = index % 8, gy = Math.floor(index / 8);
-      const counts = Array(12).fill(0);
+    const counts = Array(emblemColors.length).fill(0);
       const cell = largeSize / 8;
       for (let y = 0; y < cell; y++) for (let x = 0; x < cell; x++) {
         const value = largePixels[(gy * cell + y) * largeSize + gx * cell + x];
@@ -655,17 +681,14 @@ function normalizeGuild(key, guild) {
     applications
   };
 }
-const EMBLEM_COLORS = Object.freeze([
-  "#141b27", "#eff4f2", "#d34d5a", "#f08f49", "#f5c757", "#68cd8f",
-  "#42a67e", "#58cddd", "#4980d0", "#8169c4", "#d270bc", "#9f6948"
-]);
 function guildEmblem(guild, className = "guild-emblem", full = false) {
+  refreshEmblemPalette();
   const pixels = full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
     ? guild.emblemCanvasPixels
     : Array.isArray(guild?.emblemPixels) && guild.emblemPixels.length === 64 ? guild.emblemPixels : Array(64).fill(-1);
   const size = full && pixels.length === 64 * 64 ? 64 : 8;
   const cells = pixels.map((value) => {
-    const color = Number.isInteger(value) && value >= 0 && value < EMBLEM_COLORS.length ? EMBLEM_COLORS[value] : "#08121d";
+    const color = Number.isInteger(value) && value >= 0 && value < emblemColors.length ? emblemColors[value] : "#08121d";
     return `<i style="background:${color}"></i>`;
   }).join("");
   return `<span class="${className}" style="--emblem-size:${size}" aria-label="${esc(guild?.name ?? "길드")} 엠블럼">${cells}</span>`;
