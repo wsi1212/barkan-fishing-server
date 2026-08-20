@@ -3,307 +3,300 @@
   const svg = document.querySelector('#map-svg');
   const viewport = document.querySelector('#map-viewport');
   const plane = document.querySelector('.map-plane');
-  const data = window.BARKAN_MAP_DATA;
-  if (!canvas || !svg || !viewport || !plane || !data) return;
+  const mapData = window.BARKAN_MAP_DATA;
+  const terrainData = window.BARKAN_TERRAIN_DATA;
+  if (!canvas || !svg || !viewport || !plane || !mapData || !terrainData) return;
 
-  const ctx = canvas.getContext('2d', { alpha: false });
-  // 리소스팩의 barkan:worldmap painting 원본. 웹에서 새로 그린 가짜 섬이 아니라
-  // 실제 서버 월드 탑뷰를 그대로 바닥 텍스처로 쓴다.
-  const worldTexture = new Image();
-  worldTexture.decoding = 'async';
-  worldTexture.src = '/assets/worldmap.png?v=1';
-  const textureWorldBounds = { x: -1500, z: -1320, width: 3000, height: 3000 };
-  const globalView = [-5200, -5200, 10400, 10400];
-  const areas = (data.areas || []).filter(area => Array.isArray(area.polygon) && area.polygon.length >= 3);
-  const areaById = new Map(areas.map(area => [area.id, area]));
-  const outerOcean = areaById.get('원양');
-  if (outerOcean) {
-    outerOcean.bounds = [-5000, 5000, -5000, 5000];
-    outerOcean.polygon = [[-5000, -5000], [5000, -5000], [5000, 5000], [-5000, 5000]];
-    outerOcean.parent = null;
-    delete outerOcean.polygonBreaks;
-  }
-  const land = areaById.get('바르칸');
-  const oceans = areas.filter(area => area.category === 'ocean' && area.id !== '원양');
-  const terrainAreas = areas.filter(area => area.category === 'region' && area.id !== '바르칸');
-  const settlements = areas.filter(area => area.category === 'town' || area.category === 'poi');
-  const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
-  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const hash = (x, z) => {
-    let n = Math.imul((x | 0) ^ 0x45d9f3b, 0x27d4eb2d) ^ Math.imul((z | 0) ^ 0x165667b1, 0x85ebca6b);
-    n = (n ^ (n >>> 15)) * 0x2c1b3c6d;
-    n ^= n >>> 12;
-    return (n >>> 0) / 4294967295;
+  const ctx = canvas.getContext('2d');
+  const decode = value => {
+    const raw = atob(value);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i += 1) bytes[i] = raw.charCodeAt(i);
+    return bytes;
   };
-  const segments = area => {
+  const materialBytes = decode(terrainData.materials);
+  const maskBytes = decode(terrainData.mask);
+  const heightBytes = decode(terrainData.heights);
+  const gridWidth = terrainData.gridWidth;
+  const gridDepth = terrainData.gridDepth;
+  const cellSize = terrainData.cellSize;
+  const baseY = 60;
+  const globalView = [-5200, -5200, 10400, 10400];
+  const legend = terrainData.legend || [];
+  const cells = [];
+  const heightAt = (i, j) => {
+    if (i < 0 || j < 0 || i >= gridWidth || j >= gridDepth) return baseY;
+    const index = j * gridWidth + i;
+    return (heightBytes[index * 2] | (heightBytes[index * 2 + 1] << 8)) - 128;
+  };
+  const materialAt = (i, j) => {
+    if (i < 0 || j < 0 || i >= gridWidth || j >= gridDepth) return 0;
+    return materialBytes[j * gridWidth + i];
+  };
+  for (let j = 0; j < gridDepth; j += 1) {
+    for (let i = 0; i < gridWidth; i += 1) {
+      const index = j * gridWidth + i;
+      const height = heightAt(i, j);
+      if (!maskBytes[index] || (materialBytes[index] === 0 && height <= baseY)) continue;
+      cells.push({ i, j, x: terrainData.xOrigin + i * cellSize, z: terrainData.zOrigin + j * cellSize, height, material: materialBytes[index] });
+    }
+  }
+
+  const camera = { cx: 0, cz: 0, viewWidth: globalView[2], yaw: -0.34, pitch: 0.9 };
+  let selectedId = '';
+  let width = 1;
+  let height = 1;
+  let dragging = null;
+  let moved = false;
+  let lastViewKey = '';
+
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const areaSegments = area => {
     const cuts = [0, ...(area.polygonBreaks || []), area.polygon.length];
-    return cuts.slice(0, -1).map((start, i) => area.polygon.slice(start, cuts[i + 1]));
+    return cuts.slice(0, -1).map((start, index) => area.polygon.slice(start, cuts[index + 1]));
+  };
+  const center = area => {
+    const [minX, maxX, minZ, maxZ] = area.bounds;
+    return [(minX + maxX) / 2, (minZ + maxZ) / 2];
   };
   const pointInPolygon = (x, z, polygon) => {
     let inside = false;
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       const [xi, zi] = polygon[i];
       const [xj, zj] = polygon[j];
-      const intersects = ((zi > z) !== (zj > z)) && x < (xj - xi) * (z - zi) / ((zj - zi) || 1e-9) + xi;
-      if (intersects) inside = !inside;
+      if (((zi > z) !== (zj > z)) && x < (xj - xi) * (z - zi) / ((zj - zi) || 1e-9) + xi) inside = !inside;
     }
     return inside;
   };
-  const contains = (area, x, z) => segments(area).some(polygon => pointInPolygon(x, z, polygon));
-  const polygonArea = polygon => Math.abs(polygon.reduce((sum, point, i) => {
-    const next = polygon[(i + 1) % polygon.length];
-    return sum + point[0] * next[1] - next[0] * point[1];
-  }, 0) / 2);
-  const terrainOrder = terrainAreas.slice().sort((a, b) => polygonArea(a.polygon) - polygonArea(b.polygon));
-  const palettes = {
-    사막: ['#a88a52', '#b99a5c', '#d0b976', '#816940'],
-    붉은사막: ['#9a5a44', '#b56e4e', '#d08a5b', '#714234'],
-    늪지대: ['#365b4c', '#456b50', '#5c7950', '#29443d'],
-    강: ['#3e8b82', '#4fa096', '#76b9a6', '#2c655f'],
-    강_상류: ['#507e6b', '#659779', '#88ae86', '#355d53'],
-    정상: ['#aab9aa', '#ccd6c5', '#e8eee0', '#7c9189'],
-    깊은_숲: ['#28584c', '#346b54', '#4d815d', '#1d413d'],
-    대수림: ['#214e45', '#2c604b', '#437454', '#193b38'],
-    설산: ['#a5c5c5', '#c9dfd7', '#eef4e5', '#789b9d'],
-    default: ['#3b6f5d', '#4b8066', '#67906d', '#2b514a']
+  const contains = (area, x, z) => areaSegments(area).some(segment => pointInPolygon(x, z, segment));
+  const nearestHeight = (x, z) => {
+    const i = Math.floor((x - terrainData.xOrigin) / cellSize);
+    const j = Math.floor((z - terrainData.zOrigin) / cellSize);
+    return heightAt(i, j);
   };
-  const waterPalette = [
-    ['#145667', '#1b6d76', '#248991', '#0b3a49'],
-    ['#104a5b', '#176275', '#207c88', '#092f40'],
-    ['#175f6b', '#217a80', '#32999a', '#0d4351'],
-    ['#0e4154', '#15566a', '#1c6f7f', '#082f40']
-  ];
-  const colorForTerrain = area => area ? (palettes[area.id] || palettes.default) : palettes.default;
+  const project = (x, z, y = baseY) => {
+    const dx = x - camera.cx;
+    const dz = z - camera.cz;
+    const c = Math.cos(camera.yaw);
+    const s = Math.sin(camera.yaw);
+    const side = dx * c - dz * s;
+    const depth = dx * s + dz * c;
+    const scale = width / camera.viewWidth;
+    return [width / 2 + side * scale, height / 2 + (depth * Math.sin(camera.pitch) - (y - baseY) * Math.cos(camera.pitch)) * scale];
+  };
+  const unproject = (sx, sy) => {
+    const scale = width / camera.viewWidth;
+    const side = (sx - width / 2) / scale;
+    const depth = (sy - height / 2) / (scale * Math.sin(camera.pitch));
+    const c = Math.cos(camera.yaw);
+    const s = Math.sin(camera.yaw);
+    return { x: camera.cx + side * c + depth * s, z: camera.cz - side * s + depth * c };
+  };
   const viewBox = () => {
-    const value = svg.viewBox.baseVal;
-    return { x: value.x, y: value.y, width: value.width, height: value.height };
+    const box = svg.viewBox.baseVal;
+    return { x: box.x, y: box.y, width: box.width, height: box.height };
   };
-
-  function worldToScreen(x, z, view, width, height) {
-    return [(x - view.x) / view.width * width, (z - view.y) / view.height * height];
-  }
-
-  function drawVoxel(ctx2, x, y, size, colors, depth, tint = 0) {
-    const side = Math.max(3, size * (0.22 + depth * 0.08));
-    const shade = colors[(tint + 1) % colors.length];
-    const dark = colors[(tint + 3) % colors.length];
-    ctx2.fillStyle = dark;
-    ctx2.fillRect(x + size - side, y + side, side, size - side);
-    ctx2.fillStyle = shade;
-    ctx2.fillRect(x + side, y + size - side, size - side, side);
-    ctx2.fillStyle = colors[tint % colors.length];
-    ctx2.fillRect(x, y, size - side, size - side);
-    ctx2.fillStyle = 'rgba(238,255,238,.16)';
-    ctx2.fillRect(x, y, size - side, Math.max(1, side * .52));
-    ctx2.strokeStyle = 'rgba(2,20,23,.28)';
-    ctx2.lineWidth = Math.max(.45, size * .035);
-    ctx2.strokeRect(x + .25, y + .25, size - side - .5, size - side - .5);
-  }
-
-  function trace(ctx2, area, view, width, height) {
-    segments(area).forEach(polygon => {
-      polygon.forEach(([x, z], i) => {
-        const [sx, sy] = worldToScreen(x, z, view, width, height);
-        if (i === 0) ctx2.moveTo(sx, sy); else ctx2.lineTo(sx, sy);
-      });
-      ctx2.closePath();
-    });
-  }
+  const setViewBox = () => {
+    const aspect = width / Math.max(height, 1);
+    const viewHeight = camera.viewWidth / Math.max(aspect, .35);
+    const next = [camera.cx - camera.viewWidth / 2, camera.cz - viewHeight / 2, camera.viewWidth, viewHeight];
+    const key = next.map(value => value.toFixed(2)).join(',');
+    if (key === lastViewKey) return;
+    lastViewKey = key;
+    svg.setAttribute('viewBox', next.join(' '));
+  };
+  const syncFromSvg = () => {
+    const box = viewBox();
+    if (!box.width || !box.height) return;
+    camera.cx = box.x + box.width / 2;
+    camera.cz = box.y + box.height / 2;
+    camera.viewWidth = clamp(box.width, 260, globalView[2]);
+    lastViewKey = [box.x, box.y, box.width, box.height].map(value => Number(value).toFixed(2)).join(',');
+    draw();
+  };
+  const materialColor = (material, y) => {
+    const name = (legend[material] || '').replace('minecraft:', '');
+    let color = '#477967';
+    if (name.includes('water') || name.includes('ice')) color = '#3c88a1';
+    else if (name.includes('sand') || name.includes('sandstone')) color = '#c5aa6b';
+    else if (name.includes('snow')) color = '#d5e5de';
+    else if (name.includes('leaves') || name.includes('moss') || name.includes('grass') || name.includes('azalea')) color = '#4d8c65';
+    else if (name.includes('wood') || name.includes('log') || name.includes('planks')) color = '#80654c';
+    else if (name.includes('terracotta') || name.includes('concrete')) color = '#9b6650';
+    else if (name.includes('stone') || name.includes('deepslate') || name.includes('andesite') || name.includes('tuff')) color = '#6e7d79';
+    else if (name.includes('path') || name.includes('dirt') || name.includes('mud')) color = '#806b4a';
+    const lift = clamp((y - baseY) / 180, -.16, .22);
+    return color.replace(/^#(..)(..)(..)$/, (_, r, g, b) => `rgb(${clamp(parseInt(r, 16) * (1 + lift), 0, 255)},${clamp(parseInt(g, 16) * (1 + lift), 0, 255)},${clamp(parseInt(b, 16) * (1 + lift), 0, 255)})`);
+  };
+  const shade = (color, amount) => {
+    const match = color.match(/rgb\(([^,]+),([^,]+),([^\)]+)\)/);
+    if (!match) return color;
+    return `rgb(${clamp(Number(match[1]) + amount, 0, 255)},${clamp(Number(match[2]) + amount, 0, 255)},${clamp(Number(match[3]) + amount, 0, 255)})`;
+  };
+  const quad = (points, fill, stroke = null) => {
+    ctx.beginPath();
+    points.forEach(([x, y], index) => index ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+  };
+  const drawBorder = area => {
+    const selected = area.id === selectedId;
+    ctx.save();
+    ctx.beginPath();
+    areaSegments(area).forEach(segment => segment.forEach(([x, z], index) => {
+      const point = project(x, z, nearestHeight(x, z) + 3);
+      if (index === 0) ctx.moveTo(point[0], point[1]); else ctx.lineTo(point[0], point[1]);
+      if (index === segment.length - 1) ctx.closePath();
+    }));
+    ctx.strokeStyle = selected ? '#fff0ad' : area.category === 'town' ? '#e8b767' : area.category === 'poi' ? '#ee8e70' : 'rgba(123,224,208,.78)';
+    ctx.lineWidth = selected ? 3.6 : area.category === 'town' ? 2.2 : 1.35;
+    ctx.setLineDash(area.category === 'poi' ? [8, 6] : []);
+    ctx.shadowColor = selected ? 'rgba(232,183,103,.85)' : 'transparent';
+    ctx.shadowBlur = selected ? 12 : 0;
+    ctx.stroke();
+    ctx.restore();
+  };
+  const drawLabel = area => {
+    if (area.category === 'ocean' || area.id === '바르칸' || area.id === '원양') return;
+    const [x, z] = center(area);
+    const [sx, sy] = project(x, z, nearestHeight(x, z) + 14);
+    const fontSize = area.category === 'town' ? 14 : 11;
+    ctx.save();
+    ctx.font = `${area.category === 'town' ? 800 : 600} ${fontSize}px Barkan, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(2,15,17,.92)';
+    ctx.strokeText(area.name, sx, sy);
+    ctx.fillStyle = area.category === 'town' ? '#ffe3a1' : '#c8e5d9';
+    ctx.fillText(area.name, sx, sy);
+    ctx.restore();
+  };
+  const hitArea = (sx, sy) => {
+    const point = unproject(sx, sy);
+    return (mapData.areas || []).slice().reverse().find(area => Array.isArray(area.polygon) && area.polygon.length >= 3 && area.category !== 'ocean' && contains(area, point.x, point.z));
+  };
 
   function draw() {
     const rect = plane.getBoundingClientRect();
-    const pixelRatio = dpr();
-    // getBoundingClientRect()에는 부모의 3D 원근 변환이 포함되므로,
-    // 캔버스 좌표는 변환 전의 실제 map-plane 크기를 기준으로 잡는다.
-    const width = Math.max(1, plane.clientWidth || rect.width);
-    const height = Math.max(1, plane.clientHeight || rect.height);
-    canvas.width = Math.round(width * pixelRatio);
-    canvas.height = Math.round(height * pixelRatio);
-    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    const view = viewBox();
-    const cellWorld = clamp(view.width / 142, 42, 88);
-    const cellWidth = view.width ? width * cellWorld / view.width : 8;
-    const cellHeight = view.height ? height * cellWorld / view.height : 8;
-    const textureReady = worldTexture.complete && worldTexture.naturalWidth > 0;
-    ctx.fillStyle = textureReady ? '#4a7caa' : '#082b35';
+    width = Math.max(1, plane.clientWidth || rect.width);
+    height = Math.max(1, plane.clientHeight || rect.height);
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const background = ctx.createLinearGradient(0, 0, 0, height);
+    background.addColorStop(0, '#103b42');
+    background.addColorStop(1, '#04161a');
+    ctx.fillStyle = background;
     ctx.fillRect(0, 0, width, height);
 
-    const startX = Math.floor(view.x / cellWorld) * cellWorld;
-    const startZ = Math.floor(view.y / cellWorld) * cellWorld;
-    if (!textureReady) {
-      // 원본 텍스처가 늦게 도착할 때만 복셀 수심 폴백을 그린다.
-      for (let x = startX; x <= view.x + view.width; x += cellWorld) {
-        for (let z = startZ; z <= view.y + view.height; z += cellWorld) {
-          const [sx, sy] = worldToScreen(x, z, view, width, height);
-          const water = waterPalette[Math.floor(hash(x / cellWorld, z / cellWorld) * waterPalette.length) % waterPalette.length];
-          const variant = Math.floor(hash(x / cellWorld + 17, z / cellWorld - 3) * water.length);
-          drawVoxel(ctx, sx, sy, Math.max(cellWidth, cellHeight) + .7, water, 1 + variant % 3, variant % water.length);
-        }
-      }
-    } else {
-      const [imageX, imageY] = worldToScreen(textureWorldBounds.x, textureWorldBounds.z, view, width, height);
-      const [imageRight, imageBottom] = worldToScreen(textureWorldBounds.x + textureWorldBounds.width, textureWorldBounds.z + textureWorldBounds.height, view, width, height);
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(worldTexture, imageX, imageY, imageRight - imageX, imageBottom - imageY);
-    }
-
-    // 서버의 대양 띠는 실제 폴리곤으로 표시하고, 원양은 바탕 수심으로 남긴다.
-    oceans.forEach(area => {
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, area, view, width, height);
-      ctx.fillStyle = area.id === '대양' ? 'rgba(40,126,145,.13)' : 'rgba(31,99,123,.08)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(132,211,232,.28)';
-      ctx.lineWidth = Math.max(1, width / view.width * 9);
-      ctx.setLineDash([cellWidth * .9, cellWidth * .7]);
-      ctx.stroke();
-      ctx.restore();
+    const ordered = cells.slice().sort((a, b) => {
+      const c = Math.cos(camera.yaw); const s = Math.sin(camera.yaw);
+      return ((a.x - camera.cx) * s + (a.z - camera.cz) * c) - ((b.x - camera.cx) * s + (b.z - camera.cz) * c);
+    });
+    ordered.forEach(cell => {
+      const x = cell.x; const z = cell.z; const h = cell.height;
+      const top = [project(x, z, h), project(x + cellSize, z, h), project(x + cellSize, z + cellSize, h), project(x, z + cellSize, h)];
+      const color = materialColor(cell.material, h);
+      const east = heightAt(cell.i + 1, cell.j);
+      const south = heightAt(cell.i, cell.j + 1);
+      if (east < h - 1) quad([top[1], top[2], project(x + cellSize, z + cellSize, east), project(x + cellSize, z, east)], shade(color, -42));
+      if (south < h - 1) quad([top[3], top[2], project(x + cellSize, z + cellSize, south), project(x, z + cellSize, south)], shade(color, -26));
+      quad(top, color, 'rgba(4,20,21,.14)');
     });
 
-    // 바르칸 본섬 안의 각 권역을 측정된 경계에 맞춰 블록으로 채운다.
-    if (land && !textureReady) {
-      // 셀 경계 바깥의 아주 작은 섬 끝도 빈 화면으로 끊기지 않도록
-      // 실측 본섬 폴리곤을 먼저 칠하고, 그 위에 블록을 쌓는다.
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, land, view, width, height);
-      ctx.fillStyle = '#3c725b';
-      ctx.fill();
-      ctx.restore();
-      for (let x = startX; x <= view.x + view.width; x += cellWorld) {
-        for (let z = startZ; z <= view.y + view.height; z += cellWorld) {
-          const cx = x + cellWorld * .5;
-          const cz = z + cellWorld * .5;
-          if (!contains(land, cx, cz)) continue;
-          const terrain = terrainOrder.find(area => contains(area, cx, cz));
-          const colors = colorForTerrain(terrain);
-          const variant = Math.floor(hash(x / cellWorld + 71, z / cellWorld + 31) * colors.length) % colors.length;
-          const [sx, sy] = worldToScreen(x, z, view, width, height);
-          const jitter = (hash(x / cellWorld, z / cellWorld) - .5) * Math.min(cellWidth, cellHeight) * .14;
-          drawVoxel(ctx, sx + jitter, sy + jitter, Math.max(cellWidth, cellHeight) + .7, colors, 2 + variant, variant);
-        }
-      }
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, land, view, width, height);
-      ctx.strokeStyle = '#d5bd76';
-      ctx.lineWidth = Math.max(1.3, width / view.width * 16);
-      ctx.shadowColor = 'rgba(0,0,0,.4)';
-      ctx.shadowBlur = 9;
-      ctx.stroke();
-      ctx.restore();
-    }
-    if (land && textureReady) {
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, land, view, width, height);
-      ctx.strokeStyle = 'rgba(235,225,167,.88)';
-      ctx.lineWidth = Math.max(1.5, width / view.width * 12);
-      ctx.shadowColor = 'rgba(14,28,30,.55)';
-      ctx.shadowBlur = 8;
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 마을·항구·기능 지점은 지형 타일 위에 실제 지도 기호처럼 별도 색으로 얹는다.
-    settlements.forEach(area => {
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, area, view, width, height);
-      ctx.fillStyle = area.category === 'town' ? 'rgba(220,166,75,.82)' : 'rgba(220,110,85,.78)';
-      ctx.strokeStyle = area.category === 'town' ? '#f4d38a' : '#f1a08b';
-      ctx.lineWidth = Math.max(1.2, width / view.width * 10);
-      ctx.shadowColor = 'rgba(2,16,18,.55)';
-      ctx.shadowBlur = 7;
-      ctx.fill();
-      ctx.stroke();
-      const [minX, maxX, minZ, maxZ] = area.bounds;
-      const [sx, sy] = worldToScreen((minX + maxX) / 2, (minZ + maxZ) / 2, view, width, height);
-      const iconSize = clamp(Math.min(width, height) * .012, 4, 11);
-      ctx.fillStyle = area.category === 'town' ? '#fff0bd' : '#ffe0d3';
-      ctx.fillRect(sx - iconSize * .5, sy - iconSize * .5, iconSize, iconSize);
-      ctx.restore();
-    });
-
-    // 지형 경계는 블록 위에 얇은 등고선처럼 남긴다.
-    terrainAreas.forEach(area => {
-      ctx.save();
-      ctx.beginPath();
-      trace(ctx, area, view, width, height);
-      ctx.strokeStyle = 'rgba(226,244,211,.23)';
-      ctx.lineWidth = Math.max(.7, width / view.width * 5);
-      ctx.setLineDash([cellWidth * .35, cellWidth * .8]);
-      ctx.stroke();
-      ctx.restore();
-    });
-
-    // 종이 지도 같은 좌표 십자와 외곽 가장자리를 살짝 남긴다.
-    ctx.strokeStyle = 'rgba(204,236,215,.16)';
-    ctx.lineWidth = 1;
-    const gridStep = view.width > 1800 ? 500 : view.width > 800 ? 250 : 100;
-    for (let x = Math.ceil(view.x / gridStep) * gridStep; x < view.x + view.width; x += gridStep) {
-      const [sx] = worldToScreen(x, 0, view, width, height);
-      ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, height); ctx.stroke();
-    }
-    for (let z = Math.ceil(view.y / gridStep) * gridStep; z < view.y + view.height; z += gridStep) {
-      const [, sy] = worldToScreen(0, z, view, width, height);
-      ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(width, sy); ctx.stroke();
-    }
+    const hiddenAreas = new Set([...document.querySelectorAll('.area[hidden]')].map(item => item.dataset.id));
+    const areas = (mapData.areas || []).filter(area => !hiddenAreas.has(area.id) && Array.isArray(area.polygon) && area.polygon.length >= 3 && area.category !== 'ocean');
+    areas.forEach(drawBorder);
+    areas.filter(area => area.category === 'town' || area.category === 'poi').forEach(drawLabel);
   }
 
   const resizeObserver = new ResizeObserver(draw);
   resizeObserver.observe(plane);
-  const viewObserver = new MutationObserver(draw);
+  const viewObserver = new MutationObserver(syncFromSvg);
   viewObserver.observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
   window.addEventListener('resize', draw, { passive: true });
-  worldTexture.addEventListener('load', draw, { once: true });
-  draw();
+  window.addEventListener('barkan-map-state', event => { selectedId = event.detail?.id || ''; draw(); });
+  window.addEventListener('barkan-map-filter', draw);
 
-  // 지도를 잡아당기면 복셀 지형의 원근만 살짝 바뀌어 3D 모델처럼 확인할 수 있다.
-  let drag = null;
-  let suppressClick = false;
+  viewport.addEventListener('contextmenu', event => event.preventDefault());
   viewport.addEventListener('pointerdown', event => {
-    // 영역 위에서 시작해도 클릭은 그대로 선택되고, 움직였을 때만 회전한다.
     if (event.button !== 0 || event.target.closest('button, a')) return;
-    drag = { x: event.clientX, y: event.clientY, rx: parseFloat(getComputedStyle(plane).getPropertyValue('--rx')) || 42, rz: parseFloat(getComputedStyle(plane).getPropertyValue('--rz')) || -7, moved: false };
+    dragging = { x: event.clientX, y: event.clientY, cx: camera.cx, cz: camera.cz, yaw: camera.yaw, pitch: camera.pitch, orbit: event.shiftKey || event.altKey };
+    moved = false;
     viewport.classList.add('is-dragging');
     viewport.setPointerCapture(event.pointerId);
   });
   viewport.addEventListener('pointermove', event => {
-    if (!drag) return;
+    if (!dragging) {
+      const rect = canvas.getBoundingClientRect();
+      const area = hitArea(event.clientX - rect.left, event.clientY - rect.top);
+      if (area) window.dispatchEvent(new CustomEvent('barkan-map-preview', { detail: { id: area.id } }));
+      return;
+    }
+    const dx = event.clientX - dragging.x;
+    const dy = event.clientY - dragging.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+    if (dragging.orbit) {
+      camera.yaw = dragging.yaw + dx * .008;
+      camera.pitch = clamp(dragging.pitch - dy * .006, .48, 1.28);
+    } else {
+      const scale = width / camera.viewWidth;
+      const side = -dx / scale;
+      const depth = -dy / (scale * Math.sin(camera.pitch));
+      const c = Math.cos(camera.yaw); const s = Math.sin(camera.yaw);
+      camera.cx = dragging.cx + side * c + depth * s;
+      camera.cz = dragging.cz - side * s + depth * c;
+    }
+    setViewBox();
+    draw();
     event.preventDefault();
-    const dx = event.clientX - drag.x;
-    const dy = event.clientY - drag.y;
-    if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
-    plane.style.setProperty('--rx', `${clamp(drag.rx - dy * .12, 24, 72)}deg`);
-    // 수평 드래그는 한 번에 최대 한 바퀴까지 회전하는 지도 앱 방식.
-    plane.style.setProperty('--rz', `${clamp(drag.rz + dx * .34, -360, 360)}deg`);
   });
   const endDrag = event => {
-    if (!drag) return;
-    if (drag.moved) {
-      suppressClick = true;
-      window.setTimeout(() => { suppressClick = false; }, 80);
-    }
-    drag = null;
+    if (!dragging) return;
+    dragging = null;
     viewport.classList.remove('is-dragging');
     if (event && viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
   };
-  viewport.addEventListener('pointerup', endDrag);
-  viewport.addEventListener('pointercancel', endDrag);
-  viewport.addEventListener('click', event => {
-    if (!suppressClick) return;
-    event.preventDefault();
-    event.stopPropagation();
-  }, true);
-  document.querySelector('#reset-map')?.addEventListener('click', () => {
-    plane.style.setProperty('--rx', '42deg');
-    plane.style.setProperty('--rz', '-7deg');
+  viewport.addEventListener('pointerup', event => {
+    if (dragging && !moved) {
+      const rect = canvas.getBoundingClientRect();
+      const area = hitArea(event.clientX - rect.left, event.clientY - rect.top);
+      if (area) window.dispatchEvent(new CustomEvent('barkan-map-select', { detail: { id: area.id } }));
+    }
+    endDrag(event);
   });
+  viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('wheel', event => {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const before = unproject(event.clientX - rect.left, event.clientY - rect.top);
+    camera.viewWidth = clamp(camera.viewWidth * (event.deltaY > 0 ? 1.18 : .84), 260, globalView[2]);
+    const after = unproject(event.clientX - rect.left, event.clientY - rect.top);
+    camera.cx += before.x - after.x;
+    camera.cz += before.z - after.z;
+    setViewBox();
+    draw();
+  }, { passive: false });
+
   document.querySelectorAll('[data-rotate]').forEach(button => button.addEventListener('click', () => {
-    const current = parseFloat(getComputedStyle(plane).getPropertyValue('--rz')) || -7;
-    const amount = button.dataset.rotate === 'left' ? -45 : 45;
-    plane.style.setProperty('--rz', `${clamp(current + amount, -360, 360)}deg`);
+    camera.yaw += button.dataset.rotate === 'left' ? -.55 : .55;
+    draw();
   }));
+  document.querySelectorAll('[data-zoom]').forEach(button => button.addEventListener('click', () => {
+    if (button.dataset.zoom === 'reset') {
+      camera.cx = 0; camera.cz = 0; camera.viewWidth = globalView[2]; camera.yaw = -.34; camera.pitch = .9;
+    } else camera.viewWidth = clamp(camera.viewWidth * (button.dataset.zoom === 'in' ? .72 : 1.38), 260, globalView[2]);
+    setViewBox();
+    draw();
+  }));
+  document.querySelector('#reset-map')?.addEventListener('click', () => {
+    camera.cx = 0; camera.cz = 0; camera.viewWidth = globalView[2]; camera.yaw = -.34; camera.pitch = .9;
+    setViewBox();
+    draw();
+  });
+  syncFromSvg();
 })();
