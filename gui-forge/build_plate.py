@@ -47,6 +47,10 @@ PLATES = {
     "workbench": (3, "wbench_", 0xE7B0),
     # 길드 허브(/길드) — 타일형. assemble_tile_plate.py 가 배경+액자+아이콘+라벨을 조립한다.
     "guild": (6, "guild_", 0xE7C0),
+    # 슬롯머신 6행 — 도박장풍 에메랄드·루비 아트데코 전용 판.
+    "slot_casino": (6, "slotcasino_", 0xE7E0),
+    # 슬롯머신 베팅 4행 — 같은 카지노 판의 상단 장식 + 저대비 인벤토리 패널.
+    "slot_bet": (4, "slotbet_", 0xE7F0),
 }
 
 
