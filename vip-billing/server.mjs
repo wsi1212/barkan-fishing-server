@@ -239,6 +239,8 @@ async function migrate() {
       title TEXT NOT NULL, body TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), hidden BOOLEAN NOT NULL DEFAULT FALSE
     );
+    ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+    ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS hidden BOOLEAN NOT NULL DEFAULT FALSE;
     ALTER TABLE community_posts DROP CONSTRAINT IF EXISTS community_posts_category_check;
     ALTER TABLE community_posts ADD CONSTRAINT community_posts_category_check CHECK (category IN ('공지','공략','인사글','판매글','홍보글','자유게시판','구인구직','질문','후기','소식'));
     CREATE INDEX IF NOT EXISTS community_posts_feed_idx ON community_posts (hidden, created_at DESC);
