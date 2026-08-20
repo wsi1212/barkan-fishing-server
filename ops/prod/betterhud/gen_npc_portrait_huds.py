@@ -14,6 +14,9 @@ ASSET = HERE / "assets" / "dialogue"
 MANIFEST = HERE.parents[2] / "npc-profiles" / "npc-dialogue-portrait-manifest.json"
 SIZES = [("sm", .75), ("md", 1.00), ("lg", 1.20), ("xl", 1.40)]
 PORTRAIT_SCALE = .40
+# ★NpcDialogueHud.DEFAULT_PORTRAIT 와 반드시 같아야 한다(자바 상수와 이름이 어긋나면 폴백이
+#   조용히 죽는다 — 그게 원래 상태였다: 상수는 선언돼 있는데 HUD 정의가 없었다).
+DEFAULT_PORTRAIT = "grandfather"
 
 # ★HD 배수. 표시 크기의 이 배로 굽고 setting.scale 로 1/HD 만큼 줄여 표시한다.
 #   MC 는 텍스처를 원본 해상도로 들고 그리므로 GUI 배율이 높을수록 원본 픽셀이 살아난다.
@@ -50,9 +53,28 @@ def blocks(text: str, prefix: str):
     return {re.match(r"^([^:]+):", b).group(1): b.rstrip() for b in found}
 
 
+def strip_generated(text: str) -> str:
+    """이전 실행이 덧붙인 생성 블록을 걷어낸다.
+
+    ★이 스크립트는 npc-dialogue-image.yml 에 <b>덧붙인다</b>(image_src + 생성분). 그래서
+      두 번 돌리면 2320 블록이 4640 이 되고, BetterHud 는 중복 키를 조용히 마지막 것으로
+      덮으므로 <b>증상 없이 팩만 두 배</b>가 된다. 생성물을 손으로 관리하지 않으려면
+      생성기가 멱등해야 한다 — 템플릿 블록(dialogue_panel_* · npc_dialogue_portrait_<크기> ·
+      npc_dialogue_nameplate_*)만 남기고 npc_dialogue_portrait_<숫자>_ 로 시작하는 블록은 버린다.
+    """
+    out, drop = [], False
+    for line in text.splitlines():
+        m = re.match(r"^([A-Za-z0-9_]+):\s*$", line)
+        if m:
+            drop = bool(re.match(r"^npc_dialogue_portrait_\d", m.group(1)))
+        if not drop:
+            out.append(line)
+    return "\n".join(out).rstrip() + "\n"
+
+
 def main():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    image_src = (HERE / "npc-dialogue-image.yml").read_text(encoding="utf-8")
+    image_src = strip_generated((HERE / "npc-dialogue-image.yml").read_text(encoding="utf-8"))
     layout_src = (HERE / "npc-dialogue-layout.yml").read_text(encoding="utf-8")
     layout_blocks = blocks(layout_src, "npc_dialogue_layout_")
     layout_templates = {}
@@ -111,6 +133,31 @@ def main():
                         f"        y: 100\n"
                     )
                     count += 1
+
+    # ★기본 초상화(=매니페스트에 그림이 없는 NPC 용 폴백). NpcDialogueHud.DEFAULT_PORTRAIT 와
+    #   이름이 맞아야 한다 — 코드는 npc_dialogue_grandfather_<크기> 를 찾는다.
+    #   ★이미지는 <b>템플릿 블록 npc_dialogue_portrait_<크기></b> 를 그대로 참조한다. 그건 이미
+    #     리소스팩에 구워져 있으므로(portrait-grandfather-hud) 정의만 추가하면 팩 재빌드도
+    #     클라 재다운로드도 필요 없다 — 실측으로 build.zip 해시 불변을 확인했다(2026-08-20).
+    #   왜 필요한가: 초상화가 없는 NPC 는 getHud() 가 null 이 되어 <b>대화판이 통째로 안 떴다</b>.
+    #     할아버지(cid 3)가 그 상태였고, 튜토리얼 첫 NPC 라 신규 유저가 바로 만난다.
+    for sid, _ in SIZES:
+        template_key, base = layout_templates[sid]
+        block = base.replace(f"{template_key}:", f"npc_dialogue_layout_{DEFAULT_PORTRAIT}_{sid}:", 1)
+        block = block.replace(
+            f"name: {template_key.replace('npc_dialogue_layout_', 'npc_dialogue_portrait_', 1)}",
+            f"name: npc_dialogue_portrait_{sid}", 1)
+        layout_extra.append(block)
+        hud_extra.append(
+            f"npc_dialogue_{DEFAULT_PORTRAIT}_{sid}:\n"
+            f"  tick: 1\n"
+            f"  layouts:\n"
+            f"    1:\n"
+            f"      name: npc_dialogue_layout_{DEFAULT_PORTRAIT}_{sid}\n"
+            f"      gui:\n"
+            f"        x: 50\n"
+            f"        y: 100\n"
+        )
 
     (HERE / "npc-dialogue-image.yml").write_text(
         image_src.rstrip() + "\n\n" + "\n".join(image_extra) + "\n", encoding="utf-8")
