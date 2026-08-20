@@ -20,6 +20,7 @@
   const land = areaById.get('바르칸');
   const oceans = areas.filter(area => area.category === 'ocean' && area.id !== '원양');
   const terrainAreas = areas.filter(area => area.category === 'region' && area.id !== '바르칸');
+  const settlements = areas.filter(area => area.category === 'town' || area.category === 'poi');
   const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const hash = (x, z) => {
@@ -61,12 +62,12 @@
     default: ['#3b6f5d', '#4b8066', '#67906d', '#2b514a']
   };
   const waterPalette = [
-    ['#0c3e48', '#104b53', '#17606a', '#082d38'],
-    ['#0a3642', '#0e4350', '#145665', '#072831'],
-    ['#0d4651', '#125760', '#1a6970', '#09323c'],
-    ['#0b303e', '#0e3c4b', '#134b5b', '#062632']
+    ['#145667', '#1b6d76', '#248991', '#0b3a49'],
+    ['#104a5b', '#176275', '#207c88', '#092f40'],
+    ['#175f6b', '#217a80', '#32999a', '#0d4351'],
+    ['#0e4154', '#15566a', '#1c6f7f', '#082f40']
   ];
-  const colorForTerrain = area => palettes[area.id] || palettes.default;
+  const colorForTerrain = area => area ? (palettes[area.id] || palettes.default) : palettes.default;
   const viewBox = () => {
     const value = svg.viewBox.baseVal;
     return { x: value.x, y: value.y, width: value.width, height: value.height };
@@ -77,7 +78,7 @@
   }
 
   function drawVoxel(ctx2, x, y, size, colors, depth, tint = 0) {
-    const side = Math.max(1.5, size * (0.13 + depth * 0.03));
+    const side = Math.max(3, size * (0.22 + depth * 0.08));
     const shade = colors[(tint + 1) % colors.length];
     const dark = colors[(tint + 3) % colors.length];
     ctx2.fillStyle = dark;
@@ -86,8 +87,11 @@
     ctx2.fillRect(x + side, y + size - side, size - side, side);
     ctx2.fillStyle = colors[tint % colors.length];
     ctx2.fillRect(x, y, size - side, size - side);
-    ctx2.fillStyle = 'rgba(238,255,238,.08)';
-    ctx2.fillRect(x, y, size - side, Math.max(1, side * .42));
+    ctx2.fillStyle = 'rgba(238,255,238,.16)';
+    ctx2.fillRect(x, y, size - side, Math.max(1, side * .52));
+    ctx2.strokeStyle = 'rgba(2,20,23,.28)';
+    ctx2.lineWidth = Math.max(.45, size * .035);
+    ctx2.strokeRect(x + .25, y + .25, size - side - .5, size - side - .5);
   }
 
   function trace(ctx2, area, view, width, height) {
@@ -145,6 +149,14 @@
 
     // 바르칸 본섬 안의 각 권역을 측정된 경계에 맞춰 블록으로 채운다.
     if (land) {
+      // 셀 경계 바깥의 아주 작은 섬 끝도 빈 화면으로 끊기지 않도록
+      // 실측 본섬 폴리곤을 먼저 칠하고, 그 위에 블록을 쌓는다.
+      ctx.save();
+      ctx.beginPath();
+      trace(ctx, land, view, width, height);
+      ctx.fillStyle = '#3c725b';
+      ctx.fill();
+      ctx.restore();
       for (let x = startX; x <= view.x + view.width; x += cellWorld) {
         for (let z = startZ; z <= view.y + view.height; z += cellWorld) {
           const cx = x + cellWorld * .5;
@@ -168,6 +180,26 @@
       ctx.stroke();
       ctx.restore();
     }
+
+    // 마을·항구·기능 지점은 지형 타일 위에 실제 지도 기호처럼 별도 색으로 얹는다.
+    settlements.forEach(area => {
+      ctx.save();
+      ctx.beginPath();
+      trace(ctx, area, view, width, height);
+      ctx.fillStyle = area.category === 'town' ? 'rgba(220,166,75,.82)' : 'rgba(220,110,85,.78)';
+      ctx.strokeStyle = area.category === 'town' ? '#f4d38a' : '#f1a08b';
+      ctx.lineWidth = Math.max(1.2, width / view.width * 10);
+      ctx.shadowColor = 'rgba(2,16,18,.55)';
+      ctx.shadowBlur = 7;
+      ctx.fill();
+      ctx.stroke();
+      const [minX, maxX, minZ, maxZ] = area.bounds;
+      const [sx, sy] = worldToScreen((minX + maxX) / 2, (minZ + maxZ) / 2, view, width, height);
+      const iconSize = clamp(Math.min(width, height) * .012, 4, 11);
+      ctx.fillStyle = area.category === 'town' ? '#fff0bd' : '#ffe0d3';
+      ctx.fillRect(sx - iconSize * .5, sy - iconSize * .5, iconSize, iconSize);
+      ctx.restore();
+    });
 
     // 지형 경계는 블록 위에 얇은 등고선처럼 남긴다.
     terrainAreas.forEach(area => {
@@ -204,9 +236,11 @@
 
   // 지도를 잡아당기면 복셀 지형의 원근만 살짝 바뀌어 3D 모델처럼 확인할 수 있다.
   let drag = null;
+  let suppressClick = false;
   viewport.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || event.target.closest('button, a, .area')) return;
-    drag = { x: event.clientX, y: event.clientY, rx: parseFloat(getComputedStyle(plane).getPropertyValue('--rx')) || 52, rz: parseFloat(getComputedStyle(plane).getPropertyValue('--rz')) || -7 };
+    // 영역 위에서 시작해도 클릭은 그대로 선택되고, 움직였을 때만 회전한다.
+    if (event.button !== 0 || event.target.closest('button, a')) return;
+    drag = { x: event.clientX, y: event.clientY, rx: parseFloat(getComputedStyle(plane).getPropertyValue('--rx')) || 42, rz: parseFloat(getComputedStyle(plane).getPropertyValue('--rz')) || -7, moved: false };
     viewport.classList.add('is-dragging');
     viewport.setPointerCapture(event.pointerId);
   });
@@ -215,15 +249,35 @@
     event.preventDefault();
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    plane.style.setProperty('--rx', `${clamp(drag.rx - dy * .12, 28, 66)}deg`);
-    plane.style.setProperty('--rz', `${clamp(drag.rz + dx * .08, -23, 12)}deg`);
+    if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
+    plane.style.setProperty('--rx', `${clamp(drag.rx - dy * .12, 24, 72)}deg`);
+    // 수평 드래그는 한 번에 최대 한 바퀴까지 회전하는 지도 앱 방식.
+    plane.style.setProperty('--rz', `${clamp(drag.rz + dx * .34, -360, 360)}deg`);
   });
   const endDrag = event => {
     if (!drag) return;
+    if (drag.moved) {
+      suppressClick = true;
+      window.setTimeout(() => { suppressClick = false; }, 80);
+    }
     drag = null;
     viewport.classList.remove('is-dragging');
     if (event && viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
   };
   viewport.addEventListener('pointerup', endDrag);
   viewport.addEventListener('pointercancel', endDrag);
+  viewport.addEventListener('click', event => {
+    if (!suppressClick) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+  document.querySelector('#reset-map')?.addEventListener('click', () => {
+    plane.style.setProperty('--rx', '42deg');
+    plane.style.setProperty('--rz', '-7deg');
+  });
+  document.querySelectorAll('[data-rotate]').forEach(button => button.addEventListener('click', () => {
+    const current = parseFloat(getComputedStyle(plane).getPropertyValue('--rz')) || -7;
+    const amount = button.dataset.rotate === 'left' ? -45 : 45;
+    plane.style.setProperty('--rz', `${clamp(current + amount, -360, 360)}deg`);
+  }));
 })();

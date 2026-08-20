@@ -42,10 +42,11 @@
     .map-card-head span{color:var(--faint);font:10px var(--mono)}
     .map-viewport{position:relative;min-height:675px;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 48% 45%,rgba(43,133,125,.26),transparent 50%),linear-gradient(145deg,#0b3538,#06181d 75%);outline:none;touch-action:pan-y;cursor:grab}
     .map-viewport.is-dragging{cursor:grabbing}
+    .map-viewport.is-dragging .map-plane{transition:none}
     .map-viewport:before{position:absolute;inset:0;background-image:linear-gradient(rgba(123,224,208,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(123,224,208,.08) 1px,transparent 1px);background-size:44px 44px;content:"";opacity:.65;mask-image:linear-gradient(135deg,#000,transparent 76%);pointer-events:none}
     .map-viewport:after{position:absolute;right:7%;bottom:9%;width:190px;height:190px;border:1px solid rgba(232,183,103,.3);border-radius:50%;box-shadow:0 0 0 21px rgba(232,183,103,.04),0 0 0 48px rgba(232,183,103,.03),0 0 0 81px rgba(232,183,103,.025);content:"";pointer-events:none}
-    .map-plane{--rx:52deg;--rz:-7deg;position:absolute;inset:6% 4%;transform:perspective(1450px) rotateX(var(--rx)) rotateZ(var(--rz)) scale(.92);transform-origin:50% 56%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 35px 24px rgba(0,0,0,.38))}
-    .map-plane:before{position:absolute;inset:18px -2px -18px;background:linear-gradient(135deg,rgba(2,12,15,.92),rgba(7,43,42,.72));content:"";transform:translateZ(-22px);clip-path:polygon(4% 6%,96% 0,100% 92%,8% 100%);opacity:.9}
+    .map-plane{--rx:42deg;--rz:-7deg;position:absolute;inset:6% 4%;isolation:isolate;transform:perspective(1450px) rotateX(var(--rx)) rotateZ(var(--rz)) scale(.92);transform-origin:50% 56%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 35px 24px rgba(0,0,0,.38))}
+    .map-plane:before{position:absolute;z-index:-1;inset:18px -2px -18px;background:linear-gradient(135deg,rgba(2,12,15,.92),rgba(7,43,42,.72));content:"";transform:translateZ(-22px);clip-path:polygon(4% 6%,96% 0,100% 92%,8% 100%);opacity:.9}
     .voxel-map{position:absolute;z-index:0;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;pointer-events:none}
     .map-svg{position:relative;z-index:2;width:100%;height:100%;overflow:visible;pointer-events:auto}
     .map-grid-line{stroke:rgba(139,221,211,.15);stroke-width:3;stroke-dasharray:7 18}
@@ -56,6 +57,7 @@
     .area[data-category=town] .area-shape{fill:rgba(232,183,103,.27);stroke:var(--gold);stroke-width:7}
     .area[data-category=poi] .area-shape{fill:rgba(238,142,112,.24);stroke:var(--coral);stroke-width:5;stroke-dasharray:12 7}
     .area[data-category=ocean] .area-shape{fill:rgba(37,111,151,.18);stroke:rgba(132,211,232,.54);stroke-dasharray:17 12}
+    .area[data-id=원양]{pointer-events:none}
     .area[data-id=바르칸] .area-shape{fill:rgba(45,133,122,.08);stroke:rgba(123,224,208,.5);stroke-width:9}
     .area:not(.is-selected):hover .area-shape,.area.is-preview .area-shape{fill:rgba(123,224,208,.36);stroke:#d6fff2;filter:drop-shadow(0 0 8px rgba(123,224,208,.76))}
     .area[data-category=town]:not(.is-selected):hover .area-shape,.area[data-category=town].is-preview .area-shape{fill:rgba(232,183,103,.48);stroke:#ffe7a7}
@@ -77,6 +79,8 @@
     .map-zoom button{display:grid;width:31px;height:31px;place-items:center;border:1px solid rgba(123,224,208,.4);background:rgba(4,18,21,.8);color:var(--text);font:700 18px/1 var(--mono);cursor:pointer;backdrop-filter:blur(8px);transition:border-color .2s ease,background .2s ease,color .2s ease}
     .map-zoom button:hover,.map-zoom button:focus-visible{border-color:var(--gold);background:rgba(232,183,103,.16);color:var(--gold)}
     .map-zoom button[data-zoom="reset"]{font-size:13px}
+    .map-zoom button[data-rotate]{font-size:16px}
+    .map-zoom button svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .map-legend{display:flex;flex-wrap:wrap;gap:12px;padding:13px 18px;border-top:1px solid var(--soft);color:var(--muted);font-size:10px}
     .legend-item{display:flex;align-items:center;gap:6px}
     .legend-item i{display:block;width:9px;height:9px;border:1px solid var(--teal);background:rgba(123,224,208,.3)}
@@ -160,7 +164,7 @@
             </svg>
           </div>
           <div class="map-hud"><div class="map-hud-note"><strong id="hover-label">스폰도시를 선택해 보세요</strong><span id="hover-note">주요 마을의 영역과 실제 좌표를 확인할 수 있습니다.</span></div><div class="map-scale"><b></b>약 500 blocks</div></div>
-          <div class="map-zoom" aria-label="지도 확대축소"><button type="button" data-zoom="in" aria-label="지도 확대">+</button><button type="button" data-zoom="out" aria-label="지도 축소">−</button><button type="button" data-zoom="reset" aria-label="지도 전체 보기">⌂</button></div>
+          <div class="map-zoom" aria-label="지도 확대축소 및 회전"><button type="button" data-rotate="left" aria-label="지도 왼쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8H3V3"/><path d="M3.5 8A8.5 8.5 0 1 1 5 17"/></svg></button><button type="button" data-rotate="right" aria-label="지도 오른쪽 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 8h5V3"/><path d="M20.5 8A8.5 8.5 0 1 0 19 17"/></svg></button><button type="button" data-zoom="in" aria-label="지도 확대">+</button><button type="button" data-zoom="out" aria-label="지도 축소">−</button><button type="button" data-zoom="reset" aria-label="지도 전체 보기">⌂</button></div>
         </div>
         <div class="map-legend"><span class="legend-item town"><i></i> 주요 마을·항구 영역</span><span class="legend-item"><i></i> 지역 경계</span><span class="legend-item poi"><i></i> 탐험·기능 지점</span><span class="legend-item ocean"><i></i> 해역·원양</span></div>
       </div>
@@ -177,7 +181,7 @@
     <nav class="location-strip" id="location-strip" aria-label="주요 거점 바로가기"></nav>
     <div class="map-note"><strong>좌표 출처 · BlockShip 운영 서버의 <span style="font-family:var(--mono)">plugins/BlockShip/regions.json</span> prod 스냅샷</strong><span>표시는 Minecraft X/Z 평면을 기준으로 하며, 경계가 없는 포인트형 지역은 영역이 있는 실측 지역 위주로 표시했습니다. 실제 게임의 보호·이동 판정이 바뀌면 이 지도도 다시 스냅샷해야 합니다.</span></div>
   </main>
-  <script src="/assets/voxel-map.js?v=1"></script>
+  <script src="/assets/voxel-map.js?v=2"></script>
   <script>
     (() => {
       const data = window.BARKAN_MAP_DATA;
