@@ -71,6 +71,10 @@
     .map-hud-note span{display:block;margin-top:2px;color:var(--muted);font-size:10px}
     .map-scale{color:var(--faint);font:10px var(--mono);text-align:right}
     .map-scale b{display:block;width:95px;height:4px;margin:0 0 6px auto;background:linear-gradient(90deg,var(--gold) 50%,transparent 50%);border:1px solid var(--gold)}
+    .map-zoom{position:absolute;z-index:5;right:19px;bottom:55px;display:flex;align-items:center;gap:4px;pointer-events:auto}
+    .map-zoom button{display:grid;width:31px;height:31px;place-items:center;border:1px solid rgba(123,224,208,.4);background:rgba(4,18,21,.8);color:var(--text);font:700 18px/1 var(--mono);cursor:pointer;backdrop-filter:blur(8px);transition:border-color .2s ease,background .2s ease,color .2s ease}
+    .map-zoom button:hover,.map-zoom button:focus-visible{border-color:var(--gold);background:rgba(232,183,103,.16);color:var(--gold)}
+    .map-zoom button[data-zoom="reset"]{font-size:13px}
     .map-legend{display:flex;flex-wrap:wrap;gap:12px;padding:13px 18px;border-top:1px solid var(--soft);color:var(--muted);font-size:10px}
     .legend-item{display:flex;align-items:center;gap:6px}
     .legend-item i{display:block;width:9px;height:9px;border:1px solid var(--teal);background:rgba(123,224,208,.3)}
@@ -153,6 +157,7 @@
             </svg>
           </div>
           <div class="map-hud"><div class="map-hud-note"><strong id="hover-label">스폰도시를 선택해 보세요</strong><span id="hover-note">주요 마을의 영역과 실제 좌표를 확인할 수 있습니다.</span></div><div class="map-scale"><b></b>약 500 blocks</div></div>
+          <div class="map-zoom" aria-label="지도 확대축소"><button type="button" data-zoom="in" aria-label="지도 확대">+</button><button type="button" data-zoom="out" aria-label="지도 축소">−</button><button type="button" data-zoom="reset" aria-label="지도 전체 보기">⌂</button></div>
         </div>
         <div class="map-legend"><span class="legend-item town"><i></i> 주요 마을·항구 영역</span><span class="legend-item"><i></i> 지역 경계</span><span class="legend-item poi"><i></i> 탐험·기능 지점</span><span class="legend-item ocean"><i></i> 해역·원양</span></div>
       </div>
@@ -283,6 +288,15 @@
         select(selected, false);
         document.querySelector('#map-status').textContent = 'HOVER TO PREVIEW · CLICK TO FOCUS';
       }
+      function zoom(factor) {
+        const view = svg.viewBox.baseVal;
+        const nextWidth = Math.max(180, Math.min(globalView[2], view.width * factor));
+        const nextHeight = Math.max(180, Math.min(globalView[3], view.height * factor));
+        const centerX = view.x + view.width / 2;
+        const centerY = view.y + view.height / 2;
+        svg.setAttribute('viewBox', `${centerX-nextWidth/2} ${centerY-nextHeight/2} ${nextWidth} ${nextHeight}`);
+        document.querySelector('#map-status').textContent = factor < 1 ? 'ZOOM IN · MAP' : 'ZOOM OUT · MAP';
+      }
       function filter(value, button) {
         document.querySelectorAll('.filter').forEach(item => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'));
         document.querySelectorAll('.area').forEach(item => { item.hidden = value !== 'all' && item.dataset.category !== value; });
@@ -290,6 +304,7 @@
       buildDecor(); buildAreas(); buildRoutes(); buildMarkers(); renderQuick(); select(selected, false);
       document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => filter(button.dataset.filter, button)));
       document.querySelector('#reset-map').addEventListener('click', reset);
+      document.querySelectorAll('[data-zoom]').forEach(button => button.addEventListener('click', () => button.dataset.zoom === 'reset' ? reset() : zoom(button.dataset.zoom === 'in' ? .72 : 1.38)));
       detail.focus.addEventListener('click', () => select(selected, true));
       document.querySelector('#map-viewport').addEventListener('keydown', event => { if (event.key === 'Escape') reset(); });
     })();
