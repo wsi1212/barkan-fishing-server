@@ -7,6 +7,12 @@
   if (!canvas || !svg || !viewport || !plane || !data) return;
 
   const ctx = canvas.getContext('2d', { alpha: false });
+  // 리소스팩의 barkan:worldmap painting 원본. 웹에서 새로 그린 가짜 섬이 아니라
+  // 실제 서버 월드 탑뷰를 그대로 바닥 텍스처로 쓴다.
+  const worldTexture = new Image();
+  worldTexture.decoding = 'async';
+  worldTexture.src = '/assets/worldmap.png?v=1';
+  const textureWorldBounds = { x: -1500, z: -1320, width: 3000, height: 3000 };
   const globalView = [-5200, -5200, 10400, 10400];
   const areas = (data.areas || []).filter(area => Array.isArray(area.polygon) && area.polygon.length >= 3);
   const areaById = new Map(areas.map(area => [area.id, area]));
@@ -118,19 +124,27 @@
     const cellWorld = clamp(view.width / 142, 42, 88);
     const cellWidth = view.width ? width * cellWorld / view.width : 8;
     const cellHeight = view.height ? height * cellWorld / view.height : 8;
-    ctx.fillStyle = '#082b35';
+    const textureReady = worldTexture.complete && worldTexture.naturalWidth > 0;
+    ctx.fillStyle = textureReady ? '#4a7caa' : '#082b35';
     ctx.fillRect(0, 0, width, height);
 
-    // 물은 수심이 다른 블록 타일로 깔아 서버의 인게임 맵 질감을 만든다.
     const startX = Math.floor(view.x / cellWorld) * cellWorld;
     const startZ = Math.floor(view.y / cellWorld) * cellWorld;
-    for (let x = startX; x <= view.x + view.width; x += cellWorld) {
-      for (let z = startZ; z <= view.y + view.height; z += cellWorld) {
-        const [sx, sy] = worldToScreen(x, z, view, width, height);
-        const water = waterPalette[Math.floor(hash(x / cellWorld, z / cellWorld) * waterPalette.length) % waterPalette.length];
-        const variant = Math.floor(hash(x / cellWorld + 17, z / cellWorld - 3) * water.length);
-        drawVoxel(ctx, sx, sy, Math.max(cellWidth, cellHeight) + .7, water, 1 + variant % 3, variant % water.length);
+    if (!textureReady) {
+      // 원본 텍스처가 늦게 도착할 때만 복셀 수심 폴백을 그린다.
+      for (let x = startX; x <= view.x + view.width; x += cellWorld) {
+        for (let z = startZ; z <= view.y + view.height; z += cellWorld) {
+          const [sx, sy] = worldToScreen(x, z, view, width, height);
+          const water = waterPalette[Math.floor(hash(x / cellWorld, z / cellWorld) * waterPalette.length) % waterPalette.length];
+          const variant = Math.floor(hash(x / cellWorld + 17, z / cellWorld - 3) * water.length);
+          drawVoxel(ctx, sx, sy, Math.max(cellWidth, cellHeight) + .7, water, 1 + variant % 3, variant % water.length);
+        }
       }
+    } else {
+      const [imageX, imageY] = worldToScreen(textureWorldBounds.x, textureWorldBounds.z, view, width, height);
+      const [imageRight, imageBottom] = worldToScreen(textureWorldBounds.x + textureWorldBounds.width, textureWorldBounds.z + textureWorldBounds.height, view, width, height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(worldTexture, imageX, imageY, imageRight - imageX, imageBottom - imageY);
     }
 
     // 서버의 대양 띠는 실제 폴리곤으로 표시하고, 원양은 바탕 수심으로 남긴다.
@@ -148,7 +162,7 @@
     });
 
     // 바르칸 본섬 안의 각 권역을 측정된 경계에 맞춰 블록으로 채운다.
-    if (land) {
+    if (land && !textureReady) {
       // 셀 경계 바깥의 아주 작은 섬 끝도 빈 화면으로 끊기지 않도록
       // 실측 본섬 폴리곤을 먼저 칠하고, 그 위에 블록을 쌓는다.
       ctx.save();
@@ -177,6 +191,17 @@
       ctx.lineWidth = Math.max(1.3, width / view.width * 16);
       ctx.shadowColor = 'rgba(0,0,0,.4)';
       ctx.shadowBlur = 9;
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (land && textureReady) {
+      ctx.save();
+      ctx.beginPath();
+      trace(ctx, land, view, width, height);
+      ctx.strokeStyle = 'rgba(235,225,167,.88)';
+      ctx.lineWidth = Math.max(1.5, width / view.width * 12);
+      ctx.shadowColor = 'rgba(14,28,30,.55)';
+      ctx.shadowBlur = 8;
       ctx.stroke();
       ctx.restore();
     }
@@ -232,6 +257,7 @@
   const viewObserver = new MutationObserver(draw);
   viewObserver.observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
   window.addEventListener('resize', draw, { passive: true });
+  worldTexture.addEventListener('load', draw, { once: true });
   draw();
 
   // 지도를 잡아당기면 복셀 지형의 원근만 살짝 바뀌어 3D 모델처럼 확인할 수 있다.
