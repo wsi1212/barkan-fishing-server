@@ -174,7 +174,9 @@ function layout(title, content) {
 function form(req) {
   return new Promise((resolve, reject) => {
     let raw = "";
-    req.on("data", (part) => { raw += part; if (raw.length > 20_000) reject(new Error("too large")); });
+    // URLSearchParams 폼은 한글이 percent-encoding 되어 원문보다 커진다.
+    // 본문 자체는 글쓰기에서 5,000자로 제한하므로, 인코딩된 요청을 담을 여유만 둔다.
+    req.on("data", (part) => { raw += part; if (raw.length > 100_000) reject(new Error("too large")); });
     req.on("end", () => resolve(Object.fromEntries(new URLSearchParams(raw))));
     req.on("error", reject);
   });
