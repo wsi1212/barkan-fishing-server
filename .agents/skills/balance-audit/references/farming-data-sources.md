@@ -1,4 +1,17 @@
-# 농사(특수작물) 권위 소스 지도
+# 농사 권위 소스 지도
+
+농사는 두 경로를 분리해서 본다.
+
+1. **특수작물**: `crop/CropSpecs.java`의 고정 성장시간·수확량. 산출물은 요리 재료 전용이다.
+2. **섬상점 바닐라 농사**: 런타임 `plugins/BlockShip/shop-items.json`의 `key=농사` 판매가와
+   `crop/VanillaFarmListener.java`·`skill/SkillManager.java`의 실제 수확/보너스 경로. 이 경로는
+   Minecraft random tick 성장이라 고정 growSec가 코드에 없으며, 시간당 수익은 반드시 성장시간
+   가정을 함께 기록해야 한다.
+
+`VanillaFarmListener`는 자연 성장으로 인정된 플레이어 파종 작물의 수확 시점에
+`crop.harvest.vanilla.cycle` telemetry(`crop`, `grow_actual_s`, `tracked`)를 남긴다. 서버 재시작 전
+파종분은 시작시각이 없어 `tracked=0`으로 분리하며, 충분한 실측 표본이 모이면 `farm_shop_audit.py`
+의 가정 cycle을 교체한다.
 
 ## 메커니즘 (`crop/CropManager.java` + `crop/CropSpecs.java`)
 순수 시간게이팅, **반복비용 없음**(물주기/비료 없음). `FARMLAND` 블록 위 `ItemDisplay`(모델)+
@@ -59,6 +72,33 @@ Lv1→5 총 4,050,000원(길드 전체 공유), +28칸.
 - 보너스(강화 농산물, 풀스택 추가) 확률: `0.01 + 0.003×강화종자 + 0.004×희귀씨앗`(강화수확 랭크 게이트)
 - 대풍년(PRD0.30%→4배) · 황금수확(PRD0.20%→max(3배)+보너스) · 생명의밭(PRD0.20%→max(3배)+씨앗환불)
 - (기본) 풍년(PRD1.0%→2~3배) · 되살아남(PRD1.0%→씨앗환불)
+
+## 섬상점 바닐라 농사 가격표 (`plugins/BlockShip/shop-items.json`)
+
+`IslandShopGui`가 파일을 읽으면 이 JSON이 권위이며, 파일이 없거나 파싱에 실패할 때만
+`economy/IslandShopGui.java`의 `defaultIslandCfg()`가 폴백으로 사용된다. 따라서 가격을 바꿀 때는
+두 곳을 함께 맞춘다.
+
+2026-08-20 감사에서 확인한 생산 품목은 다음과 같다.
+
+| 생산 루프 | 출력·판매 경로 | 시간 모델 | 비고 |
+|---|---|---:|---|
+| 밀 | WHEAT + WHEAT_SEEDS | 10분/사이클 | 씨앗 부산물 포함 |
+| 당근·감자·비트 | 작물 본체(+비트 씨앗) | 10분/사이클 | 감자는 독감자 손실 2% 반영 |
+| 수박·호박 | MELON_SLICE/PUMPKIN | 15분/사이클 | 기존 가격표에 수확물이 빠져 있었음 |
+| 사탕수수·대나무 | SUGAR_CANE/BAMBOO | 15분/5분 | 다단 성장의 보수적 평균 가정 |
+| 코코아 | COCOA_BEANS | 15분/사이클 | 3단계 성숙 평균 |
+
+가격 감사 실행:
+
+```text
+python3 .agents/skills/balance-audit/scripts/farm_shop_audit.py
+```
+
+이 도구는 최신 코호트 스냅샷의 Lv1 최적 낚싯대·작살 원/h를 읽고, 32칸 농장을 낮은 기준의
+75%로 맞춘다. 32칸은 현재 특수작물 최대 한도와 같은 비교 단위일 뿐, 바닐라 경작지의 물리적
+설치 한도를 새로 의미하지 않는다. 바닐라 경작지가 무제한이면 총수익도 슬롯 수에 비례해 늘어나므로,
+실제 서버 목표를 유지하려면 추후 일반 경작지 한도 또는 섬 면적 한도를 별도로 결정해야 한다.
 
 ## 파일 위치
 - 메커니즘: `JAVA/crop/CropManager.java`

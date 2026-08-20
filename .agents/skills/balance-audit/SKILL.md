@@ -7,7 +7,7 @@ description: >-
   more (채집/forage, 마켓/trade, 길드/guild) as they're added. Use whenever the user wants 밸런스
   전수조사, 밸런스 감사, 서버 전체 밸런스 관리, check the balance of ANY economic system, review
   income/sinks/drop-rates/growth-times for mining or farming or fishing, judge whether 장비/작물/광석이
-  재료 대비 구린지, value individual stats, or ask "밸런스 괜찮아?". Pulls authoritative numbers
+  재료 대비 구린지, 섬상점 농작물의 작물간/낚시/작살 수익을 비교하거나, value individual stats, or ask "밸런스 괜찮아?". Pulls authoritative numbers
   directly from BlockShip Java constants + runtime JSON (NOT the drifting balance.md), snapshots them
   per-economy, computes deltas against previous audits for continuity, flags doc-vs-code drift, and
   writes timestamped per-economy reports. Invoke for periodic reviews, after any content/tuning
@@ -21,7 +21,7 @@ description: >-
 
 **★2026-07-25부터 범위가 낚시 하나에서 "서버 전체 경제"로 확장됨.** 사용자 지시: "서버 전체의
 밸런스를 관리하고 싶다". 서버엔 여러 독립 경제가 있고(낚시·광질·농사·채집·요리·카지노·마켓·길드…),
-각각 자기 수입원·소모처·시간단위(캐스트/h, 채굴사이클, 작물성장일 등)를 갖는다. 이 스킬은 **경제별
+각각 자기 수입원·소모처·시간단위(캐스트/h, 채굴사이클, 특수작물 성장일, 바닐라 농사 random-tick 사이클 등)를 갖는다. 이 스킬은 **경제별
 모듈**로 구조화돼 있다 — 낚시가 첫 모듈이고, 광질·농사가 두 번째 확장(2026-07-25)이다. 새 경제를
 감사해 달라는 요청이 오면 이 스킬로 처리하고, "경제별 모듈 추가" 패턴(아래)을 따라 확장한다.
 
@@ -75,7 +75,7 @@ description: >-
 | 🎣 낚시 | 🟡 기본 골드곡선 완료, 코호트/로드아웃 비교를 표준 루프에 편입(2026-08-20) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md), [cohort-metrics.md](references/cohort-metrics.md) | 기존 낚시 감사 + 코호트 리포트 |
 | 🔱 작살(harpoon) | 🟡 코드 기반 시뮬레이터·로드아웃 비교 구현(2026-08-20), 적중률/행동시간 실측 대기 | [harpoon-data-sources.md](references/harpoon-data-sources.md) | [harpoon-metrics.md](references/harpoon-metrics.md), [cohort-metrics.md](references/cohort-metrics.md) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) + 신규 코호트 리포트 |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
-| 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
+| 🌾 농사(특수작물+섬상점 바닐라 농사) | 🟡 특수작물 완료 + 섬상점 원/h 운영안(2026-08-20) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) + [섬상점 감사](audits/2026-08-20-farm-shop.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
 | 🪤 통발(trap) | ✅ 완료(2026-07-25) — 🟢 1건 발견·즉시수정(붉은사막 가격역전) | [trap-data-sources.md](references/trap-data-sources.md) | (audits 문서에 통합) | [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
 | 🐉 이무기 보스(boss/ImugiBattle) | 🟡 절반만(재료 신설, 전투밸런스 미감사) | — | — | [audits/2026-07-25-imugi-yeouiju.md](audits/2026-07-25-imugi-yeouiju.md) |
@@ -99,6 +99,13 @@ description: >-
 6. 이 SKILL.md의 "경제별 모듈" 표에 행 추가 + description frontmatter에 새 경제 키워드 추가.
 7. 크로스이코노미 재료가 있으면(예: 낚싯대가 광질 재료로 만들어짐) 그 사실을 양쪽 리포트에 상호
    참조로 남길 것 — 한쪽만 감사하면 재료비용이 빠진 반쪽짜리 결론이 나온다(낚싯대 사건 교훈).
+
+### 농사 하위 경로 분리 규칙
+- `CropSpecs.java`의 특수작물과 `shop-items.json` 농사 탭의 바닐라 작물을 같은 성장시간 표로 합치지 않는다.
+- 바닐라 작물은 `farm_shop_audit.py`로 random tick 성장 가정·출력 평균·상점 판매가·활성 슬롯 수를
+  모두 명시한다. 판매가 없는 수확물은 수익 0으로 조용히 누락하지 말고 "판매품목 없음"으로 경고한다.
+- 능동 경제와 비교할 때 작살이 낚시보다 높은 경우가 있으면 농사 목표를 두 값의 75%로 동시에
+  만족한다고 쓰지 않는다. 기본은 낮은 기준의 75%로 두고, 각 능동 경제 대비 비율을 별도 출력한다.
 
 ## 낚시 경제 감사 루프 (기존, 매번 이 순서대로)
 
