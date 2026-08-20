@@ -101,6 +101,81 @@ def same_grade_pool(sp, grade):
     return max(1, best or 1)
 
 
+# ══ 최소크기 = «크기 분포의 꼬리» (2026-08-20) ═══════════════════════════════
+# v2 는 최소크기를 `×(1 + sz/100)` 선형 배수로 봤다. 160cm 를 2.6배로 계산한다는 뜻이고,
+# 실제 값은 **27.4 캐스팅**이다(10배 과소평가). 그래서 「초대형 대물」(주간_초대형,
+# fish|아무|아무|1|160)이 난이도 1칸으로 떠 있었다 — 유저가 잡아낸 버그다.
+#
+# 크기는 `FishingListener` 에서 **균등분포**로 뽑힌다:
+#   size = min + random() * (max - min),  구간은 GradeRoller.sizeBand(등급스펙, 뽑힌등급, min, max)
+# 범위등급 어종("E~S")만 등급별 하위구간을 쓰고, 나머지는 [minSize, maxSize] 전체다.
+# 따라서 P(size >= S | 어종, 등급)은 닫힌 형태로 나온다 — 감으로 배수를 적을 이유가 없다.
+RANK = {g: i + 1 for i, g in enumerate(ORDER)}
+
+
+def size_band(grade_spec, rolled, mn, mx):
+    """GradeRoller.sizeBand 이식. 범위등급 어종은 등급별 하위구간을 쓴다."""
+    if not grade_spec or "~" not in grade_spec:
+        return mn, mx
+    parts = grade_spec.split("~")
+    gmin, gmax = RANK.get(parts[0], 0), RANK.get(parts[1], 0)
+    n = gmax - gmin + 1
+    if gmin < 1 or n <= 1:
+        return mn, mx
+    band = max(0, min(n - 1, RANK.get(rolled, gmin) - gmin))
+    step = (mx - mn) / n
+    return mn + step * band, mn + step * (band + 1)
+
+
+def p_size(sp, rolled, minsize):
+    """그 어종을 그 등급으로 뽑았을 때 크기가 minsize 이상일 확률."""
+    d = FISH.get(sp)
+    if not d:
+        return 0.0
+    mn, mx = size_band(d.get("grade", ""), rolled,
+                       float(d["minSize"]), float(d["maxSize"]))
+    if mx <= mn:
+        return 1.0 if mx >= minsize else 0.0
+    return max(0.0, min(1.0, (mx - minsize) / (mx - mn)))
+
+
+def base_grade(sp):
+    g = FISH.get(sp, {}).get("grade", "E")
+    return g.split("~")[0] if "~" in g else g
+
+
+_BY_GRADE = collections.defaultdict(list)
+for _sp in FISH:
+    _BY_GRADE[base_grade(_sp)].append(_sp)
+
+
+def _start_grade(gr):
+    """목표 등급칸 → 시작 등급. 범위표기는 «쉬운 쪽»(grade_mult 규칙과 동일)."""
+    if not gr or gr == "아무":
+        return None
+    parts = [x for x in gr.split("~") if x in RANK]
+    return min(parts, key=lambda x: RANK[x]) if parts else None
+
+
+def p_cast_any(gr, minsize):
+    """어종 지정이 없을 때, 캐스팅 1회가 «그 등급 이상 + minsize 이상»을 낼 확률.
+    등급 롤 → 그 등급 풀에서 균등 추첨이므로 등급별 확률에 풀 평균 꼬리확률을 곱해 더한다.
+    ★등급 요구와 크기 요구를 따로 곱하지 않는다 — 범위등급 어종은 둘이 상관되어 있다."""
+    g0 = _start_grade(gr)
+    start = 0 if g0 is None else RANK[g0] - 1
+    total = 0.0
+    for g in ORDER[start:]:
+        pool = _BY_GRADE.get(g, [])
+        if pool:
+            total += RATE[g] * sum(p_size(s, g, minsize) for s in pool) / len(pool)
+    return total
+
+
+# ★달성 불가 목표 수집통 — 어종의 maxSize 보다 큰 크기를 요구하는 퀘스트는 «영구 미완료»다.
+#   2026-08-20 실측으로 본사이드_하겐02(붕어 50cm, 붕어 최대 48cm)를 잡아냈다.
+IMPOSSIBLE = []
+
+
 def dex_minutes(regionspec, k):
     """도감 k종 — **풀 대비 깊이**로 잰다.
     지역 풀의 어종을 흔한 순으로 세우고 k번째 놈이 걸릴 확률의 역수를 쓴다.
@@ -211,7 +286,21 @@ def goal_minutes(g):
         else:
             m = BASE_CAST * n * grade_mult(gr)
         if sz and sz != "0":
-            m *= 1.0 + int(sz) / 100.0  # 최소크기 = 재시도
+            S = float(sz)
+            if sp not in ("아무", ""):
+                # 특정 어종 — 그 어종 안에서의 꼬리확률만 곱한다(등급·풀 비용은 위에서 이미 셌다).
+                ps = p_size(sp, base_grade(sp), S)
+                if ps <= 0:
+                    IMPOSSIBLE.append((sp, S, FISH.get(sp, {}).get("maxSize")))
+                    ps = 1e-6
+                m *= 1.0 / ps
+            else:
+                # 어종 미지정 — 등급+크기를 «한 번에» 센다. grade_mult 로 이미 센 등급분은 되돌린다.
+                pc = p_cast_any(gr, S)
+                if pc <= 0:
+                    IMPOSSIBLE.append(("아무/" + str(gr), S, None))
+                    pc = 1e-6
+                m = BASE_CAST * n * (1.0 / pc) * GEAR
         if fresh and fresh != "0":
             m *= 1.25                   # 신선도 유지 = 동선 제약
         if harpoon:
@@ -341,6 +430,14 @@ if UNKNOWN:
     for _v, _n in UNKNOWN.most_common():
         print(f"    {_v}  {_n}건")
     sys.exit("  goal_minutes() 에 규칙을 넣어라. 안 넣으면 그 퀘스트가 1칸으로 뜬다.")
+
+# ★달성 불가 목표도 저장 전에 막는다 — 난이도만 20칸으로 굳혀 두면 «어렵다»로 위장되고,
+#   유저는 평생 못 깨는 퀘스트를 로그에 달고 다닌다(어렵다 ≠ 불가능).
+if IMPOSSIBLE:
+    print("\n✗ 달성 불가 목표 — 어종의 maxSize 보다 큰 크기를 요구한다:")
+    for _sp, _S, _mx in IMPOSSIBLE:
+        print(f"    {_sp}  요구 {_S:g}cm  /  최대 {_mx}cm" if _mx else f"    {_sp}  요구 {_S:g}cm  (해당 조건을 만족하는 어종 없음)")
+    sys.exit("  quests.json 의 최소크기를 내리거나 어종을 바꿔라.")
 
 if not DRY:
     shutil.copy(QP, QP + ".pre-difficulty")
