@@ -915,11 +915,14 @@ function communityGuildPage(current, guild) {
   return communityLayout(guild.name, `<main${marker}><style>.guild-detail-head{display:flex;justify-content:space-between;align-items:end;gap:28px;padding:34px 0 30px;border-bottom:1px solid var(--line)}.guild-detail-kicker{margin:0 0 8px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.guild-detail-head h1{margin:0;font-size:clamp(2.7rem,6vw,5.3rem)}.guild-detail-copy{max-width:530px;margin:17px 0 0;color:var(--muted);font-size:14px}.guild-badge{display:grid;grid-template-columns:repeat(var(--emblem-size,8),1fr);grid-template-rows:repeat(var(--emblem-size,8),1fr);width:130px;height:130px;padding:5px;border:1px solid rgba(226,173,103,.48);background:#08121d;image-rendering:pixelated}.guild-badge.full{width:min(34vw,360px);height:min(34vw,360px);min-width:180px;min-height:180px}.guild-badge i{display:block}.guild-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.guild-stat{padding:16px;background:rgba(12,40,37,.74)}.guild-stat span{display:block;color:var(--muted);font-size:11px}.guild-stat strong{display:block;margin-top:8px;font-size:23px;letter-spacing:-.05em}.guild-detail-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:27px}.guild-section{padding-top:27px;border-top:1px solid var(--line)}.guild-section h2{margin:0 0 15px;font-size:20px;letter-spacing:-.07em}.guild-members{border-top:1px solid var(--line)}.guild-member{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.guild-member-avatar-wrap,.guild-member-avatar{width:40px;height:40px;background:#071b1a;border:1px solid var(--line)}.guild-member-avatar-wrap img{display:block;width:100%;height:100%;object-fit:cover}.guild-member strong{display:block;font-size:13px}.guild-member strong a{color:var(--text);text-decoration:none}.guild-member strong a:hover{color:var(--accent)}.guild-member small{display:block;margin-top:3px;color:var(--faint);font-size:10px}.guild-member>b{color:var(--muted);font-size:11px;font-weight:500;text-align:right}.guild-upgrades{border-top:1px solid var(--line)}.guild-upgrades>div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:12px}.guild-upgrades b{color:var(--text);font-weight:500}.guild-note{margin-top:16px;color:var(--faint);font-size:11px}.guild-back{margin-top:24px}@media(max-width:720px){.guild-detail-head{display:block}.guild-badge.full{width:min(80vw,320px);height:min(80vw,320px);margin-top:24px}.guild-stats{grid-template-columns:repeat(2,1fr)}.guild-detail-grid{grid-template-columns:1fr}.guild-member{grid-template-columns:40px minmax(0,1fr)}.guild-member>b{grid-column:2;text-align:left}}</style><div class="guild-detail-head"><div><p class="guild-detail-kicker">Guild profile</p><h1>${esc(guild.name)}</h1><p class="guild-detail-copy">${esc(guild.description || "아직 길드 소개가 없습니다.")}</p></div>${guildEmblem(guild, "guild-badge full", true)}</div><section class="guild-stats" aria-label="길드 기록"><div class="guild-stat"><span>구성원</span><strong>${guild.members.length}${guild.maxMembers ? ` / ${guild.maxMembers}` : ""}명</strong></div><div class="guild-stat"><span>시즌 기여</span><strong>${guild.submitSeason.toLocaleString("ko-KR")}</strong></div><div class="guild-stat"><span>누적 기여</span><strong>${guild.submitTotal.toLocaleString("ko-KR")}</strong></div><div class="guild-stat"><span>생성일</span><strong>${guildDate(guild.createdAt)}</strong></div></section><div class="guild-detail-grid"><section class="guild-section"><h2>구성원 <small>${guild.members.length} MEMBERS</small></h2><div class="guild-members">${memberCards}</div></section><aside><section class="guild-section"><h2>길드 성장</h2><div class="guild-upgrades">${upgradeRows}</div><p class="guild-note">길드장 ${esc(guild.ownerId || "알 수 없음")} · ${guild.pvp ? "길드 PvP 허용" : "길드 PvP 비허용"}</p></section><a class="back guild-back" href="${COMMUNITY_BASE_URL}/guilds">← 길드 목록으로</a></aside></div></main>`);
 }
 
-function communityGuildPageWithApply(current, guild, notice = "") {
+async function communityGuildPageWithApply(current, guild, notice = "") {
   const page = communityGuildPage(current, guild);
   if (!guild) return page;
   const uuid = current?.minecraft_uuid;
-  const member = uuid && guild.members.some((candidate) => candidate.uuid === uuid);
+  // 마인크래프트의 길드 소속을 기준으로 판단한다. 현재 보고 있는 길드가
+  // 아니더라도 이미 다른 길드에 가입한 계정이면 새 가입 신청을 만들 수 없다.
+  const membership = uuid ? await minecraftGuildFor(uuid) : null;
+  const member = Boolean(membership && membership.id === guild.id);
   const pending = uuid && guild.applications?.some((application) => application.uuid === uuid);
   const applyUrl = `${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}/apply`;
   let panel;
@@ -927,6 +930,8 @@ function communityGuildPageWithApply(current, guild, notice = "") {
     panel = `<section class="panel" style="margin:28px 0 0"><h2>길드 가입 신청</h2><p class="muted">Discord로 로그인하고 마인크래프트 계정과 연결하면 이 길드에 바로 신청할 수 있습니다.</p><a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 로그인</a></section>`;
   } else if (member) {
     panel = `<section class="panel" style="margin:28px 0 0"><h2>이미 가입한 길드입니다</h2><p class="muted">현재 ${esc(guild.name)}의 구성원으로 등록되어 있습니다.</p></section>`;
+  } else if (membership) {
+    panel = `<section class="panel" style="margin:28px 0 0"><h2>이미 길드에 가입되어 있습니다</h2><p class="muted">${esc(membership.name)}에 가입되어 있어 다른 길드에는 가입 신청을 보낼 수 없습니다.</p></section>`;
   } else if (pending) {
     panel = `<section class="panel" style="margin:28px 0 0"><h2>가입 신청을 검토 중입니다</h2><p class="muted">길드장 또는 간부가 마인크래프트에서 신청을 확인하고 승인합니다.</p></section>`;
   } else if (guild.maxMembers > 0 && guild.members.length >= guild.maxMembers) {
@@ -982,21 +987,25 @@ async function route(req, res) {
     const data = await form(req);
     const message = String(data.message ?? "").replace(/[\r\n]+/g, " ").trim();
     if (!guild || !requireCsrf(data, current) || message.length > 200) {
-      return send(res, 400, communityGuildPageWithApply(current, guild, "신청 정보를 확인해 주세요."));
+      return send(res, 400, await communityGuildPageWithApply(current, guild, "신청 정보를 확인해 주세요."));
+    }
+    const membership = await minecraftGuildFor(current.minecraft_uuid);
+    if (membership && membership.id !== guild.id) {
+      return send(res, 409, await communityGuildPageWithApply(current, guild, "이미 다른 길드에 가입되어 있어 신청할 수 없습니다."));
     }
     try {
       const submitted = await submitGuildApplication(current, guild.id, message);
-      if (!submitted) return send(res, 409, communityGuildPageWithApply(current, guild, "이미 가입했거나 신청이 진행 중입니다."));
+      if (!submitted) return send(res, 409, await communityGuildPageWithApply(current, guild, "이미 가입했거나 신청이 진행 중입니다."));
       return redirect(res, `${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}?notice=${encodeURIComponent("가입 신청을 보냈습니다. 길드장 승인 후 가입됩니다.")}`);
     } catch (error) {
       console.error("guild web application failed", error.message);
-      return send(res, 502, communityGuildPageWithApply(current, guild, "게임 서버와 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."));
+      return send(res, 502, await communityGuildPageWithApply(current, guild, "게임 서버와 연결하지 못했습니다. 잠시 후 다시 시도해 주세요."));
     }
   }
   if (path.startsWith("/community/guild/") && req.method === "GET") {
     let guildId = "";
     try { guildId = decodeURIComponent(path.slice("/community/guild/".length)); } catch { guildId = ""; }
-    return send(res, 200, communityGuildPageWithApply(await communitySession(req), guildId ? await minecraftGuildById(guildId) : null, url.searchParams.get("notice") ?? ""));
+    return send(res, 200, await communityGuildPageWithApply(await communitySession(req), guildId ? await minecraftGuildById(guildId) : null, url.searchParams.get("notice") ?? ""));
   }
   if (path === "/community/login" && req.method === "GET") {
     if (!communityConfigured()) {
