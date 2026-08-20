@@ -446,11 +446,23 @@ VARIANTS = {
               #   붉은 니트 모자를 씌운다(멀리서도 '그 할아버지'로 식별)
               # ★인게임에서 얼굴이 너무 밝다는 지적(2026-08-03) — 학자 세르간·어물전
               #   그레타와 같은 살색이었다. 평생 배를 탄 노인이라 한 단 그을린 톤으로.
-              skin='a68676', hair='9a938a', beard='full', age=True,
-              garb='tunic', cloth='oat', under='bone', legs='pitch', boot='boot',
-              head='cap', headc='rust', prop='shawl', shawl='teal', roll=8,
+              # ★2026-08-20 30번 작업복 노인(NameMC) 심층대조 반영. 근거는 g.micro_light /
+              #   g.face_frame 독스트링. 바꾼 것과 이유:
+              #     skin  a68676→8f6f5f : 볼 명도 195 였다. 잘 만든 레퍼런스는 130~160 이고
+              #                          창백한 건 개그 스킨뿐이었다("너무 하예졌다" 지적)
+              #     legs  pitch→slate   : 다리 48px 이 전부 명도 20~52 통짜 검정이었다.
+              #                          장화(어두움)와 갈리는 톤이어야 구획이 생긴다
+              #     roll  8→5           : 소매가 손목까지였다. 30번은 팔뚝 중간에서 걷는다 —
+              #                          노동자 캐릭터의 핵심 기호다
+              #     mouth True          : 행6 중앙이 205(피부 195보다 <b>밝았다</b>) = 입이
+              #                          아니라 하이라이트였다. 30번은 피부보다 42 어둡다
+              #     frame/micro         : 위 두 함수 켜기
+              skin='8f6f5f', hair='9a938a', beard='full', age=True,
+              garb='tunic', cloth='oat', under='bone', legs='slate', boot='boot',
+              head='cap', headc='rust', prop='shawl', shawl='teal', roll=5,
                 surface='quilt', surfc='rust',
                 layer2='vest', l2c='rust',
+                mouth=True, mouth_soft=True, frame=True, micro=True,
                 eye_y=4, iris='blue', jaw='oval', fringe=1, socket=True, marks='ruddy'),
     '146': dict(file='chief', mouth=True, mstyle='plain', cid=146, label='촌장',
                 # ★구스킨은 바닐라 주민(빌리저) 텍스처 — 사람이 아니라 몹으로 읽힌다.
@@ -582,8 +594,16 @@ def head(s, v, seed):
         # ★수염이 있으면 입을 더 어둡게 — 기본 skin[1]은 수염 톤과 명도가 붙어 입이
         #   사라진다(2026-08-05 선원 실측: 그루터기 886145 옆의 입 816037이 안 보였다).
         #   수염 속의 입은 '어두운 틈'이라 머리색을 절반 섞은 값이 맞다.
+        # ★mouth_soft — 머리색 절반(0.5)은 <b>너무 어둡다.</b> 실측: 피부보다 75 어두워졌고
+        #   레퍼런스(30번 작업복 노인)는 23 뿐이다. 흰머리 노인은 hair[1] 자체가 어두워서
+        #   절반만 섞어도 검은 구멍이 된다 — 수염 톤과 입이 갈릴 만큼만 섞는다.
+        #   ★기준을 skin[1](볼보다 -55)에서 skin[3]으로 바꾼다 — hair 를 섞는 비율을
+        #     줄여도 <b>바탕이 이미 어두워서</b> 소용이 없었다(실측 -71). micro_light 가
+        #     그 위에서 한 단 더 내리는 것까지 감안해 -20 을 노린다.
+        _m = (g.mix(skin[3], skin[1], 0.35) if v.get('mouth_soft')
+              else g.mix(skin[1], hair[1], 0.5))
         g.mouth(s, skin, y=v.get('mouth_y', 6), w=v.get('mouth_w', 2),
-                color=g.mix(skin[1], hair[1], 0.5) if v.get('beard') else None)
+                color=_m if v.get('beard') else None)
     if v.get('braid'):
         g.ponytail(s, hair, x0=3, w=2, y0=0, y1=5)
     # ★모자가 눈을 덮으면 안 된다(스킬 하드룰). eye_y를 아는 여기서 검사한다 —
@@ -1054,6 +1074,11 @@ def build(v):
     v = restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     head(s, v, seed)
+    # ★얼굴 프레임 — 머리색으로 얼굴 양옆을 감싼다. head() 다음이어야 한다(머리·모자가
+    #   먼저 그려져야 그 색 위에 얹힌다). 30번 작업복 노인 실측 근거는 g.face_frame 참조.
+    if v.get('frame'):
+        g.face_frame(s, hair_ramp(v['hair']), y0=v.get('eye_y', 4), y1=7,
+                     width=v.get('frame_w', 1))
     body(s, v, seed)
     extra_cut(s, v, seed)   # ★조끼·멜빵·새시 — 무늬보다 실루엣이 먼저 읽힌다
     surface(s, v, seed)     # ★무늬는 옷 다음, 소품 앞 — 소품 위에 줄무늬가 얹히면 안 된다
@@ -1063,6 +1088,10 @@ def build(v):
         g.shawl(s, R(v['wrapshawl']), y0=0, drop=v.get('shawldrop', 4), seed=seed)
     feminize(s, v, seed)    # ★여성 실루엣 — 반드시 옷·무늬 다음(옷이 덮으면 무효), 소품 앞
     props(s, v, seed)
+    # ★미세 라이팅 — <b>반드시 맨 마지막.</b> 옷·무늬·소품을 다 그린 뒤 균일면을 깬다.
+    #   중간에 넣으면 뒤에 그려지는 것이 다시 평면으로 덮어 무효가 된다.
+    if v.get('micro'):
+        g.micro_light(s, seed, strength=v.get('micro_k', 0.075))
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tf_{v['file']}.png"))
 
