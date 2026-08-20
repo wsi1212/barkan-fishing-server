@@ -159,7 +159,7 @@
     ctx.restore();
   };
   const drawLabel = area => {
-    if (area.category === 'ocean' || area.id === '바르칸' || area.id === '원양') return;
+    if (area.category === 'ocean' || area.id === '바르칸' || area.id === '원양' || ['카지노', '오아시스', '항구'].includes(area.id)) return;
     const [x, z] = center(area);
     const [sx, sy] = project(x, z, nearestHeight(x, z) + 14);
     const fontSize = area.category === 'town' ? 14 : 11;
