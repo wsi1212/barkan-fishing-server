@@ -457,13 +457,18 @@ VARIANTS = {
               #     mouth True          : 행6 중앙이 205(피부 195보다 <b>밝았다</b>) = 입이
               #                          아니라 하이라이트였다. 30번은 피부보다 42 어둡다
               #     frame/micro         : 위 두 함수 켜기
+              # ★2026-08-21 확정(B7). 붉은 모자를 뺐다 — 오너 지적 "빨간모자만 딸랑
+              #   씌워놓은게 안 어울린다". 대신 <b>백발을 드러내</b> 노인 인상을 세우고,
+              #   목도리를 조끼와 같은 붉은 계열로 묶어 «한 번만 나오는 색»을 없앴다
+              #   (청록 목도리가 전신에서 유일한 청록이라 겉돌았다).
+              #   머리 램프 폭·찬 회색·수염 밝기·입 어둡기는 전부 라이브러리가 자동 처리한다.
               skin='8f6f5f', hair='9a938a', beard='full', age=True,
-              garb='tunic', cloth='oat', under='bone', legs='slate', boot='boot',
-              head='cap', headc='rust', prop='shawl', shawl='teal', roll=5,
+              garb='tunic', cloth='oat', under='bone', legs='charcoal', boot='boot',
+              head=None, prop='shawl', shawl='rust', roll=5,
                 surface='quilt', surfc='rust',
                 layer2='vest', l2c='rust',
-                mouth=True, mouth_soft=True, frame=True, micro=True,
-                eye_y=4, iris='blue', jaw='oval', fringe=1, socket=True, marks='ruddy'),
+                mouth=True,
+                eye_y=4, iris='blue', jaw='oval', fringe=2, socket=True, marks='ruddy'),
     '146': dict(file='chief', mouth=True, mstyle='plain', cid=146, label='촌장',
                 # ★구스킨은 바닐라 주민(빌리저) 텍스처 — 사람이 아니라 몹으로 읽힌다.
                 #   마을에서 가장 격식 있는 평민: 긴 코트 + 놋쇠 직위 사슬 + 마을 장부
@@ -497,7 +502,11 @@ def _set_deep(v):
 
 def head(s, v, seed):
     _set_deep(v)
-    skin, hair = ramp(v['skin']), hair_ramp(v['hair'])
+    # ★hair_spread — 머리 램프 폭. 기본 0.74 는 <b>정수리를 명도 244(거의 순백)</b>까지
+    #   올린다. 백발 노인에게 그걸 쓰면 «머리가 너무 하얗다»가 된다(오너 지적).
+    #   30번 작업복 노인 실측 범위는 111~182(폭 71) 이고 spread 0.30 이 거기에 맞는다.
+    skin = ramp(v['skin'])
+    hair = hair_ramp(v['hair'], spread=v.get('hair_spread', 0.74))
     g.head_base(s, skin, seed=seed)
     g.ears(s, skin, y=4)
     # ★얼굴 개인차 (2026-08-03) — 부위별 측정에서 머리가 가장 닮은 부위로 나왔다
@@ -519,9 +528,21 @@ def head(s, v, seed):
     if v.get('beard'):
         # ★수염 시작 행은 눈보다 반드시 아래여야 한다 — 눈 높이를 사람마다 다르게
         #   한 뒤로 eye_y=5인 사람은 고정값 5와 충돌해 눈이 지워졌다(실측 3명)
-        g.beard(s, hair_ramp(v['hair']), style=v['beard'],
-                y=max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5),
-                seed=seed, ragged=False)
+        # ★beard_light — <b>백발 노인의 수염은 피부보다 밝아야 한다.</b>
+        #   beard() 는 hair_r[1~3] 을 쓰는데, 흰머리라도 그 구간은 램프 중하단이라
+        #   피부보다 어둡게 나온다(할아버지 실측: 수염 115~125 / 볼 170 → «흰 수염»이
+        #   아니라 «어두운 턱 그림자»로 읽혔다. 30번은 수염 173~191 / 얼굴 182 다).
+        #   그래서 램프를 한 단 위로 밀어 수염이 피부를 <b>straddle</b> 하게 한다.
+        _hr = hair_ramp(v['hair'], spread=v.get('hair_spread', 0.74))
+        if v.get('beard_light'):
+            _hr = [_hr[1], _hr[2], _hr[3], _hr[4], _hr[4]]
+        # ★beard_y — 수염 시작 행을 낮춰 <b>덩어리로 만든다.</b> 기본값은 눈 바로 아래
+        #   한 행(=행6~7 두 줄)인데, 그 두 줄에서 피부·주름·입·수염이 전부 경쟁해서
+        #   수염이 «잔무늬»로 흩어졌다. 백발 노인은 수염이 정체성이므로 3줄을 준다.
+        #   ★눈 행 이하로 내려가면 안 된다 — 눈을 덮는다(하드룰).
+        _by = v.get('beard_y', max(v.get('eye_y', 4) + 1, 6 if v['beard'] == 'mutton' else 5))
+        _by = max(_by, v.get('eye_y', 4))
+        g.beard(s, _hr, style=v['beard'], y=_by, seed=seed, ragged=False)
     if v.get('age'):
         g.wrinkles(s, skin, crow=True, forehead=v.get('head') is None)
     # ★여성 기본 눈높이 5 — 레퍼런스 여성 스킨은 눈이 얼굴 아래쪽(행 5~7)에 있다.
@@ -1020,13 +1041,13 @@ def feminize(s, v, seed):
     #   등으로 흘러내리는 길이(shoulders)는 머리쓰개와 무관하므로 항상 준다.
     _drop = max(5, min(9, v.get('backhair', 7) - 1))
     # ★머리 «볼륨»(정수리·옆·뒤)만 이쪽에서. 앞머리·흘러내림은 스타일 함수가 그린다.
-    g.female_hair_length(s, hair_ramp(v['hair']), seed=seed, drop=_drop,
+    g.female_hair_length(s, hair_ramp(v['hair'], spread=v.get('hair_spread', 0.74)), seed=seed, drop=_drop,
                          head_volume=(v.get('head') is None and not v.get('visor')),
                          shoulders=False, front=False)
     # 스타일 6종 — 하이픽셀 여성 10명 분류에서 뽑았다(garments.female_hair_style 주석 참고).
     #   머리쓰개로 앞이 막힌 사람(hood/coif/veil)은 스타일을 그리지 않는다.
     if v.get('head') not in ('hood', 'coif', 'veil'):
-        g.female_hair_style(s, hair_ramp(v['hair']), style=v.get('hstyle', 'straight'),
+        g.female_hair_style(s, hair_ramp(v['hair'], spread=v.get('hair_spread', 0.74)), style=v.get('hstyle', 'straight'),
                             drop=_drop, seed=seed)
     adorn(s, v, seed)
 
@@ -1052,7 +1073,7 @@ def adorn(s, v, seed):
     #   lessons 10장). adorn은 7개 모듈 전부에 배선돼 있으므로 여기가 맞다.
     #   ponytail()은 뒤로 가서 인게임에서 볼 일이 없다(lookclose).
     if v.get('fbraid'):
-        g.braid_front(s, hair_ramp(v['hair']), side=v.get('fbraidside'),
+        g.braid_front(s, hair_ramp(v['hair'], spread=v.get('hair_spread', 0.74)), side=v.get('fbraidside'),
                       drop=v.get('fbraiddrop', 6), seed=seed,
                       tie=R(v['fbraidtie']) if v.get('fbraidtie') else None)
     # ★피부는 팔레트 키가 아니라 hex다 — R()이 아니라 ramp()를 쓴다
@@ -1074,11 +1095,10 @@ def build(v):
     v = restyle(v)   # ★여성 개정표(두건축소·네크라인·장신구) — head()보다 먼저여야 한다
     seed = v['cid']
     head(s, v, seed)
-    # ★얼굴 프레임 — 머리색으로 얼굴 양옆을 감싼다. head() 다음이어야 한다(머리·모자가
-    #   먼저 그려져야 그 색 위에 얹힌다). 30번 작업복 노인 실측 근거는 g.face_frame 참조.
-    if v.get('frame'):
-        g.face_frame(s, hair_ramp(v['hair']), y0=v.get('eye_y', 4), y1=7,
-                     width=v.get('frame_w', 1))
+    # ★face_frame 은 <b>쓰지 않는다.</b> 레퍼런스 30번의 얼굴 양옆 어두운 줄을
+    #   «얼굴 프레임»이라는 일반 원리로 착각해 맨머리 NPC 에 옮겼는데, 그건 그 스킨이
+    #   <b>기사 투구</b>를 쓰고 있어서 생긴 투구 테두리였다(2026-08-21 오너 지적).
+    #   머리쓰개가 없는 NPC 에 넣으면 «얼굴에 회색 막대»가 된다.
     body(s, v, seed)
     extra_cut(s, v, seed)   # ★조끼·멜빵·새시 — 무늬보다 실루엣이 먼저 읽힌다
     surface(s, v, seed)     # ★무늬는 옷 다음, 소품 앞 — 소품 위에 줄무늬가 얹히면 안 된다
@@ -1088,10 +1108,7 @@ def build(v):
         g.shawl(s, R(v['wrapshawl']), y0=0, drop=v.get('shawldrop', 4), seed=seed)
     feminize(s, v, seed)    # ★여성 실루엣 — 반드시 옷·무늬 다음(옷이 덮으면 무효), 소품 앞
     props(s, v, seed)
-    # ★미세 라이팅 — <b>반드시 맨 마지막.</b> 옷·무늬·소품을 다 그린 뒤 균일면을 깬다.
-    #   중간에 넣으면 뒤에 그려지는 것이 다시 평면으로 덮어 무효가 된다.
-    if v.get('micro'):
-        g.micro_light(s, seed, strength=v.get('micro_k', 0.075))
+    # ★미세 라이팅은 Skin.save() 가 자동으로 한다 — 여기서 또 부르면 두 번 걸린다.
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / f"tf_{v['file']}.png"))
 
