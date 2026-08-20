@@ -39,6 +39,11 @@
   <script>
     (()=>{
       const data=window.BARKAN_CATALOG_DATA,grid=document.querySelector('#item-grid'),detail=document.querySelector('#detail'),empty=document.querySelector('#empty'),search=document.querySelector('#search'),type=document.querySelector('#type'),source=document.querySelector('#source'),tabs=document.querySelector('#tabs'),gradeRow=document.querySelector('#grade-row'),resultCount=document.querySelector('#result-count');
+      // 이전에 생성된 정적 카탈로그에도 지역명 변경을 즉시 반영한다.
+      for (const item of (data?.items || [])) {
+        if (item.source === '원양어선') item.source = '원양';
+        for (const row of (item.sources || [])) if (row.region === '원양어선') row.region = '원양';
+      }
       const esc=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));const label=value=>String(value||'').replaceAll('_',' ');const gradeOrder=['E','D','C','B','A','S','G','L','M'];let mode='equipment',activeGrade='',selected=null;
       if(!data?.items?.length){grid.innerHTML='<p class="empty show">장비 데이터를 불러오지 못했습니다.</p>';return;}
       document.querySelector('#equipment-count').textContent=data.equipmentCount.toLocaleString('ko-KR');document.querySelector('#material-count').textContent=data.materialCount.toLocaleString('ko-KR');document.querySelector('#type-count').textContent=[...new Set(data.items.filter(item=>item.kind==='equipment').map(item=>item.type))].length.toLocaleString('ko-KR');

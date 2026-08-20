@@ -47,6 +47,11 @@
   <script>
     (() => {
       const data = window.BARKAN_FISH_DATA;
+      // 정적 도감 데이터에 남아 있던 레거시 지역명을 현행 지역 ID로 통일한다.
+      for (const item of (data?.fish || [])) {
+        if (item.regions) item.regions = item.regions.map(value => value === '원양어선' ? '원양' : value);
+        for (const row of (item.sources || [])) if (row.region === '원양어선') row.region = '원양';
+      }
       const grid = document.querySelector('#fish-grid'), detail = document.querySelector('#detail'), empty = document.querySelector('#empty');
       const search = document.querySelector('#search'), region = document.querySelector('#region'), trapOnly = document.querySelector('#trap-only');
       const gradeRow = document.querySelector('#grade-row'), resultCount = document.querySelector('#result-count');
