@@ -190,6 +190,7 @@ def public_ranking():
             if all(value < 0 for value in canvas_emblem):
                 canvas_emblem = []
             canvas_rgb = emblem_rgb_array(guild.get("emblemCanvasRgb"), 64 * 64)
+            canvas_rgb_full = emblem_rgb_array(guild.get("emblemCanvasRgbFull"), 128 * 128)
             guild_rows.append({
                 "id": guild_id,
                 "name": guild.get("displayName") or guild_id,
@@ -201,6 +202,7 @@ def public_ranking():
                 "emblemPixels": emblem,
                 "emblemCanvasPixels": canvas_emblem,
                 "emblemCanvasRgb": canvas_rgb,
+                "emblemCanvasRgbFull": canvas_rgb_full,
             })
         guild_rows.sort(key=lambda row: (-row["score"], row["name"].casefold()))
 

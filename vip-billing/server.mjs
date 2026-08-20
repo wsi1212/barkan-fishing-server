@@ -668,6 +668,13 @@ function normalizeGuild(key, guild) {
     const number = Number(value);
     return Number.isInteger(number) && number >= 0 && number <= 0xFFFFFF ? number : 0;
   });
+  const rawCanvasRgbFull = Array.isArray(source.emblemCanvasRgbFull) && source.emblemCanvasRgbFull.length === 128 * 128
+    ? source.emblemCanvasRgbFull
+    : [];
+  const canvasRgbFull = rawCanvasRgbFull.map((value) => {
+    const number = Number(value);
+    return Number.isInteger(number) && number >= 0 && number <= 0xFFFFFF ? number : 0;
+  });
   return {
     id: String(source.id ?? key),
     name: String(source.displayName ?? source.id ?? key),
@@ -685,21 +692,25 @@ function normalizeGuild(key, guild) {
     emblemPixels,
     emblemCanvasPixels: canvasPixels,
     emblemCanvasRgb: canvasRgb,
+    emblemCanvasRgbFull: canvasRgbFull,
     members,
     applications
   };
 }
 function guildEmblem(guild, className = "guild-emblem", full = false) {
   refreshEmblemPalette();
+  const rgbPixelsFull = full && Array.isArray(guild?.emblemCanvasRgbFull) && guild.emblemCanvasRgbFull.length === 128 * 128
+    ? guild.emblemCanvasRgbFull
+    : null;
   const rgbPixels = full && Array.isArray(guild?.emblemCanvasRgb) && guild.emblemCanvasRgb.length === 64 * 64
     ? guild.emblemCanvasRgb
     : null;
-  const pixels = rgbPixels || (full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
+  const pixels = rgbPixelsFull || rgbPixels || (full && Array.isArray(guild?.emblemCanvasPixels) && guild.emblemCanvasPixels.length === 64 * 64
     ? guild.emblemCanvasPixels
     : Array.isArray(guild?.emblemPixels) && guild.emblemPixels.length === 64 ? guild.emblemPixels : Array(64).fill(-1));
-  const size = full && pixels.length === 64 * 64 ? 64 : 8;
+  const size = full && pixels.length === 128 * 128 ? 128 : full && pixels.length === 64 * 64 ? 64 : 8;
   const cells = pixels.map((value) => {
-    const color = rgbPixels
+    const color = rgbPixelsFull || rgbPixels
       ? `#${Number(value).toString(16).padStart(6, "0")}`
       : Number.isInteger(value) && value >= 0 && value < emblemColors.length ? emblemColors[value] : "#08121d";
     return `<i style="background:${color}"></i>`;
@@ -900,7 +911,7 @@ function guildDate(timestamp) {
 }
 function communityGuildListPage(current, guilds) {
   const marker = current ? " data-community-user=\"1\"" : "";
-  const cards = guilds.length ? guilds.map((guild, index) => `<a class="guild-card" href="${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}">${guildEmblem(guild, "guild-emblem small", true)}<div class="guild-rank">${String(index + 1).padStart(2, "0")}</div><div class="guild-card-main"><div class="guild-card-top"><h2>${esc(guild.name)}</h2><span class="guild-visibility">${guild.isPublic ? "공개 길드" : "비공개"}</span></div><p>${esc(guild.description || "아직 길드 소개가 없습니다.")}</p><div class="guild-card-meta"><span>${guild.members.length}/${guild.maxMembers || "—"}명</span><span>시즌 기여 ${guild.submitSeason.toLocaleString("ko-KR")}</span><span>길드장 ${esc(guild.ownerId || "알 수 없음")}</span></div></div><b class="guild-arrow">→</b></a>`).join("") : `<div class="empty">아직 공개된 길드가 없습니다.</div>`;
+  const cards = guilds.length ? guilds.map((guild, index) => `<a class="guild-card" href="${COMMUNITY_BASE_URL}/guild/${encodeURIComponent(guild.id)}">${guildEmblem(guild, "guild-emblem small", false)}<div class="guild-rank">${String(index + 1).padStart(2, "0")}</div><div class="guild-card-main"><div class="guild-card-top"><h2>${esc(guild.name)}</h2><span class="guild-visibility">${guild.isPublic ? "공개 길드" : "비공개"}</span></div><p>${esc(guild.description || "아직 길드 소개가 없습니다.")}</p><div class="guild-card-meta"><span>${guild.members.length}/${guild.maxMembers || "—"}명</span><span>시즌 기여 ${guild.submitSeason.toLocaleString("ko-KR")}</span><span>길드장 ${esc(guild.ownerId || "알 수 없음")}</span></div></div><b class="guild-arrow">→</b></a>`).join("") : `<div class="empty">아직 공개된 길드가 없습니다.</div>`;
   return communityLayout("길드", `<main${marker}><style>.guild-directory{padding:34px 0 24px;border-bottom:1px solid var(--line)}.guild-directory h1{margin:0}.guild-directory-copy{max-width:580px;margin:18px 0 0;color:var(--muted);font-size:14px}.guild-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:24px 0 13px;color:var(--muted);font-size:12px}.guild-list{border-top:1px solid var(--line)}.guild-card{display:grid;grid-template-columns:72px 58px minmax(0,1fr) 24px;gap:16px;align-items:center;padding:23px 0;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none}.guild-card:hover h2,.guild-card:hover .guild-arrow{color:var(--accent)}.guild-rank{color:var(--accent);font:800 17px ui-monospace,monospace}.guild-card-top{display:flex;align-items:center;gap:10px}.guild-card h2{margin:0;font-size:23px;font-weight:500;letter-spacing:-.07em;transition:color .15s}.guild-visibility{padding:3px 7px;border:1px solid var(--line);color:var(--faint);font-size:10px}.guild-card p{margin:7px 0 12px;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.guild-card-meta{display:flex;flex-wrap:wrap;gap:14px;color:var(--faint);font-size:11px}.guild-arrow{color:var(--accent);font-size:19px;font-weight:400}.guild-emblem{display:grid;grid-template-columns:repeat(var(--emblem-size,8),1fr);grid-template-rows:repeat(var(--emblem-size,8),1fr);width:130px;height:130px;padding:5px;border:1px solid rgba(226,173,103,.48);background:#08121d;image-rendering:pixelated}.guild-emblem i{display:block}.guild-emblem.small{width:64px;height:64px;padding:2px;border-color:var(--line)}.guild-back{margin-top:20px}@media(max-width:720px){.guild-card{grid-template-columns:56px 40px minmax(0,1fr) 18px;gap:10px;padding:19px 0}.guild-card h2{font-size:19px}.guild-card p{font-size:12px}.guild-card-meta{gap:8px;font-size:10px}.guild-emblem.small{width:52px;height:52px}}</style><section class="guild-directory"><p class="eyebrow">Barkan guilds</p><h1>길드 목록</h1><p class="guild-directory-copy">함께 섬을 키우고, 요리와 채집을 나누며 항해하는 동료들의 기록입니다. 길드를 선택하면 구성원과 성장 현황을 볼 수 있습니다.</p></section><div class="guild-toolbar"><span>${guilds.length}개 길드</span><a class="button ghost" href="${COMMUNITY_BASE_URL}">커뮤니티로</a></div><section class="guild-list" aria-label="길드 목록">${cards}</section></main>`);
 }
 function communityGuildPage(current, guild) {
