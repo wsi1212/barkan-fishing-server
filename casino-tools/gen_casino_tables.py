@@ -27,7 +27,6 @@
 """
 
 import json
-import math
 from pathlib import Path
 
 # MC yaw: 0=+z(남), 90=−x(서), 180=−z(북), −90=+x(동)
