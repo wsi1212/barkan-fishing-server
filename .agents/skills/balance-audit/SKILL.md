@@ -72,8 +72,8 @@ description: >-
 
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
-| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md), ★[audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) (수입공식 오류 — 앵커 32,489원/h는 **폐기 대기**) |
-| 🔱 작살(harpoon) | 🔴 **미모델링 발견(2026-08-03)** — 등급 롤 우회(어종 균등)+quality 70~100 고정+한계비용 0. 낚시 모듈은 rod만 다뤘음 | (미작성 — HarpoonManager/HarpoonListener) | (미작성) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) |
+| 🎣 낚시 | 🟡 기본 골드곡선 완료, 코호트/로드아웃 비교를 표준 루프에 편입(2026-08-20) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md), [cohort-metrics.md](references/cohort-metrics.md) | 기존 낚시 감사 + 코호트 리포트 |
+| 🔱 작살(harpoon) | 🟡 코드 기반 시뮬레이터·로드아웃 비교 구현(2026-08-20), 적중률/행동시간 실측 대기 | [harpoon-data-sources.md](references/harpoon-data-sources.md) | [harpoon-metrics.md](references/harpoon-metrics.md), [cohort-metrics.md](references/cohort-metrics.md) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) + 신규 코호트 리포트 |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
@@ -84,9 +84,9 @@ description: >-
 | 📜 퀘스트/도전과제 보상 + 마을별 난이도분포 | ✅ 완료(2026-07-25) — 🟡 콘텐츠 갭 다수(수치문제 아님) | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목3·5 |
 | ⚙️ 드릴 최종값 | ⚠️ 재개필요(2026-08-03) — 확정구조 **T1 흑정석/T2 철광석(둘 다 mine 월드)/T3 자수정(레드_로드 전용)**, 셋 다 실제 빌드 확인. ★regions.json "광산" 지역은 채굴처 **아님**(채굴 존 등록 금지). 미해결=**철광석 소비 레시피 0건**(T2 산출물 쓸 데 없음), 유저 결정 대기 | [mining-data-sources.md](references/mining-data-sources.md) | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목4·조치완료3 |
 
-**전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 낚시
-시급 32,489원/h를 공통 앵커로, 4개 경제(낚시/광질/농사/채집) 전 원재료에 골드가치 산출 완료
-(2026-07-25). 재계산: `scripts/cross_economy_values.py`.
+**전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) — 공통 앵커는
+고정된 32,489원/h가 아니라 실행 시 최신 raw snapshot의 `stat_value.py` 결과를 사용한다.
+재계산: `scripts/cross_economy_values.py`.
 
 ### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
 1. 그 경제의 코드/JSON 위치를 파악(Agent로 조사 — 이 스킬이 아직 모르는 시스템일 확률 높음).
@@ -119,14 +119,34 @@ python3 .claude/skills/balance-audit/scripts/diff.py --auto <오늘>.raw.json
 - 직전 스냅샷 대비 바뀐 수치만 출력. "변경 없음"이면 튜닝이 안 들어간 것.
 - 첫 감사면 베이스라인이라 델타가 없다 — 그대로 진행.
 
-### 3. 스탯 실질가치 산출 (공통 잣대)
+### 3. 카탈로그·획득경로 무결성 (기계)
+```bash
+python3 .agents/skills/balance-audit/scripts/catalog.py
+```
+- `parts.json`의 모든 장비 행을 보존한다. 부품 총계는 파일에서 다시 세며, 문서의 84종/131종 같은 고정 숫자를 신뢰하지 않는다.
+- `recipes.json`의 `resultPartType/resultPartName`을 부품에 연결한다. 연결되지 않은 장비는 “획득불가”라고 즉시 단정하지 말고, 상점·퀘스트·OP 지급 등 다른 획득 경로 확인 전까지 **획득경로 미연결**로 표시한다.
+- 레시피·부품·어종의 source fingerprint와 `catalog_hash`를 남겨, 서로 다른 시점의 JSON을 섞은 분석을 차단한다.
+
+### 4. 스탯 실질가치 산출 (공통 잣대)
 ```bash
 python3 .claude/skills/balance-audit/scripts/stat_value.py
 ```
 - 각 스탯 1단위를 원/h로 환산(판매1%=1.0 앵커). 요리·날씨·장비를 비교할 **공통 화폐**.
 - 상세·방법론·직관 교정: [references/stat-values.md](references/stat-values.md).
 
-### 4. 파생 지표 계산 (Claude가 직접)
+### 5. 플레이어 코호트·로드아웃 시뮬레이션 (필수)
+```bash
+python3 .agents/skills/balance-audit/scripts/cohort_sim.py \
+  --level 1 --level 10 --level 30 --level 45 --level 60 --level 70 --level 100 \
+  --goal money --top 3
+```
+- 비교 단위는 “같은 등급 아이템”이 아니라 **해당 레벨에서 실제로 쓸 수 있는 최적 빌드**다.
+- 각 레벨에서 낚싯대와 작살을 모두 같은 공통 부품/지역/판매공식으로 평가한다. 도구 전용 스탯(낚싯대 난이도·작살 공격력/공격속도/수중호흡 등)을 무시한 단일 stat-value 표는 최종 결론이 아니다.
+- 골드/h뿐 아니라 XP/h, 캐치/h, 평균 품질, 등급 분포, 실패율, 도구 가격/재료 회수시간을 함께 기록한다.
+- 작살의 `--harpoon-hit-rate`는 초기에는 가정값이다. 0.50/0.75/0.90 민감도 결과를 모두 보고, 실측 계측이 쌓이면 가정값을 대체한다.
+- 지역을 반드시 지정할 수 있다. 지역 풀에 없는 등급을 존재한다고 가정하지 않고, GradeRoller의 “미가용 등급 롤 건너뜀 → 폴백”을 반영한다.
+
+### 6. 파생 지표 계산 (Claude가 직접)
 스냅샷 raw + 스탯가치로 아래를 계산해 스냅샷 `derived`에 적고 리포트에 넣는다:
 - **레벨 도달 시간** — 누적 경험치(`cumulative_xp`) ÷ 시간당 경험치(장비/버프 시나리오별).
 - **시간당 수입** — 등급 분포 × 등급 기본가 × 크기점수 배율 × 낚시 횟수 (★fish.json에 개별가 없음).
@@ -134,17 +154,21 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
 - **요리(F)** — 버프 스탯 × stat_value × 지속시간 = 버프가치(원). 티어·재료 대비 균형.
 - **날씨(G)** — 환경보너스 × stat_value = 날씨 원/h. 다운사이드(난이도/도주) 차감. 강도·빈도.
 - **장비(H)** — 부품 스탯가치(원/h) ÷ 가격 = 회수시간. 등급-가격-가치 정합성.
+- **코호트(I)** — 레벨/지역/목표별 최적 로드아웃, 대체장비 대비 상대효율, 가격·재료 회수시간, 사용률 후보.
+- **도구 선택(J)** — 낚싯대 vs 작살의 골드/h·XP/h·캐치/h·품질·실패율을 한 표에 놓고, 한쪽이 다른 쪽을 지배하는 레벨 구간을 표시.
+- **기회비용(K)** — 같은 레벨 포인트/강화/재료를 한 도구에 투자했을 때 다른 도구 대비 잃는 생산량과 회수시간.
+- **실측 보정(L)** — telemetry의 스윙·명중·미스·캐치·세션 시간을 시뮬레이션 가정과 대조한다. 표본 부족이면 “미판정”으로 둔다.
 - ★요리(DishSpecs.java)·날씨(env-bonuses.json+WeatherManager)·장비(parts.json)는 pull.py가
   전량 파싱하진 않으므로, 값이 바뀌었으면 해당 소스를 재추출해 측정한다(data-sources.md 위치 참조).
 
-### 5. 이슈 판정 (metrics.md 경보선 대조)
+### 7. 이슈 판정 (metrics.md 경보선 대조)
 각 축을 metrics.md의 정상 범위와 대조해 이슈를 등급화한다:
 - 🔴 **치명** — 경제 붕괴(인플레·머니싱크 부재), 성장 벽이 이탈 유발, 확률 버그
 - 🟡 **주의** — 정상 범위 경계, 이전 감사 대비 큰 델타(±15%↑), 종결급 편중
 - 🟢 **관찰** — 사소한 편차, 다음 감사에서 추이 볼 것
 - ⚪ **드리프트** — 코드 값 ≠ balance.md 값. 값 자체는 정상이어도 문서를 고쳐야 함.
 
-### 6. 리포트 작성 (고정 포맷)
+### 8. 리포트 작성 (고정 포맷)
 `audits/<date>.md`에 아래 **고정 섹션 순서**로 쓴다 (포맷 고정 = 감사 간 비교 가능):
 
 ```markdown
@@ -166,6 +190,9 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 ## F. 요리 (버프가치 원 vs 제작난이도)
 ## G. 날씨 (환경보너스 원/h + 다운사이드 + 빈도)
 ## H. 장비 스탯가치 vs 가격 (회수시간, 등급-가격 정합성)
+## I. 플레이어 코호트 / 로드아웃
+## J. 낚싯대 vs 작살
+## K. 획득경로 / 기회비용 / 지배구간
 (각 축: 핵심 수치 표 + 파생 지표 + 이슈 등급 + 근거)
 
 ## 드리프트 (코드 vs balance.md)
@@ -186,4 +213,4 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 - **읽기 전용 감사다.** 이 스킬은 밸런스를 *진단*만 한다. 수치를 실제로 바꾸는 건 별개 작업 —
   리포트의 조치 권고를 사용자가 승인한 뒤에 코드를 고친다.
 - pull.py는 Java **정규식 파싱**이라 코드 구조가 바뀌면 깨질 수 있다. warnings가 곧 조기경보다.
-- 부품 총계는 **84종**이 정답(CLAUDE.md의 "131"은 stale — 발견 시 드리프트로 보고).
+- 부품 총계는 문서에 고정하지 않는다. 현재 런타임 `parts.json` 기준은 **226종(낚싯대 67·릴 21·줄 21·바늘 21·미끼 20·찌 21·작살 55)**이며, 다음 감사에서 카탈로그가 다시 계산한다.

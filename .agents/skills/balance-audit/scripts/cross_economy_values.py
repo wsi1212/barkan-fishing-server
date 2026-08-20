@@ -9,11 +9,31 @@ cross_economy_values.py — 전 경제(낚시·광질·농사·채집) 원재료
 - 수동 경제(농사): 성장시간 동안 플레이어는 자유(다른 활동 가능) → growSec 자체는 비용이 아니다.
   진짜 비용은 "플롯 슬롯"(유한하고 돈으로 사야 함) 점유 기회비용.
 
-앵커: 낚시 무버프 시급 32,489원/h = 9.0247원/초 (stat_value.py 기본 시나리오와 동일 소스).
+앵커: 실행 시 최신 raw snapshot의 stat_value.py 결과를 읽는다. 과거 32,489원/h는
+고정 레거시 값이며 현재 코드가 바뀌어도 유지되는 상수가 아니다.
 """
 import json
+import os
+import sys
+from pathlib import Path
 
-ANCHOR_WON_PER_HOUR = 32489
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+import stat_value as sv
+
+skill_dir = SCRIPT_DIR.parent
+snapshot_dir = skill_dir / "audits" / "snapshots"
+snapshot_override = os.environ.get("BALANCE_SNAPSHOT")
+if snapshot_override:
+    snapshot_path = Path(snapshot_override)
+else:
+    snapshots = sorted(p for p in snapshot_dir.glob("*.raw.json") if "pending" not in p.name)
+    snapshot_path = snapshots[-1] if snapshots else None
+if snapshot_path and snapshot_path.exists():
+    _snapshot = sv.load_snapshot(str(snapshot_path))
+    ANCHOR_WON_PER_HOUR = round(sv.compute(_snapshot, 150, 50)[0])
+else:
+    raise SystemExit("raw snapshot이 없습니다. pull.py를 먼저 실행하세요.")
 ANCHOR_WON_PER_SEC = ANCHOR_WON_PER_HOUR / 3600  # 9.0247
 
 print("=" * 78)

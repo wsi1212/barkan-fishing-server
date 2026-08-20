@@ -16,6 +16,8 @@ pull.py — 바르칸 열도 밸런스 스냅샷 추출기.
 """
 import argparse, json, os, re, sys
 
+from catalog import build_catalog
+
 JAVA_ROOT = os.environ.get(
     "BLOCKSHIP_JAVA",
     "/Users/user/development/blockship-plugin/src/main/java/com/blockship",
@@ -274,6 +276,24 @@ def pull_rng():
 # ─────────────────────────────────────────────────────────────
 def pull_equipment():
     out = {}
+    # ★카테고리 개수만으로는 플레이어 선택지를 복원할 수 없다. 부품·레시피·어종
+    # 전체를 같은 raw snapshot에 고정해, 이후 시뮬레이터가 다른 시점의 JSON을
+    # 섞어 쓰지 않게 한다.
+    try:
+        catalog = build_catalog()
+        out["catalog"] = catalog
+        out["catalog_integrity"] = {
+            "part_total": catalog.get("part_total"),
+            "recipe_total": len(catalog.get("recipes", [])),
+            "missing_recipe_total": sum(
+                len(names) for names in catalog.get("missing_recipe_names", {}).values()
+            ),
+            "duplicate_name_total": len(catalog.get("duplicate_names", [])),
+            "catalog_hash": catalog.get("catalog_hash"),
+        }
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        warn(f"장비 카탈로그 추출 실패: {e}")
+
     parts = read_json("parts.json")
     if parts is not None:
         p = parts.get("parts", parts)

@@ -55,7 +55,7 @@ pull.py를 함께 갱신할 것. (검증 기준일: 2026-07-24)
 ## D. 장비 / 강화 / 부품
 | 수치 | 위치 | 비고 |
 |---|---|---|
-| 부품 스탯 표 **84종** (낚싯대20·릴12·줄14·바늘14·미끼13·찌11) | `JSON/parts.json` (`parts`) → `JAVA/parts/PartLoader.java` | ★AGENTS.md "131"은 stale |
+| 부품 스탯 표 | `JSON/parts.json` (`parts`) → `JAVA/parts/PartLoader.java` | 개수는 `catalog.py`가 매번 재계산(현재 226종) |
 | 강화 성공률 `SUCCESS[]`, 비용 `COST[]`, 하락 `DOWN[]`, 체크포인트 {5,10,15}, 진주 `PEARL[]` | `JAVA/enhance/EnhanceManager.java` L45~57 | +16부터 성공률 급락(5→1)의 "벽" |
 | 강화 성공 계산 `base*(1+boost/100)` | 同 L543~552 | |
 | 레벨별 강화 스탯 증가표 | `JSON/enhance.json` (`order`,`table`) → `JAVA/enhance/EnhanceLoader.java` | 비용곡선과 별개 |
@@ -78,7 +78,7 @@ balance.md는 하드코딩 값의 거의 완전한 미러 → 축마다 이중�
 | 등급 해금 30/45/60 | `RewardMath.levelBonus()` | §3.3/§7 |
 | 강화 SUCCESS/COST/DOWN/PEARL | `EnhanceManager` | §10.3 |
 | ~~등급업 캡~~ | 2026-07-24 코드+balance.md 동시 폐지로 **해소** | 크리배율 캡(8)·콤보캡(20%)도 함께 폐지 |
-| 부품 수 | parts.json=**84** | §14="84종", AGENTS.md="131" ← stale |
+| 부품 수 | `catalog.py`가 `parts.json`에서 재계산 | 고정 문서 숫자는 stale로 간주 |
 
 **★참고**: 기존 가드 `scripts/.codex/hooks/balance-check.sh`는 `*.sk`/`balance.md` 편집만 감시하고
 **Java 소스는 감시 안 함**. 이 스킬이 그 공백을 메운다 — 반드시 Java 상수+JSON을 직접 읽는다.
