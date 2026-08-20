@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#061517">
+  <meta name="description" content="바르칸 열도의 실제 서버 지역 좌표와 주요 마을을 탐색하는 3D 지도">
+  <title>항해 지도 — 바르칸 열도</title>
+  <script src="/assets/map-data.js?v=1"></script>
+  <script src="/assets/site-nav.js?v=6" defer></script>
+  <style>
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-light.ttf') format('truetype');font-weight:300;font-display:swap}
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-medium.ttf') format('truetype');font-weight:500;font-display:swap}
+    @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-bold.ttf') format('truetype');font-weight:800;font-display:swap}
+    :root{color-scheme:dark;--ink:#061517;--deep:#091f22;--sea:#0d3134;--sea2:#124449;--text:#e8eee4;--muted:#91b0a9;--faint:#63837e;--teal:#7be0d0;--gold:#e8b767;--coral:#ee8e70;--line:rgba(199,235,221,.18);--soft:rgba(199,235,221,.1);--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    *{box-sizing:border-box}
+    html{background:var(--ink);scroll-behavior:smooth}
+    body{min-width:320px;margin:0;background:radial-gradient(920px 480px at 75% -130px,rgba(30,111,115,.52),transparent 66%),var(--ink);color:var(--text);font:15px/1.62 Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+    a{color:inherit}
+    button{font:inherit}
+    .shell{width:min(1320px,calc(100% - 48px));margin:0 auto}
+    .eyebrow{margin:0;color:var(--teal);font:800 10px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+    .map-mast{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:50px;align-items:end;padding:70px 0 42px;border-bottom:1px solid var(--line)}
+    .map-mast h1{max-width:850px;margin:14px 0 0;font-size:clamp(3.5rem,8vw,7.4rem);font-weight:500;letter-spacing:-.1em;line-height:.9}
+    .map-mast h1 em{color:var(--gold);font-style:normal}
+    .map-mast p:not(.eyebrow){max-width:575px;margin:23px 0 0;color:var(--muted);font-size:16px}
+    .map-mast-aside{padding:17px 0 0 19px;border-left:1px solid var(--gold)}
+    .map-mast-aside strong{display:block;color:var(--gold);font-size:29px;font-weight:500;letter-spacing:-.08em}
+    .map-mast-aside span{display:block;margin-top:6px;color:var(--muted);font:11px/1.65 var(--mono)}
+    .map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 0 17px;border-bottom:1px solid var(--line)}
+    .map-filters{display:flex;flex-wrap:wrap;gap:7px}
+    .filter{padding:8px 12px;border:1px solid var(--line);background:rgba(9,31,34,.6);color:var(--muted);font-size:12px;cursor:pointer;transition:color .2s ease,border-color .2s ease,background .2s ease}
+    .filter:hover,.filter:focus-visible,.filter[aria-pressed=true]{border-color:var(--gold);background:rgba(232,183,103,.12);color:var(--gold)}
+    .map-reset{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid rgba(123,224,208,.35);background:transparent;color:var(--teal);font-size:12px;cursor:pointer;white-space:nowrap}
+    .map-reset:hover,.map-reset:focus-visible{border-color:var(--gold);color:var(--gold)}
+    .map-layout{display:grid;grid-template-columns:minmax(0,1fr) 335px;gap:16px;padding:16px 0 80px}
+    .map-card,.detail-panel{border:1px solid var(--line);background:linear-gradient(145deg,rgba(16,55,56,.76),rgba(5,20,23,.92));box-shadow:0 22px 60px rgba(0,0,0,.2)}
+    .map-card{min-width:0;overflow:hidden}
+    .map-card-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 18px;border-bottom:1px solid var(--soft)}
+    .map-card-title{display:flex;align-items:center;gap:10px;color:var(--text);font-size:13px;font-weight:800}
+    .map-card-title i{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 15px var(--teal)}
+    .map-card-head span{color:var(--faint);font:10px var(--mono)}
+    .map-viewport{position:relative;min-height:675px;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 48% 45%,rgba(43,133,125,.26),transparent 50%),linear-gradient(145deg,#0b3538,#06181d 75%);outline:none}
+    .map-viewport:before{position:absolute;inset:0;background-image:linear-gradient(rgba(123,224,208,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(123,224,208,.08) 1px,transparent 1px);background-size:44px 44px;content:"";opacity:.65;mask-image:linear-gradient(135deg,#000,transparent 76%);pointer-events:none}
+    .map-viewport:after{position:absolute;right:7%;bottom:9%;width:190px;height:190px;border:1px solid rgba(232,183,103,.3);border-radius:50%;box-shadow:0 0 0 21px rgba(232,183,103,.04),0 0 0 48px rgba(232,183,103,.03),0 0 0 81px rgba(232,183,103,.025);content:"";pointer-events:none}
+    .map-plane{position:absolute;inset:6% 4%;transform:rotateX(52deg) rotateZ(-7deg) scale(.92);transform-origin:50% 56%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 35px 24px rgba(0,0,0,.38))}
+    .map-plane:before{position:absolute;inset:18px -2px -18px;background:linear-gradient(135deg,rgba(2,12,15,.92),rgba(7,43,42,.72));content:"";transform:translateZ(-22px);clip-path:polygon(4% 6%,96% 0,100% 92%,8% 100%);opacity:.9}
+    .map-svg{position:relative;z-index:1;width:100%;height:100%;overflow:visible}
+    .map-grid-line{stroke:rgba(139,221,211,.15);stroke-width:3;stroke-dasharray:7 18}
+    .map-contour{fill:none;stroke:rgba(123,224,208,.17);stroke-width:7}
+    .area{cursor:pointer;transition:opacity .2s ease}
+    .area[hidden]{display:none}
+    .area-shape{fill:rgba(30,125,115,.22);stroke:rgba(123,224,208,.7);stroke-width:5;vector-effect:non-scaling-stroke;transition:fill .2s ease,stroke .2s ease,filter .2s ease}
+    .area[data-category=town] .area-shape{fill:rgba(232,183,103,.27);stroke:var(--gold);stroke-width:7}
+    .area[data-category=poi] .area-shape{fill:rgba(238,142,112,.24);stroke:var(--coral);stroke-width:5;stroke-dasharray:12 7}
+    .area[data-category=ocean] .area-shape{fill:rgba(37,111,151,.18);stroke:rgba(132,211,232,.54);stroke-dasharray:17 12}
+    .area[data-id=바르칸] .area-shape{fill:rgba(45,133,122,.08);stroke:rgba(123,224,208,.5);stroke-width:9}
+    .area:not(.is-selected):hover .area-shape,.area.is-preview .area-shape{fill:rgba(123,224,208,.36);stroke:#d6fff2;filter:drop-shadow(0 0 8px rgba(123,224,208,.76))}
+    .area[data-category=town]:not(.is-selected):hover .area-shape,.area[data-category=town].is-preview .area-shape{fill:rgba(232,183,103,.48);stroke:#ffe7a7}
+    .area.is-selected .area-shape{fill:rgba(232,183,103,.52);stroke:#fff2bd;stroke-width:10;filter:drop-shadow(0 0 13px rgba(232,183,103,.9))}
+    .area-label{fill:#d8f4ea;font:800 18px Barkan,'Apple SD Gothic Neo',sans-serif;paint-order:stroke;stroke:#062124;stroke-width:8px;stroke-linejoin:round;pointer-events:none;text-anchor:middle}
+    .area[data-category=town] .area-label{fill:#ffe6a4;font-size:21px}
+    .area[data-category=region] .area-label{fill:#99cfc2;font-size:16px;opacity:.78}
+    .area[data-category=ocean] .area-label{fill:#8ec5dc;font:700 15px var(--mono);letter-spacing:.08em}
+    .area:not([data-category=town]):not([data-category=poi]):not([data-category=ocean]) .area-label{opacity:.62}
+    .coord-mark{fill:var(--gold);stroke:#061517;stroke-width:6;vector-effect:non-scaling-stroke}
+    .coord-mark-ring{fill:none;stroke:rgba(232,183,103,.76);stroke-width:4;vector-effect:non-scaling-stroke;animation:sonar 2.6s ease-out infinite}
+    .map-hud{position:absolute;z-index:4;left:19px;right:19px;bottom:17px;display:flex;align-items:end;justify-content:space-between;gap:20px;pointer-events:none}
+    .map-hud-note{max-width:260px;padding:10px 12px;border-left:2px solid var(--teal);background:rgba(4,18,21,.72);backdrop-filter:blur(8px)}
+    .map-hud-note strong{display:block;font-size:12px;font-weight:800}
+    .map-hud-note span{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+    .map-scale{color:var(--faint);font:10px var(--mono);text-align:right}
+    .map-scale b{display:block;width:95px;height:4px;margin:0 0 6px auto;background:linear-gradient(90deg,var(--gold) 50%,transparent 50%);border:1px solid var(--gold)}
+    .map-legend{display:flex;flex-wrap:wrap;gap:12px;padding:13px 18px;border-top:1px solid var(--soft);color:var(--muted);font-size:10px}
+    .legend-item{display:flex;align-items:center;gap:6px}
+    .legend-item i{display:block;width:9px;height:9px;border:1px solid var(--teal);background:rgba(123,224,208,.3)}
+    .legend-item.town i{border-color:var(--gold);background:rgba(232,183,103,.36)}
+    .legend-item.poi i{border-color:var(--coral);background:rgba(238,142,112,.28)}
+    .legend-item.ocean i{border-color:#8ed3eb;background:rgba(47,116,157,.3)}
+    .detail-panel{align-self:start;min-height:675px;padding:20px;overflow:hidden}
+    .detail-kicker{display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--teal);font:800 9px var(--mono);letter-spacing:.13em;text-transform:uppercase}
+    .detail-kicker b{padding:4px 7px;border:1px solid rgba(123,224,208,.28);color:var(--muted);font:700 9px var(--mono);letter-spacing:.05em}
+    .detail-panel h2{margin:23px 0 4px;font-size:39px;font-weight:500;letter-spacing:-.1em;line-height:1}
+    .detail-panel .detail-type{margin:0;color:var(--gold);font-size:12px}
+    .detail-intro{min-height:64px;margin:21px 0 0;color:var(--muted);font-size:13px}
+    .detail-coords{display:grid;grid-template-columns:repeat(3,1fr);margin:22px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .detail-coords div{padding:13px 8px 13px 0;border-right:1px solid var(--soft)}
+    .detail-coords div+div{padding-left:10px}
+    .detail-coords div:last-child{border-right:0}
+    .detail-coords b{display:block;color:var(--gold);font:700 16px var(--mono)}
+    .detail-coords span{display:block;margin-top:3px;color:var(--faint);font:9px var(--mono);letter-spacing:.08em}
+    .detail-list{margin:23px 0 0;padding:0;border-top:1px solid var(--soft);list-style:none}
+    .detail-list li{display:grid;grid-template-columns:92px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--soft);font-size:12px}
+    .detail-list b{color:var(--faint);font-weight:500}
+    .detail-list span{color:var(--text);text-align:right}
+    .detail-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+    .detail-actions button,.detail-actions a{display:inline-flex;align-items:center;justify-content:center;padding:9px 11px;border:1px solid rgba(123,224,208,.35);background:transparent;color:var(--teal);font-size:11px;text-decoration:none;cursor:pointer}
+    .detail-actions button:hover,.detail-actions a:hover,.detail-actions button:focus-visible,.detail-actions a:focus-visible{border-color:var(--gold);color:var(--gold)}
+    .location-strip{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .location-card{min-width:0;padding:17px 14px;border:0;border-right:1px solid var(--soft);background:transparent;color:var(--muted);text-align:left;cursor:pointer;transition:background .2s ease,color .2s ease,padding .2s ease}
+    .location-card:last-child{border-right:0}
+    .location-card:hover,.location-card:focus-visible,.location-card.is-active{padding-left:18px;background:rgba(232,183,103,.08);color:var(--gold)}
+    .location-card b{display:block;overflow:hidden;color:inherit;font-size:14px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+    .location-card span{display:block;margin-top:3px;overflow:hidden;color:var(--faint);font:10px var(--mono);text-overflow:ellipsis;white-space:nowrap}
+    .map-note{display:flex;align-items:start;justify-content:space-between;gap:28px;padding:30px 0 90px;color:var(--faint);font-size:11px}
+    .map-note strong{color:var(--muted);font-weight:500}
+    .map-note span{max-width:580px;text-align:right}
+    :focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+    @keyframes sonar{0%{opacity:.8;transform:scale(.7);transform-origin:center}80%,100%{opacity:0;transform:scale(2.5);transform-origin:center}}
+    @media(max-width:980px){.map-layout{grid-template-columns:1fr}.detail-panel{min-height:0}.map-viewport{min-height:610px}.location-strip{grid-template-columns:repeat(5,minmax(130px,1fr));overflow-x:auto}.location-card{min-width:130px}.map-note{display:block}.map-note span{display:block;margin-top:10px;text-align:left}}
+    @media(max-width:720px){.shell{width:min(100% - 28px,620px)}.map-mast{display:block;padding:51px 0 34px}.map-mast h1{font-size:clamp(3.2rem,16vw,5.1rem)}.map-mast p:not(.eyebrow){font-size:14px}.map-mast-aside{margin-top:31px}.map-toolbar{display:block}.map-reset{margin-top:11px}.map-viewport{min-height:520px}.map-plane{inset:12% -8%;transform:rotateX(52deg) rotateZ(-7deg) scale(.88)}.map-card-head{padding:13px 14px}.map-card-head span{font-size:9px}.map-legend{gap:9px;padding:11px 14px}.detail-panel{padding:17px}.detail-panel h2{font-size:34px}.location-strip{margin-top:0}.map-note{padding-bottom:55px}}
+    @media(prefers-reduced-motion:reduce){.map-plane{transition:none}.coord-mark-ring{animation:none}.area-shape{transition:none}}
+  </style>
+</head>
+<body>
+  <header class="shell"><div data-site-nav></div></header>
+  <main class="shell">
+    <section class="map-mast">
+      <div>
+        <p class="eyebrow">BARKAN ISLANDS · CARTOGRAPHY</p>
+        <h1>바르칸을<br><em>한눈에.</em></h1>
+        <p>게임 안에서 실제로 쓰이는 지역 범위와 좌표를, 항해자의 시선으로 다시 펼쳤습니다. 영역을 가리키면 미리 보고, 누르면 그곳으로 초점을 맞춰 보세요.</p>
+      </div>
+      <aside class="map-mast-aside"><strong>35개 지역</strong><span>PROD REGION SNAPSHOT<br>minecraft:world · X / Z 기준</span></aside>
+    </section>
+    <div class="map-toolbar">
+      <div class="map-filters" role="group" aria-label="지도 필터">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">전체</button>
+        <button class="filter" type="button" data-filter="town" aria-pressed="false">마을·항구</button>
+        <button class="filter" type="button" data-filter="region" aria-pressed="false">권역</button>
+        <button class="filter" type="button" data-filter="poi" aria-pressed="false">탐험·기능</button>
+        <button class="filter" type="button" data-filter="ocean" aria-pressed="false">바다</button>
+      </div>
+      <button class="map-reset" id="reset-map" type="button"><span aria-hidden="true">↺</span> 전체 보기</button>
+    </div>
+    <section class="map-layout" aria-label="바르칸 항해 지도">
+      <div class="map-card">
+        <div class="map-card-head"><div class="map-card-title"><i></i> 실측 영역 지도</div><span id="map-status">HOVER TO PREVIEW · CLICK TO FOCUS</span></div>
+        <div class="map-viewport" id="map-viewport" tabindex="0" aria-label="지역을 선택할 수 있는 지도">
+          <div class="map-plane">
+            <svg class="map-svg" id="map-svg" viewBox="-1550 -1450 3200 3000" role="img" aria-labelledby="map-title map-desc">
+              <title id="map-title">바르칸 열도 지역 지도</title>
+              <desc id="map-desc">BlockShip 운영 서버의 regions.json에서 추출한 X/Z 지역 경계</desc>
+              <defs>
+                <filter id="map-glow"><feGaussianBlur stdDeviation="7" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                <linearGradient id="sea-fill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#16545a" stop-opacity=".7"/><stop offset="1" stop-color="#071d26" stop-opacity=".18"/></linearGradient>
+              </defs>
+              <g id="map-grid"></g>
+              <g id="map-contours"></g>
+              <g id="map-routes"></g>
+              <g id="map-areas"></g>
+              <g id="map-markers"></g>
+            </svg>
+          </div>
+          <div class="map-hud"><div class="map-hud-note"><strong id="hover-label">스폰도시를 선택해 보세요</strong><span id="hover-note">주요 마을의 영역과 실제 좌표를 확인할 수 있습니다.</span></div><div class="map-scale"><b></b>약 500 blocks</div></div>
+        </div>
+        <div class="map-legend"><span class="legend-item town"><i></i> 주요 마을·항구 영역</span><span class="legend-item"><i></i> 지역 경계</span><span class="legend-item poi"><i></i> 탐험·기능 지점</span><span class="legend-item ocean"><i></i> 해역·원양</span></div>
+      </div>
+      <aside class="detail-panel" id="detail-panel" aria-live="polite">
+        <div class="detail-kicker"><span id="detail-mode">SELECTED REGION</span><b id="detail-category">TOWN</b></div>
+        <h2 id="detail-name">스폰도시</h2>
+        <p class="detail-type" id="detail-type">주요 마을 · 바르칸 본섬</p>
+        <p class="detail-intro" id="detail-intro">지역을 가리키거나 목록에서 골라 보세요. 지도에서 테두리가 빛나고, 이 패널에 실제 측정 좌표가 표시됩니다.</p>
+        <div class="detail-coords"><div><b id="coord-x">268</b><span>X</span></div><div><b id="coord-y">79</b><span>Y ANCHOR</span></div><div><b id="coord-z">1078</b><span>Z</span></div></div>
+        <ul class="detail-list"><li><b>영역 크기</b><span id="detail-size">—</span></li><li><b>권역 연결</b><span id="detail-parent">바르칸</span></li><li><b>해금 레벨</b><span id="detail-level">레벨 0</span></li><li><b>월드</b><span id="detail-world">minecraft:world</span></li></ul>
+        <div class="detail-actions"><button id="focus-button" type="button">지도에서 포커스</button><a href="/wiki/explore">탐험 위키 →</a></div>
+      </aside>
+    </section>
+    <nav class="location-strip" id="location-strip" aria-label="주요 거점 바로가기"></nav>
+    <div class="map-note"><strong>좌표 출처 · BlockShip 운영 서버의 <span style="font-family:var(--mono)">plugins/BlockShip/regions.json</span> prod 스냅샷</strong><span>표시는 Minecraft X/Z 평면을 기준으로 하며, 경계가 없는 포인트형 지역은 영역이 있는 실측 지역 위주로 표시했습니다. 실제 게임의 보호·이동 판정이 바뀌면 이 지도도 다시 스냅샷해야 합니다.</span></div>
+  </main>
+  <script>
+    (() => {
+      const data = window.BARKAN_MAP_DATA;
+      if (!data) return;
+      const svg = document.querySelector('#map-svg');
+      const areasLayer = document.querySelector('#map-areas');
+      const markerLayer = document.querySelector('#map-markers');
+      const routesLayer = document.querySelector('#map-routes');
+      const gridLayer = document.querySelector('#map-grid');
+      const contourLayer = document.querySelector('#map-contours');
+      const detail = {
+        panel: document.querySelector('#detail-panel'), mode: document.querySelector('#detail-mode'), category: document.querySelector('#detail-category'),
+        name: document.querySelector('#detail-name'), type: document.querySelector('#detail-type'), intro: document.querySelector('#detail-intro'),
+        x: document.querySelector('#coord-x'), y: document.querySelector('#coord-y'), z: document.querySelector('#coord-z'),
+        size: document.querySelector('#detail-size'), parent: document.querySelector('#detail-parent'), level: document.querySelector('#detail-level'),
+        world: document.querySelector('#detail-world'), focus: document.querySelector('#focus-button')
+      };
+      const globalView = [-1550,-1450,3200,3000];
+      const areaById = new Map(data.areas.map(area => [area.id, area]));
+      const visibleAreas = data.areas.filter(area => Array.isArray(area.polygon) && area.polygon.length >= 3);
+      const towns = ['스폰도시','사막마을','상단마을','왕도','항구'].map(id => areaById.get(id)).filter(Boolean);
+      const quickLocations = [...towns, '오아시스','광산','카지노'].map(item => typeof item === 'string' ? areaById.get(item) : item).filter(Boolean);
+      let selected = areaById.get('스폰도시') || towns[0];
+      const esc = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+      const points = area => area.polygon.map(([x,z]) => `${x},${z}`).join(' ');
+      const center = area => { const [minX,maxX,minZ,maxZ] = area.bounds; return [(minX+maxX)/2,(minZ+maxZ)/2]; };
+      const label = area => area.category === 'town' ? '주요 마을·항구' : area.category === 'poi' ? '탐험·기능 지점' : area.category === 'ocean' ? '해역' : '자연 권역';
+      const typeCopy = area => area.category === 'town' ? `${area.name} · 주요 거점` : area.category === 'poi' ? `${area.name} · 탐험 포인트` : area.category === 'ocean' ? `${area.name} · 해역` : `${area.name} · 바르칸 권역`;
+      const sizeCopy = area => { const [minX,maxX,minZ,maxZ] = area.bounds; return `${Math.abs(maxX-minX).toLocaleString()} × ${Math.abs(maxZ-minZ).toLocaleString()} blocks`; };
+      function buildDecor() {
+        for (let x=-1500;x<=1500;x+=250) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M ${x} -1450 V 1550"/>`);
+        for (let z=-1250;z<=1450;z+=250) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M -1550 ${z} H 1650"/>`);
+        [[-980,-630,550],[-260,-460,260],[620,260,390]].forEach(([x,z,r]) => contourLayer.insertAdjacentHTML('beforeend', `<ellipse class="map-contour" cx="${x}" cy="${z}" rx="${r}" ry="${Math.round(r*.62)}"/>`));
+      }
+      function buildAreas() {
+        visibleAreas.forEach(area => {
+          const [cx,cz] = center(area);
+          const group = document.createElementNS('http://www.w3.org/2000/svg','g');
+          group.classList.add('area');
+          group.dataset.id = area.id;
+          group.dataset.category = area.category;
+          group.setAttribute('tabindex','0');
+          group.setAttribute('role','button');
+          group.setAttribute('aria-label',`${area.name} 지역 열기`);
+          group.innerHTML = `<polygon class="area-shape" points="${points(area)}"></polygon><text class="area-label" x="${cx}" y="${cz}">${esc(area.name)}</text>`;
+          group.addEventListener('mouseenter', () => preview(area));
+          group.addEventListener('mouseleave', () => { if (selected) renderDetail(selected, false); });
+          group.addEventListener('focus', () => preview(area));
+          group.addEventListener('blur', () => { if (selected) renderDetail(selected, false); });
+          group.addEventListener('click', () => select(area, true));
+          group.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(area, true); }});
+          areasLayer.append(group);
+        });
+      }
+      function buildRoutes() {
+        const route = towns.map(center);
+        routesLayer.innerHTML = `<polyline points="${route.map(([x,z]) => `${x},${z}`).join(' ')}" fill="none" stroke="rgba(232,183,103,.56)" stroke-width="7" stroke-dasharray="16 15" vector-effect="non-scaling-stroke"></polyline>`;
+      }
+      function buildMarkers() {
+        quickLocations.forEach(area => {
+          const [x,z] = center(area);
+          markerLayer.insertAdjacentHTML('beforeend', `<circle class="coord-mark-ring" cx="${x}" cy="${z}" r="8"></circle><circle class="coord-mark" cx="${x}" cy="${z}" r="5"></circle>`);
+        });
+      }
+      function renderQuick() {
+        document.querySelector('#location-strip').innerHTML = quickLocations.slice(0,8).map(area => `<button class="location-card" type="button" data-location="${esc(area.id)}"><b>${esc(area.name)}</b><span>${area.anchor[0]}, ${area.anchor[2]} · ${label(area)}</span></button>`).join('');
+        document.querySelectorAll('[data-location]').forEach(button => button.addEventListener('click', () => select(areaById.get(button.dataset.location), true)));
+      }
+      function renderDetail(area, previewMode) {
+        if (!area) return;
+        detail.mode.textContent = previewMode ? 'HOVER PREVIEW' : 'SELECTED REGION';
+        detail.category.textContent = label(area).toUpperCase();
+        detail.name.textContent = area.name;
+        detail.type.textContent = typeCopy(area);
+        detail.intro.textContent = area.category === 'town' ? '실제 지역 경계가 기록된 주요 거점입니다. 이곳을 중심으로 NPC와 항로, 생활 콘텐츠가 이어집니다.' : area.category === 'poi' ? '서버 지역 데이터에 기록된 탐험·기능 지점입니다. 현장에서 주변 지형과 NPC 안내를 함께 확인하세요.' : '서버가 사용하는 실측 지역 경계입니다. 도감과 위키의 서식 정보는 이 권역을 기준으로 연결됩니다.';
+        detail.x.textContent = area.anchor[0].toLocaleString();
+        detail.y.textContent = area.anchor[1].toLocaleString();
+        detail.z.textContent = area.anchor[2].toLocaleString();
+        detail.size.textContent = sizeCopy(area);
+        detail.parent.textContent = area.parent || '—';
+        detail.level.textContent = `레벨 ${area.requiredLevel}`;
+        detail.world.textContent = area.world === 'world' ? 'minecraft:world' : `minecraft:${area.world}`;
+        document.querySelectorAll('.area').forEach(item => item.classList.toggle('is-preview', item.dataset.id === area.id && previewMode));
+        document.querySelectorAll('.location-card').forEach(item => item.classList.toggle('is-active', item.dataset.location === area.id));
+      }
+      function preview(area) {
+        renderDetail(area, true);
+        document.querySelector('#hover-label').textContent = `${area.name} · ${label(area)}`;
+        document.querySelector('#hover-note').textContent = `X ${area.anchor[0].toLocaleString()} · Z ${area.anchor[2].toLocaleString()} · 클릭하면 영역에 포커스`;
+        document.querySelector('#map-status').textContent = `PREVIEW · ${area.id.toUpperCase()}`;
+      }
+      function select(area, zoom) {
+        if (!area) return;
+        selected = area;
+        document.querySelectorAll('.area').forEach(item => item.classList.toggle('is-selected', item.dataset.id === area.id));
+        renderDetail(area, false);
+        document.querySelector('#hover-label').textContent = `${area.name}에 초점을 맞췄습니다`;
+        document.querySelector('#hover-note').textContent = `실측 앵커 X ${area.anchor[0].toLocaleString()} · Y ${area.anchor[1].toLocaleString()} · Z ${area.anchor[2].toLocaleString()}`;
+        document.querySelector('#map-status').textContent = `FOCUS · ${area.id.toUpperCase()}`;
+        if (zoom) {
+          const [minX,maxX,minZ,maxZ] = area.bounds;
+          const pad = Math.max(80, Math.round(Math.max(maxX-minX,maxZ-minZ)*.22));
+          svg.setAttribute('viewBox', `${minX-pad} ${minZ-pad} ${Math.max(180,maxX-minX+pad*2)} ${Math.max(180,maxZ-minZ+pad*2)}`);
+        }
+      }
+      function reset() {
+        svg.setAttribute('viewBox', globalView.join(' '));
+        select(selected, false);
+        document.querySelector('#map-status').textContent = 'HOVER TO PREVIEW · CLICK TO FOCUS';
+      }
+      function filter(value, button) {
+        document.querySelectorAll('.filter').forEach(item => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'));
+        document.querySelectorAll('.area').forEach(item => { item.hidden = value !== 'all' && item.dataset.category !== value; });
+      }
+      buildDecor(); buildAreas(); buildRoutes(); buildMarkers(); renderQuick(); select(selected, false);
+      document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => filter(button.dataset.filter, button)));
+      document.querySelector('#reset-map').addEventListener('click', reset);
+      detail.focus.addEventListener('click', () => select(selected, true));
+      document.querySelector('#map-viewport').addEventListener('keydown', event => { if (event.key === 'Escape') reset(); });
+    })();
+  </script>
+</body>
+</html>
