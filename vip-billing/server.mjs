@@ -2,7 +2,8 @@ import http from "node:http";
 import net from "node:net";
 import process from "node:process";
 import { readFileSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { resolve, sep } from "node:path";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import pg from "pg";
 
@@ -32,6 +33,17 @@ const MINECRAFT_ISLANDS_FILE = process.env.MINECRAFT_ISLANDS_FILE ?? "/home/ubun
 const MINECRAFT_ACHIEVEMENTS_FILE = process.env.MINECRAFT_ACHIEVEMENTS_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/achievements.json";
 const MINECRAFT_TITLES_FILE = process.env.MINECRAFT_TITLES_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/titles.json";
 const MINECRAFT_EMBLEM_PALETTE_FILE = process.env.MINECRAFT_EMBLEM_PALETTE_FILE ?? "/home/ubuntu/mcserver/plugins/BlockShip/emblem-palette.json";
+const COMMUNITY_UPLOAD_DIR = process.env.COMMUNITY_UPLOAD_DIR ?? "/srv/vip-billing/uploads/community";
+const COMMUNITY_UPLOAD_URL = `${COMMUNITY_BASE_URL}/uploads`;
+const COMMUNITY_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const COMMUNITY_IMAGE_MAX_COUNT = 4;
+const COMMUNITY_MULTIPART_MAX_BYTES = 22 * 1024 * 1024;
+const COMMUNITY_IMAGE_TYPES = Object.freeze({
+  "image/jpeg": { extension: "jpg" },
+  "image/png": { extension: "png" },
+  "image/webp": { extension: "webp" },
+  "image/gif": { extension: "gif" }
+});
 const MC_RCON_HOST = process.env.MC_RCON_HOST ?? "127.0.0.1";
 const MC_RCON_PORT = Number.parseInt(process.env.MC_RCON_PORT ?? "25575", 10);
 const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
@@ -172,15 +184,127 @@ function layout(title, content) {
   @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-medium.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}:root{color-scheme:dark;--ink:#0c1726;--deep:#111f31;--surface:#14253a;--line:rgba(210,226,231,.16);--text:#eef4f2;--muted:#a9b9c2;--tide:#93d8d4;--aqua:#83e7ff;--gold:#ffd36b;--pink:#ff94da;--success:#6ee7a2;--danger:#ff93a9}*{box-sizing:border-box}body,body *{font-family:"Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif}body{min-height:100vh;margin:0;background:linear-gradient(180deg,#102238 0,#0c1726 570px);color:var(--text);font:15px/1.58 "Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}.nav{height:78px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:baseline;gap:9px;color:var(--text);text-decoration:none}.brand strong{font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:19px;letter-spacing:.1em}.brand small{color:var(--tide);font-size:10px;font-weight:800;letter-spacing:.13em}.nav span{display:flex;gap:20px}.nav a:not(.brand){color:var(--muted);font-size:13px;text-decoration:none}.nav a:not(.brand):hover{color:var(--text)}main{padding:46px 0 82px}.hero{position:relative;overflow:hidden;padding:70px 4px 54px;border-bottom:1px solid var(--line)}.hero:after,.hero:before{content:"";position:absolute;right:-125px;border:1px solid rgba(147,216,212,.14);border-radius:50%;pointer-events:none}.hero:after{top:-195px;width:450px;height:450px}.hero:before{top:-125px;right:-55px;width:310px;height:310px}.hero-kicker{position:relative;margin:0 0 14px;color:var(--tide);font-size:11px;font-weight:850;letter-spacing:.16em}.hero h1{position:relative;max-width:720px;margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:clamp(3rem,7vw,5.8rem);font-weight:650;letter-spacing:-.07em;line-height:.98}.hero h1 span{color:var(--tide)}.hero .muted{position:relative;max-width:510px;margin:21px 0 0;font-size:16px}.button,button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:11px 17px;border:1px solid transparent;border-radius:6px;background:var(--tide);color:#0c1a28;font:800 14px inherit;text-decoration:none;cursor:pointer;transition:background .15s ease,transform .15s ease}.button:hover,button:hover{background:#b2edeb;transform:translateY(-1px)}.button.alt{border-color:var(--line);background:transparent;color:var(--text)}.section-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:42px 0 17px}.section-head h2{margin:0;font-size:22px;letter-spacing:-.04em}.section-head p{margin:5px 0 0;color:var(--muted);font-size:14px}.membership-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}.card{display:flex;min-height:326px;flex-direction:column;padding:26px;background:var(--deep)}.card:first-child{background:linear-gradient(160deg,#162b43,#111f31)}.card:nth-child(2){background:linear-gradient(160deg,#2c2a28,#161f2d)}.card:nth-child(3){background:linear-gradient(160deg,#2d2233,#171d2e)}.card h2{margin:0;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:27px;letter-spacing:-.05em}.tier-desc{min-height:43px;margin:9px 0 19px;color:var(--muted);font-size:13px}.price{font-size:27px;font-weight:850;letter-spacing:-.05em}.price small{margin-left:3px;color:var(--muted);font-size:12px;font-weight:650;letter-spacing:0}.benefits{min-height:88px;margin:22px 0 25px;padding:0;list-style:none;color:#dbe5e8;font-size:13px}.benefits li{margin:7px 0}.benefits li:before{content:"—";margin-right:8px;color:var(--tier,var(--tide));font-weight:900}.card .button{width:100%;margin-top:auto;background:transparent;border-color:rgba(238,244,242,.33);color:var(--text)}.card .button:hover{border-color:var(--tier);background:rgba(255,255,255,.07)}.notice{margin:22px 0;padding:14px 16px;border-left:2px solid var(--tide);background:rgba(147,216,212,.08);color:#dcefed}.ok{border-left-color:var(--success);background:rgba(110,231,162,.1);color:#cbf8db}.danger{border-left-color:var(--danger);background:rgba(255,125,155,.11);color:#ffd5df}.muted{color:var(--muted)}.panel{max-width:780px;margin:0 auto;padding:34px;border:1px solid var(--line);background:var(--deep);box-shadow:20px 24px 0 rgba(0,0,0,.08)}.panel h1{margin:0 0 9px;font-family:ui-serif,Georgia,"Noto Serif KR",serif;font-size:34px;font-weight:650;letter-spacing:-.06em}.panel h2{margin:28px 0 12px;font-size:18px}.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:24px 0;background:var(--line);border:1px solid var(--line)}.choice{display:flex;min-height:104px;flex-direction:column;justify-content:center;padding:14px;background:#102035;color:var(--text);text-decoration:none;transition:background .16s ease}.choice:hover,.choice.selected{background:#1b3950;outline:1px solid var(--tier,var(--tide));outline-offset:-1px}.choice strong{font-size:14px}.choice span{margin-top:4px;color:var(--muted);font-size:12px}.choice b{margin-top:7px;font-size:16px;letter-spacing:-.03em}input,select,textarea{width:100%;margin:7px 0 16px;padding:13px;border:1px solid var(--line);border-radius:4px;background:#0b1625;color:var(--text);font:inherit}label{font-weight:750}table{width:100%;border-collapse:collapse}td,th{padding:11px 7px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted);font-weight:650}.footer{padding:28px 0 42px;border-top:1px solid var(--line);color:#84949e;font-size:12px}@media(max-width:800px){.wrap{width:min(100% - 28px,620px)}.hero{padding:52px 0 42px}.membership-grid{grid-template-columns:1fr}.card{min-height:auto}.choice-grid{grid-template-columns:repeat(2,1fr)}.section-head{display:block}.nav{height:66px}.nav span{gap:12px}.nav a:not(.brand){font-size:12px}}@media(max-width:420px){.choice-grid{grid-template-columns:1fr}.hero h1{font-size:44px}.nav span a:first-child{display:none}.panel{padding:24px 18px}}</style></head><body><div class="wrap"><nav class="nav"><a class="brand" href="/"><strong>BARKAN</strong><small>MEMBERSHIP</small></a><span><a href="${BASE_URL}/link">계정 연결</a><a href="${BASE_URL}/account">내 이용권</a></span></nav><main>${content}</main><footer class="footer">바르칸 열도 · 멤버십 문의 및 환불은 운영팀에 문의하세요.</footer></div></body></html>`;
 }
 
-function form(req) {
+function requestBuffer(req, maxBytes) {
   return new Promise((resolve, reject) => {
-    let raw = "";
-    // URLSearchParams 폼은 한글이 percent-encoding 되어 원문보다 커진다.
-    // 본문 자체는 글쓰기에서 5,000자로 제한하므로, 인코딩된 요청을 담을 여유만 둔다.
-    req.on("data", (part) => { raw += part; if (raw.length > 100_000) reject(new Error("too large")); });
-    req.on("end", () => resolve(Object.fromEntries(new URLSearchParams(raw))));
-    req.on("error", reject);
+    const chunks = [];
+    let total = 0;
+    let settled = false;
+    const fail = (error) => { if (!settled) { settled = true; reject(error); } };
+    req.on("data", (part) => {
+      total += part.length;
+      if (total > maxBytes) {
+        const error = new Error("request too large");
+        error.code = "PAYLOAD_TOO_LARGE";
+        req.destroy();
+        fail(error);
+        return;
+      }
+      chunks.push(part);
+    });
+    req.on("end", () => { if (!settled) { settled = true; resolve(Buffer.concat(chunks)); } });
+    req.on("aborted", () => fail(new Error("request aborted")));
+    req.on("error", fail);
   });
+}
+function multipartHeaderValue(headers, name) {
+  const line = headers.split("\r\n").find((value) => value.toLowerCase().startsWith(`${name.toLowerCase()}:`));
+  return line ? line.slice(line.indexOf(":") + 1).trim() : "";
+}
+function multipartParameter(header, name) {
+  const match = header.match(new RegExp(`${name}="([^"]*)"`, "i"));
+  return match ? match[1] : "";
+}
+async function multipartForm(req) {
+  const contentType = String(req.headers["content-type"] ?? "");
+  const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
+  if (!boundaryMatch) throw new Error("multipart boundary missing");
+  const boundary = Buffer.from(`--${boundaryMatch[1] ?? boundaryMatch[2]}`);
+  const body = await requestBuffer(req, COMMUNITY_MULTIPART_MAX_BYTES);
+  const fields = {};
+  const files = [];
+  let cursor = body.indexOf(boundary);
+  while (cursor >= 0) {
+    cursor += boundary.length;
+    if (body.subarray(cursor, cursor + 2).toString() === "--") break;
+    if (body.subarray(cursor, cursor + 2).toString() === "\r\n") cursor += 2;
+    const next = body.indexOf(boundary, cursor);
+    if (next < 0) break;
+    let end = next;
+    if (body.subarray(end - 2, end).toString() === "\r\n") end -= 2;
+    const part = body.subarray(cursor, end);
+    const headerEnd = part.indexOf(Buffer.from("\r\n\r\n"));
+    if (headerEnd < 0) { cursor = next; continue; }
+    const headers = part.subarray(0, headerEnd).toString("utf8");
+    const data = part.subarray(headerEnd + 4);
+    const disposition = multipartHeaderValue(headers, "content-disposition");
+    const name = multipartParameter(disposition, "name");
+    if (!name) { cursor = next; continue; }
+    const filename = multipartParameter(disposition, "filename");
+    if (filename) {
+      files.push({ name, filename, type: multipartHeaderValue(headers, "content-type").toLowerCase(), data });
+    } else {
+      fields[name] = data.toString("utf8");
+    }
+    cursor = next;
+  }
+  return { fields, files };
+}
+async function form(req) {
+  const contentType = String(req.headers["content-type"] ?? "").toLowerCase();
+  if (contentType.startsWith("multipart/form-data")) {
+    const parsed = await multipartForm(req);
+    Object.defineProperty(parsed.fields, "__files", { value: parsed.files, enumerable: false });
+    return parsed.fields;
+  }
+  const raw = await requestBuffer(req, 100_000);
+  return Object.fromEntries(new URLSearchParams(raw.toString("utf8")));
+}
+function detectedCommunityImageType(data) {
+  if (data.length >= 8 && data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (data.length >= 3 && data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) return "image/jpeg";
+  if (data.length >= 6 && ["GIF87a", "GIF89a"].includes(data.subarray(0, 6).toString("ascii"))) return "image/gif";
+  if (data.length >= 12 && data.subarray(0, 4).toString("ascii") === "RIFF" && data.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+  return "";
+}
+function communityImageUrl(storageName) {
+  return `${COMMUNITY_UPLOAD_URL}/${encodeURIComponent(storageName)}`;
+}
+function communityImageGallery(images = [], className = "post-images") {
+  if (!images.length) return "";
+  return `<div class="${className}" aria-label="첨부 이미지">${images.map((image) => `<a class="post-image-link" href="${communityImageUrl(image.storage_name)}" target="_blank" rel="noopener noreferrer"><img class="post-image" src="${communityImageUrl(image.storage_name)}" alt="게시글 첨부 이미지" loading="lazy" decoding="async"></a>`).join("")}</div>`;
+}
+function communityImageFiles(data) {
+  return (Array.isArray(data?.__files) ? data.__files : []).filter((file) => file.name === "images" && file.data?.length);
+}
+async function storeCommunityImages(files) {
+  if (!files.length) return [];
+  if (files.length > COMMUNITY_IMAGE_MAX_COUNT) throw new Error(`이미지는 최대 ${COMMUNITY_IMAGE_MAX_COUNT}장까지 첨부할 수 있습니다.`);
+  let total = 0;
+  const stored = [];
+  try {
+    await mkdir(COMMUNITY_UPLOAD_DIR, { recursive: true });
+    for (const file of files) {
+      if (file.data.length > COMMUNITY_IMAGE_MAX_BYTES) throw new Error("이미지는 한 장당 5MB 이하만 첨부할 수 있습니다.");
+      total += file.data.length;
+      const declared = String(file.type ?? "").split(";", 1)[0].trim();
+      const detected = detectedCommunityImageType(file.data);
+      if (!detected || !COMMUNITY_IMAGE_TYPES[detected] || (declared && declared !== detected)) {
+        throw new Error("PNG, JPG, WebP, GIF 이미지만 첨부할 수 있습니다.");
+      }
+      const storageName = `${randomUUID()}.${COMMUNITY_IMAGE_TYPES[detected].extension}`;
+      const absolutePath = resolve(COMMUNITY_UPLOAD_DIR, storageName);
+      await writeFile(absolutePath, file.data, { flag: "wx" });
+      stored.push({ storageName, mimeType: detected, sizeBytes: file.data.length });
+    }
+    if (total > COMMUNITY_MULTIPART_MAX_BYTES - 1_000_000) throw new Error("첨부 이미지 전체 용량이 너무 큽니다.");
+    return stored;
+  } catch (error) {
+    await Promise.all(stored.map((image) => unlink(resolve(COMMUNITY_UPLOAD_DIR, image.storageName)).catch(() => {})));
+    throw error;
+  }
+}
+async function removeCommunityImages(images = []) {
+  await Promise.all(images.map((image) => unlink(resolve(COMMUNITY_UPLOAD_DIR, image.storage_name ?? image.storageName)).catch(() => {})));
 }
 function bodyJson(req) {
   return new Promise((resolve, reject) => {
@@ -245,6 +369,12 @@ async function migrate() {
     ALTER TABLE community_posts ADD CONSTRAINT community_posts_category_check CHECK (category IN ('공지','공략','인사글','판매글','홍보글','자유게시판','구인구직','질문','후기','소식'));
     CREATE INDEX IF NOT EXISTS community_posts_feed_idx ON community_posts (hidden, created_at DESC);
     CREATE INDEX IF NOT EXISTS community_posts_author_idx ON community_posts (minecraft_uuid, created_at DESC);
+    CREATE TABLE IF NOT EXISTS community_post_images (
+      id UUID PRIMARY KEY, post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
+      storage_name TEXT NOT NULL UNIQUE, mime_type TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL CHECK (size_bytes > 0), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS community_post_images_post_idx ON community_post_images (post_id, created_at ASC);
     CREATE TABLE IF NOT EXISTS community_post_likes (
       post_id UUID NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
       minecraft_uuid UUID NOT NULL,
@@ -521,7 +651,8 @@ async function communityPosts(category = "", query = "") {
   const stats = `
     COALESCE((SELECT COUNT(*) FROM community_post_likes l WHERE l.post_id=p.id), 0)::int AS like_count,
     COALESCE((SELECT COUNT(*) FROM community_post_views v WHERE v.post_id=p.id), 0)::int AS view_count,
-    COALESCE((SELECT COUNT(*) FROM community_comments c WHERE c.post_id=p.id AND c.hidden=FALSE), 0)::int AS comment_count`;
+    COALESCE((SELECT COUNT(*) FROM community_comments c WHERE c.post_id=p.id AND c.hidden=FALSE), 0)::int AS comment_count,
+    COALESCE((SELECT COUNT(*) FROM community_post_images i WHERE i.post_id=p.id), 0)::int AS image_count`;
   const result = await pool.query(`
     WITH notice_posts AS (
       SELECT p.id,p.category,p.title,p.body,p.player_name,p.minecraft_uuid,p.created_at,p.updated_at,${stats},TRUE AS is_notice
@@ -557,7 +688,9 @@ async function communityPost(id, current = null) {
       )) AS liked
     FROM community_posts p
     WHERE p.id=$1::uuid AND p.hidden=FALSE`, [id, current?.minecraft_uuid ?? null]);
-  return result.rows[0] ?? null;
+  if (!result.rows[0]) return null;
+  const images = await pool.query("SELECT id,storage_name,mime_type,size_bytes,created_at FROM community_post_images WHERE post_id=$1::uuid ORDER BY created_at ASC", [id]);
+  return { ...result.rows[0], images: images.rows };
 }
 function communityCount(value) {
   return Number(value ?? 0).toLocaleString("ko-KR");
@@ -844,7 +977,7 @@ function communityPage(current, posts, notice = "", selectedCategory = "", searc
   const boardTitle = selected || "커뮤니티";
   const boardDescription = selected ? COMMUNITY_CATEGORY_META[selected] : "바르칸에서 먼저 알아낸 방법과 오늘의 발견을 나누는 공간입니다.";
   const userMarker = current ? " data-community-user=\"1\"" : "";
-  const cards = posts.length ? posts.map((post) => `<article class="post${post.is_notice ? " notice-post" : ""}"><div class="post-category">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</div><a class="post-content" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><h2 class="post-title">${esc(post.title)}</h2><p class="post-excerpt">${esc(post.body)}</p><div class="post-stats">${communityPostStats(post)}</div></a><a class="post-meta" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(post.minecraft_uuid)}">${esc(post.player_name)}<br>${new Date(post.created_at).toLocaleDateString("ko-KR")}</a></article>`).join("") : `<div class="empty">${query ? `“${esc(query)}”와 일치하는 글이 없습니다.` : "아직 첫 항해 기록이 없습니다. 게임에서 겪은 팁과 발견을 남겨 보세요."}</div>`;
+  const cards = posts.length ? posts.map((post) => `<article class="post${post.is_notice ? " notice-post" : ""}"><div class="post-category">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</div><a class="post-content" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}"><h2 class="post-title">${esc(post.title)}</h2><p class="post-excerpt">${esc(post.body)}</p><div class="post-stats">${communityPostStats(post)}${post.image_count ? `<span class="post-stat">이미지 ${communityCount(post.image_count)}</span>` : ""}</div></a><a class="post-meta" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(post.minecraft_uuid)}">${esc(post.player_name)}<br>${new Date(post.created_at).toLocaleDateString("ko-KR")}</a></article>`).join("") : `<div class="empty">${query ? `“${esc(query)}”와 일치하는 글이 없습니다.` : "아직 첫 항해 기록이 없습니다. 게임에서 겪은 팁과 발견을 남겨 보세요."}</div>`;
   const writeUrl = selected ? `${COMMUNITY_BASE_URL}/write?category=${encodeURIComponent(selected)}` : `${COMMUNITY_BASE_URL}/write`;
   const action = current ? `<a class="button" href="${writeUrl}">글쓰기</a>` : `<a class="button" href="${COMMUNITY_BASE_URL}/login">Discord로 시작하기</a>`;
   const categories = ["전체", ...COMMUNITY_CATEGORIES].map((category) => {
@@ -864,12 +997,12 @@ function communityWritePage(current, error = "", selectedCategory = "", operator
   const selected = availableCategories.includes(selectedCategory) ? selectedCategory : "자유게시판";
   const options = availableCategories.map((category) => `<option value="${category}"${category === selected ? " selected" : ""}>${category}</option>`).join("");
   const noticeHelp = operator ? `<small class="help">공지글은 모든 게시판에서 상단 3개까지 고정되어 보입니다.</small>` : "";
-  return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log · ${esc(selected)}</p><h2>${esc(selected)}에 새 글 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select>${noticeHelp}<label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
+  return communityLayout("글쓰기", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Write a log · ${esc(selected)}</p><h2>${esc(selected)}에 새 글 남기기</h2><p class="muted">게임에서 직접 확인한 정보와 경험을 다른 항해자에게 건네주세요.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/write" enctype="multipart/form-data"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select>${noticeHelp}<label for="title">제목</label><input id="title" name="title" maxlength="80" required placeholder="예: 비 오는 날 원양어선에서 잘 잡히는 물고기"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required placeholder="다른 사람이 그대로 따라 할 수 있도록 장소, 조건, 순서를 자세히 적어 주세요."></textarea><label for="images">이미지 첨부 <span class="muted">(선택)</span></label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="help">PNG·JPG·WebP·GIF, 최대 4장 · 한 장당 5MB</small><small class="help">마크 계정과 Discord 닉네임이 함께 표시됩니다. 개인정보는 적지 마세요.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">게시하기</button><a class="button ghost" href="${COMMUNITY_BASE_URL}">취소</a></div></form></section></main>`);
 }
 function communityEditPage(current, post, error = "", operator = false) {
   const availableCategories = operator ? COMMUNITY_CATEGORIES : COMMUNITY_CATEGORIES.filter((category) => category !== "공지");
   const options = availableCategories.map((category) => `<option value="${category}"${category === post.category ? " selected" : ""}>${category}</option>`).join("");
-  return communityLayout("글 수정", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Edit the log · ${esc(post.category)}</p><h2>기록 수정하기</h2><p class="muted">작성한 글의 제목, 내용, 게시판을 수정할 수 있습니다.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}/edit"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required value="${esc(post.title)}"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required>${esc(post.body)}</textarea><small class="help">수정 시 목록에 ‘수정됨’ 표시가 붙습니다.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">변경 저장</button><a class="button ghost" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}">취소</a></div></form></section></main>`);
+  return communityLayout("글 수정", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Edit the log · ${esc(post.category)}</p><h2>기록 수정하기</h2><p class="muted">작성한 글의 제목, 내용, 게시판을 수정할 수 있습니다.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}/edit" enctype="multipart/form-data"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required value="${esc(post.title)}"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required>${esc(post.body)}</textarea>${communityImageGallery(post.images, "post-images edit-images")}<label for="images">이미지 추가 <span class="muted">(선택)</span></label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="help">PNG·JPG·WebP·GIF, 최대 4장 · 한 장당 5MB · 기존 이미지는 유지됩니다.</small><small class="help">수정 시 목록에 ‘수정됨’ 표시가 붙습니다.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">변경 저장</button><a class="button ghost" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}">취소</a></div></form></section></main>`);
 }
 function communityPostPage(current, post, error = "", comments = [], operator = false) {
   if (!post) return communityLayout("글을 찾을 수 없음", `<main><section class="panel"><h2>기록을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
@@ -893,7 +1026,7 @@ function communityPostPage(current, post, error = "", comments = [], operator = 
   const composer = current
     ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${postId}/comment" class="comment-composer"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="comment-body">댓글 남기기</label><textarea id="comment-body" name="body" maxlength="1000" rows="4" required placeholder="이 기록에 대한 경험이나 질문을 남겨 주세요."></textarea><div class="comment-composer-footer"><small>최대 1,000자 · 게임 계정 이름으로 표시됩니다.</small><button class="button" type="submit">댓글 등록</button></div></form>`
     : `<div class="comment-login"><p>Discord로 로그인하면 이 기록에 댓글을 남길 수 있습니다.</p><a class="button ghost" href="${COMMUNITY_BASE_URL}/login">로그인하고 댓글 쓰기</a></div>`;
-  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.post-owner-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.post-owner-actions form{margin:0}.post-owner-actions .button{min-height:38px;padding:8px 12px}.danger-button{border-color:rgba(255,155,159,.5);background:rgba(255,155,159,.08);color:#ffd9d9}.danger-button:hover{background:rgba(255,155,159,.18);border-color:var(--danger)}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}.pin-icon{display:inline-block;width:14px;height:14px;vertical-align:-2px;color:currentColor;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.post-category .pin-icon{margin-right:5px;color:var(--accent)}.pinned-kicker{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.comments-section{margin-top:58px;padding-top:30px;border-top:1px solid var(--line)}.comments-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:19px}.comments-heading h2{margin:0;font-size:21px;letter-spacing:-.07em}.comments-heading span{color:var(--faint);font-size:11px}.comments-list{border-top:1px solid var(--line)}.community-comment{display:grid;grid-template-columns:13px minmax(0,1fr);gap:14px;padding:19px 0;border-bottom:1px solid var(--line)}.comment-rail{position:relative;width:5px;margin:4px 0 3px;background:rgba(150,217,196,.25)}.comment-rail:before{position:absolute;top:0;left:-2px;width:9px;height:9px;border:1px solid var(--mint);border-radius:50%;background:var(--ink);content:""}.comment-main{min-width:0}.comment-header{display:flex;align-items:start;justify-content:space-between;gap:14px}.comment-author{color:var(--text);font-size:13px;font-weight:800;text-decoration:none}.comment-author:hover{color:var(--accent)}.comment-date{margin-left:9px;color:var(--faint);font-size:10px}.comment-actions{display:flex;align-items:center;gap:9px}.comment-heart{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(226,173,103,.35);background:transparent;color:var(--accent);font:800 12px Barkan;text-decoration:none;cursor:pointer}.comment-heart:hover,.comment-heart.active{border-color:var(--accent);background:rgba(226,173,103,.12)}.comment-heart.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.comment-heart-form,.comment-delete-form{margin:0}.comment-delete{padding:3px 0;border:0;background:transparent;color:var(--faint);font:500 11px Barkan;cursor:pointer}.comment-delete:hover{color:var(--danger)}.comment-body{margin:11px 0 0;color:#d7e5dc;font-size:14px;line-height:1.75;white-space:pre-wrap}.comments-empty{padding:22px 0;color:var(--muted);font-size:13px}.comment-composer,.comment-login{margin-top:28px;padding:20px;border:1px solid var(--line);background:rgba(12,40,37,.42)}.comment-composer label{display:block;margin:0 0 9px;color:var(--text);font-size:14px}.comment-composer textarea{min-height:112px;margin:0;resize:vertical}.comment-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:11px}.comment-composer-footer small{color:var(--faint);font-size:10px}.comment-login{display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px}.comment-login p{margin:0}@media(max-width:720px){.comments-heading{display:block}.comments-heading span{display:block;margin-top:5px}.comment-header{display:block}.comment-actions{margin-top:9px}.detail-actions{align-items:flex-start;flex-wrap:wrap}.post-owner-actions{margin-left:0;width:100%}.post-owner-actions .button{flex:1}.comment-composer-footer,.comment-login{display:block}.comment-composer-footer .button,.comment-login .button{width:100%;margin-top:13px}}</style><article class="detail"><div class="detail-head"><p class="eyebrow${post.is_notice ? " pinned-kicker" : ""}">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span>${post.updated_at && new Date(post.updated_at).getTime() > new Date(post.created_at).getTime() + 1000 ? `<span>수정됨</span>` : ""}<span class="view-count">조회 ${communityCount(post.view_count)}</span><span class="view-count">댓글 ${communityCount(post.comment_count)}</span></p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span>${postActions}</div><div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a><section class="comments-section" id="comments" aria-labelledby="comments-title"><div class="comments-heading"><h2 id="comments-title">댓글</h2><span>${communityCount(post.comment_count)}개의 항해 메모</span></div><div class="comments-list">${commentCards}</div>${composer}</section></article></main>`);
+  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.post-owner-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.post-owner-actions form{margin:0}.post-owner-actions .button{min-height:38px;padding:8px 12px}.danger-button{border-color:rgba(255,155,159,.5);background:rgba(255,155,159,.08);color:#ffd9d9}.danger-button:hover{background:rgba(255,155,159,.18);border-color:var(--danger)}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}.pin-icon{display:inline-block;width:14px;height:14px;vertical-align:-2px;color:currentColor;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.post-category .pin-icon{margin-right:5px;color:var(--accent)}.pinned-kicker{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.post-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:0 0 30px}.post-image-link{display:block;overflow:hidden;border:1px solid var(--line);background:rgba(12,40,37,.5)}.post-image{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform .2s ease}.post-image-link:hover .post-image{transform:scale(1.025)}.comments-section{margin-top:58px;padding-top:30px;border-top:1px solid var(--line)}.comments-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:19px}.comments-heading h2{margin:0;font-size:21px;letter-spacing:-.07em}.comments-heading span{color:var(--faint);font-size:11px}.comments-list{border-top:1px solid var(--line)}.community-comment{display:grid;grid-template-columns:13px minmax(0,1fr);gap:14px;padding:19px 0;border-bottom:1px solid var(--line)}.comment-rail{position:relative;width:5px;margin:4px 0 3px;background:rgba(150,217,196,.25)}.comment-rail:before{position:absolute;top:0;left:-2px;width:9px;height:9px;border:1px solid var(--mint);border-radius:50%;background:var(--ink);content:""}.comment-main{min-width:0}.comment-header{display:flex;align-items:start;justify-content:space-between;gap:14px}.comment-author{color:var(--text);font-size:13px;font-weight:800;text-decoration:none}.comment-author:hover{color:var(--accent)}.comment-date{margin-left:9px;color:var(--faint);font-size:10px}.comment-actions{display:flex;align-items:center;gap:9px}.comment-heart{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(226,173,103,.35);background:transparent;color:var(--accent);font:800 12px Barkan;text-decoration:none;cursor:pointer}.comment-heart:hover,.comment-heart.active{border-color:var(--accent);background:rgba(226,173,103,.12)}.comment-heart.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.comment-heart-form,.comment-delete-form{margin:0}.comment-delete{padding:3px 0;border:0;background:transparent;color:var(--faint);font:500 11px Barkan;cursor:pointer}.comment-delete:hover{color:var(--danger)}.comment-body{margin:11px 0 0;color:#d7e5dc;font-size:14px;line-height:1.75;white-space:pre-wrap}.comments-empty{padding:22px 0;color:var(--muted);font-size:13px}.comment-composer,.comment-login{margin-top:28px;padding:20px;border:1px solid var(--line);background:rgba(12,40,37,.42)}.comment-composer label{display:block;margin:0 0 9px;color:var(--text);font-size:14px}.comment-composer textarea{min-height:112px;margin:0;resize:vertical}.comment-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:11px}.comment-composer-footer small{color:var(--faint);font-size:10px}.comment-login{display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px}.comment-login p{margin:0}@media(max-width:720px){.comments-heading{display:block}.comments-heading span{display:block;margin-top:5px}.comment-header{display:block}.comment-actions{margin-top:9px}.detail-actions{align-items:flex-start;flex-wrap:wrap}.post-owner-actions{margin-left:0;width:100%}.post-owner-actions .button{flex:1}.comment-composer-footer,.comment-login{display:block}.comment-composer-footer .button,.comment-login .button{width:100%;margin-top:13px}}</style><article class="detail"><div class="detail-head"><p class="eyebrow${post.is_notice ? " pinned-kicker" : ""}">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span>${post.updated_at && new Date(post.updated_at).getTime() > new Date(post.created_at).getTime() + 1000 ? `<span>수정됨</span>` : ""}<span class="view-count">조회 ${communityCount(post.view_count)}</span><span class="view-count">댓글 ${communityCount(post.comment_count)}</span>${post.images?.length ? `<span class="view-count">이미지 ${communityCount(post.images.length)}</span>` : ""}</p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span>${postActions}</div>${communityImageGallery(post.images)}<div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a><section class="comments-section" id="comments" aria-labelledby="comments-title"><div class="comments-heading"><h2 id="comments-title">댓글</h2><span>${communityCount(post.comment_count)}개의 항해 메모</span></div><div class="comments-list">${commentCards}</div>${composer}</section></article></main>`);
 }
 function communityViewer(req, current) {
   if (current) return { key: `user:${current.minecraft_uuid}`, cookie: null };
@@ -1045,6 +1178,19 @@ async function route(req, res) {
   const url = new URL(req.url, "http://localhost");
   // Caddy handle_path /vip/* strips the complete /vip/ prefix, leaving an empty path for /vip/.
   const path = url.pathname || "/";
+  if (req.method === "GET" && path.startsWith("/community/uploads/")) {
+    let storageName = "";
+    try { storageName = decodeURIComponent(path.slice("/community/uploads/".length)); } catch { storageName = ""; }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(?:jpg|png|webp|gif)$/i.test(storageName)) return send(res, 404, "이미지를 찾을 수 없습니다.", "text/plain; charset=utf-8");
+    const absolutePath = resolve(COMMUNITY_UPLOAD_DIR, storageName);
+    if (!absolutePath.startsWith(`${resolve(COMMUNITY_UPLOAD_DIR)}${sep}`)) return send(res, 404, "이미지를 찾을 수 없습니다.", "text/plain; charset=utf-8");
+    try {
+      const image = await readFile(absolutePath);
+      const extension = storageName.slice(storageName.lastIndexOf(".") + 1).toLowerCase();
+      const mimeType = extension === "jpg" ? "image/jpeg" : `image/${extension}`;
+      return send(res, 200, image, mimeType, { "Cache-Control": "public, max-age=31536000, immutable" });
+    } catch { return send(res, 404, "이미지를 찾을 수 없습니다.", "text/plain; charset=utf-8"); }
+  }
   if (path === "/community" || path === "/community/") {
     const current = await communitySession(req);
     const category = url.searchParams.get("category") ?? "";
@@ -1190,7 +1336,28 @@ async function route(req, res) {
       const message = category === "공지" && !operator ? "공지글은 서버 OP 계정만 작성할 수 있습니다." : "게시판·제목·내용을 확인해 주세요. 내용은 10자 이상 5,000자 이하입니다.";
       return send(res, 400, communityWritePage(current, message, category, operator));
     }
-    await pool.query("INSERT INTO community_posts (id,discord_id,minecraft_uuid,player_name,discord_name,category,title,body) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)", [randomUUID(), current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, category, title, body]);
+    const postId = randomUUID();
+    const files = communityImageFiles(data);
+    let storedImages = [];
+    try {
+      storedImages = await storeCommunityImages(files);
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query("INSERT INTO community_posts (id,discord_id,minecraft_uuid,player_name,discord_name,category,title,body) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)", [postId, current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, category, title, body]);
+        for (const image of storedImages) {
+          await client.query("INSERT INTO community_post_images (id,post_id,storage_name,mime_type,size_bytes) VALUES ($1,$2::uuid,$3,$4,$5)", [randomUUID(), postId, image.storageName, image.mimeType, image.sizeBytes]);
+        }
+        await client.query("COMMIT");
+      } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+      } finally { client.release(); }
+    } catch (error) {
+      await removeCommunityImages(storedImages);
+      if (error.message?.includes("이미지")) return send(res, 400, communityWritePage(current, error.message, category, operator));
+      throw error;
+    }
     return redirect(res, `${COMMUNITY_BASE_URL}?notice=${encodeURIComponent("기록을 게시했습니다.")}`);
   }
   if (path.startsWith("/community/post/") && path.endsWith("/edit") && req.method === "GET") {
@@ -1218,7 +1385,30 @@ async function route(req, res) {
       const message = category === "공지" && !operator ? "공지글은 서버 OP 계정만 작성할 수 있습니다." : "게시판·제목·내용을 확인해 주세요. 내용은 10자 이상 5,000자 이하입니다.";
       return send(res, 400, communityEditPage(current, { ...post, category, title, body }, message, operator));
     }
-    await pool.query("UPDATE community_posts SET category=$1,title=$2,body=$3,updated_at=NOW() WHERE id=$4::uuid AND minecraft_uuid=$5::uuid AND hidden=FALSE", [category, title, body, id, current.minecraft_uuid]);
+    const files = communityImageFiles(data);
+    if (files.length + (post.images?.length ?? 0) > COMMUNITY_IMAGE_MAX_COUNT) {
+      return send(res, 400, communityEditPage(current, { ...post, category, title, body }, `이미지는 게시글당 최대 ${COMMUNITY_IMAGE_MAX_COUNT}장까지 보관할 수 있습니다.`, operator));
+    }
+    let storedImages = [];
+    try {
+      storedImages = await storeCommunityImages(files);
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+        await client.query("UPDATE community_posts SET category=$1,title=$2,body=$3,updated_at=NOW() WHERE id=$4::uuid AND minecraft_uuid=$5::uuid AND hidden=FALSE", [category, title, body, id, current.minecraft_uuid]);
+        for (const image of storedImages) {
+          await client.query("INSERT INTO community_post_images (id,post_id,storage_name,mime_type,size_bytes) VALUES ($1,$2::uuid,$3,$4,$5)", [randomUUID(), id, image.storageName, image.mimeType, image.sizeBytes]);
+        }
+        await client.query("COMMIT");
+      } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
+        throw error;
+      } finally { client.release(); }
+    } catch (error) {
+      await removeCommunityImages(storedImages);
+      if (error.message?.includes("이미지")) return send(res, 400, communityEditPage(current, { ...post, category, title, body }, error.message, operator));
+      throw error;
+    }
     return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(id)}`);
   }
   if (path.startsWith("/community/post/") && path.endsWith("/delete") && req.method === "POST") {
@@ -1743,6 +1933,6 @@ async function route(req, res) {
   return send(res, 404, layout("찾을 수 없음", `<div class="panel"><h1>404</h1><a class="button" href="${BASE_URL}/">멤버십 홈</a></div>`));
 }
 
-const server = http.createServer((req, res) => route(req, res).catch((error) => { console.error(error); if (!res.headersSent) send(res, 500, layout("오류", `<div class="panel"><div class="notice danger">일시적인 오류가 발생했습니다. 잠시 후 다시 시도하세요.</div></div>`)); }));
+const server = http.createServer((req, res) => route(req, res).catch((error) => { console.error(error); if (!res.headersSent) { if (error.code === "PAYLOAD_TOO_LARGE") return send(res, 413, layout("파일이 너무 큼", `<div class="panel"><div class="notice danger">첨부 파일 전체 용량이 너무 큽니다. 이미지는 최대 4장, 한 장당 5MB까지 올릴 수 있습니다.</div></div>`)); send(res, 500, layout("오류", `<div class="panel"><div class="notice danger">일시적인 오류가 발생했습니다. 잠시 후 다시 시도하세요.</div></div>`)); } }));
 migrate().then(() => server.listen(PORT, "127.0.0.1", () => console.log(`vip-billing listening on ${PORT}`))).catch((error) => { console.error("migration failed", error); process.exit(1); });
 process.on("SIGTERM", () => server.close(() => pool.end().finally(() => process.exit(0))));
