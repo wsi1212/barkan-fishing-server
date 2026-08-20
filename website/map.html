@@ -142,7 +142,7 @@
         <div class="map-card-head"><div class="map-card-title"><i></i> 실측 영역 지도</div><span id="map-status">HOVER TO PREVIEW · CLICK TO FOCUS</span></div>
         <div class="map-viewport" id="map-viewport" tabindex="0" aria-label="지역을 선택할 수 있는 지도">
           <div class="map-plane">
-            <svg class="map-svg" id="map-svg" viewBox="-1550 -1450 3200 3000" role="img" aria-labelledby="map-title map-desc">
+            <svg class="map-svg" id="map-svg" viewBox="-5200 -5200 10400 10400" role="img" aria-labelledby="map-title map-desc">
               <title id="map-title">바르칸 열도 지역 지도</title>
               <desc id="map-desc">BlockShip 운영 서버의 regions.json에서 추출한 X/Z 지역 경계</desc>
               <defs>
@@ -191,8 +191,18 @@
         size: document.querySelector('#detail-size'), parent: document.querySelector('#detail-parent'), level: document.querySelector('#detail-level'),
         world: document.querySelector('#detail-world'), focus: document.querySelector('#focus-button')
       };
-      const globalView = [-1550,-1450,3200,3000];
+      const globalView = [-5200,-5200,10400,10400];
       const areaById = new Map(data.areas.map(area => [area.id, area]));
+      // 운영 지역 판정과 동일한 원양 범위(-5000 ~ 5000)를 지도에도 적용한다.
+      // 정적 스냅샷이 이전 동쪽 띠를 갖고 있어도 페이지가 낡은 경계를 그리지 않도록
+      // 렌더 직전에 정규화한다.
+      const outerOcean = areaById.get('원양');
+      if (outerOcean) {
+        outerOcean.anchor = [0, 62, 0];
+        outerOcean.bounds = [-5000, 5000, -5000, 5000];
+        outerOcean.polygon = [[-5000,-5000],[5000,-5000],[5000,5000],[-5000,5000]];
+        delete outerOcean.polygonBreaks;
+      }
       const visibleAreas = data.areas.filter(area => Array.isArray(area.polygon) && area.polygon.length >= 3);
       const towns = ['스폰도시','사막마을','상단마을','왕도','항구'].map(id => areaById.get(id)).filter(Boolean);
       const quickLocations = [...towns, '오아시스','광산','카지노'].map(item => typeof item === 'string' ? areaById.get(item) : item).filter(Boolean);
@@ -204,17 +214,18 @@
       };
       const points = polygon => polygon.map(([x,z]) => `${x},${z}`).join(' ');
       const center = area => { const [minX,maxX,minZ,maxZ] = area.bounds; return [(minX+maxX)/2,(minZ+maxZ)/2]; };
+      const labelCenter = area => area.id === '대양' ? [0,-2200] : area.id === '원양' ? [0,-4200] : center(area);
       const label = area => area.category === 'town' ? '주요 마을·항구' : area.category === 'poi' ? '탐험·기능 지점' : area.category === 'ocean' ? '해역' : '자연 권역';
       const typeCopy = area => area.category === 'town' ? `${area.name} · 주요 거점` : area.category === 'poi' ? `${area.name} · 탐험 포인트` : area.category === 'ocean' ? `${area.name} · 해역` : `${area.name} · 바르칸 권역`;
       const sizeCopy = area => { const [minX,maxX,minZ,maxZ] = area.bounds; return `${Math.abs(maxX-minX).toLocaleString()} × ${Math.abs(maxZ-minZ).toLocaleString()} blocks`; };
       function buildDecor() {
-        for (let x=-1500;x<=1500;x+=250) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M ${x} -1450 V 1550"/>`);
-        for (let z=-1250;z<=1450;z+=250) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M -1550 ${z} H 1650"/>`);
+        for (let x=-5000;x<=5000;x+=500) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M ${x} -5200 V 5200"/>`);
+        for (let z=-5000;z<=5000;z+=500) gridLayer.insertAdjacentHTML('beforeend', `<path class="map-grid-line" d="M -5200 ${z} H 5200"/>`);
         [[-980,-630,550],[-260,-460,260],[620,260,390]].forEach(([x,z,r]) => contourLayer.insertAdjacentHTML('beforeend', `<ellipse class="map-contour" cx="${x}" cy="${z}" rx="${r}" ry="${Math.round(r*.62)}"/>`));
       }
       function buildAreas() {
         visibleAreas.forEach(area => {
-          const [cx,cz] = center(area);
+          const [cx,cz] = labelCenter(area);
           const group = document.createElementNS('http://www.w3.org/2000/svg','g');
           group.classList.add('area');
           group.dataset.id = area.id;
