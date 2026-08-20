@@ -46,7 +46,11 @@ VARIANTS = {
     '47': dict(name='vaultkeeper', cid=47, cape=(2, 11), hood=True, gaze=0,
                skin='c99e72', hair='3f3128', beard='full', prop='keys', ink=1,
                sleeve=10, roll=False,
-               eye_y=3, iris='dark', jaw='narrow', brow_a=1),
+               # ★eye_y=3 이면 <b>후드가 눈을 통째로 덮는다.</b> 후드의 얼굴 구멍은 행 4 부터
+               #   열리는데 눈을 행 3 에 그려서, 베이스에는 흰자·눈동자가 멀쩡히 있는데도
+               #   화면에는 <b>눈 없는 얼굴</b>이 나왔다(실측 2026-08-17). 형제 NPC(필경사·
+               #   견습)는 eye_y=5 다. 후드 쓴 NPC 는 구멍 안쪽에 눈을 둬야 한다.
+               eye_y=4, iris='dark', jaw='narrow', brow_a=1),
     '46': dict(name='scribe', cid=46, cape=None, hood=False, gaze=0,
                skin='c9a480', hair='4a3d2f', beard='goatee', prop='quill', ink=5,
                sleeve=9, roll=False,
