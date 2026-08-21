@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # =====================================================================
-# 바르칸 prod 클라이언트 크래시 자동 감지 — "접속 직후 급끊김" 패턴 탐지
+# 바르칸 prod 클라이언트 크래시 감지 — "접속 직후 급끊김" 패턴 탐지
 #   서버는 클라 크래시의 진짜 원인(DecoderException 등)을 모른다 — 그건 유저 로컬
 #   disconnect-*.txt 에만 있음. 대신 "접속 후 N초 이내 끊김"을 크래시 의심 신호로 보고
-#   자동 알림 → 유저가 매번 수동 제보 안 해도 우리가 먼저 알아챈다.
-#   cron 2분마다 실행. 상태(마지막 처리 오프셋/접속시각/알림쿨다운)는 파일에 영속.
+#   기록할 수 있다. 다만 빠른 끊김의 Discord 알림과 패킷 첨부는 2026-08-22부터
+#   비활성화했다. cron 2분마다 실행하며 상태(마지막 처리 오프셋/접속시각)는 파일에 영속.
 # =====================================================================
 import json, os, re, subprocess, sys, time
 
@@ -19,6 +19,10 @@ LABEL = "[바르칸 prod]"
 FAST_THRESHOLD = int(os.environ.get("CW_THRESHOLD", "15"))  # 초 — 접속 후 이 안에 끊기면 크래시 의심
 COOLDOWN = int(os.environ.get("CW_COOLDOWN", "600"))        # 초 — 같은 플레이어 재알림 최소 간격
 DUMP_MATCH_WINDOW = 60                                       # 초 — 덤프 파일명 타임스탬프 매칭 허용오차
+# 의미 없는 "접속 직후 퇴장" 노이즈를 Discord에 보내지 않는다.
+# 로컬 로그/패킷 덤프 수집 코드는 남겨 두되, 이 값이 False인 동안에는
+# 빠른 끊김에 대한 웹훅 호출과 패킷 파일 첨부가 절대 실행되지 않는다.
+FAST_DISCONNECT_ALERTS = False
 
 JOIN_RE = re.compile(r"^\[(\d{2}):(\d{2}):(\d{2})\].*: (\S+)\[.*logged in with entity id \d+ at \(\[?([^\],]+)\]?[, ]*([-\d.]+)[, ]*([-\d.]+)[, ]*([-\d.]+)\)")
 DISC_RE = re.compile(r"^\[(\d{2}):(\d{2}):(\d{2})\].*: (\S+) lost connection: (.+)$")
@@ -111,6 +115,8 @@ def main():
                 continue
             elapsed = disc_t - j["t"]
             if 0 <= elapsed <= FAST_THRESHOLD:
+                if not FAST_DISCONNECT_ALERTS:
+                    continue
                 last_alert = state["last_alert"].get(name, 0)
                 if now - last_alert >= COOLDOWN:
                     dump = find_dump(name, disc_t)
