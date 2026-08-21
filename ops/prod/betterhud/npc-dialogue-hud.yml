@@ -10437,6 +10437,7 @@ npc_dialogue_175_complete_xl:
       gui:
         x: 50
         y: 100
+
 npc_dialogue_grandfather_sm:
   tick: 1
   layouts:
@@ -10445,6 +10446,7 @@ npc_dialogue_grandfather_sm:
       gui:
         x: 50
         y: 100
+
 npc_dialogue_grandfather_md:
   tick: 1
   layouts:
@@ -10453,6 +10455,7 @@ npc_dialogue_grandfather_md:
       gui:
         x: 50
         y: 100
+
 npc_dialogue_grandfather_lg:
   tick: 1
   layouts:
@@ -10461,6 +10464,7 @@ npc_dialogue_grandfather_lg:
       gui:
         x: 50
         y: 100
+
 npc_dialogue_grandfather_xl:
   tick: 1
   layouts:
@@ -10469,3 +10473,4 @@ npc_dialogue_grandfather_xl:
       gui:
         x: 50
         y: 100
+
