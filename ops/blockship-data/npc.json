@@ -1616,7 +1616,7 @@
     },
     "왕실요리장": {
       "citizensId": "57",
-      "name": "&b[Q] 왕실 요리장 그레고르",
+      "name": "&a[Q] 왕실 요리장 그레고르",
       "ferry": false,
       "shop": false,
       "inn": false,
@@ -1645,7 +1645,7 @@
     },
     "궁정상인": {
       "citizensId": "58",
-      "name": "&b[Q] 궁정 상인 발렌틴",
+      "name": "&a[Q] 궁정 상인 발렌틴",
       "ferry": false,
       "shop": true,
       "inn": false,
@@ -3696,7 +3696,7 @@
     },
     "사피르": {
       "citizensId": "78",
-      "name": "&b[Q] 사피르",
+      "name": "&a[Q] 사피르",
       "ferry": false,
       "shop": false,
       "inn": false,
