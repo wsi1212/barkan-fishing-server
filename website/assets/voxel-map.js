@@ -287,16 +287,39 @@
   const materialColor = (material, y) => {
     const name = (legend[material] || '').replace('minecraft:', '');
     let color = '#477967';
-    if (name.includes('water') || name.includes('ice') || name.includes('prismarine') || name.includes('coral') || name.includes('kelp') || name.includes('seagrass')) color = '#3c88a1';
+    // Keep dyed building blocks ahead of the broad `red_`/`purple` checks.
+    // The old ordering made red_terracotta, red_wool, etc. fall back to the
+    // generic muted red and looked like the palette had reverted after a scan.
+    if (name.includes('terracotta') || name.includes('concrete') || name.includes('wool') || name.includes('carpet')) {
+      if (name.includes('white')) color = '#d5d8ca';
+      else if (name.includes('light_gray')) color = '#a9b3af';
+      else if (name.includes('gray')) color = '#69777b';
+      else if (name.includes('black')) color = '#2b3033';
+      else if (name.includes('red')) color = '#c95a52';
+      else if (name.includes('orange')) color = '#c87845';
+      else if (name.includes('yellow')) color = '#d6b54c';
+      else if (name.includes('lime')) color = '#75ad52';
+      else if (name.includes('green')) color = '#4f8b64';
+      else if (name.includes('cyan')) color = '#4296a1';
+      else if (name.includes('light_blue')) color = '#6da9c5';
+      else if (name.includes('blue')) color = '#4e79a4';
+      else if (name.includes('purple')) color = '#8b64a3';
+      else if (name.includes('magenta')) color = '#b15a9d';
+      else if (name.includes('pink')) color = '#d78c9d';
+      else if (name.includes('brown')) color = '#8b6049';
+      else color = '#9b6650';
+    } else if (name.includes('water') || name.includes('ice') || name.includes('prismarine') || name.includes('coral') || name.includes('kelp') || name.includes('seagrass')) color = '#3c88a1';
     else if (name.includes('snow')) color = '#d5e5de';
     else if (name.includes('red_') || name.includes('crimson') || name.includes('nether') || name.includes('netherrack')) color = '#a95649';
     else if (name.includes('purple') || name.includes('purpur') || name.includes('amethyst') || name.includes('chorus')) color = '#9a72a9';
     else if (name.includes('sand') || name.includes('sandstone')) color = '#c5aa6b';
     else if (name.includes('leaves') || name.includes('moss') || name.includes('grass') || name.includes('azalea') || name.includes('vine') || name.includes('bamboo') || name.includes('fern') || name.includes('sapling')) color = '#4d8c65';
-    else if (name.includes('wood') || name.includes('log') || name.includes('planks') || name.includes('shelf') || name.includes('bookshelf')) color = '#80654c';
+    else if (name.includes('wood') || name.includes('log') || name.includes('planks') || name.includes('shelf') || name.includes('bookshelf') || name.includes('fence') || name.includes('gate') || name.includes('trapdoor') || (name.includes('stairs') && !/(stone|andesite|diorite|granite|deepslate|tuff|brick|basalt|prismarine)/.test(name))) color = '#80654c';
     else if (name.includes('path') || name.includes('dirt') || name.includes('mud') || name.includes('farmland') || name.includes('root')) color = '#806b4a';
-    else if (name.includes('gold') || name.includes('copper') || name.includes('raw_') || name.includes('iron') || name.includes('ore') || name.includes('diamond') || name.includes('emerald')) color = name.includes('gold') ? '#d5ae45' : name.includes('copper') ? '#bd7653' : '#8d9aa0';
-    else if (name.includes('terracotta') || name.includes('concrete') || name.includes('wool') || name.includes('carpet')) color = name.includes('white') ? '#d5d8ca' : name.includes('black') ? '#2b3033' : name.includes('red') ? '#c95a52' : name.includes('orange') ? '#c87845' : name.includes('yellow') ? '#d6b54c' : name.includes('lime') ? '#75ad52' : name.includes('green') ? '#4f8b64' : name.includes('cyan') ? '#4296a1' : name.includes('light_blue') ? '#6da9c5' : name.includes('blue') ? '#4e79a4' : name.includes('purple') ? '#8b64a3' : name.includes('magenta') ? '#b15a9d' : name.includes('pink') ? '#d78c9d' : name.includes('gray') ? '#69777b' : name.includes('brown') ? '#8b6049' : '#9b6650';
+    else if (name.includes('gold') || name.includes('copper') || name.includes('raw_') || name.includes('iron') || name.includes('ore') || name.includes('diamond') || name.includes('emerald') || name.includes('hay_block')) color = name.includes('gold') || name.includes('hay_block') ? '#d5ae45' : name.includes('copper') ? '#bd7653' : '#8d9aa0';
+    else if (name.includes('glass') || name.includes('quartz') || name.includes('snow')) color = '#c5d3ce';
+    else if (name.includes('gravel') || name.includes('clay')) color = '#8f8a7c';
+    else if (name.includes('cactus') || name.includes('pumpkin')) color = name.includes('cactus') ? '#4d8c65' : '#c8893f';
     else if (name.includes('stone') || name.includes('deepslate') || name.includes('andesite') || name.includes('diorite') || name.includes('granite') || name.includes('tuff') || name.includes('cobble') || name.includes('brick') || name.includes('basalt') || name.includes('obsidian')) color = '#6e7d79';
     else {
       let hash = 0; for (let i = 0; i < name.length; i += 1) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
