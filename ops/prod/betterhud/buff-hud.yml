@@ -1,0 +1,110 @@
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+barkan_buff_1_sm:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_1_sm
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_2_sm:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_2_sm
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_3_sm:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_3_sm
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_1_md:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_1_md
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_2_md:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_2_md
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_3_md:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_3_md
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_1_lg:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_1_lg
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_2_lg:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_2_lg
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_3_lg:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_3_lg
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_1_xl:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_1_xl
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_2_xl:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_2_xl
+      gui:
+        x: 100
+        y: 0
+
+barkan_buff_3_xl:
+  tick: 20
+  layouts:
+    1:
+      name: barkan_buff_layout_3_xl
+      gui:
+        x: 100
+        y: 0

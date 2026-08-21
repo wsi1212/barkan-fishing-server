@@ -10,8 +10,9 @@
   화면 모서리 여백(10/3)만은 배율과 무관한 화면 px 이다 — 작게 골랐다고 구석에서
   멀어지면 어색하다.
 
-산출: status-{image,layout,hud}.yml · place-{image,layout,hud}.yml  (손으로 고치지 말 것)
-사용:  python3 gen_hud_sizes.py
+산출: status-·place-·buff-{image,layout,hud}.yml  (손으로 고치지 말 것)
+사용:  python3 gen_hud_sizes.py              # 상태·장소·버프 판
+       python3 gen_hud_sizes.py --dialogue   # 대화창까지(★뒤에 gen_npc_portrait_huds.py 필수)
 """
 import os
 from PIL import Image
@@ -69,6 +70,39 @@ PLACE = dict(
     colors=["#4A3A22", "#4A3A22"],
 )
 
+# 버프 판(우상단, 정보바 아래) — 먹은 요리 버프를 포션 효과처럼 상시 표시.
+# ★스탯 줄 수(1~3)만큼 판이 따로 있다. 한 줄짜리 버프에 3줄 판을 붙이면 아래가 텅 빈다.
+#   판 높이 계산식은 gui-forge/build_status_hud.py 의 buff_plate_h() 와 같아야 한다(아래서 검산).
+# ★폭은 정보바·장소바와 같은 124 로 맞췄다. 오른쪽 위에 세로로 나란히 놓이므로 폭이 다르면
+#   층이 어긋나 보인다. 그 안에 넣으려고 "이름 한 줄 / 게이지+남은시간 한 줄" 로 쪼갰다 —
+#   가장 작은 단계(x0.5, 판 62px)에서 이름과 시간을 한 줄에 두면 최장 이름
+#   ("야광베리 커스터드" 47px + "12:05" 18px)이 넘친다.
+BUFF = dict(
+    plate_w=124,
+    # ★미리보기로 잡은 값들이다. row_dy 17 은 아이콘(16px)끼리 맞닿았고, name_y 13 은
+    #   이름 글자 위쪽이 양피지 상단선에 2.7px 까지 붙었다(아래 여백은 6.7 로 남아 불균형).
+    row0=45, row_dy=19,          # 스탯 줄 중심(판 좌표). 아이콘 16px + 위아래 숨통 3px
+    bottom=18,                   # 마지막 줄 아래 여백. 정보바 판(52/72=20)에 맞춘 값
+    name_y=15,                   # 요리 이름 줄 중심
+    bar_y=29,                    # 시간 게이지 줄 중심
+    bar=("buff-bar-empty.png", "buff-bar-fill.png", 10, 60, 8),  # (빈, 채움, 판x, 폭=split, 높이)
+    name_x=10, time_x=112,       # 시간은 오른쪽 정렬이라 x 가 글자의 오른쪽 끝이다
+    icon_x=10, icon_h=16, text_x=30,
+    gap=3,                       # 정보바 아래 여백(배율 무관, 화면 px)
+    name_color="#4A2D12",        # 짙은 갈색 — 판이 크림색이라 밝은 색은 안 보인다
+    time_color="#123E42",
+    stat_color="#1E5B22",        # 버프는 이득이니 초록 계열
+    # ★파일 순서 = sequence 프레임 순서 = 자바 BuffStats.STATS 순서 = build_status_hud.BUFF_STAT_ICONS.
+    #   네 곳이 어긋나면 경험치 버프에 판매가 아이콘이 뜬다.
+    stats=["exp", "size", "gradeup", "escape", "crit", "double", "sell", "difficulty"],
+    rows_max=3,
+)
+
+
+def buff_plate_h(rows):
+    return BUFF["row0"] + BUFF["row_dy"] * (rows - 1) + BUFF["bottom"]
+
+
 HEAD = """# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
 #   크기 단계가 {n} 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
 #   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
@@ -91,16 +125,26 @@ GEN = "gen"          # assets/<원본폴더>/gen/ 에 산출
 HD = 4
 
 
-def scaled_file(folder, fname, sid, s):
-    """원본을 s 배로 줄여 assets/<folder>/gen/<이름>-<단계>.png 로 저장하고 상대경로를 돌려준다."""
+def scaled_file(folder, fname, sid, s, base=None, suffix=""):
+    """원본을 s 배로 줄여 assets/<folder>/gen/<이름>-<단계><접미사>.png 로 저장하고 상대경로를 돌려준다.
+
+    base=(폭,높이) 를 주면 "배율 1.0 에서의 표시 크기"를 원본 크기와 따로 정한다.
+    ★HD 아이콘용이다. 스탯 아이콘은 원본이 128px 인데 표시는 16px 이라, 원본을 그대로
+      표시 크기로 보면 xl 단계에서 128px 짜리 아이콘이 된다. base 를 주면 표시는 16 이고
+      파일은 그 4배(64px)로 구워져 GUI 아이콘처럼 선명하게 나온다.
+    suffix 는 "같은 원본을 여러 정의가 쓸 때" 파일을 갈라 두기 위한 것이다 —
+    ★BetterHud 는 png 를 전역 파일 단위로 등록해서, 같은 파일을 두 정의가 참조하면
+      먼저 나온 하나만 살아남고 나머지는 경고도 없이 빠진다.
+    """
     src = os.path.join(ART, folder, fname)
     outdir = os.path.join(ART, folder, GEN)
     os.makedirs(outdir, exist_ok=True)
     stem = fname[:-4]
-    out = f"{stem}-{sid}.png"
+    out = f"{stem}-{sid}{suffix}.png"
     with Image.open(src) as im:
         im = im.convert("RGBA")
-        w, h = max(1, round(im.width * s)), max(1, round(im.height * s))   # 표시 크기
+        bw, bh = base if base else (im.width, im.height)
+        w, h = max(1, round(bw * s)), max(1, round(bh * s))            # 표시 크기
         # 표시 크기의 HD 배로 굽는다. 원본보다 크게는 만들지 않는다(없는 정보는 못 만든다).
         k = min(HD, max(1.0, im.width / max(1, w)))
         im.resize((max(1, round(w * k)), max(1, round(h * k))), Image.LANCZOS).save(
@@ -217,7 +261,17 @@ def build_place():
 
 
 def build_dialogue():
-    """대화창을 크기 단계별로. 하단 중앙 앵커(gui x50 y100)라 계산이 위쪽 판들과 다르다."""
+    """대화창 "기본 4벌"만 만든다. ★단독으로 돌리면 초상화 HUD 를 날린다.
+
+    ★★2026-08-21 사고: 이 함수가 npc-dialogue-{hud,layout,image}.yml 를 통째로 덮어써서
+      gen_npc_portrait_huds.py 가 만들어 둔 NPC별 초상화 정의 1160 벌(165KB)이 4벌로
+      쪼그라들었다. 게다가 그 초상화 생성기는 **자기 이전 출력(_base_<단계> 블록)을 템플릿으로
+      다시 읽는다** — 덮어쓰고 나면 "KeyError: npc_dialogue_layout_*_base_sm" 으로 재생성도
+      안 된다(git 에서 되살려야 했다). 그래서 기본값은 "대화창 건드리지 않음"이다.
+      대화창 좌표를 정말 바꿀 때만 --dialogue 로 명시하고, 끝나면 반드시
+      python3 gen_npc_portrait_huds.py 를 이어서 돌려 초상화를 복원할 것.
+
+    대화창을 크기 단계별로. 하단 중앙 앵커(gui x50 y100)라 계산이 위쪽 판들과 다르다."""
     D = DIALOGUE
     img, lay, hud = [], [], []
     for (sid, label), s in zip(SIZES, SCALE_DIALOGUE):
@@ -279,12 +333,120 @@ def build_dialogue():
     emit("npc-dialogue-hud.yml", "\n".join(hud))
 
 
+def build_buff():
+    """버프 판 — 스탯 줄 수(1~3) x 크기 4단계 = 12 벌.
+
+    구조:  요리 이름 / 남은시간 게이지 + mm:ss / 스탯 줄(아이콘 + 라벨 +수치)
+
+    ★스탯 아이콘은 type: sequence 다. 리스너(barkan_buff_stat<N>)가 준 0.0~1.0 을
+      round(값 x 마지막인덱스) 로 프레임 번호로 바꿔 8 종 중 하나를 그린다(BetterHud
+      ImageType.SEQUENCE 바이트코드 확인). 그래서 조건문 없이 스탯별 아이콘이 갈린다.
+    ★같은 png 를 두 정의가 참조하면 하나만 등록되므로, 줄마다 파일을 갈라 굽는다(suffix).
+    """
+    B = BUFF
+    img, lay, hud = [], [], []
+    status_h = STATUS["plate"][2]          # 정보바 판 높이 — 그 아래에 붙인다
+    for (sid, label), s_ in zip(SIZES, SCALE_STATUS):
+        W = round(B["plate_w"] * s_)
+        base_x = W / 2 - (MARGIN_X + W)     # 정보바와 같은 오른쪽 정렬
+        top = MARGIN_Y + round(status_h * s_) + B["gap"]
+
+        # 판 3장
+        for n in range(1, B["rows_max"] + 1):
+            fname = f"buff-plate-{n}.png"
+            with Image.open(os.path.join(ART, "status", fname)) as im:
+                assert im.height == buff_plate_h(n), (
+                    f"{fname} 높이 {im.height} != 계산값 {buff_plate_h(n)} — "
+                    "build_status_hud.py 를 다시 돌릴 것")
+            f, _, _, sc = scaled_file("status", fname, sid, s_)
+            img.append(f"buff_plate_{n}_{sid}:\n  type: single\n  file: {f}\n"
+                       f"  setting:\n    scale: {sc}\n")
+
+        # 남은시간 게이지 (빈 홈 + 채움). 채움은 listener 가 비율만큼 잘라 그린다.
+        empty, fill, bx, bw, bh = B["bar"]
+        fe, _, _, sce = scaled_file("status", empty, sid, s_)
+        img.append(f"buff_bar_empty_{sid}:\n  type: single\n  file: {fe}\n"
+                   f"  setting:\n    scale: {sce}\n")
+        ff, _, _, scf = scaled_file("status", fill, sid, s_)
+        img.append(f"buff_bar_{sid}:\n  type: listener\n  file: {ff}\n"
+                   f"  split: {round(bw * s_)}\n  split-type: left\n"
+                   f"  setting:\n    scale: {scf}\n    listener:\n      class: barkan_buff_time\n")
+
+        # 스탯 아이콘 sequence — 줄마다 한 벌(파일도 줄마다 따로)
+        icon_scale = None
+        for row in range(1, B["rows_max"] + 1):
+            files = []
+            for key in B["stats"]:
+                fi, iw, ih, sci = scaled_file("status", f"icon-stat-{key}.png", sid, s_,
+                                              base=(B["icon_h"], B["icon_h"]), suffix=f"-r{row}")
+                files.append(fi)
+                icon_scale = sci
+            body = "".join(f"    - {f}\n" for f in files)
+            img.append(f"buff_stat_icon_{row}_{sid}:\n  type: sequence\n  files:\n{body}"
+                       f"  setting:\n    scale: {icon_scale}\n    listener:\n"
+                       f"      class: barkan_buff_stat{row}\n")
+
+        def ty(center_row, h):
+            """판 좌표의 줄 중심 -> 그 높이 h 짜리 요소의 y (세로 가운데 맞춤)."""
+            return round(top + center_row * s_ - round(h * s_) / 2)
+
+        for n in range(1, B["rows_max"] + 1):
+            images = [f"    1:\n      name: buff_plate_{n}_{sid}\n      x: {base_x:g}\n      y: {top}\n",
+                      f"    2:\n      name: buff_bar_empty_{sid}\n"
+                      f"      x: {base_x + round(bx * s_):g}\n      y: {ty(B['bar_y'], bh)}\n",
+                      f"    3:\n      name: buff_bar_{sid}\n"
+                      f"      x: {base_x + round(bx * s_):g}\n      y: {ty(B['bar_y'], bh)}\n"]
+            k = 4
+            for row in range(1, n + 1):
+                center = B["row0"] + B["row_dy"] * (row - 1)
+                images.append(f"    {k}:\n      name: buff_stat_icon_{row}_{sid}\n"
+                              f"      x: {base_x + round(B['icon_x'] * s_):g}\n"
+                              f"      y: {ty(center, B['icon_h'])}\n")
+                k += 1
+            texts = [f"    1:\n      name: dialogue_font\n      pattern: \"[string:hud_buff_name]\"\n"
+                     f"      color: \"{B['name_color']}\"\n"
+                     f"      x: {base_x + round(B['name_x'] * s_):g}\n      y: {ty(B['name_y'], TEXT_H)}\n"
+                     f"      scale: {round(TEXT_SCALE * s_, 3)}\n      align: left\n",
+                     f"    2:\n      name: dialogue_font\n      pattern: \"[string:hud_buff_time]\"\n"
+                     f"      color: \"{B['time_color']}\"\n"
+                     f"      x: {base_x + round(B['time_x'] * s_):g}\n      y: {ty(B['bar_y'], TEXT_H)}\n"
+                     f"      scale: {round(TEXT_SCALE * s_, 3)}\n      align: right\n"]
+            for row in range(1, n + 1):
+                center = B["row0"] + B["row_dy"] * (row - 1)
+                texts.append(f"    {row + 2}:\n      name: dialogue_font\n"
+                             f"      pattern: \"[string:hud_buff_stat{row}]\"\n"
+                             f"      color: \"{B['stat_color']}\"\n"
+                             f"      x: {base_x + round(B['text_x'] * s_):g}\n      y: {ty(center, TEXT_H)}\n"
+                             f"      scale: {round(TEXT_SCALE * s_, 3)}\n      align: left\n")
+            lay.append(f"barkan_buff_layout_{n}_{sid}:  # {label} (x{s_}) · 스탯 {n}줄\n"
+                       f"  align: left\n  images:\n" + "".join(images) + "  texts:\n" + "".join(texts))
+            hud.append(f"barkan_buff_{n}_{sid}:\n  tick: 20\n  layouts:\n    1:\n"
+                       f"      name: barkan_buff_layout_{n}_{sid}\n      gui:\n        x: 100\n        y: 0\n")
+    emit("buff-image.yml", "\n".join(img))
+    emit("buff-layout.yml", "\n".join(lay))
+    emit("buff-hud.yml", "\n".join(hud))
+
+
 if __name__ == "__main__":
+    import sys
+    want_dialogue = "--dialogue" in sys.argv
     print("생성:")
     build_status()
     build_place()
-    build_dialogue()
+    build_buff()
+    if want_dialogue:
+        build_dialogue()
     for (sid, label), a, b in zip(SIZES, SCALE_STATUS, SCALE_DIALOGUE):
         print(f"   {sid:3s} {label:6s} 상태/위치 x{a} ({round(124*a)}x{round(72*a)} / {round(150*a)}x{round(42*a)})"
               f"   대화창 x{b} (조각 {round(110*b)})")
+    print(f"   버프 판 {BUFF['rows_max']}종 x {len(SIZES)}단계 "
+          f"(높이 {[buff_plate_h(n) for n in range(1, BUFF['rows_max'] + 1)]})")
     print("★Java StatusHud.SIZES 의 id·순서가 위와 같은지 확인할 것.")
+    print("★스탯 순서: " + " ".join(BUFF["stats"]) + "  (자바 BuffStats.STATS 와 같아야 한다)")
+    if want_dialogue:
+        print("\n★★대화창을 다시 만들었다 — 이어서 반드시 초상화를 복원할 것:")
+        print("   python3 gen_npc_portrait_huds.py")
+        print("   (안 돌리면 NPC별 초상화 정의 1160 벌이 기본 4벌로 남는다)")
+    else:
+        print("\n(대화창은 건드리지 않았다. 좌표를 바꿔야 하면 --dialogue,"
+              " 그 뒤 gen_npc_portrait_huds.py 필수)")

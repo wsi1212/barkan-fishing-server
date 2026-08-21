@@ -76,6 +76,10 @@ SETS = {
                # ★Num.compact 적용 후의 실제 최댓값이다. 축약 전 값(999,999,999원)으로 두면
                #   과대평가해서 멀쩡한 배치를 넘친다고 오판한다.
                ["999,999원", "Lv.100", "999,999캐시"]),
+    # 버프 판 — 줄 수 변형이 있어서 HUD_KEY 로 고른다(예: HUD_KEY=_3_sm 이면 3줄·작게).
+    # ★샘플은 최장 현실값: 요리 이름은 "야광베리 커스터드"(9자), 스탯은 두 자리 수치.
+    "buff": ("buff-hud.yml", "buff-layout.yml", "buff-image.yml",
+             ["야광베리 커스터드", "12:05", "경험치 +16%", "도망감소 +42", "판매가 +6%"]),
     "place": ("place-hud.yml", "place-layout.yml", "place-image.yml",
               # ★14글자를 넘으면 자바(shortPlace)가 상위 지역을 떼므로, 이게 실제 최댓값이다.
               ["폭포_뒤_동굴_2층", "☀ 낮 ☁ 모래바람"]),
@@ -89,7 +93,7 @@ def load(name):
 def main(out_path, zoom=None, setname="npc-dialogue"):
     hf, lf, imf, samples = SETS[setname]
     # 상태/위치 HUD 는 크기 단계별로 여러 벌이다 — 환경변수 HUD_SIZE 로 고른다(기본 md).
-    want = "_" + os.environ.get("HUD_SIZE", "md")
+    want = os.environ.get("HUD_KEY") or ("_" + os.environ.get("HUD_SIZE", "md"))
     def pick(d):
         for k, v in d.items():
             if k.endswith(want):
@@ -105,9 +109,21 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
     ax = SCREEN_W * gui["x"] / 100.0
     ay = SCREEN_H * gui["y"] / 100.0 - Y_BIAS
 
+    # ★type: sequence 는 file 이 아니라 files 다. 리스너 값으로 프레임을 갈아끼우는 것이라
+    #   미리보기에서는 HUD_FRAME 번째(기본 0)를 그린다.
+    # HUD_FRAME=0,4,6 처럼 콤마로 주면 스탯 줄마다 다른 아이콘을 그린다(같은 그림 3개면
+    # 아이콘이 실제로 갈리는지 눈으로 확인할 수 없다).
+    frames = [int(v) for v in os.environ.get("HUD_FRAME", "0").split(",")]
     sized = {}
     for key, spec in images.items():
-        im = Image.open(os.path.join(ASSETS, spec["file"])).convert("RGBA")
+        files = spec.get("files")
+        if files:
+            row = int((key.split("_icon_")[1].split("_")[0]) if "_icon_" in key else 1)
+            f = frames[min(row - 1, len(frames) - 1)]
+            path = files[min(f, len(files) - 1)]
+        else:
+            path = spec["file"]
+        im = Image.open(os.path.join(ASSETS, path)).convert("RGBA")
         bbox = im.split()[3].getbbox()               # BetterHud는 투명 여백을 잘라낸다
         im = im.crop(bbox)
         s = float((spec.get("setting") or {}).get("scale", 1.0))
@@ -182,7 +198,7 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
 
     # 상태/위치 HUD — 글자가 판(양피지) 밖으로 나가는지만 본다.
     # ★판 크기를 scale 로 줄이므로 안쪽 여백도 판 크기에 비례해서 잡는다(고정 px 로 두면 틀린다).
-    for key in ("status_plate", "place_plate"):
+    for key in [k for k in rect if k.startswith(("status_plate", "place_plate", "buff_plate"))]:
         plate = rect.get(key)
         if not plate:
             continue
@@ -225,7 +241,9 @@ def main(out_path, zoom=None, setname="npc-dialogue"):
         warn = ""
         for i, line in enumerate(lines):
             y = ty + i * lw
-            d.text((lx, y), line, font=font, fill=(61, 40, 64, 255))
+            col = str(t.get("color", "#3D2840")).lstrip("#")
+            fill = tuple(int(col[i:i+2], 16) for i in (0, 2, 4)) + (255,) if len(col) == 6 else (61, 40, 64, 255)
+            d.text((lx, y), line, font=font, fill=fill)
             if parch and idx == 1:
                 if lx < parch[0] or lx + d.textlength(line, font=font) > parch[2]:
                     warn = "   ← ★양피지 좌우로 넘침!"

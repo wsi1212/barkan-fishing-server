@@ -1,0 +1,686 @@
+# ★★이 파일은 gen_hud_sizes.py 가 생성한다. 손으로 고치지 말 것 —
+#   크기 단계가 4 벌이라 손으로 고치면 한 벌만 바뀌고 나머지가 어긋난다.
+#   좌표를 바꾸려면 gen_hud_sizes.py 의 STATUS/PLACE 를 고치고 다시 돌린다.
+barkan_buff_layout_1_sm:  # 작게 (x0.5) · 스탯 1줄
+  align: left
+  images:
+    1:
+      name: buff_plate_1_sm
+      x: -41
+      y: 42
+    2:
+      name: buff_bar_empty_sm
+      x: -36
+      y: 54
+    3:
+      name: buff_bar_sm
+      x: -36
+      y: 54
+    4:
+      name: buff_stat_icon_1_sm
+      x: -36
+      y: 60
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -36
+      y: 47
+      scale: 0.155
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 15
+      y: 54
+      scale: 0.155
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -26
+      y: 62
+      scale: 0.155
+      align: left
+
+barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
+  align: left
+  images:
+    1:
+      name: buff_plate_2_sm
+      x: -41
+      y: 42
+    2:
+      name: buff_bar_empty_sm
+      x: -36
+      y: 54
+    3:
+      name: buff_bar_sm
+      x: -36
+      y: 54
+    4:
+      name: buff_stat_icon_1_sm
+      x: -36
+      y: 60
+    5:
+      name: buff_stat_icon_2_sm
+      x: -36
+      y: 70
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -36
+      y: 47
+      scale: 0.155
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 15
+      y: 54
+      scale: 0.155
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -26
+      y: 62
+      scale: 0.155
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -26
+      y: 72
+      scale: 0.155
+      align: left
+
+barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
+  align: left
+  images:
+    1:
+      name: buff_plate_3_sm
+      x: -41
+      y: 42
+    2:
+      name: buff_bar_empty_sm
+      x: -36
+      y: 54
+    3:
+      name: buff_bar_sm
+      x: -36
+      y: 54
+    4:
+      name: buff_stat_icon_1_sm
+      x: -36
+      y: 60
+    5:
+      name: buff_stat_icon_2_sm
+      x: -36
+      y: 70
+    6:
+      name: buff_stat_icon_3_sm
+      x: -36
+      y: 80
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -36
+      y: 47
+      scale: 0.155
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 15
+      y: 54
+      scale: 0.155
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -26
+      y: 62
+      scale: 0.155
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -26
+      y: 72
+      scale: 0.155
+      align: left
+    5:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat3]"
+      color: "#1E5B22"
+      x: -26
+      y: 81
+      scale: 0.155
+      align: left
+
+barkan_buff_layout_1_md:  # 보통 (x0.66) · 스탯 1줄
+  align: left
+  images:
+    1:
+      name: buff_plate_1_md
+      x: -51
+      y: 54
+    2:
+      name: buff_bar_empty_md
+      x: -44
+      y: 71
+    3:
+      name: buff_bar_md
+      x: -44
+      y: 71
+    4:
+      name: buff_stat_icon_1_md
+      x: -44
+      y: 78
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -44
+      y: 60
+      scale: 0.205
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 23
+      y: 70
+      scale: 0.205
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -31
+      y: 80
+      scale: 0.205
+      align: left
+
+barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
+  align: left
+  images:
+    1:
+      name: buff_plate_2_md
+      x: -51
+      y: 54
+    2:
+      name: buff_bar_empty_md
+      x: -44
+      y: 71
+    3:
+      name: buff_bar_md
+      x: -44
+      y: 71
+    4:
+      name: buff_stat_icon_1_md
+      x: -44
+      y: 78
+    5:
+      name: buff_stat_icon_2_md
+      x: -44
+      y: 91
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -44
+      y: 60
+      scale: 0.205
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 23
+      y: 70
+      scale: 0.205
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -31
+      y: 80
+      scale: 0.205
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -31
+      y: 93
+      scale: 0.205
+      align: left
+
+barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
+  align: left
+  images:
+    1:
+      name: buff_plate_3_md
+      x: -51
+      y: 54
+    2:
+      name: buff_bar_empty_md
+      x: -44
+      y: 71
+    3:
+      name: buff_bar_md
+      x: -44
+      y: 71
+    4:
+      name: buff_stat_icon_1_md
+      x: -44
+      y: 78
+    5:
+      name: buff_stat_icon_2_md
+      x: -44
+      y: 91
+    6:
+      name: buff_stat_icon_3_md
+      x: -44
+      y: 103
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -44
+      y: 60
+      scale: 0.205
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 23
+      y: 70
+      scale: 0.205
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -31
+      y: 80
+      scale: 0.205
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -31
+      y: 93
+      scale: 0.205
+      align: left
+    5:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat3]"
+      color: "#1E5B22"
+      x: -31
+      y: 105
+      scale: 0.205
+      align: left
+
+barkan_buff_layout_1_lg:  # 크게 (x0.85) · 스탯 1줄
+  align: left
+  images:
+    1:
+      name: buff_plate_1_lg
+      x: -62.5
+      y: 67
+    2:
+      name: buff_bar_empty_lg
+      x: -54.5
+      y: 88
+    3:
+      name: buff_bar_lg
+      x: -54.5
+      y: 88
+    4:
+      name: buff_stat_icon_1_lg
+      x: -54.5
+      y: 98
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -54.5
+      y: 75
+      scale: 0.264
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 32.5
+      y: 87
+      scale: 0.264
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 101
+      scale: 0.264
+      align: left
+
+barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
+  align: left
+  images:
+    1:
+      name: buff_plate_2_lg
+      x: -62.5
+      y: 67
+    2:
+      name: buff_bar_empty_lg
+      x: -54.5
+      y: 88
+    3:
+      name: buff_bar_lg
+      x: -54.5
+      y: 88
+    4:
+      name: buff_stat_icon_1_lg
+      x: -54.5
+      y: 98
+    5:
+      name: buff_stat_icon_2_lg
+      x: -54.5
+      y: 114
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -54.5
+      y: 75
+      scale: 0.264
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 32.5
+      y: 87
+      scale: 0.264
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 101
+      scale: 0.264
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 117
+      scale: 0.264
+      align: left
+
+barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
+  align: left
+  images:
+    1:
+      name: buff_plate_3_lg
+      x: -62.5
+      y: 67
+    2:
+      name: buff_bar_empty_lg
+      x: -54.5
+      y: 88
+    3:
+      name: buff_bar_lg
+      x: -54.5
+      y: 88
+    4:
+      name: buff_stat_icon_1_lg
+      x: -54.5
+      y: 98
+    5:
+      name: buff_stat_icon_2_lg
+      x: -54.5
+      y: 114
+    6:
+      name: buff_stat_icon_3_lg
+      x: -54.5
+      y: 131
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -54.5
+      y: 75
+      scale: 0.264
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 32.5
+      y: 87
+      scale: 0.264
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 101
+      scale: 0.264
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 117
+      scale: 0.264
+      align: left
+    5:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat3]"
+      color: "#1E5B22"
+      x: -36.5
+      y: 133
+      scale: 0.264
+      align: left
+
+barkan_buff_layout_1_xl:  # 아주 크게 (x1.0) · 스탯 1줄
+  align: left
+  images:
+    1:
+      name: buff_plate_1_xl
+      x: -72
+      y: 78
+    2:
+      name: buff_bar_empty_xl
+      x: -62
+      y: 103
+    3:
+      name: buff_bar_xl
+      x: -62
+      y: 103
+    4:
+      name: buff_stat_icon_1_xl
+      x: -62
+      y: 115
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -62
+      y: 88
+      scale: 0.31
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 40
+      y: 102
+      scale: 0.31
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -42
+      y: 118
+      scale: 0.31
+      align: left
+
+barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
+  align: left
+  images:
+    1:
+      name: buff_plate_2_xl
+      x: -72
+      y: 78
+    2:
+      name: buff_bar_empty_xl
+      x: -62
+      y: 103
+    3:
+      name: buff_bar_xl
+      x: -62
+      y: 103
+    4:
+      name: buff_stat_icon_1_xl
+      x: -62
+      y: 115
+    5:
+      name: buff_stat_icon_2_xl
+      x: -62
+      y: 134
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -62
+      y: 88
+      scale: 0.31
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 40
+      y: 102
+      scale: 0.31
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -42
+      y: 118
+      scale: 0.31
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -42
+      y: 136
+      scale: 0.31
+      align: left
+
+barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
+  align: left
+  images:
+    1:
+      name: buff_plate_3_xl
+      x: -72
+      y: 78
+    2:
+      name: buff_bar_empty_xl
+      x: -62
+      y: 103
+    3:
+      name: buff_bar_xl
+      x: -62
+      y: 103
+    4:
+      name: buff_stat_icon_1_xl
+      x: -62
+      y: 115
+    5:
+      name: buff_stat_icon_2_xl
+      x: -62
+      y: 134
+    6:
+      name: buff_stat_icon_3_xl
+      x: -62
+      y: 153
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:hud_buff_name]"
+      color: "#4A2D12"
+      x: -62
+      y: 88
+      scale: 0.31
+      align: left
+    2:
+      name: dialogue_font
+      pattern: "[string:hud_buff_time]"
+      color: "#123E42"
+      x: 40
+      y: 102
+      scale: 0.31
+      align: right
+    3:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat1]"
+      color: "#1E5B22"
+      x: -42
+      y: 118
+      scale: 0.31
+      align: left
+    4:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat2]"
+      color: "#1E5B22"
+      x: -42
+      y: 136
+      scale: 0.31
+      align: left
+    5:
+      name: dialogue_font
+      pattern: "[string:hud_buff_stat3]"
+      color: "#1E5B22"
+      x: -42
+      y: 156
+      scale: 0.31
+      align: left

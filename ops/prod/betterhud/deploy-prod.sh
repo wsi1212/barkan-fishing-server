@@ -47,7 +47,7 @@ say "1) 파일 전송"
 #   npc-dialogue-font.yml(폰트 설정)은 공용이라 보낸다.
 # ★COPYFILE_DISABLE=1 필수 — macOS 가 ._ AppleDouble 을 끼워넣는데, assets/ 에 들어가면
 #   BetterHud 가 그걸 이미지로 읽으려다 폰트가 깨진다.
-SEND=$(cd "$SRC" && ls status-*.yml place-*.yml npc-dialogue-font.yml 2>/dev/null)
+SEND=$(cd "$SRC" && ls status-*.yml place-*.yml buff-*.yml npc-dialogue-font.yml 2>/dev/null)
 DIRS="assets/status assets/fonts"
 if [ "$WITH_DIALOGUE" = 1 ]; then
   SEND="$SEND $(cd "$SRC" && ls npc-dialogue-hud.yml npc-dialogue-layout.yml npc-dialogue-image.yml 2>/dev/null)"

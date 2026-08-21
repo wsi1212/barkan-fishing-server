@@ -31,8 +31,15 @@ install_one() { # <원본파일> <대상폴더>
 }
 
 echo "[1] 정의 파일 설치 ($BH)"
-for set in npc-dialogue status place; do
-  [ -f "$SRC/$set-hud.yml" ]    && install_one "$SRC/$set-hud.yml"    "$BH/huds"
+# ★대화창 HUD 를 huds-disabled/ 로 빼 둔 박스가 있으면 그 결정을 존중한다.
+#   dev(Mac, 힙 2G)는 npc-dialogue-hud.yml(165KB · 초상화 1160벌)을 읽는 순간 기동이 OOM 으로
+#   죽는다. 그래서 dev 는 그 파일만 huds-disabled/ 에 둔 상태다. 여기서 무조건 huds/ 에
+#   복사하면 dev 가 다시 못 뜬다(2026-08-21 이 스크립트에 buff 를 추가하며 발견).
+for set in npc-dialogue status place buff; do
+  dest="$BH/huds"
+  [ "$set" = "npc-dialogue" ] && [ -f "$BH/huds-disabled/npc-dialogue-hud.yml" ] \
+    && dest="$BH/huds-disabled" && echo "   (대화창 HUD 는 이 박스에서 꺼져 있다 → huds-disabled/ 로)"
+  [ -f "$SRC/$set-hud.yml" ]    && install_one "$SRC/$set-hud.yml"    "$dest"
   [ -f "$SRC/$set-layout.yml" ] && install_one "$SRC/$set-layout.yml" "$BH/layouts"
   [ -f "$SRC/$set-image.yml" ]  && install_one "$SRC/$set-image.yml"  "$BH/images"
   [ -f "$SRC/$set-font.yml" ]   && install_one "$SRC/$set-font.yml"   "$BH/texts"
@@ -50,6 +57,18 @@ ascent: 7
 merge-default-bitmap: false
 use-unifont: false
 EOF
+
+# ★HUD 전용 폰트(assets/fonts/aggro_medium_hud.ttf = build_hud_font.py 산출물)도 넣는다.
+#   npc-dialogue-font.yml 이 이 파일을 가리키는데 여기서 안 넣고 있었다 — dev 에는 아예
+#   없었고(2026-08-21 확인), 그러면 대화창·상태판·위치판·버프판 글자가 통째로 안 나온다.
+#   prod 는 deploy-prod.sh 가 assets/fonts/*.ttf 를 넣어 주고 있어서 여태 안 드러났다.
+if compgen -G "$SRC/assets/fonts/*.ttf" >/dev/null; then
+  mkdir -p "$BH/fonts"
+  for f in "$SRC"/assets/fonts/*.ttf; do
+    install -m 0644 "$f" "$BH/fonts/$(basename "$f")"
+    echo "   → fonts/$(basename "$f")"
+  done
+fi
 
 echo "[2] 그림 설치"
 # 상태 HUD 아트는 gui-forge/build_status_hud.py 산출물이다. 손으로 고치지 말고 다시 구울 것.
@@ -83,9 +102,13 @@ missing=0
 for f in $(grep -hoE 'file: *(dialogue|status)/[^ ]+\.png' "$SRC"/*-image.yml | awk '{print $2}' | sort -u); do
   [ -f "$BH/assets/$f" ] || { echo "   ❌ 누락: assets/$f"; missing=1; }
 done
-# HUD/보스바가 서버와 같은 Aggro Medium을 쓰는지 확인한다.
-grep -q 'file: *aggro_medium\.ttf' "$BH/texts/npc-dialogue-font.yml" \
-  || { echo "   ❌ HUD 폰트가 Aggro Medium이 아니다"; missing=1; }
+# HUD 글자 폰트가 실제로 설치돼 있는지 확인한다.
+# ★옛날엔 'aggro_medium.ttf' 문자열을 찾았는데, 폰트가 aggro_medium_hud.ttf(기호 7자를
+#   추가한 것)로 바뀐 뒤로 이 검사는 항상 실패하고 있었다 — 늘 빨간 검사는 아무도 안 본다.
+#   지금은 yml 이 가리키는 파일명을 읽어서 그 파일이 있는지 본다.
+HUDFONT=$(grep -E "^ *file: *" "$BH/texts/npc-dialogue-font.yml" | head -1 | sed "s/.*file: *//")
+[ -n "$HUDFONT" ] && [ -f "$BH/fonts/$HUDFONT" ] \
+  || { echo "   ❌ HUD 폰트 누락: fonts/$HUDFONT (build_hud_font.py 를 돌릴 것)"; missing=1; }
 grep -q 'merge-default-bitmap: *false' "$BH/font.yml" \
   || { echo "   ❌ 보스바가 BetterHud 기본 폰트를 계속 사용한다"; missing=1; }
 [ -f "$BH/aggro_medium.ttf" ] && [ -f "$BH/fonts/aggro_medium.ttf" ] \
