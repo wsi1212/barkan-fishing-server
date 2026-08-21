@@ -52,6 +52,16 @@
   controls.maxDistance = 22000;
   controls.maxPolarAngle = Math.PI * 0.49;
   controls.minPolarAngle = 0.12;
+  const scaleLabel = document.querySelector('#map-scale-label');
+  const updateScaleLabel = () => {
+    if (!scaleLabel) return;
+    // Camera units are Minecraft blocks. Keep the label readable while it
+    // follows the same distance users are changing with +/− and the wheel.
+    const estimate = Math.max(1, camera.position.distanceTo(controls.target) * 0.65);
+    const step = estimate < 100 ? 10 : estimate < 1000 ? 50 : estimate < 10000 ? 500 : 1000;
+    const blocks = Math.max(step, Math.round(estimate / step) * step);
+    scaleLabel.textContent = `약 ${blocks.toLocaleString()} blocks`;
+  };
 
   const world = new THREE.Group();
   const voxelGroup = new THREE.Group();
@@ -379,11 +389,13 @@
     camera.position.set(6400, 6100, 6400);
     controls.minDistance = 180; controls.maxDistance = 22000;
     controls.update();
+    updateScaleLabel();
   };
   const zoomBy = factor => {
     const offset = camera.position.clone().sub(controls.target).multiplyScalar(factor);
     camera.position.copy(controls.target).add(offset);
     controls.update();
+    updateScaleLabel();
   };
   const orbitBy = (azimuth, polar = 0) => {
     const offset = camera.position.clone().sub(controls.target);
@@ -393,6 +405,7 @@
     offset.setFromSpherical(spherical);
     camera.position.copy(controls.target).add(offset);
     controls.update();
+    updateScaleLabel();
   };
   const focusArea = area => {
     if (!area) return;
@@ -490,7 +503,7 @@
   document.querySelector('#map-svg')?.style.setProperty('display', 'none');
   buildOverview(); buildBorders('스폰도시'); fitOverview(); resize();
   window.addEventListener('resize', resize, { passive: true });
-  controls.addEventListener('change', scheduleRebuild);
+  controls.addEventListener('change', () => { updateScaleLabel(); scheduleRebuild(); });
   window.addEventListener('barkan-map-state', event => {
     const id = event.detail?.id || '';
     const area = townAreas.get(id);
