@@ -467,22 +467,29 @@
     const originY = Number(payload.yOrigin) || 0;
     const stride = Number(payload.columnStride) || 10;
     const count = Math.min(Number(payload.columnCount || 0), Math.floor(bytes.length / stride));
+    // The first tile appears at a few hundred blocks away. Sampling 2×2 (and
+    // 4×4 when farther out) keeps the first frame responsive while the exact
+    // shell remains available as the camera approaches the map.
+    const distance = camera.position.distanceTo(controls.target);
+    const sample = distance > 420 ? 4 : distance > 260 ? 2 : 1;
     let rendered = 0;
     for (let i = 0; i < count; i += 1) {
       const offset = i * stride;
       const x = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
       const z = originZ + ((bytes[offset + 2] << 8) | bytes[offset + 3]);
+      if ((x - originX) % sample !== 0 || (z - originZ) % sample !== 0) continue;
       const bottom = originY + bytes[offset + 4];
       const height = Math.max(1, bytes[offset + 5]);
       const topMaterial = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
       const sideMaterial = localLegend[(bytes[offset + 8] << 8) | bytes[offset + 9]] || topMaterial;
       if (hiddenBlocks.has(sideMaterial)) continue;
-      addBlockRecord(groups, sideMaterial, x + 0.5, bottom + height / 2, z + 0.5, 1, height, 1);
+      const cellSize = sample;
+      addBlockRecord(groups, sideMaterial, x + cellSize / 2, bottom + height / 2, z + cellSize / 2, cellSize, height, cellSize);
       // Give a column's top surface its actual top-block material without
       // generating a second full-height column. A thin cap avoids z-fighting
       // while keeping vegetation/wood/stone tops recognisable at medium LOD.
       if (topMaterial !== sideMaterial && !hiddenBlocks.has(topMaterial)) {
-        addRecord(groups, topMaterial, x + 0.5, bottom + height + 0.012, z + 0.5, 1, 0.024, 1);
+        addRecord(groups, topMaterial, x + cellSize / 2, bottom + height + 0.012, z + cellSize / 2, cellSize, 0.024, cellSize);
       }
       rendered += 1;
     }
