@@ -74,6 +74,13 @@
     if (!'wasd'.includes(key) || typing) return;
     event.preventDefault();
     moveKeys.add(key);
+    // Apply one step immediately as well as in the animation loop. Browser
+    // automation and quick taps can deliver keyup before the next frame;
+    // without this, only a physically held key would appear to work.
+    if (applyKeyboardPan()) {
+      updateScaleLabel();
+      scheduleRebuild();
+    }
   };
   const handleMapKeyUp = event => {
     const key = String(event.key || '').toLowerCase();
