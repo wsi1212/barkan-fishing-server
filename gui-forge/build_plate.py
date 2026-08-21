@@ -58,6 +58,10 @@ PLATES = {
     "questlist": (3, "questlist_", 0xE830),
     "questjournal": (4, "questjournal_", 0xE840),
     "questpage": (6, "questpage_", 0xE850),
+    # 젖은 보물상자 추첨 3행 — 보상 릴이 가운데 줄을 공유한다.
+    "wet_treasure": (3, "wettreasure_", 0xE860),
+    # 수리(/수리) — 장착 부품·통발 목록 + 모두 수리 버튼 전용 3행 판.
+    "repair": (3, "repair_", 0xE870),
 }
 
 
