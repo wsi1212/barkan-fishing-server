@@ -16,15 +16,41 @@
 #
 # ★JSON 데이터는 안 올린다(jar 전용). 데이터까지 보내려면 deploy-blockship.sh 를 쓸 것.
 #
-# 사용: ops/deploy-jar.sh <jar 경로>
+# 사용: ops/deploy-jar.sh <jar 경로> [--dev] [--name <plugins 안 파일명>]
+#   --dev            prod 대신 dev(맥)에 올린다. 정지·기동은 ~/dev-mc.sh 가 맡는다.
+#   --name <파일명>   BlockShip 이 아닌 플러그인(예: BarkanChess-1.0.0.jar)을 올릴 때.
 set -euo pipefail
 
-JAR="${1:?사용: $0 <jar 경로>}"
+JAR="${1:?사용: $0 <jar 경로> [--dev] [--name <파일명>]}"
+shift
 [ -f "$JAR" ] || { echo "❌ jar 없음: $JAR"; exit 1; }
+
+TARGET=prod
+NAME="BlockShip-1.0.0-SNAPSHOT.jar"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --dev)  TARGET=dev; shift ;;
+        --name) NAME="${2:?--name 뒤에 파일명}"; shift 2 ;;
+        *)      echo "❌ 모르는 인자: $1"; exit 1 ;;
+    esac
+done
 
 KEY="$HOME/.ssh/oracle-mc.key"
 HOST="ubuntu@168.107.8.107"
-REMOTE="~/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar"
+REMOTE="~/mcserver/plugins/$NAME"
+DEV_PLUGINS="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins"
+
+if [ "$TARGET" = dev ]; then
+    [ -f "$DEV_PLUGINS/$NAME" ] || { echo "❌ dev 에 그 이름의 jar 이 없다: $NAME (이름 확인)"; exit 1; }
+    echo "▶ dev 정지"
+    ~/dev-mc.sh stop || true
+    echo "▶ jar 교체 ($(wc -c < "$JAR")b) → $NAME"
+    cp "$JAR" "$DEV_PLUGINS/$NAME"
+    echo "▶ dev 기동 (기동 ~83초, 타임아웃 떠도 실패 아님)"
+    ~/dev-mc.sh start || true
+    echo "✅ dev 배포 완료"
+    exit 0
+fi
 
 echo "▶ 접속자 확인"
 ssh -i "$KEY" -o StrictHostKeyChecking=no "$HOST" 'python3 ~/mcserver/scripts/rcon.py list | head -1' || true
