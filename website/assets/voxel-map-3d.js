@@ -14,6 +14,7 @@
   if (!canvas || !viewport || !plane || !terrain || !mapData || !window.THREE || !window.THREE.OrbitControls) return;
   canvas.tabIndex = 0;
   canvas.addEventListener('pointerdown', () => canvas.focus(), { passive: true });
+  viewport.addEventListener('pointerdown', () => viewport.focus(), { passive: true });
 
   const THREE = window.THREE;
   const status = document.querySelector('#map-status');
@@ -59,10 +60,13 @@
   controls.minPolarAngle = 0.12;
   const moveKeys = new Set();
   const worldUp = new THREE.Vector3(0, 1, 0);
+  let mapHovered = false;
+  viewport.addEventListener('pointerenter', () => { mapHovered = true; });
+  viewport.addEventListener('pointerleave', () => { mapHovered = false; moveKeys.clear(); });
   const keyTargetIsMap = target => target === canvas || target === viewport || viewport.contains(target);
   const handleMapKeyDown = event => {
     const key = String(event.key || '').toLowerCase();
-    if (!'wasd'.includes(key) || !keyTargetIsMap(event.target)) return;
+    if (!'wasd'.includes(key) || (!mapHovered && !keyTargetIsMap(event.target))) return;
     event.preventDefault();
     moveKeys.add(key);
   };
@@ -884,7 +888,11 @@
       rebuilding = false;
       return;
     }
-    if (!force && activePayload && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
+    // `activeMode` can be `tiles` while the async town payload is already in
+    // memory. In that state, entering the town must rebuild its detailed scan
+    // instead of returning merely because both views are non-close zoom.
+    const hasTownMesh = activeMode === 'run' || activeMode === 'block';
+    if (!force && activePayload && hasTownMesh && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
     rebuilding = true;
     if (!activePayload) {
       clearGroup(voxelGroup);
