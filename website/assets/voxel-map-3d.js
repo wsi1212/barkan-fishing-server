@@ -482,7 +482,7 @@
       // generating a second full-height column. A thin cap avoids z-fighting
       // while keeping vegetation/wood/stone tops recognisable at medium LOD.
       if (topMaterial !== sideMaterial && !hiddenBlocks.has(topMaterial)) {
-        addBlockRecord(groups, topMaterial, x + 0.5, bottom + height + 0.012, z + 0.5, 1, 0.024, 1);
+        addRecord(groups, topMaterial, x + 0.5, bottom + height + 0.012, z + 0.5, 1, 0.024, 1);
       }
       rendered += 1;
     }
