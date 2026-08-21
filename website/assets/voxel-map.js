@@ -104,20 +104,85 @@
     if (fineLodCache.has(step)) return fineLodCache.get(step);
     const buckets = new Map();
     if (finePayload) {
-      for (let i = 0; i < finePayload.count; i += 1) {
-        const offset = i * 7;
-        const rawX = (fineBytes[offset] | (fineBytes[offset + 1] << 8)) - 4096;
-        const rawZ = (fineBytes[offset + 2] | (fineBytes[offset + 3] << 8)) - 4096;
-        const x = Math.floor(rawX / step) * step;
-        const z = Math.floor(rawZ / step) * step;
-        const height = (fineBytes[offset + 4] | (fineBytes[offset + 5] << 8)) - 128;
-        const key = `${x},${z}`;
-        const previous = buckets.get(key);
-        if (!previous || height > previous.height) buckets.set(key, { x, z, height, material: fineMaterialMap[fineBytes[offset + 6]] ?? 0, size: step, lodStep: step, detail: true, fine: true });
+      if (finePayload.format === 'runs8') {
+        const originX = Number(finePayload.xOrigin) || 0;
+        const originZ = Number(finePayload.zOrigin) || 0;
+        const originY = Number(finePayload.yOrigin) || 0;
+        // Runs are emitted bottom-to-top for each column. Keep the highest
+        // contiguous stack only for drawing, while the payload still retains
+        // every scanned run (including air gaps between stacks).
+        const columns = new Map();
+        for (let i = 0; i < finePayload.count; i += 1) {
+          const offset = i * 8;
+          const rawX = originX + ((fineBytes[offset] << 8) | fineBytes[offset + 1]);
+          const rawZ = originZ + ((fineBytes[offset + 2] << 8) | fineBytes[offset + 3]);
+          const start = originY + fineBytes[offset + 4];
+          const length = fineBytes[offset + 5];
+          const end = start + Math.max(1, length) - 1;
+          const materialIndex = (fineBytes[offset + 6] << 8) | fineBytes[offset + 7];
+          const material = fineMaterialMap[materialIndex] ?? 0;
+          const key = `${rawX},${rawZ}`;
+          const previous = columns.get(key);
+          if (!previous || start > previous.lastEnd + 1) {
+            columns.set(key, { x: rawX, z: rawZ, height: end, bottom: start, material, lastEnd: end });
+          } else {
+            previous.bottom = start;
+            previous.lastEnd = end;
+            previous.height = end;
+            previous.material = material;
+          }
+        }
+        columns.forEach(column => {
+          const x = Math.floor(column.x / step) * step;
+          const z = Math.floor(column.z / step) * step;
+          const key = `${x},${z}`;
+          const previous = buckets.get(key);
+          if (!previous || column.height >= previous.height) {
+            buckets.set(key, { x, z, height: column.height, bottom: column.bottom, material: column.material, size: step, lodStep: step, detail: true, fine: true });
+          } else if (column.bottom < previous.bottom) {
+            previous.bottom = column.bottom;
+          }
+        });
+      } else if (finePayload.format === 'vox4') {
+        const originX = Number(finePayload.xOrigin) || 0;
+        const originZ = Number(finePayload.zOrigin) || 0;
+        const originY = Number(finePayload.yOrigin) || 0;
+        for (let i = 0; i < finePayload.count; i += 1) {
+          const offset = i * 4;
+          const rawX = originX + fineBytes[offset];
+          const rawZ = originZ + fineBytes[offset + 1];
+          const y = originY + fineBytes[offset + 2];
+          const material = fineMaterialMap[fineBytes[offset + 3]] ?? 0;
+          const x = Math.floor(rawX / step) * step;
+          const z = Math.floor(rawZ / step) * step;
+          const key = `${x},${z}`;
+          const previous = buckets.get(key);
+          if (!previous) buckets.set(key, { x, z, height: y, bottom: y, material, size: step, lodStep: step, detail: true, fine: true });
+          else {
+            previous.bottom = Math.min(previous.bottom, y);
+            if (y >= previous.height) { previous.height = y; previous.material = material; }
+          }
+        }
+      } else {
+        for (let i = 0; i < finePayload.count; i += 1) {
+          const offset = i * 7;
+          const rawX = (fineBytes[offset] | (fineBytes[offset + 1] << 8)) - 4096;
+          const rawZ = (fineBytes[offset + 2] | (fineBytes[offset + 3] << 8)) - 4096;
+          const x = Math.floor(rawX / step) * step;
+          const z = Math.floor(rawZ / step) * step;
+          const height = (fineBytes[offset + 4] | (fineBytes[offset + 5] << 8)) - 128;
+          const key = `${x},${z}`;
+          const previous = buckets.get(key);
+          if (!previous || height > previous.height) buckets.set(key, { x, z, height, material: fineMaterialMap[fineBytes[offset + 6]] ?? 0, size: step, lodStep: step, detail: true, fine: true });
+        }
       }
     }
     const cells = [...buckets.values()];
-    const result = { cells, heightMap: new Map(cells.map(cell => [`${cell.x},${cell.z}`, cell.height])) };
+    const result = {
+      cells,
+      heightMap: new Map(cells.map(cell => [`${cell.x},${cell.z}`, cell.height])),
+      columnMap: new Map(cells.map(cell => [`${cell.x},${cell.z}`, cell]))
+    };
     fineLodCache.set(step, result);
     return result;
   };
@@ -132,7 +197,7 @@
     if (fineLoading.has(id)) return;
     clearFineTown();
     fineLoading.add(id);
-    fetch(`/assets/town-detail-${slug}.json?v=2`, { cache: 'force-cache' })
+    fetch(`/assets/town-detail-${slug}.json?v=3`, { cache: 'force-cache' })
       .then(response => response.ok ? response.json() : null)
       .then(payload => {
         fineLoading.delete(id);
@@ -219,7 +284,7 @@
     else if (name.includes('wood') || name.includes('log') || name.includes('planks') || name.includes('shelf') || name.includes('bookshelf')) color = '#80654c';
     else if (name.includes('path') || name.includes('dirt') || name.includes('mud') || name.includes('farmland') || name.includes('root')) color = '#806b4a';
     else if (name.includes('gold') || name.includes('copper') || name.includes('raw_') || name.includes('iron') || name.includes('ore') || name.includes('diamond') || name.includes('emerald')) color = name.includes('gold') ? '#d5ae45' : name.includes('copper') ? '#bd7653' : '#8d9aa0';
-    else if (name.includes('terracotta') || name.includes('concrete') || name.includes('wool') || name.includes('carpet')) color = name.includes('white') ? '#d5d8ca' : name.includes('black') ? '#2b3033' : name.includes('yellow') ? '#d6b54c' : name.includes('orange') ? '#c87845' : name.includes('blue') ? '#4e79a4' : name.includes('green') ? '#4f8b64' : '#9b6650';
+    else if (name.includes('terracotta') || name.includes('concrete') || name.includes('wool') || name.includes('carpet')) color = name.includes('white') ? '#d5d8ca' : name.includes('black') ? '#2b3033' : name.includes('red') ? '#c95a52' : name.includes('orange') ? '#c87845' : name.includes('yellow') ? '#d6b54c' : name.includes('lime') ? '#75ad52' : name.includes('green') ? '#4f8b64' : name.includes('cyan') ? '#4296a1' : name.includes('light_blue') ? '#6da9c5' : name.includes('blue') ? '#4e79a4' : name.includes('purple') ? '#8b64a3' : name.includes('magenta') ? '#b15a9d' : name.includes('pink') ? '#d78c9d' : name.includes('gray') ? '#69777b' : name.includes('brown') ? '#8b6049' : '#9b6650';
     else if (name.includes('stone') || name.includes('deepslate') || name.includes('andesite') || name.includes('diorite') || name.includes('granite') || name.includes('tuff') || name.includes('cobble') || name.includes('brick') || name.includes('basalt') || name.includes('obsidian')) color = '#6e7d79';
     else {
       let hash = 0; for (let i = 0; i < name.length; i += 1) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
@@ -241,10 +306,7 @@
     ctx.fill();
     if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
   };
-  // A top-down scan only knows the highest solid block in a column. If that
-  // block is floating (balloon, tower trim, bridge), never connect its side
-  // down to the terrain below — that turns air into a solid-looking pillar.
-  const floatingSideBottom = (height, neighbour) => height - neighbour > 18 ? height - 8 : neighbour;
+  const floatingSideBottom = (_height, neighbour) => neighbour;
   const drawBorder = area => {
     const selected = area.id === selectedId;
     ctx.save();
@@ -318,11 +380,16 @@
       const x = cell.x; const z = cell.z; const h = cell.height; const size = cell.size || cellSize;
       const top = [project(x, z, h), project(x + size, z, h), project(x + size, z + size, h), project(x, z + size, h)];
       const color = materialColor(cell.material, h);
-      const neighborMap = cell.fine ? activeFine.heightMap : detailHeightMap;
-      const east = cell.detail ? (neighborMap.get(`${x + size},${z}`) ?? baseY) : heightAt(cell.i + 1, cell.j);
-      const south = cell.detail ? (neighborMap.get(`${x},${z + size}`) ?? baseY) : heightAt(cell.i, cell.j + 1);
-      const eastBottom = floatingSideBottom(h, east);
-      const southBottom = floatingSideBottom(h, south);
+      const neighbourMap = cell.fine ? activeFine.columnMap : null;
+      const eastCell = neighbourMap?.get(`${x + size},${z}`);
+      const southCell = neighbourMap?.get(`${x},${z + size}`);
+      const legacyEast = cell.detail && !cell.fine ? detailHeightMap.get(`${x + size},${z}`) : undefined;
+      const legacySouth = cell.detail && !cell.fine ? detailHeightMap.get(`${x},${z + size}`) : undefined;
+      const east = cell.detail ? (eastCell?.height ?? legacyEast ?? baseY) : heightAt(cell.i + 1, cell.j);
+      const south = cell.detail ? (southCell?.height ?? legacySouth ?? baseY) : heightAt(cell.i, cell.j + 1);
+      const ownBottom = cell.bottom ?? baseY;
+      const eastBottom = cell.fine ? Math.max(ownBottom, eastCell?.height ?? ownBottom) : floatingSideBottom(h, east, cell.material);
+      const southBottom = cell.fine ? Math.max(ownBottom, southCell?.height ?? ownBottom) : floatingSideBottom(h, south, cell.material);
       if (eastBottom < h - 1) quad([top[1], top[2], project(x + size, z + size, eastBottom), project(x + size, z, eastBottom)], shade(color, -42));
       if (southBottom < h - 1) quad([top[3], top[2], project(x + size, z + size, southBottom), project(x, z + size, southBottom)], shade(color, -26));
       quad(top, color, cell.size >= 8 ? 'rgba(4,20,21,.14)' : null);
