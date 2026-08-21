@@ -4257,7 +4257,7 @@
       "id": "CK_빵",
       "category": "요리",
       "displayName": "따뜻한 빵",
-      "locked": true,
+      "locked": false,
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
@@ -13696,6 +13696,7 @@
           "&7금빛이라 이름이 붙었다.",
           "",
           "&7[특급] 버프 요리",
+          "&7난이도 &a+4",
           "&8지속 13분  &7· &8먹기/판매 가능",
           "&8조리시간 12초",
           "",
