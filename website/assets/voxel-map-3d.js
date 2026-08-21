@@ -62,6 +62,8 @@
   scene.add(fillLight);
 
   const materialCache = new Map();
+  const textureLoader = new THREE.TextureLoader();
+  const textureCache = new Map();
   const rgb = hex => new THREE.Color(hex);
   const blockColor = nameRaw => {
     const name = String(nameRaw || '').replace('minecraft:', '');
@@ -129,8 +131,26 @@
   };
   const materialFor = name => {
     const key = String(name || '');
-    // BoxGeometry is already faceted; keep the Lambert material warning-free on r128.
-    if (!materialCache.has(key)) materialCache.set(key, new THREE.MeshLambertMaterial({ color: rgb(blockColor(key)) }));
+    if (!materialCache.has(key)) {
+      // Start with the server's palette color, then replace it with the real
+      // vanilla block texture as soon as that small PNG arrives.
+      const material = new THREE.MeshLambertMaterial({ color: rgb(blockColor(key)) });
+      materialCache.set(key, material);
+      const textureName = key.replace(/^minecraft:/, '');
+      const texture = textureLoader.load(`/assets/mc-blocks/${textureName}.png`, loaded => {
+        loaded.magFilter = THREE.NearestFilter;
+        loaded.minFilter = THREE.NearestFilter;
+        loaded.generateMipmaps = false;
+        loaded.encoding = THREE.sRGBEncoding;
+        material.map = loaded;
+        material.color.set(0xffffff);
+        material.needsUpdate = true;
+      }, undefined, () => {
+        // Custom/non-block entries do not have a vanilla texture; keep the
+        // deterministic palette fallback without logging a console error.
+      });
+      textureCache.set(key, texture);
+    }
     return materialCache.get(key);
   };
 
