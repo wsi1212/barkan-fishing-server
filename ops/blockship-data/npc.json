@@ -3591,9 +3591,9 @@
       "ranking": false,
       "innTown": "상단",
       "innWorld": "world",
-      "innX": 1131.5,
-      "innY": 61.0,
-      "innZ": -64.5,
+      "innX": 1014.5,
+      "innY": 77.0,
+      "innZ": -23.5,
       "innYaw": 0.0,
       "quests": [],
       "shopItems": []
@@ -3931,9 +3931,9 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
-        "본섬_채집01",
         "튜토_식당1",
-        "튜토_식당2"
+        "튜토_식당2",
+        "본섬_채집01"
       ],
       "shopItems": []
     },
@@ -4412,8 +4412,8 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
-        "왕도08b",
-        "영주04"
+        "영주04",
+        "왕도08b"
       ],
       "shopItems": []
     },
