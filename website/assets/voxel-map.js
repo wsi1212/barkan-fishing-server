@@ -241,6 +241,10 @@
     ctx.fill();
     if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
   };
+  // A top-down scan only knows the highest solid block in a column. If that
+  // block is floating (balloon, tower trim, bridge), never connect its side
+  // down to the terrain below — that turns air into a solid-looking pillar.
+  const floatingSideBottom = (height, neighbour) => height - neighbour > 18 ? height - 8 : neighbour;
   const drawBorder = area => {
     const selected = area.id === selectedId;
     ctx.save();
@@ -317,8 +321,10 @@
       const neighborMap = cell.fine ? activeFine.heightMap : detailHeightMap;
       const east = cell.detail ? (neighborMap.get(`${x + size},${z}`) ?? baseY) : heightAt(cell.i + 1, cell.j);
       const south = cell.detail ? (neighborMap.get(`${x},${z + size}`) ?? baseY) : heightAt(cell.i, cell.j + 1);
-      if (east < h - 1) quad([top[1], top[2], project(x + size, z + size, east), project(x + size, z, east)], shade(color, -42));
-      if (south < h - 1) quad([top[3], top[2], project(x + size, z + size, south), project(x, z + size, south)], shade(color, -26));
+      const eastBottom = floatingSideBottom(h, east);
+      const southBottom = floatingSideBottom(h, south);
+      if (eastBottom < h - 1) quad([top[1], top[2], project(x + size, z + size, eastBottom), project(x + size, z, eastBottom)], shade(color, -42));
+      if (southBottom < h - 1) quad([top[3], top[2], project(x + size, z + size, southBottom), project(x, z + size, southBottom)], shade(color, -26));
       quad(top, color, cell.size >= 8 ? 'rgba(4,20,21,.14)' : null);
     });
 
