@@ -19110,6 +19110,17 @@
       "forage_rare_floor": 790.8,
       "compressed_blackstone": 95.8,
       "mining_warning": "ISLAND_MINE_DAILY_CAP not found"
+    },
+    "harpoon_enhancement_design": {
+      "catalog_count": 55,
+      "pure_families": ["행운", "속도", "호흡", "크리", "공격"],
+      "hybrid_profiles": 17,
+      "common_stat_budget_vs_rod_profile": "35-50% initial ceiling",
+      "enhancement_before_tuning": "not applied; design-only audit",
+      "cohort_ratio_hit_rate_050_lv1": 4.18,
+      "cohort_ratio_hit_rate_075_lv1": 4.57,
+      "cohort_ratio_hit_rate_075_lv70": 5.66,
+      "unsupported_tool_stat_gate": ["공격력", "공격속도", "돌진쿨감", "수중호흡", "수영속도"]
     }
   }
 }
