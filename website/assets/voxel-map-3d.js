@@ -39,6 +39,9 @@
     return area ? { x1: area.bounds[0], x2: area.bounds[1], z1: area.bounds[2], z2: area.bounds[3] } : null;
   };
   const inRegion = (x, z, region) => region && x >= region.x1 && x <= region.x2 && z >= region.z1 && z <= region.z2;
+  const inRegionWithMargin = (x, z, region, margin) => region
+    && x >= region.x1 - margin && x <= region.x2 + margin
+    && z >= region.z1 - margin && z <= region.z2 + margin;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -60,13 +63,15 @@
   controls.minPolarAngle = 0.12;
   const moveKeys = new Set();
   const worldUp = new THREE.Vector3(0, 1, 0);
-  let mapHovered = false;
-  viewport.addEventListener('pointerenter', () => { mapHovered = true; });
-  viewport.addEventListener('pointerleave', () => { mapHovered = false; moveKeys.clear(); });
-  const keyTargetIsMap = target => target === canvas || target === viewport || viewport.contains(target);
+  viewport.addEventListener('pointerleave', () => { moveKeys.clear(); });
   const handleMapKeyDown = event => {
     const key = String(event.key || '').toLowerCase();
-    if (!'wasd'.includes(key) || (!mapHovered && !keyTargetIsMap(event.target))) return;
+    const tag = String(event.target?.tagName || '').toUpperCase();
+    const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || event.target?.isContentEditable;
+    // This page has no map text fields, so once the user is on the map we
+    // accept WASD globally. That avoids browser focus stealing the first key
+    // after a click/scroll while still preserving normal text input behavior.
+    if (!'wasd'.includes(key) || typing) return;
     event.preventDefault();
     moveKeys.add(key);
   };
@@ -866,7 +871,10 @@
     const wantsClose = distance < 120;
     const movedClose = wantsClose && controls.target.distanceTo(closeCenter) > 24;
     const activeTownRegion = activeTownId ? detailRegionFor(activeTownId) : null;
-    const targetInsideTown = inRegion(controls.target.x, controls.target.z, activeTownRegion);
+    // Keep the selected town's real scan while the camera is near its border.
+    // Switching to a coarse world tile a few blocks outside the polygon made
+    // the settlement suddenly look like a low-resolution rollback.
+    const targetInsideTown = inRegionWithMargin(controls.target.x, controls.target.z, activeTownRegion, 180);
     // Keep the verified town scan while the camera is inside that town. Once
     // the user pans out, switch to the static live-world tile at the target so
     // the rest of the island can be explored without loading a monolith.
