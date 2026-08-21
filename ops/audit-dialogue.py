@@ -61,11 +61,71 @@ def load(dirpath):
     return npc["npcs"], j("dialogue.json"), j("quests.json")
 
 
+def read_engine():
+    """엔진 소스 텍스트. 없으면 None. BLOCKSHIP_ENGINE_SRC 로 경로를 덮어쓸 수 있다(테스트용)."""
+    try:
+        return open(os.environ.get("BLOCKSHIP_ENGINE_SRC", ENGINE_SRC), encoding="utf-8").read()
+    except OSError:
+        return None
+
+
+def lookup_choice_body(src):
+    """NpcDialogueManager.lookupChoice(...) 의 본문. 못 찾으면 None.
+
+    중괄호 균형으로 끝을 찾는다 — 다음 메서드 시그니처를 기준으로 삼으면 리팩터에 쉽게 깨진다.
+    """
+    i = src.find("Choice lookupChoice(")
+    if i < 0:
+        return None
+    i = src.find("{", i)
+    if i < 0:
+        return None
+    depth, j = 0, i
+    while j < len(src):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[i:j + 1]
+        j += 1
+    return None
+
+
+def choice_id_drift(dlg):
+    """«<key>/<qid>» 하위 노드와 기본 «<key>» 노드 사이의 선택지 id 어긋남 수.
+
+    (충돌=같은 id 다른 action, 누락=기본 노드에 그 id 자체가 없음)
+
+    데이터 자체는 죄가 없다 — id 는 생성기가 전부 c1/c2 로 찍으므로 충돌이 «정상»이다.
+    이 수치는 엔진이 클릭을 잘못된 노드로 재조회할 때 «즉시 오작동하는 선택지 개수»,
+    즉 회귀의 폭발 반경이다. 퀘스트완료(completeQid 폴백)·진행중(동적 생성)은 제외한다.
+    """
+    collide = missing = 0
+    for nodes in dlg.values():
+        if not isinstance(nodes, dict):
+            continue
+        for key, node in nodes.items():
+            if "/" not in key:
+                continue
+            base = key.split("/", 1)[0]
+            if base in ("퀘스트완료", "진행중"):
+                continue
+            gen = nodes.get(base) or {}
+            gm = {g.get("id"): g.get("action") for g in (gen.get("choices") or [])}
+            for c in (node.get("choices") or []):
+                cid = c.get("id")
+                if cid not in gm:
+                    missing += 1
+                elif gm[cid] != c.get("action"):
+                    collide += 1
+    return collide, missing
+
+
 def handled_actions():
     """엔진의 choice action switch 를 소스에서 파싱한다. 실패하면 폴백 + 경고."""
-    try:
-        src = open(ENGINE_SRC, encoding="utf-8").read()
-    except OSError:
+    src = read_engine()
+    if src is None:
         return FALLBACK_ACTIONS, False
     # ★NpcDialogueManager 에는 `switch (c.action)` 이 «두 개» 있다 — 선택지 아이콘 색을 고르는 것과
     #   실제 dispatch. 첫 번째만 잡으면 case 3개만 읽고 나머지 전부를 «모르는 action» 으로 오판한다
@@ -211,6 +271,26 @@ def audit(npcs, dlg, qroot, full=False):
         if prereq:
             warn("첫만남 노드가 뜰 수 없다 — 첫 퀘스트에 선행퀘스트가 있어 항상 중간 진입으로 판정된다",
                  f"{nid}/첫만남 (첫 퀘스트 {qs[0]} 의 선행={prereq})")
+
+    # 엔진 회귀 가드 — 선택지 클릭이 «화면에 띄운 그 노드»로 재조회되는가.
+    #   2026-08-21 사고: lookupChoice() 가 questKey 없이 노드를 다시 찾아, 표시는 «인사/튜토_식당1»
+    #   인데 클릭은 일반 «인사» 의 같은 id 를 실행했다. 식당 주인의 「부탁을 들어볼게요」(퀘스트목록)
+    #   가 「구경하고 갈게요」(닫기)로 해석돼 수락 자체가 불가능 → 튜토리얼 정지. 예외도 로그도 없다
+    #   (엔진 입장에선 «닫기» 를 정상 수행한 것이다). 데이터 검사로는 못 잡으므로 엔진을 직접 본다.
+    src = read_engine()
+    if src is None:
+        warn("엔진 소스를 못 읽어 lookupChoice 회귀 가드를 건너뜀", ENGINE_SRC)
+    else:
+        body = lookup_choice_body(src)
+        collide, missing = choice_id_drift(dlg)
+        if body is None:
+            warn("lookupChoice(...) 를 소스에서 못 찾아 회귀 가드를 건너뜀 — 이름이 바뀌었으면 이 검사도 갱신할 것",
+                 ENGINE_SRC)
+        elif "nodeQid" not in body:
+            err("lookupChoice 가 표시한 노드의 questKey 를 안 쓴다 — 클릭이 일반 «<key>» 노드로 재조회돼 "
+                "엉뚱한 action 이 실행된다(2026-08-21 튜토리얼 정지의 원인)",
+                f"Session.nodeQid 참조 없음 @ {ENGINE_SRC} → "
+                f"즉시 오작동: 충돌 {collide}건 + 무반응 {missing}건")
 
     byname = collections.defaultdict(list)
     for nid, n in npcs.items():
