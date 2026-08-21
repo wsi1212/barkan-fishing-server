@@ -1244,6 +1244,149 @@ def build_workbook(out_path, sim_casts):
         numfmt={"매입가(플레이어가 사는 값)": "#,##0", "매도가(파는 값)": "#,##0"},
     )
 
+    # ============================================================== 28 미니게임 난이도/도주
+    mg = read_java("fishing/MinigameTables.java")
+    params = {}
+    for g, vals in re.findall(r'case "(\w)"\s*-> new Params\(([^)]*)\)', mg):
+        nums = [int(x) for x in re.findall(r"-?\d+", vals.replace("gPattern", "0"))]
+        params[g] = nums
+    fdiff = {}
+    m = re.search(r"int fishDifficulty\(String grade\) \{(.*?)\};", mg, re.S)
+    if m:
+        for g, v in re.findall(r'case "(\w)" -> (\d+)', m.group(1)):
+            fdiff[g] = int(v)
+    if not params or not fdiff:
+        warn("MinigameTables 파싱 실패 — 난이도/도주 시트 부실")
+
+    def derive(grade, size, rod_bonus, esc_red, env_diff=0, env_esc=0):
+        p = params.get(grade)
+        if not p:
+            return None
+        size_d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 7)
+        net = rod_bonus - fdiff.get(grade, 0) - size_d
+        bar = max(12, min(30, 14 - net))
+        # Java: 8 + (int) Math.floor(net / 2.0) — 파이썬 // 도 음수에서 같은 방향으로 내림한다
+        zone = 8 + (net // 2)
+        overflow = 0
+        if zone < 1:
+            overflow = 1 - zone
+            zone = 1
+        zone = min(zone, 10)
+        bar = max(bar, zone + 2)
+        if env_diff > 0:
+            zone = max(1, zone - env_diff)
+        esc = p[2] - esc_red // 2 - net // 4 + env_esc
+        esc = max(1, min(100, esc))
+        return net, bar, zone, overflow, esc, p[3]
+
+    rows = []
+    for g in "EDCBASMLG":
+        p = params.get(g)
+        if not p:
+            continue
+        rows.append([
+            "등급 파라미터", g, fdiff.get(g), p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], "",
+        ])
+    for size, label in ((30, "30cm"), (80, "80cm"), (180, "180cm"), (400, "400cm")):
+        d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 7)
+        rows.append(["크기 난이도", label, d, "", "", "", "", "", "", "", "", "", "존폭에서 추가 차감"])
+    sheet(
+        "28_미니게임난이도", "미니게임 파라미터 · 등급별 난이도",
+        "존폭=성공 판정 구간(넓을수록 쉬움), 도주기본=시작 도주 확률, 도주증가=미스마다 +%. "
+        "장비 '난이도' 스탯이 등급난이도·크기난이도를 상쇄해 존폭을 넓힌다.",
+        ["구분", "등급/항목", "등급난이도", "기본존폭", "이동틱", "도주기본%", "도주증가%",
+         "커서속도", "변속패턴", "스팟이동", "연속", "방향전환", "메모"],
+        rows, {"메모": 26}, tab="1F3864",
+    )
+
+    rows = []
+    for g in "EDCBASMLG":
+        for rb in (0, 10, 20, 30, 40, 60):
+            for er in (0, 30, 60):
+                d = derive(g, 80, rb, er)
+                if not d:
+                    continue
+                net, bar, zone, overflow, esc, inc = d
+                rows.append([g, rb, er, net, bar, zone, round(zone / bar * 100, 1),
+                             overflow or "", esc, inc, "", ])
+    sheet(
+        "29_난이도_도주_매트릭스", "장비 스탯이 실제로 사는 것 (80cm 물고기 기준)",
+        "난이도 스탯(rodBonus)과 도망감소 스탯을 넣었을 때의 존폭·도주율. "
+        "존폭비율 = 존폭/바폭 — 체감 성공률의 1차 지표. 초과난이도>0 이면 존폭이 이미 최소(1)로 눌린 상태다. "
+        "★고등급은 난이도 스탯 없이는 존폭이 바닥이라 '등급 확률'만 올려도 실수령이 안 늘어난다.",
+        ["등급", "난이도 스탯", "도망감소 스탯", "net", "바폭", "존폭", "존폭비율%",
+         "초과난이도", "도주시작%", "미스당 도주+%", "메모"],
+        rows, {"메모": 24}, tab="1F3864",
+    )
+
+    # ============================================================== 30 수리/마모
+    em = read_java("parts/EquipmentManager.java")
+    m = re.search(r"long gradeUnitRate\(String grade\) \{(.*?)\};", em, re.S)
+    rate = {}
+    if m:
+        for g, v in re.findall(r'case "(\w)" -> (\d+)', m.group(1)):
+            rate[g] = int(v)
+        m2 = re.search(r"default -> (\d+);", m.group(1))
+        if m2:
+            rate["E"] = int(m2.group(1))
+    if not rate:
+        warn("gradeUnitRate 파싱 실패 — 수리비 시트 부실")
+    CPH = 220  # 실측 처리량(캐스트/h) — balance-audit metrics 기준
+    rows = []
+    for t in ("릴", "줄", "바늘", "미끼", "찌"):
+        for name, spec in parts.get(t, {}).items():
+            pd = parse_part(spec)
+            unit = rate.get(pd["등급"], rate.get("E", 5))
+            rows.append([
+                t, pd["이름"], pd["등급"], pd["내구"], unit,
+                pd["내구"] * unit, unit, unit * CPH,
+                round(pd["내구"] / CPH, 2), "",
+            ])
+    rows.sort(key=lambda r: (r[0], GRADE_RANK.get(r[2], 0), r[1]))
+    sheet(
+        "30_수리마모", "부품 내구 · 수리비 · 유지비",
+        f"내구는 1캐스트에 1점 깎인다(낚싯대 본체의 '내구보존' 스탯 % 확률로 전체 스킵). "
+        f"따라서 시간당 유지비는 내구 총량과 무관하게 '단가 × 캐스트/h' 다. 여기선 실측 {CPH}캐스트/h 가정. "
+        "5부품 풀세팅이면 이 값의 5배가 시간당 고정 지출이다 — 설계 목표는 그 티어 수입의 10%.",
+        ["부위", "이름", "등급", "최대내구", "내구1점 단가", "풀수리비(0→만)",
+         "캐스트당 비용", f"시간당 유지비({CPH}캐스트/h)", "완전소모까지 시간(h)", "메모"],
+        rows, {"메모": 24}, tab="375623",
+        numfmt={"풀수리비(0→만)": "#,##0", f"시간당 유지비({CPH}캐스트/h)": "#,##0"},
+    )
+
+    # ============================================================== 31 조각 경제
+    pf = read_java("parts/PartFragmentManager.java")
+    m = re.search(r"int yieldForGrade\(String grade\) \{(.*?)\};", pf, re.S)
+    yld = {g: int(v) for g, v in re.findall(r'case "(\w)" -> (\d+)', m.group(1))} if m else {}
+    rows = [["부품 분해 수율", f"{g}등급", yld.get(g), "조각", "", ""] for g in "EDCBASMLG" if g in yld]
+    TIER_LABEL = {0: "매우 흔함(12%↑) / 비드롭 중간재", 1: "흔함(8~11%)", 2: "보통(5~7%)", 3: "희귀(3~4%)", 4: "매우 희귀(1~2%)"}
+    TIER_YIELD = {0: 1, 1: 1, 2: 2, 3: 3, 4: 4}
+    TIER_COST = {0: 2, 1: 3, 2: 5, 3: 8, 4: 12}
+
+    def rarity_tier(mid):
+        c = max([d["chance"] for tbl in drops.values() for d in tbl if d["matId"] == mid] or [0])
+        if c <= 0:
+            return 0
+        return 0 if c >= 12 else 1 if c >= 8 else 2 if c >= 5 else 3 if c >= 3 else 4
+
+    for t in sorted(TIER_LABEL):
+        rows.append(["재료 희귀도 tier", f"tier {t} — {TIER_LABEL[t]}", TIER_YIELD[t], "조각(분해)",
+                     TIER_COST[t], "조각(제작비) — 항상 수율보다 커서 왕복 손실"])
+    for mid, m2 in mats.items():
+        t = rarity_tier(mid)
+        bundle = 5 if m2.get("name") == "깨진 토기 조각" or mid == "깨진토기조각" else 1
+        rows.append([
+            "재료별", f"{m2.get('name', mid)}", TIER_YIELD[t], f"조각 / {bundle}개당",
+            TIER_COST[t], f"tier {t}" + (" (묶음 5 — 유물감정 유입 과다로 하향)" if bundle > 1 else ""),
+        ])
+    sheet(
+        "31_조각경제", "부품 조각 — 분해 수율 · 제작비",
+        "조각은 부품/재료를 분해해 얻고 다른 재료를 만드는 데 쓴다. 제작비 > 분해수율 이라 왕복하면 항상 손실(싱크). "
+        "희귀도 tier 는 '최대 드롭 확률'만 보므로 '흔한데 쓸 데도 없는' 재료를 구분 못 한다 — 묶음 단위가 그 보정 손잡이.",
+        ["구분", "항목", "분해 수율", "단위", "제작비(조각)", "비고"], rows,
+        {"항목": 32, "단위": 18, "비고": 44}, tab="375623",
+    )
+
     # ============================================================== 90 점검표
     issues = []
 
