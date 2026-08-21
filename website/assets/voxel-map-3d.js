@@ -161,7 +161,7 @@
     });
   };
 
-  const buildOverview = () => {
+  const buildOverview = (excludeId = '') => {
     const groups = new Map();
     const materials = decode(terrain.materials);
     const mask = decode(terrain.mask);
@@ -169,6 +169,9 @@
     const cellSize = Number(terrain.cellSize) || 8;
     const width = Number(terrain.gridWidth) || 0;
     const depth = Number(terrain.gridDepth) || 0;
+    const excludedArea = townAreas.get(excludeId);
+    const excludedBounds = excludedArea ? excludedArea.bounds : null;
+    const excludedMargin = 48;
     for (let j = 0; j < depth; j += 1) {
       for (let i = 0; i < width; i += 1) {
         const index = j * width + i;
@@ -178,6 +181,10 @@
         const x = Number(terrain.xOrigin) + i * cellSize;
         const z = Number(terrain.zOrigin) + j * cellSize;
         if (detailRegions.some(region => inRegion(x + cellSize / 2, z + cellSize / 2, region))) continue;
+        if (excludedBounds) {
+          const cx = x + cellSize / 2; const cz = z + cellSize / 2;
+          if (cx >= excludedBounds[0] - excludedMargin && cx <= excludedBounds[1] + excludedMargin && cz >= excludedBounds[2] - excludedMargin && cz <= excludedBounds[3] + excludedMargin) continue;
+        }
         const sy = Math.max(1, height - baseY);
         addRecord(groups, legend[materials[index]] || 'minecraft:grass_block', x + cellSize / 2, baseY + sy / 2, z + cellSize / 2, cellSize, sy, cellSize);
       }
@@ -358,7 +365,7 @@
     if (!force && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
     rebuilding = true;
     clearGroup(voxelGroup);
-    if (!wantsClose) buildOverview();
+    if (!wantsClose) buildOverview(activeTownId);
     if (wantsClose) {
       const count = buildCloseDetail(activePayload);
       if (count > 0) {
@@ -385,9 +392,8 @@
     const area = townAreas.get(id);
     const slug = townSlugs[id];
     clearGroup(voxelGroup);
-    buildOverview();
     buildBorders(id);
-    if (!slug) { fitOverview(); return; }
+    if (!slug) { buildOverview(); fitOverview(); return; }
     const token = `${id}:${Date.now()}`;
     loadTown.token = token;
     status.textContent = '3D 블록 스캔을 불러오는 중…';
@@ -398,6 +404,7 @@
       activePayload = payload;
       activeTownId = id;
       activeMode = 'run';
+      buildOverview(id);
       const count = buildDetail(payload);
       closeCenter.copy(controls.target);
       status.textContent = `3D VOXEL · ${id.toUpperCase()} · ${count.toLocaleString()} meshes`;
