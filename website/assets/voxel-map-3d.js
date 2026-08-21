@@ -462,8 +462,13 @@
       // cubes. Use the server palette directly so the overview cannot wash
       // pale under the close-up scene lights; the edge walls and perspective
       // still provide the 3D relief.
+      const surfaceColor = rgb(blockColor(materialName));
+      // `outputEncoding` expects linear material values. Convert the
+      // hand-authored Minecraft palette from sRGB first; otherwise grass,
+      // sand and water become a milky white in the overview.
+      if (typeof surfaceColor.convertSRGBToLinear === 'function') surfaceColor.convertSRGBToLinear();
       const material = new THREE.MeshBasicMaterial({
-        color: rgb(blockColor(materialName)),
+        color: surfaceColor,
         side: THREE.DoubleSide,
       });
       const mesh = new THREE.Mesh(geometry, material);
