@@ -19079,6 +19079,27 @@
       "cycles": [],
       "runtime_note": "recipes.json remains the pre-restart runtime snapshot; DishSpecs.java + build output were verified for the new chain"
     },
+    "cooking_followup": {
+      "recipe": "발효케이크",
+      "direct_ingredients": {
+        "따뜻한 빵": 3,
+        "특수 토마토": 26,
+        "강화 밀": 6,
+        "강화 당근": 2
+      },
+      "delta_from_previous_code": {
+        "특수 토마토": 6,
+        "강화 밀": 2,
+        "강화 당근": 1,
+        "따뜻한 빵": 0
+      },
+      "warm_bread_recipe": {
+        "per_dish": {"특수 밀": 2, "강화 밀": 4},
+        "for_three_dishes": {"특수 밀": 6, "강화 밀": 12},
+        "total_including_direct_inputs": {"특수 토마토": 26, "특수 밀": 6, "강화 밀": 18, "강화 당근": 2}
+      },
+      "assessment": "intermediate dish is additive; original farming inputs remain intact"
+    },
     "cohort_sim": {
       "harpoon_hit_rate": "assumption; live telemetry pending",
       "level_1_rod_gold_per_hour": 82255,
