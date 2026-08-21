@@ -367,6 +367,13 @@
     else if (/^(soul_)?lantern$/.test(key)) y -= 0.19;
     addRecord(groups, materialName, x, y, z, sx, sy, sz);
   };
+  const cobwebMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.86,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
   const buildMeshes = (groups, target) => {
     const matrix = new THREE.Matrix4();
     groups.forEach((records, materialName) => {
@@ -375,16 +382,6 @@
       for (let start = 0; start < records.length; start += 50000) {
         const chunk = records.slice(start, start + 50000);
         const custom = blockKey(materialName) === 'cobweb';
-        // Cobwebs are intentionally reduced to white crosshair markers. The
-        // texture atlas version is translucent and expensive at scale, while
-        // a flat white material keeps the map readable and predictable.
-        const cobwebMaterial = custom ? new THREE.MeshBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.86,
-          depthWrite: false,
-          side: THREE.DoubleSide,
-        }) : null;
         const materials = custom ? cobwebMaterial : [
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
           materialFor(materialName, 'top'), materialFor(materialName, 'bottom'),
