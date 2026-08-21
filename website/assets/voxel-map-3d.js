@@ -180,6 +180,15 @@
         'lava|bottom': 'lava_still',
         'tall_grass|side': 'tall_grass_bottom',
         'large_fern|side': 'large_fern_bottom',
+        // The pack exports lantern as a 16×48 animation strip. The map is
+        // static, so use the first 16×16 frame instead of stretching the
+        // entire strip across every face.
+        'lantern|side': 'lantern_face',
+        'lantern|top': 'lantern_face',
+        'lantern|bottom': 'lantern_face',
+        'soul_lantern|side': 'soul_lantern_face',
+        'soul_lantern|top': 'soul_lantern_face',
+        'soul_lantern|bottom': 'soul_lantern_face',
       };
       const textureName = fixed[`${textureKey}|${variant}`]
         || (variant !== 'side' ? `${textureKey}_${variant}` : textureKey);
@@ -279,6 +288,18 @@
     if (!list) { list = []; groups.set(key, list); }
     list.push({ x, y, z, sx, sy, sz });
   };
+  // Apply the vanilla-style vertical anchor for thin/floor-mounted blocks.
+  // Geometry is scaled around its centre, so without this offset a button,
+  // plate, carpet, slab, or lantern floats halfway up the block cell.
+  const addBlockRecord = (groups, materialName, x, y, z, sx, sy, sz) => {
+    const key = blockKey(materialName);
+    if (/_button$/.test(key)) y -= 0.43;
+    else if (/_pressure_plate$/.test(key)) y -= 0.44;
+    else if (/_carpet$/.test(key) || /^(rail|powered_rail|detector_rail|activator_rail)$/.test(key)) y -= 0.46;
+    else if (/_slab$/.test(key)) y -= 0.25;
+    else if (/^(soul_)?lantern$/.test(key)) y -= 0.19;
+    addRecord(groups, materialName, x, y, z, sx, sy, sz);
+  };
   const buildMeshes = (groups, target) => {
     const matrix = new THREE.Matrix4();
     groups.forEach((records, materialName) => {
@@ -342,6 +363,10 @@
         if (/^(oak|spruce|birch|jungle|acacia|dark_oak|mangrove|cherry|bamboo|pale_oak)_(fence|fence_gate)$/.test(key) || /_wall$/.test(key)) return [.75, 1, .75];
         if (/^(oak|spruce|birch|jungle|acacia|dark_oak|mangrove|cherry|bamboo|pale_oak)_door$/.test(key) || /_trapdoor$/.test(key)) return [1, 1, .22];
         if (/_pane$/.test(key) || /^(iron_bars|chain)$/.test(key)) return [.16, 1, .16];
+        // Buttons and pressure plates are floor-mounted thin blocks, not
+        // full cubes. Keep the footprint slightly inset like vanilla.
+        if (/_button$/.test(key)) return [.36, .14, .36];
+        if (/_pressure_plate$/.test(key)) return [.92, .12, .92];
         if (/_carpet$/.test(key) || /^(rail|powered_rail|detector_rail|activator_rail)$/.test(key)) return [1, .08, 1];
         if (/_slab$/.test(key)) return [1, .5, 1];
         return null;
@@ -423,9 +448,46 @@
         if (!merged.has(key)) merged.set(key, { materialName, x, z, y, h });
       }
     }
-    merged.forEach(record => addRecord(groups, record.materialName, record.x + lod / 2, record.y + record.h / 2, record.z + lod / 2, lod, record.h, lod));
+    merged.forEach(record => addBlockRecord(groups, record.materialName, record.x + lod / 2, record.y + record.h / 2, record.z + lod / 2, lod, record.h, lod));
     buildMeshes(groups, target);
     return merged.size;
+  };
+
+  // Medium zoom LOD: one mesh instance per scanned surface column instead of
+  // one instance per material run. A 256×256 tile can contain hundreds of
+  // thousands of runs (and therefore expensive matrices/material groups),
+  // while its column stream is bounded by 65,536 records. The close view still
+  // switches to the exposed 1:1 shell for exact block detail.
+  const buildSurfaceDetail = (payload, target = voxelGroup) => {
+    const groups = new Map();
+    const bytes = decode(payload.columns);
+    const localLegend = payload.legend || [];
+    const originX = Number(payload.xOrigin) || 0;
+    const originZ = Number(payload.zOrigin) || 0;
+    const originY = Number(payload.yOrigin) || 0;
+    const stride = Number(payload.columnStride) || 10;
+    const count = Math.min(Number(payload.columnCount || 0), Math.floor(bytes.length / stride));
+    let rendered = 0;
+    for (let i = 0; i < count; i += 1) {
+      const offset = i * stride;
+      const x = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
+      const z = originZ + ((bytes[offset + 2] << 8) | bytes[offset + 3]);
+      const bottom = originY + bytes[offset + 4];
+      const height = Math.max(1, bytes[offset + 5]);
+      const topMaterial = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
+      const sideMaterial = localLegend[(bytes[offset + 8] << 8) | bytes[offset + 9]] || topMaterial;
+      if (hiddenBlocks.has(sideMaterial)) continue;
+      addBlockRecord(groups, sideMaterial, x + 0.5, bottom + height / 2, z + 0.5, 1, height, 1);
+      // Give a column's top surface its actual top-block material without
+      // generating a second full-height column. A thin cap avoids z-fighting
+      // while keeping vegetation/wood/stone tops recognisable at medium LOD.
+      if (topMaterial !== sideMaterial && !hiddenBlocks.has(topMaterial)) {
+        addBlockRecord(groups, topMaterial, x + 0.5, bottom + height + 0.012, z + 0.5, 1, 0.024, 1);
+      }
+      rendered += 1;
+    }
+    buildMeshes(groups, target);
+    return rendered;
   };
 
   const buildCloseDetail = (payload, target = voxelGroup) => {
@@ -485,7 +547,7 @@
         const [dx, dy, dz] = offset.split(',').map(Number);
         return !blocks.has(keyFor(block.x + dx, block.y + dy, block.z + dz));
       });
-      if (visible) addRecord(groups, block.materialName, block.x + 0.5, block.y + 0.5, block.z + 0.5, 1, 1, 1);
+      if (visible) addBlockRecord(groups, block.materialName, block.x + 0.5, block.y + 0.5, block.z + 0.5, 1, 1, 1);
     });
     buildMeshes(groups, target);
     return blockCount;
@@ -564,10 +626,10 @@
     if (distance > maxDistance) return [];
     const tx = floorDiv(controls.target.x, tileSize);
     const tz = floorDiv(controls.target.z, tileSize);
-    // One tile is enough at 1:1. At a little farther zoom, request the full
-    // 3x3 neighbourhood so panning does not expose an empty edge. The cap is
-    // configurable in the manifest to protect mobile GPUs.
-    const ring = distance > 260 ? 1 : 0;
+    // Fetch only the tile under the target first. A 3×3 burst made the first
+    // view wait on up to nine large JSON payloads and queued too many meshes;
+    // panning requests the next tile incrementally through reconcileTiles.
+    const ring = 0;
     const candidates = [];
     for (let dz = -ring; dz <= ring; dz += 1) {
       for (let dx = -ring; dx <= ring; dx += 1) {
@@ -580,15 +642,15 @@
   };
   const tileStatus = () => {
     let count = 0;
-    tileState.payloads.forEach((payload, key) => { if (tileState.groups.has(key)) count += Number(payload.count || 0); });
-    if (count > 0 && status) status.textContent = `1:1 TILES · ${count.toLocaleString()} blocks`;
+    tileState.payloads.forEach((payload, key) => { if (tileState.groups.has(key)) count += Number(payload.columnCount || payload.count || 0); });
+    if (count > 0 && status) status.textContent = `3D TILES · ${count.toLocaleString()} columns`;
   };
   const buildTile = (entry, payload, generation) => {
-    if (generation !== tileState.generation || activeTownId || !tileState.entries.has(entry.key)) return;
+    if (generation !== tileState.generation || !tileState.entries.has(entry.key)) return;
     const group = new THREE.Group();
     group.name = `tile-${entry.key}`;
     const wantsClose = camera.position.distanceTo(controls.target) < 120;
-    if (wantsClose) buildCloseDetail(payload, group); else buildDetail(payload, group);
+    if (wantsClose) buildCloseDetail(payload, group); else buildSurfaceDetail(payload, group);
     tileGroup.add(group);
     tileState.groups.set(entry.key, group);
     tileStatus();
@@ -611,7 +673,7 @@
     tileState.requests.set(entry.key, request);
   };
   const reconcileTiles = () => {
-    if (!tileState.manifest || activeTownId) {
+    if (!tileState.manifest) {
       clearTileMeshes();
       return;
     }
