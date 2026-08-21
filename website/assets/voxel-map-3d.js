@@ -881,7 +881,7 @@
     // Keep the selected town's real scan while the camera is near its border.
     // Switching to a coarse world tile a few blocks outside the polygon made
     // the settlement suddenly look like a low-resolution rollback.
-    const targetInsideTown = inRegionWithMargin(controls.target.x, controls.target.z, activeTownRegion, 180);
+    const targetInsideTown = inRegionWithMargin(controls.target.x, controls.target.z, activeTownRegion, 640);
     // Keep the verified town scan while the camera is inside that town. Once
     // the user pans out, switch to the static live-world tile at the target so
     // the rest of the island can be explored without loading a monolith.
