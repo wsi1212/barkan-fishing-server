@@ -166,9 +166,9 @@
     const originZ = Number(payload.zOrigin) || 0;
     const originY = Number(payload.yOrigin) || 0;
     const floor = Number(payload.surfaceFloor ?? 60);
-    // 2-block LOD preserves the actual vertical runs while keeping the city
-    // responsive. Zooming does not invent pillars or smear a roof material.
-    const lod = 2;
+    // One instance represents one scanned block run at its real X/Z cell.
+    // We merge only identical runs; air gaps and material changes remain visible.
+    const lod = 1;
     const merged = new Map();
     for (let i = 0; i < Number(payload.count || 0); i += 1) {
       const offset = i * 8;
