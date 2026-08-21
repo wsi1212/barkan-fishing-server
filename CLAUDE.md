@@ -255,6 +255,10 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 소스: **`~/development/barkan-chess`** / GitHub `wsi1212/barkan-chess`(private). 2026-08-11 BlockShip에서 분리(결합도 0 — 순수 Bukkit/Adventure).
 - 원저자가 **컴파일된 jar만** 주므로 소스는 vineflower 역컴파일 복원본이다. **배포 전 `tools/gate.sh <업스트림.jar>` 필수** — ①업스트림 바이트코드 대조 ②랜덤 자가대국 퍼징(무한루프/예외). 2026-08-10 `hasBattery` 역컴파일 왜곡으로 무한루프→Paper 워치독이 prod를 죽인 사고 재발 방지책.
 - 데이터: `plugins/BarkanChess/`(config.yml=테이블·엔진, skins/preferences/achievements/decks/player-stats/variant-stats.yml). 말 모델은 **메인 리소스팩**에 포함(PAPER `custom_model_data` 21001~22301, `assets/minecraft/items/paper.json`).
+- **캔버스(그림·이젤·팔레트)도 이 플러그인이다** — `kr.barkan.chess.art`. 원저자 jar 안에만 있어서
+  저장소 빌드로는 배포 못 한다(복원 소스가 낡음) → `tools/patch-art.sh <업스트림.jar> <출력.jar>` 로
+  **업스트림 jar + art 클래스만 교체**해 올린다. ★이젤 모델(`art_easel.json`)과 `PaintingManager.EASEL_Y`
+  는 짝이라 리소스팩·jar 을 함께 배포해야 한다(한쪽만 올리면 이젤과 그림이 0.5블록 어긋남).
 - `/체스`(cp) — 참가/솔로/AI/퇴장/스킨/규칙/덱/증강/도전과제/전적, op: 생성·제거·테이블·소환·평가·엔진탐지·변형통계·리로드. Stockfish는 dev `/opt/homebrew/bin/stockfish`, prod `/usr/games/stockfish`.
 
 ## 리소스팩
