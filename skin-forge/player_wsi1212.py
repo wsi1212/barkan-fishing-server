@@ -29,6 +29,18 @@ DESIGN SPEC
              전부 수염이라 이것만으로 갈린다), 회청 눈동자 안쪽 응시(gaze=0),
              코 없음(기본), 주름 없음(젊다)
   정체 모티프 가슴 로고·문장 없음. 정체성은 이중여밈 재단 + 밧줄 + 금단추 2열
+
+LAYER 정책 (2026-08-21 유저 지시: "머리카락·장식은 위쪽 레이어 적극 활용")
+  이 해상도에서 «부피를 더한다» = outer 레이어에 얹는다(lessons.md 3장). outer 박스는
+  1.125배로 부풀려 렌더되므로, 같은 픽셀이라도 base 에 칠하면 «그림»이고 outer 에 얹으면
+  «두께»가 된다. 그래서 파트마다 옷감과 장식의 레이어를 갈랐다:
+    head  base = 두상·얼굴·머리카락 밑칠 / outer = 머리카락 부피 전부(앞머리 3행·정수리·
+          옆·뒤) + 얼굴을 감싸는 옆머리 프레임(x0·x7, 6행까지)
+    body  base = 코트 본체(속옷 위에) / outer = 세운 칼라·라펠·금단추·밧줄·벨트·옷단
+    arm   base = 코트 소매          / outer = 왼어깨 밧줄 코일 · 오른소매 접힘 커프
+    leg   base = 바지·장화          / outer = 코트 자락(coat() 가 여기 올린다)·파우치
+  ★그림자는 반대다 — 벨트·칼라가 드리우는 그늘은 그 «아래 옷»(base)에 shade_ring 으로
+    넣는다. outer 에 걸면 투명 픽셀은 건너뛰므로(skinlib.shade_ring) 조용히 사라진다.
 """
 import pathlib
 import sys
@@ -68,30 +80,60 @@ P = dict(
 
 
 def stand_collar(s):
-    """세운 칼라 + 안감 1px 숨구멍.
+    """세운 칼라 + 라펠 + 안감 1px 숨구멍 — 전부 outer 에 얹어 «두께»로 세운다.
 
-    ★안감을 앞섶 전체에 세우면 가슴에 흰 세로 줄무늬가 생긴다(garments.md 실측 v2).
-      칼라 안쪽 한 줄 + 여밈 최상단 2px 까지만.
+    ★칼라를 링 전체(8폭)에 그리면 몸을 감는 줄무늬가 된다(garments.md) → 목 주변만.
+      front/back x2~5 + 좁은 옆면 x1~2 = 목을 한 바퀴. 그 그림자는 base 에 넣는다.
+    ★안감을 앞섶 전체에 세우면 가슴에 흰 세로 줄무늬가 생긴다(실측 v2) → 1px 숨구멍.
     """
     coat, lin = P['coat'], P['lining']
     for fname in ('front', 'back'):
-        s.f('body', fname, 'outer').row(0, coat[4], 2, 5)   # 세운 칼라 윗면이 빛을 받음
-        s.f('body', fname, 'outer').row(1, coat[1], 2, 5)   # 칼라가 드리우는 그림자
-    s.f('body', 'top', 'outer').rect(2, 1, 5, 2, coat[1])
+        f = s.f('body', fname, 'outer')
+        f.row(0, coat[4], 2, 5)                             # 세운 칼라 — 윗행이 빛을 받는다
+        f.row(1, coat[2], 2, 5)                             # 칼라 몸통(두 행이라 '섰다'로 읽힘)
+    for fname in ('right', 'left'):                         # 좁은 옆면으로 목을 한 바퀴
+        s.f('body', fname, 'outer').rect(1, 0, 2, 1, coat[3])
+    s.f('body', 'top', 'outer').rect(2, 1, 5, 2, coat[4])
     f = s.f('body', 'front', 'outer')
-    # ★1차 렌더에서 2px 로 넣었더니 목 밑에 «크림색 스티커»로 보였다 → 1px 숨구멍으로
-    f.px(3, 1, lin[2])
+    for i in range(3):                                      # 라펠 — outer 라서 접힌 두께가 산다
+        f.px(3 - i, i, coat[4]); f.px(4 + i, i, coat[3])
+    #   ★안감 숨구멍은 턱 밑 중앙에 놓으면 «베이지 이름표»로 보인다(렌더 실측)
+    #     → 라펠 접힘 모서리(x2)에 1px = 겹친 앞판 안쪽이 살짝 드러난 것
+    f.px(2, 2, lin[2])
+    #   ★칼라가 드리우는 그늘은 «아래 옷»에 — outer 는 여기가 비어 있어 그냥 사라진다.
+    #     ring 전체가 아니라 칼라가 실제로 덮은 폭(x2~5)만. 8폭을 다 칠하면 가슴을
+    #     감는 줄무늬가 된다. 색은 코트 자기 램프에서 뽑아 팔레트가 안 늘어나게 한다
+    #     (mix 기반 AO 를 남발하면 «눈대중 색조»가 쌓여 audit 이 경고한다 — 실측 249색)
+    for fname in ('front', 'back'):
+        s.f('body', fname).row(2, coat[1], 2, 5)
 
 
 def double_breasted(s):
-    """이중여밈 금단추 2열 — 이 스킨을 다른 남청 코트 4명과 가르는 핵심 재단."""
-    # ★1차 렌더 실패 2건을 여기서 고쳤다:
-    #   ① 단추 3개×2열 + 벨트 버클이 가슴에서 «금 사다리»로 뭉쳤다 → 2개×2열로 줄이고
-    #      벨트 행(y7)을 피한다. 악센트는 면적이 아니라 점이다(garments.md).
-    #   ② x3·x4 에 접힘선을 덮어써서 coat() 가 만든 여밈 명암쌍(x3 밝음/x4 어둠)을
-    #      지우고 가슴 중앙에 검은 띠를 만들었다 → 그 루프를 폐기
-    g.buttons(s, P['gold'], x=2, ys=(3, 6))
-    g.buttons(s, P['gold'], x=5, ys=(3, 6))
+    """이중여밈 앞판 + 금단추 2열 — 다른 남청 코트 4명과 가르는 핵심 재단.
+
+    ★앞판을 outer 에 얹는 이유: 이중여밈은 실제로 «천이 한 겹 겹쳐 덮이는» 재단이다.
+      outer 박스가 1.125배라 겹친 두께가 인게임에서 그대로 보인다(base 에 칠하면 무늬).
+    ★렌더 실패 2건 기록:
+      ① 단추 3개×2열 + 벨트 버클이 가슴에서 «금 사다리»로 뭉쳤다 → 2개×2열 + 벨트 행 회피
+      ② 코트를 base 로 내린 뒤 g.buttons() 가 «아무것도 안 찍었다» — 그 함수는 대상
+         픽셀의 알파를 보고 건너뛴다(빈 outer 였다). 앞판을 먼저 깔아야 단추가 얹힌다.
+    """
+    coat = P['coat']
+    f = s.f('body', 'front', 'outer')
+    for y in range(0, 12):                                  # 겹쳐 덮은 앞판
+        for x in range(2, 6):
+            f.px(x, y, coat[3] if (x + y) % 5 else coat[2])  # 결 — 규칙적 줄이 안 생기게
+    f.col(2, coat[4], 0, 11)                                 # 덮은 쪽 접힘 — 빛을 받는 모서리
+    f.col(5, coat[1], 0, 11)                                 # 덮인 쪽 — 그늘로 두께를 만든다
+    s.f('body', 'top', 'outer').rect(2, 0, 5, 1, coat[4])    # 어깨 위로 이어짐
+    #   단추 배치는 세 번 고쳤다(전부 렌더 실측):
+    #     y3·y6 → 아래 단추가 벨트 버클과 붙어 «금 뭉치»
+    #     y3·y5 를 g.buttons 로 → 금·그늘·금·그늘이 연속돼 «금 사슬 두 줄»
+    #     확정: 위 단추만 그늘을 달고(입체), 아래 단추는 그늘 없이 한 점 → 금 4px 뿐
+    gold = P['gold']
+    for x in (2, 5):
+        f.px(x, 3, gold[4]); f.px(x, 4, gold[1])            # 위 단추 + 그늘
+        f.px(x, 6, gold[3])                                 # 아래 단추 (그늘 없음)
 
 
 def shoulder_rope(s):
@@ -133,11 +175,12 @@ def soften_sideframe(s):
     """
     h = P['hair']
     hf = s.f('head', 'front', 'outer')
+    #   ★유저 지시(2026-08-21)대로 프레임을 «채운다» — 예전엔 이미 칠해진 픽셀의 색만
+    #     고쳤다. x0·x7 은 얼굴 바깥 열이라 눈(x1·x6)을 가리지 않으면서 outer 에 얹히면
+    #     머리통이 실제로 넓어진다(base 에 칠하면 반대로 얼굴이 깎인다 — lessons.md 3장).
     for y in range(0, 7):
-        if hf.get(0, y)[3]:
-            hf.px(0, y, h[3])
-        if hf.get(7, y)[3]:
-            hf.px(7, y, h[2])
+        hf.px(0, y, h[3] if y < 4 else h[2])                # 광원측은 밝게
+        hf.px(7, y, h[2] if y < 4 else h[1])                # 반대편은 한 단 어둡게
     # ★sidepart 는 가벼운 쪽 깊이를 0 까지 떨어뜨려(depth = safe - |x-heavy|//2) x6·x7 의
     #   0~2 행을 통째로 피부로 만든다 → 8x8 에서 «한쪽만 벗겨진 이마»로 읽혔다(head zoom
     #   실측). 맨 윗행 하나는 항상 머리로 남겨 헤어라인이 3→1 행으로 «사선»으로 흐르게 한다.
@@ -151,7 +194,9 @@ def build():
     # ---- 머리: 피부 → 머리카락 → 얼굴 피처 (나중에 그린 것이 이긴다)
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
-    g.hair(s, P['hair'], fringe=2, back=7, seed=SEED, part_x=5)
+    #   fringe=3 → 앞머리가 outer 3행(눈썹 행 위까지). hair() 가 hair_volume 으로
+    #   정수리·옆·뒤 부피를 전부 outer 에 얹는다(volume=True 가 기본)
+    g.hair(s, P['hair'], fringe=3, back=7, seed=SEED, part_x=5)
     g.male_hair_style(s, P['hair'], P['skin'], style='sidepart', seed=SEED, eye_y=4)
     soften_sideframe(s)
     g.face_shape(s, P['skin'], jaw='square', temple=True)
@@ -174,27 +219,43 @@ def build():
     g.pants(s, P['pants'], y0=0, y1=7, seed=SEED, grain=0.12)
     g.boots(s, P['boot'], rows=4, toe=True, cuff=True)
 
-    # ---- outer 레이어: 롱코트 → 칼라/여밈 → 소매 → 벨트 → 소품
-    g.coat(s, P['coat'], y0=0, hem=11, tails=3, lapel=True, seed=SEED)
-    stand_collar(s)
-    double_breasted(s)
-    g.neck_shadow(s, P['coat'], layer='outer')
+    # ---- 코트 «옷감»은 base 로. outer 는 장식 전용으로 비워 둔다(LAYER 정책)
+    #   ★coat() 는 몸통을 layer 인자대로 그리지만 «자락(tails)»은 항상 다리 outer 에
+    #     올린다 — 그게 원래 의도(자락이 부피로 떠야 코트로 읽힌다)라 그대로 쓴다.
+    g.coat(s, P['coat'], y0=0, hem=11, tails=3, lapel=True, seed=SEED, layer='base')
+    s.f('body', 'bottom').fill(P['coat'][1])                # base 6면 불투명 유지
+    g.neck_shadow(s, P['coat'], layer='base')
 
-    g.sleeves(s, P['coat'], y0=0, y1=9, layer='outer', seed=SEED + 3, grain=0.08)
+    g.sleeves(s, P['coat'], y0=0, y1=9, layer='base', seed=SEED + 3, grain=0.08)
     for _i, _part in enumerate(('arm_r', 'arm_l')):
         #   ★소매가 «남색 판자»로 보이지 않게: 세로 폴오프(원통 곡률) + 비대칭 주름 1줄.
         #     팔에 톤이 없으면 무슨 짓을 해도 허접해 보인다(skin-craft.md 관측치)
-        s.shade_col_falloff(_part, P['coat'], 0, 9, layer='outer')
-        s.folds(_part, 2, 8, P['coat'], layer='outer', cols=(1,) if _i == 0 else (2,),
+        s.shade_col_falloff(_part, P['coat'], 0, 9, layer='base')
+        s.folds(_part, 2, 8, P['coat'], layer='base', cols=(1,) if _i == 0 else (2,),
                 seed=SEED + _i)
+    g.hands(s, P['skin'], rows=2)                           # 소매를 base 로 덮은 뒤 손 복구
+
+    # ---- outer 레이어: 전부 «얹히는 것»만 (칼라·라펠·단추·밧줄·벨트·커프·파우치)
+    double_breasted(s)                                      # 앞판 → 칼라 순서(칼라가 위)
+    stand_collar(s)
     #   비대칭 ①: 오른소매만 커프를 접어 안감이 보인다.
     #   ★커프를 밝은 안감으로 한 바퀴 두르면 '소매가 맨살로 끝난' 것처럼 보인다
     #     (garments.md 실측 v2) → 앞면 안쪽 2px 만.
+    #   커프를 outer 에 얹으면 «접어 올린 두께»가 실제로 튀어나온다
     _cf = s.f('arm_r', 'front', 'outer')
+    for _x in range(4):
+        _cf.px(_x, 8, P['coat'][4] if _x % 2 == 0 else P['coat'][3])
     _cf.px(1, 9, P['lining'][2]); _cf.px(2, 9, P['lining'][1])
-    s.shade_ring('arm_r', 8, layer='outer', amount=0.22)
+    for _fn in ('right', 'left', 'back'):
+        s.f('arm_r', _fn, 'outer').row(8, P['coat'][2])
+    s.ao_row('arm_r', 9, P['coat'], layer='base', drop=2)   # 커프가 소매에 드리우는 그늘
 
-    g.belt(s, P['strap'], y=7, accent=P['gold'], layer='outer')
+    #   벨트·옷단은 outer 에 얹어 실제로 «둘러진» 두께가 생긴다. ao=False 로 두고
+    #   그늘은 base(코트)에 직접 — outer y8 은 비어 있어 shade_ring 이 건너뛴다
+    g.belt(s, P['strap'], y=7, accent=P['gold'], layer='outer', ao=False)
+    s.band('body', 8, 8, P['strap'][1], layer='outer')      # 벨트 아래 가죽 두께
+    s.ao_row('body', 9, P['coat'], layer='base', drop=2)    # 벨트가 코트에 드리우는 그늘
+    s.band('body', 11, 11, P['coat'][4], layer='outer')     # 코트 옷단 립(아래에서 보인다)
     shoulder_rope(s)                                        # 비대칭 ②
     #   비대칭 ③: 오른 허벅지 파우치. 코트 자락(leg outer 0~2) 아래에 놓는다.
     #   ★파우치를 금속 램프로 전부 채우면 다리에 금괴를 붙인 꼴이 된다 → 가죽 + 버클 1px
