@@ -26,7 +26,8 @@
   const legend = terrainData.legend || [];
   const detailRegions = terrainData.detailRegions || [];
   const inDetailRegion = (x, z) => detailRegions.some(region => x >= region.x1 && x <= region.x2 && z >= region.z1 && z <= region.z2);
-  const cells = [];
+  const baseCells = [];
+  const coarseCells = [];
   const detailHeightMap = new Map();
   const heightAt = (i, j) => {
     if (i < 0 || j < 0 || i >= gridWidth || j >= gridDepth) return baseY;
@@ -43,8 +44,8 @@
       const height = heightAt(i, j);
       const x = terrainData.xOrigin + i * cellSize;
       const z = terrainData.zOrigin + j * cellSize;
-      if (!maskBytes[index] || (materialBytes[index] === 0 && height <= baseY) || inDetailRegion(x + cellSize / 2, z + cellSize / 2)) continue;
-      cells.push({ i, j, x, z, height, material: materialBytes[index], size: cellSize });
+      if (!maskBytes[index] || (materialBytes[index] === 0 && height <= baseY)) continue;
+      baseCells.push({ i, j, x, z, height, material: materialBytes[index], size: cellSize });
     }
   }
   const detailStep = Number(terrainData.detailStep) || 4;
@@ -55,7 +56,7 @@
     const height = (detailBytes[offset + 4] | (detailBytes[offset + 5] << 8)) - 128;
     const material = detailBytes[offset + 6];
     detailHeightMap.set(`${x},${z}`, height);
-    cells.push({ x, z, height, material, size: detailStep, detail: true });
+    coarseCells.push({ x, z, height, material, size: detailStep, detail: true });
   }
 
   const camera = { cx: 0, cz: 0, viewWidth: globalView[2], yaw: -0.34, pitch: 0.9 };
@@ -65,6 +66,82 @@
   let dragging = null;
   let moved = false;
   let lastViewKey = '';
+  const farCellSize = cellSize * 2;
+  const farCellMap = new Map();
+  baseCells.forEach(cell => {
+    const key = `${Math.floor(cell.x / farCellSize)},${Math.floor(cell.z / farCellSize)}`;
+    const previous = farCellMap.get(key);
+    if (!previous || cell.height > previous.height) farCellMap.set(key, { x: Math.floor(cell.x / farCellSize) * farCellSize, z: Math.floor(cell.z / farCellSize) * farCellSize, height: cell.height, material: cell.material, size: farCellSize, detail: true });
+  });
+  const farCells = [...farCellMap.values()];
+  let finePayload = null;
+  let fineBytes = new Uint8Array();
+  let fineMaterialMap = [];
+  let fineLodCache = new Map();
+  let fineRegions = [];
+  const fineCache = new Map();
+  const fineLoading = new Set();
+  const townSlugs = { '사막마을': 'desert-town', '스폰도시': 'spawn-city', '상단마을': 'upper-town', '왕도': 'royal-city', '항구': 'harbor' };
+  const inFineRegion = (x, z) => fineRegions.some(region => x >= region.x1 && x <= region.x2 && z >= region.z1 && z <= region.z2);
+  const clearFineTown = () => {
+    finePayload = null;
+    fineBytes = new Uint8Array();
+    fineMaterialMap = [];
+    fineLodCache = new Map();
+    fineRegions = [];
+  };
+  const activateFineTown = payload => {
+    clearFineTown();
+    const localLegend = payload.legend || [];
+    const localIndex = new Map(legend.map((name, index) => [name, index]));
+    localLegend.forEach(name => { if (!localIndex.has(name)) { localIndex.set(name, legend.length); legend.push(name); } });
+    finePayload = payload;
+    fineBytes = decode(payload.details);
+    fineMaterialMap = localLegend.map(name => localIndex.get(name) ?? 0);
+    fineRegions.push(payload.region);
+  };
+  const fineLod = step => {
+    if (fineLodCache.has(step)) return fineLodCache.get(step);
+    const buckets = new Map();
+    if (finePayload) {
+      for (let i = 0; i < finePayload.count; i += 1) {
+        const offset = i * 7;
+        const rawX = (fineBytes[offset] | (fineBytes[offset + 1] << 8)) - 4096;
+        const rawZ = (fineBytes[offset + 2] | (fineBytes[offset + 3] << 8)) - 4096;
+        const x = Math.floor(rawX / step) * step;
+        const z = Math.floor(rawZ / step) * step;
+        const height = (fineBytes[offset + 4] | (fineBytes[offset + 5] << 8)) - 128;
+        const key = `${x},${z}`;
+        const previous = buckets.get(key);
+        if (!previous || height > previous.height) buckets.set(key, { x, z, height, material: fineMaterialMap[fineBytes[offset + 6]] ?? 0, size: step, lodStep: step, detail: true, fine: true });
+      }
+    }
+    const cells = [...buckets.values()];
+    const result = { cells, heightMap: new Map(cells.map(cell => [`${cell.x},${cell.z}`, cell.height])) };
+    fineLodCache.set(step, result);
+    return result;
+  };
+  const loadFineTown = id => {
+    const slug = townSlugs[id];
+    if (!slug) { clearFineTown(); return; }
+    if (fineCache.has(id)) {
+      activateFineTown(fineCache.get(id));
+      draw();
+      return;
+    }
+    if (fineLoading.has(id)) return;
+    clearFineTown();
+    fineLoading.add(id);
+    fetch(`/assets/town-detail-${slug}.json?v=2`, { cache: 'force-cache' })
+      .then(response => response.ok ? response.json() : null)
+      .then(payload => {
+        fineLoading.delete(id);
+        if (!payload) return;
+        fineCache.set(id, payload);
+        if (selectedId === id) { activateFineTown(payload); draw(); }
+      })
+      .catch(() => fineLoading.delete(id));
+  };
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const areaSegments = area => {
@@ -133,14 +210,21 @@
   const materialColor = (material, y) => {
     const name = (legend[material] || '').replace('minecraft:', '');
     let color = '#477967';
-    if (name.includes('water') || name.includes('ice')) color = '#3c88a1';
-    else if (name.includes('sand') || name.includes('sandstone')) color = '#c5aa6b';
+    if (name.includes('water') || name.includes('ice') || name.includes('prismarine') || name.includes('coral') || name.includes('kelp') || name.includes('seagrass')) color = '#3c88a1';
     else if (name.includes('snow')) color = '#d5e5de';
-    else if (name.includes('leaves') || name.includes('moss') || name.includes('grass') || name.includes('azalea')) color = '#4d8c65';
-    else if (name.includes('wood') || name.includes('log') || name.includes('planks')) color = '#80654c';
-    else if (name.includes('terracotta') || name.includes('concrete')) color = '#9b6650';
-    else if (name.includes('stone') || name.includes('deepslate') || name.includes('andesite') || name.includes('tuff')) color = '#6e7d79';
-    else if (name.includes('path') || name.includes('dirt') || name.includes('mud')) color = '#806b4a';
+    else if (name.includes('red_') || name.includes('crimson') || name.includes('nether') || name.includes('netherrack')) color = '#a95649';
+    else if (name.includes('purple') || name.includes('purpur') || name.includes('amethyst') || name.includes('chorus')) color = '#9a72a9';
+    else if (name.includes('sand') || name.includes('sandstone')) color = '#c5aa6b';
+    else if (name.includes('leaves') || name.includes('moss') || name.includes('grass') || name.includes('azalea') || name.includes('vine') || name.includes('bamboo') || name.includes('fern') || name.includes('sapling')) color = '#4d8c65';
+    else if (name.includes('wood') || name.includes('log') || name.includes('planks') || name.includes('shelf') || name.includes('bookshelf')) color = '#80654c';
+    else if (name.includes('path') || name.includes('dirt') || name.includes('mud') || name.includes('farmland') || name.includes('root')) color = '#806b4a';
+    else if (name.includes('gold') || name.includes('copper') || name.includes('raw_') || name.includes('iron') || name.includes('ore') || name.includes('diamond') || name.includes('emerald')) color = name.includes('gold') ? '#d5ae45' : name.includes('copper') ? '#bd7653' : '#8d9aa0';
+    else if (name.includes('terracotta') || name.includes('concrete') || name.includes('wool') || name.includes('carpet')) color = name.includes('white') ? '#d5d8ca' : name.includes('black') ? '#2b3033' : name.includes('yellow') ? '#d6b54c' : name.includes('orange') ? '#c87845' : name.includes('blue') ? '#4e79a4' : name.includes('green') ? '#4f8b64' : '#9b6650';
+    else if (name.includes('stone') || name.includes('deepslate') || name.includes('andesite') || name.includes('diorite') || name.includes('granite') || name.includes('tuff') || name.includes('cobble') || name.includes('brick') || name.includes('basalt') || name.includes('obsidian')) color = '#6e7d79';
+    else {
+      let hash = 0; for (let i = 0; i < name.length; i += 1) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
+      color = ['#6f8e83', '#9a806c', '#6e8795', '#98745e'][Math.abs(hash) % 4];
+    }
     const lift = clamp((y - baseY) / 180, -.16, .22);
     return color.replace(/^#(..)(..)(..)$/, (_, r, g, b) => `rgb(${clamp(parseInt(r, 16) * (1 + lift), 0, 255)},${clamp(parseInt(g, 16) * (1 + lift), 0, 255)},${clamp(parseInt(b, 16) * (1 + lift), 0, 255)})`);
   };
@@ -209,7 +293,20 @@
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, width, height);
 
-    const ordered = cells.slice().sort((a, b) => {
+    const useFarLod = camera.viewWidth > 5600;
+    // A focused town starts zoomed out. Keep that first paint light, then reveal
+    // the real per-block scan as the player zooms in further.
+    const fineStep = camera.viewWidth > 900 ? 8 : camera.viewWidth > 300 ? 4 : camera.viewWidth > 140 ? 2 : 1;
+    const activeFine = fineLod(fineStep);
+    const renderCells = useFarLod
+      ? farCells
+      : baseCells.filter(cell => !inDetailRegion(cell.x + cell.size / 2, cell.z + cell.size / 2))
+        .concat(coarseCells.filter(cell => !inFineRegion(cell.x + cell.size / 2, cell.z + cell.size / 2)))
+        .concat(activeFine.cells);
+    const ordered = renderCells.filter(cell => {
+      const [sx, sy] = project(cell.x + (cell.size || cellSize) / 2, cell.z + (cell.size || cellSize) / 2, cell.height);
+      return sx > -140 && sx < width + 140 && sy > -260 && sy < height + 260;
+    }).sort((a, b) => {
       const c = Math.cos(camera.yaw); const s = Math.sin(camera.yaw);
       return ((a.x - camera.cx) * s + (a.z - camera.cz) * c) - ((b.x - camera.cx) * s + (b.z - camera.cz) * c);
     });
@@ -217,11 +314,12 @@
       const x = cell.x; const z = cell.z; const h = cell.height; const size = cell.size || cellSize;
       const top = [project(x, z, h), project(x + size, z, h), project(x + size, z + size, h), project(x, z + size, h)];
       const color = materialColor(cell.material, h);
-      const east = cell.detail ? (detailHeightMap.get(`${x + size},${z}`) ?? baseY) : heightAt(cell.i + 1, cell.j);
-      const south = cell.detail ? (detailHeightMap.get(`${x},${z + size}`) ?? baseY) : heightAt(cell.i, cell.j + 1);
+      const neighborMap = cell.fine ? activeFine.heightMap : detailHeightMap;
+      const east = cell.detail ? (neighborMap.get(`${x + size},${z}`) ?? baseY) : heightAt(cell.i + 1, cell.j);
+      const south = cell.detail ? (neighborMap.get(`${x},${z + size}`) ?? baseY) : heightAt(cell.i, cell.j + 1);
       if (east < h - 1) quad([top[1], top[2], project(x + size, z + size, east), project(x + size, z, east)], shade(color, -42));
       if (south < h - 1) quad([top[3], top[2], project(x + size, z + size, south), project(x, z + size, south)], shade(color, -26));
-      quad(top, color, 'rgba(4,20,21,.14)');
+      quad(top, color, cell.size >= 8 ? 'rgba(4,20,21,.14)' : null);
     });
 
     const hiddenAreas = new Set([...document.querySelectorAll('.area[hidden]')].map(item => item.dataset.id));
@@ -235,7 +333,7 @@
   const viewObserver = new MutationObserver(syncFromSvg);
   viewObserver.observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
   window.addEventListener('resize', draw, { passive: true });
-  window.addEventListener('barkan-map-state', event => { selectedId = event.detail?.id || ''; draw(); });
+  window.addEventListener('barkan-map-state', event => { selectedId = event.detail?.id || ''; loadFineTown(selectedId); draw(); });
   window.addEventListener('barkan-map-filter', draw);
 
   viewport.addEventListener('contextmenu', event => event.preventDefault());
