@@ -54,10 +54,12 @@
   const borderGroup = new THREE.Group();
   world.add(voxelGroup, borderGroup);
   scene.add(world);
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(14000, 14000), new THREE.MeshBasicMaterial({ color: 0x0a3239 }));
-  sea.rotation.x = -Math.PI / 2;
-  sea.position.y = baseY - 2;
-  world.add(sea);
+  // No synthetic ocean plane: water must come from the scanned Minecraft
+  // blocks too, otherwise maximum zoom shows a fake flat blue sheet.
+  scene.add(new THREE.HemisphereLight(0xb8e7db, 0x11272b, 1.18));
+  const fillLight = new THREE.DirectionalLight(0xffedc3, 0.42);
+  fillLight.position.set(420, 900, 260);
+  scene.add(fillLight);
 
   const materialCache = new Map();
   const rgb = hex => new THREE.Color(hex);
@@ -105,7 +107,8 @@
   };
   const materialFor = name => {
     const key = String(name || '');
-    if (!materialCache.has(key)) materialCache.set(key, new THREE.MeshBasicMaterial({ color: rgb(blockColor(key)) }));
+    // BoxGeometry is already faceted; keep the Lambert material warning-free on r128.
+    if (!materialCache.has(key)) materialCache.set(key, new THREE.MeshLambertMaterial({ color: rgb(blockColor(key)) }));
     return materialCache.get(key);
   };
 
