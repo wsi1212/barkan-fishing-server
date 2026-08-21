@@ -44,17 +44,22 @@ def has_progress_later(qid, status):
     return False
 
 
-def first_available(nq, status):
+def first_available(nq, status, level):
+    """NpcDialogueManager.firstAvailableQuest 와 같은 판정 — 레벨 게이트 포함.
+    (레벨이 모자란 퀘스트는 수락 자체가 막히므로 «인사/<qid>» 후보가 아니다)"""
     for qid in nq:
         if status.get(qid) == '완료': continue
         pre = fld(qid, '선행퀘스트')
         if pre and status.get(pre) != '완료': continue
+        try: need = int((q.get(qid) or {}).get('필요레벨') or 1)
+        except (TypeError, ValueError): need = 1
+        if level and level < need: continue
         if has_progress_later(qid, status): continue
         return qid
     return None
 
 
-def resolve(npcId, nq, status):
+def resolve(npcId, nq, status, level=0):
     """(구멍종류|None, 설명) — Java 분기와 1:1"""
     m = dlg.get(npcId, {})
     ex = lambda k: k in m
@@ -67,7 +72,7 @@ def resolve(npcId, nq, status):
         return (None if ex('퀘스트완료/' + comp) or ex('퀘스트완료') else '노드없음', '퀘스트완료/' + comp)
     if act:
         return (None if ex('진행중/' + act) or ex('진행중') else '노드없음', '진행중/' + act)
-    av = first_available(nq, status)
+    av = first_available(nq, status, level)
     rec = any(status.get(x) in ('진행', '완료대기', '완료') for x in nq)
     if av:
         first = nq[0]
@@ -106,10 +111,12 @@ for pas in ('기본', '완주형'):
     status = {c: '완료' for c in chain[:i]}
     status[cq] = '진행'
     if pas == '완주형': fill_side(status)
+    try: lvl = int((q.get(cq) or {}).get('필요레벨') or 1)
+    except (TypeError, ValueError): lvl = 1
     for npcId, v in npcs.items():
         nq = [x for x in (v.get('quests') or []) if x]
         if not nq: continue
-        kind, key = resolve(npcId, nq, status)
+        kind, key = resolve(npcId, nq, status, lvl)
         if kind: holes[(kind, npcId, key, pas)].append(i)
 
 rows = []
