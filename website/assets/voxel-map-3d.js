@@ -458,7 +458,11 @@
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
       geometry.setIndex(indices);
       geometry.computeVertexNormals();
-      const material = new THREE.MeshLambertMaterial({
+      // Surface LOD is a cartographic heightfield, not a lit pile of block
+      // cubes. Use the server palette directly so the overview cannot wash
+      // pale under the close-up scene lights; the edge walls and perspective
+      // still provide the 3D relief.
+      const material = new THREE.MeshBasicMaterial({
         color: rgb(blockColor(materialName)),
         side: THREE.DoubleSide,
       });
