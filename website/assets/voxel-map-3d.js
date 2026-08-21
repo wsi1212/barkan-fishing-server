@@ -39,6 +39,9 @@
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Textures are exported in sRGB like Minecraft's atlas. Without an sRGB
+  // output transform WebGL presents every face noticeably too dark.
+  renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.setClearColor(0x061517, 1);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 1, 40000);
@@ -70,8 +73,8 @@
   scene.add(world);
   // No synthetic ocean plane: water must come from the scanned Minecraft
   // blocks too, otherwise maximum zoom shows a fake flat blue sheet.
-  scene.add(new THREE.HemisphereLight(0xb8e7db, 0x11272b, 1.18));
-  const fillLight = new THREE.DirectionalLight(0xffedc3, 0.42);
+  scene.add(new THREE.HemisphereLight(0xc8efe1, 0x1b3430, 1.3));
+  const fillLight = new THREE.DirectionalLight(0xffedc3, 0.5);
   fillLight.position.set(420, 900, 260);
   scene.add(fillLight);
 
@@ -109,11 +112,11 @@
     if (/purple|purpur|amethyst|chorus/.test(name)) return '#9a72a9';
     if (/sand|sandstone/.test(name)) return '#c5aa6b';
     if (/leaves|moss|grass|azalea|vine|bamboo|fern|sapling/.test(name)) {
-      if (name.includes('birch')) return '#74a96f';
-      if (name.includes('jungle')) return '#3f8b5f';
-      if (name.includes('spruce')) return '#47785c';
-      if (name.includes('dark_oak')) return '#3f7658';
-      return '#4d9868';
+      if (name.includes('birch')) return '#9bc47a';
+      if (name.includes('jungle')) return '#64a968';
+      if (name.includes('spruce')) return '#5b9364';
+      if (name.includes('dark_oak')) return '#5b965f';
+      return '#78b96d';
     }
     if (name.includes('birch')) return '#b9a874';
     if (name.includes('spruce')) return '#705641';
@@ -189,14 +192,76 @@
         }
         material.needsUpdate = true;
       };
-      const loadPath = `/assets/mc-blocks/${textureName}.png`;
-      const fallbackPath = `/assets/mc-blocks/${textureKey}.png`;
-      const texture = (textureKey === 'water' || textureKey === 'lava') ? null : textureLoader.load(loadPath, applyTexture, undefined, () => {
-        // Many vanilla blocks (leaves, cobwebs, flowers, etc.) have one
-        // texture for every face. If a synthetic *_top or *_bottom filename
-        // is absent, use the real base texture instead of a flat color.
-        if (fallbackPath !== loadPath) textureLoader.load(fallbackPath, applyTexture, undefined, () => {});
-      });
+      const textureCandidates = () => {
+        const candidates = [];
+        const add = candidate => { if (candidate && !candidates.includes(candidate)) candidates.push(candidate); };
+        add(textureName);
+        add(textureKey);
+        const suffixes = [
+          '_fence_gate', '_pressure_plate', '_wall_hanging_sign', '_hanging_sign', '_wall_sign',
+          '_trapdoor', '_button', '_fence', '_carpet', '_stairs', '_slab', '_wall', '_shelf', '_bed', '_door',
+        ];
+        const base = suffixes.find(suffix => textureKey.endsWith(suffix));
+        if (base) {
+          const stem = textureKey.slice(0, -base.length);
+          add(stem);
+          add(`${stem}_planks`);
+          add(`${stem}_log`);
+          add(`${stem}_block`);
+          if (base === '_carpet' || base === '_bed') add(`${stem}_wool`);
+        }
+        if (textureKey.endsWith('_wood')) {
+          const stem = textureKey.slice(0, -5);
+          add(`${stem}_log`); add(`${stem}_planks`);
+        }
+        if (textureKey.endsWith('_stained_glass_pane')) add(textureKey.replace('_pane', ''));
+        if (textureKey.endsWith('_banner') || textureKey.endsWith('_wall_banner')) {
+          const color = textureKey.replace('_wall_banner', '').replace('_banner', '');
+          add(`${color}_wool`); add(`${color}_terracotta`);
+        }
+        if (textureKey.startsWith('potted_')) add(textureKey.slice(7));
+        if (textureKey === 'bamboo') add('bamboo_stalk');
+        if (textureKey === 'wheat') add('wheat_stage7');
+        if (textureKey === 'smooth_quartz' || textureKey.startsWith('smooth_quartz_')) add('quartz_block_side');
+        if (textureKey === 'smooth_sandstone' || textureKey.startsWith('smooth_sandstone_')) add('sandstone');
+        if (textureKey === 'smooth_red_sandstone' || textureKey.startsWith('smooth_red_sandstone_')) add('red_sandstone');
+        const familyAliases = {
+          brick: 'bricks', brick_slab: 'bricks', brick_stairs: 'bricks', brick_wall: 'bricks',
+          mud_brick: 'mud_bricks', mud_brick_slab: 'mud_bricks', mud_brick_stairs: 'mud_bricks', mud_brick_wall: 'mud_bricks',
+          stone_brick: 'stone_bricks', stone_brick_slab: 'stone_bricks', stone_brick_stairs: 'stone_bricks', stone_brick_wall: 'stone_bricks',
+          deepslate_brick: 'deepslate_bricks', deepslate_brick_slab: 'deepslate_bricks', deepslate_brick_stairs: 'deepslate_bricks', deepslate_brick_wall: 'deepslate_bricks',
+          deepslate_tile: 'deepslate_tiles', deepslate_tile_slab: 'deepslate_tiles', deepslate_tile_stairs: 'deepslate_tiles', deepslate_tile_wall: 'deepslate_tiles',
+          nether_brick: 'nether_bricks', nether_brick_fence: 'nether_bricks', nether_brick_slab: 'nether_bricks', nether_brick_stairs: 'nether_bricks', nether_brick_wall: 'nether_bricks',
+          red_nether_brick: 'red_nether_bricks', red_nether_brick_slab: 'red_nether_bricks', red_nether_brick_stairs: 'red_nether_bricks',
+          prismarine_brick: 'prismarine_bricks', prismarine_brick_slab: 'prismarine_bricks', prismarine_brick_stairs: 'prismarine_bricks',
+          polished_blackstone_brick: 'polished_blackstone_bricks', polished_blackstone_brick_stairs: 'polished_blackstone_bricks',
+          tuff_brick: 'tuff_bricks', tuff_brick_wall: 'tuff_bricks',
+        };
+        add(familyAliases[textureKey]);
+        if (textureKey === 'iron_chain') add('chain');
+        if (textureKey === 'campfire' || textureKey === 'soul_campfire') add(`${textureKey}_log`);
+        if (textureKey === 'decorated_pot') add('terracotta');
+        if (textureKey === 'pointed_dripstone') add('pointed_dripstone_up_tip');
+        if (textureKey === 'chest' || textureKey === 'ender_chest') add(textureKey === 'ender_chest' ? 'obsidian' : 'barrel_side');
+        if (textureKey === 'cartography_table') add('cartography_table_side1');
+        if (textureKey === 'furnace' || textureKey === 'blast_furnace' || textureKey === 'smoker') add(`${textureKey}_side`);
+        if (textureKey === 'cauldron' || textureKey === 'lava_cauldron' || textureKey === 'water_cauldron') add('cauldron_side');
+        if (textureKey === 'cactus') add('cactus_side');
+        if (textureKey === 'dirt_path') add('dirt_path_side');
+        if (textureKey === 'hay_block') add('hay_block_side');
+        if (textureKey === 'podzol') add('podzol_side');
+        if (textureKey === 'polished_basalt') add('polished_basalt_side');
+        if (textureKey === 'waxed_lightning_rod') add('lightning_rod');
+        if (textureKey.startsWith('craftengine:')) { add('stone'); add('smooth_stone'); }
+        return candidates;
+      };
+      const candidates = textureCandidates();
+      const loadNext = index => {
+        if (index >= candidates.length) return null;
+        const candidate = candidates[index];
+        return textureLoader.load(`/assets/mc-blocks/${candidate}.png`, applyTexture, undefined, () => loadNext(index + 1));
+      };
+      const texture = (textureKey === 'water' || textureKey === 'lava') ? null : loadNext(0);
       textureCache.set(key, texture);
     }
     return materialCache.get(cacheKey);
@@ -252,6 +317,7 @@
     return geometry;
   };
   const geometryCache = new Map();
+  const discreteBlock = name => /(?:cobweb|lantern|torch|sapling|flower|grass|fern|vine|roots|mushroom|kelp|seagrass|rail|chain|fence|gate|pane|bars|candle|sign|banner|button|pressure_plate|end_rod|lightning_rod|dripstone)/.test(blockKey(name));
   const geometryFor = name => {
     const key = blockKey(name);
     if (geometryCache.has(key)) return geometryCache.get(key);
@@ -334,10 +400,19 @@
       if (hiddenBlocks.has(materialName)) continue;
       const x = Math.floor(rawX / lod) * lod;
       const z = Math.floor(rawZ / lod) * lod;
-      // Merge only identical vertical runs in the same LOD cell. Different
-      // heights/materials remain separate boxes, so air gaps stay air.
-      const key = `${materialName}|${x}|${z}|${y}|${h}`;
-      if (!merged.has(key)) merged.set(key, { materialName, x, z, y, h });
+      if (discreteBlock(materialName)) {
+        // A lantern/cobweb/plant is a separate model per block. Never stretch
+        // it over a compressed vertical run (the old path made lantern towers).
+        for (let blockY = y; blockY < end; blockY += 1) {
+          const key = `${materialName}|${x}|${z}|${blockY}|1`;
+          if (!merged.has(key)) merged.set(key, { materialName, x, z, y: blockY, h: 1 });
+        }
+      } else {
+        // Merge only identical vertical runs in the same LOD cell. Different
+        // heights/materials remain separate boxes, so air gaps stay air.
+        const key = `${materialName}|${x}|${z}|${y}|${h}`;
+        if (!merged.has(key)) merged.set(key, { materialName, x, z, y, h });
+      }
     }
     merged.forEach(record => addRecord(groups, record.materialName, record.x + lod / 2, record.y + record.h / 2, record.z + lod / 2, lod, record.h, lod));
     buildMeshes(groups, voxelGroup);
