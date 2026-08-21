@@ -374,6 +374,11 @@
     depthWrite: false,
     side: THREE.DoubleSide,
   });
+  // A non-close map view is a terrain chart, so only a column whose top is
+  // plausible terrain participates in the heightfield.  Decorative builds
+  // that start at the scan floor and jump to a high roof (the spawn balloon
+  // is the obvious example) must not become a long coloured wall.
+  const isTerrainTop = name => /(?:grass_block|dirt|coarse_dirt|podzol|mycelium|sand|gravel|stone|andesite|diorite|granite|deepslate|tuff|clay|snow|ice|water|lava|netherrack|basalt|end_stone|obsidian|prismarine|mud|moss_block|sculk|bedrock|soul_sand|soul_soil|nether_bricks|blackstone|calcite)/.test(blockKey(name));
   const buildMeshes = (groups, target) => {
     const matrix = new THREE.Matrix4();
     groups.forEach((records, materialName) => {
@@ -405,42 +410,61 @@
   };
 
   // Non-1:1 views are cartography, not an inventory of stretched Minecraft
-  // cubes. Draw one flat, height-positioned surface per sampled cell instead
-  // of a BoxGeometry whose Y scale can turn a balloon into a tower. The close
-  // 1:1 shell below remains the only path that renders real block cubes.
+  // cubes. Draw a heightfield surface (top faces plus terrain edge walls)
+  // instead of a BoxGeometry whose Y scale can turn a balloon into a tower.
+  // The close 1:1 shell below remains the only path that renders real cubes.
   const buildSurfaceMesh = (cells, target = voxelGroup) => {
     const grouped = new Map();
+    const lookup = new Map();
     cells.forEach(cell => {
       if (!cell || hiddenBlocks.has(cell.materialName) || omitSmallBlock(cell.materialName)) return;
       const list = grouped.get(cell.materialName) || [];
       list.push(cell);
       grouped.set(cell.materialName, list);
+      lookup.set(`${cell.x - cell.size / 2}|${cell.z - cell.size / 2}`, cell);
     });
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-    const matrix = new THREE.Matrix4();
-    const position = new THREE.Vector3();
-    const scale = new THREE.Vector3();
     grouped.forEach((records, materialName) => {
+      const positions = [];
+      const indices = [];
+      const addQuad = (a, b, c, d) => {
+        const base = positions.length / 3;
+        positions.push(...a, ...b, ...c, ...d);
+        indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
+      };
+      records.forEach(record => {
+        const half = record.size / 2;
+        const x1 = record.x - half; const x2 = record.x + half;
+        const z1 = record.z - half; const z2 = record.z + half;
+        const y = record.y;
+        const base = Number(record.base ?? baseY);
+        // Top face.
+        addQuad([x1, y, z1], [x2, y, z1], [x2, y, z2], [x1, y, z2]);
+        // Close the heightfield at exposed edges and height changes. These
+        // are continuous terrain faces, not individual block sides.
+        const neighbours = [
+          [x2, z1, x1, z1, x2, z2],
+          [x1, z2, x2, z2, x1, z1],
+          [x1, z1, x1, z2, x2, z1],
+          [x2, z2, x2, z1, x1, z2],
+        ];
+        neighbours.forEach(([edgeX, edgeZ, ax, az, bx, bz]) => {
+          const neighbour = lookup.get(`${Math.round(edgeX)}|${Math.round(edgeZ)}`);
+          const neighbourY = neighbour ? neighbour.y : base;
+          if (neighbourY >= y - 0.05) return;
+          addQuad([ax, y, az], [bx, y, bz], [bx, neighbourY, bz], [ax, neighbourY, az]);
+        });
+      });
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
       const material = new THREE.MeshLambertMaterial({
         color: rgb(blockColor(materialName)),
-        flatShading: true,
         side: THREE.DoubleSide,
       });
-      for (let start = 0; start < records.length; start += 50000) {
-        const chunk = records.slice(start, start + 50000);
-        const mesh = new THREE.InstancedMesh(geometry, material, chunk.length);
-        mesh.frustumCulled = false;
-        mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
-        chunk.forEach((record, index) => {
-          position.set(record.x, record.y, record.z);
-          scale.set(record.size, record.size, 1);
-          matrix.compose(position, quaternion, scale);
-          mesh.setMatrixAt(index, matrix);
-        });
-        mesh.instanceMatrix.needsUpdate = true;
-        target.add(mesh);
-      }
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.frustumCulled = false;
+      target.add(mesh);
     });
   };
 
@@ -519,6 +543,10 @@
           if (cx >= excludedBounds[0] - excludedMargin && cx <= excludedBounds[1] + excludedMargin && cz >= excludedBounds[2] - excludedMargin && cz <= excludedBounds[3] + excludedMargin) continue;
         }
         const materialName = legend[materials[index]] || 'minecraft:grass_block';
+        // Topdown terrain snapshots also contain the roof of tall decorative
+        // models.  Keep those out of every non-1:1 surface view; the exact
+        // block shell is available only after the user zooms to 1:1.
+        if (height - baseY > 80 && !isTerrainTop(materialName)) continue;
         // A sea/river column has its top exactly at the base Y. Keep a flat
         // water surface there; never manufacture a tall block column.
         if (height <= baseY) {
@@ -604,7 +632,6 @@
     const sample = distance > 420 ? 4 : distance > 260 ? 2 : 1;
     const suspicious = new Set();
     const columns = [];
-    const isTerrainTop = name => /(?:grass_block|dirt|coarse_dirt|podzol|mycelium|sand|gravel|stone|andesite|diorite|granite|deepslate|tuff|clay|snow|ice|water|lava|netherrack|basalt|end_stone|obsidian|prismarine|mud|moss_block|sculk|bedrock|soul_sand|soul_soil|nether_bricks|blackstone|calcite)/.test(blockKey(name));
     for (let i = 0; i < count; i += 1) {
       const offset = i * stride;
       const x = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
@@ -634,6 +661,7 @@
         y: column.bottom + column.height + 0.01,
         z: column.z + sample / 2,
         size: sample,
+        base: column.bottom,
       });
     }
     buildSurfaceMesh(cells, target);
