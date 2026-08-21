@@ -9,9 +9,9 @@
     {"id": "rod_barkan",    "name": "바르칸 낚싯대",   "category": "tool",  "painter": "rod-barkan",    "seed": 1},
     {"id": "bait_firefly",  "name": "반딧불이 미끼",   "category": "prop",  "painter": "bait-firefly",  "seed": 1,
      "fx": {"glow": {"base": "ffd94a", "alpha": 70, "sparkles": 2}}},
-    {"id": "wet_treasure_money_small",  "name": "작은 돈",   "category": "prop",  "painter": "money-small",   "seed": 1},
-    {"id": "wet_treasure_money_medium", "name": "적당한 돈", "category": "prop",  "painter": "money-medium",  "seed": 1},
-    {"id": "wet_treasure_money_large",  "name": "큰 돈",     "category": "prop",  "painter": "money-large",   "seed": 1},
+    {"id": "wet_treasure_money_small",  "name": "작은 돈",   "category": "prop",  "source": "imagegen-cash/small_source.png"},
+    {"id": "wet_treasure_money_medium", "name": "적당한 돈", "category": "prop",  "source": "imagegen-cash/medium_source.png"},
+    {"id": "wet_treasure_money_large",  "name": "큰 돈",     "category": "prop",  "source": "imagegen-cash/large_source.png"},
     {"id": "skill_manseon", "name": "만선(낚시특성)",  "category": "badge", "painter": "skill-manseon", "seed": 1}
   ]
 }

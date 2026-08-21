@@ -15,6 +15,7 @@ from painters import REGISTRY                      # noqa: E402
 from palette import ramp                           # noqa: E402
 from fx import fire_aura, glow_halo, save_anim, save_gif  # noqa: E402
 from icon_lint import lint                         # noqa: E402
+import imagegen_cash                                # noqa: E402
 import slot_preview                                # noqa: E402
 
 RP = os.path.expanduser("~/development/barkan-resourcepack")
@@ -26,6 +27,8 @@ COLOR_KEYS = {"base", "grip", "line", "accent", "gold", "glass", "glow", "field"
 def lint_shape_diversity(mf):
     groups = {}
     for it in mf["items"]:
+        if "source" in it:
+            continue
         fn, kw = REGISTRY[it["painter"]]
         groups.setdefault(fn.__name__, []).append((it["id"], kw))
     bad = []
@@ -51,8 +54,11 @@ def main(install=False):
 
     for it in mf["items"]:
         iid, cat = it["id"], it.get("category", "prop")
-        fn, kw = REGISTRY[it["painter"]]
-        base = fn(**kw, seed=it.get("seed", 0))
+        if "source" in it:
+            base = imagegen_cash.prepare(os.path.join(HERE, it["source"]))
+        else:
+            fn, kw = REGISTRY[it["painter"]]
+            base = fn(**kw, seed=it.get("seed", 0))
         fxc = it.get("fx", {})
         allow_semi = 0
         anim_frames = None
