@@ -122,6 +122,74 @@ def bait_firefly(seed=0):
     return im
 
 
+# ───────────────────────── 젖은 보물상자 현금 보상 (prop) ─────────────────────────
+
+def money_small(seed=0):
+    """작은 돈: 동전 하나가 보이는 작은 가죽 주머니. 낮은 보상용으로 가볍고 단순한 실루엣."""
+    im = canvas()
+    leather, copper = ramp("6a3d20"), ramp("b56b24")
+    # 주머니 본체 — 아래로 살짝 벌어지는 10×10 실루엣
+    for y, left, right in ((5, 5, 10), (6, 4, 11), (7, 4, 11), (8, 3, 12),
+                           (9, 3, 12), (10, 4, 11), (11, 4, 11), (12, 5, 10), (13, 6, 9)):
+        for x in range(left, right + 1):
+            put(im, x, y, leather[2] if y < 10 else leather[1])
+    # 끈과 매듭
+    for x in range(5, 11):
+        put(im, x, 4, leather[3] if x in (6, 9) else leather[1])
+    put(im, 7, 3, leather[3]); put(im, 8, 3, leather[2]); put(im, 7, 4, leather[0])
+    put(im, 6, 6, leather[3]); put(im, 9, 6, leather[1])
+    # 주머니 안의 작은 구리 동전
+    disk(im, 7, 9, 2, copper[2])
+    put(im, 6, 8, copper[3]); put(im, 7, 8, copper[4]); put(im, 8, 9, copper[1])
+    selout(im, leather[0], leather[3])
+    return im
+
+
+def money_medium(seed=0):
+    """적당한 돈: 서로 겹친 은빛·금빛 동전 두 장. 작은 돈보다 넓고 밝은 보상 실루엣."""
+    im = canvas()
+    gold, copper = ramp("d4a017"), ramp("a9662a")
+    # 뒤쪽 동전은 좌하로 밀어 깊이를 만든다.
+    disk(im, 5, 10, 4, copper[2])
+    put(im, 3, 9, copper[1]); put(im, 4, 8, copper[3]); put(im, 5, 7, copper[4])
+    put(im, 5, 12, copper[1]); put(im, 7, 10, copper[1])
+    # 앞쪽 금화는 우상에 크게 배치한다.
+    disk(im, 10, 7, 4, gold[2])
+    put(im, 8, 5, gold[3]); put(im, 9, 4, gold[4]); put(im, 10, 5, gold[3])
+    put(im, 8, 8, gold[1]); put(im, 11, 9, gold[1]); put(im, 12, 7, gold[3])
+    # 금화의 액면 표시 — 숫자 대신 보물상자 UI에 맞는 짧은 번뜩임
+    put(im, 10, 6, gold[4]); put(im, 10, 7, gold[3]); put(im, 10, 8, gold[1])
+    selout(im, copper[0], gold[4])
+    return im
+
+
+def money_large(seed=0):
+    """큰 돈: 가득 찬 금화 주머니와 넘쳐나는 동전·반짝이. 최고 금액을 즉시 읽히게 한다."""
+    im = canvas()
+    leather, gold = ramp("5d351e"), ramp("d49b18")
+    # 묵직한 주머니 본체 — 작은 돈과 달리 넓고 둥근 바닥
+    for y, left, right in ((8, 3, 12), (9, 2, 13), (10, 2, 13), (11, 2, 13),
+                           (12, 3, 12), (13, 4, 11), (14, 5, 10)):
+        for x in range(left, right + 1):
+            put(im, x, y, leather[2] if y < 12 else leather[1])
+    # 주머니 입구와 굵은 끈
+    for x in range(3, 13):
+        put(im, x, 8, leather[3] if x % 3 else leather[1])
+    put(im, 4, 7, leather[3]); put(im, 5, 6, leather[2]); put(im, 10, 6, leather[2]); put(im, 11, 7, leather[3])
+    # 넘쳐난 금화 세 장 — 중앙 금화가 가장 크다.
+    disk(im, 5, 6, 2, gold[2])
+    disk(im, 8, 5, 4, gold[2])
+    disk(im, 12, 6, 2, gold[2])
+    put(im, 6, 4, gold[3]); put(im, 7, 3, gold[4]); put(im, 8, 4, gold[4]); put(im, 9, 5, gold[3])
+    put(im, 7, 6, gold[1]); put(im, 8, 7, gold[1]); put(im, 10, 6, gold[3])
+    put(im, 4, 5, gold[3]); put(im, 5, 4, gold[4]); put(im, 12, 5, gold[3])
+    # 최고 보상 전용 보물 반짝이
+    sparkle(im, 2, 4, gold[4], arm=1)
+    sparkle(im, 14, 3, gold[4], arm=0)
+    selout(im, leather[0], gold[4])
+    return im
+
+
 # ───────────────────────── 스킬 배지 (badge) ─────────────────────────
 
 def skill_manseon(seed=0):
@@ -157,5 +225,8 @@ REGISTRY = {
     "rod-dawn":      (rod_dawn, {}),
     "rod-barkan":    (rod_barkan, {}),
     "bait-firefly":  (bait_firefly, {}),
+    "money-small":   (money_small, {}),
+    "money-medium":  (money_medium, {}),
+    "money-large":   (money_large, {}),
     "skill-manseon": (skill_manseon, {}),
 }
