@@ -6,7 +6,9 @@ job is the bridge between the running world and ``website/assets/map-tiles``:
 each 256x256 world-block tile is exported in 48x48 sub-requests, compressed
 into the same runs8 payload used by the town detail maps, and indexed in a
 small manifest.  Tile jobs are independent and may be run in parallel without
-holding the whole island in memory.
+holding the whole island in memory.  The 24x24 request size is intentional:
+AIBuilder serialises structure NBT on Paper's main thread, so smaller slices
+avoid a large request blocking the live server watchdog.
 
 Examples:
   python3 tools/generate-live-map-tiles.py --tiles 0,2 256,2 --workers 2
@@ -38,7 +40,7 @@ OUT = ROOT / "website" / "assets" / "map-tiles"
 CACHE = Path("/tmp/barkan-live-map-tile-cache")
 BRIDGE = "http://127.0.0.1:25599/structure_export"
 TILE_SIZE = 256
-SUBTILE = 48
+SUBTILE = 24
 Y_MIN, Y_MAX = 60, 255
 SURFACE_FLOOR = 60
 HIDDEN_BLOCKS = {"minecraft:light", "minecraft:barrier"}
