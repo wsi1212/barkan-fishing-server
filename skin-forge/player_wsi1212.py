@@ -54,6 +54,27 @@ from skinlib import Skin, ramp, ramp_lit              # noqa: E402
 OUT = pathlib.Path(__file__).parent / 'out'
 SEED = zlib.crc32(b'wsi1212') % 100000                # ★hash() 금지: 빌드마다 달라진다
 
+# ── 재질별 램프 (2026-08-21 유저 지적) ────────────────────────────────────────
+# "조명 효과가 너무 쎄다. 빛받은곳은 남색에서 벗어남. 남색 코트는 원래 빛 반사를 안 하는
+#  재질인데(완전 조금만) 그 계산이 빠졌다."
+# 원인은 팔레트가 아니라 램프의 «조명 모델»이었다. 기본 ramp(hue=0.05, sat=0.16) 은
+#   ① 그늘 쪽 색상을 hue×DARK_HUE_TURN(2.6) 만큼 «따뜻한 쪽»으로 돌린다 → 남색(222°)이
+#      200° 청록으로 빠진다(실측: 현행 코트 램프의 색상 폭 22°)
+#   ② 하이라이트에서 채도를 깎는다 → 밝은 쪽이 «바랜 하늘색»
+# 노랑·황토를 진흙에서 구하려고 넣은 보정이라 그쪽에는 맞지만, 무광 남색 모직에는 틀렸다.
+# 재질을 반사율로 갈라 쓴다 — 금속만 진짜 하이라이트를 갖는다.
+
+
+def matte(base, spread=0.22):
+    """무광 직물(모직·오일천·리넨·캔버스·마) — 색상 회전 0, 채도 거의 고정, 명도 폭 좁게."""
+    return ramp(base, spread=spread, hue=0.0, sat=0.03)
+
+
+def leather(base, spread=0.34):
+    """가죽 — 무광보다 조금만 반사한다(«완전 조금만»). 색상은 2°대만 움직인다."""
+    return ramp(base, spread=spread, hue=0.02, sat=0.06)
+
+
 # 값 뒤 인라인 주석은 쉼표를 삼켜 구문오류를 낸다 — 주석은 줄 위에
 P = dict(
     skin=ramp('bb8a63'),
@@ -64,19 +85,63 @@ P = dict(
     hair=ramp('6b5233', spread=0.46),
     # 눈썹은 얼굴에서 가장 어두운 선이어야 한다 — 밤색 머리 램프로 그리면 흐려진다
     brow=ramp('35251b'),
-    # 짙은 잉크 남색. 기본 spread(0.62)로 뽑으면 [4]가 하늘색으로 튀어 '체육복'이 된다
-    coat=ramp_lit('1e2a48', spread=0.42),
-    lining=ramp_lit('c3b498'),
-    shirt=ramp_lit('9a9382'),
-    # ★1차 렌더 실패: 544c42 는 장화(3b2f26)와 두 단밖에 안 떨어져 하체가 갈색 한 덩어리로
-    #   뭉쳤다(garments.md 값 분리 규칙). 캔버스를 회색 쪽으로 크게 올린다
-    pants=ramp_lit('7a7060'),
-    boot=ramp_lit('46362a'),
-    strap=ramp_lit('4a3b2c'),
-    rope=ramp_lit('8f7a52'),
+    # 무광 모직 남색. ramp_lit 이 아니라 matte 다 — 앞면에 보이는 색은 한 단 위인 [3]
+    #   (26345b) 이고, 다섯 단이 전부 224° 남색에 머문다(색상 폭 1°, 명도 폭 16)
+    coat=matte('202c4e', 0.20),
+    lining=matte('b3a488', 0.22),
+    shirt=matte('8e8778', 0.24),
+    # ★캔버스 바지는 장화와 두 단 이상 벌려야 하체가 한 덩어리로 안 뭉친다(garments.md)
+    pants=matte('6d6455', 0.24),
+    rope=matte('7e6c4c', 0.26),
+    boot=leather('3f3225'),
+    strap=leather('463726'),
+    # 금속만 진짜 하이라이트를 갖는다 — 유일하게 ramp_lit 유지
     gold=ramp_lit('c19a3e'),
     iris=ramp(g.IRIS['grey']),
 )
+
+
+def matte_reflectance(s, mid_hex, keep=0.35, sat_keep=0.55, hue_win=(0.52, 0.74),
+                      sat_min=0.25):
+    """무광 재질의 «반사율»을 실제로 계산해 넣는 마지막 패스.
+
+    램프를 좁혀도 조명이 센 건 그대로였다(실측: 색상 폭은 22°→3° 로 잡혔는데 명도 폭은
+    24 그대로 — 가장 밝은 코트 픽셀이 기준색보다 +48%). 이유는 그림자·그레인·폴오프를
+    넣는 함수들(form_fill·speckle·shade_col_falloff·folds)이 램프 양끝을 향해 섞도록
+    «강도가 하드코딩»돼 있어서다. 그래서 램프가 아니라 «결과 픽셀»에 재질 계수를 건다:
+
+        v' = v_mid + (v - v_mid) × keep        (확산반사만 남기는 비율)
+        s' = s_mid + (s - s_mid) × sat_keep    (★채도도 되돌린다)
+
+    ★채도까지 손대는 이유: speckle 이 «흰색 쪽»으로 섞어서 밝은 픽셀의 채도를 깎는다
+      (실측: 어깨 윗면 명도 52·채도 43 vs 기준 31·58). 유저 지적 "빛받은곳은 남색에서
+      벗어남"의 절반은 명도가 아니라 이 «탈색»이었다. 무광 천의 하이라이트는 그냥
+      «조금 밝은 남색»이어야 한다.
+    무광 모직은 정반사가 거의 없다 → keep 0.30(최대 +20% 선). 가죽·금속은 이 패스를
+    통과시키지 않는다(hue 창으로 남색만 — 서버 팔레트에 남색은 코트뿐이다).
+    ★머리는 제외한다: 회청 눈동자(200°)가 창에 걸린다.
+    """
+    import colorsys
+    from skinlib import all_boxes
+    _mh, _ms, mid = colorsys.rgb_to_hsv(*[int(mid_hex[i:i + 2], 16) / 255
+                                          for i in (0, 2, 4)])
+    for key, (bx, by, w, h) in all_boxes().items():
+        if key.split('.')[0] == 'head':
+            continue
+        for j in range(h):
+            for i in range(w):
+                px = s.im.getpixel((bx + i, by + j))
+                if not px[3]:
+                    continue
+                r, g, b = [c / 255 for c in px[:3]]
+                hh, ss, vv = colorsys.rgb_to_hsv(r, g, b)
+                if not (hue_win[0] < hh < hue_win[1] and ss > sat_min):
+                    continue
+                vv = max(0.04, min(1.0, mid + (vv - mid) * keep))
+                ss = max(0.0, min(1.0, _ms + (ss - _ms) * sat_keep))
+                rr, gg, bb = colorsys.hsv_to_rgb(hh, ss, vv)
+                s.im.putpixel((bx + i, by + j),
+                              (round(rr * 255), round(gg * 255), round(bb * 255), px[3]))
 
 
 def stand_collar(s):
@@ -261,6 +326,15 @@ def build():
     #   ★파우치를 금속 램프로 전부 채우면 다리에 금괴를 붙인 꼴이 된다 → 가죽 + 버클 1px
     g.pouch(s, P['strap'], part='leg_r', face='front', x=1, y=3, w=2, h=3,
             metal=P['gold'])
+
+    # ---- 마지막: 미세 계조 → 재질 계수 (순서가 중요하다)
+    #   ★skinlib.save() 는 micro_light() 를 «자동으로» 부른다. 그게 재질 압축 뒤에 오면
+    #     눌러 놓은 하이라이트를 다시 올려 버린다 — 실측: 어깨 윗면이 압축 결과 243156
+    #     에서 3a4667(명도 +14) 로 되살아나 «압축이 안 먹는» 것처럼 보였다. 원인을 찾는 데
+    #     제일 오래 걸린 대목이다. _microed 플래그가 save() 의 중복 호출을 막아 준다.
+    s.micro_light()
+    s._microed = True
+    matte_reflectance(s, '202c4e', keep=0.35, sat_keep=0.55)
 
     OUT.mkdir(exist_ok=True)
     return s.save(str(OUT / 'player_wsi1212.png'))
