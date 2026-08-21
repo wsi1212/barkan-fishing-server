@@ -12,6 +12,8 @@
   const terrain = window.BARKAN_TERRAIN_DATA;
   const mapData = window.BARKAN_MAP_DATA;
   if (!canvas || !viewport || !plane || !terrain || !mapData || !window.THREE || !window.THREE.OrbitControls) return;
+  canvas.tabIndex = 0;
+  canvas.addEventListener('pointerdown', () => canvas.focus(), { passive: true });
 
   const THREE = window.THREE;
   const status = document.querySelector('#map-status');
@@ -55,6 +57,41 @@
   controls.maxDistance = 22000;
   controls.maxPolarAngle = Math.PI * 0.49;
   controls.minPolarAngle = 0.12;
+  const moveKeys = new Set();
+  const worldUp = new THREE.Vector3(0, 1, 0);
+  const keyTargetIsMap = target => target === canvas || target === viewport || viewport.contains(target);
+  const handleMapKeyDown = event => {
+    const key = String(event.key || '').toLowerCase();
+    if (!'wasd'.includes(key) || !keyTargetIsMap(event.target)) return;
+    event.preventDefault();
+    moveKeys.add(key);
+  };
+  const handleMapKeyUp = event => {
+    const key = String(event.key || '').toLowerCase();
+    if ('wasd'.includes(key)) moveKeys.delete(key);
+  };
+  window.addEventListener('keydown', handleMapKeyDown);
+  window.addEventListener('keyup', handleMapKeyUp);
+  const applyKeyboardPan = () => {
+    if (!moveKeys.size) return false;
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    direction.y = 0;
+    if (direction.lengthSq() < 0.0001) return false;
+    direction.normalize();
+    const right = new THREE.Vector3().crossVectors(direction, worldUp).normalize();
+    const delta = new THREE.Vector3();
+    if (moveKeys.has('w')) delta.add(direction);
+    if (moveKeys.has('s')) delta.sub(direction);
+    if (moveKeys.has('a')) delta.sub(right);
+    if (moveKeys.has('d')) delta.add(right);
+    if (delta.lengthSq() < 0.0001) return false;
+    const speed = clamp(camera.position.distanceTo(controls.target) * 0.012, 2, 80);
+    delta.normalize().multiplyScalar(speed);
+    camera.position.add(delta);
+    controls.target.add(delta);
+    return true;
+  };
   const scaleLabel = document.querySelector('#map-scale-label');
   const updateScaleLabel = () => {
     if (!scaleLabel) return;
@@ -393,16 +430,29 @@
         const index = j * width + i;
         if (!mask[index]) continue;
         const height = (heights[index * 2] | (heights[index * 2 + 1] << 8)) - 128;
-        if (height <= baseY) continue;
         const x = Number(terrain.xOrigin) + i * cellSize;
         const z = Number(terrain.zOrigin) + j * cellSize;
-        if (detailRegions.some(region => inRegion(x + cellSize / 2, z + cellSize / 2, region))) continue;
+        // Keep the selected town's high-detail scan clean, but do not erase
+        // every other town from the island overview. Their lower-resolution
+        // terrain cells provide the loading placeholder until a town is
+        // focused, so all major settlements remain visible.
+        if (excludeId && detailRegions.some(region => region.id === excludeId && inRegion(x + cellSize / 2, z + cellSize / 2, region))) continue;
         if (excludedBounds) {
           const cx = x + cellSize / 2; const cz = z + cellSize / 2;
           if (cx >= excludedBounds[0] - excludedMargin && cx <= excludedBounds[1] + excludedMargin && cz >= excludedBounds[2] - excludedMargin && cz <= excludedBounds[3] + excludedMargin) continue;
         }
+        const materialName = legend[materials[index]] || 'minecraft:grass_block';
+        // A sea/river column has its top exactly at the base Y and was
+        // previously discarded by the heightfield guard, leaving black gaps
+        // under waterways. Keep one measured water block for those columns.
+        if (height <= baseY) {
+          if (materialName === 'minecraft:water') {
+            addRecord(groups, materialName, x + cellSize / 2, baseY + 0.5, z + cellSize / 2, cellSize, 1, cellSize);
+          }
+          continue;
+        }
         const sy = Math.max(1, height - baseY);
-        addRecord(groups, legend[materials[index]] || 'minecraft:grass_block', x + cellSize / 2, baseY + sy / 2, z + cellSize / 2, cellSize, sy, cellSize);
+        addRecord(groups, materialName, x + cellSize / 2, baseY + sy / 2, z + cellSize / 2, cellSize, sy, cellSize);
       }
     }
     buildMeshes(groups, voxelGroup);
@@ -791,7 +841,15 @@
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
   };
-  const render = () => { controls.update(); renderer.render(scene, camera); requestAnimationFrame(render); };
+  const render = () => {
+    if (applyKeyboardPan()) {
+      updateScaleLabel();
+      scheduleRebuild();
+    }
+    controls.update();
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+  };
   let activePayload = null;
   let activeTownId = '';
   let activeMode = 'run';
