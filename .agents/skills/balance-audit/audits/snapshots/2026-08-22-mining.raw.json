@@ -1,0 +1,177 @@
+{
+  "date": "2026-08-22",
+  "economy": "mining",
+  "raw": {
+    "drill": {
+      "t1_price": 50000,
+      "t2_recipe_price": 200000,
+      "t3_recipe_price": 500000,
+      "ores": [
+        {
+          "label": "얇은 흑정석 광맥",
+          "tier": 1,
+          "break_ticks": 30,
+          "regen_sec": 180,
+          "drop": "흑정석",
+          "qty_min": 1,
+          "qty_max": 1
+        },
+        {
+          "label": "흑정석 광맥",
+          "tier": 1,
+          "break_ticks": 50,
+          "regen_sec": 300,
+          "drop": "흑정석",
+          "qty_min": 1,
+          "qty_max": 2
+        },
+        {
+          "label": "풍부한 흑정석 광맥",
+          "tier": 1,
+          "break_ticks": 80,
+          "regen_sec": 480,
+          "drop": "흑정석",
+          "qty_min": 1,
+          "qty_max": 3
+        },
+        {
+          "label": "얇은 철광맥",
+          "tier": 2,
+          "break_ticks": 40,
+          "regen_sec": 180,
+          "drop": "철광석",
+          "qty_min": 1,
+          "qty_max": 1
+        },
+        {
+          "label": "철광맥",
+          "tier": 2,
+          "break_ticks": 60,
+          "regen_sec": 300,
+          "drop": "철광석",
+          "qty_min": 1,
+          "qty_max": 2
+        },
+        {
+          "label": "풍부한 철광맥",
+          "tier": 2,
+          "break_ticks": 90,
+          "regen_sec": 480,
+          "drop": "철광석",
+          "qty_min": 1,
+          "qty_max": 3
+        },
+        {
+          "label": "얇은 자수정 광맥",
+          "tier": 3,
+          "break_ticks": 40,
+          "regen_sec": 180,
+          "drop": "자수정",
+          "qty_min": 1,
+          "qty_max": 1
+        },
+        {
+          "label": "자수정 광맥",
+          "tier": 3,
+          "break_ticks": 60,
+          "regen_sec": 300,
+          "drop": "자수정",
+          "qty_min": 1,
+          "qty_max": 2
+        },
+        {
+          "label": "자수정 정동",
+          "tier": 3,
+          "break_ticks": 90,
+          "regen_sec": 480,
+          "drop": "자수정",
+          "qty_min": 1,
+          "qty_max": 3
+        },
+        {
+          "label": "자수정 군집",
+          "tier": 3,
+          "break_ticks": 70,
+          "regen_sec": 360,
+          "drop": "자수정",
+          "qty_min": 1,
+          "qty_max": 2
+        }
+      ]
+    },
+    "island_mine": {
+      "ores": [
+        {
+          "label": "돌",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 35.0,
+          "xp": 1,
+          "chance_pct": 35.0
+        },
+        {
+          "label": "석탄",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 19.0,
+          "xp": 1,
+          "chance_pct": 19.0
+        },
+        {
+          "label": "철",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 15.0,
+          "xp": 1,
+          "chance_pct": 15.0
+        },
+        {
+          "label": "구리",
+          "qty_min": 2,
+          "qty_max": 4,
+          "weight": 11.0,
+          "xp": 1,
+          "chance_pct": 11.0
+        },
+        {
+          "label": "금",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 6.0,
+          "xp": 1,
+          "chance_pct": 6.0
+        },
+        {
+          "label": "청금석",
+          "qty_min": 4,
+          "qty_max": 8,
+          "weight": 4.0,
+          "xp": 1,
+          "chance_pct": 4.0
+        },
+        {
+          "label": "다이아몬드",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 5.0,
+          "xp": 1,
+          "chance_pct": 5.0
+        },
+        {
+          "label": "에메랄드",
+          "qty_min": 1,
+          "qty_max": 1,
+          "weight": 5.0,
+          "xp": 1,
+          "chance_pct": 5.0
+        }
+      ],
+      "total_weight": 100.0,
+      "daily_xp_cap": null
+    }
+  },
+  "warnings": [
+    "ISLAND_MINE_DAILY_CAP 못 찾음"
+  ],
+  "derived": {}
+}

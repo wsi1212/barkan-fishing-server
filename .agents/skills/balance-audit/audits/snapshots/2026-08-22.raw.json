@@ -19066,53 +19066,50 @@
       "avg_catch": 148.3,
       "casts": 150,
       "size_score": 50,
-      "anchor_won_per_hour_per_1pct": 222.4,
+      "anchor_won_per_1pct": 222.4,
       "difficulty_won_per_point": 790.0,
       "escape_reduction_won_per_pct": 10.5
     },
     "cooking_chain": {
       "dish_count": 58,
       "purpose_counts": {"buff": 24, "submit": 23, "heal": 2, "sell": 9},
-      "recipes_with_dish_ingredients": 30,
-      "dish_ingredient_units": 34,
+      "dish_refs": 34,
       "missing_dish_refs": [],
       "cycles": [],
-      "runtime_note": "recipes.json remains the pre-restart runtime snapshot; DishSpecs.java + build output were verified for the new chain"
+      "runtime_note": "recipes.json is pre-restart; DishSpecs.java/build output are the authority for the current dish chain"
     },
-    "cooking_followup": {
+    "cooking_reaudit": {
       "recipe": "발효케이크",
-      "direct_ingredients": {
-        "따뜻한 빵": 3,
-        "특수 토마토": 26,
-        "강화 밀": 6,
-        "강화 당근": 2
+      "direct_ingredients": {"따뜻한 빵": 3, "특수 토마토": 25, "강화 밀": 5, "강화 당근": 1},
+      "modeled_cost": 3333.6,
+      "sell_price": 10000,
+      "sell_multiplier": 3.0,
+      "sell_chain_multipliers": {
+        "명란젓갈": 2.667,
+        "은빛정어리젓": 3.333,
+        "허니케이크": 10.334,
+        "발효케이크": 3.0,
+        "청어젓갈": 1.679,
+        "꿀호두케이크": 3.21,
+        "숙성대연회": 2.901,
+        "전설의발효액": 1.756,
+        "왕실케이크": 2.332
       },
-      "delta_from_previous_code": {
-        "특수 토마토": 6,
-        "강화 밀": 2,
-        "강화 당근": 1,
-        "따뜻한 빵": 0
-      },
-      "warm_bread_recipe": {
-        "per_dish": {"특수 밀": 2, "강화 밀": 4},
-        "for_three_dishes": {"특수 밀": 6, "강화 밀": 12},
-        "total_including_direct_inputs": {"특수 토마토": 26, "특수 밀": 6, "강화 밀": 18, "강화 당근": 2}
-      },
-      "assessment": "intermediate dish is additive; original farming inputs remain intact"
+      "assessment": "intermediate dish added; existing farming inputs reduced slightly; sell reward retained"
     },
     "cohort_sim": {
-      "harpoon_hit_rate": "assumption; live telemetry pending",
       "level_1_rod_gold_per_hour": 82255,
       "level_70_rod_gold_per_hour": 1913327,
       "level_70_harpoon_gold_per_hour": 10836907,
-      "level_70_harpoon_to_rod_ratio": 5.66
+      "level_70_harpoon_to_rod_ratio": 5.66,
+      "harpoon_hit_rate": "assumption; live telemetry pending"
     },
     "cross_economy_anchor": {
-      "mining_blackstone_per_unit": 10.6,
-      "mining_amethyst_per_unit": 13.3,
-      "compressed_blackstone_value": 95.8,
-      "forage_rare_floor_value": 790.8,
-      "farming_slot_value_per_hour": 253.1
+      "farming_slot_won_per_hour": 253.1,
+      "forage_common_floor": 59.3,
+      "forage_rare_floor": 790.8,
+      "compressed_blackstone": 95.8,
+      "mining_warning": "ISLAND_MINE_DAILY_CAP not found"
     }
   }
 }
