@@ -90,17 +90,39 @@
     if (/red_|crimson|nether|netherrack/.test(name)) return '#a95649';
     if (/purple|purpur|amethyst|chorus/.test(name)) return '#9a72a9';
     if (/sand|sandstone/.test(name)) return '#c5aa6b';
-    if (/leaves|moss|grass|azalea|vine|bamboo|fern|sapling/.test(name)) return '#4d8c65';
-    if (/wood|log|planks|shelf|bookshelf|fence|gate|trapdoor/.test(name)) return '#80654c';
+    if (/leaves|moss|grass|azalea|vine|bamboo|fern|sapling/.test(name)) {
+      if (name.includes('birch')) return '#74a96f';
+      if (name.includes('jungle')) return '#3f8b5f';
+      if (name.includes('spruce')) return '#47785c';
+      if (name.includes('dark_oak')) return '#3f7658';
+      return '#4d9868';
+    }
+    if (name.includes('birch')) return '#b9a874';
+    if (name.includes('spruce')) return '#705641';
+    if (name.includes('dark_oak')) return '#5d4333';
+    if (name.includes('jungle')) return '#9c704f';
+    if (name.includes('acacia')) return '#a96f4d';
+    if (name.includes('mangrove')) return '#95504a';
+    if (/wood|log|planks|shelf|bookshelf|fence|gate|trapdoor/.test(name)) return '#96704d';
     if (/path|dirt|mud|farmland|root/.test(name)) return '#806b4a';
-    if (/gold|hay_block/.test(name)) return '#d5ae45';
+    if (name.includes('gold') || name.includes('hay_block')) return '#d5ae45';
     if (name.includes('copper')) return '#bd7653';
     if (/raw_|iron|ore|diamond|emerald/.test(name)) return '#8d9aa0';
     if (/glass|quartz/.test(name)) return '#c5d3ce';
     if (/gravel|clay/.test(name)) return '#8f8a7c';
     if (name.includes('cactus')) return '#4d8c65';
     if (name.includes('pumpkin')) return '#c8893f';
-    if (/stone|deepslate|andesite|diorite|granite|tuff|cobble|brick|basalt|obsidian/.test(name)) return '#6e7d79';
+    if (name.includes('stone_brick')) return '#7c827d';
+    if (name.includes('brick')) return '#a36858';
+    if (name.includes('diorite')) return '#b3b8af';
+    if (name.includes('granite')) return '#a47c68';
+    if (name.includes('andesite')) return '#7f8c8b';
+    if (name.includes('deepslate')) return '#536267';
+    if (name.includes('tuff')) return '#878b7e';
+    if (name.includes('cobble')) return '#747b77';
+    if (name.includes('basalt')) return '#5f686a';
+    if (name.includes('obsidian')) return '#34324c';
+    if (/stone/.test(name)) return '#858b87';
     let hash = 0;
     for (let i = 0; i < name.length; i += 1) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
     return ['#6f8e83', '#9a806c', '#6e8795', '#98745e'][Math.abs(hash) % 4];
@@ -212,6 +234,11 @@
     const centerZ = controls.target.z;
     let blockCount = 0;
     const maxBlocks = 420000;
+    // Keep a real block occupancy map first, then draw only the exposed shell.
+    // Rendering every buried block made buildings look like exploded pixels and
+    // wasted most of the GPU budget on faces nobody could see.
+    const blocks = new Map();
+    const keyFor = (x, y, z) => `${x}|${y}|${z}`;
     for (let i = 0; i < Number(payload.count || 0); i += 1) {
       const offset = i * 8;
       const rawX = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
@@ -224,11 +251,20 @@
       const yStart = Math.max(rawY, floor);
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
       for (let y = yStart; y < end; y += 1) {
-        addRecord(groups, materialName, rawX + 0.5, y + 0.5, rawZ + 0.5, 1, 1, 1);
+        blocks.set(keyFor(rawX, y, rawZ), { materialName, x: rawX, y, z: rawZ });
         blockCount += 1;
-        if (blockCount >= maxBlocks) return 0;
+        if (blockCount >= maxBlocks) break;
       }
+      if (blockCount >= maxBlocks) break;
     }
+    const exposed = ['1,0,0', '-1,0,0', '0,1,0', '0,-1,0', '0,0,1', '0,0,-1'];
+    blocks.forEach(block => {
+      const visible = exposed.some(offset => {
+        const [dx, dy, dz] = offset.split(',').map(Number);
+        return !blocks.has(keyFor(block.x + dx, block.y + dy, block.z + dz));
+      });
+      if (visible) addRecord(groups, block.materialName, block.x + 0.5, block.y + 0.5, block.z + 0.5, 1, 1, 1);
+    });
     buildMeshes(groups, voxelGroup);
     return blockCount;
   };
