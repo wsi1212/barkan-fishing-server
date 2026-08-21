@@ -249,6 +249,9 @@
     // wasted most of the GPU budget on faces nobody could see.
     const blocks = new Map();
     const keyFor = (x, y, z) => `${x}|${y}|${z}`;
+    const columnKeyFor = (x, z) => `${x}|${z}`;
+    const runRecords = [];
+    const groundedColumns = new Set();
     for (let i = 0; i < Number(payload.count || 0); i += 1) {
       const offset = i * 8;
       const rawX = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
@@ -257,16 +260,23 @@
       const rawY = originY + bytes[offset + 4];
       const length = Math.max(1, bytes[offset + 5]);
       const end = rawY + length;
-      if (end <= floor) continue;
-      const yStart = Math.max(rawY, floor);
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
-      for (let y = yStart; y < end; y += 1) {
-        blocks.set(keyFor(rawX, y, rawZ), { materialName, x: rawX, y, z: rawZ });
-        blockCount += 1;
-        if (blockCount >= maxBlocks) break;
-      }
-      if (blockCount >= maxBlocks) break;
+      runRecords.push({ rawX, rawZ, rawY, end, materialName });
+      if (rawY <= floor && end > floor) groundedColumns.add(columnKeyFor(rawX, rawZ));
     }
+    runRecords.forEach(run => {
+      // A column that reaches the surface is terrain: hide its underground
+      // mass. A column with no surface block is floating architecture, so keep
+      // its lower pieces (balloon baskets, bridges, suspended docks, etc.).
+      const floating = !groundedColumns.has(columnKeyFor(run.rawX, run.rawZ));
+      if (run.end <= floor && !floating) return;
+      const yStart = floating ? run.rawY : Math.max(run.rawY, floor);
+      for (let y = yStart; y < run.end; y += 1) {
+        if (blockCount >= maxBlocks) return;
+        blocks.set(keyFor(run.rawX, y, run.rawZ), { materialName: run.materialName, x: run.rawX, y, z: run.rawZ });
+        blockCount += 1;
+      }
+    });
     const exposed = ['1,0,0', '-1,0,0', '0,1,0', '0,-1,0', '0,0,1', '0,0,-1'];
     blocks.forEach(block => {
       const visible = exposed.some(offset => {
