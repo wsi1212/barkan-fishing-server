@@ -404,6 +404,46 @@
     });
   };
 
+  // Non-1:1 views are cartography, not an inventory of stretched Minecraft
+  // cubes. Draw one flat, height-positioned surface per sampled cell instead
+  // of a BoxGeometry whose Y scale can turn a balloon into a tower. The close
+  // 1:1 shell below remains the only path that renders real block cubes.
+  const buildSurfaceMesh = (cells, target = voxelGroup) => {
+    const grouped = new Map();
+    cells.forEach(cell => {
+      if (!cell || hiddenBlocks.has(cell.materialName) || omitSmallBlock(cell.materialName)) return;
+      const list = grouped.get(cell.materialName) || [];
+      list.push(cell);
+      grouped.set(cell.materialName, list);
+    });
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const scale = new THREE.Vector3();
+    grouped.forEach((records, materialName) => {
+      const material = new THREE.MeshLambertMaterial({
+        color: rgb(blockColor(materialName)),
+        flatShading: true,
+        side: THREE.DoubleSide,
+      });
+      for (let start = 0; start < records.length; start += 50000) {
+        const chunk = records.slice(start, start + 50000);
+        const mesh = new THREE.InstancedMesh(geometry, material, chunk.length);
+        mesh.frustumCulled = false;
+        mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+        chunk.forEach((record, index) => {
+          position.set(record.x, record.y, record.z);
+          scale.set(record.size, record.size, 1);
+          matrix.compose(position, quaternion, scale);
+          mesh.setMatrixAt(index, matrix);
+        });
+        mesh.instanceMatrix.needsUpdate = true;
+        target.add(mesh);
+      }
+    });
+  };
+
   const cobwebGeometry = () => {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array([
@@ -452,7 +492,7 @@
   };
 
   const buildOverview = (excludeId = '') => {
-    const groups = new Map();
+    const cells = [];
     const materials = decode(terrain.materials);
     const mask = decode(terrain.mask);
     const heights = decode(terrain.heights);
@@ -479,20 +519,18 @@
           if (cx >= excludedBounds[0] - excludedMargin && cx <= excludedBounds[1] + excludedMargin && cz >= excludedBounds[2] - excludedMargin && cz <= excludedBounds[3] + excludedMargin) continue;
         }
         const materialName = legend[materials[index]] || 'minecraft:grass_block';
-        // A sea/river column has its top exactly at the base Y and was
-        // previously discarded by the heightfield guard, leaving black gaps
-        // under waterways. Keep one measured water block for those columns.
+        // A sea/river column has its top exactly at the base Y. Keep a flat
+        // water surface there; never manufacture a tall block column.
         if (height <= baseY) {
           if (materialName === 'minecraft:water') {
-            addRecord(groups, materialName, x + cellSize / 2, baseY + 0.5, z + cellSize / 2, cellSize, 1, cellSize);
+            cells.push({ materialName, x: x + cellSize / 2, y: baseY + 0.01, z: z + cellSize / 2, size: cellSize });
           }
           continue;
         }
-        const sy = Math.max(1, height - baseY);
-        addRecord(groups, materialName, x + cellSize / 2, baseY + sy / 2, z + cellSize / 2, cellSize, sy, cellSize);
+        cells.push({ materialName, x: x + cellSize / 2, y: height + 0.01, z: z + cellSize / 2, size: cellSize });
       }
     }
-    buildMeshes(groups, voxelGroup);
+    buildSurfaceMesh(cells, voxelGroup);
   };
 
   const buildDetail = (payload, target = voxelGroup) => {
@@ -552,7 +590,6 @@
   // the fast column path for ordinary terrain and reconstruct only suspicious
   // tall/decorative columns from their real runs8 records.
   const buildSurfaceDetail = (payload, target = voxelGroup) => {
-    const groups = new Map();
     const bytes = decode(payload.columns);
     const localLegend = payload.legend || [];
     const originX = Number(payload.xOrigin) || 0;
@@ -565,7 +602,6 @@
     // shell remains available as the camera approaches the map.
     const distance = camera.position.distanceTo(controls.target);
     const sample = distance > 420 ? 4 : distance > 260 ? 2 : 1;
-    const floor = Number(payload.surfaceFloor ?? 60);
     const suspicious = new Set();
     const columns = [];
     const isTerrainTop = name => /(?:grass_block|dirt|coarse_dirt|podzol|mycelium|sand|gravel|stone|andesite|diorite|granite|deepslate|tuff|clay|snow|ice|water|lava|netherrack|basalt|end_stone|obsidian|prismarine|mud|moss_block|sculk|bedrock|soul_sand|soul_soil|nether_bricks|blackstone|calcite)/.test(blockKey(name));
@@ -584,78 +620,24 @@
       columns.push({ x, z, bottom, height, topMaterial, sideMaterial, key });
     }
 
-    const runsByColumn = new Map();
-    if (suspicious.size && typeof payload.details === 'string' && Number(payload.count || 0) > 0) {
-      const details = decode(payload.details);
-      const detailCount = Math.min(Number(payload.count || 0), Math.floor(details.length / 8));
-      for (let i = 0; i < detailCount; i += 1) {
-        const offset = i * 8;
-        const x = originX + ((details[offset] << 8) | details[offset + 1]);
-        const z = originZ + ((details[offset + 2] << 8) | details[offset + 3]);
-        const key = `${x}|${z}`;
-        if (!suspicious.has(key)) continue;
-        const y = originY + details[offset + 4];
-        const h = Math.max(1, details[offset + 5]);
-        const materialName = localLegend[(details[offset + 6] << 8) | details[offset + 7]] || 'minecraft:stone';
-        if (hiddenBlocks.has(materialName) || omitSmallBlock(materialName)) continue;
-        const list = runsByColumn.get(key) || [];
-        list.push({ x, z, y, end: y + h, h, materialName });
-        runsByColumn.set(key, list);
-      }
-      runsByColumn.forEach(runs => runs.sort((a, b) => a.y - b.y || a.end - b.end));
-    }
-
-    const drawMeasuredColumn = (runs, cellSize) => {
-      if (!runs?.length) return 0;
-      let cursor = floor;
-      let groundMaterial = '';
-      // Rebuild the connected component that starts at the scan floor. A
-      // genuine floating model has an air gap here, so it is never filled in.
-      for (const run of runs) {
-        if (run.y > cursor + 1) break;
-        if (run.end > cursor) {
-          cursor = Math.max(cursor, run.end);
-          groundMaterial = run.materialName;
-        }
-      }
-      let rendered = 0;
-      const x = runs[0].x;
-      const z = runs[0].z;
-      if (groundMaterial && cursor > floor) {
-        addBlockRecord(groups, groundMaterial, x + cellSize / 2, floor + (cursor - floor) / 2, z + cellSize / 2, cellSize, cursor - floor, cellSize);
-        rendered += 1;
-      }
-      // Preserve each real floating run. These are the balloon envelope,
-      // basket, rigging and other suspended pieces; no synthetic filler is
-      // inserted between them.
-      for (const run of runs) {
-        if (run.end <= cursor || run.y <= cursor + 1) continue;
-        addBlockRecord(groups, run.materialName, x + cellSize / 2, run.y + run.h / 2, z + cellSize / 2, cellSize, run.h, cellSize);
-        rendered += 1;
-      }
-      return rendered;
-    };
-
-    let rendered = 0;
+    const cells = [];
     for (const column of columns) {
       if ((column.x - originX) % sample !== 0 || (column.z - originZ) % sample !== 0) continue;
-      const cellSize = sample;
-      if (suspicious.has(column.key)) {
-        rendered += drawMeasuredColumn(runsByColumn.get(column.key), cellSize);
-        continue;
-      }
-      if (hiddenBlocks.has(column.sideMaterial)) continue;
-      addBlockRecord(groups, column.sideMaterial, column.x + cellSize / 2, column.bottom + column.height / 2, column.z + cellSize / 2, cellSize, column.height, cellSize);
-      // Give a column's top surface its actual top-block material without
-      // generating a second full-height column. A thin cap avoids z-fighting
-      // while keeping vegetation/wood/stone tops recognisable at medium LOD.
-      if (column.topMaterial !== column.sideMaterial && !hiddenBlocks.has(column.topMaterial)) {
-        addRecord(groups, column.topMaterial, column.x + cellSize / 2, column.bottom + column.height + 0.012, column.z + cellSize / 2, cellSize, 0.024, cellSize);
-      }
-      rendered += 1;
+      // Floating decorative columns (notably the balloon) are omitted at
+      // non-1:1 zoom. Showing their top as a surface is still misleading;
+      // the exact model appears when the user zooms into block view.
+      if (suspicious.has(column.key)) continue;
+      if (hiddenBlocks.has(column.topMaterial) || omitSmallBlock(column.topMaterial)) continue;
+      cells.push({
+        materialName: column.topMaterial,
+        x: column.x + sample / 2,
+        y: column.bottom + column.height + 0.01,
+        z: column.z + sample / 2,
+        size: sample,
+      });
     }
-    buildMeshes(groups, target);
-    return rendered;
+    buildSurfaceMesh(cells, target);
+    return cells.length;
   };
 
   const buildCloseDetail = (payload, target = voxelGroup) => {
@@ -981,7 +963,7 @@
     // the user pans out, switch to the static live-world tile at the target so
     // the rest of the island can be explored without loading a monolith.
     const wantsTiles = tileState.manifest && !targetInsideTown && wantedTileEntries().length > 0;
-    const wantedTileMode = wantsClose ? 'block' : 'run';
+    const wantedTileMode = wantsClose ? 'block' : 'surface';
     if (!force && activeMode === 'tiles' && wantsTiles && tileState.renderMode === wantedTileMode && !movedClose) {
       reconcileTiles();
       return;
@@ -1001,7 +983,7 @@
     // `activeMode` can be `tiles` while the async town payload is already in
     // memory. In that state, entering the town must rebuild its detailed scan
     // instead of returning merely because both views are non-close zoom.
-    const hasTownMesh = activeMode === 'run' || activeMode === 'block';
+    const hasTownMesh = activeMode === 'run' || activeMode === 'surface' || activeMode === 'block';
     if (!force && activePayload && hasTownMesh && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
     rebuilding = true;
     if (!activePayload) {
@@ -1038,9 +1020,16 @@
         status.textContent = `3D VOXEL · ${activeTownId.toUpperCase()} · ${runCount.toLocaleString()} meshes`;
       }
     } else {
-      const runCount = buildDetail(activePayload);
-      activeMode = 'run';
-      status.textContent = `3D VOXEL · ${activeTownId.toUpperCase()} · ${runCount.toLocaleString()} meshes`;
+      const hasColumns = typeof activePayload.columns === 'string' && Number(activePayload.columnCount || 0) > 0;
+      if (hasColumns) {
+        const surfaceCount = buildSurfaceDetail(activePayload);
+        activeMode = 'surface';
+        status.textContent = `3D SURFACE · ${activeTownId.toUpperCase()} · ${surfaceCount.toLocaleString()} cells`;
+      } else {
+        const runCount = buildDetail(activePayload);
+        activeMode = 'run';
+        status.textContent = `3D VOXEL · ${activeTownId.toUpperCase()} · ${runCount.toLocaleString()} meshes`;
+      }
     }
     rebuilding = false;
   };
@@ -1072,11 +1061,14 @@
       if (loadTown.token !== token) return;
       activePayload = payload;
       activeTownId = id;
-      activeMode = 'run';
+      activeMode = 'surface';
       buildOverview(id);
-      const count = buildDetail(payload);
+      const hasColumns = typeof payload.columns === 'string' && Number(payload.columnCount || 0) > 0;
+      const count = hasColumns ? buildSurfaceDetail(payload) : buildDetail(payload);
       closeCenter.copy(controls.target);
-      status.textContent = `3D VOXEL · ${id.toUpperCase()} · ${count.toLocaleString()} meshes`;
+      status.textContent = hasColumns
+        ? `3D SURFACE · ${id.toUpperCase()} · ${count.toLocaleString()} cells`
+        : `3D VOXEL · ${id.toUpperCase()} · ${count.toLocaleString()} meshes`;
     } catch (error) {
       status.textContent = '3D 스캔을 불러오지 못했습니다';
       console.error(error);
