@@ -25,6 +25,19 @@ def skin_uv(fname, ia, ib, hat):
     if fname=='up':    return [16-X+o, 8-Z, 15-X+o, 7-Z]
     return [24-X+o, Z, 23-X+o, Z+1]
 
+def mk(new, uv, uid):
+    """MC 아이템모델 요소 → 렌더러가 먹는 bbmodel 요소.
+    ★MC 는 rotation 을 {angle,axis,origin} 으로 쓰고 렌더러는 [rx,ry,rz]+origin 을
+      쓴다. 변환을 빼먹으면 45° 패싯이 축정렬로 그려져 «멀쩡해 보이는» 오진이 난다."""
+    (fname,) = new['faces'].keys() if 'faces' in new else (None,)
+    e = {'from':new['from'],'to':new['to'],'faces':{uv[1]:{'uv':uv[0],'texture':0}},
+         'type':'cube','uuid':uid,'origin':[0,0,0]}
+    r = new.get('rotation')
+    if r:
+        v = [0.0,0.0,0.0]; v[{'x':0,'y':1,'z':2}[r['axis']]] = r['angle']
+        e['rotation'] = v; e['origin'] = r['origin']
+    return e
+
 def build(pristine, worked, skin_png):
     pris, work = pathlib.Path(pristine), pathlib.Path(worked)
     sk = Image.open(skin_png).convert('RGBA'); spx = sk.load()
@@ -34,11 +47,10 @@ def build(pristine, worked, skin_png):
     p_new = json.loads((work/'models/player_limb/head_0.json').read_text())['elements']
     for old, new in zip(p_old, p_new):
         fname, ia, ib = RL.cell_of(old, RL.B_ORG, RL.B_PX, RL.B_TOP)
-        uv = skin_uv(fname, ia, ib, False)
+        uv = (skin_uv(fname, ia, ib, False), list(new['faces'].keys())[0])
         if new['from'][RL.PLANE_AXIS[fname]] == RL.CENTER[RL.PLANE_AXIS[fname]]:
             continue                                    # 숨긴 쿼드
-        els.append({'from':new['from'],'to':new['to'],'faces':{fname:{'uv':uv,'texture':0}},
-                    'type':'cube','uuid':'b%d'%len(els),'origin':[0,0,0]})
+        els.append(mk(new, uv, 'b%d'%len(els)))
     # hat — 스킨 알파가 있는 픽셀만 (짝수/홀수 중 하나만 쓰면 중복 없음)
     for i in range(1, 769, 2):
         fo = pris/('models/player_limb/head_%d.json'%i)
@@ -47,12 +59,11 @@ def build(pristine, worked, skin_png):
         old = json.loads(fo.read_text())['elements'][0]
         new = json.loads(fn_.read_text())['elements'][0]
         fname, ia, ib = RL.cell_of(old, RL.H_ORG, RL.H_PX, RL.H_TOP)
-        uv = skin_uv(fname, ia, ib, True)
-        if spx[int(uv[0]), int(uv[1])][3] < 8: continue  # 투명 → 안 그려짐
+        uv = (skin_uv(fname, ia, ib, True), list(new['faces'].keys())[0])
+        if spx[int(uv[0][0]), int(uv[0][1])][3] < 8: continue  # 투명 → 안 그려짐
         if new['from'][RL.PLANE_AXIS[fname]] == RL.CENTER[RL.PLANE_AXIS[fname]]:
             continue
-        els.append({'from':new['from'],'to':new['to'],'faces':{fname:{'uv':uv,'texture':0}},
-                    'type':'cube','uuid':'h%d'%i,'origin':[0,0,0]})
+        els.append(mk(new, uv, 'h%d'%i))
     buf=io.BytesIO(); sk.save(buf,'PNG')
     return {'resolution':{'width':64,'height':64},
             'textures':[{'source':'data:image/png;base64,'+base64.b64encode(buf.getvalue()).decode()}],
