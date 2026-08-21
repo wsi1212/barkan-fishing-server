@@ -524,6 +524,12 @@
   // thousands of runs (and therefore expensive matrices/material groups),
   // while its column stream is bounded by 65,536 records. The close view still
   // switches to the exposed 1:1 shell for exact block detail.
+  // A surface column is an excellent distant-terrain LOD, but it cannot be
+  // used blindly for floating builds. The column scan stores the highest
+  // block in a column and a bottom of yMin; a balloon, bridge or airship then
+  // becomes a 160-block orange pillar from the ocean floor to its roof. Keep
+  // the fast column path for ordinary terrain and reconstruct only suspicious
+  // tall/decorative columns from their real runs8 records.
   const buildSurfaceDetail = (payload, target = voxelGroup) => {
     const groups = new Map();
     const bytes = decode(payload.columns);
@@ -538,24 +544,92 @@
     // shell remains available as the camera approaches the map.
     const distance = camera.position.distanceTo(controls.target);
     const sample = distance > 420 ? 4 : distance > 260 ? 2 : 1;
-    let rendered = 0;
+    const floor = Number(payload.surfaceFloor ?? 60);
+    const suspicious = new Set();
+    const columns = [];
+    const isTerrainTop = name => /(?:grass_block|dirt|coarse_dirt|podzol|mycelium|sand|gravel|stone|andesite|diorite|granite|deepslate|tuff|clay|snow|ice|water|lava|netherrack|basalt|end_stone|obsidian|prismarine|mud|moss_block|sculk|bedrock|soul_sand|soul_soil|nether_bricks|blackstone|calcite)/.test(blockKey(name));
     for (let i = 0; i < count; i += 1) {
       const offset = i * stride;
       const x = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
       const z = originZ + ((bytes[offset + 2] << 8) | bytes[offset + 3]);
-      if ((x - originX) % sample !== 0 || (z - originZ) % sample !== 0) continue;
       const bottom = originY + bytes[offset + 4];
       const height = Math.max(1, bytes[offset + 5]);
       const topMaterial = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
-      const sideMaterial = localLegend[(bytes[offset + 8] << 8) | bytes[offset + 9]] || topMaterial;
-      if (hiddenBlocks.has(sideMaterial)) continue;
+      const sideMaterial = localLegend[(bytes[offset + 8] << 8) | bytes[offset + 9] ] || topMaterial;
+      const key = `${x}|${z}`;
+      // A tall non-terrain top is normally a floating decorative model. Do
+      // not turn it into a solid column; its exact runs are drawn below.
+      if (height > 80 && !isTerrainTop(topMaterial)) suspicious.add(key);
+      columns.push({ x, z, bottom, height, topMaterial, sideMaterial, key });
+    }
+
+    const runsByColumn = new Map();
+    if (suspicious.size && typeof payload.details === 'string' && Number(payload.count || 0) > 0) {
+      const details = decode(payload.details);
+      const detailCount = Math.min(Number(payload.count || 0), Math.floor(details.length / 8));
+      for (let i = 0; i < detailCount; i += 1) {
+        const offset = i * 8;
+        const x = originX + ((details[offset] << 8) | details[offset + 1]);
+        const z = originZ + ((details[offset + 2] << 8) | details[offset + 3]);
+        const key = `${x}|${z}`;
+        if (!suspicious.has(key)) continue;
+        const y = originY + details[offset + 4];
+        const h = Math.max(1, details[offset + 5]);
+        const materialName = localLegend[(details[offset + 6] << 8) | details[offset + 7]] || 'minecraft:stone';
+        if (hiddenBlocks.has(materialName)) continue;
+        const list = runsByColumn.get(key) || [];
+        list.push({ x, z, y, end: y + h, h, materialName });
+        runsByColumn.set(key, list);
+      }
+      runsByColumn.forEach(runs => runs.sort((a, b) => a.y - b.y || a.end - b.end));
+    }
+
+    const drawMeasuredColumn = (runs, cellSize) => {
+      if (!runs?.length) return 0;
+      let cursor = floor;
+      let groundMaterial = '';
+      // Rebuild the connected component that starts at the scan floor. A
+      // genuine floating model has an air gap here, so it is never filled in.
+      for (const run of runs) {
+        if (run.y > cursor + 1) break;
+        if (run.end > cursor) {
+          cursor = Math.max(cursor, run.end);
+          groundMaterial = run.materialName;
+        }
+      }
+      let rendered = 0;
+      const x = runs[0].x;
+      const z = runs[0].z;
+      if (groundMaterial && cursor > floor) {
+        addBlockRecord(groups, groundMaterial, x + cellSize / 2, floor + (cursor - floor) / 2, z + cellSize / 2, cellSize, cursor - floor, cellSize);
+        rendered += 1;
+      }
+      // Preserve each real floating run. These are the balloon envelope,
+      // basket, rigging and other suspended pieces; no synthetic filler is
+      // inserted between them.
+      for (const run of runs) {
+        if (run.end <= cursor || run.y <= cursor + 1) continue;
+        addBlockRecord(groups, run.materialName, x + cellSize / 2, run.y + run.h / 2, z + cellSize / 2, cellSize, run.h, cellSize);
+        rendered += 1;
+      }
+      return rendered;
+    };
+
+    let rendered = 0;
+    for (const column of columns) {
+      if ((column.x - originX) % sample !== 0 || (column.z - originZ) % sample !== 0) continue;
       const cellSize = sample;
-      addBlockRecord(groups, sideMaterial, x + cellSize / 2, bottom + height / 2, z + cellSize / 2, cellSize, height, cellSize);
+      if (suspicious.has(column.key)) {
+        rendered += drawMeasuredColumn(runsByColumn.get(column.key), cellSize);
+        continue;
+      }
+      if (hiddenBlocks.has(column.sideMaterial)) continue;
+      addBlockRecord(groups, column.sideMaterial, column.x + cellSize / 2, column.bottom + column.height / 2, column.z + cellSize / 2, cellSize, column.height, cellSize);
       // Give a column's top surface its actual top-block material without
       // generating a second full-height column. A thin cap avoids z-fighting
       // while keeping vegetation/wood/stone tops recognisable at medium LOD.
-      if (topMaterial !== sideMaterial && !hiddenBlocks.has(topMaterial)) {
-        addRecord(groups, topMaterial, x + cellSize / 2, bottom + height + 0.012, z + cellSize / 2, cellSize, 0.024, cellSize);
+      if (column.topMaterial !== column.sideMaterial && !hiddenBlocks.has(column.topMaterial)) {
+        addRecord(groups, column.topMaterial, column.x + cellSize / 2, column.bottom + column.height + 0.012, column.z + cellSize / 2, cellSize, 0.024, cellSize);
       }
       rendered += 1;
     }
