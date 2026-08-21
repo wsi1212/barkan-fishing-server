@@ -229,11 +229,14 @@
     const originY = Number(payload.yOrigin) || 0;
     const floor = Number(payload.surfaceFloor ?? 60);
     const distance = camera.position.distanceTo(controls.target);
-    const radius = clamp(distance * 2.2, 48, 96);
+    // Keep the close view bounded, but never truncate the scan halfway through
+    // a town. The old 420k cap cut off the later X/Z columns (often the lower
+    // half of a build) and made structures look exploded.
+    const radius = clamp(distance * 2.2, 48, 80);
     const centerX = controls.target.x;
     const centerZ = controls.target.z;
     let blockCount = 0;
-    const maxBlocks = 420000;
+    const maxBlocks = 1500000;
     // Keep a real block occupancy map first, then draw only the exposed shell.
     // Rendering every buried block made buildings look like exploded pixels and
     // wasted most of the GPU budget on faces nobody could see.
@@ -355,7 +358,7 @@
     if (!force && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
     rebuilding = true;
     clearGroup(voxelGroup);
-    buildOverview();
+    if (!wantsClose) buildOverview();
     if (wantsClose) {
       const count = buildCloseDetail(activePayload);
       if (count > 0) {
