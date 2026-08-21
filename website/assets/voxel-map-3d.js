@@ -378,7 +378,15 @@
   // plausible terrain participates in the heightfield.  Decorative builds
   // that start at the scan floor and jump to a high roof (the spawn balloon
   // is the obvious example) must not become a long coloured wall.
-  const isTerrainTop = name => /(?:grass_block|dirt|coarse_dirt|podzol|mycelium|sand|gravel|stone|andesite|diorite|granite|deepslate|tuff|clay|snow|ice|water|lava|netherrack|basalt|end_stone|obsidian|prismarine|mud|moss_block|sculk|bedrock|soul_sand|soul_soil|nether_bricks|blackstone|calcite)/.test(blockKey(name));
+  const terrainTopNames = new Set([
+    'grass_block', 'dirt', 'coarse_dirt', 'podzol', 'mycelium', 'sand', 'red_sand',
+    'gravel', 'stone', 'andesite', 'diorite', 'granite', 'deepslate', 'tuff', 'clay',
+    'snow', 'snow_block', 'ice', 'packed_ice', 'blue_ice', 'water', 'lava',
+    'netherrack', 'basalt', 'smooth_basalt', 'end_stone', 'obsidian', 'prismarine',
+    'mud', 'moss_block', 'sculk', 'bedrock', 'soul_sand', 'soul_soil', 'blackstone',
+    'calcite',
+  ]);
+  const isTerrainTop = name => terrainTopNames.has(blockKey(name));
   const buildMeshes = (groups, target) => {
     const matrix = new THREE.Matrix4();
     groups.forEach((records, materialName) => {
