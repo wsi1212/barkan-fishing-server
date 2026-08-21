@@ -288,6 +288,10 @@
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
         ];
         const mesh = new THREE.InstancedMesh(geometry, materials, chunk.length);
+        // Three r128 cannot infer an InstancedMesh bounding volume from the
+        // per-instance matrices. Leaving frustum culling enabled therefore
+        // drops valid blocks when the camera rotates or pans to an edge.
+        mesh.frustumCulled = false;
         mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
         chunk.forEach((record, index) => {
           matrix.makeScale(record.sx, record.sy, record.sz);
