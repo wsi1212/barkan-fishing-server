@@ -650,7 +650,10 @@
     const group = new THREE.Group();
     group.name = `tile-${entry.key}`;
     const wantsClose = camera.position.distanceTo(controls.target) < 120;
-    if (wantsClose) buildCloseDetail(payload, group); else buildSurfaceDetail(payload, group);
+    const hasColumns = typeof payload.columns === 'string' && Number(payload.columnCount || 0) > 0;
+    if (wantsClose) buildCloseDetail(payload, group);
+    else if (hasColumns) buildSurfaceDetail(payload, group);
+    else buildDetail(payload, group);
     tileGroup.add(group);
     tileState.groups.set(entry.key, group);
     tileStatus();
