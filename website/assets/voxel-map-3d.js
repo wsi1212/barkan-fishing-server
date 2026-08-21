@@ -78,6 +78,8 @@
   const materialCache = new Map();
   const textureLoader = new THREE.TextureLoader();
   const textureCache = new Map();
+  const blockKey = name => String(name || '').replace(/^minecraft:/, '');
+  const alphaBlock = name => /(?:leaves|glass|pane|bars|cobweb|lantern|torch|plant|flower|grass|fern|vine|roots|sapling|mushroom|kelp|seagrass|rail|chain|fence|gate|trapdoor|door)/.test(blockKey(name));
   const rgb = hex => new THREE.Color(hex);
   const blockColor = nameRaw => {
     const name = String(nameRaw || '').replace('minecraft:', '');
@@ -149,9 +151,15 @@
     if (!materialCache.has(cacheKey)) {
       // Start with the server's palette color, then replace it with the real
       // vanilla block texture as soon as that small PNG arrives.
-      const material = new THREE.MeshLambertMaterial({ color: rgb(blockColor(key)) });
+      const transparent = alphaBlock(key);
+      const material = new THREE.MeshLambertMaterial({
+        color: rgb(blockColor(key)),
+        transparent,
+        alphaTest: transparent ? 0.35 : 0,
+        side: transparent ? THREE.DoubleSide : THREE.FrontSide,
+      });
       materialCache.set(cacheKey, material);
-      const textureKey = key.replace(/^minecraft:/, '');
+      const textureKey = blockKey(key);
       const fixed = {
         'grass_block|side': 'grass_block_side',
         'grass_block|top': 'grass_block_top',
@@ -167,7 +175,7 @@
       };
       const textureName = fixed[`${textureKey}|${variant}`]
         || (variant !== 'side' ? `${textureKey}_${variant}` : textureKey);
-      const texture = (textureKey === 'water' || textureKey === 'lava') ? null : textureLoader.load(`/assets/mc-blocks/${textureName}.png`, loaded => {
+      const applyTexture = loaded => {
         loaded.magFilter = THREE.NearestFilter;
         loaded.minFilter = THREE.NearestFilter;
         loaded.generateMipmaps = false;
@@ -180,9 +188,14 @@
           material.color.set(0xffffff);
         }
         material.needsUpdate = true;
-      }, undefined, () => {
-        // Custom/non-block entries do not have a vanilla texture; keep the
-        // deterministic palette fallback without logging a console error.
+      };
+      const loadPath = `/assets/mc-blocks/${textureName}.png`;
+      const fallbackPath = `/assets/mc-blocks/${textureKey}.png`;
+      const texture = (textureKey === 'water' || textureKey === 'lava') ? null : textureLoader.load(loadPath, applyTexture, undefined, () => {
+        // Many vanilla blocks (leaves, cobwebs, flowers, etc.) have one
+        // texture for every face. If a synthetic *_top or *_bottom filename
+        // is absent, use the real base texture instead of a flat color.
+        if (fallbackPath !== loadPath) textureLoader.load(fallbackPath, applyTexture, undefined, () => {});
       });
       textureCache.set(key, texture);
     }
@@ -197,13 +210,14 @@
     list.push({ x, y, z, sx, sy, sz });
   };
   const buildMeshes = (groups, target) => {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
     const matrix = new THREE.Matrix4();
     groups.forEach((records, materialName) => {
+      const geometry = geometryFor(materialName);
       // Splitting prevents a single giant instance buffer on large towns.
       for (let start = 0; start < records.length; start += 50000) {
         const chunk = records.slice(start, start + 50000);
-        const materials = [
+        const custom = blockKey(materialName) === 'cobweb';
+        const materials = custom ? materialFor(materialName, 'side') : [
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
           materialFor(materialName, 'top'), materialFor(materialName, 'bottom'),
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
@@ -219,6 +233,48 @@
         target.add(mesh);
       }
     });
+  };
+
+  const cobwebGeometry = () => {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array([
+      -.45, -.45, 0,  .45, -.45, 0,  .45, .45, 0,  -.45, .45, 0,
+      0, -.45, -.45,  0, -.45, .45,  0, .45, .45,  0, .45, -.45,
+    ]);
+    const uvs = new Float32Array([
+      0, 0, 1, 0, 1, 1, 0, 1,
+      0, 0, 1, 0, 1, 1, 0, 1,
+    ]);
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setIndex([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7]);
+    geometry.computeVertexNormals();
+    return geometry;
+  };
+  const geometryCache = new Map();
+  const geometryFor = name => {
+    const key = blockKey(name);
+    if (geometryCache.has(key)) return geometryCache.get(key);
+    let geometry;
+    if (key === 'cobweb') {
+      geometry = cobwebGeometry();
+    } else {
+      geometry = new THREE.BoxGeometry(1, 1, 1);
+      const compact = (() => {
+        if (/^(soul_)?lantern$/.test(key)) return [.36, .62, .36];
+        if (/^(soul_|redstone_)?torch$/.test(key) || /_wall_torch$/.test(key)) return [.2, .7, .2];
+        if (/^(oak|spruce|birch|jungle|acacia|dark_oak|mangrove|cherry|bamboo|pale_oak)_sapling$/.test(key) || /^(allium|azure_bluet|blue_orchid|dandelion|poppy|oxeye_daisy|cornflower|lily_of_the_valley|wither_rose|torchflower|pink_petals)$/.test(key)) return [.45, .72, .45];
+        if (/^(oak|spruce|birch|jungle|acacia|dark_oak|mangrove|cherry|bamboo|pale_oak)_(fence|fence_gate)$/.test(key) || /_wall$/.test(key)) return [.75, 1, .75];
+        if (/^(oak|spruce|birch|jungle|acacia|dark_oak|mangrove|cherry|bamboo|pale_oak)_door$/.test(key) || /_trapdoor$/.test(key)) return [1, 1, .22];
+        if (/_pane$/.test(key) || /^(iron_bars|chain)$/.test(key)) return [.16, 1, .16];
+        if (/_carpet$/.test(key) || /^(rail|powered_rail|detector_rail|activator_rail)$/.test(key)) return [1, .08, 1];
+        if (/_slab$/.test(key)) return [1, .5, 1];
+        return null;
+      })();
+      if (compact) geometry.scale(...compact);
+    }
+    geometryCache.set(key, geometry);
+    return geometry;
   };
 
   const buildOverview = (excludeId = '') => {
