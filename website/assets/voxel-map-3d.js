@@ -25,6 +25,10 @@
   const legend = terrain.legend || [];
   const baseY = 60;
   const townSlugs = { '사막마을': 'desert-town', '스폰도시': 'spawn-city', '상단마을': 'upper-town', '왕도': 'royal-city', '항구': 'harbor' };
+  // Invisible technical blocks are useful in-game but should never appear on
+  // the public map. Keep this filter at the renderer boundary so old scans
+  // and future scans behave identically.
+  const hiddenBlocks = new Set(['minecraft:light', 'minecraft:barrier']);
   const townAreas = new Map((mapData.areas || []).map(area => [area.id, area]));
   const detailRegions = terrain.detailRegions || [];
   const detailRegionFor = id => {
@@ -261,6 +265,7 @@
       const y = Math.max(rawY, floor);
       const h = end - y;
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
+      if (hiddenBlocks.has(materialName)) continue;
       const x = Math.floor(rawX / lod) * lod;
       const z = Math.floor(rawZ / lod) * lod;
       // Merge only identical vertical runs in the same LOD cell. Different
@@ -307,6 +312,7 @@
       const length = Math.max(1, bytes[offset + 5]);
       const end = rawY + length;
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
+      if (hiddenBlocks.has(materialName)) continue;
       runRecords.push({ rawX, rawZ, rawY, end, materialName });
       if (rawY <= floor && end > floor) groundedColumns.add(columnKeyFor(rawX, rawZ));
     }

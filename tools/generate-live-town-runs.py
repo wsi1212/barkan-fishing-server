@@ -31,6 +31,7 @@ BRIDGE = "http://127.0.0.1:25599/structure_export"
 TILE = 48
 Y_MIN, Y_MAX = 60, 255
 SURFACE_FLOOR = 60
+HIDDEN_BLOCKS = {"minecraft:light", "minecraft:barrier"}
 SLUGS = {
     "사막마을": "desert-town",
     "스폰도시": "spawn-city",
@@ -71,7 +72,7 @@ def add_export(result, x1: int, z1: int, columns: dict[tuple[int, int], dict[int
     for block in root["blocks"]:
         state = int(block["state"])
         material = palette[state] if 0 <= state < len(palette) else "minecraft:air"
-        if material in {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}:
+        if material in {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"} or material in HIDDEN_BLOCKS:
             continue
         pos = block["pos"]
         local_x, local_y, local_z = (int(v) for v in pos)
