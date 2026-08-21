@@ -227,7 +227,12 @@ def audit(npcs, dlg, qroot, full=False):
         plain = uncolor(nm)
         func = any(n.get(r) for r in ROLE_FLAGS)
         tagged = plain.startswith("[Q]") or plain.startswith("[길잡이]")
-        want = "b" if func else ("a" if (tagged or n.get("quests")) else "f")
+        # ★겸업(기능+스토리 퀘스트)은 스토리가 우선 — 태그와 색이 어긋나면 안 된다.
+        #   사피르·궁정 상인·왕실 요리장이 [Q] 인데 기능형 하늘색이었다(2026-08-21 정정).
+        #   그 색이 «감정 기능이 붙어 있다»는 뜻이었고, 실제로 그 역할 분기가 대사를 막아
+        #   메인 퀘스트를 못 받는 상태였다 — 색 불일치가 진행 차단의 신호였다.
+        story_q = bool(n.get("quests")) and tagged
+        want = "a" if story_q else ("b" if func else ("a" if (tagged or n.get("quests")) else "f"))
         # 색코드 없음은 기본 흰색이라 &f 요구와 사실상 같다 → 통과
         if col != want and not (want == "f" and col is None):
             warn("NPC 닉네임 색 규칙 (기능형&b / 퀘스트&a / 대화만&f)",
