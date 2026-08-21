@@ -51,6 +51,13 @@ PLATES = {
     "slot_casino": (6, "slotcasino_", 0xE7E0),
     # 슬롯머신 베팅 4행 — 같은 카지노 판의 상단 장식 + 저대비 인벤토리 패널.
     "slot_bet": (4, "slotbet_", 0xE7F0),
+    # 카지노 딜러 NPC 허브 3행 — 슬롯과 같은 에메랄드·루비 아트데코 판.
+    "casino_hub": (3, "casinogub_", 0xE800),
+    # 퀘스트 계열 — 실제 화면 행 수에 맞춘 양피지·항구 게시판 판.
+    "questnpc": (2, "questnpc_", 0xE820),
+    "questlist": (3, "questlist_", 0xE830),
+    "questjournal": (4, "questjournal_", 0xE840),
+    "questpage": (6, "questpage_", 0xE850),
 }
 
 
@@ -91,7 +98,10 @@ def build(name):
         c6.INV_Y0 = inv_y
         c6.INV_ROWS_Y = [inv_y, inv_y + c6.CELL, inv_y + 2 * c6.CELL]
         c6.HOTBAR_Y = inv_y + 58
-        c6.draw_inventory(im)
+        slot_path = None
+        if name.startswith("quest"):
+            slot_path = os.path.join(HERE, "src", "questpage", "inventory_slot.png")
+        c6.draw_inventory(im, slot_path)
 
     col_gui = [59, 59, 58]
     row_gui = split(gh, 4)

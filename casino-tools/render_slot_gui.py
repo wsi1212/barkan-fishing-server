@@ -69,7 +69,9 @@ def custom_chip_texture(chip: str) -> Image.Image:
 def item_texture(kind: str) -> Image.Image:
     """Use the exact client texture where it exists, including block-backed items."""
     paths = {
+        "paper": "assets/minecraft/textures/item/paper.png",
         "book": "assets/minecraft/textures/item/book.png",
+        "barrier": "assets/minecraft/textures/item/barrier.png",
         "arrow": "assets/minecraft/textures/item/arrow.png",
         "nether_star": "assets/minecraft/textures/item/nether_star.png",
         "lime_dye": "assets/minecraft/textures/item/lime_dye.png",
@@ -144,11 +146,7 @@ def pane_fill(im: Image.Image, rows: int, custom: bool = False) -> None:
 
 def render_reels(im: Image.Image, state: str) -> None:
     # Exact CasinoManager.renderSlot() placements.
-    frame_black = (9, 10, 12, 14, 16, 17, 27, 28, 30, 32, 34, 35)
-    black = item_texture("black_pane")
     gray = item_texture("gray_pane")
-    for slot in frame_black:
-        paste_item(im, slot, black)
 
     if state == "pre_spin":
         for slot in (11, 13, 15, 20, 22, 24, 29, 31, 33):
@@ -182,7 +180,7 @@ def render_game(state: str) -> Image.Image:
     if state == "pre_spin":
         for slot in (47, 49, 51):
             paste_item(im, slot, custom_texture("slot/ui_lever_up.png"))
-        paste_item(im, 53, item_texture("arrow"))
+        paste_item(im, 53, custom_texture("slot/ui_back.png"))
     elif state == "spinning":
         for slot in (47, 49, 51):
             paste_item(im, slot, custom_texture("slot/ui_lever_up.png"))
@@ -191,8 +189,9 @@ def render_game(state: str) -> Image.Image:
             icon = "ui_lever_down.png" if slot == 47 else "ui_lever_up.png"
             paste_item(im, slot, custom_texture(f"slot/{icon}"))
     elif state == "result_777":
-        paste_item(im, 49, item_texture("nether_star"))
-        paste_item(im, 51, item_texture("lime_dye"))
+        paste_item(im, 49, custom_texture("slot/ui_result.png"))
+        paste_item(im, 51, custom_texture("slot/ui_replay.png"))
+        paste_item(im, 53, custom_texture("slot/ui_back.png"))
     return im
 
 
@@ -209,6 +208,18 @@ def render_bet() -> Image.Image:
     return im
 
 
+def render_casino_hub() -> Image.Image:
+    """딜러 NPC 허브 27칸 — CasinoHubGui의 일반 테이블 배치 미리보기."""
+    im = canvas(3, GUI_FORGE / "src" / "casino_hub" / "_preview_full.png")
+    title(im, "블랙잭 딜러", custom=True)
+    pane_fill(im, 3, custom=True)
+    paste_item(im, 4, custom_texture("casino/ui_game_badge.png"))
+    paste_item(im, 11, custom_texture("casino/ui_join.png"))
+    paste_item(im, 13, custom_texture("casino/ui_rulebook.png"))
+    paste_item(im, 15, custom_texture("casino/ui_leave.png"))
+    return im
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     outputs = {
@@ -217,6 +228,7 @@ def main() -> None:
         "slot_game_spinning.png": render_game("spinning"),
         "slot_game_one_lever_down.png": render_game("spinning_one_stop"),
         "slot_game_result_777.png": render_game("result_777"),
+        "casino_hub_gui.png": render_casino_hub(),
     }
     for name, im in outputs.items():
         im.save(OUT / name)

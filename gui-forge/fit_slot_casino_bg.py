@@ -22,6 +22,7 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(HERE, "src", "slot_casino")
 BET_DIR = os.path.join(HERE, "src", "slot_bet")
+HUB_DIR = os.path.join(HERE, "src", "casino_hub")
 
 W, H = 704, 888
 CONTAINER_H = 552  # 138 GUI px, 6 rows
@@ -119,6 +120,9 @@ def main() -> None:
     screens = (
         (OUT_DIR, 888, 552, "54칸 게임"),
         (BET_DIR, 744, 408, "36칸 베팅"),
+        # 3행 상자에서는 플레이어 인벤토리 첫 줄이 GUI y=84(art y=336)에서
+        # 시작한다. 예전 432px은 슬롯 행 하나 안쪽으로 경계선이 내려가던 값이다.
+        (HUB_DIR, 672, 336, "27칸 딜러 허브"),
     )
     for out_dir, height, container_h, label in screens:
         os.makedirs(out_dir, exist_ok=True)

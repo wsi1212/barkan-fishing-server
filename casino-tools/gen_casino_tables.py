@@ -23,7 +23,16 @@
     카드가 허공에 뜬다 — 구 설정이 이 실수(좌석 1.5블록 밖 + 대각 시선)였다.
   · 컷된 꼭짓점(팔각/타원 노치)은 좌석으로 쓰지 않는다: 그 칸에서 0.55 대각 전진해도
     같은 칸을 못 벗어나 카드가 상판에 안 얹힌다.
-  · 딜러 NPC가 선 변은 비운다.
+  · 딜러 NPC가 선 변은 비운다 — 그 변의 중앙은 «딜러 자리»(dealer 존)로 쓴다.
+
+dealer 존 (2026-08-21 신설, 두 가지 용도)
+  · DealerNpcService.dealerOf 가 이 존 반경 3칸에서 Citizens NPC 를 찾는다. ★이 존이 없어서
+    여태 딜러 NPC 가 한 번도 인식되지 않았고 딜링/셔플/승리 제스처가 전부 무동작이었다.
+  · 솔로런 하우스 딜러 봇의 «자리» — 봇 카드·칩·이름표가 여기 렌더된다. 그래서 봇은
+    플레이어 좌석을 하나도 잡아먹지 않고, 카드가 딜러 앞에 놓인다.
+  · 좌표는 NPC 발밑이 아니라 «그 변의 좌석 링 위치»(모서리에서 SETBACK 밖)로 잡는다 —
+    NPC 발밑에서 0.55 전진하면 팔각 노치(빈칸) 위라 카드가 허공에 뜬다.
+  · poker 계열 shoe(딜링 출발점)도 이 자리 위로 옮겼다 — 카드가 딜러 손에서 나가야 한다.
 """
 
 import json
@@ -65,6 +74,7 @@ def tables():
     out.append({
         "id": "roulette", "game": "ROULETTE", "world": "world", "seats": [],
         "zones": {
+            "dealer": spot(-472.0, POKER_FLOOR, 243.0, YAW["east"]),   # 룰렛 딜러 NPC 위치
             "board": spot(-469.0, POKER_TOP, 243.0, 0.0),
             "wheel": spot(-469.5, POKER_TOP, 247.5, 0.0),
         },
@@ -76,7 +86,9 @@ def tables():
         "id": "holdem", "game": "HOLDEM", "world": "world",
         "seats": oval_seats(-461.5, 239.0, 243.0, -465.0, -458.0, POKER_FLOOR, 2.0),
         "zones": {
-            "shoe": spot(-461.5, POKER_TOP, 239.5, YAW["north"]),   # 딜러 앞
+            # 딜러 NPC (−461.5, 238) = 북쪽 변 중앙 바로 뒤 → 딜러 자리도 북쪽 변 중앙
+            "dealer": spot(-461.5, POKER_FLOOR, 239.0 - SETBACK, YAW["south"]),
+            "shoe": spot(-461.5, POKER_TOP, 239.0 - SETBACK, YAW["south"]),
             "pot": spot(-461.5, POKER_TOP, 240.5, YAW["north"]),
             "board": spot(-461.5, POKER_TOP, 241.5, YAW["north"]),
         },
@@ -87,7 +99,9 @@ def tables():
         "id": "holdem2", "game": "HOLDEM", "world": "world",
         "seats": oval_seats(-461.5, 246.0, 250.0, -465.0, -458.0, POKER_FLOOR, 2.0),
         "zones": {
-            "shoe": spot(-461.5, POKER_TOP, 249.5, YAW["south"]),   # 딜러 앞
+            # 딜러Ⅱ NPC (−461.5, 250) = 남쪽 변 중앙
+            "dealer": spot(-461.5, POKER_FLOOR, 250.0 + SETBACK, YAW["north"]),
+            "shoe": spot(-461.5, POKER_TOP, 250.0 + SETBACK, YAW["north"]),
             "pot": spot(-461.5, POKER_TOP, 248.5, YAW["south"]),
             "board": spot(-461.5, POKER_TOP, 247.5, YAW["south"]),
         },
@@ -99,7 +113,10 @@ def tables():
         "id": "seotda", "game": "SEOTDA", "world": "world",
         "seats": oval_seats(-439.5, 242.0, 247.0, -442.0, -437.0, POKER_FLOOR, 1.0),
         "zones": {
-            "shoe": spot(-438.5, POKER_TOP, 242.5, YAW["north"]),
+            # 섯다 딜러 NPC 는 북동 노치(−437.5, 242)에 서 있다 → 딜러 자리는 북쪽 변 중앙
+            # (노치 위에 카드를 놓으면 상판이 없어 허공에 뜬다. 좌석은 ±1 이라 중앙은 비어 있다.)
+            "dealer": spot(-439.5, POKER_FLOOR, 242.0 - SETBACK, YAW["south"]),
+            "shoe": spot(-439.5, POKER_TOP, 242.0 - SETBACK, YAW["south"]),
             "pot": spot(-439.5, POKER_TOP, 244.5, YAW["north"]),
         },
     })
@@ -109,7 +126,9 @@ def tables():
         "id": "seotda2", "game": "SEOTDA", "world": "world",
         "seats": oval_seats(-446.5, 242.0, 247.0, -449.0, -444.0, POKER_FLOOR, 1.0),
         "zones": {
-            "shoe": spot(-447.5, POKER_TOP, 242.5, YAW["north"]),
+            # 섯다Ⅱ 딜러 NPC 는 북서 노치(−448.5, 242) → 딜러 자리는 북쪽 변 중앙
+            "dealer": spot(-446.5, POKER_FLOOR, 242.0 - SETBACK, YAW["south"]),
+            "shoe": spot(-446.5, POKER_TOP, 242.0 - SETBACK, YAW["south"]),
             "pot": spot(-446.5, POKER_TOP, 244.5, YAW["north"]),
         },
     })
@@ -124,6 +143,7 @@ def tables():
         out.append({
             "id": tid, "game": "BLACKJACK", "world": "world", "seats": seats,
             "zones": {
+                "dealer": spot(cx, HOUSE_FLOOR, 229.5, YAW["south"]),   # NPC 서는 초승달 안쪽
                 "shoe": spot(cx, HOUSE_TOP, 230.5, YAW["south"]),
                 "pot": spot(cx, HOUSE_TOP, 231.5, YAW["south"]),
             },
@@ -139,6 +159,7 @@ def tables():
             spot(-437.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["north"]),
         ],
         "zones": {
+            "dealer": spot(-441.0, HOUSE_FLOOR, 228.0, YAW["south"]),   # 쓰리카드 딜러Ⅱ NPC 위치
             "shoe": spot(-439.5, HOUSE_TOP, 228.5, YAW["south"]),
             "pot": spot(-440.5, HOUSE_TOP, 230.5, YAW["south"]),
         },
@@ -152,6 +173,7 @@ def tables():
             spot(-435.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["north"]),
         ],
         "zones": {
+            "dealer": spot(-434.5, HOUSE_FLOOR, 228.0, YAW["south"]),   # 쓰리카드 딜러 NPC 위치
             "shoe": spot(-433.5, HOUSE_TOP, 228.5, YAW["south"]),
             "pot": spot(-432.5, HOUSE_TOP, 230.5, YAW["south"]),
         },

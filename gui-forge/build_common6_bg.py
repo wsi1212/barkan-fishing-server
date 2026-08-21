@@ -55,10 +55,23 @@ def tiles():
     return out
 
 
-def draw_inventory(im):
-    """★경계선은 좌표당 한 번만 — 칸마다 사각형을 그리면 내부선이 두 배로 두꺼워진다."""
+def draw_inventory(im, slot_path=None):
+    """플레이어 인벤토리 3줄+핫바를 실제 18 GUI px 슬롯으로 합성한다.
+
+    ``slot_path``가 있으면 ImageGen으로 받은 단일 72x72 art px 슬롯을 반복하고,
+    없으면 기존 공용판의 단순 격자를 유지한다.
+    """
     px = im.load()
     n = CELL * SCALE
+    if slot_path:
+        slot = Image.open(slot_path).convert("RGBA")
+        assert slot.size == (n, n), f"슬롯 텍스처 {slot.size} != {(n, n)}"
+        for gy in INV_ROWS_Y + [HOTBAR_Y]:
+            for c in range(COLS):
+                im.alpha_composite(slot, ((GRID_X + CELL * c) * SCALE, gy * SCALE))
+        return
+
+    # ★경계선은 좌표당 한 번만 — 칸마다 사각형을 그리면 내부선이 두 배로 두꺼워진다.
     for gy in INV_ROWS_Y + [HOTBAR_Y]:
         for c in range(COLS):
             bx, by = (GRID_X + CELL * c) * SCALE, gy * SCALE
