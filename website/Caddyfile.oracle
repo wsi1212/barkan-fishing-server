@@ -61,6 +61,9 @@ barkan.kr, www.barkan.kr, barkan.kro.kr {
     handle /map* {
         root * /var/www/barkan/site
         rewrite * /map.html
+        # The map renderer is cache-busted independently, but keep this HTML
+        # shell fresh so an old script version cannot survive a deployment.
+        header Cache-Control "no-store"
         file_server
     }
 
