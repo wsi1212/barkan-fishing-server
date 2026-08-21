@@ -111,25 +111,31 @@
         // Runs are emitted bottom-to-top for each column. Keep the highest
         // contiguous stack only for drawing, while the payload still retains
         // every scanned run (including air gaps between stacks).
-        const addColumn = (rawX, rawZ, bottom, height, material) => {
+        const addColumn = (rawX, rawZ, bottom, height, material, sideMaterial = material) => {
           const x = Math.floor(rawX / step) * step;
           const z = Math.floor(rawZ / step) * step;
           const key = `${x},${z}`;
           const previous = buckets.get(key);
           if (!previous || height >= previous.height) {
-            buckets.set(key, { x, z, height, bottom, material, size: step, lodStep: step, detail: true, fine: true });
+            buckets.set(key, { x, z, height, bottom, material, sideMaterial, size: step, lodStep: step, detail: true, fine: true });
           }
         };
         if (finePayload.columns && finePayload.columnCount) {
           const columnBytes = decode(finePayload.columns);
+          const columnStride = Number(finePayload.columnStride) || 8;
+          const surfaceFloor = Number(finePayload.surfaceFloor ?? 60);
           for (let i = 0; i < finePayload.columnCount; i += 1) {
-            const offset = i * 8;
+            const offset = i * columnStride;
             const rawX = originX + ((columnBytes[offset] << 8) | columnBytes[offset + 1]);
             const rawZ = originZ + ((columnBytes[offset + 2] << 8) | columnBytes[offset + 3]);
-            const bottom = originY + columnBytes[offset + 4];
-            const height = bottom + Math.max(1, columnBytes[offset + 5]) - 1;
+            const rawBottom = originY + columnBytes[offset + 4];
+            const height = rawBottom + Math.max(1, columnBytes[offset + 5]) - 1;
             const material = fineMaterialMap[(columnBytes[offset + 6] << 8) | columnBytes[offset + 7]] ?? 0;
-            addColumn(rawX, rawZ, bottom, height, material);
+            const sideMaterial = columnStride >= 10
+              ? fineMaterialMap[(columnBytes[offset + 8] << 8) | columnBytes[offset + 9]] ?? material
+              : material;
+            const bottom = Math.min(height, Math.max(rawBottom, surfaceFloor));
+            addColumn(rawX, rawZ, bottom, height, material, sideMaterial);
           }
         } else {
           const columns = new Map();
@@ -209,7 +215,7 @@
     if (fineLoading.has(id)) return;
     clearFineTown();
     fineLoading.add(id);
-    fetch(`/assets/town-detail-${slug}.json?v=3`, { cache: 'force-cache' })
+    fetch(`/assets/town-detail-${slug}.json?v=4`, { cache: 'force-cache' })
       .then(response => response.ok ? response.json() : null)
       .then(payload => {
         fineLoading.delete(id);
@@ -415,6 +421,7 @@
       const x = cell.x; const z = cell.z; const h = cell.height; const size = cell.size || cellSize;
       const top = [project(x, z, h), project(x + size, z, h), project(x + size, z + size, h), project(x, z + size, h)];
       const color = materialColor(cell.material, h);
+      const sideColor = materialColor(cell.sideMaterial ?? cell.material, cell.bottom ?? baseY);
       const neighbourMap = cell.fine ? activeFine.columnMap : null;
       const eastCell = neighbourMap?.get(`${x + size},${z}`);
       const southCell = neighbourMap?.get(`${x},${z + size}`);
@@ -425,8 +432,10 @@
       const ownBottom = cell.bottom ?? baseY;
       const eastBottom = cell.fine ? Math.max(ownBottom, eastCell?.height ?? ownBottom) : floatingSideBottom(h, east, cell.material);
       const southBottom = cell.fine ? Math.max(ownBottom, southCell?.height ?? ownBottom) : floatingSideBottom(h, south, cell.material);
-      if (eastBottom < h - 1) quad([top[1], top[2], project(x + size, z + size, eastBottom), project(x + size, z, eastBottom)], shade(color, -42));
-      if (southBottom < h - 1) quad([top[3], top[2], project(x + size, z + size, southBottom), project(x, z + size, southBottom)], shade(color, -26));
+      // Keep the 3D faces, but remove the dirty artificial drop shadows. The
+      // side material comes from the scanned surface/body block, not the roof.
+      if (eastBottom < h - 1) quad([top[1], top[2], project(x + size, z + size, eastBottom), project(x + size, z, eastBottom)], sideColor);
+      if (southBottom < h - 1) quad([top[3], top[2], project(x + size, z + size, southBottom), project(x, z + size, southBottom)], sideColor);
       quad(top, color, cell.size >= 8 ? 'rgba(4,20,21,.14)' : null);
     });
 
