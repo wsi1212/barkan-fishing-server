@@ -118,6 +118,7 @@ def encode_runs(bounds):
     legend = []
     legend_index = {}
     runs = []
+    column_runs = []
     region_cache = {}
 
     def material_id(material):
@@ -140,6 +141,12 @@ def encode_runs(bounds):
                 x, z = chunk_x * 16 + local_x, chunk_z * 16 + local_z
                 if x < x1 or x > x2 or z < z1 or z > z2:
                     continue
+                top = max((index for index, value in enumerate(values) if value is not None), default=-1)
+                if top >= 0:
+                    bottom = top
+                    while bottom > 0 and values[bottom - 1] is not None:
+                        bottom -= 1
+                    column_runs.append((x - x1, z - z1, bottom, top, material_id(values[top])))
                 y = 0
                 while y <= Y_MAX - Y_MIN:
                     if values[y] is None:
@@ -157,7 +164,11 @@ def encode_runs(bounds):
     for index, (x, z, y, length, material) in enumerate(runs):
         offset = index * 8
         struct.pack_into(">HHBBH", payload, offset, x, z, y, length, material)
-    return legend, runs, base64.b64encode(payload).decode("ascii")
+    column_payload = bytearray(len(column_runs) * 8)
+    for index, (x, z, bottom, top, material) in enumerate(column_runs):
+        offset = index * 8
+        struct.pack_into(">HHBBH", column_payload, offset, x, z, bottom, top - bottom + 1, material)
+    return legend, runs, base64.b64encode(payload).decode("ascii"), len(column_runs), base64.b64encode(column_payload).decode("ascii")
 
 
 def main():
@@ -165,7 +176,7 @@ def main():
     towns = [area for area in data["areas"] if area.get("id") in SLUGS]
     for area in towns:
         x1, x2, z1, z2 = map(int, area["bounds"])
-        legend, runs, encoded = encode_runs((x1, x2, z1, z2))
+        legend, runs, encoded, column_count, columns_encoded = encode_runs((x1, x2, z1, z2))
         payload = {
             "region": {"id": f"{SLUGS[area['id']]}-scan", "x1": x1, "x2": x2, "z1": z1, "z2": z2},
             "format": "runs8",
@@ -177,6 +188,8 @@ def main():
             "legend": legend,
             "count": len(runs),
             "details": encoded,
+            "columnCount": column_count,
+            "columns": columns_encoded,
             "scannedAt": "2026-08-21T00:00:00+09:00",
             "note": "로컬 Paper Anvil 청크 전체 블록 스캔; 비공기 연속 구간만 압축 저장",
         }

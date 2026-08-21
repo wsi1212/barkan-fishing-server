@@ -111,38 +111,50 @@
         // Runs are emitted bottom-to-top for each column. Keep the highest
         // contiguous stack only for drawing, while the payload still retains
         // every scanned run (including air gaps between stacks).
-        const columns = new Map();
-        for (let i = 0; i < finePayload.count; i += 1) {
-          const offset = i * 8;
-          const rawX = originX + ((fineBytes[offset] << 8) | fineBytes[offset + 1]);
-          const rawZ = originZ + ((fineBytes[offset + 2] << 8) | fineBytes[offset + 3]);
-          const start = originY + fineBytes[offset + 4];
-          const length = fineBytes[offset + 5];
-          const end = start + Math.max(1, length) - 1;
-          const materialIndex = (fineBytes[offset + 6] << 8) | fineBytes[offset + 7];
-          const material = fineMaterialMap[materialIndex] ?? 0;
-          const key = `${rawX},${rawZ}`;
-          const previous = columns.get(key);
-          if (!previous || start > previous.lastEnd + 1) {
-            columns.set(key, { x: rawX, z: rawZ, height: end, bottom: start, material, lastEnd: end });
-          } else {
-            previous.bottom = start;
-            previous.lastEnd = end;
-            previous.height = end;
-            previous.material = material;
-          }
-        }
-        columns.forEach(column => {
-          const x = Math.floor(column.x / step) * step;
-          const z = Math.floor(column.z / step) * step;
+        const addColumn = (rawX, rawZ, bottom, height, material) => {
+          const x = Math.floor(rawX / step) * step;
+          const z = Math.floor(rawZ / step) * step;
           const key = `${x},${z}`;
           const previous = buckets.get(key);
-          if (!previous || column.height >= previous.height) {
-            buckets.set(key, { x, z, height: column.height, bottom: column.bottom, material: column.material, size: step, lodStep: step, detail: true, fine: true });
-          } else if (column.bottom < previous.bottom) {
-            previous.bottom = column.bottom;
+          if (!previous || height >= previous.height) {
+            buckets.set(key, { x, z, height, bottom, material, size: step, lodStep: step, detail: true, fine: true });
           }
-        });
+        };
+        if (finePayload.columns && finePayload.columnCount) {
+          const columnBytes = decode(finePayload.columns);
+          for (let i = 0; i < finePayload.columnCount; i += 1) {
+            const offset = i * 8;
+            const rawX = originX + ((columnBytes[offset] << 8) | columnBytes[offset + 1]);
+            const rawZ = originZ + ((columnBytes[offset + 2] << 8) | columnBytes[offset + 3]);
+            const bottom = originY + columnBytes[offset + 4];
+            const height = bottom + Math.max(1, columnBytes[offset + 5]) - 1;
+            const material = fineMaterialMap[(columnBytes[offset + 6] << 8) | columnBytes[offset + 7]] ?? 0;
+            addColumn(rawX, rawZ, bottom, height, material);
+          }
+        } else {
+          const columns = new Map();
+          for (let i = 0; i < finePayload.count; i += 1) {
+            const offset = i * 8;
+            const rawX = originX + ((fineBytes[offset] << 8) | fineBytes[offset + 1]);
+            const rawZ = originZ + ((fineBytes[offset + 2] << 8) | fineBytes[offset + 3]);
+            const start = originY + fineBytes[offset + 4];
+            const length = fineBytes[offset + 5];
+            const end = start + Math.max(1, length) - 1;
+            const materialIndex = (fineBytes[offset + 6] << 8) | fineBytes[offset + 7];
+            const material = fineMaterialMap[materialIndex] ?? 0;
+            const key = `${rawX},${rawZ}`;
+            const previous = columns.get(key);
+            if (!previous || start > previous.lastEnd + 1) {
+              columns.set(key, { x: rawX, z: rawZ, height: end, bottom: start, material, lastEnd: end });
+            } else {
+              previous.bottom = start;
+              previous.lastEnd = end;
+              previous.height = end;
+              previous.material = material;
+            }
+          }
+          columns.forEach(column => addColumn(column.x, column.z, column.bottom, column.height, column.material));
+        }
       } else if (finePayload.format === 'vox4') {
         const originX = Number(finePayload.xOrigin) || 0;
         const originZ = Number(finePayload.zOrigin) || 0;
