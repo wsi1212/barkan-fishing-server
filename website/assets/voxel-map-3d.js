@@ -32,6 +32,19 @@
   // the public map. Keep this filter at the renderer boundary so old scans
   // and future scans behave identically.
   const hiddenBlocks = new Set(['minecraft:light', 'minecraft:barrier']);
+  // The public map is a block-space overview, not an item-model viewer.
+  // Thin/partial decorative blocks add a large number of instances while
+  // contributing almost no geographic information. Omit them consistently
+  // at the renderer boundary; cobweb is deliberately kept as a simple white
+  // marker below so webs remain legible without loading their texture.
+  const omitSmallBlock = name => {
+    const key = blockKey(name);
+    if (key === 'cobweb') return false;
+    // A grass block is a full terrain cube; only the short/tall grass plants
+    // match the broad `grass` family below.
+    if (key === 'grass_block') return false;
+    return /(?:lantern|torch|wall_torch|sapling|flower|grass|fern|vine|roots|mushroom|kelp|seagrass|rail|chain|fence|gate|pane|bars|candle|sign|banner|button|pressure_plate|carpet|slab|stairs|trapdoor|door|wall$|end_rod|lightning_rod|dripstone)/.test(key);
+  };
   const townAreas = new Map((mapData.areas || []).map(area => [area.id, area]));
   const detailRegions = terrain.detailRegions || [];
   const detailRegionFor = id => {
@@ -337,6 +350,7 @@
   const clearGroup = group => { while (group.children.length) group.remove(group.children[group.children.length - 1]); };
   const addRecord = (groups, materialName, x, y, z, sx, sy, sz) => {
     const key = materialName || 'minecraft:stone';
+    if (hiddenBlocks.has(key) || omitSmallBlock(key)) return;
     let list = groups.get(key);
     if (!list) { list = []; groups.set(key, list); }
     list.push({ x, y, z, sx, sy, sz });
@@ -361,7 +375,17 @@
       for (let start = 0; start < records.length; start += 50000) {
         const chunk = records.slice(start, start + 50000);
         const custom = blockKey(materialName) === 'cobweb';
-        const materials = custom ? materialFor(materialName, 'side') : [
+        // Cobwebs are intentionally reduced to white crosshair markers. The
+        // texture atlas version is translucent and expensive at scale, while
+        // a flat white material keeps the map readable and predictable.
+        const cobwebMaterial = custom ? new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.86,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }) : null;
+        const materials = custom ? cobwebMaterial : [
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
           materialFor(materialName, 'top'), materialFor(materialName, 'bottom'),
           materialFor(materialName, 'side'), materialFor(materialName, 'side'),
@@ -497,12 +521,12 @@
       const y = Math.max(rawY, floor);
       const h = end - y;
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
-      if (hiddenBlocks.has(materialName)) continue;
+      if (hiddenBlocks.has(materialName) || omitSmallBlock(materialName)) continue;
       const x = Math.floor(rawX / lod) * lod;
       const z = Math.floor(rawZ / lod) * lod;
       if (discreteBlock(materialName)) {
-        // A lantern/cobweb/plant is a separate model per block. Never stretch
-        // it over a compressed vertical run (the old path made lantern towers).
+        // A cobweb is a separate marker per block. Never stretch it over a
+        // compressed vertical run.
         for (let blockY = y; blockY < end; blockY += 1) {
           const key = `${materialName}|${x}|${z}|${blockY}|1`;
           if (!merged.has(key)) merged.set(key, { materialName, x, z, y: blockY, h: 1 });
@@ -576,7 +600,7 @@
         const y = originY + details[offset + 4];
         const h = Math.max(1, details[offset + 5]);
         const materialName = localLegend[(details[offset + 6] << 8) | details[offset + 7]] || 'minecraft:stone';
-        if (hiddenBlocks.has(materialName)) continue;
+        if (hiddenBlocks.has(materialName) || omitSmallBlock(materialName)) continue;
         const list = runsByColumn.get(key) || [];
         list.push({ x, z, y, end: y + h, h, materialName });
         runsByColumn.set(key, list);
@@ -671,7 +695,7 @@
       const length = Math.max(1, bytes[offset + 5]);
       const end = rawY + length;
       const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
-      if (hiddenBlocks.has(materialName)) continue;
+      if (hiddenBlocks.has(materialName) || omitSmallBlock(materialName)) continue;
       runRecords.push({ rawX, rawZ, rawY, end, materialName });
       if (rawY <= floor && end > floor) groundedColumns.add(columnKeyFor(rawX, rawZ));
     }
