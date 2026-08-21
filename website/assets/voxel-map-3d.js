@@ -38,6 +38,8 @@
   renderer.setClearColor(0x061517, 1);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 1, 40000);
+  camera.near = 0.1;
+  camera.updateProjectionMatrix();
   const controls = new THREE.OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
@@ -193,6 +195,41 @@
     return merged.size;
   };
 
+  const buildCloseDetail = payload => {
+    const groups = new Map();
+    const bytes = decode(payload.details);
+    const localLegend = payload.legend || [];
+    const originX = Number(payload.xOrigin) || 0;
+    const originZ = Number(payload.zOrigin) || 0;
+    const originY = Number(payload.yOrigin) || 0;
+    const floor = Number(payload.surfaceFloor ?? 60);
+    const distance = camera.position.distanceTo(controls.target);
+    const radius = clamp(distance * 2.2, 48, 96);
+    const centerX = controls.target.x;
+    const centerZ = controls.target.z;
+    let blockCount = 0;
+    const maxBlocks = 420000;
+    for (let i = 0; i < Number(payload.count || 0); i += 1) {
+      const offset = i * 8;
+      const rawX = originX + ((bytes[offset] << 8) | bytes[offset + 1]);
+      const rawZ = originZ + ((bytes[offset + 2] << 8) | bytes[offset + 3]);
+      if (Math.abs(rawX - centerX) > radius || Math.abs(rawZ - centerZ) > radius) continue;
+      const rawY = originY + bytes[offset + 4];
+      const length = Math.max(1, bytes[offset + 5]);
+      const end = rawY + length;
+      if (end <= floor) continue;
+      const yStart = Math.max(rawY, floor);
+      const materialName = localLegend[(bytes[offset + 6] << 8) | bytes[offset + 7]] || 'minecraft:stone';
+      for (let y = yStart; y < end; y += 1) {
+        addRecord(groups, materialName, rawX + 0.5, y + 0.5, rawZ + 0.5, 1, 1, 1);
+        blockCount += 1;
+        if (blockCount >= maxBlocks) return 0;
+      }
+    }
+    buildMeshes(groups, voxelGroup);
+    return blockCount;
+  };
+
   const addLabel = (text, x, z, color) => {
     const canvas2 = document.createElement('canvas');
     canvas2.width = 512; canvas2.height = 128;
@@ -253,7 +290,8 @@
     const size = Math.max(maxX - minX, maxZ - minZ, 180);
     controls.target.set(cx, 80, cz);
     camera.position.set(cx + size * 0.95, 80 + size * 1.12, cz + size * 0.95);
-    controls.minDistance = Math.max(80, size * 0.18);
+    // Close enough to see individual 1×1×1 block cubes.
+    controls.minDistance = 8;
     controls.maxDistance = Math.max(1200, size * 8);
     controls.update();
   };
@@ -264,6 +302,43 @@
     camera.aspect = w / h; camera.updateProjectionMatrix();
   };
   const render = () => { controls.update(); renderer.render(scene, camera); requestAnimationFrame(render); };
+  let activePayload = null;
+  let activeTownId = '';
+  let activeMode = 'run';
+  let closeCenter = new THREE.Vector3();
+  let rebuildTimer = 0;
+  let rebuilding = false;
+  const rebuildForCamera = force => {
+    if (!activePayload || rebuilding) return;
+    const distance = camera.position.distanceTo(controls.target);
+    const wantsClose = distance < 120;
+    const movedClose = wantsClose && controls.target.distanceTo(closeCenter) > 24;
+    if (!force && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
+    rebuilding = true;
+    clearGroup(voxelGroup);
+    buildOverview();
+    if (wantsClose) {
+      const count = buildCloseDetail(activePayload);
+      if (count > 0) {
+        activeMode = 'block';
+        closeCenter.copy(controls.target);
+        status.textContent = `1:1 BLOCKS · ${activeTownId.toUpperCase()} · ${count.toLocaleString()} blocks`;
+      } else {
+        const runCount = buildDetail(activePayload);
+        activeMode = 'run';
+        status.textContent = `3D VOXEL · ${activeTownId.toUpperCase()} · ${runCount.toLocaleString()} meshes`;
+      }
+    } else {
+      const runCount = buildDetail(activePayload);
+      activeMode = 'run';
+      status.textContent = `3D VOXEL · ${activeTownId.toUpperCase()} · ${runCount.toLocaleString()} meshes`;
+    }
+    rebuilding = false;
+  };
+  const scheduleRebuild = () => {
+    if (!activePayload || rebuildTimer) return;
+    rebuildTimer = window.setTimeout(() => { rebuildTimer = 0; rebuildForCamera(false); }, 140);
+  };
   const loadTown = async id => {
     const area = townAreas.get(id);
     const slug = townSlugs[id];
@@ -278,7 +353,11 @@
       const response = await fetch(`/assets/town-detail-${slug}.json?v=4`, { cache: 'no-store' });
       const payload = await response.json();
       if (loadTown.token !== token) return;
+      activePayload = payload;
+      activeTownId = id;
+      activeMode = 'run';
       const count = buildDetail(payload);
+      closeCenter.copy(controls.target);
       status.textContent = `3D VOXEL · ${id.toUpperCase()} · ${count.toLocaleString()} meshes`;
     } catch (error) {
       status.textContent = '3D 스캔을 불러오지 못했습니다';
@@ -300,6 +379,7 @@
   document.querySelector('#map-svg')?.style.setProperty('display', 'none');
   buildOverview(); buildBorders('스폰도시'); fitOverview(); resize();
   window.addEventListener('resize', resize, { passive: true });
+  controls.addEventListener('change', scheduleRebuild);
   window.addEventListener('barkan-map-state', event => {
     const id = event.detail?.id || '';
     const area = townAreas.get(id);
