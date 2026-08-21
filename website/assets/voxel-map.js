@@ -360,8 +360,9 @@
     ctx.strokeStyle = selected ? '#fff0ad' : area.category === 'town' ? '#e8b767' : area.category === 'poi' ? '#ee8e70' : 'rgba(123,224,208,.78)';
     ctx.lineWidth = selected ? 3.6 : area.category === 'town' ? 2.2 : 1.35;
     ctx.setLineDash(area.category === 'poi' ? [8, 6] : []);
-    ctx.shadowColor = selected ? 'rgba(232,183,103,.85)' : 'transparent';
-    ctx.shadowBlur = selected ? 12 : 0;
+    // Crisp region outlines; no canvas shadow/glow is used on the map.
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
     ctx.stroke();
     ctx.restore();
   };
