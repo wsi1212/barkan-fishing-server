@@ -68,8 +68,13 @@
 
   const world = new THREE.Group();
   const voxelGroup = new THREE.Group();
+  // Close-up world tiles live beside the selected-town mesh. Keeping them in
+  // their own root lets us evict a tile without rebuilding the expensive
+  // overview or the already verified town scan.
+  const tileGroup = new THREE.Group();
+  tileGroup.name = 'map-detail-tiles';
   const borderGroup = new THREE.Group();
-  world.add(voxelGroup, borderGroup);
+  world.add(voxelGroup, tileGroup, borderGroup);
   scene.add(world);
   // No synthetic ocean plane: water must come from the scanned Minecraft
   // blocks too, otherwise maximum zoom shows a fake flat blue sheet.
@@ -378,7 +383,7 @@
     buildMeshes(groups, voxelGroup);
   };
 
-  const buildDetail = payload => {
+  const buildDetail = (payload, target = voxelGroup) => {
     const groups = new Map();
     const bytes = decode(payload.details);
     const localLegend = payload.legend || [];
@@ -419,11 +424,11 @@
       }
     }
     merged.forEach(record => addRecord(groups, record.materialName, record.x + lod / 2, record.y + record.h / 2, record.z + lod / 2, lod, record.h, lod));
-    buildMeshes(groups, voxelGroup);
+    buildMeshes(groups, target);
     return merged.size;
   };
 
-  const buildCloseDetail = payload => {
+  const buildCloseDetail = (payload, target = voxelGroup) => {
     const groups = new Map();
     const bytes = decode(payload.details);
     const localLegend = payload.legend || [];
@@ -482,8 +487,159 @@
       });
       if (visible) addRecord(groups, block.materialName, block.x + 0.5, block.y + 0.5, block.z + 0.5, 1, 1, 1);
     });
-    buildMeshes(groups, voxelGroup);
+    buildMeshes(groups, target);
     return blockCount;
+  };
+
+  // Optional static detail tiles. The generator publishes an index at
+  // /assets/map-tiles/index.json and each entry points at a runs8 payload with
+  // the same shape as the existing town-detail JSON. The renderer treats the
+  // index as an enhancement: if it is absent or a tile is still being scanned,
+  // the heightfield/town path continues to work exactly as before.
+  const tileState = {
+    manifest: null,
+    entries: new Map(),
+    payloads: new Map(),
+    groups: new Map(),
+    requests: new Map(),
+    generation: 0,
+    renderMode: '',
+  };
+  const clearTileMeshes = () => {
+    clearGroup(tileGroup);
+    tileState.groups.clear();
+    tileState.generation += 1;
+    tileState.renderMode = '';
+  };
+  const floorDiv = (value, size) => Math.floor(Number(value) / Math.max(1, size));
+  const tileKey = (tx, tz) => `${tx},${tz}`;
+  const tileEntryUrl = entry => {
+    const raw = String(entry.url || entry.path || entry.file || '').trim();
+    const path = raw || `map-tile-${entry.tx}-${entry.tz}.json`;
+    const normalized = path.startsWith('/') ? path : `/assets/map-tiles/${path}`;
+    const version = tileState.manifest?.version || tileState.manifest?.updatedAt || '';
+    return version ? `${normalized}${normalized.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}` : normalized;
+  };
+  const parseTileEntry = (raw, keyHint = '') => {
+    const source = raw && typeof raw === 'object' ? { ...raw } : {};
+    const key = String(source.key || keyHint || '').replace(/^tile:/, '');
+    const keyParts = key.split(/[,:/]/).map(Number);
+    let tx = Number(source.tx ?? source.tileX ?? source.gridX);
+    let tz = Number(source.tz ?? source.tileZ ?? source.gridZ);
+    const tileSize = Number(tileState.manifest?.tileSize) || 256;
+    if (!Number.isFinite(tx) && Number.isFinite(keyParts[0])) tx = keyParts[0];
+    if (!Number.isFinite(tz) && Number.isFinite(keyParts[1])) tz = keyParts[1];
+    if (!Number.isFinite(tx) && Number.isFinite(Number(source.xOrigin))) tx = floorDiv(source.xOrigin, tileSize);
+    if (!Number.isFinite(tz) && Number.isFinite(Number(source.zOrigin))) tz = floorDiv(source.zOrigin, tileSize);
+    if (!Number.isFinite(tx) && Number.isFinite(Number(source.worldX))) tx = floorDiv(source.worldX, tileSize);
+    if (!Number.isFinite(tz) && Number.isFinite(Number(source.worldZ))) tz = floorDiv(source.worldZ, tileSize);
+    // A compact manifest may call world-space tile origins x/z. When tx/tz
+    // are omitted, values outside the usual tile-index range are interpreted
+    // as world coordinates.
+    if (Number.isFinite(tx) && Math.abs(tx) > 100 && !source.tx && !source.tileX && !source.gridX) tx = floorDiv(tx, tileSize);
+    if (Number.isFinite(tz) && Math.abs(tz) > 100 && !source.tz && !source.tileZ && !source.gridZ) tz = floorDiv(tz, tileSize);
+    if (!Number.isFinite(tx) || !Number.isFinite(tz)) return null;
+    return { ...source, tx, tz, key: tileKey(tx, tz) };
+  };
+  const setTileManifest = manifest => {
+    if (!manifest || typeof manifest !== 'object') return false;
+    tileState.manifest = manifest;
+    tileState.entries.clear();
+    let records = manifest.tiles;
+    if (!Array.isArray(records) && records && typeof records === 'object') {
+      records = Object.entries(records).map(([key, value]) => ({ ...(value || {}), key }));
+    }
+    if (!Array.isArray(records)) records = [];
+    records.map(item => parseTileEntry(item)).filter(Boolean).forEach(entry => tileState.entries.set(entry.key, entry));
+    return tileState.entries.size > 0;
+  };
+  const wantedTileEntries = () => {
+    if (!tileState.manifest || !tileState.entries.size) return [];
+    const tileSize = Number(tileState.manifest.tileSize) || 256;
+    const distance = camera.position.distanceTo(controls.target);
+    const maxDistance = Number(tileState.manifest.maxDistance ?? 900);
+    if (distance > maxDistance) return [];
+    const tx = floorDiv(controls.target.x, tileSize);
+    const tz = floorDiv(controls.target.z, tileSize);
+    // One tile is enough at 1:1. At a little farther zoom, request the full
+    // 3x3 neighbourhood so panning does not expose an empty edge. The cap is
+    // configurable in the manifest to protect mobile GPUs.
+    const ring = distance > 260 ? 1 : 0;
+    const candidates = [];
+    for (let dz = -ring; dz <= ring; dz += 1) {
+      for (let dx = -ring; dx <= ring; dx += 1) {
+        const entry = tileState.entries.get(tileKey(tx + dx, tz + dz));
+        if (entry) candidates.push({ entry, distance: Math.abs(dx) + Math.abs(dz) });
+      }
+    }
+    candidates.sort((a, b) => a.distance - b.distance);
+    return candidates.slice(0, Math.max(1, Number(tileState.manifest.maxTiles) || 9)).map(item => item.entry);
+  };
+  const tileStatus = () => {
+    let count = 0;
+    tileState.payloads.forEach((payload, key) => { if (tileState.groups.has(key)) count += Number(payload.count || 0); });
+    if (count > 0 && status) status.textContent = `1:1 TILES · ${count.toLocaleString()} blocks`;
+  };
+  const buildTile = (entry, payload, generation) => {
+    if (generation !== tileState.generation || activeTownId || !tileState.entries.has(entry.key)) return;
+    const group = new THREE.Group();
+    group.name = `tile-${entry.key}`;
+    const wantsClose = camera.position.distanceTo(controls.target) < 120;
+    if (wantsClose) buildCloseDetail(payload, group); else buildDetail(payload, group);
+    tileGroup.add(group);
+    tileState.groups.set(entry.key, group);
+    tileStatus();
+  };
+  const fetchTile = (entry, generation) => {
+    if (tileState.payloads.has(entry.key)) {
+      buildTile(entry, tileState.payloads.get(entry.key), generation);
+      return;
+    }
+    if (tileState.requests.has(entry.key)) return;
+    const request = fetch(tileEntryUrl(entry), { cache: 'force-cache' })
+      .then(response => { if (!response.ok) throw new Error(`tile ${entry.key}: ${response.status}`); return response.json(); })
+      .then(payload => {
+        const normalized = payload?.payload && typeof payload.payload === 'object' ? payload.payload : payload;
+        tileState.payloads.set(entry.key, normalized);
+        buildTile(entry, normalized, generation);
+      })
+      .catch(error => console.warn('[barkan map] detail tile unavailable', entry.key, error))
+      .finally(() => tileState.requests.delete(entry.key));
+    tileState.requests.set(entry.key, request);
+  };
+  const reconcileTiles = () => {
+    if (!tileState.manifest || activeTownId) {
+      clearTileMeshes();
+      return;
+    }
+    const wanted = wantedTileEntries();
+    const wantedKeys = new Set(wanted.map(entry => entry.key));
+    tileState.groups.forEach((group, key) => {
+      if (!wantedKeys.has(key)) {
+        tileGroup.remove(group);
+        tileState.groups.delete(key);
+        // Do not retain every tile ever visited during a long map session;
+        // the static JSON is cheap to fetch again and GPU/heap memory is not.
+        tileState.payloads.delete(key);
+      }
+    });
+    const generation = tileState.generation;
+    wanted.forEach(entry => fetchTile(entry, generation));
+    tileStatus();
+  };
+  const loadTileManifest = async () => {
+    try {
+      const response = await fetch('/assets/map-tiles/index.json', { cache: 'no-store' });
+      if (!response.ok) return;
+      const manifest = await response.json();
+      if (setTileManifest(manifest)) {
+        tileState.generation += 1;
+        scheduleRebuild();
+      }
+    } catch (error) {
+      // The manifest is deliberately optional while the parallel scan runs.
+      console.info('[barkan map] no static detail tile index yet');
+    }
   };
 
   const addLabel = (text, x, z, color) => {
@@ -568,12 +724,55 @@
   let rebuildTimer = 0;
   let rebuilding = false;
   const rebuildForCamera = force => {
-    if (!activePayload || rebuilding) return;
+    if ((!activePayload && !tileState.manifest) || rebuilding) return;
     const distance = camera.position.distanceTo(controls.target);
     const wantsClose = distance < 120;
     const movedClose = wantsClose && controls.target.distanceTo(closeCenter) > 24;
-    if (!force && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
+    const activeTownRegion = activeTownId ? detailRegionFor(activeTownId) : null;
+    const targetInsideTown = inRegion(controls.target.x, controls.target.z, activeTownRegion);
+    // Keep the verified town scan while the camera is inside that town. Once
+    // the user pans out, switch to the static live-world tile at the target so
+    // the rest of the island can be explored without loading a monolith.
+    const wantsTiles = tileState.manifest && !targetInsideTown && wantedTileEntries().length > 0;
+    const wantedTileMode = wantsClose ? 'block' : 'run';
+    if (!force && activeMode === 'tiles' && wantsTiles && tileState.renderMode === wantedTileMode && !movedClose) {
+      reconcileTiles();
+      return;
+    }
+    if (wantsTiles) {
+      rebuilding = true;
+      clearGroup(voxelGroup);
+      activeMode = 'tiles';
+      clearTileMeshes();
+      tileState.renderMode = wantedTileMode;
+      reconcileTiles();
+      closeCenter.copy(controls.target);
+      if (status) status.textContent = '3D TILES · 실측 블록 타일을 불러오는 중…';
+      rebuilding = false;
+      return;
+    }
+    if (!force && activePayload && ((wantsClose === (activeMode === 'block')) && !movedClose)) return;
     rebuilding = true;
+    if (!activePayload) {
+      clearGroup(voxelGroup);
+      if (wantsTiles) {
+        activeMode = 'tiles';
+        // Rebuild cached payloads with the new camera mode (run meshes at
+        // medium zoom, exposed 1:1 shell at close zoom).
+        clearTileMeshes();
+        tileState.renderMode = wantedTileMode;
+        reconcileTiles();
+      } else {
+        clearTileMeshes();
+        activeMode = 'overview';
+        buildOverview();
+      }
+      closeCenter.copy(controls.target);
+      if (!wantsTiles && status) status.textContent = '3D TERRAIN · 전체 섬 개요';
+      rebuilding = false;
+      return;
+    }
+    clearTileMeshes();
     clearGroup(voxelGroup);
     if (!wantsClose) buildOverview(activeTownId);
     if (wantsClose) {
@@ -595,15 +794,24 @@
     rebuilding = false;
   };
   const scheduleRebuild = () => {
-    if (!activePayload || rebuildTimer) return;
+    if ((!activePayload && !tileState.manifest) || rebuildTimer) return;
     rebuildTimer = window.setTimeout(() => { rebuildTimer = 0; rebuildForCamera(false); }, 140);
   };
   const loadTown = async id => {
     const area = townAreas.get(id);
     const slug = townSlugs[id];
     clearGroup(voxelGroup);
+    clearTileMeshes();
     buildBorders(id);
-    if (!slug) { buildOverview(); fitOverview(); return; }
+    if (!slug) {
+      activePayload = null;
+      activeTownId = '';
+      activeMode = 'overview';
+      buildOverview();
+      fitOverview();
+      if (tileState.manifest) reconcileTiles();
+      return;
+    }
     const token = `${id}:${Date.now()}`;
     loadTown.token = token;
     status.textContent = '3D 블록 스캔을 불러오는 중…';
@@ -647,5 +855,8 @@
     if (area && !townSlugs[id]) focusArea(area);
   });
   render();
+  // Tile generation is intentionally asynchronous; the verified town scan is
+  // shown immediately while the optional island index is discovered.
+  loadTileManifest();
   loadTown('스폰도시');
 })();
