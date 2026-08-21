@@ -517,7 +517,10 @@
     const raw = String(entry.url || entry.path || entry.file || '').trim();
     const path = raw || `map-tile-${entry.tx}-${entry.tz}.json`;
     const normalized = path.startsWith('/') ? path : `/assets/map-tiles/${path}`;
-    const version = tileState.manifest?.version || tileState.manifest?.updatedAt || '';
+    // The manifest timestamp busts a tile cache when a later live scan
+    // replaces the same world-space file; the schema version alone would
+    // leave a previously visited tile stale in the browser.
+    const version = tileState.manifest?.updatedAt || tileState.manifest?.version || '';
     return version ? `${normalized}${normalized.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}` : normalized;
   };
   const parseTileEntry = (raw, keyHint = '') => {
