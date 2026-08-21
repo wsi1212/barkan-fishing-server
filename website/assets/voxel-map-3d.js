@@ -129,21 +129,42 @@
     for (let i = 0; i < name.length; i += 1) hash = ((hash << 5) - hash + name.charCodeAt(i)) | 0;
     return ['#6f8e83', '#9a806c', '#6e8795', '#98745e'][Math.abs(hash) % 4];
   };
-  const materialFor = name => {
+  const materialFor = (name, variant = 'side') => {
     const key = String(name || '');
-    if (!materialCache.has(key)) {
+    const cacheKey = `${key}|${variant}`;
+    if (!materialCache.has(cacheKey)) {
       // Start with the server's palette color, then replace it with the real
       // vanilla block texture as soon as that small PNG arrives.
       const material = new THREE.MeshLambertMaterial({ color: rgb(blockColor(key)) });
-      materialCache.set(key, material);
-      const textureName = key.replace(/^minecraft:/, '');
-      const texture = textureLoader.load(`/assets/mc-blocks/${textureName}.png`, loaded => {
+      materialCache.set(cacheKey, material);
+      const textureKey = key.replace(/^minecraft:/, '');
+      const fixed = {
+        'grass_block|side': 'grass_block_side',
+        'grass_block|top': 'grass_block_top',
+        'grass_block|bottom': 'dirt',
+        'water|side': 'water_still',
+        'water|top': 'water_still',
+        'water|bottom': 'water_still',
+        'lava|side': 'lava_still',
+        'lava|top': 'lava_still',
+        'lava|bottom': 'lava_still',
+        'tall_grass|side': 'tall_grass_bottom',
+        'large_fern|side': 'large_fern_bottom',
+      };
+      const textureName = fixed[`${textureKey}|${variant}`]
+        || (variant !== 'side' ? `${textureKey}_${variant}` : textureKey);
+      const texture = (textureKey === 'water' || textureKey === 'lava') ? null : textureLoader.load(`/assets/mc-blocks/${textureName}.png`, loaded => {
         loaded.magFilter = THREE.NearestFilter;
         loaded.minFilter = THREE.NearestFilter;
         loaded.generateMipmaps = false;
         loaded.encoding = THREE.sRGBEncoding;
         material.map = loaded;
-        material.color.set(0xffffff);
+        // Vanilla foliage/water textures are grayscale and receive their
+        // biome tint in-game. Preserve our server palette for those, while
+        // keeping already-colored wood/stone/concrete textures untouched.
+        if (!/(grass_block|water|lava|leaves|grass|fern|vine|seagrass|kelp|bamboo|azalea|moss|cactus)/.test(textureKey)) {
+          material.color.set(0xffffff);
+        }
         material.needsUpdate = true;
       }, undefined, () => {
         // Custom/non-block entries do not have a vanilla texture; keep the
@@ -151,7 +172,7 @@
       });
       textureCache.set(key, texture);
     }
-    return materialCache.get(key);
+    return materialCache.get(cacheKey);
   };
 
   const clearGroup = group => { while (group.children.length) group.remove(group.children[group.children.length - 1]); };
@@ -168,7 +189,12 @@
       // Splitting prevents a single giant instance buffer on large towns.
       for (let start = 0; start < records.length; start += 50000) {
         const chunk = records.slice(start, start + 50000);
-        const mesh = new THREE.InstancedMesh(geometry, materialFor(materialName), chunk.length);
+        const materials = [
+          materialFor(materialName, 'side'), materialFor(materialName, 'side'),
+          materialFor(materialName, 'top'), materialFor(materialName, 'bottom'),
+          materialFor(materialName, 'side'), materialFor(materialName, 'side'),
+        ];
+        const mesh = new THREE.InstancedMesh(geometry, materials, chunk.length);
         mesh.instanceMatrix.setUsage(THREE.StaticDrawUsage);
         chunk.forEach((record, index) => {
           matrix.makeScale(record.sx, record.sy, record.sz);
