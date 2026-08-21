@@ -78,11 +78,15 @@ def leather(base, spread=0.34):
 # 값 뒤 인라인 주석은 쉼표를 삼켜 구문오류를 낸다 — 주석은 줄 위에
 P = dict(
     skin=ramp('bb8a63'),
-    # ★머리색은 두 번 올렸다. 이유는 취향이 아니라 «조명 모델»이다: hair() 는 옆·뒤를
-    #   광원(2,1)에서 6px 이상 떨어진 것으로 계산해 램프 [0]~[1] 에 박아 넣는다. 어두운
-    #   갈색(33291f·48382a)을 넣으면 그 두 단이 281a19 급이 되어 머리 옆·뒤가 «검은 헬멧»이
-    #   된다(head zoom 실측). 밤색 6b5233 이면 [0]=4b2d27 로 갈색으로 읽힌다.
-    hair=ramp('6b5233', spread=0.46),
+    # ★머리색은 세 번 고쳤다. 전부 «조명 모델» 문제였다:
+    #   ① 33291f·48382a(어두운 갈색) → hair() 가 옆·뒤를 램프 [0]~[1] 에 박아 넣어
+    #      281a19 급이 되고 머리 옆·뒤가 «검은 헬멧»이 됐다
+    #   ② 6b5233 + spread 0.46 → 램프 밝기비가 2.2배(75~166). hair_lit 의 방사 감쇠가
+    #      그 폭을 8px 머리 안에서 다 써버려 «머리 색이 반반»(유저 지적 2026-08-21).
+    #      실측: x0 열 최대채널 148 vs x7 열 96.
+    #   ③ 확정 spread 0.26 → 밝기비 1.6배(89~140). 머리카락도 케라틴이라 모직보다는
+    #      반사하지만 2.2배는 «두 가지 색»이다.
+    hair=ramp('6b5233', spread=0.26),
     # 눈썹은 얼굴에서 가장 어두운 선이어야 한다 — 밤색 머리 램프로 그리면 흐려진다
     brow=ramp('35251b'),
     # 무광 모직 남색. ramp_lit 이 아니라 matte 다 — 앞면에 보이는 색은 한 단 위인 [3]
@@ -230,27 +234,25 @@ def shoulder_rope(s):
     s.f('body', 'top', 'outer').px(7, 0, r[4])
 
 
-def soften_sideframe(s):
-    """옆머리 프레임(x0·x7)이 «검은 기둥»이 되는 것을 막는다.
+def hair_frame(s):
+    """얼굴을 감싸는 옆머리 프레임 + 가르마 — outer 에 얹어 머리통을 넓힌다.
 
-    ★2차 렌더 실측: male_hair_style 의 sideframe 은 hair_lit 을 쓰는데, 광원 반대편(x7)에서
-      281a19(최대채널 40 = 거의 검정)까지 떨어져 얼굴 옆에 검은 막대 두 개가 섰다.
-      얼굴·피부에 닿는 것은 램프 [2]~[4] 만 쓴다(lessons.md 1장). 광원측(x0)을 한 단
-      밝게 둬서 좌우 대칭도 피한다.
+    ★x0·x7 은 «얼굴 바깥 열»이라 눈(x1·x6)을 가리지 않는다. outer 에 얹으면 두개골
+      바깥에 렌더돼 머리통이 실제로 넓어지고, base 에 칠하면 반대로 얼굴이 깎인다
+      (lessons.md 3장).
+    ★좌우 격차는 «한 단»까지다. 예전엔 x0=h[3]/h[2], x7=h[2]/h[1] 로 두 단을 벌린 데다
+      램프가 2.2배로 넓어서 «머리 색이 반반»이 됐다(유저 지적). 광원이 왼쪽 위이므로
+      기울기는 남기되 폭을 좁힌다.
     """
     h = P['hair']
     hf = s.f('head', 'front', 'outer')
-    #   ★유저 지시(2026-08-21)대로 프레임을 «채운다» — 예전엔 이미 칠해진 픽셀의 색만
-    #     고쳤다. x0·x7 은 얼굴 바깥 열이라 눈(x1·x6)을 가리지 않으면서 outer 에 얹히면
-    #     머리통이 실제로 넓어진다(base 에 칠하면 반대로 얼굴이 깎인다 — lessons.md 3장).
     for y in range(0, 7):
-        hf.px(0, y, h[3] if y < 4 else h[2])                # 광원측은 밝게
-        hf.px(7, y, h[2] if y < 4 else h[1])                # 반대편은 한 단 어둡게
-    # ★sidepart 는 가벼운 쪽 깊이를 0 까지 떨어뜨려(depth = safe - |x-heavy|//2) x6·x7 의
-    #   0~2 행을 통째로 피부로 만든다 → 8x8 에서 «한쪽만 벗겨진 이마»로 읽혔다(head zoom
-    #   실측). 맨 윗행 하나는 항상 머리로 남겨 헤어라인이 3→1 행으로 «사선»으로 흐르게 한다.
-    for x, idx in ((4, 3), (5, 3), (6, 2), (7, 2)):
-        hf.px(x, 0, h[idx])
+        hf.px(0, y, h[4] if y < 3 else h[3])                # 광원측
+        hf.px(7, y, h[3] if y < 3 else h[2])                # 반대편 — 딱 한 단 아래
+    #   가르마 1px — 앞머리를 통째로 덮은 뒤 «사람»으로 만드는 최소 개입.
+    #   sidepart 처럼 이마를 피부로 열지 않고, 어두운 1px 홈만 낸다
+    for y in (0, 1):
+        hf.px(5, y, h[1])
 
 
 def build():
@@ -259,11 +261,14 @@ def build():
     # ---- 머리: 피부 → 머리카락 → 얼굴 피처 (나중에 그린 것이 이긴다)
     g.head_base(s, P['skin'], seed=SEED)
     g.ears(s, P['skin'], y=4)
-    #   fringe=3 → 앞머리가 outer 3행(눈썹 행 위까지). hair() 가 hair_volume 으로
+    #   fringe=3 → 앞머리가 base·outer 3행(눈썹 행 위까지). hair() 가 hair_volume 으로
     #   정수리·옆·뒤 부피를 전부 outer 에 얹는다(volume=True 가 기본)
     g.hair(s, P['hair'], fringe=3, back=7, seed=SEED, part_x=5)
-    g.male_hair_style(s, P['hair'], P['skin'], style='sidepart', seed=SEED, eye_y=4)
-    soften_sideframe(s)
+    #   ★male_hair_style('sidepart') 를 뺐다. 그 스타일은 «가벼운 쪽 이마를 노출»시키려고
+    #     depth 아래 행을 피부색으로 덮는데, 8x8 에서는 앞머리가 사실상 1행만 남는다
+    #     (실측: front outer 1~2행 x2~5 가 전부 e3a581 피부 → 유저 지적 "앞머리 너무
+    #     없어보임"). 이 캐릭터는 단정한 머리라 가르마 1px 만으로 충분하다.
+    hair_frame(s)
     g.face_shape(s, P['skin'], jaw='square', temple=True)
     g.face_marks(s, P['skin'], kind='ruddy', seed=SEED)     # 바닷바람에 튼 볼
     #   흰자는 off-white — 순백에 가까우면 8x8 에서 번져 «왕눈이»가 된다(skin-craft.md)
