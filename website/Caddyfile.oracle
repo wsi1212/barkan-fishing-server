@@ -4,6 +4,8 @@ lh-bizben.duckdns.org {
 
 barkan.kr, www.barkan.kr, barkan.kro.kr {
     redir /vip /vip/ 308
+    # Compress static JSON tile payloads and JS before they cross the network.
+    encode zstd gzip
 
     handle /community* {
         reverse_proxy 127.0.0.1:3100
