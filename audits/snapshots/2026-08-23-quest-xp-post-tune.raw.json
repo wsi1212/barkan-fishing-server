@@ -1,0 +1,25 @@
+{
+  "date": "2026-08-23",
+  "scope": "일일·주간 퀘스트 경험치 사후 검증",
+  "runtime": {
+    "path": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/quests.json",
+    "difficulty_unlock": {"쉬움": 1, "보통": 15, "어려움": 30, "전문": 50},
+    "daily_count": 20,
+    "weekly_count": 36,
+    "daily_xp_by_tier": {"쉬움": 262, "보통": 469, "어려움": 938, "전문": 1875},
+    "weekly_xp_total": 0
+  },
+  "source": {
+    "path": "/Users/user/development/blockship-plugin/quests.json",
+    "difficulty_unlock": {"쉬움": 1, "보통": 15, "어려움": 30, "전문": 50},
+    "daily_count": 16,
+    "weekly_count": 16,
+    "weekly_xp_total": 0
+  },
+  "derived": {
+    "runtime_daily_week_xp": {"1": 1834, "15": 3283, "30": 6566, "50": 13125},
+    "runtime_quest_only_week_projection": {"1": 4, "15": 20, "30": 32, "50": 51},
+    "runtime_daily_to_next_level_percent": {"1": 52.4, "15": 73.9, "30": 45.0, "50": 14.9}
+  },
+  "assessment": "improved_warning"
+}
