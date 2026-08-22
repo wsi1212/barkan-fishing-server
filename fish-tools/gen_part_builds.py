@@ -281,6 +281,29 @@ PRESERVE_PARTS = {
 STAT_ORDER = ["도망감소", "크리배율", "등급업", "크리확률", "크기", "경험치",
               "판매보너스", "더블찬스", "트리플찬스", "행운"]
 # 등급별 제작 재료
+#
+# ★2026-08-23 스폰마을 저티어 재료 루트 — 스폰마을의 E·D급 부품은 강/항구에서
+#   바로 얻을 수 있는 재료만 사용한다. 항구는 스폰도시 드롭테이블을 상속하므로
+#   두 지역의 공통 루트가 된다. 별빛진주는 D급 행운형에만 1개를 허용한다.
+LOW_GRADE_COMMON = {
+    "E": [("물고기비늘", 1)],
+    "D": [("낡은갈고리", 2), ("녹슨부품", 2), ("강화실", 2), ("물고기비늘", 4)],
+}
+LOW_GRADE_TYPE_MAT = {
+    "릴": "녹슨부품",
+    "줄": "강화실",
+    "바늘": "낡은갈고리",
+    "미끼": "물고기비늘",
+    "찌": "깃털찌조각",
+}
+LOW_GRADE_TYPE_QTY = {"E": 1, "D": 2}
+LOW_GRADE_BUILD_EXTRA = {
+    "E": {},
+    "D": {
+        "특화형": [],
+        "행운형": [("진주", 2), ("별빛진주", 1)],
+    },
+}
 COMMON = {
     "D": [("정제된갈고리", 4), ("강화실", 4), ("물고기비늘", 6)],
     "C": [("정제된갈고리", 8), ("강화철괴", 6), ("진주", 6), ("압축흑정석", 3)],
@@ -504,24 +527,33 @@ def main():
     recs, cats = R["recipes"], R["categories"]
     byname = {rc.get("resultPartName"): rid for rid, rc in recs.items()
               if rc.get("resultMode") == "part" and rc.get("resultPartType") in TYPES}
-    for dead in [n for n in byname if not any(c["name"] == n for c in cat)]:
+    preserved_recipe_names = {name for _, name in PRESERVE_PARTS}
+    for dead in [n for n in byname
+                 if not any(c["name"] == n for c in cat) and n not in preserved_recipe_names]:
         rid = byname.pop(dead)
         recs.pop(rid, None)
         if rid in cats.get("부품", []):
             cats["부품"].remove(rid)
     nxt = 60
     for c in cat:
-        if c["grade"] == "E":
-            continue                                  # 시작 부품 — 레시피 없음
+        is_spawn_low = c["village"] == "스폰마을" and c["grade"] in LOW_GRADE_COMMON
+        if c["grade"] == "E" and not is_spawn_low:
+            continue                                  # 다른 마을의 E급은 시작 부품 규칙을 따른다.
         rid = byname.get(c["name"])
         if rid is None:
             while f"P{nxt}" in recs:
                 nxt += 1
             rid = f"P{nxt}"; nxt += 1
-        mat = (BUILD_MAT_A if c["grade"] == "A" else BUILD_MAT)[
-            "특화형" if c["build"] == "복합" else c["build"]]
-        items = [ing(m, q) for m, q in COMMON[c["grade"]]]
-        items.insert(1, ing(mat, MAT_QTY[c["grade"]]))
+        if is_spawn_low:
+            # 저티어는 광산 압축재·타지역 특산재·중간재를 거치지 않는다.
+            items = [ing(m, q) for m, q in LOW_GRADE_COMMON[c["grade"]]]
+            items.append(ing(LOW_GRADE_TYPE_MAT[c["type"]], LOW_GRADE_TYPE_QTY[c["grade"]]))
+            items.extend(ing(m, q) for m, q in LOW_GRADE_BUILD_EXTRA[c["grade"]].get(c["build"], []))
+        else:
+            mat = (BUILD_MAT_A if c["grade"] == "A" else BUILD_MAT)[
+                "특화형" if c["build"] == "복합" else c["build"]]
+            items = [ing(m, q) for m, q in COMMON[c["grade"]]]
+            items.insert(1, ing(mat, MAT_QTY[c["grade"]]))
         recs[rid] = {"id": rid, "category": "부품", "displayName": c["name"],
                      "locked": c["village"] not in ("상단마을", "왕도"),
                      "resultMode": "part", "drillTier": 0, "village": {
