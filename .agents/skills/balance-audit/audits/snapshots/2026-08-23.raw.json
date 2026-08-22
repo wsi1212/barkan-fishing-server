@@ -19383,5 +19383,40 @@
     }
   },
   "warnings": [],
-  "derived": {}
+  "derived": {
+    "enhance_difficulty_audit": {
+      "catalog_rod_count": 67,
+      "rod_count_with_cumulative_difficulty_6_at_plus6": 46,
+      "rod_count_with_cumulative_difficulty_1_at_plus6": 18,
+      "rod_count_without_enhance_profile": 3,
+      "affected_ratio_pct": 68.7,
+      "affected_by_grade": {
+        "D": 4,
+        "C": 2,
+        "B": 13,
+        "A": 27
+      },
+      "normal_plus6_cumulative_difficulty": 1,
+      "affected_plus6_cumulative_difficulty": 6,
+      "duplicate_difficulty_profiles": 46,
+      "simulator": {
+        "reaction_ms": 250,
+        "ping_rtt_ms": 40,
+        "delay_ticks": 6,
+        "trials_per_cell": 10000,
+        "size_difficulty": 0,
+        "escape_reduction": 0
+      },
+      "target_success_rates_pct": {
+        "rod_bonus_3": {"B": 61.5, "A": 30.4, "S": 4.7},
+        "rod_bonus_8": {"B": 100.0, "A": 93.0, "S": 29.1},
+        "rod_bonus_4": {"B": 97.6, "A": 45.0, "S": 7.2},
+        "rod_bonus_9": {"B": 100.0, "A": 94.6, "S": 30.1}
+      },
+      "stat_value_difficulty_won_per_point": 790,
+      "theoretical_income_150_casts_won_per_hour": 22240,
+      "weighted_sim_income_rod_bonus_0": 19408,
+      "weighted_sim_income_rod_bonus_6": 20528
+    }
+  }
 }
