@@ -61,7 +61,10 @@ def connected_background(im: Image.Image) -> bytearray:
     return seen
 
 
-def process(src: Path, dst: Path, size: int) -> None:
+def prepare(src: Path, size: int = 256) -> Image.Image:
+    """고해상도 원본을 정리해 RGBA 캔버스로 반환한다."""
+    if size < 256:
+        raise ValueError("최종 산출물은 최소 256px이어야 합니다")
     original = Image.open(src).convert("RGBA")
     bg = connected_background(original)
     w, h = original.size
@@ -92,6 +95,13 @@ def process(src: Path, dst: Path, size: int) -> None:
             r, g, b, a = fp[x, y]
             if a == 0:
                 fp[x, y] = (0, 0, 0, 0)
+    assert final.mode == "RGBA" and final.size == (size, size)
+    assert final.getchannel("A").getbbox() is not None
+    return final
+
+
+def process(src: Path, dst: Path, size: int) -> None:
+    final = prepare(src, size)
     dst.parent.mkdir(parents=True, exist_ok=True)
     final.save(dst)
     assert final.mode == "RGBA" and final.size == (size, size)

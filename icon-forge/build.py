@@ -16,6 +16,7 @@ from palette import ramp                           # noqa: E402
 from fx import fire_aura, glow_halo, save_anim, save_gif  # noqa: E402
 from icon_lint import lint                         # noqa: E402
 import imagegen_cash                                # noqa: E402
+import imagegen_256_pipeline                         # noqa: E402
 import slot_preview                                # noqa: E402
 
 RP = os.path.expanduser("~/development/barkan-resourcepack")
@@ -55,7 +56,11 @@ def main(install=False):
     for it in mf["items"]:
         iid, cat = it["id"], it.get("category", "prop")
         if "source" in it:
-            base = imagegen_cash.prepare(os.path.join(HERE, it["source"]))
+            source = os.path.join(HERE, it["source"])
+            if it.get("pipeline") == "imagegen_256":
+                base = imagegen_256_pipeline.prepare(source, size=it.get("size", 256))
+            else:
+                base = imagegen_cash.prepare(source)
         else:
             fn, kw = REGISTRY[it["painter"]]
             base = fn(**kw, seed=it.get("seed", 0))
@@ -116,8 +121,10 @@ def main(install=False):
             json.dump({"parent": "minecraft:item/generated",
                        "textures": {"layer0": f"minecraft:item/{group}/{iid}"}},
                       open(f"{mdl_dir}/{iid}.json", "w"))
-            json.dump({"model": {"type": "minecraft:model", "model": f"barkan:{group}/{iid}"}},
-                      open(f"{def_dir}/{iid}.json", "w"))
+            item_def = {"model": {"type": "minecraft:model", "model": f"barkan:{group}/{iid}"}}
+            if it.get("oversized_in_gui"):
+                item_def["oversized_in_gui"] = True
+            json.dump(item_def, open(f"{def_dir}/{iid}.json", "w"))
         print(f"\nRP 배치 완료 → {RP} (item_model 키: barkan:{group}/<id>)")
         print("배포는 별도: dev=RP 재빌드+8801, prod=deploy-rp.sh(명시 요청 시만)")
     print(f"\n총 경고 {total_warn} | 리뷰: out/contact.png, out/slots.png, out/*_preview.gif")

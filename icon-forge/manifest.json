@@ -12,7 +12,7 @@
     {"id": "wet_treasure_money_small",  "name": "작은 돈",   "category": "prop",  "source": "imagegen-cash/small_source.png"},
     {"id": "wet_treasure_money_medium", "name": "적당한 돈", "category": "prop",  "source": "imagegen-cash/medium_source.png"},
     {"id": "wet_treasure_money_large",  "name": "큰 돈",     "category": "prop",  "source": "imagegen-cash/large_source.png"},
-    {"id": "wet_treasure_chest", "name": "젖은 보물상자", "category": "prop",  "source": "imagegen-chest/wet_treasure_chest_source.png"},
+    {"id": "wet_treasure_chest", "name": "젖은 보물상자", "category": "prop",  "source": "imagegen-chest/wet_treasure_chest_source.png", "pipeline": "imagegen_256", "size": 256, "oversized_in_gui": true},
     {"id": "skill_manseon", "name": "만선(낚시특성)",  "category": "badge", "painter": "skill-manseon", "seed": 1}
   ]
 }
