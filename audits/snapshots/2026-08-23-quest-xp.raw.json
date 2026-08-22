@@ -1,0 +1,87 @@
+{
+  "date": "2026-08-23",
+  "scope": "일일·주간 퀘스트 경험치",
+  "sources": {
+    "level_code": {
+      "path": "/Users/user/development/blockship-plugin/src/main/java/com/blockship/fishing/FishingLevelManager.java",
+      "sha256": "5c96c9d0e355994019774375c4bc5fd2fa1cdda6abd9aef15adf8bf7499264b1"
+    },
+    "baseline_catalog": {
+      "path": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/backups/quest-rework-20260807-205633/quests.json",
+      "sha256": "4b7a680071dd72d6e79e00e7b3fb7d32e41a86e7826e8e145b4c9751ce5ade63"
+    },
+    "source_catalog": {
+      "path": "/Users/user/development/blockship-plugin/quests.json",
+      "sha256": "b9fba03544823a6229f298b9106f29047be6c97a15714eeb1f1d2f513801fbbc"
+    },
+    "runtime_catalog": {
+      "path": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/quests.json",
+      "sha256": "6d2e8df6da06ed771a200054063f4a73495721667d848cd8abdb2b8f61ec7468"
+    }
+  },
+  "level_curve": {
+    "cumulative_xp_to_level": {
+      "1": 0,
+      "5": 2101,
+      "10": 4972,
+      "15": 8041,
+      "20": 11284,
+      "30": 21183,
+      "50": 125660,
+      "70": 635155
+    },
+    "next_level_need_at_gate": {
+      "1": 500,
+      "5": 556,
+      "10": 599,
+      "15": 635,
+      "20": 700,
+      "30": 2085,
+      "50": 12549
+    }
+  },
+  "catalogs": {
+    "baseline": {
+      "quest_count": 252,
+      "daily_count": 16,
+      "weekly_count": 36,
+      "daily_xp_by_tier": {"쉬움": 210, "보통": 375, "어려움": 750, "전문": 1500},
+      "weekly_xp_total": 0
+    },
+    "source": {
+      "quest_count": 268,
+      "daily_count": 16,
+      "weekly_count": 16,
+      "difficulty_unlock": {"쉬움": 1, "보통": 15, "어려움": 30, "전문": 50},
+      "daily_xp_by_tier": {"쉬움": 265, "보통": 840, "어려움": 2070, "전문": 4250},
+      "weekly_xp_total": 0
+    },
+    "runtime": {
+      "quest_count": 336,
+      "daily_count": 20,
+      "weekly_count": 36,
+      "difficulty_unlock": {"쉬움": 1, "보통": 5, "어려움": 10, "전문": 20},
+      "daily_xp_by_tier": {"쉬움": 262, "보통": 469, "어려움": 938, "전문": 1875},
+      "weekly_xp_total": 8900,
+      "weekly_eligible_by_level": {
+        "1": {"count": 6, "xp": 1321},
+        "5": {"count": 14, "xp": 3052},
+        "10": {"count": 22, "xp": 5112},
+        "15": {"count": 33, "xp": 8152},
+        "20": {"count": 36, "xp": 8900}
+      }
+    }
+  },
+  "derived": {
+    "source_daily_week_xp": {"1": 1855, "15": 5880, "30": 14490, "50": 29750},
+    "runtime_daily_week_xp": {"1": 3155, "5": 6335, "10": 11678, "20": 22025},
+    "source_quest_only_week_projection": {"1": 4, "15": 23, "30": 35, "50": 52},
+    "runtime_quest_only_week_projection": {"1": 6, "5": 15, "10": 26, "20": 35},
+    "source_delta_vs_baseline_percent": {"쉬움": 26.19, "보통": 124.0, "어려움": 176.0, "전문": 183.33}
+  },
+  "assessment": {
+    "runtime": "critical",
+    "source": "warning",
+    "primary_issue": "현재 런타임의 구식 주간 36종이 8900 EXP를 지급하며 개발 소스의 주간 EXP 0 정책과 드리프트"
+  }
+}
