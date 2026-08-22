@@ -70,7 +70,7 @@ def catchable(regs):
                and FISH.get(x, {}).get("grade") != "G")
 
 
-ALL_REGIONS = ["강", "강_상류", "정상", "항구", "늪지대",
+ALL_REGIONS = ["강", "협곡", "정상", "항구", "늪지대",
                "오아시스", "붉은사막", "붉은호수", "상단마을", "대양"]
 
 CAPSTONES = [

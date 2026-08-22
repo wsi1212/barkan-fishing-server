@@ -122,7 +122,7 @@ SP = "바르칸의심연"
 d = F["fish"][SP]
 d["weather"] = "전체"                            # time="밤"은 유지, grade는 위에서 A
 # ★버킷도 옮겨야 실제로 풀에 들어온다. `밤비`에만 있으면 비 올 때만 로드된다.
-for r in ("강", "강_상류"):
+for r in ("강", "협곡"):
     b = F["regions"][r].setdefault("밤맑음", [])
     if SP not in b:
         b.append(SP)

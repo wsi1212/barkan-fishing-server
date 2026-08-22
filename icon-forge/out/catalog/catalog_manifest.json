@@ -2441,7 +2441,7 @@
     "grade": "E",
     "origin": "협곡",
     "variant": "표준",
-    "region": "강_상류",
+    "region": "협곡",
     "id": "catalog_trap_2800d444bd",
     "resolution": 64,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_2800d444bd.png"
@@ -2452,7 +2452,7 @@
     "grade": "D",
     "origin": "협곡",
     "variant": "튼튼",
-    "region": "강_상류",
+    "region": "협곡",
     "id": "catalog_trap_a4f51a53b2",
     "resolution": 64,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_a4f51a53b2.png"
@@ -2463,7 +2463,7 @@
     "grade": "Q",
     "origin": "협곡",
     "variant": "속성",
-    "region": "강_상류",
+    "region": "협곡",
     "id": "catalog_trap_9558cb114f",
     "resolution": 256,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9558cb114f.png"
@@ -2474,7 +2474,7 @@
     "grade": "L",
     "origin": "협곡",
     "variant": "행운",
-    "region": "강_상류",
+    "region": "협곡",
     "id": "catalog_trap_9dfa7c89f9",
     "resolution": 256,
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9dfa7c89f9.png"
