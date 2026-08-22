@@ -132,6 +132,10 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
 ```
 - 각 스탯 1단위를 원/h로 환산(판매1%=1.0 앵커). 요리·날씨·장비를 비교할 **공통 화폐**.
 - 상세·방법론·직관 교정: [references/stat-values.md](references/stat-values.md).
+- ★**income 곱셈이 안 통하는 스탯이 있다** — 그걸 «0» 이나 «별도 효용»으로 치우지 말 것.
+  `재료확률`은 게이트 렌즈(재료 게이트 ÷(1+v/100)), `돌진쿨감`은 작살 사이클 모델로 값을 낸다.
+  둘 다 2026-08-23에 편입했고, 1차 모델이 종결값을 0으로 뱉었다가 요리 싱크를 세어 고쳤다 —
+  경위·교훈: [audits/2026-08-23-material-chance-stat.md](audits/2026-08-23-material-chance-stat.md).
 
 ### 4. 파생 지표 계산 (Claude가 직접)
 스냅샷 raw + 스탯가치로 아래를 계산해 스냅샷 `derived`에 적고 리포트에 넣는다:

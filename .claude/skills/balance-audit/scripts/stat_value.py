@@ -69,7 +69,70 @@ MAX_MAGNITUDE = {
     "판매보너스 (1%)": 108, "더블찬스 (1%)": 85, "트리플찬스 (1%)": 9,
     "등급업 (1%)": 65, "크기 (1%)": 69, "행운 (1점)": 103, "도주감소 (1%)": 30,
     "크리확률 (1%)": 95, "크리배율 (1점)": 8, "경험치 (1%)": 255, "난이도 (1점)": 6,
+    # ★2026-08-23 신설 2종.
+    #   재료확률 = 낚싯대 채집형 히든 A 50 + 부품 5슬롯 × 20(상단 A 채집형) = 150. 강화엔 없다.
+    #   돌진쿨감 = 작살 속도형 S 52 (gen_spear_builds.py PRIMARY). 부품/강화엔 없다(창 전용).
+    "재료확률 (1%)": 150, "돌진쿨감 (1%)": 52,
 }
+
+
+# ── 재료확률 (2026-08-23 신설 공용 스탯) ──────────────────────────────────
+# 재료확률은 «수입»이 아니라 **장비 획득 속도**를 올린다. 그래서 income 곱셈이 아니라
+# cross-economy-values.md §6의 «게이트» 렌즈로 값을 낸다:
+#   장비 1티어를 갖추는 시간 = max(재료 게이트, 가격 게이트)  (낚시 한 번이 둘을 동시에 준다)
+#   재료확률 v%  →  재료 게이트 / (1 + v/100)
+# 즉 **재료가 관문인 티어에서만** 값이 나고, 돈이 관문인 티어에서는 0이다.
+# ★출처 = 2026-08-05 리프라이싱 감사(레시피 196건 대조). 수치를 갱신할 땐 저 표와 같이 고칠 것.
+MAT_GATE_H = {"D": 0.35, "C": 0.80, "B": 1.35, "A": 2.01, "S": 3.75}   # 포획 시간(h)
+GOLD_GATE_H = {"D": 0.08, "C": 0.21, "B": 0.76, "A": 8.50, "S": 26.39}  # 노동 시간(h)
+STAGE_TIERS = {"초반": ["D", "C"], "중반": ["B"], "종결": ["A", "S"]}
+# 진행은 «레벨 축»과 «장비 축» 둘이다. 재료확률은 장비 축의 관문만 당기므로 절반만 인정한다.
+#  (경험치가 레벨 축 전체를 당겨 1.00을 받는 것과 대칭 — 경험치도 «국면 한정»으로 깎여 있다.)
+GEAR_AXIS_SHARE = 0.5
+
+# ★★비장비 싱크 (2026-08-23 1차 모델 정정)
+# 처음엔 «장비 레시피 게이트»만 봤다 → A/S는 돈이 관문이므로 종결 = 0.00 이 나왔다. 그런데
+# 라이브 레시피를 세어 보면 낚시 드롭 재료를 쓰는 레시피가 낚싯대 73 · 부품 105 · 작살 51 ·
+# 재료 7 · **요리 3**이고, 그 요리가 종결 싱크의 본체다 — `DishSpecs` 상위 요리 하나가
+# 별빛진주 60(2% 드롭 → 3,000 포획 ≈ 13.6h) · 진주코어 18을 먹는다. 이건 **돈으로 못 산다**.
+# 즉 종결에서도 재료는 여전히 관문이고, 다만 그 관문이 «진행»이 아니라 «버프 유지»로 성격이
+# 바뀐다. 그래서 종결은 0 이 아니라 절반이다.
+#   ★검증 실패의 흔적: 종결 0 으로 두면 gear_payback 이 A급 채집형 장비를 회수 13.7h(전 등급
+#     최악)로 뱉었다. «A 채집형을 팔면서 그 스탯값을 0으로 셈»하는 자기모순이라 모델을 고쳤다.
+NON_GEAR_SINK_SHARE = {"초반": 1.0, "중반": 1.0, "종결": 0.5}
+
+# ── 돌진쿨감 (작살 전용) ──────────────────────────────────────────────────
+# 낚시 income 공식이 아예 안 통하는 스탯이라 **작살 사냥 사이클**을 직접 모델링한다.
+#   사이클 = 접근 + 교전.  접근은 돌진(≈1s, 12블록을 20틱에 주파)이거나 수영(≈4s).
+#   돌진 쿨타임 T = 10s / (1 + v/100)  (HarpoonManager.DASH_COOLDOWN + 돌진쿨감)
+# 시간당 사이클 수 C 는 쿨타임 제한 구간과 사이클 제한 구간이 갈린다(아래 harpoon_cycles).
+# 처리량 1% ↑ = 포획 1% ↑ = income 1% ↑ 로 환산한다(작살도 같은 물고기를 잡아 판다).
+DASH_CD_SEC = 10.0        # HarpoonManager.DASH_COOLDOWN (200틱)
+DASH_APPROACH_SEC = 1.0   # DASH_TICKS(20) × DASH_SPEED — 12블록 주파
+SWIM_APPROACH_SEC = 4.0   # 같은 12블록을 수영으로 (가정치 — 수영속도 스탯 0 기준)
+ENGAGE_SEC = 6.0          # 찌르기~포획 (가정치)
+
+
+def harpoon_cycles(dash_cut_pct):
+    """돌진쿨감 v% 일 때 시간당 작살 사냥 사이클 수.
+
+    쿨타임이 사이클보다 길면(초반) 일부 사이클만 돌진을 쓴다 → 쿨타임 제한.
+    쿨타임이 짧아지면 모든 사이클이 돌진을 쓴다 → 사이클 제한(포화).
+    ★포화 뒤로는 돌진쿨감이 **정확히 0**이 된다 — 확률의 자연 포화와 같은 성질이라
+      인위적 캡을 둘 필요가 없다("스탯 캡 금지" 원칙).
+    """
+    T = DASH_CD_SEC / (1.0 + dash_cut_pct / 100.0)
+    cycle_all_dash = ENGAGE_SEC + DASH_APPROACH_SEC
+    if T <= cycle_all_dash:                       # 사이클 제한(포화)
+        return 3600.0 / cycle_all_dash
+    # 쿨타임 제한: 6C + (3600/T)×1 + (C - 3600/T)×4 = 3600
+    return (3600.0 + (SWIM_APPROACH_SEC - DASH_APPROACH_SEC) * 3600.0 / T) / \
+           (ENGAGE_SEC + SWIM_APPROACH_SEC)
+
+
+def dash_saturation():
+    """돌진쿨감이 포화하는 지점(%) — 쿨타임이 «교전+돌진» 사이클과 같아지는 값."""
+    return (DASH_CD_SEC / (ENGAGE_SEC + DASH_APPROACH_SEC) - 1.0) * 100.0
 
 
 def size_mult(size_score):
@@ -184,6 +247,27 @@ def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     g_esc = success_gain(dist, succ, success_rates(0, 20))
     V["도주감소 (1%)"] = (income * g_esc / 20.0,
                        "미스 후에만 발동+floor(÷2) 감쇠 → 성공매출 +%(0→20 ÷20)")
+
+    # ── 게이트 경유 (재료확률) ───────────────────────────────────────
+    # 이 구간 티어들 중 «재료가 관문»인 비율만큼만 값이 난다. 관문이 돈이면 0.
+    tiers = STAGE_TIERS[stage]
+    binding = [t for t in tiers if MAT_GATE_H[t] > GOLD_GATE_H[t]]
+    gear_share = len(binding) / len(tiers)
+    # 장비 게이트가 돈으로 넘어간 구간에서도 요리·작살·중간재 싱크가 재료를 관문으로 남긴다.
+    sink_share = max(gear_share, NON_GEAR_SINK_SHARE[stage])
+    V["재료확률 (1%)"] = (
+        income * 0.01 * sink_share * GEAR_AXIS_SHARE,
+        f"재료 게이트 ÷(1+v/100). 장비 재료관문 {len(binding)}/{len(tiers)}({','.join(tiers)})"
+        f", 비장비싱크 {NON_GEAR_SINK_SHARE[stage]:g} → 유효 {sink_share:g} × 장비축 {GEAR_AXIS_SHARE:g}")
+
+    # ── 작살 사이클 경유 (돌진쿨감) ─────────────────────────────────
+    base_c = harpoon_cycles(0)
+    d_c = harpoon_cycles(1)
+    sat = dash_saturation()
+    sat_gain = harpoon_cycles(sat) / base_c - 1.0
+    V["돌진쿨감 (1%)"] = (income * (d_c / base_c - 1.0),
+                       f"작살 사이클 {base_c:.0f}→{d_c:.1f}/h. {sat:.0f}%에서 포화 → 그 뒤 0. "
+                       f"★실제 총이득 +{sat_gain*100:.1f}% (오른쪽 «최대기여»는 선형외삽이라 과대)")
 
     return dict(income=income, per_catch=per_catch, avg_catch=avg_catch,
                 caught_per_h=caught_per_h, dist=dist, succ=succ, V=V)

@@ -44,8 +44,17 @@ STAT_KEY = {
     "크리확률": "크리확률 (1%)", "크리배율": "크리배율 (1점)", "난이도": "난이도 (1점)",
 }
 GROWTH_KEY = {"경험치": "경험치 (1%)"}
-# income에도 성장에도 안 들어가는 것들 (별도 효용)
-OTHER = {"내구보존", "등급특화", "수중호흡", "수영속도", "공격력", "공격속도", "돌진쿨감", "은신"}
+# ★게이트 축(2026-08-23) — 재료확률은 income도 레벨성장도 아니고 «장비 획득 게이트»를 당긴다.
+#   stat_value.py 가 이미 원/h 로 환산해 두므로(재료관문 티어에서만 값이 남) 성장축과 같은
+#   방식으로 회수시간에 합류시킨다. 채집형 부품/낚싯대는 income 스탯이 거의 0이라, 이걸 빼면
+#   회수시간이 전부 inf 로 나와 «살 이유 없는 장비»로 오판된다(2026-08-05 릴 사고와 동형).
+GATE_KEY = {"재료확률": "재료확률 (1%)"}
+# income에도 성장에도 게이트에도 안 들어가는 것들 (별도 효용)
+#  ★돌진쿨감은 2026-08-23부터 stat_value.py 가 값을 낸다(작살 사이클 모델, per-단위 0.23).
+#    그래도 여기 남긴다 — 아래 «③ 작살» 절에서 작살 전체를 회수시간 판정에서 제외하기 때문에
+#    이 표에서 쓸 자리가 없다. 작살 스탯 평가는 stat_value.py 쪽에서 볼 것.
+OTHER = {"내구보존", "등급특화", "수중호흡", "수영속도", "공격력", "공격속도", "돌진쿨감", "은신",
+         "야간투시"}
 
 
 def parse_stats(raw):
@@ -82,7 +91,7 @@ def main():
             stats = parse_stats(f[4]) if len(f) > 4 else {}
             lv = int(f[5]) if len(f) > 5 and f[5].lstrip("-").isdigit() else 1
             stage = GRADE_STAGE.get(grade, "중반")
-            inc_val = growth_val = 0.0
+            inc_val = growth_val = gate_val = 0.0
             unknown = []
             for k, v in stats.items():
                 if not isinstance(v, (int, float)):
@@ -91,6 +100,8 @@ def main():
                     inc_val += v * vals[stage][STAT_KEY[k]]
                 elif k in GROWTH_KEY:
                     growth_val += v * vals[stage][GROWTH_KEY[k]]
+                elif k in GATE_KEY:
+                    gate_val += v * vals[stage][GATE_KEY[k]]
                 elif k not in OTHER:
                     unknown.append(k)
             # ★2026-08-05 릴 재배정 — 릴의 신규 주스탯은 경험치(성장)다. 순수 income 회수시간으로
@@ -98,9 +109,11 @@ def main():
             #   숙련 릴 0.52h ↔ 철제 릴 19.83h, 릴C<D 역전까지). 미끼가 행운 자리를 내주고도 이미
             #   inc+growth 결합으로 다루듯, 릴도 같은 원칙 적용 — 경험치가 릴의 실제 설계 가치다.
             eff = (inc_val + growth_val) if cat == "릴" else inc_val
+            eff += gate_val   # 채집형(재료확률) — 게이트 단축분도 실효가치다
             payback = price / eff if eff > 0 else float("inf")
             rows.append(dict(cat=cat, name=name, grade=grade, price=price, lv=lv, stage=stage,
-                             inc=inc_val, growth=growth_val, payback=payback, unknown=unknown))
+                             inc=inc_val, growth=growth_val, gate=gate_val,
+                             payback=payback, unknown=unknown))
 
     unk = collections.Counter(u for r in rows for u in r["unknown"])
     if unk:
@@ -153,14 +166,18 @@ def main():
     print("=" * 100)
     finite = [r for r in rows if r["payback"] < float("inf") and r["price"] > 0]
     for r in sorted(finite, key=lambda x: -x["payback"])[:12]:
+        gate_note = "" if not r["gate"] else f" · 게이트 {r['gate']:,.0f}"
         print(f"  {r['cat']:<6}{r['grade']:<3}{r['name']:<20}{r['price']:>11,}원 "
-              f"income {r['inc']:>9,.0f}원/h → {r['payback']:>7.2f}h  (성장 {r['growth']:,.0f}원/h)")
+              f"income {r['inc']:>9,.0f}원/h → {r['payback']:>7.2f}h  "
+              f"(성장 {r['growth']:,.0f}{gate_note}원/h)")
     print("\n회수시간 최고 8종 (가성비 상위)")
     for r in sorted(finite, key=lambda x: x["payback"])[:8]:
+        gate_note = "" if not r["gate"] else f"  (게이트 {r['gate']:,.0f}원/h)"
         print(f"  {r['cat']:<6}{r['grade']:<3}{r['name']:<20}{r['price']:>11,}원 "
-              f"income {r['inc']:>9,.0f}원/h → {r['payback']:>7.2f}h")
+              f"income {r['inc']:>9,.0f}원/h → {r['payback']:>7.2f}h{gate_note}")
 
-    noinc = [r for r in rows if r["inc"] <= 0 and r["price"] > 0]
+    # ★게이트 가치(재료확률)만 있는 장비는 여기 넣지 않는다 — payback 이 이미 유한하다.
+    noinc = [r for r in rows if r["inc"] <= 0 and r["gate"] <= 0 and r["price"] > 0]
     if noinc:
         print(f"\n★income 스탯이 0인 유료 장비 {len(noinc)}종 (성장/기타 효용 전용):")
         for r in noinc[:10]:
