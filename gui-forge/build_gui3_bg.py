@@ -14,6 +14,9 @@ SRC = HERE / "src"
 COMMON = SRC / "common6" / "bg_source.png"
 OUT = SRC
 FONT = Path.home() / "development" / "barkan-resourcepack" / "assets" / "barkan" / "font" / "aggro_bold.ttf"
+RP_ICON_DIR = Path.home() / "development" / "barkan-resourcepack" / \
+    "assets" / "minecraft" / "textures" / "item" / "barkan_icon"
+HQ_ICON_DIR = SRC / "hub_icons"
 
 W, H = 704, 888
 X0, X1 = 28, 675
@@ -27,6 +30,26 @@ TITLES = {"menu": "메뉴", "myinfo": "내 정보", "shop": "상점"}
 # 생성 그림을 얹는 경로(compose_gui3_imagegen)에서는 절차 아이콘을 끈다 —
 # 켜두면 뽑아낸 아이콘의 투명한 틈으로 밑그림이 비쳐 잡동사니가 보인다.
 DRAW_ICONS = True
+
+# 타일형 허브의 큰 아이콘. 전용 제작본은 프로젝트 안에 보관하고, 이미 검증된
+# 하단 런타임 아이콘은 리소스팩 원본을 재사용한다. 대장간은 별도 납품판이라
+# 이 맵의 영향을 받지 않는다.
+HQ_ASSETS = {
+    "profile": "profile_card.png",
+    "level": "level.png",
+    "equipment": "equipment.png",
+    "quest": "ui_gui_quest.png",
+    "island": "island.png",
+    "guild": "ui_gui_guild.png",
+    "stats": "stats.png",
+    "title": "title.png",
+    "trophy": "achievement.png",
+    "ranking": "ranking_simple.png",
+    "codex": "ui_menu_dex.png",
+    "gems": "cash_shop.png",
+    "hourglass": "idle.png",
+    "shop_recommend": "ui_menu_recommend.png",
+}
 
 INK = (18, 13, 10, 255)
 PLATE = (31, 30, 29, 255)
@@ -196,8 +219,42 @@ ICONS = {
     "quest": icon_scroll, "island": icon_island, "guild": icon_guild,
     "stats": icon_stats, "title": icon_title, "trophy": icon_trophy,
     "ranking": icon_podium, "codex": icon_book_fish, "gems": icon_gems,
-    "hourglass": icon_hourglass, "shop_scroll": icon_scroll_shop,
+    "hourglass": icon_hourglass, "shop_recommend": icon_scroll_shop,
 }
+
+
+def hq_icon(icon_name):
+    """큰 타일용 투명 아이콘을 불러온다. 없으면 절차 아이콘으로 폴백."""
+    fname = HQ_ASSETS.get(icon_name)
+    if not fname:
+        return None
+    path = HQ_ICON_DIR / fname
+    if not path.exists():
+        path = RP_ICON_DIR / fname
+    if not path.exists():
+        return None
+    icon = Image.open(path).convert("RGBA")
+    bbox = icon.getchannel("A").getbbox()
+    return icon.crop(bbox) if bbox else icon
+
+
+def draw_hq_icon(im, box, icon_name, tall=False):
+    icon = hq_icon(icon_name)
+    if icon is None:
+        return False
+    x0, y0, x1, y1 = box
+    # 라벨 띠는 건드리지 않는다. 2행 타일은 40px, 세로 상점 타일은 56px을 남긴다.
+    label_band = 56 if tall else 40
+    pad_x = 18
+    top = y0 + (16 if tall else 9)
+    bottom = y1 - label_band - (8 if tall else 5)
+    max_w, max_h = x1 - x0 - 2 * pad_x, bottom - top
+    k = min(max_w / icon.width, max_h / icon.height)
+    nw, nh = max(1, round(icon.width * k)), max(1, round(icon.height * k))
+    icon = icon.resize((nw, nh), Image.Resampling.LANCZOS)
+    cx = (x0 + x1) // 2
+    im.alpha_composite(icon, (cx - nw // 2, top + max(0, (max_h - nh) // 2)))
+    return True
 
 
 def draw_home_slots(d):
@@ -224,7 +281,12 @@ def draw_tiles(im, specs, tall=False):
             continue
         x0, _, x1, _ = box
         cx = (x0 + x1) // 2
-        if tall:
+        if draw_hq_icon(im, box, icon_name, tall=tall):
+            if tall:
+                center_text(d, box, label, size=30, y=378)
+            else:
+                center_text(d, box, label, size=28, y=y1 - 47)
+        elif tall:
             cy = 248
             ICONS[icon_name](d, cx, cy)
             center_text(d, box, label, size=30, y=378)
@@ -256,7 +318,7 @@ def build(name, specs, tall=False):
 
 def main():
     build("menu", [
-        (0, 140, 283, "내 정보", "profile"), (1, 140, 283, "레벨·특성", "level"),
+        (0, 140, 283, "내 정보", "profile"), (1, 140, 283, "레벨 및 특성", "level"),
         (2, 140, 283, "장비", "equipment"), (0, 284, 427, "퀘스트", "quest"),
         (1, 284, 427, "내 섬", "island"), (2, 284, 427, "길드", "guild"),
     ])
@@ -267,7 +329,7 @@ def main():
     ])
     build("shop", [
         (0, 140, 427, "캐시 상점", "gems"), (1, 140, 427, "잠수 상점", "hourglass"),
-        (2, 140, 427, "스크롤 상점", "shop_scroll"),
+        (2, 140, 427, "추천 상점", "shop_recommend"),
     ], tall=True)
 
 

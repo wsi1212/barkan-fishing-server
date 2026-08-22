@@ -6,6 +6,14 @@ import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import pg from "pg";
+import {
+  PURCHASE_MONTHS,
+  RECOMMENDED_MONTHS,
+  periodDays,
+  periodLabel,
+  periodLabelFromDays,
+  validMonths
+} from "./membership-periods.mjs";
 
 const { Pool } = pg;
 
@@ -14,8 +22,9 @@ const BASE_URL = (process.env.PUBLIC_BASE_URL ?? "https://barkan.kr/vip").replac
 // 운영 도구의 단일 진입점은 기존 Discord 인증 통계 대시보다.
 const STATS_ADMIN_URL = process.env.STATS_ADMIN_URL ?? "https://barkan.kr/admin/membership";
 const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN ?? "";
-const TOSS_CLIENT_KEY = process.env.TOSS_CLIENT_KEY ?? "";
-const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY ?? "";
+// 토스 결제는 현재 사용하지 않는다. 재개할 때 이 설정과 아래 주석 처리된 경로를 함께 복원한다.
+// const TOSS_CLIENT_KEY = process.env.TOSS_CLIENT_KEY ?? "";
+// const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY ?? "";
 // 토스 PG 전환 전에는 계좌이체 기간권으로 운영한다. 실제 계좌 정보는 Oracle 환경변수에만 둔다.
 const BANK_TRANSFER_BANK = process.env.BANK_TRANSFER_BANK ?? "";
 const BANK_TRANSFER_ACCOUNT_NUMBER = process.env.BANK_TRANSFER_ACCOUNT_NUMBER ?? "";
@@ -55,12 +64,8 @@ const TIERS = Object.freeze({
   MVP_PLUS: { name: "MVP+", price: 29900, yearlyMonthlyPrice: 14900, color: "#ff94da", benefits: ["VIP 전체 혜택", "월간 외형 선택권", "프리미엄 프로필 꾸미기"] }
 });
 
-const MAX_MONTHS = 12;
-const PURCHASE_MONTHS = Object.freeze([1, 3, 5, 12]);
-const RECOMMENDED_MONTHS = 5;
+const MAX_MONTHS = Math.max(...PURCHASE_MONTHS);
 const bankTransferConfigured = () => Boolean(BANK_TRANSFER_BANK && BANK_TRANSFER_ACCOUNT_NUMBER && BANK_TRANSFER_ACCOUNT_HOLDER);
-const periodDays = (months) => months === MAX_MONTHS ? 365 : months * 30;
-const monthsForDays = (days) => days === 365 ? MAX_MONTHS : Math.ceil(days / 30);
 // 1개월은 기본가, 12개월은 약속한 최저 월 단가가 되도록 월 단가를 선형으로 낮춘다.
 function periodPrice(tier, months) {
   if (months === MAX_MONTHS) return tier.yearlyMonthlyPrice * MAX_MONTHS;
@@ -69,7 +74,6 @@ function periodPrice(tier, months) {
   return Math.round((tier.price * months * rate) / 100) * 100;
 }
 const monthlyPrice = (tier, months) => Math.round(periodPrice(tier, months) / months);
-const periodLabel = (months) => `${periodDays(months)}일`;
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const token = (bytes = 32) => randomBytes(bytes).toString("base64url");
@@ -169,7 +173,7 @@ function send(res, status, body, type = "text/html; charset=utf-8", extra = {}) 
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "same-origin",
-    "Content-Security-Policy": "default-src 'self'; img-src 'self' https://mc-heads.net https://cdn.discordapp.com; style-src 'unsafe-inline'; script-src 'self' https://js.tosspayments.com; connect-src 'self' https://api.tosspayments.com",
+    "Content-Security-Policy": "default-src 'self'; img-src 'self' https://mc-heads.net https://cdn.discordapp.com; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'",
     ...extra
   });
   res.end(body);
@@ -414,7 +418,8 @@ async function migrate() {
     );
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS player_name TEXT;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS period_days INTEGER NOT NULL DEFAULT 30;
-    ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT NOT NULL DEFAULT 'TOSS';
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT NOT NULL DEFAULT 'BANK_TRANSFER';
+    ALTER TABLE orders ALTER COLUMN payment_method SET DEFAULT 'BANK_TRANSFER';
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS transfer_reference TEXT UNIQUE;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS transfer_deadline TIMESTAMPTZ;
     CREATE INDEX IF NOT EXISTS orders_transfer_pending_idx ON orders (created_at DESC)
@@ -515,6 +520,7 @@ async function extendSubscription(client, uuid, name, tier, days) {
   return r.rows[0];
 }
 
+/*
 async function toss(path, method, payload) {
   if (!TOSS_SECRET_KEY) throw new Error("토스 시크릿 키가 설정되지 않았습니다.");
   const auth = Buffer.from(`${TOSS_SECRET_KEY}:`).toString("base64");
@@ -523,11 +529,8 @@ async function toss(path, method, payload) {
   if (!response.ok) throw new Error(data.message ?? "토스 요청 실패");
   return data;
 }
+*/
 
-function validMonths(value) {
-  const months = Number.parseInt(value, 10);
-  return PURCHASE_MONTHS.includes(months) ? months : RECOMMENDED_MONTHS;
-}
 function selectionFrom(tierId, months) {
   const tier = TIERS[tierId];
   return tier ? { tierId, tier, months: validMonths(months) } : null;
@@ -564,12 +567,12 @@ function home(requestedTier, requestedMonths) {
     .hero:before{display:none}.hero h1{font-family:ui-sans-serif,system-ui,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-weight:850}.hero h1 span{color:transparent;background:linear-gradient(100deg,#9ceeff,#c4b1ff 64%,#ffb4e2);-webkit-background-clip:text;background-clip:text}.membership-grid{gap:16px;border:0;background:none}.card{position:relative;overflow:hidden;border:1px solid rgba(186,209,255,.15);border-radius:22px;box-shadow:0 18px 34px rgba(0,0,0,.14)}.card:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,color-mix(in srgb,var(--tier) 18%,transparent),transparent 40%);pointer-events:none}.card>*{position:relative}.card:first-child{background:linear-gradient(160deg,rgba(24,35,76,.96),rgba(13,20,43,.93))}.card:nth-child(2){background:linear-gradient(160deg,rgba(48,40,62,.96),rgba(18,22,46,.93))}.card:nth-child(3){background:linear-gradient(160deg,rgba(61,32,64,.96),rgba(20,20,48,.93))}.card .button{border-radius:12px;background:rgba(255,255,255,.06)}.recommended{margin:12px 0 6px;color:#dbe8ff;font-size:12px;font-weight:800}.card .price{margin-bottom:2px}.tier-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0}.tier-tab{padding:12px;border:1px solid rgba(186,209,255,.16);border-radius:10px;background:rgba(8,14,34,.32);color:var(--text);font-weight:800;text-align:center;text-decoration:none}.tier-tab.selected,.tier-tab:hover{border-color:var(--tier);background:rgba(255,255,255,.08)}.config{margin-top:54px;padding:32px;border:1px solid rgba(186,209,255,.16);border-radius:22px;background:linear-gradient(150deg,rgba(23,34,74,.9),rgba(13,18,41,.92));box-shadow:0 20px 44px rgba(0,0,0,.16)}.config h2{margin:0;font-size:24px}.config p{margin:6px 0 0}.config .choice-grid{grid-template-columns:repeat(4,1fr);margin:20px 0}.config .choice{border-radius:10px}.support{margin:20px 0 0;color:var(--muted);font-size:13px}.support a{color:var(--aqua)}.shop-section{margin-top:64px}.shop-section h2{margin:0;font-size:26px;letter-spacing:-.05em}.shop-section>p{margin:7px 0 18px}.store-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.store-card{min-height:224px;padding:25px;border:1px solid rgba(186,209,255,.15);border-radius:20px;background:linear-gradient(150deg,rgba(25,42,81,.86),rgba(13,20,46,.92));box-shadow:0 18px 34px rgba(0,0,0,.14)}.cash-card:nth-child(2){background:linear-gradient(150deg,rgba(29,57,88,.92),rgba(14,24,51,.95))}.cash-card:nth-child(3){background:linear-gradient(150deg,rgba(39,43,86,.92),rgba(18,22,53,.95))}.store-label{margin:0 0 13px;color:var(--tide);font-size:11px;font-weight:850;letter-spacing:.12em}.store-card h3{margin:0;font-size:23px;letter-spacing:-.05em}.store-copy{min-height:40px;margin:8px 0;color:var(--muted);font-size:13px}.store-price{margin-top:21px;font-size:25px;font-weight:900;letter-spacing:-.05em}.store-state{display:block;margin-top:5px;color:#a8bdd4;font-size:12px}.package-card{background:linear-gradient(150deg,color-mix(in srgb,var(--tier) 16%,#182648),#10172e)}.package-card ul{min-height:44px;margin:11px 0 0;padding:0;list-style:none;color:#dce6fa;font-size:13px}.package-card li:before{content:"+";margin-right:7px;color:var(--tier);font-weight:900}
     @media(max-width:800px){.hero{padding:42px 26px;border-radius:23px}}
     @media(max-width:800px){.store-grid{grid-template-columns:1fr}.store-card{min-height:0}}@media(max-width:620px){.config .choice-grid{grid-template-columns:repeat(2,1fr)}}
-  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">채팅 태그, 전용 외형, 프로필 꾸미기. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>각 등급은 150일 기준으로 안내합니다.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div></section><section class="shop-section"><h2>패키지</h2><p class="muted">멤버십 150일과 캐시를 함께 담은 구성입니다.</p><div class="store-grid">${packages}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
+  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">채팅 태그, 전용 외형, 프로필 꾸미기. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>아래 가격은 30일 기준이며, 기간 설정에서 1·3·5·12개월을 선택합니다.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div></section><section class="shop-section"><h2>패키지</h2><p class="muted">멤버십 150일과 캐시를 함께 담은 구성입니다.</p><div class="store-grid">${packages}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
 }
 function accountPage(current, sub, refunds, pendingOrders, notice = "") {
   const tier = sub ? TIERS[sub.tier] : null;
   const status = sub?.active ? `<span style="color:#6bf0a2">활성</span>` : "미구독 또는 만료";
-  const pending = pendingOrders.length ? `<h2>입금 확인 대기</h2><table>${pendingOrders.map((o) => `<tr><th>${esc(TIERS[o.tier].name)} · ${periodLabel(monthsForDays(o.period_days))}</th><td>₩${Number(o.amount_krw).toLocaleString()}<br><a href="${BASE_URL}/bank-transfer/orders/${encodeURIComponent(o.order_id)}">입금 안내 보기</a></td></tr>`).join("")}</table>` : "";
+  const pending = pendingOrders.length ? `<h2>입금 확인 대기</h2><table>${pendingOrders.map((o) => `<tr><th>${esc(TIERS[o.tier].name)} · ${periodLabelFromDays(o.period_days)}</th><td>₩${Number(o.amount_krw).toLocaleString()}<br><a href="${BASE_URL}/bank-transfer/orders/${encodeURIComponent(o.order_id)}">입금 안내 보기</a></td></tr>`).join("")}</table>` : "";
   return layout("내 이용권", `<div class="panel"><h1>내 이용권</h1>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<table><tr><th>게임 계정</th><td>${esc(sub?.player_name ?? current.player_name ?? "연결됨")}</td></tr><tr><th>상태</th><td>${status}</td></tr><tr><th>등급</th><td>${tier ? `<b style="color:${tier.color}">${tier.name}</b>` : "-"}</td></tr><tr><th>만료일</th><td>${sub?.expires_at ? new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"}</td></tr></table>${pending}${sub?.active ? `<hr><form method="post" action="${BASE_URL}/account/refund"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label>환불 사유</label><textarea name="reason" minlength="5" maxlength="500" required placeholder="환불 요청 사유를 입력하세요."></textarea><button style="background:#c34d5d">환불 요청하기</button></form>` : `<p class="muted">원하는 등급과 기간을 선택해 이용권을 구매하세요.</p><a class="button" href="${BASE_URL}/">이용권 보기</a>`}<h2>환불 요청</h2>${refunds.length ? `<table>${refunds.map((r) => `<tr><td>${esc(r.status)}</td><td>${esc(r.reason)}</td><td>${new Date(r.created_at).toLocaleDateString("ko-KR")}</td></tr>`).join("")}</table>` : "<p class=\"muted\">요청 내역이 없습니다.</p>"}</div>`);
 }
 
@@ -705,7 +708,7 @@ function communityPinIcon() {
 async function communityComments(postId, current = null) {
   if (!validUuid(postId)) return [];
   const result = await pool.query(`
-    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,
+    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,c.updated_at,
       COALESCE((SELECT COUNT(*) FROM community_comment_likes l WHERE l.comment_id=c.id), 0)::int AS like_count,
       ($2::uuid IS NOT NULL AND EXISTS (
         SELECT 1 FROM community_comment_likes l WHERE l.comment_id=c.id AND l.minecraft_uuid=$2::uuid
@@ -719,7 +722,7 @@ async function communityComments(postId, current = null) {
 async function communityComment(id, current = null) {
   if (!validUuid(id)) return null;
   const result = await pool.query(`
-    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,
+    SELECT c.id,c.post_id,c.discord_id,c.minecraft_uuid,c.player_name,c.discord_name,c.body,c.created_at,c.updated_at,
       COALESCE((SELECT COUNT(*) FROM community_comment_likes l WHERE l.comment_id=c.id), 0)::int AS like_count,
       ($2::uuid IS NOT NULL AND EXISTS (
         SELECT 1 FROM community_comment_likes l WHERE l.comment_id=c.id AND l.minecraft_uuid=$2::uuid
@@ -1004,6 +1007,9 @@ function communityEditPage(current, post, error = "", operator = false) {
   const options = availableCategories.map((category) => `<option value="${category}"${category === post.category ? " selected" : ""}>${category}</option>`).join("");
   return communityLayout("글 수정", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Edit the log · ${esc(post.category)}</p><h2>기록 수정하기</h2><p class="muted">작성한 글의 제목, 내용, 게시판을 수정할 수 있습니다.</p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}/edit" enctype="multipart/form-data"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="category">게시판</label><select id="category" name="category">${options}</select><label for="title">제목</label><input id="title" name="title" maxlength="80" required value="${esc(post.title)}"><label for="body">내용</label><textarea id="body" name="body" maxlength="5000" required>${esc(post.body)}</textarea>${communityImageGallery(post.images, "post-images edit-images")}<label for="images">이미지 추가 <span class="muted">(선택)</span></label><input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="help">PNG·JPG·WebP·GIF, 최대 4장 · 한 장당 5MB · 기존 이미지는 유지됩니다.</small><small class="help">수정 시 목록에 ‘수정됨’ 표시가 붙습니다.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">변경 저장</button><a class="button ghost" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(post.id)}">취소</a></div></form></section></main>`);
 }
+function communityCommentEditPage(current, comment, error = "") {
+  return communityLayout("댓글 수정", `<main data-community-user="1"><section class="panel"><p class="eyebrow">Edit the comment</p><h2>댓글 수정하기</h2><p class="muted"><a class="back" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(comment.post_id)}#comments">게시글로 돌아가기</a></p>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/edit"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="comment-body">댓글 내용</label><textarea id="comment-body" name="body" maxlength="1000" rows="6" required>${esc(comment.body)}</textarea><small class="help">최대 1,000자 · 수정한 댓글에는 ‘수정됨’ 표시가 붙습니다.</small><div style="display:flex;gap:9px;margin-top:22px"><button class="button" type="submit">변경 저장</button><a class="button ghost" href="${COMMUNITY_BASE_URL}/post/${encodeURIComponent(comment.post_id)}#comments">취소</a></div></form></section></main>`);
+}
 function communityPostPage(current, post, error = "", comments = [], operator = false) {
   if (!post) return communityLayout("글을 찾을 수 없음", `<main><section class="panel"><h2>기록을 찾을 수 없습니다.</h2><a class="back" href="${COMMUNITY_BASE_URL}">커뮤니티로 돌아가기</a></section></main>`);
   const postId = encodeURIComponent(post.id);
@@ -1018,15 +1024,20 @@ function communityPostPage(current, post, error = "", comments = [], operator = 
     const commentHeart = current
       ? `<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/heart" class="comment-heart-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="comment-heart${comment.liked ? " active" : ""}" type="submit" aria-label="${comment.liked ? "댓글 하트 취소" : "댓글에 하트 보내기"}">${comment.liked ? "♥" : "♡"} <span>${communityCount(comment.like_count)}</span></button></form>`
       : `<a class="comment-heart" href="${COMMUNITY_BASE_URL}/login" aria-label="로그인하고 댓글에 하트 보내기">♡ <span>${communityCount(comment.like_count)}</span></a>`;
-    const deleteAction = current?.minecraft_uuid === comment.minecraft_uuid
-      ? `<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/delete" class="comment-delete-form"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="comment-delete" type="submit">삭제</button></form>`
+    const ownComment = current?.minecraft_uuid === comment.minecraft_uuid;
+    const editAction = ownComment
+      ? `<a class="comment-edit" href="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/edit">수정</a>`
       : "";
-    return `<article class="community-comment"><div class="comment-rail" aria-hidden="true"></div><div class="comment-main"><header class="comment-header"><div><a class="comment-author" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(comment.minecraft_uuid)}">${esc(comment.player_name)}</a><span class="comment-date">${new Date(comment.created_at).toLocaleString("ko-KR")}</span></div><div class="comment-actions">${commentHeart}${deleteAction}</div></header><p class="comment-body">${esc(comment.body)}</p></div></article>`;
+    const deleteAction = ownComment
+      ? `<form method="post" action="${COMMUNITY_BASE_URL}/comment/${encodeURIComponent(comment.id)}/delete" class="comment-delete-form" onsubmit="return confirm('이 댓글을 삭제할까요?');"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><button class="comment-delete" type="submit">삭제</button></form>`
+      : "";
+    const edited = comment.updated_at && new Date(comment.updated_at).getTime() > new Date(comment.created_at).getTime() + 1000;
+    return `<article class="community-comment"><div class="comment-rail" aria-hidden="true"></div><div class="comment-main"><header class="comment-header"><div><a class="comment-author" href="${COMMUNITY_BASE_URL}/user/${encodeURIComponent(comment.minecraft_uuid)}">${esc(comment.player_name)}</a><span class="comment-date">${new Date(comment.created_at).toLocaleString("ko-KR")}</span>${edited ? `<span class="comment-edited">수정됨</span>` : ""}</div><div class="comment-actions">${commentHeart}${editAction}${deleteAction}</div></header><p class="comment-body">${esc(comment.body)}</p></div></article>`;
   }).join("") : `<div class="comments-empty">아직 댓글이 없습니다. 이 항해 기록에 첫 번째 목소리를 남겨 보세요.</div>`;
   const composer = current
     ? `<form method="post" action="${COMMUNITY_BASE_URL}/post/${postId}/comment" class="comment-composer"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label for="comment-body">댓글 남기기</label><textarea id="comment-body" name="body" maxlength="1000" rows="4" required placeholder="이 기록에 대한 경험이나 질문을 남겨 주세요."></textarea><div class="comment-composer-footer"><small>최대 1,000자 · 게임 계정 이름으로 표시됩니다.</small><button class="button" type="submit">댓글 등록</button></div></form>`
     : `<div class="comment-login"><p>Discord로 로그인하면 이 기록에 댓글을 남길 수 있습니다.</p><a class="button ghost" href="${COMMUNITY_BASE_URL}/login">로그인하고 댓글 쓰기</a></div>`;
-  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.post-owner-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.post-owner-actions form{margin:0}.post-owner-actions .button{min-height:38px;padding:8px 12px}.danger-button{border-color:rgba(255,155,159,.5);background:rgba(255,155,159,.08);color:#ffd9d9}.danger-button:hover{background:rgba(255,155,159,.18);border-color:var(--danger)}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}.pin-icon{display:inline-block;width:14px;height:14px;vertical-align:-2px;color:currentColor;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.post-category .pin-icon{margin-right:5px;color:var(--accent)}.pinned-kicker{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.post-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:0 0 30px}.post-image-link{display:block;overflow:hidden;border:1px solid var(--line);background:rgba(12,40,37,.5)}.post-image{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform .2s ease}.post-image-link:hover .post-image{transform:scale(1.025)}.comments-section{margin-top:58px;padding-top:30px;border-top:1px solid var(--line)}.comments-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:19px}.comments-heading h2{margin:0;font-size:21px;letter-spacing:-.07em}.comments-heading span{color:var(--faint);font-size:11px}.comments-list{border-top:1px solid var(--line)}.community-comment{display:grid;grid-template-columns:13px minmax(0,1fr);gap:14px;padding:19px 0;border-bottom:1px solid var(--line)}.comment-rail{position:relative;width:5px;margin:4px 0 3px;background:rgba(150,217,196,.25)}.comment-rail:before{position:absolute;top:0;left:-2px;width:9px;height:9px;border:1px solid var(--mint);border-radius:50%;background:var(--ink);content:""}.comment-main{min-width:0}.comment-header{display:flex;align-items:start;justify-content:space-between;gap:14px}.comment-author{color:var(--text);font-size:13px;font-weight:800;text-decoration:none}.comment-author:hover{color:var(--accent)}.comment-date{margin-left:9px;color:var(--faint);font-size:10px}.comment-actions{display:flex;align-items:center;gap:9px}.comment-heart{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(226,173,103,.35);background:transparent;color:var(--accent);font:800 12px Barkan;text-decoration:none;cursor:pointer}.comment-heart:hover,.comment-heart.active{border-color:var(--accent);background:rgba(226,173,103,.12)}.comment-heart.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.comment-heart-form,.comment-delete-form{margin:0}.comment-delete{padding:3px 0;border:0;background:transparent;color:var(--faint);font:500 11px Barkan;cursor:pointer}.comment-delete:hover{color:var(--danger)}.comment-body{margin:11px 0 0;color:#d7e5dc;font-size:14px;line-height:1.75;white-space:pre-wrap}.comments-empty{padding:22px 0;color:var(--muted);font-size:13px}.comment-composer,.comment-login{margin-top:28px;padding:20px;border:1px solid var(--line);background:rgba(12,40,37,.42)}.comment-composer label{display:block;margin:0 0 9px;color:var(--text);font-size:14px}.comment-composer textarea{min-height:112px;margin:0;resize:vertical}.comment-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:11px}.comment-composer-footer small{color:var(--faint);font-size:10px}.comment-login{display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px}.comment-login p{margin:0}@media(max-width:720px){.comments-heading{display:block}.comments-heading span{display:block;margin-top:5px}.comment-header{display:block}.comment-actions{margin-top:9px}.detail-actions{align-items:flex-start;flex-wrap:wrap}.post-owner-actions{margin-left:0;width:100%}.post-owner-actions .button{flex:1}.comment-composer-footer,.comment-login{display:block}.comment-composer-footer .button,.comment-login .button{width:100%;margin-top:13px}}</style><article class="detail"><div class="detail-head"><p class="eyebrow${post.is_notice ? " pinned-kicker" : ""}">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span>${post.updated_at && new Date(post.updated_at).getTime() > new Date(post.created_at).getTime() + 1000 ? `<span>수정됨</span>` : ""}<span class="view-count">조회 ${communityCount(post.view_count)}</span><span class="view-count">댓글 ${communityCount(post.comment_count)}</span>${post.images?.length ? `<span class="view-count">이미지 ${communityCount(post.images.length)}</span>` : ""}</p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span>${postActions}</div>${communityImageGallery(post.images)}<div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a><section class="comments-section" id="comments" aria-labelledby="comments-title"><div class="comments-heading"><h2 id="comments-title">댓글</h2><span>${communityCount(post.comment_count)}개의 항해 메모</span></div><div class="comments-list">${commentCards}</div>${composer}</section></article></main>`);
+  return communityLayout(post.title, `<main${current ? " data-community-user=\"1\"" : ""}><style>.detail-head{position:relative}.detail-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.post-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;color:var(--faint);font-size:11px}.detail-actions{display:flex;align-items:center;gap:12px;margin-top:24px}.post-owner-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.post-owner-actions form{margin:0}.post-owner-actions .button{min-height:38px;padding:8px 12px}.danger-button{border-color:rgba(255,155,159,.5);background:rgba(255,155,159,.08);color:#ffd9d9}.danger-button:hover{background:rgba(255,155,159,.18);border-color:var(--danger)}.heart-form{margin:0}.heart-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid rgba(226,173,103,.55);background:rgba(226,173,103,.08);color:var(--accent);font:800 14px Barkan;text-decoration:none;cursor:pointer}.heart-button:hover,.heart-button.active{background:rgba(226,173,103,.18);border-color:var(--accent)}.heart-button.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.view-count{color:var(--faint);font-size:11px}.pin-icon{display:inline-block;width:14px;height:14px;vertical-align:-2px;color:currentColor;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.post-category .pin-icon{margin-right:5px;color:var(--accent)}.pinned-kicker{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.post-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:0 0 30px}.post-image-link{display:block;overflow:hidden;border:1px solid var(--line);background:rgba(12,40,37,.5)}.post-image{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform .2s ease}.post-image-link:hover .post-image{transform:scale(1.025)}.comments-section{margin-top:58px;padding-top:30px;border-top:1px solid var(--line)}.comments-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:19px}.comments-heading h2{margin:0;font-size:21px;letter-spacing:-.07em}.comments-heading span{color:var(--faint);font-size:11px}.comments-list{border-top:1px solid var(--line)}.community-comment{display:grid;grid-template-columns:13px minmax(0,1fr);gap:14px;padding:19px 0;border-bottom:1px solid var(--line)}.comment-rail{position:relative;width:5px;margin:4px 0 3px;background:rgba(150,217,196,.25)}.comment-rail:before{position:absolute;top:0;left:-2px;width:9px;height:9px;border:1px solid var(--mint);border-radius:50%;background:var(--ink);content:""}.comment-main{min-width:0}.comment-header{display:flex;align-items:start;justify-content:space-between;gap:14px}.comment-author{color:var(--text);font-size:13px;font-weight:800;text-decoration:none}.comment-author:hover{color:var(--accent)}.comment-date{margin-left:9px;color:var(--faint);font-size:10px}.comment-edited{margin-left:7px;color:var(--faint);font-size:10px}.comment-actions{display:flex;align-items:center;gap:9px}.comment-heart{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid rgba(226,173,103,.35);background:transparent;color:var(--accent);font:800 12px Barkan;text-decoration:none;cursor:pointer}.comment-heart:hover,.comment-heart.active{border-color:var(--accent);background:rgba(226,173,103,.12)}.comment-heart.active{color:var(--danger);border-color:rgba(255,155,159,.55)}.comment-heart-form,.comment-delete-form{margin:0}.comment-edit{padding:3px 0;color:var(--faint);font:500 11px Barkan;text-decoration:none}.comment-edit:hover{color:var(--accent)}.comment-delete{padding:3px 0;border:0;background:transparent;color:var(--faint);font:500 11px Barkan;cursor:pointer}.comment-delete:hover{color:var(--danger)}.comment-body{margin:11px 0 0;color:#d7e5dc;font-size:14px;line-height:1.75;white-space:pre-wrap}.comments-empty{padding:22px 0;color:var(--muted);font-size:13px}.comment-composer,.comment-login{margin-top:28px;padding:20px;border:1px solid var(--line);background:rgba(12,40,37,.42)}.comment-composer label{display:block;margin:0 0 9px;color:var(--text);font-size:14px}.comment-composer textarea{min-height:112px;margin:0;resize:vertical}.comment-composer-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:11px}.comment-composer-footer small{color:var(--faint);font-size:10px}.comment-login{display:flex;align-items:center;justify-content:space-between;gap:18px;color:var(--muted);font-size:13px}.comment-login p{margin:0}@media(max-width:720px){.comments-heading{display:block}.comments-heading span{display:block;margin-top:5px}.comment-header{display:block}.comment-actions{margin-top:9px}.detail-actions{align-items:flex-start;flex-wrap:wrap}.post-owner-actions{margin-left:0;width:100%}.post-owner-actions .button{flex:1}.comment-composer-footer,.comment-login{display:block}.comment-composer-footer .button,.comment-login .button{width:100%;margin-top:13px}}</style><article class="detail"><div class="detail-head"><p class="eyebrow${post.is_notice ? " pinned-kicker" : ""}">${post.is_notice ? `${communityPinIcon()} 공지` : esc(post.category)}</p><h1>${esc(post.title)}</h1><p class="detail-meta"><span>${esc(post.player_name)}</span><span>${new Date(post.created_at).toLocaleString("ko-KR")}</span>${post.updated_at && new Date(post.updated_at).getTime() > new Date(post.created_at).getTime() + 1000 ? `<span>수정됨</span>` : ""}<span class="view-count">조회 ${communityCount(post.view_count)}</span><span class="view-count">댓글 ${communityCount(post.comment_count)}</span>${post.images?.length ? `<span class="view-count">이미지 ${communityCount(post.images.length)}</span>` : ""}</p></div>${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<div class="detail-actions">${heart}<span class="view-count">이 글이 도움이 됐다면 하트를 남겨 주세요.</span>${postActions}</div>${communityImageGallery(post.images)}<div class="detail-body">${esc(post.body)}</div><a class="back" href="${COMMUNITY_BASE_URL}">← 커뮤니티로 돌아가기</a><section class="comments-section" id="comments" aria-labelledby="comments-title"><div class="comments-heading"><h2 id="comments-title">댓글</h2><span>${communityCount(post.comment_count)}개의 항해 메모</span></div><div class="comments-list">${commentCards}</div>${composer}</section></article></main>`);
 }
 function communityViewer(req, current) {
   if (current) return { key: `user:${current.minecraft_uuid}`, cookie: null };
@@ -1439,6 +1450,36 @@ async function route(req, res) {
     await pool.query("INSERT INTO community_comments (id,post_id,discord_id,minecraft_uuid,player_name,discord_name,body) VALUES ($1,$2::uuid,$3,$4,$5,$6,$7)", [randomUUID(), id, current.discord_id, current.minecraft_uuid, current.player_name, current.discord_name, body]);
     return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(id)}#comments`);
   }
+  if (path.startsWith("/community/comment/") && path.endsWith("/edit") && req.method === "GET") {
+    const id = path.slice("/community/comment/".length, -"/edit".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const comment = await communityComment(id, current);
+    if (!comment) return send(res, 404, communityPostPage(current, null));
+    if (comment.minecraft_uuid !== current.minecraft_uuid) {
+      const post = await communityPost(comment.post_id, current);
+      return send(res, 403, communityPostPage(current, post, "작성자만 이 댓글을 수정할 수 있습니다.", await communityComments(comment.post_id, current), await minecraftIsOperator(current)));
+    }
+    return send(res, 200, communityCommentEditPage(current, comment));
+  }
+  if (path.startsWith("/community/comment/") && path.endsWith("/edit") && req.method === "POST") {
+    const id = path.slice("/community/comment/".length, -"/edit".length);
+    const current = await communitySession(req);
+    if (!current) return redirect(res, `${COMMUNITY_BASE_URL}/login`);
+    const comment = await communityComment(id, current);
+    if (!comment) return send(res, 404, communityPostPage(current, null));
+    const data = await form(req);
+    const body = String(data.body ?? "").trim();
+    if (comment.minecraft_uuid !== current.minecraft_uuid) {
+      const post = await communityPost(comment.post_id, current);
+      return send(res, 403, communityPostPage(current, post, "작성자만 이 댓글을 수정할 수 있습니다.", await communityComments(comment.post_id, current), await minecraftIsOperator(current)));
+    }
+    if (!requireCsrf(data, current) || body.length < 1 || body.length > 1000) {
+      return send(res, 400, communityCommentEditPage(current, { ...comment, body }, "댓글은 1자 이상 1,000자 이하로 입력해 주세요."));
+    }
+    await pool.query("UPDATE community_comments SET body=$1,updated_at=NOW() WHERE id=$2::uuid AND minecraft_uuid=$3::uuid AND hidden=FALSE", [body, id, current.minecraft_uuid]);
+    return redirect(res, `${COMMUNITY_BASE_URL}/post/${encodeURIComponent(comment.post_id)}#comments`);
+  }
   if (path.startsWith("/community/post/") && path.endsWith("/heart") && req.method === "POST") {
     const id = path.slice("/community/post/".length, -"/heart".length);
     const current = await communitySession(req);
@@ -1494,7 +1535,7 @@ async function route(req, res) {
     const post = await communityPost(id, current);
     return send(res, 200, communityPostPage(current, post, "", await communityComments(id, current), await minecraftIsOperator(current)), "text/html; charset=utf-8", viewer.cookie ? { "Set-Cookie": viewer.cookie } : {});
   }
-  if (req.method === "GET" && path === "/health") { await pool.query("SELECT 1"); return json(res, 200, { ok: true, paymentConfigured: Boolean(TOSS_CLIENT_KEY && TOSS_SECRET_KEY) }); }
+  if (req.method === "GET" && path === "/health") { await pool.query("SELECT 1"); return json(res, 200, { ok: true, paymentConfigured: bankTransferConfigured(), paymentMethod: "BANK_TRANSFER" }); }
   if (req.method === "GET" && path === "/") return send(res, 200, home(url.searchParams.get("tier"), url.searchParams.get("months")));
   if (req.method === "GET" && path === "/link") return send(res, 200, linkPage(selectionFrom(url.searchParams.get("tier"), url.searchParams.get("months"))));
   if (req.method === "POST" && path === "/link") {
@@ -1559,18 +1600,24 @@ async function route(req, res) {
     if (order.status !== "PENDING_TRANSFER") return send(res, 200, layout("주문 상태", `<div class="panel"><h1>주문 상태: ${esc(order.status)}</h1><a class="button" href="${BASE_URL}/account">내 이용권</a></div>`));
     if (!bankTransferConfigured()) return send(res, 503, layout("입금 계좌 준비 중", `<div class="panel"><p>운영팀이 계좌이체 정보를 설정하는 중입니다.</p></div>`));
     const deadline = new Date(order.transfer_deadline).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-    return send(res, 200, layout("계좌이체 안내", `<div class="panel"><h1>계좌이체 안내</h1><div class="notice">입금 확인 후 운영팀이 ${esc(current.player_name ?? "게임")} 계정에 혜택을 지급합니다.</div><table><tr><th>이용권</th><td><b style="color:${tier.color}">${tier.name}</b> · ${periodLabel(monthsForDays(order.period_days))}</td></tr><tr><th>입금 금액</th><td><b>₩${Number(order.amount_krw).toLocaleString()}</b></td></tr><tr><th>은행</th><td>${esc(BANK_TRANSFER_BANK)}</td></tr><tr><th>계좌번호</th><td><b>${esc(BANK_TRANSFER_ACCOUNT_NUMBER)}</b></td></tr><tr><th>예금주</th><td>${esc(BANK_TRANSFER_ACCOUNT_HOLDER)}</td></tr><tr><th>입금자명</th><td><b>${esc(order.transfer_reference)}</b></td></tr><tr><th>입금 기한</th><td>${deadline}</td></tr></table><p class="muted">입금자명을 정확히 입력해 주세요. 기한이 지나거나 다른 이름으로 입금했다면 운영팀에 주문번호를 알려주세요.</p><a class="button alt" href="${BASE_URL}/account">내 이용권으로</a></div>`));
+    return send(res, 200, layout("계좌이체 안내", `<div class="panel"><h1>계좌이체 안내</h1><div class="notice">입금 확인 후 운영팀이 ${esc(current.player_name ?? "게임")} 계정에 혜택을 지급합니다.</div><table><tr><th>이용권</th><td><b style="color:${tier.color}">${tier.name}</b> · ${periodLabelFromDays(order.period_days)}</td></tr><tr><th>입금 금액</th><td><b>₩${Number(order.amount_krw).toLocaleString()}</b></td></tr><tr><th>은행</th><td>${esc(BANK_TRANSFER_BANK)}</td></tr><tr><th>계좌번호</th><td><b>${esc(BANK_TRANSFER_ACCOUNT_NUMBER)}</b></td></tr><tr><th>예금주</th><td>${esc(BANK_TRANSFER_ACCOUNT_HOLDER)}</td></tr><tr><th>입금자명</th><td><b>${esc(order.transfer_reference)}</b></td></tr><tr><th>입금 기한</th><td>${deadline}</td></tr></table><p class="muted">입금자명을 정확히 입력해 주세요. 기한이 지나거나 다른 이름으로 입금했다면 운영팀에 주문번호를 알려주세요.</p><a class="button alt" href="${BASE_URL}/account">내 이용권으로</a></div>`));
   }
+  /* 토스 카드 결제 경로는 계좌이체 운영 안정화 후 재개할 수 있도록 보존만 한다.
   if (req.method === "GET" && path.startsWith("/pay/")) {
     const current = await session(req); if (!current) return redirect(res, `${BASE_URL}/link`);
     const tierId = path.slice(5); const tier = TIERS[tierId]; if (!tier) return send(res, 404, "등급을 찾을 수 없습니다.");
     if (!TOSS_CLIENT_KEY || !TOSS_SECRET_KEY) return send(res, 503, layout("결제 준비 중", `<div class="panel"><h1>결제 준비 중</h1><p class="muted">운영팀이 결제 계약을 설정하는 중입니다. 현재는 결제를 받을 수 없습니다.</p></div>`));
+    // 기존 /pay/:tier 링크는 30일권이었다. 기간 파라미터가 없는 레거시 링크는 30일을 유지하고,
+    // 기간을 선택한 링크는 주문에 그 기간을 함께 고정한다.
+    const months = url.searchParams.has("months") ? validMonths(url.searchParams.get("months"), 1) : 1;
+    const days = periodDays(months);
+    const amount = periodPrice(tier, months);
     const orderId = `BK-${randomUUID().replaceAll("-", "")}`;
-    await pool.query("INSERT INTO orders (order_id,minecraft_uuid,tier,amount_krw) VALUES ($1,$2,$3,$4)", [orderId, current.minecraft_uuid, tierId, tier.price]);
+    await pool.query("INSERT INTO orders (order_id,minecraft_uuid,tier,amount_krw,status,period_days,payment_method) VALUES ($1,$2,$3,$4,'PENDING',$5,'TOSS')", [orderId, current.minecraft_uuid, tierId, amount, days]);
     const sub = await subscription(current.minecraft_uuid);
     const customerKey = `mc-${current.minecraft_uuid}`;
-    const config = JSON.stringify({ clientKey: TOSS_CLIENT_KEY, customerKey, orderId, amount: tier.price, orderName: `바르칸 열도 ${tier.name} 30일 이용권`, successUrl: `${BASE_URL}/payment/success`, failUrl: `${BASE_URL}/payment/fail` }).replace(/</g, "\\u003c");
-    return send(res, 200, layout("결제", `<div class="panel"><h1>${esc(tier.name)} 결제</h1><p class="price">₩${tier.price.toLocaleString()}</p><p class="muted">결제 완료 후 ${esc(sub?.player_name ?? "게임")} 계정에 30일이 추가됩니다.</p><button id="pay">카드로 결제</button><p id="error" class="notice danger" hidden></p><script src="https://js.tosspayments.com/v2/standard"></script><script>const c=${config};document.querySelector('#pay').onclick=async()=>{try{const p=TossPayments(c.clientKey).payment({customerKey:c.customerKey});await p.requestPayment({method:'CARD',amount:{currency:'KRW',value:c.amount},orderId:c.orderId,orderName:c.orderName,successUrl:c.successUrl,failUrl:c.failUrl});}catch(e){const x=document.querySelector('#error');x.hidden=false;x.textContent=e.message||'결제를 시작하지 못했습니다.';}};</script></div>`));
+    const config = JSON.stringify({ clientKey: TOSS_CLIENT_KEY, customerKey, orderId, amount, orderName: `바르칸 열도 ${tier.name} ${periodLabel(months)} 이용권`, successUrl: `${BASE_URL}/payment/success`, failUrl: `${BASE_URL}/payment/fail` }).replace(/</g, "\\u003c");
+    return send(res, 200, layout("결제", `<div class="panel"><h1>${esc(tier.name)} 결제</h1><p class="price">₩${amount.toLocaleString()}</p><p class="muted">결제 완료 후 ${esc(sub?.player_name ?? "게임")} 계정에 ${periodLabel(months)}이 추가됩니다.</p><button id="pay">카드로 결제</button><p id="error" class="notice danger" hidden></p><script src="https://js.tosspayments.com/v2/standard"></script><script>const c=${config};document.querySelector('#pay').onclick=async()=>{try{const p=TossPayments(c.clientKey).payment({customerKey:c.customerKey});await p.requestPayment({method:'CARD',amount:{currency:'KRW',value:c.amount},orderId:c.orderId,orderName:c.orderName,successUrl:c.successUrl,failUrl:c.failUrl});}catch(e){const x=document.querySelector('#error');x.hidden=false;x.textContent=e.message||'결제를 시작하지 못했습니다.';}};</script></div>`));
   }
   if (req.method === "GET" && path === "/payment/success") {
     const current = await session(req); if (!current) return redirect(res, `${BASE_URL}/link`);
@@ -1579,13 +1626,17 @@ async function route(req, res) {
     if (!order.rowCount || !paymentKey || amount !== order.rows[0].amount_krw) return send(res, 400, layout("결제 확인 실패", `<div class="panel"><div class="notice danger">주문 정보가 올바르지 않습니다.</div></div>`));
     const approved = await toss("/v1/payments/confirm", "POST", { paymentKey, orderId, amount });
     const client = await pool.connect();
-    try { await client.query("BEGIN"); await client.query("UPDATE orders SET status='PAID',provider_payment_key=$1,paid_at=NOW() WHERE order_id=$2", [paymentKey, orderId]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('toss',$1,$2,'DONE',$3,$4) ON CONFLICT DO NOTHING", [paymentKey, current.minecraft_uuid, amount, approved]); const sub = await extendSubscription(client, current.minecraft_uuid, current.player_name ?? "Unknown", order.rows[0].tier, 30); await client.query("COMMIT"); return send(res, 200, layout("결제 완료", `<div class="panel"><h1>결제가 완료되었습니다</h1><p class="muted">${esc(TIERS[order.rows[0].tier].name)} 혜택이 반영되었습니다. 만료일: ${new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p><a class="button" href="${BASE_URL}/account">내 구독 보기</a></div>`)); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+    const orderRow = order.rows[0];
+    const orderDays = Number(orderRow.period_days);
+    try { await client.query("BEGIN"); await client.query("UPDATE orders SET status='PAID',provider_payment_key=$1,paid_at=NOW() WHERE order_id=$2", [paymentKey, orderId]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('toss',$1,$2,'DONE',$3,$4) ON CONFLICT DO NOTHING", [paymentKey, current.minecraft_uuid, amount, { ...approved, periodDays: orderDays }]); const sub = await extendSubscription(client, current.minecraft_uuid, current.player_name ?? "Unknown", orderRow.tier, orderDays); await client.query("COMMIT"); return send(res, 200, layout("결제 완료", `<div class="panel"><h1>결제가 완료되었습니다</h1><p class="muted">${esc(TIERS[orderRow.tier].name)} ${periodLabelFromDays(orderDays)} 혜택이 반영되었습니다. 만료일: ${new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p><a class="button" href="${BASE_URL}/account">내 구독 보기</a></div>`)); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
   }
   if (req.method === "GET" && path === "/payment/fail") return send(res, 400, layout("결제 실패", `<div class="panel"><div class="notice danger">${esc(url.searchParams.get("message") ?? "결제가 취소되었거나 승인되지 않았습니다.")}</div><a class="button" href="${BASE_URL}/">다시 선택</a></div>`));
+  */
   if (req.method === "GET" && path === "/admin") return redirect(res, STATS_ADMIN_URL);
   if (req.method === "POST" && /^\/admin\/refund\/[0-9a-f-]+$/i.test(path)) {
     return send(res, 410, layout("관리 페이지 이전", `<div class="panel"><h1>관리 페이지가 이전되었습니다</h1><p>환불 처리는 통계 대시보드의 멤버십 메뉴에서 진행하세요.</p><a class="button" href="${esc(STATS_ADMIN_URL)}">멤버십 관리 열기</a></div>`));
   }
+  /* 토스 웹훅도 현재 비활성화한다. 계좌이체는 웹훅 없이 운영자 확인으로만 지급한다.
   if (req.method === "POST" && path === "/webhooks/toss") {
     // 웹훅은 결제 권한을 부여하지 않는다. 성공 승인 경로는 주문·금액을 토스 API로 직접 검증한다.
     // 여기서는 원본 이벤트를 원장에 보존하고, 외부 취소 알림만 결제 상태에 반영한다.
@@ -1599,6 +1650,7 @@ async function route(req, res) {
     if (order.rowCount && verified.status === "CANCELED") await pool.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [order.rows[0].order_id]);
     return json(res, 200, { ok: true });
   }
+  */
   if (path === "/internal/refunds" && req.method === "GET") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" });
     const r = await pool.query("SELECT rr.id,rr.reason,rr.status,rr.created_at,o.order_id,o.amount_krw,o.payment_method,COALESCE(o.player_name,s.player_name) AS player_name FROM refund_requests rr JOIN orders o ON o.order_id=rr.order_id LEFT JOIN subscriptions s ON s.minecraft_uuid=rr.minecraft_uuid ORDER BY rr.created_at DESC LIMIT 100");
@@ -1618,10 +1670,13 @@ async function route(req, res) {
       try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('bank_transfer',$1,$2,'REFUNDED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.order_id}`, request.minecraft_uuid, request.amount_krw, { refundedBy: actor }]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
       return json(res, 200, { message: "수동 계좌 환불 완료로 기록하고 이용권을 종료했습니다." });
     }
+    /* 토스 환불은 현재 비활성화한다. 재개할 때 계좌이체 분기 뒤에 이 블록을 복원한다.
     const result = await toss(`/v1/payments/${encodeURIComponent(request.provider_payment_key)}/cancel`, "POST", { cancelReason: "바르칸 열도 운영자 승인 환불" });
     const client = await pool.connect();
     try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('toss',$1,$2,'CANCELED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.provider_payment_key}`, request.minecraft_uuid, request.amount_krw, result]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
     return json(res, 200, { message: "전액 환불을 완료하고 구독을 종료했습니다." });
+    */
+    return json(res, 503, { error: "payment_method_disabled", message: "현재는 계좌이체 주문만 환불할 수 있습니다." });
   }
   if (path === "/internal/bank-transfer/orders" && req.method === "GET") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" });

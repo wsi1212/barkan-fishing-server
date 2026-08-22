@@ -76,7 +76,9 @@ def tables():
         "zones": {
             "dealer": spot(-472.0, POKER_FLOOR, 243.0, YAW["east"]),   # 룰렛 딜러 NPC 위치
             "board": spot(-469.0, POKER_TOP, 243.0, 0.0),
-            "wheel": spot(-469.5, POKER_TOP, 247.5, 0.0),
+            # ★휠은 상판 표면보다 0.5 낮게 — 3×3 스테어 링 안에 앉혀 «오목한 볼» 처럼 보이게
+            #   (2026-08-21 유저 지정). 구슬 트랙 높이(BALL_RIM_Y)가 이 값을 전제로 잡혀 있다.
+            "wheel": spot(-469.5, POKER_TOP - 0.5, 247.5, 0.0),
         },
     })
 

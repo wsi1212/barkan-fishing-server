@@ -24,7 +24,19 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GEN = A.GEN
 S, GX, GY, CELL, COLS = L.SCALE, L.GRID_X, L.GRID_Y, L.CELL, L.COLS
 FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_bold.ttf")
+RP_ICON_DIR = os.path.expanduser("~/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon")
+HQ_ICON_DIR = os.path.join(HERE, "src", "hub_icons")
 GOLD_HI, INK = (247, 214, 138), (26, 20, 14)
+
+
+def rp_icon(name):
+    """검증된 고해상도 아이템 아이콘을 큰 길드 타일에도 재사용한다."""
+    return os.path.join(RP_ICON_DIR, name + ".png")
+
+
+def hub_icon(name):
+    """프로젝트에 보관한 큰 허브 아이콘."""
+    return os.path.join(HQ_ICON_DIR, name + ".png")
 
 # 허브: 배경 · 큰 타일 액자 · 작은 칸 액자 · {타일 라벨: 아이콘}
 PARTS = {
@@ -33,12 +45,13 @@ PARTS = {
         "tile": "exec-3d35f90c-1704-427e-8c5c-daca75272d16.png",
         "cell": "exec-6309bb29-dd27-4a14-8776-e710aef25438.png",
         "icons": {
-            "길드 섬": "exec-8f6959ac-66be-4aa1-a11d-7911215704b4.png",   # 2026-08-14 교체(전: 79508801 깃발형)
-            "업그레이드": "exec-df73fe9a-5ed7-4224-b0b5-ebdb71be8947.png",
-            "기부": "exec-1b0b0157-778a-4a03-8564-e8200f088b79.png",
-            "길드원": "exec-9966343f-774d-4e3d-90a8-832cbce3edb2.png",
-            "랭킹": "exec-635348e0-08fb-4272-8f9c-ada9f036029a.png",
-            "엠블럼": "exec-b4679f69-89b3-40f9-83c5-6423a4b2972d.png",
+            # 메뉴·내 정보와 같은 polished item-icon 문법으로 통일한다.
+            "길드 섬": hub_icon("guild_island"),
+            "업그레이드": rp_icon("ui_gui_enhance"),
+            "기부": hub_icon("donation"),
+            "길드원": hub_icon("members"),
+            "랭킹": hub_icon("ranking_simple"),
+            "엠블럼": rp_icon("ui_gui_guild"),
         },
     },
 }
@@ -74,7 +87,7 @@ def sprite(path):
       상자가 그쪽으로 늘어나고, 가운데 정렬이 그만큼 밀린다 — 길드 섬 아이콘이 오른쪽으로
       밀려 있던 이유다(알파 무게중심 622 vs 상자중심 442, 2026-08-14 실측).
     """
-    raw = Image.open(os.path.join(GEN, path))
+    raw = Image.open(path if os.path.isabs(path) else os.path.join(GEN, path))
     keyed = raw.mode == "RGBA" and raw.getchannel("A").getextrema()[0] < 250
     if keyed:
         im = raw.convert("RGBA")

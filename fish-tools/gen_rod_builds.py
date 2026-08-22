@@ -228,6 +228,27 @@ PRESERVE_RODS = {
     #   값은 parts.json 과 반드시 같아야 한다(로어=parts.json 관례).
     "초보자 낚싯대": "초보자 낚싯대|E|0|60|경험치:3|1|스폰마을",
 }
+# ★초보 낚싯대 2종은 일반 등급 상한(E=1)을 그대로 쓰지 않는다.
+#   입문 장비도 3강까지 열되, 풀강 난이도 보정은 -1로만 제한한다.
+#   기존 초보 낚싯대의 +1 효과는 유지해 이미 강화한 아이템의 체감을 보존한다.
+ENHANCE_OVERRIDES = {
+    "초보자 낚싯대": {
+        "max": 3,
+        "levels": {
+            "1": "경험치:3",
+            "2": "경험치:3",
+            "3": "난이도:1",
+        },
+    },
+    "초보 낚싯대": {
+        "max": 3,
+        "levels": {
+            "1": "크기:1",
+            "2": "크리확률:1",
+            "3": "난이도:1",
+        },
+    },
+}
 # ★삭제 허용 목록 — 이 생성기가 직접 만들었다가 시리즈명 통일 과정에서 이름이 바뀐 항목들.
 #   기존 22종(플레이어 데이터가 걸린 이름)은 절대 여기 넣지 말 것. 넣으면 그 연결이 끊긴다.
 RETIRED = {"개발자 낚싯대", "개발자 크리확률",
@@ -523,6 +544,11 @@ def main():
         if c["name"] not in eorder:
             eorder.append(c["name"])
         added += 1
+    # 일반 E급 상한보다 입문 낚싯대 2종의 예외 규칙을 우선 적용한다.
+    for name, profile in ENHANCE_OVERRIDES.items():
+        tbl[name] = profile
+        if name not in eorder:
+            eorder.append(name)
     json.dump(E, open(enh_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     print(f"enhance.json: 강화표 {added}종 추가 (총 {len(tbl)}종)")
 

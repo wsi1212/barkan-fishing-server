@@ -110,43 +110,147 @@ def _require_admin(request: Request):
     return request.session.get("admin")
 
 
+def _blockship_data_dir():
+    """실시간 공개 랭킹이 읽을 BlockShip 데이터 루트.
+
+    공개 랭킹은 일일 telemetry snapshot이 아니라 게임 서버의 현재 playerdata를
+    읽어야 한다. 운영에서는 BLOCKSHIP_DATA_DIR/PLAYERDATA_DIR을 명시하고, 둘 다
+    없을 때만 STATSLAB_DATA_DIR이 .../telemetry인 경우를 안전하게 역산한다.
+    """
+    configured = os.environ.get("BLOCKSHIP_DATA_DIR")
+    if configured:
+        return os.path.abspath(configured)
+    configured_playerdata = os.environ.get("PLAYERDATA_DIR")
+    if configured_playerdata:
+        return os.path.dirname(os.path.abspath(configured_playerdata))
+    telemetry_dir = getattr(queries, "DATA_DIR", "")
+    if os.path.basename(os.path.normpath(telemetry_dir)) == "telemetry":
+        return os.path.dirname(os.path.abspath(telemetry_dir))
+    return ""
+
+
+def _number(value, default=0):
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return default
+
+
+def _read_live_player_rows(playerdata_dir):
+    """현재 playerdata/*.json을 공개 랭킹 행으로 변환한다.
+
+    PlayerDataManager가 원자 교체로 저장하므로 읽는 순간 파일이 교체돼도
+    찢어진 JSON을 보지 않는다. 개별 파일 오류는 해당 유저만 건너뛴다.
+    """
+    if not playerdata_dir or not os.path.isdir(playerdata_dir):
+        return []
+    rows = []
+    try:
+        entries = os.scandir(playerdata_dir)
+    except OSError:
+        return []
+    with entries:
+        for entry in entries:
+            if not entry.name.endswith(".json"):
+                continue
+            try:
+                with open(entry.path, encoding="utf-8") as file:
+                    player = json.load(file)
+                if not isinstance(player, dict):
+                    continue
+                extra_nums = player.get("extraNums")
+                if not isinstance(extra_nums, dict):
+                    extra_nums = {}
+                uuid = str(player.get("uuid") or entry.name[:-5])
+                name = str(player.get("name") or "").strip()
+                if not name:
+                    continue
+                level = player.get("fishingLevel", player.get("level"))
+                current_exp = player.get("currentExp", player.get("curExp"))
+                total_fish = extra_nums.get("총낚시", player.get("totalFish"))
+                dex_discovery = player.get("dexDiscovery")
+                rows.append({
+                    "name": name,
+                    "uuid": uuid,
+                    "level": _number(level, 0),
+                    "cur_exp": current_exp or 0,
+                    "money": _number(player.get("money"), 0),
+                    "cash": _number(player.get("cash"), 0),
+                    "coins": _number(player.get("recommendCoins", player.get("coins")), 0),
+                    "max_combo": _number(player.get("maxCombo"), 0),
+                    "total_fish": _number(total_fish, 0),
+                    "dex_fish": len(dex_discovery.get("물고기", []))
+                    if isinstance(dex_discovery, dict) else _number(player.get("dexFish"), 0),
+                    "popularity": _number(player.get("popularity"), 0),
+                })
+            except (OSError, ValueError, TypeError):
+                continue
+    return rows
+
+
+def _sort_player_rows(rows, field, secondary):
+    """공개 랭킹용 개인 행 정렬(동점이면 보조 수치·이름 순)."""
+    return sorted(
+        rows,
+        key=lambda row: (-float(row.get(field) or 0),
+                         -float(row.get(secondary) or 0),
+                         str(row.get("name") or "").casefold()),
+    )[:100]
+
+
 @app.get("/api/ranking")
 def public_ranking():
-    """공식 홈페이지 전용 공개 랭킹. 읽기 전용이며 운영 통계 인증과 분리한다."""
+    """공식 홈페이지 전용 공개 랭킹.
+
+    개인 랭킹은 일일 player_snapshot이 아니라 현재 playerdata를 우선한다.
+    snapshot은 playerdata가 아직 없거나 읽을 수 없을 때만 fallback으로 쓴다.
+    """
     import sqlite3
-    if not os.path.exists(queries.STATS_DB):
-        return JSONResponse({"updatedAt": None, "categories": {}}, status_code=503)
-    conn = sqlite3.connect(queries.STATS_DB)
-    conn.row_factory = sqlite3.Row
+    conn = None
+    latest = None
+    snapshot_rows = []
+    if os.path.exists(queries.STATS_DB):
+        conn = sqlite3.connect(queries.STATS_DB)
+        conn.row_factory = sqlite3.Row
     try:
-        latest = conn.execute("SELECT MAX(date) AS date FROM player_snapshot").fetchone()["date"]
-        if not latest:
-            return {"updatedAt": None, "categories": {}}
+        if conn is not None:
+            try:
+                latest = conn.execute("SELECT MAX(date) AS date FROM player_snapshot").fetchone()["date"]
+                if latest:
+                    snapshot_rows = [dict(row) for row in conn.execute(
+                        """SELECT name, uuid, level, total_fish, money, cash, coins, max_combo
+                           FROM player_snapshot
+                           WHERE date=? AND name IS NOT NULL AND TRIM(name) != ''""",
+                        (latest,),
+                    ).fetchall()]
+            except sqlite3.DatabaseError:
+                latest = None
+                snapshot_rows = []
 
-        def leaders(order_by):
-            rows = conn.execute(
-                f"""SELECT name, uuid, level, total_fish, money, cash
-                    FROM player_snapshot
-                    WHERE date=? AND name IS NOT NULL AND TRIM(name) != ''
-                    ORDER BY {order_by}, name COLLATE NOCASE ASC
-                    LIMIT 100""",
-                (latest,),
-            ).fetchall()
-            return [dict(row) for row in rows]
-
-        level_rows = leaders("CAST(level AS REAL) DESC, CAST(total_fish AS REAL) DESC")
-        player_levels = {str(row["uuid"]): int(row["level"] or 0) for row in level_rows if row["uuid"]}
-        blockship_dir = os.environ.get(
-            "BLOCKSHIP_DATA_DIR",
-            os.path.dirname(os.path.dirname(os.path.dirname(queries.STATS_DB))),
+        blockship_dir = _blockship_data_dir()
+        playerdata_dir = os.environ.get(
+            "PLAYERDATA_DIR",
+            os.path.join(blockship_dir, "playerdata") if blockship_dir else "",
         )
+        live_player_rows = _read_live_player_rows(playerdata_dir)
+        player_rows = live_player_rows or snapshot_rows
 
         def read_plugin_json(filename):
+            if not blockship_dir:
+                return {}
             try:
                 with open(os.path.join(blockship_dir, filename), encoding="utf-8") as file:
                     return json.load(file)
             except (OSError, ValueError, TypeError):
                 return {}
+
+        level_rows = _sort_player_rows(player_rows, "level", "total_fish")
+        fish_rows = _sort_player_rows(player_rows, "total_fish", "level")
+        wealth_rows = _sort_player_rows(player_rows, "money", "level")
+        player_levels = {
+            str(row["uuid"]): _number(row.get("level"), 0)
+            for row in player_rows if row.get("uuid")
+        }
 
         def guild_level(score):
             thresholds = (3_000, 8_000, 16_000, 28_000, 45_000, 70_000, 100_000, 140_000,
@@ -219,26 +323,15 @@ def public_ranking():
             })
         island_rows.sort(key=lambda row: (-row["visitors"], row["name"].casefold()))
 
-        playerdata_dir = os.environ.get("PLAYERDATA_DIR", os.path.join(blockship_dir, "playerdata"))
         popularity_rows = []
-        try:
-            playerdata_files = [entry.path for entry in os.scandir(playerdata_dir) if entry.name.endswith(".json")]
-        except OSError:
-            playerdata_files = []
-        for path in playerdata_files:
-            try:
-                with open(path, encoding="utf-8") as file:
-                    player = json.load(file)
-                popularity = int(player.get("popularity") or 0)
-                if popularity <= 0 or not player.get("name"):
-                    continue
+        for player in live_player_rows:
+            popularity = _number(player.get("popularity"), 0)
+            if popularity > 0:
                 popularity_rows.append({
                     "name": player["name"],
                     "uuid": player.get("uuid"),
                     "popularity": popularity,
                 })
-            except (OSError, ValueError, TypeError):
-                continue
         popularity_rows.sort(key=lambda row: (-row["popularity"], row["name"].casefold()))
 
         casino_rows = []
@@ -250,7 +343,7 @@ def public_ranking():
             )
         except OSError:
             pass
-        if event_files:
+        if conn is not None and event_files:
             aliases = []
             try:
                 for index, path in enumerate(event_files):
@@ -278,14 +371,19 @@ def public_ranking():
                     except sqlite3.DatabaseError:
                         pass
 
+        if not player_rows and not guild_rows and not island_rows and not popularity_rows and not casino_rows:
+            return JSONResponse({"updatedAt": None, "categories": {}}, status_code=503)
+
+        updated_at = (datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                      if live_player_rows else latest)
         return {
-            "updatedAt": latest,
+            "updatedAt": updated_at,
             "emblemColors": emblem_colors,
             "emblemBackground": emblem_palette.get("background"),
             "categories": {
                 "level": {"label": "낚시 레벨", "field": "level", "suffix": "Lv.", "rows": level_rows},
-                "fish": {"label": "누적 어획", "field": "total_fish", "suffix": "마리", "rows": leaders("CAST(total_fish AS REAL) DESC, CAST(level AS REAL) DESC")},
-                "wealth": {"label": "보유 자산", "field": "money", "suffix": "원", "rows": leaders("CAST(money AS REAL) DESC, CAST(level AS REAL) DESC")},
+                "fish": {"label": "누적 어획", "field": "total_fish", "suffix": "마리", "rows": fish_rows},
+                "wealth": {"label": "보유 자산", "field": "money", "suffix": "원", "rows": wealth_rows},
                 "guild": {"label": "길드 랭킹", "field": "level", "suffix": "Lv.", "rows": guild_rows},
                 "island": {"label": "섬 방문자", "field": "visitors", "suffix": "명", "rows": island_rows},
                 "casino": {"label": "카지노 순수익", "field": "net", "suffix": "원", "rows": casino_rows},
@@ -293,7 +391,8 @@ def public_ranking():
             },
         }
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 
 def _money_fmt(v):

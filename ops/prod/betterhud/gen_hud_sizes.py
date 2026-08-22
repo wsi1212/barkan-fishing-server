@@ -70,10 +70,10 @@ PLACE = dict(
     colors=["#4A3A22", "#4A3A22"],
 )
 
-# 버프 판(우상단, 정보바 아래) — 먹은 요리 버프를 포션 효과처럼 상시 표시.
+# 버프 판(좌상단, 지역바 아래) — 먹은 요리 버프를 포션 효과처럼 상시 표시.
 # ★스탯 줄 수(1~3)만큼 판이 따로 있다. 한 줄짜리 버프에 3줄 판을 붙이면 아래가 텅 빈다.
 #   판 높이 계산식은 gui-forge/build_status_hud.py 의 buff_plate_h() 와 같아야 한다(아래서 검산).
-# ★폭은 정보바·장소바와 같은 124 로 맞췄다. 오른쪽 위에 세로로 나란히 놓이므로 폭이 다르면
+# ★폭은 정보바·장소바와 같은 124 로 맞췄다. 왼쪽 위에 세로로 나란히 놓이므로 폭이 다르면
 #   층이 어긋나 보인다. 그 안에 넣으려고 "이름 한 줄 / 게이지+남은시간 한 줄" 로 쪼갰다 —
 #   가장 작은 단계(x0.5, 판 62px)에서 이름과 시간을 한 줄에 두면 최장 이름
 #   ("야광베리 커스터드" 47px + "12:05" 18px)이 넘친다.
@@ -82,13 +82,13 @@ BUFF = dict(
     # ★미리보기로 잡은 값들이다. row_dy 17 은 아이콘(16px)끼리 맞닿았고, name_y 13 은
     #   이름 글자 위쪽이 양피지 상단선에 2.7px 까지 붙었다(아래 여백은 6.7 로 남아 불균형).
     row0=45, row_dy=19,          # 스탯 줄 중심(판 좌표). 아이콘 16px + 위아래 숨통 3px
-    bottom=18,                   # 마지막 줄 아래 여백. 정보바 판(52/72=20)에 맞춘 값
+    bottom=18,                   # 마지막 줄 아래 여백. 지역바 판(42)에 맞춘 값
     name_y=15,                   # 요리 이름 줄 중심
     bar_y=29,                    # 시간 게이지 줄 중심
     bar=("buff-bar-empty.png", "buff-bar-fill.png", 10, 60, 8),  # (빈, 채움, 판x, 폭=split, 높이)
     name_x=10, time_x=112,       # 시간은 오른쪽 정렬이라 x 가 글자의 오른쪽 끝이다
     icon_x=10, icon_h=16, text_x=30,
-    gap=3,                       # 정보바 아래 여백(배율 무관, 화면 px)
+    gap=3,                       # 지역바 아래 여백(배율 무관, 화면 px)
     name_color="#4A2D12",        # 짙은 갈색 — 판이 크림색이라 밝은 색은 안 보인다
     time_color="#123E42",
     stat_color="#1E5B22",        # 버프는 이득이니 초록 계열
@@ -345,11 +345,11 @@ def build_buff():
     """
     B = BUFF
     img, lay, hud = [], [], []
-    status_h = STATUS["plate"][2]          # 정보바 판 높이 — 그 아래에 붙인다
+    place_h = PLACE["plate"][2]            # 지역바 판 높이 — 그 아래에 붙인다
     for (sid, label), s_ in zip(SIZES, SCALE_STATUS):
         W = round(B["plate_w"] * s_)
-        base_x = W / 2 - (MARGIN_X + W)     # 정보바와 같은 오른쪽 정렬
-        top = MARGIN_Y + round(status_h * s_) + B["gap"]
+        base_x = W / 2 + MARGIN_X          # 지역바와 같은 왼쪽 정렬
+        top = MARGIN_Y + round(place_h * s_) + B["gap"]
 
         # 판 3장
         for n in range(1, B["rows_max"] + 1):
@@ -421,7 +421,7 @@ def build_buff():
             lay.append(f"barkan_buff_layout_{n}_{sid}:  # {label} (x{s_}) · 스탯 {n}줄\n"
                        f"  align: left\n  images:\n" + "".join(images) + "  texts:\n" + "".join(texts))
             hud.append(f"barkan_buff_{n}_{sid}:\n  tick: 20\n  layouts:\n    1:\n"
-                       f"      name: barkan_buff_layout_{n}_{sid}\n      gui:\n        x: 100\n        y: 0\n")
+                       f"      name: barkan_buff_layout_{n}_{sid}\n      gui:\n        x: 0\n        y: 0\n")
     emit("buff-image.yml", "\n".join(img))
     emit("buff-layout.yml", "\n".join(lay))
     emit("buff-hud.yml", "\n".join(hud))

@@ -143,21 +143,36 @@
         render();
       }));
 
-      fetch('/api/ranking', {headers:{Accept:'application/json'}})
-        .then(response => response.ok ? response.json() : Promise.reject(new Error('request failed')))
-        .then(payload => {
-          data = payload;
-          const date = payload.updatedAt;
+      let firstLoad = true;
+      async function loadRanking() {
+        try {
+          // query string으로 브라우저·프록시의 오래된 GET 캐시를 피한다.
+          const response = await fetch(`/api/ranking?t=${Date.now()}`, {
+            cache:'no-store', headers:{Accept:'application/json'}
+          });
+          if (!response.ok) throw new Error('request failed');
+          data = await response.json();
+          const date = data.updatedAt;
           updated.textContent = date ? `${date.replaceAll('-', '.')} 기준 기록` : '기록 갱신 대기 중';
+          status.classList.remove('show');
           render();
-        })
-        .catch(() => {
-          status.textContent = '랭킹을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.';
-          status.classList.add('show');
-          updated.textContent = '기록 연결 확인 중';
-          rows.innerHTML = '<div class="empty-message">서버 기록을 확인하는 중입니다.</div>';
-        })
-        .finally(() => app.classList.remove('loading'));
+        } catch (error) {
+          // 최초 로드 실패만 빈 화면으로 바꾸고, 이후 일시 실패 때는 마지막 정상 기록을 유지한다.
+          if (firstLoad) {
+            status.textContent = '랭킹을 불러오지 못했습니다. 잠시 후 다시 확인합니다.';
+            status.classList.add('show');
+            updated.textContent = '기록 연결 확인 중';
+            rows.innerHTML = '<div class="empty-message">서버 기록을 확인하는 중입니다.</div>';
+          }
+        } finally {
+          firstLoad = false;
+          app.classList.remove('loading');
+        }
+      }
+
+      loadRanking();
+      // 새 유저·레벨·어획·자산 변화를 페이지 새로고침 없이 반영한다.
+      window.setInterval(loadRanking, 30000);
     })();
   </script>
 </body>

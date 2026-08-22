@@ -167,6 +167,11 @@ def transform(root, crown=True):
     root = pathlib.Path(root); st = collections.Counter()
     p0 = root/'models/player_limb/head_0.json'
     d0 = json.loads(p0.read_text())
+    # ★이 변환은 멱등이 아니다 — 패싯은 회전된 프레임의 분수 좌표를 갖게 되므로
+    #   두 번째 실행에서 cell_of 가 셀을 잘못 읽어 기하가 망가진다.
+    #   따라서 «이미 적용됨» 을 감지해 거부한다. 원본 생성물에만 적용할 것.
+    if any('rotation' in e for e in d0['elements']):
+        raise SystemExit('★이미 패싯이 적용된 팩이다 — 원본 생성물에 적용할 것 (중단)')
     for el in d0['elements']:
         key = RL.cell_of(el, RL.B_ORG, RL.B_PX, RL.B_TOP)
         if key in A: put(el, A[key]); st['base_배치'] += 1
@@ -184,4 +189,7 @@ def transform(root, crown=True):
 
 if __name__ == '__main__':
     import sys
-    print(dict(transform(sys.argv[1], crown='--no-crown' not in sys.argv)))
+    # ★기본은 crown=False(f1). crown=True(f2)는 위쪽 모서리에 삼각 구멍이 남는다
+    #   (구멍검출기 4412픽셀) — MC 가 단일축·고정각 회전만 허용해 코너 패치를
+    #   만들 수 없기 때문. 실험용으로만 --crown 을 준다.
+    print(dict(transform(sys.argv[1], crown='--crown' in sys.argv)))

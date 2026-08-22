@@ -7,7 +7,7 @@
   화면 위 보스바 자리에 덩그러니 찍힌다(2026-08-10 실제 사고).
   대안이던 use-unifont 는 한글까지 유니폰트로 바꿔버려서 반려됐다(글꼴이 완전히 달라진다).
 
-★원본을 덮어쓰지 않는다. 원본 + 기호 -> aggro_medium_hud.ttf 를 **매번 다시 뽑는다.**
+★원본을 덮어쓰지 않는다. 원본 + 기호 -> HUD 전용 TTF 를 **매번 다시 뽑는다.**
   원본에 직접 넣으면 폰트를 갱신할 때 추가분이 조용히 사라지고 원인을 못 찾는다.
 
 ★남의 폰트에서 글리프를 복사하지 않는다(그쪽 라이선스가 또 얽힌다). 직접 그린다.
@@ -15,6 +15,7 @@
   그래서 전부 꽉 찬 덩어리로 그리고, 실사용 크기(10px)에서 읽히는지로 판정한다.
 
 사용:  python3 build_hud_font.py [출력.ttf]
+      python3 build_hud_font.py [원본.ttf] [출력.ttf]
 """
 import math
 import os
@@ -24,8 +25,8 @@ from fontTools.ttLib import TTFont
 from fontTools.pens.ttGlyphPen import TTGlyphPen
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
-DST = os.path.join(HERE, "assets", "fonts", "aggro_medium_hud.ttf")
+DEFAULT_SRC = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
+DEFAULT_DST = os.path.join(HERE, "assets", "fonts", "aggro_medium_hud.ttf")
 
 # 이 폰트의 기호 규격(●★ 에서 실측): advance 940, 중심 (470, 300), 반지름 약 400.
 ADV = 940
@@ -139,8 +140,8 @@ SYMBOLS = [
 ]
 
 
-def main(dst=DST):
-    font = TTFont(SRC)
+def main(dst=DEFAULT_DST, src=DEFAULT_SRC):
+    font = TTFont(src)
     glyf, hmtx = font["glyf"], font["hmtx"]
     order = font.getGlyphOrder()
     added = [n for _, n, _ in SYMBOLS if n not in order]
@@ -162,9 +163,18 @@ def main(dst=DST):
 
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     font.save(dst)
+    print(f"원본: {src}")
     print(f"저장: {dst}")
     print("추가한 글자:", " ".join(chr(cp) for cp, _, _ in SYMBOLS))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else DST)
+    args = sys.argv[1:]
+    if len(args) > 2:
+        raise SystemExit("사용법: build_hud_font.py [출력.ttf] 또는 build_hud_font.py [원본.ttf] [출력.ttf]")
+    if len(args) == 1:
+        main(dst=args[0])
+    elif len(args) == 2:
+        main(src=args[0], dst=args[1])
+    else:
+        main()

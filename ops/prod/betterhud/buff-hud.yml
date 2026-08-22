@@ -7,7 +7,7 @@ barkan_buff_1_sm:
     1:
       name: barkan_buff_layout_1_sm
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_2_sm:
@@ -16,7 +16,7 @@ barkan_buff_2_sm:
     1:
       name: barkan_buff_layout_2_sm
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_3_sm:
@@ -25,7 +25,7 @@ barkan_buff_3_sm:
     1:
       name: barkan_buff_layout_3_sm
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_1_md:
@@ -34,7 +34,7 @@ barkan_buff_1_md:
     1:
       name: barkan_buff_layout_1_md
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_2_md:
@@ -43,7 +43,7 @@ barkan_buff_2_md:
     1:
       name: barkan_buff_layout_2_md
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_3_md:
@@ -52,7 +52,7 @@ barkan_buff_3_md:
     1:
       name: barkan_buff_layout_3_md
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_1_lg:
@@ -61,7 +61,7 @@ barkan_buff_1_lg:
     1:
       name: barkan_buff_layout_1_lg
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_2_lg:
@@ -70,7 +70,7 @@ barkan_buff_2_lg:
     1:
       name: barkan_buff_layout_2_lg
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_3_lg:
@@ -79,7 +79,7 @@ barkan_buff_3_lg:
     1:
       name: barkan_buff_layout_3_lg
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_1_xl:
@@ -88,7 +88,7 @@ barkan_buff_1_xl:
     1:
       name: barkan_buff_layout_1_xl
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_2_xl:
@@ -97,7 +97,7 @@ barkan_buff_2_xl:
     1:
       name: barkan_buff_layout_2_xl
       gui:
-        x: 100
+        x: 0
         y: 0
 
 barkan_buff_3_xl:
@@ -106,5 +106,5 @@ barkan_buff_3_xl:
     1:
       name: barkan_buff_layout_3_xl
       gui:
-        x: 100
+        x: 0
         y: 0

@@ -51,7 +51,7 @@ Y_BIAS = 0
 # 서버 폰트. 대사를 실제로 그려서 양피지 밖으로 넘치는지 잡는다.
 # 16px은 인게임 스샷 실측으로 보정한 값. 13px일 때 141px로 나왔는데 실제는 167px이라
 # 18% 과소평가였고, 그래서 글자 넘침을 못 잡았다.
-FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_medium.ttf")
+FONT_TTF = os.path.expanduser("~/development/barkan-resourcepack/assets/barkan/font/aggro_light.ttf")
 # ★npc-dialogue-font.yml 의 scale 과 같아야 한다. 폰트 raster 를 16 -> 32 로 올렸으면
 #   여기도 32 로. 안 맞추면 글자 폭을 절반으로 계산해 넘침을 못 잡는다.
 FONT_PX = 32
