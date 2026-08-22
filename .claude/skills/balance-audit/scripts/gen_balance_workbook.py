@@ -348,7 +348,99 @@ def sim_grade_rates(avail, casts, level=100, luck=0, roll_order=None, seed=20260
 
 
 # ─────────────────────────────────────────────────────────── 엑셀 유틸
-def build_workbook(out_path, sim_casts):
+def read_telemetry(paths):
+    """prod/dev 이벤트 DB(들)에서 실측 지표를 집계한다.
+
+    ★설계값이 아니라 '실제로 이렇게 플레이되고 있다'는 관측이다. 밸런스 판단의 기준선은
+      가정한 처리량이 아니라 여기서 나온 숫자여야 한다(2026-08-22: 문서 가정 220 성공캐스트/h 가
+      실측 대비 3배 과대였음을 여기서 발견).
+    """
+    import sqlite3 as _sq
+
+    out = {
+        "files": [], "span": None, "players": 0, "casts": 0, "results": 0,
+        "res": Counter(), "grade": Counter(), "region": Counter(), "rod": Counter(),
+        "per_player": {}, "harpoon": Counter(), "playmin": 0.0, "fishmin": 0.0,
+    }
+    lo, hi = None, None
+    for p in paths:
+        if not os.path.exists(p):
+            warn(f"이벤트 DB 없음: {p}")
+            continue
+        try:
+            con = _sq.connect(f"file:{p}?mode=ro", uri=True)
+            out["files"].append(os.path.basename(p))
+            a, b = list(con.execute("SELECT min(ts), max(ts) FROM ev"))[0]
+            lo = a if lo is None else min(lo, a)
+            hi = b if hi is None else max(hi, b)
+            for t in ("harpoon.swing", "harpoon.miss", "harpoon.hit", "harpoon.catch"):
+                out["harpoon"][t] += list(
+                    con.execute("SELECT count(*) FROM ev WHERE type=?", (t,))
+                )[0][0]
+            # 플레이어별 캐스트/결과 + 세션시간(10분 이상 공백=새 세션)
+            names = [r[0] for r in con.execute(
+                "SELECT DISTINCT name FROM ev WHERE name IS NOT NULL AND name<>''")]
+            for n in names:
+                pp = out["per_player"].setdefault(
+                    n, {"cast": 0, "ok": 0, "esc": 0, "min": 0.0, "fishmin": 0.0})
+                pp["cast"] += list(con.execute(
+                    "SELECT count(*) FROM ev WHERE type='fish.cast' AND name=?", (n,)))[0][0]
+
+                def bursts(rows, gap_min):
+                    """연속 활동 구간의 길이 합(분). gap_min 이상 비면 다른 구간으로 끊는다."""
+                    total, prev, start = 0.0, None, None
+                    for (t,) in rows:
+                        if prev is None or t - prev > gap_min * 60 * 1000:
+                            if start is not None:
+                                total += (prev - start) / 60000.0
+                            start = t
+                        prev = t
+                    if start is not None:
+                        total += (prev - start) / 60000.0
+                    return total
+
+                # 접속시간 = 아무 이벤트나 기준(10분 공백으로 세션 분리)
+                pp["min"] += bursts(
+                    con.execute("SELECT ts FROM ev WHERE name=? ORDER BY ts", (n,)), 10)
+                # ★낚시 몰입시간 = 낚시 이벤트만 기준(5분 공백으로 끊음). 처리량은 이걸로 나눠야 한다 —
+                #   접속시간으로 나누면 퀘스트·건축·카지노·잠수 시간이 섞여 처리량이 10배 낮게 나온다.
+                pp["fishmin"] += bursts(
+                    con.execute(
+                        "SELECT ts FROM ev WHERE name=? AND type IN ('fish.cast','fish.result') "
+                        "ORDER BY ts", (n,)), 5)
+            for ctx, region, name in con.execute(
+                    "SELECT ctx, region, name FROM ev WHERE type='fish.result'"):
+                out["results"] += 1
+                try:
+                    j = json.loads(ctx or "{}")
+                except (TypeError, ValueError):
+                    continue
+                r = j.get("res") or "?"
+                out["res"][r] += 1
+                pp = out["per_player"].setdefault(
+                    name or "?", {"cast": 0, "ok": 0, "esc": 0, "min": 0.0, "fishmin": 0.0})
+                if r in ("성공", "크리티컬"):
+                    out["grade"][j.get("g")] += 1
+                    out["region"][region or "(없음)"] += 1
+                    out["rod"][j.get("rod") or "(미기록)"] += 1
+                    pp["ok"] += 1
+                elif r == "도주":
+                    pp["esc"] += 1
+            out["casts"] += list(con.execute(
+                "SELECT count(*) FROM ev WHERE type='fish.cast'"))[0][0]
+            con.close()
+        except Exception as e:  # noqa: BLE001
+            warn(f"이벤트 DB 읽기 실패 {p}: {e}")
+    if lo:
+        out["span"] = (datetime.datetime.fromtimestamp(lo / 1000),
+                       datetime.datetime.fromtimestamp(hi / 1000))
+    out["players"] = len([1 for v in out["per_player"].values() if v["cast"]])
+    out["playmin"] = sum(v["min"] for v in out["per_player"].values())
+    out["fishmin"] = sum(v["fishmin"] for v in out["per_player"].values())
+    return out
+
+
+def build_workbook(out_path, sim_casts, events=(), cph_override=None):
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
@@ -418,6 +510,19 @@ def build_workbook(out_path, sim_casts):
     QJ = read_json("quests.json", {})
     JC = pull_java_consts()
     CAT, CAT_TS = read_catalogs()
+
+    TEL = read_telemetry(events) if events else None
+    CPH_FALLBACK = 68.0   # 실측 폴백 (2026-08 prod). ★구 문서 가정 220 은 3배 과대였다
+    if cph_override:
+        CPH_MEASURED, CPH_SRC = float(cph_override), f"수동 지정 {cph_override}"
+    elif TEL and TEL["fishmin"] > 60 and TEL["res"]:
+        ok = TEL["res"].get("성공", 0) + TEL["res"].get("크리티컬", 0)
+        CPH_MEASURED = round(ok / (TEL["fishmin"] / 60.0), 1)
+        CPH_SRC = (f"실측 — {ok}회 성공 / 낚시몰입 {TEL['fishmin']/60:.1f}h "
+                   f"(접속 {TEL['playmin']/60:.0f}h 중) [{', '.join(TEL['files'])}]")
+    else:
+        CPH_MEASURED, CPH_SRC = CPH_FALLBACK, f"폴백 상수 {CPH_FALLBACK} (이벤트 DB 미지정)"
+    print(f"성공캐스트/h = {CPH_MEASURED}  ({CPH_SRC})")
 
     parts = P.get("parts", {})
     fishdefs = F.get("fish", {})
@@ -1331,7 +1436,7 @@ def build_workbook(out_path, sim_casts):
             rate["E"] = int(m2.group(1))
     if not rate:
         warn("gradeUnitRate 파싱 실패 — 수리비 시트 부실")
-    CPH = 220  # 실측 처리량(캐스트/h) — balance-audit metrics 기준
+    CPH = CPH_MEASURED  # 성공캐스트/h — 실측 우선(없으면 폴백)
     rows = []
     for t in ("릴", "줄", "바늘", "미끼", "찌"):
         for name, spec in parts.get(t, {}).items():
@@ -1386,6 +1491,202 @@ def build_workbook(out_path, sim_casts):
         ["구분", "항목", "분해 수율", "단위", "제작비(조각)", "비고"], rows,
         {"항목": 32, "단위": 18, "비고": 44}, tab="375623",
     )
+
+    # ============================================================== 32 재료 소요 ★
+    # mat: 로어 마커로 '조합으로 만들어지는 재료' 인덱스 — 중간재 재귀 전개용
+    made_by = {}
+    for rid, rc in recipes.items():
+        for line in (rc.get("result") or {}).get("lore", []) or []:
+            mm = re.search(r"mat:(\S+)", line)
+            if mm:
+                made_by[mm.group(1)] = rid
+
+    def expand_raw(rid, mult=1, depth=0, acc=None):
+        """레시피를 '더 이상 조합으로 안 만들어지는' 원재료까지 재귀 전개."""
+        acc = {} if acc is None else acc
+        rc = recipes.get(rid)
+        if not rc:
+            return acc
+        for i in rc.get("ingredients", []):
+            t, q = i["typeOrMatId"], i.get("qty", 1) * mult
+            if i.get("kind") == "custom" and t in made_by and depth < 6:
+                expand_raw(made_by[t], q, depth + 1, acc)
+            else:
+                acc[t] = acc.get(t, 0) + q
+        return acc
+
+    def eff_rates(rid):
+        """지역의 실효 드롭테이블(자기 것 없으면 부모 상속) → {matId: %}"""
+        tbl = drops.get(rid)
+        if not tbl:
+            for pid in parent_chain(rid):
+                if drops.get(pid):
+                    tbl = drops[pid]
+                    break
+        return {d["matId"]: d["chance"] for d in (tbl or [])}
+
+    REGION_RATES = {r: eff_rates(r) for r in fishing_regions}
+    REAL_REGIONS = [r for r in fishing_regions if r in RG and not is_stub(r)]
+
+    def sourcing(raw):
+        """원재료 dict → (총 성공캐스트, 지역별 배분, 획득불가 목록).
+
+        재료마다 '가장 빨리 모을 수 있는 지역'을 고르고, 같은 지역 안에서는 병렬로 모이므로
+        그 지역의 최댓값만 센다. 서로 다른 지역이면 왕복해야 하므로 합산한다.
+        """
+        per, miss, detail = {}, [], []
+        for m, q in raw.items():
+            if m not in mats and m.islower():
+                continue                      # 바닐라 아이템(coal 등)은 낚시 경제 밖
+            best = None
+            for rg in REAL_REGIONS:
+                c = REGION_RATES[rg].get(m, 0)
+                if c:
+                    need = q / (c / 100.0)
+                    if best is None or need < best[1]:
+                        best = (rg, need, c)
+            if best is None:
+                miss.append(f"{mats.get(m, {}).get('name', m)}x{q}")
+                continue
+            per[best[0]] = max(per.get(best[0], 0), best[1])
+            detail.append((best[1], m, q, best[0], best[2]))
+        detail.sort(reverse=True)
+        return sum(per.values()), per, miss, detail
+
+    rows = []
+    for t in ("낚싯대", "작살", "릴", "줄", "바늘", "미끼", "찌"):
+        for name, spec in parts.get(t, {}).items():
+            pd = parse_part(spec)
+            rc = rec_by_rod.get(name) if t == "낚싯대" else rec_by_part.get((t, name))
+            if rc is None:
+                rc = rec_by_part.get((t, name))
+            if not rc:
+                rows.append([t, pd["이름"], pd["등급"], pd["레벨제한"], pd["출처"], "레시피없음",
+                             "", "", None, None, None, "", "", "", ""])
+                continue
+            direct = " + ".join(
+                f"{i.get('displayName') or i['typeOrMatId']}x{i.get('qty', 1)}"
+                for i in rc.get("ingredients", []))
+            raw = expand_raw(rc["id"])
+            total, per, miss, detail = sourcing(raw)
+            amp = sum(raw.values()) / max(1, sum(i.get("qty", 1) for i in rc.get("ingredients", [])))
+            top = detail[0] if detail else (0, "", 0, "", 0)
+            rows.append([
+                t, pd["이름"], pd["등급"], pd["레벨제한"], pd["출처"], rc["id"],
+                direct,
+                " + ".join(f"{mats.get(k, {}).get('name', k)}x{v}" for k, v in
+                           sorted(raw.items(), key=lambda kv: -kv[1])),
+                round(amp, 1),
+                round(total) if total else None,
+                round(total / CPH, 1) if total else None,
+                len(per),
+                mats.get(top[1], {}).get("name", top[1]),
+                f"{top[3]} {top[4]}%" if top[3] else "",
+                ", ".join(miss) if miss else "",
+            ])
+    rows.sort(key=lambda r: (r[0], r[3], GRADE_RANK.get(r[2], 0)))
+    ws = sheet(
+        "32_재료소요_장비", "장비 1개를 만드는 데 필요한 실제 낚시량 ★",
+        f"원재료 전개 = 중간재(정제된 갈고리·단단한 자루 등)를 끝까지 펼친 진짜 요구량. "
+        f"소요캐스트는 '재료별로 가장 빠른 지역을 고르고, 같은 지역은 병렬·다른 지역은 왕복 합산'으로 계산했다. "
+        f"시간 환산은 {CPH} 성공캐스트/h ({CPH_SRC}). "
+        "★획득불가 재료가 있으면 그 장비는 낚시만으로는 절대 못 만든다(드릴/사막 등 다른 경제 필요).",
+        ["부위", "이름", "등급", "레벨제한", "출처", "레시피id", "직접재료(레시피 표시)",
+         "원재료 전개(진짜 요구량)", "증폭배수", "소요 성공캐스트", f"소요시간(h @{CPH}/h)",
+         "방문 지역수", "구속재료", "구속지역·확률", "낚시로 획득불가"],
+        rows, {"이름": 22, "직접재료(레시피 표시)": 46, "원재료 전개(진짜 요구량)": 52,
+               "낚시로 획득불가": 30}, tab="C00000",
+        numfmt={"소요 성공캐스트": "#,##0", f"소요시간(h @{CPH}/h)": "0.0"},
+    )
+    for r in range(5, 5 + len(rows)):
+        h = ws.cell(row=r, column=11).value
+        if isinstance(h, (int, float)):
+            if h >= 6:
+                ws.cell(row=r, column=11).fill = BAD_FILL
+            elif h >= 3:
+                ws.cell(row=r, column=11).fill = WARN_FILL
+
+    # ============================================================== 33 중간재 트리
+    rows = []
+    for mid, rid in sorted(made_by.items()):
+        rc = recipes[rid]
+        ings = rc.get("ingredients", [])
+        users = [r2.get("displayName", k) for k, r2 in recipes.items()
+                 if any(i["typeOrMatId"] == mid for i in r2.get("ingredients", []))]
+        rows.append([
+            mats.get(mid, {}).get("name", mid), mid, rid, rc.get("displayName", ""),
+            "예" if rc.get("locked") else "아니오",
+            sum(i.get("qty", 1) for i in ings),
+            " + ".join(f"{i.get('displayName') or i['typeOrMatId']}x{i.get('qty', 1)}" for i in ings),
+            len(users), ", ".join(sorted(set(users))[:6]), "",
+        ])
+    rows.sort(key=lambda r: -r[5])
+    sheet(
+        "33_중간재트리", "중간재 — 요구량을 부풀리는 지점",
+        "낚싯대/부품 레시피는 원재료를 직접 쓰지 않고 중간재를 거친다. '1개당 원재료' 가 클수록 "
+        "레시피 화면에 보이는 숫자와 실제 노동량의 괴리가 커진다. "
+        "예: 정제된 갈고리 1개 = 낡은 갈고리 8개 → 레시피가 4개를 요구하면 실제로는 32개.",
+        ["중간재", "재료id", "레시피id", "레시피명", "잠김", "1개당 원재료 총개수", "구성",
+         "사용 레시피수", "사용처(일부)", "메모"],
+        rows, {"구성": 44, "사용처(일부)": 40, "메모": 18}, tab="C00000",
+    )
+
+    # ============================================================== 34 실측 텔레메트리
+    if TEL and TEL["results"]:
+        rows = []
+        sp = TEL["span"]
+        rows.append(["기간", f"{sp[0]:%Y-%m-%d} ~ {sp[1]:%Y-%m-%d}" if sp else "", "", ""])
+        rows.append(["원본", ", ".join(TEL["files"]), "", ""])
+        rows.append(["낚시한 플레이어", TEL["players"], "명", ""])
+        rows.append(["총 접속시간", round(TEL["playmin"] / 60, 1), "시간", "10분 이상 공백=세션 분리"])
+        rows.append(["└ 낚시 몰입시간", round(TEL["fishmin"] / 60, 1), "시간",
+                     "★낚시 이벤트만 기준(5분 공백으로 끊음). 처리량은 이걸로 나눈다 — "
+                     "접속시간으로 나누면 퀘스트·건축·카지노 시간이 섞인다"])
+        rows.append(["fish.cast (던진 횟수)", TEL["casts"], "회", ""])
+        rows.append(["fish.result (결과 기록)", TEL["results"], "회", "캐스트 대비 결과가 적으면 입질 전 취소·풀없음 등"])
+        ok = TEL["res"].get("성공", 0) + TEL["res"].get("크리티컬", 0)
+        rows.append(["└ 성공(크리 포함)", ok, "회", "★재료 드롭은 이때만 굴러간다"])
+        for k, v in TEL["res"].most_common():
+            if k not in ("성공", "크리티컬"):
+                rows.append([f"└ {k}", v, "회", ""])
+        rows.append(["성공/캐스트", f"{ok / TEL['casts'] * 100:.1f}%" if TEL["casts"] else "", "", "재료 롤이 실제로 도는 비율"])
+        rows.append(["성공/시간", CPH_MEASURED, "회/h", "★밸런스 계산의 기준선. 구 문서 가정 220 은 3배 과대였다"])
+        hp = TEL["harpoon"]
+        if hp.get("harpoon.swing"):
+            rows.append(["작살 명중률",
+                         f"{hp.get('harpoon.hit', 0) / hp['harpoon.swing'] * 100:.1f}%", "",
+                         f"swing {hp['harpoon.swing']} / hit {hp.get('harpoon.hit', 0)} / miss {hp.get('harpoon.miss', 0)}"])
+        rows.append(["", "", "", ""])
+        rows.append(["── 등급 실측 vs 시뮬 ──", "", "", ""])
+        gtot = sum(TEL["grade"].values())
+        ref = sim_grade_rates(set("EDCBASMLG"), sim_casts, roll_order=roll_order)
+        for g in "EDCBASMLG":
+            act = TEL["grade"].get(g, 0)
+            rows.append([f"{g}등급", f"{act / gtot * 100:.2f}%" if gtot else "",
+                         f"시뮬 {ref.get(g, 0):.2f}%",
+                         f"실측 {act}마리 / {gtot}" + ("  (표본 부족)" if act < 5 else "")])
+        rows.append(["", "", "", ""])
+        rows.append(["── 실제로 낚시하는 지역 ──", "", "", ""])
+        for rg, n in TEL["region"].most_common(12):
+            rows.append([rg, n, f"{n / gtot * 100:.1f}%" if gtot else "",
+                         "드롭테이블: " + (", ".join(
+                             f"{mats.get(k, {}).get('name', k)} {v}%"
+                             for k, v in eff_rates(rg).items()) or "없음")])
+        rows.append(["", "", "", ""])
+        rows.append(["── 플레이어별 ──", "", "", ""])
+        for n, v in sorted(TEL["per_player"].items(), key=lambda kv: -kv[1]["cast"]):
+            if not v["cast"]:
+                continue
+            rows.append([n, v["cast"], f"성공 {v['ok']} / 도주 {v['esc']}",
+                         (f"낚시 {v['fishmin']/60:.1f}h → 성공 {v['ok']/(v['fishmin']/60):.0f}회/h"
+                          f"  (접속 {v['min']/60:.1f}h)") if v["fishmin"] > 5 else ""])
+        sheet(
+            "34_실측_텔레메트리", "실측 — 설계값이 아니라 실제로 이렇게 플레이된다 ★",
+            "prod 이벤트 DB 집계. 등급 실측이 시뮬과 맞는지, 유저가 어느 지역에서 노는지, "
+            "시간당 성공 캐스트가 몇인지를 본다. 밸런스 판단의 기준선은 가정이 아니라 이 숫자다.",
+            ["항목", "값", "비교/비율", "비고"], rows,
+            {"항목": 26, "값": 14, "비교/비율": 20, "비고": 70}, tab="00B050",
+        )
 
     # ============================================================== 90 점검표
     issues = []
@@ -1460,6 +1761,71 @@ def build_workbook(out_path, sim_casts):
             if up:
                 add("보통", "어종풀", f"{rid}: E등급 어종 없음 → 실패분이 전부 {up}등급으로 승격",
                     f"롤 실패(=E)가 가용성 폴백으로 {up}로 올라간다. 이 지역 하한 수입이 조용히 크게 뛴다")
+    # ★초반 장비를 그 지역에서 자급할 수 있는가 (2026-08-22 신설 — 항구 사건)
+    #   유저가 실제로 머무는 지역에서 초반 레시피 재료가 안 나오면 진행이 '느린' 게 아니라 '막힌다'.
+    STARTER_REGIONS = ["항구", "스폰도시", "강"]
+    for t in ("낚싯대", "릴", "줄", "바늘", "찌"):
+        for name, spec in parts.get(t, {}).items():
+            pd = parse_part(spec)
+            if not (1 < pd["레벨제한"] <= 10):
+                continue
+            rc = rec_by_rod.get(name) if t == "낚싯대" else rec_by_part.get((t, name))
+            if not rc:
+                continue
+            raw = expand_raw(rc["id"])
+            for rg in STARTER_REGIONS:
+                if rg not in RG or is_stub(rg):
+                    continue
+                rr = REGION_RATES.get(rg, {})
+                zero = [mats.get(m, {}).get("name", m) for m in raw
+                        if (m in mats) and not rr.get(m)]
+                if zero:
+                    add("높음", "초반진행", f"{rg}에서 '{name}'(Lv{pd['레벨제한']}) 자급 불가",
+                        f"이 지역 드롭테이블에 없는 재료: {', '.join(zero)} — "
+                        f"여기서만 낚시하는 신규 유저는 이 장비를 영구히 못 만든다")
+                    break
+    # 장비 1개 소요시간이 과도한가
+    for t in ("낚싯대", "릴", "줄", "바늘", "찌"):
+        for name, spec in parts.get(t, {}).items():
+            pd = parse_part(spec)
+            if pd["레벨제한"] > 15:
+                continue
+            rc = rec_by_rod.get(name) if t == "낚싯대" else rec_by_part.get((t, name))
+            if not rc:
+                continue
+            total, per, miss, _d = sourcing(expand_raw(rc["id"]))
+            if total and total / CPH >= 4:
+                add("보통", "초반진행", f"{t} '{name}'(Lv{pd['레벨제한']}) 재료 {total:.0f}캐스트",
+                    f"{total / CPH:.1f}시간 / 방문 지역 {len(per)}곳 — 해금 레벨 대비 과도한지 확인")
+
+    # ★재료 수요 대비 드롭률 (2026-08-22 신설 — 별빛진주 사건)
+    #   확률을 전 지역 균일하게 평탄화하면 '캐러 갈 좋은 지역'이 사라져서, 수요가 큰 재료는
+    #   조용히 최상위 병목이 된다. 최대 수요 / 최고 드롭률로 캐스트를 환산해 잡는다.
+    demand = {}
+    for rid, rc in recipes.items():
+        if rc.get("category") not in ("낚싯대", "작살", "부품"):
+            continue
+        for m, q in expand_raw(rid).items():
+            if m in mats:
+                demand[m] = max(demand.get(m, 0), q)
+    for m, q in sorted(demand.items(), key=lambda kv: -kv[1]):
+        best = max(((rg, REGION_RATES[rg].get(m, 0)) for rg in REAL_REGIONS),
+                   key=lambda x: x[1], default=(None, 0))
+        if not best[1]:
+            continue
+        need = q / (best[1] / 100.0)
+        spread = sorted({REGION_RATES[rg].get(m, 0) for rg in REAL_REGIONS} - {0})
+        flat = len(spread) == 1 and len(
+            [rg for rg in REAL_REGIONS if REGION_RATES[rg].get(m)]) >= 5
+        if need >= 2000:
+            add("높음", "재료수요", f"{mats[m]['name']}: 최대 {q}개 요구 / 최고 {best[1]}% → {need:,.0f}캐스트",
+                f"{need / CPH:.0f}시간({best[0]} 기준). "
+                + ("★전 지역 확률이 균일해서 파밍 최적지가 없다 — 지역 차등을 주거나 요구량을 낮출 것"
+                   if flat else f"최고 확률 지역={best[0]}"))
+        elif flat and need >= 600:
+            add("보통", "재료수요", f"{mats[m]['name']}: 전 지역 {best[1]}% 균일 / 최대 {q}개 요구",
+                f"{need:,.0f}캐스트({need / CPH:.1f}h). 확률 평탄화로 파밍 최적지가 없다")
+
     # 드롭테이블 없는 낚시 지역
     for rid in fishing_regions:
         if rid not in drops and not any(p in drops for p in parent_chain(rid)):
@@ -1529,6 +1895,10 @@ def main():
     ap.add_argument("--json", help="BlockShip 데이터 디렉터리 override")
     ap.add_argument("--java", help="blockship-plugin src/main/java/com/blockship override")
     ap.add_argument("--sim", type=int, default=400000, help="등급 PRD 몬테카를로 캐스트 수")
+    ap.add_argument("--events", nargs="*", default=[],
+                    help="텔레메트리 이벤트 DB 경로(여러 개 가능). 주면 실측 시트 + 처리량 자동 산출")
+    ap.add_argument("--cph", type=float,
+                    help="성공캐스트/h 수동 지정 (기본: --events 실측, 없으면 68)")
     a = ap.parse_args()
     global JSON_ROOT, JAVA_ROOT
     if a.json:
@@ -1540,7 +1910,7 @@ def main():
     except ImportError:
         print("openpyxl 필요:  python3 -m pip install --user openpyxl", file=sys.stderr)
         return 1
-    path = build_workbook(a.out, a.sim)
+    path = build_workbook(a.out, a.sim, a.events, a.cph)
     print(f"\n생성 완료: {path}")
     if WARNINGS:
         print(f"경고 {len(WARNINGS)}건 — 99_시트목차 시트 하단 참조")
