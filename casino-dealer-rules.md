@@ -25,14 +25,25 @@
 
 | 항목 | 값 | 출처 |
 |---|---|---|
-| **테이블 리밋** | **1인 한 핸드 50,000원** (2026-08-23 신설) | `CasinoLimits.MAX_BET` |
+| **테이블 리밋** | **1인 한 핸드 100,000원** (2026-08-23 신설, 5만→10만) | `CasinoLimits.MAX_BET` |
+| **기본금(스테이크)** | **테이블마다 다름** — 게임별 서→동 순서로 1천 / 5천 / 1만 | `TableDef.stake` · `/카지노테이블 기본금` |
 | 홀덤 베팅 방식 | **팟 리밋** — 한 액션 상한 = 콜한 뒤의 팟 (2026-08-23, 구 노리밋) | `HoldemTableEngine.potLimit` |
-| 블라인드 | SB 1,500 / BB 3,000 (2026-08-23, 구 5,000/10,000) | `PokerTableRuntime.java:50` |
-| 섯다 앤티 | 3,000 | `PokerTableRuntime.java:51` |
+| 블라인드 | BB = 그 테이블 기본금, SB = 절반 | `PokerTableRuntime.bigBlind` |
+| 섯다 앤티 | 그 테이블 기본금 | `PokerTableRuntime.ante` |
+| 블랙잭·쓰리카드 최소 베팅 | 그 테이블 기본금 | `HouseTableRuntime.minBet` |
 | **스택** | **지갑 전액** — 리밋을 스택으로 구현하지 않는다 | `PokerTableRuntime.walletOf` |
-| 1인 핸드 캡 | 홀덤 50,000 / 섯다 `min(앤티×20, 50,000)` = 50,000. 캡 도달 = 올인 취급 | `HoldemTableEngine.available` · `SeotdaTableEngine.cap` |
-| 최소 착석 | 홀덤 30,000 (BB×10) / 섯다 6,000 (앤티×2) | `PokerTableRuntime.java:122` |
-| 레이크 | 승자 순이익의 5%, 홀덤 상한 5BB(15,000) | `PokerTableRuntime.java:52,297` |
+| 1인 핸드 캡 | 홀덤 100,000 / 섯다 `min(앤티×20, 100,000)` (1천 테이블=2만, 5천 테이블=10만). 캡 도달 = 올인 취급 | `HoldemTableEngine.available` · `SeotdaTableEngine.cap` |
+| 최소 착석 | 홀덤 BB×10 / 섯다 앤티×2 (1천 테이블 = 1만 / 2천) | `PokerTableRuntime.minJoinAmount` |
+| 레이크 | 승자 순이익의 5%, 홀덤 상한 5BB | `PokerTableRuntime.java:52,297` |
+
+**현재 배치** (게임별 서→동. 좌표는 `casino-tables.json`, 바꾸려면 `/카지노테이블 기본금 <id> <금액>`)
+
+| 게임 | 1천원 테이블 | 5천원 테이블 | 1만원 테이블 |
+|---|---|---|---|
+| 홀덤 | `holdem` (z240) | `holdem2` (z248) | — |
+| 섯다 | `seotda2` (x−446) | `seotda` (x−439) | — |
+| 블랙잭 | `blackjack2` (x−470) | `blackjack` (x−462) | `blackjack3` (x−454) |
+| 쓰리카드 | `threecard2` (x−440) | `threecard` (x−432) | — |
 
 ★**캡을 스택으로 구현하면 안 된다** — 2026-08-23 처음엔 `스택 = min(지갑, 5만)`으로 넣었다가
 반려됐다("카지노 잔액을 50000원으로 만들지는 마라"). 좌석 이름표에 5만이 찍혀 실제 잔액이
