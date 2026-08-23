@@ -36,11 +36,10 @@ def build():
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=7, seed=SEED, part_x=3)
     g.face_shape(s, P['skin'], jaw='oval')
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['green']), y=4, gaze=0, iris_idx=2)
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['green']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=3)
     g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])          # 속눈썹/눈꼬리
-    f.rect(3, 6, 4, 6, P['lip'][2])                              # 입술
+    f.rect(3, 7, 4, 7, P['lip'][2])                              # 입술
     g.ponytail(s, P['hair'], x0=2, w=2, y0=6, y1=11)             # 땋은 머리
 
     # 블라우스 → 치마 → 보디스 → 앞치마

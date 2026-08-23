@@ -53,11 +53,10 @@ def build():
     g.wrinkles(s, P['skin'], brow_y=3, crow=True)            # 마을에서 제일 깊은 주름
     g.face_shape(s, P['skin'], jaw='long')
     g.face_marks(s, P['skin'], kind='sunken', seed=SEED)
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['grey']), y=4, gaze=0, iris_idx=1)
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['grey']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=2)
     g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])       # 속눈썹/눈꼬리 1px
-    f.rect(3, 6, 4, 6, P['berry'][1])                        # 입술 톤 = 여성으로 읽히는 최소 단서
+    f.rect(3, 7, 4, 7, P['berry'][1])                        # 입술 톤 = 여성으로 읽히는 최소 단서
     f.px(2, 5, P['skin'][1]); f.px(5, 5, P['skin'][1])       # 팔자주름
     g.headscarf(s, P['shawl'], rows=3, tail=True, seed=SEED)
 

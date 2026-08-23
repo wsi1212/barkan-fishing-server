@@ -53,11 +53,10 @@ def build():
     g.hair(s, P['hair'], fringe=2, back=5, seed=SEED, part_x=3)
     g.face_shape(s, P['skin'], jaw='oval')
     g.face_marks(s, P['skin'], kind='freckles', seed=SEED)
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['green']), y=5, gaze=0, iris_idx=2)
-    g.brow(s, P['hair'][1], y=4)
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['green']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=3)
+    g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])   # 속눈썹/눈꼬리
-    f.rect(3, 6, 4, 6, P['lip'][2])                      # 입술
+    f.rect(3, 7, 4, 7, P['lip'][2])                      # 입술
     # 머리망: 뒤통수만 덮는다. 얼굴 쪽으로 내려오면 코이프(힐데)와 겹친다
     g.cap(s, P['net'], crown=2, brim=False, seed=SEED)
     for fname in ('back', 'right', 'left'):              # 망 아래로 빠져나온 머리

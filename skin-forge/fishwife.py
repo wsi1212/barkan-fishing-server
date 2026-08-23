@@ -51,11 +51,10 @@ def build():
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED)
     g.wrinkles(s, P['skin'], crow=True, forehead=False)
     g.face_shape(s, P['skin'], jaw='oval')
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['hazel']), y=5, gaze=0, iris_idx=1)
-    g.brow(s, P['hair'][1], y=4)
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['hazel']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])   # 속눈썹/눈꼬리
-    f.rect(3, 6, 4, 6, P['lip'][2])                      # 입술
+    f.rect(3, 7, 4, 7, P['lip'][2])                      # 입술
     g.headscarf(s, P['scarf'], rows=2, tail=True, seed=SEED)
     # ★두건이 머리카락을 전부 덮으면 여성으로 안 읽힌다(유저 지적: 남자처럼 보임).
     #   관자놀이에 앞머리를 드러내야 성별과 '천을 두른 것'이 동시에 읽힌다

@@ -32,11 +32,10 @@ def build():
     g.ears(s, P['skin'], y=4)
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED)
     g.face_shape(s, P['skin'], jaw='narrow')
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['grey']), y=4, gaze=0, iris_idx=1, socket=P['skin'][1])
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['grey']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=2)
     g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])           # 속눈썹
-    f.rect(3, 6, 4, 6, P['lip'][2])                               # 입술
+    f.rect(3, 7, 4, 7, P['lip'][2])                               # 입술
     g.headscarf(s, P['linen'], rows=2, tail=False, seed=SEED)     # ★흰 코이프
 
     g.tunic(s, P['robe'], y0=0, y1=11, collar=True, seed=SEED, grain=0.07, hem=False)

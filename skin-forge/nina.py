@@ -53,11 +53,10 @@ def build():
     g.hair(s, P['hair'], fringe=2, back=6, seed=SEED, part_x=3)
     g.face_shape(s, P['skin'], jaw='narrow')
     g.face_marks(s, P['skin'], kind='freckles', seed=SEED)
-    g.eyes(s, 'c9c4b8', ramp(g.IRIS['blue']), y=5, gaze=0, iris_idx=1)
-    g.brow(s, P['hair'][1], y=4)
+    g.female_eyes_big(s, 'c9c4b8', ramp(g.IRIS['blue']), P['skin'], P['hair'], eye_y=5, gaze=0, iris_idx=2)
+    g.brow(s, P['hair'][1], y=3)
     f = s.f('head', 'front')
-    f.px(0, 4, P['skin'][1]); f.px(7, 4, P['skin'][1])   # 속눈썹/눈꼬리
-    f.rect(3, 6, 4, 6, P['lip'][2])                      # 입술
+    f.rect(3, 7, 4, 7, P['lip'][2])                      # 입술
     g.ponytail(s, P['hair'], x0=3, w=2, y0=0, y1=5)      # 뒤로 땋아 묶음
 
     # ---- base: 팔은 맨살로 깔고 가운이 덮는다(로브는 outer만 채운다)
