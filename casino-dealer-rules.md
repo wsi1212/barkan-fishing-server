@@ -26,6 +26,7 @@
 | 항목 | 값 | 출처 |
 |---|---|---|
 | **테이블 리밋** | **한 판 50,000원** (2026-08-23 신설) | `CasinoLimits.MAX_BET` |
+| 홀덤 베팅 방식 | **팟 리밋** — 한 액션 상한 = 콜한 뒤의 팟 (2026-08-23, 구 노리밋) | `HoldemTableEngine.potLimit` |
 | 블라인드 | SB 500 / BB 1,000 (2026-08-23, 리밋에 맞춰 1/10) | `PokerTableRuntime.java:50` |
 | 섯다 앤티 | 1,000 | `PokerTableRuntime.java:51` |
 | 핸드 스택 | `min(지갑, 50,000)` — 한 핸드 최대 노출이 곧 리밋 | `PokerTableRuntime.handStackOf` |
