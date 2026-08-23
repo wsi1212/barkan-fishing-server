@@ -186,7 +186,7 @@ VARIANTS = {
                 legs='charcoal', boot='boot', head='kerchief', headc='linen',
                 prop='basket', apron=True,
                 surface=('pocket', 'trim'), surfc='rust',
-                eye_y=4, iris='green', jaw='oval', cheek=True, marks='freckles', mouth_y=6),
+                eye_y=5, iris='green', jaw='oval', cheek=True, marks='freckles', mouth_y=6),
     '105': dict(file='inga', hstyle='wave', cid=105, label='잉가 — 물 긷는 여인',
                 # "물 길으러 나왔어요" → 가장 소박한 차림. 금속 0곳
                 female=True, skin='b59878', hair='d9bb63', bare=True, hem=10, sleeve=2,
@@ -204,7 +204,7 @@ VARIANTS = {
                 legs='soot', boot='boot', head='kerchief', headc='teal',
                 prop='scales', apron=True, roll=5,
                 surface='pocket', surfc='teal',
-                eye_y=4, iris='dark', jaw='narrow', backhair=9, brow_a=-1),
+                eye_y=5, iris='dark', jaw='narrow', backhair=9, brow_a=-1),
     '138': dict(file='frieda', hstyle='sideswept', cid=138, label='프리다 — 항구 가수',
                 # "항구엔 늘 노랫거리가 있죠" → 마을에서 유일하게 색을 좀 쓴다
                 # ★그 '색을 쓴다'가 말뿐이었다(와인색=채도 0.28). 꼭두서니 빨강 + 웰드
@@ -214,7 +214,7 @@ VARIANTS = {
                 head=None, prop='shawl', shawl='weld', braid=True,
                 surface=('lacing', 'trim'), surfc='weld',
                 layer2='sash', l2c='weld',
-                eye_y=3, iris='green', jaw='oval', backhair=9, cheek=True, lip='a8484a'),
+                eye_y=4, iris='green', jaw='oval', backhair=9, cheek=True, lip='a8484a'),
 
     # ── 아이 / 젊은이 ────────────────────────────────────────────────────
     '137': dict(file='leo', mouth=True, mstyle='crop', cid=137, label='레오 — 부두 아이',
@@ -250,7 +250,7 @@ VARIANTS = {
                apron=True, roll=6, braid=True,
                 surface='pocket', surfc='canvas',
                 hem=10,
-                eye_y=4, iris='brown', jaw='oval', backhair=8, marks='mole'),
+                eye_y=5, iris='brown', jaw='oval', backhair=8, marks='mole'),
     '73': dict(file='doran', mstyle='plain', cid=73, label='도란 — 상단 바르칸 지부',
                # "상단 바르칸 지부의 도란이라 하오" → 마르코82(상단마을)의 하급 동료.
                #   버건디는 마르코 몫이니 여기는 짙은 청록 + 놋쇠 한 곳
@@ -268,7 +268,7 @@ VARIANTS = {
                 boot='boot', head='kerchief', headc='oat', prop='yarn',
                 surface='check', surfc='oat',
                 garb='overdress', over='oat',
-                eye_y=4, iris='amber', jaw='oval', backhair=9, cheek=True),
+                eye_y=5, iris='amber', jaw='oval', backhair=9, cheek=True),
     '109': dict(file='siegfried', mstyle='plain', cid=109, label='지그프리트 — 사냥꾼',
                 # "사냥이든 낚시든, 실력은 눈으로 봐야 알지" → 후드 + 가죽 + 화살통
                 skin='b58761', hair='4a3a2a', beard='stubble',
@@ -312,7 +312,7 @@ VARIANTS = {
                legs='navy', boot='boot', head=None, prop='basket',
                apron=True, braid=True,
                 surface='stripe_v', surfc='linen',
-                eye_y=4, iris='brown', jaw='oval', backhair=8, cheek=True, mouth_w=3),
+                eye_y=5, iris='brown', jaw='oval', backhair=8, cheek=True, mouth_w=3),
     '30': dict(file='bettina', hstyle='bob', cid=30, label='베티나 — 요리 안내',
                # "이 주방에선 잡은 걸로 근사한 요리를 만든답니다" → 주방 보조
                female=True, skin='caab9c', hair='2b2118', bootrows=2, bare=True, hem=7, sleeve=5, braid=True,
@@ -338,7 +338,7 @@ VARIANTS = {
                garb='kirtle', cloth='navy', under='cream', legs='charcoal',
                boot='boot_d', head=None, prop='ledger', accent='brass',
                 surface=('trim', 'buttons'), surfc='brass',
-                eye_y=3, iris='grey', jaw='narrow', backhair=9, brow_a=1),
+                eye_y=5, iris='grey', jaw='narrow', backhair=9, brow_a=1),
 
     # ── 기능 NPC (&b) ────────────────────────────────────────────────────
     '9': dict(file='gunter', mstyle='plain', grime=True, cid=9, label='군터 — 마을 대장간',
@@ -367,7 +367,7 @@ VARIANTS = {
               legs='leather_d', boot='boot', head='kerchief', headc='mustard',
               prop='scales', apron=True, roll=6,
                 surface='pocket', surfc='mustard',
-                eye_y=4, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
+                eye_y=5, iris='hazel', jaw='square', backhair=8, marks='ruddy'),
     '13': dict(file='greta', hstyle='straight', cid=13, label='그레타 — 물고기 판매',
                # 어물전 셋 중 최고령. 색을 가장 뺀다
                female=True, age=True, skin='a0856e', hair='9a938a', wrapshawl='woad', hem=10, sleeve=7,
@@ -376,7 +376,7 @@ VARIANTS = {
                prop='scales', apron=True, roll=6,
                 surface='check', surfc='oat',
                 garb='overdress', over='charcoal',
-                eye_y=4, iris='grey', jaw='long', backhair=6, socket=True),
+                eye_y=5, iris='grey', jaw='long', backhair=6, socket=True),
     '7': dict(file='klaus', mouth=True, mstyle='sidepart', cid=7, label='클라우스 — 잡화 상점',
               # ★모래색 코트+가죽 캡+파우치는 '사냥꾼'으로 읽힌다(유저 지적).
               #   가게를 지키는 사람은 앞치마와 장부로 말한다 — 모자를 벗기고

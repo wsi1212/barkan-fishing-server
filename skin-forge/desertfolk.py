@@ -90,7 +90,7 @@ VARIANTS = {
                garb='veil_robe', cloth='indigo_d', over='indigo', sash='ochre',
                head='veil', headc='indigo_d', prop='ledger', accent='brass',
                trim=True,
-               eye_y=4, iris='grey', jaw='long', socket=True, brow_a=1),
+               eye_y=5, iris='grey', jaw='long', socket=True, brow_a=1),
     '78': dict(file='safir', cid=78, label='사피르 — 감정사',
                # appraisal. 물건을 들여다보는 사람 — 손저울과 확대경
                skin='9c7146', hair='a89a6f', beard='goatee',
@@ -121,7 +121,7 @@ VARIANTS = {
                 female=True, skin='b98a5c', hair='2b2118',
                 garb='veil_robe', cloth='terra', over='mustard', sash='ecru',
                 head='veil', headc='mustard', prop='yarn', pattern=True,
-               eye_y=4, iris='amber', jaw='oval', cheek=True),
+               eye_y=5, iris='amber', jaw='oval', cheek=True),
     '115': dict(file='omar', cid=115, label='오마르 — 대상(카라반) 대장',
                 # "대상이 사막을 건너려면 든든한 양식이 필요하지" → 두꺼운 겉옷 + 물주머니
                 skin='9c6b3f', hair='2f2721', beard='full',
@@ -133,7 +133,7 @@ VARIANTS = {
                 female=True, skin='b98a5c', hair='1b1a24',
                 garb='veil_robe', cloth='plum', over='copper', sash='ecru',
                 head='veil', headc='plum', prop='vials', accent='brass',
-               eye_y=3, iris='green', jaw='narrow', cheek=True),
+               eye_y=5, iris='green', jaw='narrow', cheek=True),
 
     # ── 일반 주민 ────────────────────────────────────────────────────────
     '111': dict(file='rashid', cid=111, label='라시드 — 주민',
@@ -146,7 +146,7 @@ VARIANTS = {
                 female=True, skin='ba806a', hair='241f1c',
                 garb='veil_robe', cloth='indigo_d', over=None, sash='ecru',
                 head='veil', headc='indigo', prop='pouch',
-               eye_y=4, iris='hazel', jaw='narrow', cheek=True),
+               eye_y=5, iris='hazel', jaw='narrow', cheek=True),
     '113': dict(file='yunus', cid=113, label='유누스 — 우물지기',
                 # "이 우물이 마르면 마을이 마릅니다" → 젖은 소매 + 두레박 밧줄
                 skin='9c7146', hair='4a2f22', beard='goatee',

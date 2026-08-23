@@ -31,7 +31,7 @@ V = {
                garb='coat', cloth='navy', under='linen', legs='tar',
                boot='boot_d', head='cap', headc='tar', prop='ledger',
                accent='brass',
-               eye_y=3, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface=('trim', 'buttons'), surfc='brass', layer2='sash', l2c='crimson'),
+               eye_y=5, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface=('trim', 'buttons'), surfc='brass', layer2='sash', l2c='crimson'),
     '51': dict(file='matteo', cid=51, label='마테오 — 갑판장',
                # "이 갑판 위의 일은 전부 내 소관이지" → 팔뚝이 굵고 밧줄을 두른다
                skin='ab7748', hair='241f1c', beard='full',
@@ -162,7 +162,7 @@ V = {
                 garb='kirtle', cloth='chalk', under='linen', extra='linen',
                 legs='linen', boot='boot', head='kerchief', headc='linen',
                 prop='ladle', apron=True, roll=6,
-               eye_y=4, iris='hazel', jaw='square', cheek=True, marks='ruddy', mouth_w=3, surface='pocket', surfc='bloom'),
+               eye_y=5, iris='hazel', jaw='square', cheek=True, marks='ruddy', mouth_w=3, surface='pocket', surfc='bloom'),
 }
 
 _orig_props = tf.props

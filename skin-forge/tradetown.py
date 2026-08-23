@@ -92,7 +92,7 @@ V = {
                female=True, skin='a89055', hair='241f1c', hem=11, sleeve=9,
                garb='kirtle', cloth='ink', under='grey', legs='ink',
                boot='boot_d', head='hood', headc='ink', prop='pouch',
-               eye_y=4, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface='lacing', surfc='ink'),
+               eye_y=5, iris='grey', jaw='narrow', backhair=9, brow_a=1, surface='lacing', surfc='ink'),
     '96': dict(file='carlo', cid=96, label='카를로 — 향신료·생선 사업',
                skin='b98a5c', hair='a89a6f', beard='goatee',
                garb='coat', cloth='ochre', under='sail', legs='umber2',
@@ -104,7 +104,7 @@ V = {
                female=True, skin='e0bcae', hair='c2a052', off=True, hem=11, sleeve=7,
                garb='kirtle', cloth='cream', under='sail', legs='sea',
                boot='boot', head=None, prop='ledger', braid=True,
-               eye_y=3, iris='blue', jaw='narrow', backhair=8, marks='freckles', surface='placket', surfc='ink'),
+               eye_y=5, iris='blue', jaw='narrow', backhair=8, marks='freckles', surface='placket', surfc='ink'),
     '98': dict(file='roberto', cid=98, label='로베르토 — 창고 관리',
                skin='c39a72', hair='4a3d2f', beard='stubble',
                garb='tunic', cloth='umber2', under='oat', legs='charcoal',
@@ -122,7 +122,7 @@ V = {
                 garb='kirtle', cloth='cream', under='sail', extra='sail',
                 legs='ochre', boot='boot', head='kerchief', headc='wine2',
                 prop='basket', apron=True,
-               eye_y=4, iris='grey', jaw='long', backhair=6, marks='ruddy', surface='stripe_v', surfc='sail'),
+               eye_y=5, iris='grey', jaw='long', backhair=6, marks='ruddy', surface='stripe_v', surfc='sail'),
 
     # ── 일반 주민 ────────────────────────────────────────────────────────
     '84': dict(file='antonio', cid=84, label='안토니오 — 짐꾼',
@@ -137,7 +137,7 @@ V = {
                female=True, skin='d0a57f', hair='a83a1e', bootrows=2, bare=True, hem=7, sleeve=2, braid=True,
                garb='kirtle', cloth='ink', under='sail', legs='linen',
                boot='boot_d', head=None, prop='ledger', accent='brass',
-               eye_y=3, iris='dark', jaw='narrow', backhair=8, surface='trim', surfc='brass'),
+               eye_y=5, iris='dark', jaw='narrow', backhair=8, surface='trim', surfc='brass'),
     '86': dict(file='francesco', cid=86, label='프란체스코 — 40년 노잡이',
                # "이 바다에서 40년을 저었지" → 늙은 뱃사람. 구스킨은 현대 의사 복장
                skin='b0855e', hair='9a938a', beard='full', age=True,
@@ -150,7 +150,7 @@ V = {
                garb='kirtle', cloth='burgundy', under='sail', legs='burgundy',
                boot='boot', head='kerchief', headc='ochre', prop='vialset',
                braid=True,
-               eye_y=4, iris='green', jaw='oval', cheek=True, backhair=9, surface='trim', surfc='brass'),
+               eye_y=5, iris='green', jaw='oval', cheek=True, backhair=9, surface='trim', surfc='brass'),
     '88': dict(file='vincenzo', cid=88, label='빈센초 — 술집 주인',
                # "여행 끝에 한잔이 최고지" → 넉넉한 체구 + 앞치마 + 술잔
                skin='c99f76', hair='6b5540', beard='mutton',
@@ -168,7 +168,7 @@ V = {
                garb='kirtle', cloth='chalk', under='sail', extra='oat',
                legs='linen', boot='boot', head='kerchief', headc='rust',
                prop='scales', apron=True, roll=6,
-               eye_y=4, iris='brown', jaw='oval', cheek=True, surface='pocket', surfc='sea'),
+               eye_y=5, iris='brown', jaw='oval', cheek=True, surface='pocket', surfc='sea'),
     '91': dict(file='massimo', cid=91, label='마시모 — 짐꾼(노년)',
                # "등이 다 나갔지" → 84 안토니오보다 늙고 굽었다
                skin='b0855e', hair='7a6e5f', beard='full', age=True,
