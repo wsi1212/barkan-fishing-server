@@ -151,14 +151,15 @@ def tables():
             },
         })
 
-    # ── 쓰리카드 2개 (쐐기형: 계단식 3좌석, 전부 북향) ──────────────────────
+    # ── 쓰리카드 2개 (쐐기형: 계단식 3좌석, 동쪽 끝 좌석은 테이블 안쪽 서향) ──
     # T1(서) 상판: z228~229 x −440..−438 / z230~231 x −442..−439 / z232 x −442..−441
     out.append({
         "id": "threecard2", "game": "THREE_CARD", "world": "world",
         "seats": [
             spot(-441.5, HOUSE_FLOOR, 233.0 + SETBACK, YAW["north"]),
             spot(-439.5, HOUSE_FLOOR, 232.0 + SETBACK, YAW["north"]),
-            spot(-437.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["north"]),
+            # 동쪽 끝 좌석(-437.5, 41, 230)은 테이블 안쪽(서쪽)을 바라본다.
+            spot(-437.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["west"]),
         ],
         "zones": {
             "dealer": spot(-441.0, HOUSE_FLOOR, 228.0, YAW["south"]),   # 쓰리카드 딜러Ⅱ NPC 위치
@@ -172,7 +173,8 @@ def tables():
         "seats": [
             spot(-431.5, HOUSE_FLOOR, 233.0 + SETBACK, YAW["north"]),
             spot(-433.5, HOUSE_FLOOR, 232.0 + SETBACK, YAW["north"]),
-            spot(-435.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["north"]),
+            # 서쪽 끝 좌석(-435.5, 41, 230)은 테이블 안쪽(동쪽)을 바라본다.
+            spot(-435.5, HOUSE_FLOOR, 230.0 + SETBACK, YAW["east"]),
         ],
         "zones": {
             "dealer": spot(-434.5, HOUSE_FLOOR, 228.0, YAW["south"]),   # 쓰리카드 딜러 NPC 위치
