@@ -595,21 +595,14 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 6
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart of the sea",
-          "qty": 1
+          "qty": 16
         }
       ]
     },
@@ -1727,6 +1720,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "나무 릴",
       "ingredients": [
@@ -1758,8 +1752,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P02": {
       "id": "P02",
@@ -1768,6 +1761,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "철제 릴",
       "ingredients": [
@@ -1806,8 +1800,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P03": {
       "id": "P03",
@@ -1816,6 +1809,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "릴",
       "resultPartName": "정밀 릴",
       "ingredients": [
@@ -1854,8 +1848,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P04": {
       "id": "P04",
@@ -1864,6 +1857,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "고속 릴",
       "ingredients": [
@@ -1902,8 +1896,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P05": {
       "id": "P05",
@@ -1912,6 +1905,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "전기 릴",
       "ingredients": [
@@ -1950,8 +1944,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P06": {
       "id": "P06",
@@ -1960,6 +1953,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "전술 릴",
       "ingredients": [
@@ -1998,8 +1992,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P07": {
       "id": "P07",
@@ -2008,6 +2001,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "릴",
       "resultPartName": "만능 릴",
       "ingredients": [
@@ -2046,8 +2040,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P08": {
       "id": "P08",
@@ -2056,6 +2049,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "왕도",
       "resultPartType": "릴",
       "resultPartName": "바르칸 릴",
       "ingredients": [
@@ -2094,8 +2088,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "왕도"
+      ]
     },
     "P09": {
       "id": "P09",
@@ -2104,6 +2097,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "면줄",
       "ingredients": [
@@ -2135,8 +2129,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P10": {
       "id": "P10",
@@ -2145,6 +2138,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "나일론줄",
       "ingredients": [
@@ -2183,8 +2177,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P11": {
       "id": "P11",
@@ -2193,6 +2186,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "카본줄",
       "ingredients": [
@@ -2231,8 +2225,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P12": {
       "id": "P12",
@@ -2241,6 +2234,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "줄",
       "resultPartName": "PE합사줄",
       "ingredients": [
@@ -2279,8 +2273,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P13": {
       "id": "P13",
@@ -2289,6 +2282,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "강철 와이어",
       "ingredients": [
@@ -2327,8 +2321,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P14": {
       "id": "P14",
@@ -2337,6 +2330,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "티타늄줄",
       "ingredients": [
@@ -2375,8 +2369,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P15": {
       "id": "P15",
@@ -2385,6 +2378,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "거미줄",
       "ingredients": [
@@ -2423,8 +2417,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P16": {
       "id": "P16",
@@ -2433,6 +2426,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "쌍줄",
       "ingredients": [
@@ -2471,8 +2465,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P17": {
       "id": "P17",
@@ -2481,6 +2474,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "왕도",
       "resultPartType": "줄",
       "resultPartName": "바르칸 줄",
       "ingredients": [
@@ -2519,8 +2513,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "왕도"
+      ]
     },
     "P18": {
       "id": "P18",
@@ -2529,6 +2522,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "줄",
       "resultPartName": "천공 와이어",
       "ingredients": [
@@ -2567,8 +2561,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P19": {
       "id": "P19",
@@ -2577,6 +2570,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "철 바늘",
       "ingredients": [
@@ -2608,8 +2602,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P20": {
       "id": "P20",
@@ -2618,6 +2611,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "날카로운 바늘",
       "ingredients": [
@@ -2656,8 +2650,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P21": {
       "id": "P21",
@@ -2666,6 +2659,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "미늘 바늘",
       "ingredients": [
@@ -2704,8 +2698,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P22": {
       "id": "P22",
@@ -2714,6 +2707,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "바늘",
       "resultPartName": "용뼈 바늘",
       "ingredients": [
@@ -2752,8 +2746,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P23": {
       "id": "P23",
@@ -2762,6 +2755,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "예리한 바늘",
       "ingredients": [
@@ -2800,8 +2794,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P24": {
       "id": "P24",
@@ -2810,6 +2803,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "정교한 바늘",
       "ingredients": [
@@ -2848,8 +2842,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P25": {
       "id": "P25",
@@ -2858,6 +2851,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "대형 바늘",
       "ingredients": [
@@ -2889,8 +2883,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P26": {
       "id": "P26",
@@ -2899,6 +2892,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "독침 바늘",
       "ingredients": [
@@ -2937,8 +2931,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P27": {
       "id": "P27",
@@ -2947,6 +2940,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "갈고리 바늘",
       "ingredients": [
@@ -2985,8 +2979,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P28": {
       "id": "P28",
@@ -2995,6 +2988,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "왕도",
       "resultPartType": "바늘",
       "resultPartName": "바르칸 바늘",
       "ingredients": [
@@ -3033,8 +3027,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "왕도"
+      ]
     },
     "P29": {
       "id": "P29",
@@ -3043,6 +3036,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "코르크 찌",
       "ingredients": [
@@ -3074,8 +3068,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P30": {
       "id": "P30",
@@ -3084,6 +3077,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "가벼운 찌",
       "ingredients": [
@@ -3122,8 +3116,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P31": {
       "id": "P31",
@@ -3132,6 +3125,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "전자 찌",
       "ingredients": [
@@ -3170,8 +3164,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P32": {
       "id": "P32",
@@ -3180,6 +3173,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "찌",
       "resultPartName": "수정 찌",
       "ingredients": [
@@ -3218,8 +3212,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P33": {
       "id": "P33",
@@ -3228,6 +3221,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "예민한 찌",
       "ingredients": [
@@ -3266,8 +3260,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P34": {
       "id": "P34",
@@ -3276,6 +3269,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "초정밀 찌",
       "ingredients": [
@@ -3314,8 +3308,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P35": {
       "id": "P35",
@@ -3324,6 +3317,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "행운 전자찌",
       "ingredients": [
@@ -3362,8 +3356,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P36": {
       "id": "P36",
@@ -3372,6 +3365,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "왕도",
       "resultPartType": "찌",
       "resultPartName": "바르칸 찌",
       "ingredients": [
@@ -3410,8 +3404,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "왕도"
+      ]
     },
     "TR01": {
       "id": "TR01",
@@ -9427,6 +9420,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "행운 릴",
       "ingredients": [
@@ -9458,8 +9452,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P61": {
       "id": "P61",
@@ -9468,6 +9461,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "수련용 릴",
       "ingredients": [
@@ -9506,8 +9500,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P62": {
       "id": "P62",
@@ -9516,6 +9509,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "황동 릴",
       "ingredients": [
@@ -9554,8 +9548,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P63": {
       "id": "P63",
@@ -9564,6 +9557,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "길조 릴",
       "ingredients": [
@@ -9602,8 +9596,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P64": {
       "id": "P64",
@@ -9612,6 +9605,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "릴",
       "resultPartName": "사막 릴",
       "ingredients": [
@@ -9650,8 +9644,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P65": {
       "id": "P65",
@@ -9660,6 +9653,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "릴",
       "resultPartName": "행렬 릴",
       "ingredients": [
@@ -9698,8 +9692,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P66": {
       "id": "P66",
@@ -9708,6 +9701,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "릴",
       "resultPartName": "열사 릴",
       "ingredients": [
@@ -9746,8 +9740,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P67": {
       "id": "P67",
@@ -9756,6 +9749,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "릴",
       "resultPartName": "신기루 릴",
       "ingredients": [
@@ -9794,8 +9788,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P68": {
       "id": "P68",
@@ -9804,6 +9797,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "릴",
       "resultPartName": "교역 릴",
       "ingredients": [
@@ -9842,8 +9836,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P69": {
       "id": "P69",
@@ -9852,6 +9845,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "행운실",
       "ingredients": [
@@ -9883,8 +9877,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P70": {
       "id": "P70",
@@ -9893,6 +9886,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "합사 카본줄",
       "ingredients": [
@@ -9931,8 +9925,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P71": {
       "id": "P71",
@@ -9941,6 +9934,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "줄",
       "resultPartName": "사막 강선",
       "ingredients": [
@@ -9979,8 +9973,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P72": {
       "id": "P72",
@@ -9989,6 +9982,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "줄",
       "resultPartName": "대상 밧줄",
       "ingredients": [
@@ -10027,8 +10021,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P73": {
       "id": "P73",
@@ -10037,6 +10030,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "줄",
       "resultPartName": "모래바람 줄",
       "ingredients": [
@@ -10075,8 +10069,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P74": {
       "id": "P74",
@@ -10085,6 +10078,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "줄",
       "resultPartName": "신기루 줄",
       "ingredients": [
@@ -10123,8 +10117,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P75": {
       "id": "P75",
@@ -10133,6 +10126,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "줄",
       "resultPartName": "교역 합사줄",
       "ingredients": [
@@ -10171,8 +10165,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P76": {
       "id": "P76",
@@ -10181,6 +10174,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "길조 바늘",
       "ingredients": [
@@ -10219,8 +10213,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P77": {
       "id": "P77",
@@ -10229,6 +10222,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "바늘",
       "resultPartName": "전갈 바늘",
       "ingredients": [
@@ -10267,8 +10261,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P78": {
       "id": "P78",
@@ -10277,6 +10270,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "바늘",
       "resultPartName": "행렬 바늘",
       "ingredients": [
@@ -10315,8 +10309,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P79": {
       "id": "P79",
@@ -10325,6 +10318,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "바늘",
       "resultPartName": "신기루 바늘",
       "ingredients": [
@@ -10363,8 +10357,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P80": {
       "id": "P80",
@@ -10373,6 +10366,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "바늘",
       "resultPartName": "사구 바늘",
       "ingredients": [
@@ -10411,8 +10405,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P81": {
       "id": "P81",
@@ -10421,6 +10414,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "바늘",
       "resultPartName": "세공 바늘",
       "ingredients": [
@@ -10459,8 +10453,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P82": {
       "id": "P82",
@@ -10469,6 +10462,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "바늘",
       "resultPartName": "교역 바늘",
       "ingredients": [
@@ -10507,8 +10501,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P83": {
       "id": "P83",
@@ -10517,6 +10510,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "향기나는 미끼",
       "ingredients": [
@@ -10548,8 +10542,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P84": {
       "id": "P84",
@@ -10558,6 +10551,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "떡밥",
       "ingredients": [
@@ -10589,8 +10583,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P85": {
       "id": "P85",
@@ -10599,6 +10592,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "거대 미끼",
       "ingredients": [
@@ -10637,8 +10631,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P86": {
       "id": "P86",
@@ -10647,6 +10640,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "살아있는 미끼",
       "ingredients": [
@@ -10685,8 +10679,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P87": {
       "id": "P87",
@@ -10695,6 +10688,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "새우",
       "ingredients": [
@@ -10733,8 +10727,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P88": {
       "id": "P88",
@@ -10743,6 +10736,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "빛나는 미끼",
       "ingredients": [
@@ -10781,8 +10775,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P89": {
       "id": "P89",
@@ -10791,6 +10784,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "번개 미끼",
       "ingredients": [
@@ -10829,8 +10823,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P90": {
       "id": "P90",
@@ -10839,6 +10832,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "길조 미끼",
       "ingredients": [
@@ -10877,8 +10871,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P91": {
       "id": "P91",
@@ -10887,6 +10880,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "반딧불이 미끼",
       "ingredients": [
@@ -10925,8 +10919,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P92": {
       "id": "P92",
@@ -10935,6 +10928,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "미끼",
       "resultPartName": "오아시스 미끼",
       "ingredients": [
@@ -10973,8 +10967,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P93": {
       "id": "P93",
@@ -10983,6 +10976,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "미끼",
       "resultPartName": "행렬 미끼",
       "ingredients": [
@@ -11021,8 +11015,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P94": {
       "id": "P94",
@@ -11031,6 +11024,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "미끼",
       "resultPartName": "신기루 미끼",
       "ingredients": [
@@ -11069,8 +11063,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P95": {
       "id": "P95",
@@ -11079,6 +11072,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "미끼",
       "resultPartName": "오아시스 정수 미끼",
       "ingredients": [
@@ -11117,8 +11111,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P96": {
       "id": "P96",
@@ -11127,6 +11120,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "미끼",
       "resultPartName": "프리미엄 미끼",
       "ingredients": [
@@ -11165,8 +11159,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P97": {
       "id": "P97",
@@ -11175,6 +11168,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "미끼",
       "resultPartName": "천공 미끼",
       "ingredients": [
@@ -11213,8 +11207,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P98": {
       "id": "P98",
@@ -11223,6 +11216,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "미끼",
       "resultPartName": "교역 미끼",
       "ingredients": [
@@ -11261,8 +11255,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P99": {
       "id": "P99",
@@ -11271,6 +11264,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "왕도",
       "resultPartType": "미끼",
       "resultPartName": "바르칸 미끼",
       "ingredients": [
@@ -11309,8 +11303,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "왕도"
+      ]
     },
     "P100": {
       "id": "P100",
@@ -11319,6 +11312,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "행운 찌",
       "ingredients": [
@@ -11350,8 +11344,7 @@
           "mcItem": "paper",
           "qty": 6
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P101": {
       "id": "P101",
@@ -11360,6 +11353,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "수련용 찌",
       "ingredients": [
@@ -11398,8 +11392,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P102": {
       "id": "P102",
@@ -11408,6 +11401,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "황동 찌",
       "ingredients": [
@@ -11446,8 +11440,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P103": {
       "id": "P103",
@@ -11456,6 +11449,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "찌",
       "resultPartName": "모래 찌",
       "ingredients": [
@@ -11494,8 +11488,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P104": {
       "id": "P104",
@@ -11504,6 +11497,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "찌",
       "resultPartName": "행렬 찌",
       "ingredients": [
@@ -11542,8 +11536,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P105": {
       "id": "P105",
@@ -11552,6 +11545,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "찌",
       "resultPartName": "사구 찌",
       "ingredients": [
@@ -11590,8 +11584,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P106": {
       "id": "P106",
@@ -11600,6 +11593,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "찌",
       "resultPartName": "신기루 찌",
       "ingredients": [
@@ -11638,8 +11632,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P107": {
       "id": "P107",
@@ -11648,6 +11641,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "찌",
       "resultPartName": "세공 찌",
       "ingredients": [
@@ -11686,8 +11680,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P108": {
       "id": "P108",
@@ -11696,6 +11689,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "찌",
       "resultPartName": "교역 찌",
       "ingredients": [
@@ -11734,8 +11728,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "TR01D": {
       "id": "TR01D",
@@ -17236,6 +17229,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
       "resultPartName": "수집 릴",
       "ingredients": [
@@ -17274,8 +17268,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P115": {
       "id": "P115",
@@ -17284,6 +17277,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "릴",
       "resultPartName": "유적 릴",
       "ingredients": [
@@ -17322,8 +17316,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P116": {
       "id": "P116",
@@ -17332,6 +17325,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "릴",
       "resultPartName": "수집상 릴",
       "ingredients": [
@@ -17370,8 +17364,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P117": {
       "id": "P117",
@@ -17380,6 +17373,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "줄",
       "resultPartName": "수집 삼합줄",
       "ingredients": [
@@ -17418,8 +17412,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P118": {
       "id": "P118",
@@ -17428,6 +17421,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "줄",
       "resultPartName": "유적 밧줄",
       "ingredients": [
@@ -17466,8 +17460,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P119": {
       "id": "P119",
@@ -17476,6 +17469,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "줄",
       "resultPartName": "수집상 합사줄",
       "ingredients": [
@@ -17514,8 +17508,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P120": {
       "id": "P120",
@@ -17524,6 +17517,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
       "resultPartName": "수집 바늘",
       "ingredients": [
@@ -17562,8 +17556,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P121": {
       "id": "P121",
@@ -17572,6 +17565,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "바늘",
       "resultPartName": "유적 바늘",
       "ingredients": [
@@ -17610,8 +17604,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P122": {
       "id": "P122",
@@ -17620,6 +17613,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "바늘",
       "resultPartName": "수집상 바늘",
       "ingredients": [
@@ -17658,8 +17652,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P123": {
       "id": "P123",
@@ -17668,6 +17661,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "미끼",
       "resultPartName": "수집 미끼",
       "ingredients": [
@@ -17706,8 +17700,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P124": {
       "id": "P124",
@@ -17716,6 +17709,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "미끼",
       "resultPartName": "유적 미끼",
       "ingredients": [
@@ -17754,8 +17748,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P125": {
       "id": "P125",
@@ -17764,6 +17757,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "미끼",
       "resultPartName": "수집상 미끼",
       "ingredients": [
@@ -17802,8 +17796,7 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
     "P126": {
       "id": "P126",
@@ -17812,6 +17805,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "찌",
       "resultPartName": "수집 찌",
       "ingredients": [
@@ -17850,8 +17844,7 @@
           "mcItem": "blackstone",
           "qty": 3
         }
-      ],
-      "village": "스폰"
+      ]
     },
     "P127": {
       "id": "P127",
@@ -17860,6 +17853,7 @@
       "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "사막",
       "resultPartType": "찌",
       "resultPartName": "유적 찌",
       "ingredients": [
@@ -17898,8 +17892,7 @@
           "mcItem": "blackstone",
           "qty": 8
         }
-      ],
-      "village": "사막"
+      ]
     },
     "P128": {
       "id": "P128",
@@ -17908,6 +17901,7 @@
       "locked": false,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "상단",
       "resultPartType": "찌",
       "resultPartName": "수집상 찌",
       "ingredients": [
@@ -17946,110 +17940,210 @@
           "mcItem": "heart_of_the_sea",
           "qty": 4
         }
-      ],
-      "village": "상단"
+      ]
     },
-    "R00b": {
-      "id": "R00b",
+    "P129": {
+      "id": "P129",
       "category": "부품",
-      "displayName": "초보자 릴",
-      "locked": false,
+      "displayName": "채집 릴",
+      "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "릴",
-      "resultPartName": "초보자 릴",
+      "resultPartName": "채집 릴",
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron nugget",
-          "qty": 2
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 4
         },
         {
           "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 1
-        }
-      ]
-    },
-    "R00c": {
-      "id": "R00c",
-      "category": "부품",
-      "displayName": "초보자 줄",
-      "locked": false,
-      "resultMode": "part",
-      "drillTier": 0,
-      "resultPartType": "줄",
-      "resultPartName": "초보자 줄",
-      "ingredients": [
+          "typeOrMatId": "거대비늘",
+          "displayName": "거대 비늘",
+          "mcItem": "turtle_scute",
+          "qty": 4
+        },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 6
         }
       ]
     },
-    "R00d": {
-      "id": "R00d",
+    "P130": {
+      "id": "P130",
       "category": "부품",
-      "displayName": "초보자 바늘",
-      "locked": false,
+      "displayName": "채집실",
+      "locked": true,
       "resultMode": "part",
       "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "줄",
+      "resultPartName": "채집실",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "거대비늘",
+          "displayName": "거대 비늘",
+          "mcItem": "turtle_scute",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화실",
+          "displayName": "강화 실",
+          "mcItem": "string",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 6
+        }
+      ]
+    },
+    "P131": {
+      "id": "P131",
+      "category": "부품",
+      "displayName": "채집 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
       "resultPartType": "바늘",
-      "resultPartName": "초보자 바늘",
+      "resultPartName": "채집 바늘",
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 1
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 4
         },
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron nugget",
-          "qty": 1
-        }
-      ]
-    },
-    "R00e": {
-      "id": "R00e",
-      "category": "부품",
-      "displayName": "초보자 찌",
-      "locked": false,
-      "resultMode": "part",
-      "drillTier": 0,
-      "resultPartType": "찌",
-      "resultPartName": "초보자 찌",
-      "ingredients": [
+          "typeOrMatId": "거대비늘",
+          "displayName": "거대 비늘",
+          "mcItem": "turtle_scute",
+          "qty": 4
+        },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 1
+          "typeOrMatId": "강화실",
+          "displayName": "강화 실",
+          "mcItem": "string",
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 6
+        }
+      ]
+    },
+    "P132": {
+      "id": "P132",
+      "category": "부품",
+      "displayName": "채집 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "미끼",
+      "resultPartName": "채집 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "거대비늘",
+          "displayName": "거대 비늘",
+          "mcItem": "turtle_scute",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화실",
+          "displayName": "강화 실",
+          "mcItem": "string",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 6
+        }
+      ]
+    },
+    "P133": {
+      "id": "P133",
+      "category": "부품",
+      "displayName": "채집 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "찌",
+      "resultPartName": "채집 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "거대비늘",
+          "displayName": "거대 비늘",
+          "mcItem": "turtle_scute",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화실",
+          "displayName": "강화 실",
+          "mcItem": "string",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 6
         }
       ]
     }
@@ -18236,10 +18330,11 @@
       "P126",
       "P127",
       "P128",
-      "R00b",
-      "R00c",
-      "R00d",
-      "R00e"
+      "P129",
+      "P130",
+      "P131",
+      "P132",
+      "P133"
     ],
     "재료": [
       "M04",
