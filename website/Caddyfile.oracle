@@ -3,6 +3,11 @@ lh-bizben.duckdns.org {
 }
 
 barkan.kr, www.barkan.kr, barkan.kro.kr {
+    # OAuth 세션은 호스트별 쿠키라서 레거시 도메인에서 로그인 흐름을
+    # 시작하면 barkan.kr 콜백에서 state 쿠키를 찾을 수 없다. 모든 요청을
+    # canonical host로 먼저 모아 Discord OAuth state_mismatch를 방지한다.
+    @legacy_host host www.barkan.kr barkan.kro.kr
+    redir @legacy_host https://barkan.kr{uri} 308
     redir /vip /vip/ 308
     # Compress static JSON tile payloads and JS before they cross the network.
     encode zstd gzip
