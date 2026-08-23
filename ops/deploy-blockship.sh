@@ -1,10 +1,22 @@
 #!/bin/bash
-# BlockShip Java 플러그인 빌드 + 오라클 배포 + 리로드
-# 사용법: ./deploy-blockship.sh
+# BlockShip Java 플러그인 빌드 + 오라클 배포 + 재시작
+# 사용법: ./deploy-blockship.sh [--no-restart]
+#
+# --no-restart 는 전체 배포 래퍼가 BetterHud 교체·리소스팩 재생성과 함께
+# 마지막에 한 번만 재시작할 때 사용한다. JAR/데이터를 prod plugins/ 에
+# 올린 채로 이 옵션만 단독 실행하고 끝내면 안 된다.
 
 set -e
 
-BLOCKSHIP_DIR="$HOME/development/blockship-plugin"
+RESTART_PROD=1
+for arg in "$@"; do
+  case "$arg" in
+    --no-restart) RESTART_PROD=0 ;;
+    *) echo "사용법: $0 [--no-restart]" >&2; exit 2 ;;
+  esac
+done
+
+BLOCKSHIP_DIR="${BLOCKSHIP_DIR:-$HOME/development/blockship-plugin}"
 JAR_NAME="BlockShip-1.0.0-SNAPSHOT.jar"
 LOCAL_JAR="$BLOCKSHIP_DIR/build/libs/$JAR_NAME"
 
@@ -90,19 +102,27 @@ scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
   "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PLUGINS/"
 
 echo ""
-echo "▶ 오라클 BlockShip 적용 — 전체 재시작 (★plugman reload 금지: 클래스로더 손상 NoClassDefFoundError)"
-echo "  현재 접속자 확인 후 진행 권장. 5초 후 재시작합니다 (Ctrl+C로 취소)..."
-sleep 5
-if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
-  "$REMOTE_USER@$REMOTE_HOST" \
-  "sudo systemctl restart mcserver && echo '✓ prod 재시작 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"; then
-  echo ""
-  echo "🔴 재시작 실패! jar은 이미 교체됐으니 지금 상태는 lazy-load CNFE 지뢰다."
-  echo "   지금 수동 재시작할 것: ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST 'sudo systemctl restart mcserver'"
-  exit 1
+if [ "$RESTART_PROD" = 0 ]; then
+  echo "⏸ prod 재시작 생략 — 전체 배포 래퍼의 마지막 단계에서 재시작할 것"
+else
+  echo "▶ 오라클 BlockShip 적용 — 전체 재시작 (★plugman reload 금지: 클래스로더 손상 NoClassDefFoundError)"
+  echo "  현재 접속자 확인 후 진행 권장. 5초 후 재시작합니다 (Ctrl+C로 취소)..."
+  sleep 5
+  if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+    "$REMOTE_USER@$REMOTE_HOST" \
+    "sudo systemctl restart mcserver && echo '✓ prod 재시작 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"; then
+    echo ""
+    echo "🔴 재시작 실패! jar은 이미 교체됐으니 지금 상태는 lazy-load CNFE 지뢰다."
+    echo "   지금 수동 재시작할 것: ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST 'sudo systemctl restart mcserver'"
+    exit 1
+  fi
 fi
 
 echo ""
 echo "✅ 배포 완료"
 echo "  - 로컬 패더(dev): plugins/ 복사 + (가동중이면) 자동 재시작 완료"
-echo "  - 오라클(prod): systemctl restart 로 적용 중 (접속자 없을 때 돌리는 게 안전)"
+if [ "$RESTART_PROD" = 0 ]; then
+  echo "  - 오라클(prod): JAR/JSON 업로드 완료, 재시작은 아직 안 함"
+else
+  echo "  - 오라클(prod): systemctl restart 로 적용 중 (접속자 없을 때 돌리는 게 안전)"
+fi
