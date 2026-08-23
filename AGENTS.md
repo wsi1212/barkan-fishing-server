@@ -97,14 +97,17 @@ NPC 머리 위 표시 이름의 색코드는 역할별로 통일한다. ★표�
 ## BlockShip Java 플러그인 (배 + 칭호)
 - 소스: `/Users/user/development/blockship-plugin/`
 - 빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`
-- 배포: `cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar /Users/user/Library/Application\ Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/`
+- 전체 prod 배포: `ops/deploy-all-prod.sh` (BlockShip/JSON/메인팩/BetterHud/CraftEngine 단일 체인)
+- Java-only 즉시 배포: `~/deploy-blockship.sh` 또는 `ops/deploy-blockship.sh` (prod 정지→JAR 교체→기동)
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
   - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
   - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
-  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것.
+  - 우회하지 말고 전체 변경은 `ops/deploy-all-prod.sh`, Java-only 즉시는 `~/deploy-blockship.sh`, 지연은 `~/stage-blockship.sh`를 쓸 것.
+  - `ops/deploy-blockship.sh --no-restart`를 라이브 `plugins/` 대상으로 직접 실행하지 말 것. 전체 래퍼만 임시 경로를 지정해 사용한다.
   - **클라우드 세션(폰·웹)은 이 둘을 못 쓴다** — 22번 포트 egress가 원천 차단이라 SSH 자체가 불가능하다(키를 넣어도 안 되고, git SSH URL도 HTTPS로 재작성된다). 대신 **당겨오는 경로**를 쓴다: GitHub Actions `blockship-smoke.yml` 수동 실행 → `promote=true`(스모크 통과 시 Release 발행 → prod가 staging으로 당겨 06:00 적용) 또는 `apply_now=true`(Release 본문에 `APPLY_NOW` 마커 → prod가 당겨오는 즉시 적용+재시작, 최대 지연 cron `*/5`). GitHub은 셸 curl이 403이므로 MCP 도구로만 다룬다. 상세는 CLAUDE.md 「자동 sync」·스킬 `deploy-prod`.
-- 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
-- 이후 **서버 풀 재시작** (dev=feather UI 재시작 / prod=`sudo systemctl restart mcserver`)
+- 전체 배포 한줄: `cd "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts" && ./ops/deploy-all-prod.sh`
+- Java-only 즉시 배포: `~/deploy-blockship.sh` (라이브 JAR은 정지 상태에서 교체)
+- 별도 재시작을 붙이지 말 것 — 각 스크립트가 정지→교체→기동을 한 몸으로 처리한다.
 
 ### /textride 서브커맨드 (기존 명령어에 통합, 새 명령어 등록 불필요)
 - `/textride <player> <tag>` — Paper addPassenger (기존)
@@ -139,7 +142,11 @@ NPC 머리 위 표시 이름의 색코드는 역할별로 통일한다. ★표�
 **BlockShip Java plugin** — 빌드 후 배포 스크립트
 - 위치: `~/deploy-blockship.sh`
 - 한 줄 실행: `~/deploy-blockship.sh`
-- 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 plugman reload
+- 동작: 로컬 빌드 → JSON 검증 → dev 반영 → prod 정지 → JAR 교체 → prod 기동
+
+**전체 변경** — `ops/deploy-all-prod.sh` 하나만 실행한다. JAR은 검증 전 원격 임시 경로에만
+두고, 서버가 정지한 뒤 라이브 `plugins/`로 승격하므로 `jar-guard`의 가동 중 교체 경고가
+발생하지 않는다.
 
 **전체 변경** — Git 백업
 - 이 폴더(설계 문서 + 설정)가 git repo

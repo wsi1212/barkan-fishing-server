@@ -130,8 +130,23 @@ done
 
 ## 4. prod 배포
 
+### 전체 변경 — 단일 진입점
+
+BlockShip/JSON/메인 리소스팩/BetterHud/CraftEngine까지 함께 반영할 때는 아래만 실행한다.
+
 ```bash
-~/deploy-blockship.sh    # 빌드 → SCP → systemctl restart (즉시)
+cd "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts"
+./ops/deploy-all-prod.sh
+```
+
+이 체인은 JAR을 먼저 원격 임시 디렉터리에 올린 뒤, 검증이 끝난 시점에만 서버를 정지하고
+`plugins/`로 승격한다. 전체 배포 중에 `~/deploy-blockship.sh`, `ops/deploy-blockship.sh`,
+BetterHud 배포를 따로 중복 실행하지 않는다.
+
+### Java-only 변경
+
+```bash
+~/deploy-blockship.sh    # 빌드 → 임시 업로드 → 정지·원자 승격·기동 (즉시)
 ```
 
 JSON은 이게 안 올린다. 파이프라인을 돈 JSON을 따로 올린 뒤 리로드:

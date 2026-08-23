@@ -22,6 +22,11 @@ DATA_DIR="/Users/user/Library/Application Support/feather/player-server/servers/
 PROD_HOST="ubuntu@168.107.8.107"
 KEY="$HOME/.ssh/oracle-mc.key"
 LOCK="/tmp/barkan-deploy-all-prod.lock"
+DEPLOY_ID="codex-$$-$(date +%Y%m%d%H%M%S)"
+REMOTE_STAGE="/home/ubuntu/mcserver/.deploy-staged/$DEPLOY_ID"
+REMOTE_STAGE_JAR="$REMOTE_STAGE/BlockShip-1.0.0-SNAPSHOT.jar"
+REMOTE_LIVE_JAR="/home/ubuntu/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar"
+SERVER_MAY_BE_DOWN=0
 
 [ -x "$ROOT/deploy-blockship.sh" ] || { echo "❌ deploy-blockship.sh 실행 권한 없음" >&2; exit 1; }
 [ -x "$ROOT/rp-deploy.sh" ] || { echo "❌ rp-deploy.sh 실행 권한 없음" >&2; exit 1; }
@@ -38,13 +43,30 @@ if ! mkdir "$LOCK" 2>/dev/null; then
   mkdir "$LOCK"
 fi
 echo "$$" > "$LOCK/pid"
-cleanup() { rm -rf "$LOCK"; }
-trap cleanup EXIT
 
 say() { echo; echo "── $* ──"; }
 
+# JAR은 서버가 살아 있는 동안 라이브 plugins/에 쓰지 않는다. 실패해도
+# 임시 산출물만 치우고 현재 서버/JAR은 그대로 두도록 한다.
+remote_cleanup() {
+  ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+    "rm -rf '$REMOTE_STAGE'" >/dev/null 2>&1 || true
+}
+cleanup_all() {
+  if [ "$SERVER_MAY_BE_DOWN" = 1 ]; then
+    ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+      'sudo systemctl start mcserver' >/dev/null 2>&1 || true
+  fi
+  remote_cleanup
+  rm -rf "$LOCK"
+}
+trap cleanup_all EXIT
+
+ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+  "install -d -m 0755 '$REMOTE_STAGE'"
+
 say "1) BlockShip 빌드 + JSON/JAR 업로드 (재시작은 마지막에 한 번)"
-"$ROOT/deploy-blockship.sh" --no-restart
+PROD_JAR_DEST="$REMOTE_STAGE/" "$ROOT/deploy-blockship.sh" --no-restart
 [ -s "$JAR" ] || { echo "❌ JAR 빌드 산출물 없음: $JAR" >&2; exit 1; }
 EXPECTED_JAR=$(shasum "$JAR" | awk '{print $1}')
 echo "  JAR SHA1: $EXPECTED_JAR"
@@ -55,9 +77,28 @@ say "2) 메인 리소스팩 배포 (재시작은 마지막에 한 번)"
 "$ROOT/rp-deploy.sh" prod
 
 say "3) BetterHud + CraftEngine 리소스팩 + 마지막 재시작"
-# JAR/JSON은 2단계에서 이미 prod에 올라갔다. BetterHud 체인이 서버를 멈춘 뒤
-# 새 JAR까지 읽어 기동하므로 재시작은 여기서 한 번만 일어난다.
+# JSON은 1단계에서 prod에 올라갔지만 JAR은 아직 임시 경로에 있다. 서버를
+# 멈춘 뒤에만 라이브 plugins/로 승격하고 BetterHud 체인의 기동을 통과시킨다.
+say "3-a) 서버 정지 후 JAR 라이브 승격"
+SERVER_MAY_BE_DOWN=1
+ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" "set -e
+  sudo systemctl stop mcserver
+  for i in \$(seq 1 30); do
+    [ \"\$(systemctl is-active mcserver || true)\" = active ] || break
+    sleep 2
+  done
+  [ \"\$(systemctl is-active mcserver || true)\" = active ] && { echo '❌ 서버 정지 실패'; exit 1; }
+  test -s '$REMOTE_STAGE_JAR'
+  if [ -f '$REMOTE_LIVE_JAR' ]; then
+    cp '$REMOTE_LIVE_JAR' \"/home/ubuntu/mcserver/backups/BlockShip-prev-\$(date +%Y%m%d%H%M%S).jar\"
+  fi
+  mv '$REMOTE_STAGE_JAR' '$REMOTE_LIVE_JAR'
+  sha1sum '$REMOTE_LIVE_JAR'"
+
+# 위에서 서버를 멈췄으므로 BetterHud 체인의 내부 stop은 no-op이고, 최종
+# start가 새 JAR을 읽는다. 이 시점에는 jar-guard의 false positive가 없다.
 "$ROOT/prod/betterhud/deploy-prod.sh"
+SERVER_MAY_BE_DOWN=0
 
 say "4) 전체 배포 최종 대조"
 remote_jar=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \

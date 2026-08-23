@@ -24,6 +24,18 @@ REMOTE_USER="ubuntu"
 REMOTE_HOST="168.107.8.107"
 REMOTE_PLUGINS="~/mcserver/plugins"
 SSH_KEY="$HOME/.ssh/oracle-mc.key"
+# 전체 배포 래퍼는 JAR을 라이브 plugins/에 바로 쓰지 않고 원격 임시
+# 디렉터리에 먼저 올린다. 기본값은 기존 단독 배포 동작을 유지한다.
+PROD_JAR_DEST="${PROD_JAR_DEST:-$REMOTE_PLUGINS/}"
+REMOTE_LIVE_JAR="/home/ubuntu/mcserver/plugins/$JAR_NAME"
+REMOTE_STAGE=""
+REMOTE_JAR_SOURCE=""
+
+if [ "$RESTART_PROD" = 0 ] && [ "$PROD_JAR_DEST" = "$REMOTE_PLUGINS/" ]; then
+  echo "❌ --no-restart 로 라이브 plugins/에 JAR을 올릴 수 없다." >&2
+  echo "   전체배포처럼 임시 경로를 지정하거나, 즉시배포(재시작 포함)를 사용하라." >&2
+  exit 2
+fi
 
 # 로컬 BlockShip 데이터 폴더 (dev)
 LOCAL_DATA="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
@@ -97,32 +109,63 @@ fi
 #   lazy-load NoClassDefFoundError가 터진다(/칭호·계단앉기 등 전방위 고장). 순서를 바꿔 원천 차단한다.
 echo ""
 echo "▶ 오라클 서버에 jar SCP 업로드 (JSON 검증 통과 후)"
-scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+echo "  목적지: $PROD_JAR_DEST"
+if [ "$RESTART_PROD" = 1 ]; then
+  # 즉시배포도 먼저 임시 경로에 올린다. SCP가 끊겨도 라이브 JAR이
+  # 부분 파일로 바뀌지 않게 한 뒤, 정지 상태에서 mv로 승격한다.
+  if [ "$PROD_JAR_DEST" = "$REMOTE_PLUGINS/" ]; then
+    DEPLOY_ID="blockship-$$-$(date +%Y%m%d%H%M%S)"
+    REMOTE_STAGE="/home/ubuntu/mcserver/.deploy-staged/$DEPLOY_ID"
+    PROD_JAR_DEST="$REMOTE_STAGE/"
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+      "$REMOTE_USER@$REMOTE_HOST" "install -d -m 0755 '$REMOTE_STAGE'"
+  fi
+fi
+
+if ! scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
   "$LOCAL_JAR" \
-  "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PLUGINS/"
+  "$REMOTE_USER@$REMOTE_HOST:$PROD_JAR_DEST"; then
+  if [ "$RESTART_PROD" = 1 ]; then
+    echo "🔴 JAR 업로드 실패 — 기존 JAR로 prod를 다시 기동한다" >&2
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+      "$REMOTE_USER@$REMOTE_HOST" 'sudo systemctl start mcserver' || true
+  fi
+  exit 1
+fi
+REMOTE_JAR_SOURCE="${PROD_JAR_DEST%/}/$JAR_NAME"
 
 echo ""
 if [ "$RESTART_PROD" = 0 ]; then
-  echo "⏸ prod 재시작 생략 — 전체 배포 래퍼의 마지막 단계에서 재시작할 것"
+  echo "⏸ prod 재시작 생략 — 전체 배포 래퍼가 임시 JAR을 라이브로 승격한 뒤 재시작할 것"
 else
-  echo "▶ 오라클 BlockShip 적용 — 전체 재시작 (★plugman reload 금지: 클래스로더 손상 NoClassDefFoundError)"
-  echo "  현재 접속자 확인 후 진행 권장. 5초 후 재시작합니다 (Ctrl+C로 취소)..."
-  sleep 5
+  echo "▶ 오라클 BlockShip 적용 — 정지 후 원자 승격, 기동 (★plugman reload 금지: 클래스로더 손상 NoClassDefFoundError)"
   if ! ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
     "$REMOTE_USER@$REMOTE_HOST" \
-    "sudo systemctl restart mcserver && echo '✓ prod 재시작 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"; then
+    "set -e
+     sudo systemctl stop mcserver
+     test -s '$REMOTE_JAR_SOURCE'
+     if [ -f '$REMOTE_LIVE_JAR' ]; then
+       cp '$REMOTE_LIVE_JAR' \"/home/ubuntu/mcserver/backups/BlockShip-prev-\$(date +%Y%m%d%H%M%S).jar\"
+     fi
+     mv '$REMOTE_JAR_SOURCE' '$REMOTE_LIVE_JAR'
+     sudo systemctl start mcserver
+     echo '✓ prod 기동 요청됨 (베타 유저 ~45초 끊김, 부팅 후 자동 복귀)'"; then
     echo ""
-    echo "🔴 재시작 실패! jar은 이미 교체됐으니 지금 상태는 lazy-load CNFE 지뢰다."
-    echo "   지금 수동 재시작할 것: ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST 'sudo systemctl restart mcserver'"
+    echo "🔴 BlockShip 교체/기동 실패 — prod 기동 상태를 확인해야 한다." >&2
+    echo "   확인: ssh -i $SSH_KEY $REMOTE_USER@$REMOTE_HOST 'sudo systemctl status mcserver'" >&2
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+      "$REMOTE_USER@$REMOTE_HOST" 'sudo systemctl start mcserver' || true
     exit 1
   fi
+  [ -z "$REMOTE_STAGE" ] || ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+    "$REMOTE_USER@$REMOTE_HOST" "rm -rf '$REMOTE_STAGE'" || true
 fi
 
 echo ""
 echo "✅ 배포 완료"
 echo "  - 로컬 패더(dev): plugins/ 복사 + (가동중이면) 자동 재시작 완료"
 if [ "$RESTART_PROD" = 0 ]; then
-  echo "  - 오라클(prod): JAR/JSON 업로드 완료, 재시작은 아직 안 함"
+  echo "  - 오라클(prod): JAR/JSON 업로드 완료, JAR 승격·재시작은 아직 안 함"
 else
-  echo "  - 오라클(prod): systemctl restart 로 적용 중 (접속자 없을 때 돌리는 게 안전)"
+  echo "  - 오라클(prod): 정지→JAR 교체→기동 완료 (접속자 없을 때 돌리는 게 안전)"
 fi
