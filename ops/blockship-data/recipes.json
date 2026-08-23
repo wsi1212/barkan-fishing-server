@@ -545,6 +545,110 @@
         }
       ]
     },
+    "R00b": {
+      "id": "R00b",
+      "category": "부품",
+      "displayName": "초보자 릴",
+      "locked": false,
+      "resultMode": "part",
+      "drillTier": 0,
+      "resultPartType": "릴",
+      "resultPartName": "초보자 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "녹슨부품",
+          "displayName": "녹슨 부품",
+          "mcItem": "iron nugget",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "R00c": {
+      "id": "R00c",
+      "category": "부품",
+      "displayName": "초보자 줄",
+      "locked": false,
+      "resultMode": "part",
+      "drillTier": 0,
+      "resultPartType": "줄",
+      "resultPartName": "초보자 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화실",
+          "displayName": "강화 실",
+          "mcItem": "string",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "R00d": {
+      "id": "R00d",
+      "category": "부품",
+      "displayName": "초보자 바늘",
+      "locked": false,
+      "resultMode": "part",
+      "drillTier": 0,
+      "resultPartType": "바늘",
+      "resultPartName": "초보자 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "낡은갈고리",
+          "displayName": "낡은 갈고리",
+          "mcItem": "tripwire hook",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "녹슨부품",
+          "displayName": "녹슨 부품",
+          "mcItem": "iron nugget",
+          "qty": 1
+        }
+      ]
+    },
+    "R00e": {
+      "id": "R00e",
+      "category": "부품",
+      "displayName": "초보자 찌",
+      "locked": false,
+      "resultMode": "part",
+      "drillTier": 0,
+      "resultPartType": "찌",
+      "resultPartName": "초보자 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "깃털찌조각",
+          "displayName": "깃털 찌 조각",
+          "mcItem": "feather",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
     "C01": {
       "id": "C01",
       "category": "재료",
@@ -18334,7 +18438,11 @@
       "P130",
       "P131",
       "P132",
-      "P133"
+      "P133",
+      "R00b",
+      "R00c",
+      "R00d",
+      "R00e"
     ],
     "재료": [
       "M04",

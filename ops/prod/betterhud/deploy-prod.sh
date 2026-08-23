@@ -120,12 +120,13 @@ $SSH 'old=$(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|c
         cur=$(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|cut -c1-40)
         size=$(stat -c %s ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip)
         [ "$cur" != "$old" ] && changed=1
-        if [ "$changed" = 1 ] && [ "$cur" = "$last" ] && [ "$size" -gt 1000000 ]; then stable=$((stable+1)); else stable=0; fi
+        if [ "$cur" = "$last" ] && [ "$size" -gt 1000000 ]; then stable=$((stable+1)); else stable=0; fi
         last="$cur"
         [ "$stable" -ge 3 ] && break
         sleep 10
       done
-      [ "$changed" = 1 ] && [ "$stable" -ge 3 ] || { echo "❌ CraftEngine 팩 재생성/안정화되지 않음"; exit 1; }
+      [ "$stable" -ge 3 ] || { echo "❌ CraftEngine 팩 재생성/안정화되지 않음"; exit 1; }
+      [ "$changed" = 1 ] && echo "  팩 내용 변경 감지" || echo "  팩 내용 동일 — 안정화 확인 후 기존 팩 재사용"
       echo "$last"'
 
 say "6) GitHub 업로드"
