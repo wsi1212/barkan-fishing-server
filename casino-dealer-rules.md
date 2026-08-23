@@ -25,14 +25,19 @@
 
 | 항목 | 값 | 출처 |
 |---|---|---|
-| **테이블 리밋** | **한 판 50,000원** (2026-08-23 신설) | `CasinoLimits.MAX_BET` |
+| **테이블 리밋** | **1인 한 핸드 50,000원** (2026-08-23 신설) | `CasinoLimits.MAX_BET` |
 | 홀덤 베팅 방식 | **팟 리밋** — 한 액션 상한 = 콜한 뒤의 팟 (2026-08-23, 구 노리밋) | `HoldemTableEngine.potLimit` |
-| 블라인드 | SB 500 / BB 1,000 (2026-08-23, 리밋에 맞춰 1/10) | `PokerTableRuntime.java:50` |
-| 섯다 앤티 | 1,000 | `PokerTableRuntime.java:51` |
-| 핸드 스택 | `min(지갑, 50,000)` — 한 핸드 최대 노출이 곧 리밋 | `PokerTableRuntime.handStackOf` |
-| 최소 착석 | 홀덤 10,000 (BB×10) / 섯다 2,000 (앤티×2) | `PokerTableRuntime.java:122` |
-| 레이크 | 승자 순이익의 5%, 홀덤 상한 5BB(5,000) | `PokerTableRuntime.java:52,297` |
-| 섯다 1인 베팅 캡 | 앤티×20 = 20,000 | `SeotdaTableEngine.CAP_MULTIPLIER` |
+| 블라인드 | SB 1,500 / BB 3,000 (2026-08-23, 구 5,000/10,000) | `PokerTableRuntime.java:50` |
+| 섯다 앤티 | 3,000 | `PokerTableRuntime.java:51` |
+| **스택** | **지갑 전액** — 리밋을 스택으로 구현하지 않는다 | `PokerTableRuntime.walletOf` |
+| 1인 핸드 캡 | 홀덤 50,000 / 섯다 `min(앤티×20, 50,000)` = 50,000. 캡 도달 = 올인 취급 | `HoldemTableEngine.available` · `SeotdaTableEngine.cap` |
+| 최소 착석 | 홀덤 30,000 (BB×10) / 섯다 6,000 (앤티×2) | `PokerTableRuntime.java:122` |
+| 레이크 | 승자 순이익의 5%, 홀덤 상한 5BB(15,000) | `PokerTableRuntime.java:52,297` |
+
+★**캡을 스택으로 구현하면 안 된다** — 2026-08-23 처음엔 `스택 = min(지갑, 5만)`으로 넣었다가
+반려됐다("카지노 잔액을 50000원으로 만들지는 마라"). 좌석 이름표에 5만이 찍혀 실제 잔액이
+가려진다. 지금은 스택은 지갑 전액이고, 엔진이 «이 핸드에 더 낼 수 있는 금액»만 묶는다
+(`available(p) = min(stack, cap − totalCommitted)`). 섯다가 원래 쓰던 방식과 같다.
 | 봇 스택 | `max(최소착석×10, 플레이어 스택)` — 하우스 자금, 봇은 파산하지 않음 | `PokerTableRuntime.java:280` |
 | 봇 생각 시간 | 고정 1,100ms (액션 종류·패 강도와 무관) | `PokerTableRuntime.java:54` |
 | 사람 제한시간 | 25초, 2회 타임아웃 시 퇴장 | `PokerTableRuntime.java:53,56` |
