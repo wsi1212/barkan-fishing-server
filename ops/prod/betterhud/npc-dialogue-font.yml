@@ -1,8 +1,12 @@
-# HUD 전용 폰트. 대화창·상태판·위치판이 전부 이걸 쓴다.
+# HUD 폰트는 화면 역할별로 분리한다.
 #
-# ★★aggro_light_hud.ttf 는 build_hud_font.py 가 만든다(원본 어그로체 + 기호 7자).
-#   대화창은 Medium보다 가벼운 Light 계열을 사용한다. BetterHud는 숫자 weight가
-#   아니라 TTF 파일 자체로 굵기를 결정한다(정확한 Regular 원본은 현재 없음).
+# ★★aggro_light_hud.ttf / aggro_medium_hud.ttf 는 build_hud_font.py 가 만든다
+#   (원본 어그로체 + HUD 기호 7자). BetterHud는 숫자 weight가 아니라 TTF 파일
+#   자체로 굵기를 결정한다(정확한 Regular 원본은 현재 없음).
+#
+#   - hud_font: 나머지 HUD용 얇은 폰트
+#   - hud_original_font: 지역·재화·요리버프용, 얇게 바꾸기 전 기존 폰트
+#   - dialogue_font: 대화창용 Medium 폰트
 #   손으로 만들지 말고 그 스크립트를 돌릴 것.
 #
 # ★merge-default-bitmap / use-unifont 를 켜지 말 것.
@@ -18,8 +22,20 @@
 #   32 로 올리고 레이아웃의 글자 배율을 절반으로 내리면 **표시 크기는 그대로인데
 #   raster 는 2배**가 되어 획이 살아난다(MC 가 큰 비트맵을 줄여 그리므로 계조도 생긴다).
 #   ★둘은 반드시 같이 움직여야 한다. 한쪽만 바꾸면 글자 크기가 두 배/절반이 된다.
-dialogue_font:
+hud_font:
   file: aggro_light_hud.ttf
+  scale: 32
+  merge-default-bitmap: false
+  use-unifont: false
+
+hud_original_font:
+  file: aggro_medium_hud.ttf
+  scale: 32
+  merge-default-bitmap: false
+  use-unifont: false
+
+dialogue_font:
+  file: aggro_medium_hud.ttf
   scale: 32
   merge-default-bitmap: false
   use-unifont: false

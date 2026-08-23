@@ -22,7 +22,7 @@ barkan_buff_layout_1_sm:  # 작게 (x0.5) · 스탯 1줄
       y: 46
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 46
@@ -30,7 +30,7 @@ barkan_buff_layout_1_sm:  # 작게 (x0.5) · 스탯 1줄
       scale: 0.155
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 97
@@ -38,7 +38,7 @@ barkan_buff_layout_1_sm:  # 작게 (x0.5) · 스탯 1줄
       scale: 0.155
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 56
@@ -71,7 +71,7 @@ barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
       y: 55
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 46
@@ -79,7 +79,7 @@ barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
       scale: 0.155
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 97
@@ -87,7 +87,7 @@ barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
       scale: 0.155
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 56
@@ -95,7 +95,7 @@ barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
       scale: 0.155
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 56
@@ -132,7 +132,7 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       y: 64
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 46
@@ -140,7 +140,7 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       scale: 0.155
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 97
@@ -148,7 +148,7 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       scale: 0.155
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 56
@@ -156,7 +156,7 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       scale: 0.155
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 56
@@ -164,7 +164,7 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       scale: 0.155
       align: left
     5:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat3]"
       color: "#1E5B22"
       x: 56
@@ -193,7 +193,7 @@ barkan_buff_layout_1_md:  # 보통 (x0.66) · 스탯 1줄
       y: 58
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 58
@@ -201,7 +201,7 @@ barkan_buff_layout_1_md:  # 보통 (x0.66) · 스탯 1줄
       scale: 0.205
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 125
@@ -209,7 +209,7 @@ barkan_buff_layout_1_md:  # 보통 (x0.66) · 스탯 1줄
       scale: 0.205
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 71
@@ -242,7 +242,7 @@ barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
       y: 71
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 58
@@ -250,7 +250,7 @@ barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
       scale: 0.205
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 125
@@ -258,7 +258,7 @@ barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
       scale: 0.205
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 71
@@ -266,7 +266,7 @@ barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
       scale: 0.205
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 71
@@ -303,7 +303,7 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       y: 83
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 58
@@ -311,7 +311,7 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       scale: 0.205
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 125
@@ -319,7 +319,7 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       scale: 0.205
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 71
@@ -327,7 +327,7 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       scale: 0.205
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 71
@@ -335,7 +335,7 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       scale: 0.205
       align: left
     5:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat3]"
       color: "#1E5B22"
       x: 71
@@ -364,7 +364,7 @@ barkan_buff_layout_1_lg:  # 크게 (x0.85) · 스탯 1줄
       y: 73
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 70.5
@@ -372,7 +372,7 @@ barkan_buff_layout_1_lg:  # 크게 (x0.85) · 스탯 1줄
       scale: 0.264
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 157.5
@@ -380,7 +380,7 @@ barkan_buff_layout_1_lg:  # 크게 (x0.85) · 스탯 1줄
       scale: 0.264
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 88.5
@@ -413,7 +413,7 @@ barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
       y: 89
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 70.5
@@ -421,7 +421,7 @@ barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
       scale: 0.264
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 157.5
@@ -429,7 +429,7 @@ barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
       scale: 0.264
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 88.5
@@ -437,7 +437,7 @@ barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
       scale: 0.264
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 88.5
@@ -474,7 +474,7 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       y: 106
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 70.5
@@ -482,7 +482,7 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       scale: 0.264
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 157.5
@@ -490,7 +490,7 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       scale: 0.264
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 88.5
@@ -498,7 +498,7 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       scale: 0.264
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 88.5
@@ -506,7 +506,7 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       scale: 0.264
       align: left
     5:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat3]"
       color: "#1E5B22"
       x: 88.5
@@ -535,7 +535,7 @@ barkan_buff_layout_1_xl:  # 아주 크게 (x1.0) · 스탯 1줄
       y: 85
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 82
@@ -543,7 +543,7 @@ barkan_buff_layout_1_xl:  # 아주 크게 (x1.0) · 스탯 1줄
       scale: 0.31
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 184
@@ -551,7 +551,7 @@ barkan_buff_layout_1_xl:  # 아주 크게 (x1.0) · 스탯 1줄
       scale: 0.31
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 102
@@ -584,7 +584,7 @@ barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
       y: 104
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 82
@@ -592,7 +592,7 @@ barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
       scale: 0.31
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 184
@@ -600,7 +600,7 @@ barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
       scale: 0.31
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 102
@@ -608,7 +608,7 @@ barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
       scale: 0.31
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 102
@@ -645,7 +645,7 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       y: 123
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_name]"
       color: "#4A2D12"
       x: 82
@@ -653,7 +653,7 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       scale: 0.31
       align: left
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_time]"
       color: "#123E42"
       x: 184
@@ -661,7 +661,7 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       scale: 0.31
       align: right
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat1]"
       color: "#1E5B22"
       x: 102
@@ -669,7 +669,7 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       scale: 0.31
       align: left
     4:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat2]"
       color: "#1E5B22"
       x: 102
@@ -677,7 +677,7 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       scale: 0.31
       align: left
     5:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_buff_stat3]"
       color: "#1E5B22"
       x: 102

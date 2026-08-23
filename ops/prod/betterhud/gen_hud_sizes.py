@@ -38,6 +38,11 @@ MARGIN_X, MARGIN_Y = 10, 3      # 화면 모서리에서의 여백(배율 무관
 TEXT_SCALE = 0.31               # 배율 1.0 기준 글자 크기
 TEXT_H = 10.6                   # 그 크기에서 글자 한 줄의 대략 높이(세로 가운데 맞춤용)
 
+# 폰트도 화면 역할별로 나눈다. 파일은 npc-dialogue-font.yml 에서 선언한다.
+FONT_HUD = "hud_font"                    # 나머지 HUD — 얇은 폰트
+FONT_HUD_ORIGINAL = "hud_original_font"  # 지역·재화·요리버프 — 기존 폰트
+FONT_DIALOGUE = "dialogue_font"          # 대화창 — Medium
+
 STATUS = dict(
     plate=("status-plate.png", 124, 72),
     rows=(16, 34, 52),                        # 줄 중심 (판 좌표)
@@ -215,7 +220,8 @@ def build_status():
         txt = []
         for i, var in enumerate(STATUS["texts"]):
             center = MARGIN_Y + STATUS["rows"][i] * s
-            txt.append(f"    {i+1}:\n      name: dialogue_font\n"
+            font = FONT_HUD_ORIGINAL if var in {"hud_money", "hud_cash"} else FONT_HUD
+            txt.append(f"    {i+1}:\n      name: {font}\n"
                        f"      pattern: \"[string:{var}]\"\n"
                        f"      color: \"{STATUS['colors'][i]}\"\n"
                        f"      x: {base_x + round(STATUS['text_x'] * s):g}\n"
@@ -244,7 +250,7 @@ def build_place():
             center = MARGIN_Y + PLACE["rows"][i] * s
             # ★가운데 정렬. align: center 는 x 를 "글자의 중심"으로 해석하므로
             #   판의 가로 중심을 준다(왼쪽 끝이 아니다).
-            txt.append(f"    {i+1}:\n      name: dialogue_font\n"
+            txt.append(f"    {i+1}:\n      name: {FONT_HUD_ORIGINAL}\n"
                        f"      pattern: \"[string:{var}]\"\n"
                        f"      color: \"{PLACE['colors'][i]}\"\n"
                        f"      x: {base_x + W / 2:g}\n"
@@ -314,14 +320,14 @@ def build_dialogue():
             n += 1
         lx, ly, lsc, lines, lw, sw = D["line"]
         nx, ny, nsc = D["name"]
-        txt = (f"    1:\n      name: dialogue_font\n      pattern: \"[string:npc_dialogue_text]\"\n"
+        txt = (f"    1:\n      name: {FONT_DIALOGUE}\n      pattern: \"[string:npc_dialogue_text]\"\n"
                f"      color: \"#3D2840\"\n      x: {px(lx):g}\n      y: {top + round(ly * s)}\n"
                f"      scale: {round(lsc * s, 3)}\n      align: left\n      line-align: left\n"
                f"      line: {lines}\n      line-width: {round(lw * s)}\n"
                # ★split-width 는 상한이 아니라 "여기부터 줄바꿈을 노린다"이고 공백이 없으면
                #   1.25배까지 밀고 나간다. 그래서 가용폭/1.25 로 잡아 둔 값을 그대로 배율만 곱한다.
                f"      split-width: {round(sw * s)}\n      force-split: false\n"
-               f"    2:\n      name: dialogue_font\n      pattern: \"[string:npc_dialogue_name]\"\n"
+               f"    2:\n      name: {FONT_DIALOGUE}\n      pattern: \"[string:npc_dialogue_name]\"\n"
                f"      color: \"#4A2D3D\"\n      x: {px(nx):g}\n      y: {top + round(ny * s)}\n"
                f"      scale: {round(nsc * s, 3)}\n      align: left\n")
         lay.append(f"npc_dialogue_layout_{sid}:  # {label} (x{s})\n  align: left\n  images:\n"
@@ -403,17 +409,17 @@ def build_buff():
                               f"      x: {base_x + round(B['icon_x'] * s_):g}\n"
                               f"      y: {ty(center, B['icon_h'])}\n")
                 k += 1
-            texts = [f"    1:\n      name: dialogue_font\n      pattern: \"[string:hud_buff_name]\"\n"
+            texts = [f"    1:\n      name: {FONT_HUD_ORIGINAL}\n      pattern: \"[string:hud_buff_name]\"\n"
                      f"      color: \"{B['name_color']}\"\n"
                      f"      x: {base_x + round(B['name_x'] * s_):g}\n      y: {ty(B['name_y'], TEXT_H)}\n"
                      f"      scale: {round(TEXT_SCALE * s_, 3)}\n      align: left\n",
-                     f"    2:\n      name: dialogue_font\n      pattern: \"[string:hud_buff_time]\"\n"
+                     f"    2:\n      name: {FONT_HUD_ORIGINAL}\n      pattern: \"[string:hud_buff_time]\"\n"
                      f"      color: \"{B['time_color']}\"\n"
                      f"      x: {base_x + round(B['time_x'] * s_):g}\n      y: {ty(B['bar_y'], TEXT_H)}\n"
                      f"      scale: {round(TEXT_SCALE * s_, 3)}\n      align: right\n"]
             for row in range(1, n + 1):
                 center = B["row0"] + B["row_dy"] * (row - 1)
-                texts.append(f"    {row + 2}:\n      name: dialogue_font\n"
+                texts.append(f"    {row + 2}:\n      name: {FONT_HUD_ORIGINAL}\n"
                              f"      pattern: \"[string:hud_buff_stat{row}]\"\n"
                              f"      color: \"{B['stat_color']}\"\n"
                              f"      x: {base_x + round(B['text_x'] * s_):g}\n      y: {ty(center, TEXT_H)}\n"

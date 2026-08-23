@@ -30,7 +30,7 @@ barkan_status_layout_sm:  # 작게 (x0.5)
       y: 19
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
       x: -27
@@ -38,7 +38,7 @@ barkan_status_layout_sm:  # 작게 (x0.5)
       scale: 0.155
       align: left
     2:
-      name: dialogue_font
+      name: hud_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -27
@@ -46,7 +46,7 @@ barkan_status_layout_sm:  # 작게 (x0.5)
       scale: 0.155
       align: left
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
       x: -27
@@ -83,7 +83,7 @@ barkan_status_layout_md:  # 보통 (x0.66)
       y: 24
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
       x: -32
@@ -91,7 +91,7 @@ barkan_status_layout_md:  # 보통 (x0.66)
       scale: 0.205
       align: left
     2:
-      name: dialogue_font
+      name: hud_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -32
@@ -99,7 +99,7 @@ barkan_status_layout_md:  # 보통 (x0.66)
       scale: 0.205
       align: left
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
       x: -32
@@ -136,7 +136,7 @@ barkan_status_layout_lg:  # 크게 (x0.85)
       y: 29
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
       x: -37.5
@@ -144,7 +144,7 @@ barkan_status_layout_lg:  # 크게 (x0.85)
       scale: 0.264
       align: left
     2:
-      name: dialogue_font
+      name: hud_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -37.5
@@ -152,7 +152,7 @@ barkan_status_layout_lg:  # 크게 (x0.85)
       scale: 0.264
       align: left
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
       x: -37.5
@@ -189,7 +189,7 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
       y: 33
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_money]"
       color: "#5C3F0E"
       x: -43
@@ -197,7 +197,7 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
       scale: 0.31
       align: left
     2:
-      name: dialogue_font
+      name: hud_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -43
@@ -205,7 +205,7 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
       scale: 0.31
       align: left
     3:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_cash]"
       color: "#3A1A5C"
       x: -43

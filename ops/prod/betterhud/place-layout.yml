@@ -10,7 +10,7 @@ barkan_place_layout_sm:  # 작게 (x0.5)
       y: 3
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
       x: 72
@@ -18,7 +18,7 @@ barkan_place_layout_sm:  # 작게 (x0.5)
       scale: 0.155
       align: center
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
       x: 72
@@ -35,7 +35,7 @@ barkan_place_layout_md:  # 보통 (x0.66)
       y: 3
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
       x: 92
@@ -43,7 +43,7 @@ barkan_place_layout_md:  # 보통 (x0.66)
       scale: 0.205
       align: center
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
       x: 92
@@ -60,7 +60,7 @@ barkan_place_layout_lg:  # 크게 (x0.85)
       y: 3
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
       x: 115
@@ -68,7 +68,7 @@ barkan_place_layout_lg:  # 크게 (x0.85)
       scale: 0.264
       align: center
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
       x: 115
@@ -85,7 +85,7 @@ barkan_place_layout_xl:  # 아주 크게 (x1.0)
       y: 3
   texts:
     1:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_place]"
       color: "#4A3A22"
       x: 134
@@ -93,7 +93,7 @@ barkan_place_layout_xl:  # 아주 크게 (x1.0)
       scale: 0.31
       align: center
     2:
-      name: dialogue_font
+      name: hud_original_font
       pattern: "[string:hud_env]"
       color: "#4A3A22"
       x: 134

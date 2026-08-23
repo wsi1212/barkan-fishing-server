@@ -31,13 +31,15 @@ say() { echo; echo "── $* ──"; }
 say "0) 보내기 전 검사"
 # ★HUD 폰트가 참조하는 TTF 가 실제로 있는지 본다. 없으면 BetterHud 가 폰트를 못 구워
 #   글자가 통째로 사라지거나 기본 폰트로 폴백된다(폴백은 보스바 자리에 찍힌다).
-FONTFILE=$(grep -E "^ *file: *" "$SRC/npc-dialogue-font.yml" | head -1 | sed "s/.*file: *//")
-[ -f "$SRC/assets/fonts/$FONTFILE" ] \
-  || { echo "❌ assets/fonts/$FONTFILE 가 없다 — build_hud_font.py 를 먼저 돌릴 것"; exit 1; }
+FONTFILES=$(grep -E "^ *file: *" "$SRC/npc-dialogue-font.yml" | sed "s/.*file: *//")
+for FONTFILE in $FONTFILES; do
+  [ -f "$SRC/assets/fonts/$FONTFILE" ] \
+    || { echo "❌ assets/fonts/$FONTFILE 가 없다 — build_hud_font.py 를 먼저 돌릴 것"; exit 1; }
+done
 # 기호는 폰트에 직접 넣었으므로 유니폰트 병합은 꺼져 있어야 한다(켜면 한글이 유니폰트가 된다).
 grep -qE "^ *use-unifont: *false" "$SRC/npc-dialogue-font.yml" \
   || { echo "❌ use-unifont 가 true 다 — 한글이 유니폰트로 바뀐다"; exit 1; }
-echo "  폰트 OK ($FONTFILE)"
+echo "  폰트 OK ($(echo "$FONTFILES" | tr '\n' ' '))"
 
 say "1) 파일 전송"
 # ★★대화창 정의(npc-dialogue-{hud,layout,image}.yml)와 assets/dialogue 는 보내지 않는다.
