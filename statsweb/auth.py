@@ -9,11 +9,14 @@ auth.py — Discord OAuth2 로그인 (stats-system-plan.md §10-5).
 우리는 "이 Discord ID가 admins.json에 있는가"만 본다. 어드민 추가/회수는 그 파일 한 줄 편집.
 """
 import json
+import logging
 import os
 import secrets
 from urllib.parse import urlencode
 
 import httpx
+
+logger = logging.getLogger("statsweb.auth")
 
 DISCORD_API = "https://discord.com/api"
 AUTHORIZE_URL = f"{DISCORD_API}/oauth2/authorize"
@@ -64,11 +67,38 @@ async def exchange_code(code):
         "code": code,
         "redirect_uri": redirect_uri,
     }
-    async with httpx.AsyncClient(timeout=10) as client:
-        r = await client.post(TOKEN_URL, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
-        if r.status_code != 200:
-            return None
-        return r.json().get("access_token")
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.post(TOKEN_URL, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+    except httpx.HTTPError as exc:
+        logger.warning("Discord OAuth token exchange request failed: %s", type(exc).__name__)
+        return None
+
+    if r.status_code != 200:
+        # Discord's response distinguishes invalid_client, invalid_grant and
+        # redirect_uri mismatches. Log only the safe diagnostic fields; never
+        # write the authorization code, client secret, or response body.
+        try:
+            payload = r.json()
+        except ValueError:
+            payload = {}
+        logger.warning(
+            "Discord OAuth token exchange rejected: status=%s error=%s description=%s redirect_uri=%s",
+            r.status_code,
+            payload.get("error", "unknown"),
+            payload.get("error_description", ""),
+            redirect_uri,
+        )
+        return None
+
+    try:
+        access_token = r.json().get("access_token")
+    except ValueError:
+        logger.warning("Discord OAuth token exchange returned invalid JSON: status=%s", r.status_code)
+        return None
+    if not access_token:
+        logger.warning("Discord OAuth token exchange returned no access token: status=%s", r.status_code)
+    return access_token
 
 
 async def fetch_discord_user(access_token):
