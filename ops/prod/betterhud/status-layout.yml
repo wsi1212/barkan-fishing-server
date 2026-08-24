@@ -38,7 +38,7 @@ barkan_status_layout_sm:  # 작게 (x0.5)
       scale: 0.155
       align: left
     2:
-      name: hud_font
+      name: hud_original_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -27
@@ -91,7 +91,7 @@ barkan_status_layout_md:  # 보통 (x0.66)
       scale: 0.205
       align: left
     2:
-      name: hud_font
+      name: hud_original_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -32
@@ -144,7 +144,7 @@ barkan_status_layout_lg:  # 크게 (x0.85)
       scale: 0.264
       align: left
     2:
-      name: hud_font
+      name: hud_original_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -37.5
@@ -197,7 +197,7 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
       scale: 0.31
       align: left
     2:
-      name: hud_font
+      name: hud_original_font
       pattern: "[string:hud_level]"
       color: "#0E3E42"
       x: -43

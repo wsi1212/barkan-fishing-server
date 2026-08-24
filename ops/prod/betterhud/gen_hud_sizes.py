@@ -40,7 +40,7 @@ TEXT_H = 10.6                   # 그 크기에서 글자 한 줄의 대략 높�
 
 # 폰트도 화면 역할별로 나눈다. 파일은 npc-dialogue-font.yml 에서 선언한다.
 FONT_HUD = "hud_font"                    # 나머지 HUD — 얇은 폰트
-FONT_HUD_ORIGINAL = "hud_original_font"  # 지역·재화·요리버프 — 기존 폰트
+FONT_HUD_ORIGINAL = "hud_original_font"  # 레벨·지역·재화·요리버프 — 기존 폰트
 FONT_DIALOGUE = "dialogue_font"          # 대화창 — Medium
 
 STATUS = dict(
@@ -224,7 +224,8 @@ def build_status():
         txt = []
         for i, var in enumerate(STATUS["texts"]):
             center = MARGIN_Y + STATUS["rows"][i] * s
-            font = FONT_HUD_ORIGINAL if var in {"hud_money", "hud_cash"} else FONT_HUD
+            # 상단 상태 HUD의 세 항목(레벨 포함)은 모두 기존 굵은 폰트를 사용한다.
+            font = FONT_HUD_ORIGINAL
             txt.append(f"    {i+1}:\n      name: {font}\n"
                        f"      pattern: \"[string:{var}]\"\n"
                        f"      color: \"{STATUS['colors'][i]}\"\n"
