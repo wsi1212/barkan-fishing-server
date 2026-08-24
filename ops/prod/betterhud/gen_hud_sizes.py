@@ -63,8 +63,12 @@ DIALOGUE = dict(
     slice_w=110, panel_h=80,
     portrait=("portrait-grandfather-hud.png", 35, 10, 0.40),   # (파일, 판x, 판y, 배율)
     nameplate=("dialogue-nameplate.png", 9, 62, 0.8),
-    line=(122, 10, 0.425, 3, 15, 230),  # 대사: 판x, 판y, 배율, 줄수, 줄간격, split-width
-    name=(26, 68, 0.3),                 # 이름: 판x, 판y, 배율   (둘 다 폰트 raster 2배에 맞춰 절반)
+    # 긴 일일/사이드 퀘스트 문장이 3줄째에서 초상화 쪽으로 밀리지 않도록
+    # split-width 를 230 -> 210 으로 낮춘다. BetterHud 는 공백 기준 줄바꿈에서
+    # 이 값을 최대 1.25배까지 넘길 수 있으므로, 판 안쪽 여백을 포함해 잡는다.
+    line=(122, 10, 0.425, 3, 15, 210),  # 대사: 판x, 판y, 배율, 줄수, 줄간격, split-width
+    # 이름표 폭 안에 긴 NPC 이름도 들어오도록 좌우 중앙 정렬 + 약간 축소.
+    name=(64, 68, 0.25),                 # 이름: 판 중앙x, 판y, 배율
     hotbar=22,                          # 판 아래에 비워두는 화면 px (핫바 자리)
 )
 PLACE = dict(
@@ -306,7 +310,11 @@ def build_dialogue():
                              f"      x: {-2 * W + i * W + W / 2:g}\n      y: {top}\n")
             n += 1
         for key, (f, bx, by, sc) in (("portrait", D["portrait"]), ("nameplate", D["nameplate"])):
+            # gen_npc_portrait_huds.py 가 초상화 블록을 NPC별 템플릿으로 재사용한다.
+            # 이름표는 공용 이미지라 기존 키를 유지하고, 초상화 템플릿만 001_base 규약을 쓴다.
             k = f"npc_dialogue_{key}_{sid}"
+            if key == "portrait":
+                k = f"npc_dialogue_portrait_001_base_{sid}"
             fp, _, _, back = scaled_file("dialogue", f, sid, sc * s)
             # ★투명 왼쪽 여백은 BetterHud 가 잘라내고 x 에 되돌려 더한다 -> 그만큼 미리 빼둔다.
             #   ★축소 "후"의 여백을 재야 한다(원본 여백 x 배율 로 계산하면 반올림이 어긋난다).
@@ -314,6 +322,11 @@ def build_dialogue():
                 box = im.split()[3].getbbox() or (0, 0, im.width, im.height)
             img.append(f"{k}:\n  type: single\n  file: {fp}\n"
                        f"  setting:\n    scale: {back}\n")
+            if key == "portrait":
+                # 매니페스트에 없는 NPC용 DEFAULT_PORTRAIT 폴백은 공용 키로 남긴다.
+                # NPC별 생성 블록은 gen_npc_portrait_huds.py 가 이 템플릿을 교체한다.
+                img.append(f"npc_dialogue_portrait_{sid}:\n  type: single\n  file: {fp}\n"
+                           f"  setting:\n    scale: {back}\n")
             lay_lines.append(f"    {n}:\n      name: {k}\n"
                              f"      x: {px(bx, trim=round(box[0] * back)):g}\n"
                              f"      y: {top + round(by * s)}\n")
@@ -329,11 +342,11 @@ def build_dialogue():
                f"      split-width: {round(sw * s)}\n      force-split: false\n"
                f"    2:\n      name: {FONT_DIALOGUE}\n      pattern: \"[string:npc_dialogue_name]\"\n"
                f"      color: \"#4A2D3D\"\n      x: {px(nx):g}\n      y: {top + round(ny * s)}\n"
-               f"      scale: {round(nsc * s, 3)}\n      align: left\n")
-        lay.append(f"npc_dialogue_layout_{sid}:  # {label} (x{s})\n  align: left\n  images:\n"
+               f"      scale: {round(nsc * s, 3)}\n      align: center\n")
+        lay.append(f"npc_dialogue_layout_001_base_{sid}:  # {label} (x{s})\n  align: left\n  images:\n"
                    + "".join(lay_lines) + "  texts:\n" + txt)
-        hud.append(f"npc_dialogue_{sid}:\n  tick: 1\n  layouts:\n    1:\n"
-                   f"      name: npc_dialogue_layout_{sid}\n      gui:\n        x: 50\n        y: 100\n")
+        hud.append(f"npc_dialogue_001_base_{sid}:\n  tick: 1\n  layouts:\n    1:\n"
+                   f"      name: npc_dialogue_layout_001_base_{sid}\n      gui:\n        x: 50\n        y: 100\n")
     emit("npc-dialogue-image.yml", "\n".join(img))
     emit("npc-dialogue-layout.yml", "\n".join(lay))
     emit("npc-dialogue-hud.yml", "\n".join(hud))
