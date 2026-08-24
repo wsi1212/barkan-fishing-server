@@ -687,8 +687,7 @@
       "보상섬": true,
       "다음퀘스트": "본섬01",
       "마을": "스폰도시",
-      "난이도": 2,
-      "보상아이템": "IRON_PICKAXE:1:EFFICIENCY-3;UNBREAKING-3,IRON_AXE:1:EFFICIENCY-3;UNBREAKING-3,GRASS_BLOCK:64,GRASS_BLOCK:64,WATER_BUCKET:1,WATER_BUCKET:1,WHEAT_SEEDS:16,BEETROOT_SEEDS:16,MELON_SEEDS:8,PUMPKIN_SEEDS:8,CARROT:16,POTATO:16,SUGAR_CANE:8,cropseed:밀:3,cropseed:당근:3,cropseed:감자:3,cropseed:양배추:3,cropseed:버섯:3,cropseed:토마토:2,cropseed:수박:1"
+      "난이도": 2
     },
     "일일_쉬움_물고기3": {
       "id": "일일_쉬움_물고기3",
