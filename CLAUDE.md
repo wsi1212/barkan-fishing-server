@@ -261,6 +261,25 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
   는 짝이라 리소스팩·jar 을 함께 배포해야 한다(한쪽만 올리면 이젤과 그림이 0.5블록 어긋남).
 - `/체스`(cp) — 참가/솔로/AI/퇴장/스킨/규칙/덱/증강/도전과제/전적, op: 생성·제거·테이블·소환·평가·엔진탐지·변형통계·리로드. Stockfish는 dev `/opt/homebrew/bin/stockfish`, prod `/usr/games/stockfish`.
 
+## 피아노 (별도 플러그인 — BlockShip·체스 아님)
+- 소스: **`~/development/barkan-piano`** (2026-08-25 분리). 체스와 같은 사정 — 원저자가 **jar만** 주므로
+  소스는 vineflower 역컴파일 복원본이고, **배포 전 `tools/gate.sh` 필수**(업스트림 바이트코드 대조 +
+  리소스 동봉 확인). 업스트림 jar 은 `upstream/` 에 짝으로 넣어 둔다(체스처럼 Downloads 를 가리켜
+  낡은 jar 로 대조하는 사고 방지).
+- 데이터: `plugins/BarkanPiano/` (`config.yml` 좌석/상호작용 오프셋, `pianos.yml` 설치 목록).
+  엔티티는 태그 `barkan_piano_<id>`/`barkan_seat_<id>`, `layout-version`(현재 5) 은 옛 피아노 높이 보정용.
+- **소리는 메인 리소스팩에 병합해서 간다** — 팩을 3개로 늘리지 않는다. 업스트림 사운드팩 zip 은
+  체스팩+피아노 한 덩어리라 **피아노만 골라** 넣는다: `barkan-piano/tools/sync-resourcepack.py <zip>`
+  (매번 zip 에서 다시 뽑음). 배포는 `ops/rp-deploy.sh`.
+  - ★**스테레오 ogg 는 마인크래프트가 위치 음원으로 취급하지 않는다**(거리 감쇠·방향 소실) → 위치
+    음원은 반드시 모노. 업스트림 피아노 88개가 스테레오라 스크립트가 모노로 내린다. `chess/move`·
+    `bgm/*` 도 같은 이유로 모노.
+  - ★인코딩은 **`oggenc`** 로 — homebrew ffmpeg 8.1 에 libvorbis 인코더가 없어 위 「커스텀 사운드」
+    절의 `ffmpeg -c:a libvorbis` 는 이 맥에서 실패한다. ffmpeg 은 디코드·다운믹스만.
+- **실연주는 클라이언트 모드 전제** — 건반 입력이 플러그인 메시지 채널 `barkan_piano:note` 로 온다.
+  모드 없으면 `/piano note <a~z>` 로 한 음씩만. 바닐라·베드락 유저는 앉기만 된다.
+- `/piano`(피아노) — 설치·앉기·내리기·목록·제거·복구·note. 설치/제거/복구는 `barkan.piano.admin`(op).
+
 ## 리소스팩
 - **소스 위치(★2026-06-06 이후, Downloads 경로는 낡음): `~/development/barkan-resourcepack`** — `~/Downloads/barkan-resourcepack/`은 더 이상 존재하지 않음(TCC가 Downloads/Desktop 재귀읽기 차단해서 이동함).
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)
