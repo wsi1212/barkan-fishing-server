@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """바르칸 카지노 카드 텍스처 생성기 (casino-rework.md §5).
 
-트럼프 52장+뒷면, 섯다 화투 13장(월10+광3)+뒷면을 모바일 카드게임식
+트럼프 52장+뒷면, 섯다 화투 실제 덱 20장(피 제외: 광·열끗·띠)+뒷면을 모바일 카드게임식
 대형 글리프 디자인으로 생성한다. 4×(256px) 슈퍼샘플로 그린 뒤 LANCZOS로
 64×64 다운스케일 — 카드 영역 44×60px, 인게임 ItemDisplay scale 0.44에서
 0.30×0.41블록.
@@ -34,10 +34,20 @@ MID = C // 2
 
 STYLE_RP = "a"              # RP에 통합할 트럼프 스타일 (2026-07-11 유저 확정: A 빅인덱스)
 
-RP = os.path.expanduser("~/development/barkan-resourcepack")
+RP = os.environ.get("CARD_RP", os.path.expanduser("~/Downloads/barkan-resourcepack"))
 STAGING = os.environ.get("CARD_STAGING", os.path.expanduser("~/Desktop/casino-cards-preview"))
+HW_ATLAS_SOURCE = os.environ.get(
+    "HW_ATLAS_SOURCE", os.path.join(os.path.dirname(__file__), "assets", "hwatu-reference-atlas.png"))
+HW_ART_SOURCE = os.environ.get(
+    "HW_ART_SOURCE", os.path.join(os.path.dirname(__file__), "assets", "hwatu-seotda-generated.png"))
+HW_ART_SOURCE_B = os.environ.get(
+    "HW_ART_SOURCE_B", os.path.join(os.path.dirname(__file__), "assets", "hwatu-seotda-generated-b.png"))
+HW_ART = None
+HW_ART_B = None
+HW_ATLAS = None
 
 FONT_BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
+FONT_CJK = "/System/Library/Fonts/Hiragino Sans GB.ttc"
 
 # 팔레트 (모바일 플랫 톤)
 CARD_FACE = (252, 251, 246, 255)
@@ -305,28 +315,113 @@ HW_ICONS = {1: icon_pine, 2: icon_bird, 3: icon_cherry, 4: icon_drops((36, 38, 4
             8: icon_moon, 9: icon_chrys, 10: icon_maple}
 
 
-def draw_star(d, cx, cy, r, color):
-    import math
-    pts = []
-    for i in range(10):
-        ang = math.tau * i / 10 - math.pi / 2
-        rr = r if i % 2 == 0 else r * 0.42
-        pts.append((cx + math.cos(ang) * rr, cy + math.sin(ang) * rr))
-    d.polygon(pts, fill=color)
+def draw_gwang_mark(d, cx, cy, r):
+    """실제 섯다 광패처럼 빨간 광(光) 원표를 그린다."""
+    d.ellipse([cx - r, cy - r, cx + r, cy + r],
+              fill=(190, 32, 30, 255), outline=(116, 24, 24, 255), width=SS)
+    font = ImageFont.truetype(FONT_CJK, int(r * 1.28))
+    d.text((cx, cy + int(0.5 * SS)), "光", font=font, anchor="mm",
+           fill=(255, 246, 220, 255), stroke_width=max(1, SS // 2),
+           stroke_fill=(255, 246, 220, 255))
 
 
-def hwatu_card(month, gwang):
+def hwatu_card(month, gwang, variant=0):
     img, d = new_canvas()
-    card_base(d, face=HW_FACE)
-    text_center(d, (MID, CY0 + CARD_H * 0.275), str(month), int(36 * SS),
-                HW_NUM, CARD_W * 0.84)
-    HW_ICONS[month](d, MID, CY0 + CARD_H * 0.745, 19 * SS)
+    # 실제 화투 도상에 가까운 원화 시트를 카드 얼굴에 넣는다. 숫자는 생성 모델에 맡기지
+    # 않고 아래에서 픽셀 합성해, 64px에서도 모든 월이 정확히 읽히도록 한다.
+    art = hwatu_art_panel(month, variant)
+    if art is None:
+        card_base(d, face=HW_FACE)
+        HW_ICONS[month](d, MID, CY0 + CARD_H * 0.745, 19 * SS)
+    else:
+        mask = Image.new("L", (CARD_W, CARD_H), 0)
+        ImageDraw.Draw(mask).rounded_rectangle(
+            [0, 0, CARD_W - 1, CARD_H - 1], RADIUS, fill=255)
+        art.putalpha(mask)
+        img.paste(art, (CX0, CY0), art)
+
+    # 오른쪽 위 고정 숫자 배지 — 화투 그림과 겹쳐도 월 식별이 흔들리지 않는다.
+    badge = 16 * SS
+    bx1, by0 = CX1 - 1 * SS, CY0 + 1 * SS
+    bx0, by1 = bx1 - badge, by0 + badge
+    d.rounded_rectangle([bx0, by0, bx1, by1], radius=1.2 * SS,
+                        fill=(249, 240, 208, 255), outline=(92, 30, 28, 255), width=SS)
+    text_center(d, ((bx0 + bx1) / 2, (by0 + by1) / 2), str(month), int(15 * SS),
+                HW_NUM, badge - 2 * SS, stroke_ratio=0.02)
     if gwang:
         d.rounded_rectangle([CX0, CY0, CX1, CY1], RADIUS, outline=GOLD, width=int(2.4 * SS))
         bx, by, br = CX1 - 9 * SS, CY1 - 9 * SS, 7 * SS
-        d.ellipse([bx - br, by - br, bx + br, by + br], fill=GOLD, outline=GOLD_DK, width=SS)
-        draw_star(d, bx, by, br * 0.62, (255, 252, 240, 255))
+        draw_gwang_mark(d, bx, by, br)
     return img
+
+
+def hwatu_art_panel(month, variant=0):
+    """실제 48장 화투 아틀라스에서 월별 섯다 패널을 잘라낸다.
+
+    첨부된 근본 폐 이미지는 8열×6행, 월별 4장씩(1~12월) row-major 배열이다.
+    섯다 20장은 각 월의 첫 두 장만 쓰므로 (month-1)*4 + variant 위치를 사용한다.
+    아틀라스가 없을 때만 이전 생성 시트 경로로 폴백한다.
+    """
+    global HW_ATLAS, HW_ART, HW_ART_B
+
+    if HW_ATLAS is None and os.path.exists(HW_ATLAS_SOURCE):
+        try:
+            HW_ATLAS = Image.open(HW_ATLAS_SOURCE).convert("RGBA")
+        except Exception as ex:
+            print(f"경고: 실제 화투 아틀라스 로드 실패({HW_ATLAS_SOURCE}): {ex}")
+            HW_ATLAS = False
+
+    if HW_ATLAS is not None and HW_ATLAS is not False:
+        width, height = HW_ATLAS.size
+        if width < 8 or height < 6:
+            print(f"경고: 화투 아틀라스 크기가 너무 작다: {HW_ATLAS.size}")
+            return None
+        card_index = (month - 1) * 4 + variant
+        col, row = card_index % 8, card_index // 8
+        x0 = round(col * width / 8)
+        x1 = round((col + 1) * width / 8)
+        y0 = round(row * height / 6)
+        y1 = round((row + 1) * height / 6)
+        # 원본이 픽셀 카드 스프라이트이므로 먼저 최근접 확대하고, 마지막 64px 축소에서만
+        # LANCZOS를 적용해 실제 도안의 선명한 픽셀 경계를 보존한다.
+        return HW_ATLAS.crop((x0, y0, x1, y1)).resize((CARD_W, CARD_H), Image.Resampling.NEAREST)
+
+    source_path = HW_ART_SOURCE_B if variant == 1 else HW_ART_SOURCE
+    if variant == 1 and HW_ART_B is None:
+        if not os.path.exists(source_path):
+            return None
+        try:
+            HW_ART_B = Image.open(source_path).convert("RGBA")
+        except Exception as ex:
+            print(f"경고: 화투 B 원화 시트 로드 실패({source_path}): {ex}")
+            return None
+    if variant != 1 and HW_ART is None:
+        if not os.path.exists(source_path):
+            return None
+        try:
+            HW_ART = Image.open(source_path).convert("RGBA")
+        except Exception as ex:
+            print(f"경고: 화투 원화 시트 로드 실패({source_path}): {ex}")
+            return None
+
+    # imagegen 산출물(1983×793)의 패널 경계. 패널 사이의 밝은 거터는 버리고, 각 패널의
+    # 원본 붉은 프레임까지 포함해 44×60 카드에 세로로 맞춘다. B 시트는 월별 카드 폭이
+    # 일정하지 않으며, 카드 사이 거터가 다음 카드의 왼쪽 프레임과 가까워서 시트 전체
+    # 셀 범위를 쓰면 오른쪽 흰 띠와 다음 카드 프레임이 섞인다. 실제 붉은 외곽 프레임
+    # 기준으로 월별 패널을 자른다.
+    if variant == 1:
+        x_ranges = [(44, 380), (426, 760), (802, 1137), (1180, 1526), (1570, 1939)]
+        y_ranges = [(26, 377), (405, 766)]
+    else:
+        x_ranges = [(45, 380), (427, 780), (823, 1158), (1205, 1558), (1598, 1942)]
+        y_ranges = [(28, 380), (407, 763)]
+    idx = month - 1
+    row, col = divmod(idx, 5)
+    left, right = x_ranges[col]
+    top, bottom = y_ranges[row]
+    source = HW_ART_B if variant == 1 else HW_ART
+    panel = source.crop((left, top, right, bottom)).resize((CARD_W, CARD_H), Image.Resampling.LANCZOS)
+    return panel
 
 
 # ===== 출력 =====
@@ -384,10 +479,15 @@ def main():
     save_tex(hw_back, os.path.join(STAGING, "back", "hw_back.png"), os.path.join(rp_tex, "hw_back.png"))
     ids.append("hw_back")
 
-    # 화투 13장 (월 10 + 광 3) — 같은 월 일반 2장은 텍스처 공유
+    # 실제 섯다 20장 — 1·3월은 광+띠, 8월은 광+열끗, 나머지는 열끗+띠.
+    # 비교용으로 1·3·8월의 미사용 A 패널도 함께 생성해 원화 선택지를 보존한다.
     for month in range(1, 11):
         cid = f"hw_{month}"
         save_tex(hwatu_card(month, False),
+                 os.path.join(STAGING, "hw", f"{cid}.png"), os.path.join(rp_tex, f"{cid}.png"))
+        ids.append(cid)
+        cid = f"hw_{month}b"
+        save_tex(hwatu_card(month, False, 1),
                  os.path.join(STAGING, "hw", f"{cid}.png"), os.path.join(rp_tex, f"{cid}.png"))
         ids.append(cid)
     for month in (1, 3, 8):
