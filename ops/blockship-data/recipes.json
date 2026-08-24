@@ -1004,13 +1004,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -1059,13 +1052,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -1114,13 +1100,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -1169,13 +1148,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -1920,13 +1892,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -2017,13 +1982,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -2305,13 +2263,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -2452,13 +2403,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -2550,13 +2494,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -2598,13 +2535,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -2788,13 +2718,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -2935,13 +2858,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -3075,13 +2991,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -3123,13 +3032,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -3263,13 +3165,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -3410,13 +3305,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -7446,13 +7334,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -9266,13 +9147,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -9702,13 +9576,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -9750,13 +9617,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -10857,13 +10717,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -10905,13 +10758,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -10955,13 +10801,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -11003,13 +10842,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -11634,13 +11466,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -11682,13 +11507,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -17182,13 +17000,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "village": "스폰",
@@ -17582,13 +17393,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -17728,13 +17532,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
@@ -17876,13 +17673,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -18023,13 +17813,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
         }
       ],
       "materialDiscountVersion": 1
@@ -18169,13 +17952,6 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
           "qty": 1
         }
       ],
