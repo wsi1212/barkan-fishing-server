@@ -44,7 +44,7 @@ SCRIPTS_REPO="/Users/user/Library/Application Support/feather/player-server/serv
 # Skript→Java 이관으로 Java가 소유하는 JSON 데이터 (dev→prod 단방향 sync).
 #  주의: 이 파일들은 prod에서 직접 편집(/npc등록·/칭호 생성 등)하면 다음 배포에서 덮어쓰여짐.
 #        편집은 dev에서 하고 배포할 것.
-DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json" "recipes.json" "item-flavor.json")
+DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json" "recipes.json" "materials.json" "item-flavor.json")
 # 주의: collectibles.json/quests.json/regions.json/env-bonuses.json 은 월드/배치별이라 sync 제외(수동 관리)
 
 echo "▶ BlockShip 빌드"

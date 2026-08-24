@@ -139,7 +139,7 @@ remote_jar=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
 echo "  JAR SHA1 일치: $remote_jar"
 
 # deploy-blockship.sh 가 실제로 올리는 Java 소유 데이터만 대조한다.
-for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json item-flavor.json; do
+for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json item-flavor.json; do
   local_file="$DATA_DIR/$f"
   [ -f "$local_file" ] || { echo "  - $f 로컬 없음(스킵)"; continue; }
   expected=$(shasum "$local_file" | awk '{print $1}')

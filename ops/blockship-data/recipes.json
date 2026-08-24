@@ -274,7 +274,7 @@
       "id": "F04",
       "category": "요리재료",
       "displayName": "강화 비트루트",
-      "locked": true,
+      "locked": false,
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
@@ -282,7 +282,6 @@
         "name": "&c강화 비트루트",
         "lore": [
           "&7비트루트 16개를 압축한 강화 농산물",
-          "&8(정리 대기 — 소비처 없음, 잠금)",
           "",
           "&8[조합 재료]",
           "&8mat:강화비트루트"
@@ -302,7 +301,7 @@
       "id": "F05",
       "category": "요리재료",
       "displayName": "강화 호박",
-      "locked": true,
+      "locked": false,
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
@@ -310,7 +309,6 @@
         "name": "&6강화 호박",
         "lore": [
           "&7호박 16개를 압축한 강화 농산물",
-          "&8(정리 대기 — 소비처 없음, 잠금)",
           "",
           "&8[조합 재료]",
           "&8mat:강화호박"
@@ -440,7 +438,7 @@
       "id": "F10",
       "category": "요리재료",
       "displayName": "강화 사과",
-      "locked": true,
+      "locked": false,
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
@@ -448,7 +446,6 @@
         "name": "&c강화 사과",
         "lore": [
           "&7사과 16개를 압축한 강화 농산물",
-          "&8(정리 대기 — 소비처 없음, 잠금)",
           "",
           "&8[조합 재료]",
           "&8mat:강화사과"
