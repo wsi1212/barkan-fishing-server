@@ -38,6 +38,7 @@ import json, shutil, sys, os
 
 SRC = sys.argv[1]
 WRITE_SHOPS = "--shops" in sys.argv
+FORCE = "--force" in sys.argv       # 라이브 값 덮어쓰기 허용 (guard_drift 참조)
 
 GRADE_LEVEL = {"E": 1, "D": 5, "C": 10, "B": 20, "A": 40, "S": 60}
 LEVEL_BAND = {"D": (5, 9), "C": (10, 18), "B": (20, 34), "A": (40, 58), "S": (60, 66)}
@@ -218,6 +219,18 @@ EXTRA = {"잉어꾼의 낚싯대": "등급특화:C:50"}
 # ★개발자 낚싯대(개발자 낚싯대·개발자 크리확률)는 2026-08-03 삭제 — 유저 요청.
 #   빈 리스트로 두면 build_catalog에 없는 기존 항목이 stale로 잡혀 제거된다.
 KEEP_AS_IS = ["잠수부의 낚싯대", "심해 잠수부의 낚싯대", "초보자 낚싯대"]
+# ★«재료확률» 축 라인(채집·수집·탐사·발굴·유물 계열)은 이 사다리 소관이 아니다.
+#   빌드 5종에 없는 축이고 스탯이 따로 조정된 값이라 이 공식으로 재생성하면 수치가 바뀐다.
+#   이름을 일일이 적는 대신 «스탯에 재료확률이 있으면 보존» 규칙으로 잡는다 — 그 라인에
+#   항목이 더 늘어도 생성기가 깨지지 않는다(2026-08-24 기준 낚싯대 9종·부품 20종).
+#   정식 6번째 빌드로 승격하려면 PRIMARY·POWER_W·BUILDS·LADDER 를 같이 손봐야 한다.
+EXTERNAL_AXIS = "재료확률"
+
+
+def is_external(part_value):
+    """parts.json 한 줄(이름|등급|가격|내구|스탯|레벨|출처)이 외부 라인인지."""
+    f = part_value.split("|")
+    return len(f) > 4 and EXTERNAL_AXIS in f[4]
 PRESERVE_RODS = {
     "잠수부의 낚싯대": "잠수부의 낚싯대|B|160000|320|난이도:2,행운:7,등급업:3,판매보너스:8,더블찬스:3|10|잠수상점",
     "심해 잠수부의 낚싯대": "심해 잠수부의 낚싯대|A|2100000|480|난이도:4,행운:17,판매보너스:15,더블찬스:8,트리플찬스:3,경험치:22.5|30|잠수상점",
@@ -342,6 +355,28 @@ def stat_str(st, extra=None):
     return s
 
 
+def guard_drift(what, drift):
+    """라이브 값과 생성 결과가 다르면 **쓰기 전에 멈춘다** (--force 로만 통과).
+
+    이 생성기의 표(PRICE_BAND·PRIMARY·LADDER…)가 라이브 데이터와 어긋난 채로 돌면,
+    누군가 라이브에서 조정해 둔 수치를 조용히 되돌린다. 2026-08-24 실측: prod 라이브가
+    낚싯대·부품 87종에서 이 표와 달랐고(가격·레벨·스탯), 카탈로그 항목 14종에는
+    프레임워크 밖 축 «재료확률» 이 얹혀 있었다 — 그대로 돌리면 전부 사라진다.
+    의도한 재조정이면 차이 목록을 확인하고 --force 를 붙여 돌릴 것.
+    """
+    if not drift or FORCE:
+        if drift:
+            print(f"  ⚠ --force: {what} {len(drift)}종을 라이브 값에서 덮어쓴다")
+        return
+    print(f"\n❌ {what} {len(drift)}종이 라이브 값과 다르다 — 쓰지 않고 멈춘다.")
+    print("   (표를 고쳐 의도한 변경이면 --force 를 붙여 다시 돌릴 것)")
+    for name, live, gen in drift[:15]:
+        print(f"   · {name}\n       라이브: {live}\n       생성기: {gen}")
+    if len(drift) > 15:
+        print(f"   … 외 {len(drift) - 15}종")
+    raise SystemExit(2)
+
+
 def build_catalog():
     rows = []
     for (name, build, grade, village, origin, shape, new) in LADDER:
@@ -455,7 +490,8 @@ def main():
     shutil.copy(parts_path, parts_path + ".bak-rodladder")
     parts, order = P["parts"], P["order"]
     owned = {c["name"] for c in cat} | set(KEEP_AS_IS)
-    stale = [n for n in parts["낚싯대"] if n not in owned]
+    stale = [n for n in parts["낚싯대"] if n not in owned
+             and not is_external(parts["낚싯대"][n])]
     # 삭제 허용 목록 — 여기 없는 이름이 stale로 잡히면 이름 유지 원칙 위반이므로 즉시 실패.
     for n in stale:
         if n not in RETIRED:
@@ -465,10 +501,14 @@ def main():
     P["order"] = [e for e in P["order"] if not (e[0] == "낚싯대" and e[1] in stale)]
     if stale:
         print(f"  삭제: {stale}")
+    def line_for(c):
+        return "|".join([c["name"], c["grade"], str(c["price"]), str(c["dur"]),
+                         stat_str(c["st"], EXTRA.get(c["name"])), str(c["lv"]), c["origin"]])
+    drift = [(c["name"], parts["낚싯대"][c["name"]], line_for(c)) for c in cat
+             if c["name"] in parts["낚싯대"] and parts["낚싯대"][c["name"]] != line_for(c)]
+    guard_drift("낚싯대", drift)
     for c in cat:
-        parts["낚싯대"][c["name"]] = "|".join([
-            c["name"], c["grade"], str(c["price"]), str(c["dur"]),
-            stat_str(c["st"], EXTRA.get(c["name"])), str(c["lv"]), c["origin"]])
+        parts["낚싯대"][c["name"]] = line_for(c)
     for name, value in PRESERVE_RODS.items():
         parts["낚싯대"][name] = value
     have = {n for t, n in order if t == "낚싯대"}
@@ -571,7 +611,10 @@ def main():
             for vil, names in want.items():
                 if v.get("shopItems") and any(n in v["shopItems"] for n in
                                               [c["name"] for c in cat if c["village"] == vil]):
-                    keep = [x for x in v["shopItems"] if x not in parts["낚싯대"]]
+                    # ★카탈로그 이름만 걷어낸다. parts["낚싯대"] 전체로 걸러내면 보존 낚싯대
+                    #   (초보자·잠수부·수집 계열)가 상점에서 조용히 사라진다.
+                    catalog_names = {c["name"] for c in cat}
+                    keep = [x for x in v["shopItems"] if x not in catalog_names]
                     v["shopItems"] = names + keep
                     hit += 1
                     break

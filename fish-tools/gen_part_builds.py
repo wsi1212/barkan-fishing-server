@@ -53,6 +53,7 @@ import json, shutil, sys, os
 
 SRC = sys.argv[1]
 WRITE_SHOPS = "--shops" in sys.argv
+FORCE = "--force" in sys.argv       # 라이브 값 덮어쓰기 허용 (guard_drift 참조)
 
 TYPES = ["릴", "줄", "바늘", "미끼", "찌"]
 # ★2026-08-05 재배정 — 구 {릴:도망감소, 줄:크리배율, 바늘:등급업, 미끼:경험치, 찌:크기} 폐기.
@@ -258,6 +259,18 @@ RETIRED_PREFIX = "개발자"
 # Legacy dive-shop reels deliberately sit outside the normal village grid.  Keep their
 # canonical source specs here so a regeneration preserves them while applying the
 # global 2026-08-07 XP-stat half multiplier exactly once.
+# ★«재료확률» 축 라인(채집·수집·유적 계열)은 이 사다리 소관이 아니다 — 빌드에 없는 축이고
+#   스탯이 따로 조정된 값이라 이 공식으로 재생성하면 수치가 바뀐다. 이름 목록 대신
+#   «스탯에 재료확률이 있으면 보존» 규칙으로 잡는다(항목이 늘어도 생성기가 안 깨지게).
+EXTERNAL_AXIS = "재료확률"
+
+
+def is_external(part_value):
+    """parts.json 한 줄(이름|등급|가격|내구|스탯|레벨|출처)이 외부 라인인지."""
+    f = part_value.split("|")
+    return len(f) > 4 and EXTERNAL_AXIS in f[4]
+
+
 PRESERVE_PARTS = {
     # ★초보자 4종 — 조합대 R00b~e 가 주는 스폰마을 입문 부품. 사다리 격자(GRID) 밖이라
     #   여기 박아 둔다. 스탯은 레시피 로어에 적힌 값과 같아야 한다(로어=parts.json 관례).
@@ -384,6 +397,25 @@ def stat_str(st):
 TYPE_PRIMARY_FALLBACK = "행운"
 
 
+def guard_drift(what, drift):
+    """라이브 값과 생성 결과가 다르면 **쓰기 전에 멈춘다** (--force 로만 통과).
+
+    낚싯대 생성기(gen_rod_builds.py)와 같은 게이트. 이 표가 라이브와 어긋난 채로 돌면
+    라이브에서 조정해 둔 수치를 조용히 되돌린다(2026-08-24 prod 실측 87종).
+    """
+    if not drift or FORCE:
+        if drift:
+            print(f"  ⚠ --force: {what} {len(drift)}종을 라이브 값에서 덮어쓴다")
+        return
+    print(f"\n❌ {what} {len(drift)}종이 라이브 값과 다르다 — 쓰지 않고 멈춘다.")
+    print("   (표를 고쳐 의도한 변경이면 --force 를 붙여 다시 돌릴 것)")
+    for name, live, gen in drift[:15]:
+        print(f"   · {name}\n       라이브: {live}\n       생성기: {gen}")
+    if len(drift) > 15:
+        print(f"   … 외 {len(drift) - 15}종")
+    raise SystemExit(2)
+
+
 def build_catalog():
     rows = []
     for ptype in TYPES:
@@ -494,7 +526,7 @@ def main():
         for n in list(parts[t]):
             if (t, n) in owned:
                 continue
-            if (t, n) in PRESERVE_PARTS:
+            if (t, n) in PRESERVE_PARTS or is_external(parts[t][n]):
                 continue
             if not n.startswith(RETIRED_PREFIX):
                 raise SystemExit(f"카탈로그에 없는 기존 부품(이름 유지 원칙 위반): {t}/{n}")
@@ -502,14 +534,20 @@ def main():
             removed.append(f"{t}/{n}")
     # ★보존 부품(PRESERVE_PARTS)도 order 에 남겨야 한다 — owned 에만 없다고 걸러내면
     #   parts 에는 있는데 순서 목록에서 빠져 목록·상점에서 사라진다.
+    external = {(t, n) for t in TYPES for n in parts[t] if is_external(parts[t][n])}
     P["order"] = [e for e in order
                   if not (e[0] in TYPES and (e[0], e[1]) not in owned
-                          and (e[0], e[1]) not in PRESERVE_PARTS)]
+                          and (e[0], e[1]) not in PRESERVE_PARTS
+                          and (e[0], e[1]) not in external)]
     order = P["order"]
+    def line_for(c):
+        return "|".join([c["name"], c["grade"], str(c["price"]), str(c["dur"]),
+                         stat_str(c["st"]), str(c["lv"]), c["village"]])
+    drift = [(f'{c["type"]}/{c["name"]}', parts[c["type"]][c["name"]], line_for(c)) for c in cat
+             if c["name"] in parts[c["type"]] and parts[c["type"]][c["name"]] != line_for(c)]
+    guard_drift("부품", drift)
     for c in cat:
-        parts[c["type"]][c["name"]] = "|".join([
-            c["name"], c["grade"], str(c["price"]), str(c["dur"]),
-            stat_str(c["st"]), str(c["lv"]), c["village"]])
+        parts[c["type"]][c["name"]] = line_for(c)
     for (ptype, name), value in PRESERVE_PARTS.items():
         parts[ptype][name] = value
         if [ptype, name] not in order:
@@ -528,7 +566,7 @@ def main():
     recs, cats = R["recipes"], R["categories"]
     byname = {rc.get("resultPartName"): rid for rid, rc in recs.items()
               if rc.get("resultMode") == "part" and rc.get("resultPartType") in TYPES}
-    preserved_recipe_names = {name for _, name in PRESERVE_PARTS}
+    preserved_recipe_names = {name for _, name in PRESERVE_PARTS} | {n for _, n in external}
     for dead in [n for n in byname
                  if not any(c["name"] == n for c in cat) and n not in preserved_recipe_names]:
         rid = byname.pop(dead)
