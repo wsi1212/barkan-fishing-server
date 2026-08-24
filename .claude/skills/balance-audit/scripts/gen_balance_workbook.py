@@ -1466,8 +1466,31 @@ def build_workbook(out_path, sim_casts, events=(), cph_override=None):
     yld = {g: int(v) for g, v in re.findall(r'case "(\w)" -> (\d+)', m.group(1))} if m else {}
     rows = [["부품 분해 수율", f"{g}등급", yld.get(g), "조각", "", ""] for g in "EDCBASMLG" if g in yld]
     TIER_LABEL = {0: "매우 흔함(12%↑) / 비드롭 중간재", 1: "흔함(8~11%)", 2: "보통(5~7%)", 3: "희귀(3~4%)", 4: "매우 희귀(1~2%)"}
-    TIER_YIELD = {0: 1, 1: 1, 2: 2, 3: 3, 4: 4}
-    TIER_COST = {0: 2, 1: 3, 2: 5, 3: 8, 4: 12}
+
+    # ★tier 수율/제작비·묶음표는 예전엔 여기 하드코딩이었다 — 2026-08-25 조각 단위 ×100 개편에서
+    #   자바만 바뀌고 이 시트는 옛 숫자를 그대로 보고했다. 이제 자바에서 뽑는다(코드가 권위).
+    def _tier_switch(sig):
+        # ★method 본문에 GRIND 조회가 먼저 오는 경우가 있어 «{ … return switch» 사이를 느슨하게 둔다.
+        m2 = re.search(sig + r"\(String matId\) \{.*?return switch \(rarityTier\(matId\)\) \{(.*?)\};", pf, re.S)
+        if not m2:
+            return {}
+        body = m2.group(1)
+        out = {int(t): int(v) for t, v in re.findall(r"case (\d+) -> (\d+)", body)}   # ★키는 int (조회가 int)
+        dm = re.search(r"default -> (\d+)", body)
+        if dm:
+            for t in range(5):
+                out.setdefault(t, int(dm.group(1)))
+        return out
+
+    TIER_YIELD = _tier_switch(r"int materialYield")
+    TIER_COST = _tier_switch(r"int materialCost")
+
+    # GRIND 정산표 — matId → (묶음, 묶음당 조각). 압축 농산물은 for 루프라 따로 훑는다.
+    GRIND = {mid: (int(b), int(a)) for mid, b, a in re.findall(r'g\("([^"]+)",\s*(\d+),\s*(\d+)\)', pf)}
+    loop = re.search(r"for \(String f : List\.of\((.*?)\)\)\s*g\(f,\s*(\d+),\s*(\d+)\)", pf, re.S)
+    if loop:
+        for mid in re.findall(r'"([^"]+)"', loop.group(1)):
+            GRIND[mid] = (int(loop.group(2)), int(loop.group(3)))
 
     def rarity_tier(mid):
         c = max([d["chance"] for tbl in drops.values() for d in tbl if d["matId"] == mid] or [0])
@@ -1476,19 +1499,22 @@ def build_workbook(out_path, sim_casts, events=(), cph_override=None):
         return 0 if c >= 12 else 1 if c >= 8 else 2 if c >= 5 else 3 if c >= 3 else 4
 
     for t in sorted(TIER_LABEL):
-        rows.append(["재료 희귀도 tier", f"tier {t} — {TIER_LABEL[t]}", TIER_YIELD[t], "조각(분해)",
-                     TIER_COST[t], "조각(제작비) — 항상 수율보다 커서 왕복 손실"])
+        rows.append(["재료 희귀도 tier", f"tier {t} — {TIER_LABEL[t]}", TIER_YIELD.get(t, 0), "조각(분해)",
+                     TIER_COST.get(t, 0), "조각(제작비) — 항상 수율보다 커서 왕복 손실"])
     for mid, m2 in mats.items():
         t = rarity_tier(mid)
-        bundle = 5 if m2.get("name") == "깨진 토기 조각" or mid == "깨진토기조각" else 1
+        bundle, amount = GRIND.get(mid, (1, TIER_YIELD.get(t, 0)))
         rows.append([
-            "재료별", f"{m2.get('name', mid)}", TIER_YIELD[t], f"조각 / {bundle}개당",
-            TIER_COST[t], f"tier {t}" + (" (묶음 5 — 유물감정 유입 과다로 하향)" if bundle > 1 else ""),
+            "재료별", f"{m2.get('name', mid)}", amount, f"조각 / {bundle}개당",
+            TIER_COST.get(t, 0),
+            (f"GRIND 정산표" + (f" (묶음 {bundle})" if bundle > 1 else " (개당)")) if mid in GRIND else f"tier {t}",
         ])
     sheet(
         "31_조각경제", "부품 조각 — 분해 수율 · 제작비",
         "조각은 부품/재료를 분해해 얻고 다른 재료를 만드는 데 쓴다. 제작비 > 분해수율 이라 왕복하면 항상 손실(싱크). "
-        "희귀도 tier 는 '최대 드롭 확률'만 보므로 '흔한데 쓸 데도 없는' 재료를 구분 못 한다 — 묶음 단위가 그 보정 손잡이.",
+        "희귀도 tier 는 '최대 드롭 확률'만 보므로 '흔한데 쓸 데도 없는' 재료를 구분 못 한다 — 묶음 단위가 그 보정 손잡이. "
+        "★2026-08-25 부터 조각 단위는 ×100 이다(옛 1조각 = 100). 개당 0.01조각짜리 광질 재료를 묶음 없이 "
+        "정수로 정산하려고 획득·소비를 전부 100배로 올렸다. 이 시트의 숫자는 자바에서 직접 뽑은 새 단위다.",
         ["구분", "항목", "분해 수율", "단위", "제작비(조각)", "비고"], rows,
         {"항목": 32, "단위": 18, "비고": 44}, tab="375623",
     )
