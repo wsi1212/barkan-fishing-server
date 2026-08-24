@@ -1,243 +1,324 @@
 #!/usr/bin/env python3
-# 특수작물 모델 v3 — 5단계 성장(sprout/young/grown/tall/ripe) + 대형화(밀·당근·토마토) + 수박 4면 줄무늬.
-# 계약: barkan:item/furniture/crop/<eng>_<stage>.json (기존 sprout/grown/ripe 이름 보존 → 데이터 마이그레이션 불요,
-#       young/tall 신규). crops.yml에 cropmodel_<eng>_{young,tall} 아이템 자동 추가(멱등).
-import os, sys, json, math
+"""특수작물 성장 모델 v4.
+
+7종 × 5단계(sprout/young/grown/tall/ripe)의 CraftEngine ItemDisplay 모델을
+modelkit으로 생성한다. 단계가 올라갈수록 단순히 큐브를 키우지 않고, 줄기·잎·열매의
+실루엣이 먼저 읽히도록 만든다. 모델 텍스처는 전부 오토 아틀라스이며, 원본 모델은
+16×16 슬롯 아이콘이 아니라 월드용 3D 가구 모델이다.
+"""
+import json
+import math
+import os
+import sys
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", ".claude", "skills", "pixel-art", "scripts"))
 from modelkit import Kit, Mat
+
 
 CE = os.path.expanduser("~/Library/Application Support/feather/player-server/servers/"
                         "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/CraftEngine/resources/barkan_furniture")
 MODELS = CE + "/resourcepack/assets/barkan/models/item/furniture/crop"
 TEX = CE + "/resourcepack/assets/barkan/textures/furniture/crop"
 CROPS_YML = CE + "/configuration/crops.yml"
+os.makedirs(MODELS, exist_ok=True)
 os.makedirs(TEX, exist_ok=True)
 
-G_SPROUT = "6fae52"; G_LEAF = "4e8f3a"; SOIL = "6b4a2a"
 
-def sprout(k, leaves):
-    k.box((7.4, 0, 7.4), (8.6, 3, 8.6), Mat(G_SPROUT, var=0.7, grain="v"))
-    for f, t, rr in leaves:
-        k.box(f, t, Mat(G_SPROUT, var=0.8), rot=rr)
+SOIL = "6b4a2a"
+SPROUT = "6fae52"
+LEAF = "4e8f3a"
+STEM = "6f8e43"
+
+
+def stem(k, x, z, h, mat=STEM, width=0.52):
+    """밑동이 보이는 둥근 줄기."""
+    k.rounded_box((x - width, 0, z - width), (x + width, h, z + width), mat, bevel=min(0.22, width * 0.4))
+
+
+def leaf(k, x, z, y0, h, width, mat, angle=0, axis="z"):
+    """밑동에서 바깥으로 펼쳐지는 얇은 잎. 회전으로 사각 기둥 느낌을 줄인다."""
+    org = [x, y0, z]
+    k.box((x - width, y0, z - 0.28), (x + width, y0 + h, z + 0.28), mat,
+          rot=(axis, angle, org) if angle else None)
+
+
+def sprout(k, angle=22.5, mat=None):
+    mat = mat or Mat(SPROUT, var=0.85)
+    stem(k, 8, 8, 2.3, mat, 0.32)
+    leaf(k, 7.7, 8, 1.6, 3.3, 0.7, mat, angle)
+    leaf(k, 8.3, 8, 1.7, 3.5, 0.7, mat, -angle)
+
+
+def fan(k, positions, h, width, mat, axis="z"):
+    for x, z, angle in positions:
+        leaf(k, x, z, 0.4, h, width, mat, angle, axis)
+
+
+def fruit(k, x, y, z, size, mat, bevel=None, rot=None):
+    """5단 실루엣으로 만든 둥근 열매. 큰 단일 베벨 큐브가 되는 것을 막는다."""
+    # y축으로 폭을 5번 바꿔 구형에 가깝게 만든다. 회전은 중심축 기준으로만 적용한다.
+    spans = [(0.00, 0.16, 0.54), (0.16, 0.38, 0.82), (0.38, 0.72, 1.00),
+             (0.72, 0.90, 0.82), (0.90, 1.00, 0.54)]
+    total_h = size * 2.0
+    org = [x, y + total_h * 0.5, z]
+    for lo, hi, scale in spans:
+        f = (x - size * scale, y + total_h * lo, z - size * scale)
+        t = (x + size * scale, y + total_h * hi, z + size * scale)
+        k.box(f, t, mat, rot=(rot[0], rot[1], org) if rot else None)
+
 
 def _arc_stalk(k, x, z, total_h, stalk_mat, head_mat, axis, sgn):
-    """다 자란 밀 줄기 = 고사리식 3분절 아치 + 호를 따라 위로-바깥으로 살짝 끄덕이는 이삭.
-    한 각도로 통째 기울이면 '삐딱한 막대'가 됨 — 분절마다 각을 키워야(0→22.5→45) 호가 생긴다.
-    ★이삭은 줄기 호를 '이어서' 위로-바깥 방향(45°)으로 뻗는다 = 밀의 가벼운 끄덕임.
-     (수직으로 툭 떨구면 벼/보리처럼 보임 — 유저 피드백 2026-07-18: '뭔가 쌀같냐')
-    ★단일 축 회전만 가능 → axis로 방향 분배: axis="z"=좌우(±x), axis="x"=앞뒤(±z). 8대를
-     중심 기준 바깥 4방향으로 배분해 사방 방사형(평면 부채살 아님).
-    체인 끝점: z회전→(x−sinθ·L,cosθ·L) / x회전→(z+sinθ·L,cosθ·L). MC 허용각 {0,22.5,45}만."""
-    W = 0.5
+    """밀 이삭을 3분절로 연결해 고개가 살짝 바깥으로 향하게 한다."""
+    width = 0.42
     segs = [(total_h * 0.50, 0.0), (total_h * 0.30, 22.5 * sgn), (total_h * 0.20, 45.0 * sgn)]
     px, py, pz = float(x), 0.0, float(z)
-    for L, a in segs:
-        r = math.radians(a)
-        y0 = py - (0.5 if py > 0 else 0)                       # 관절 겹침 = 지터 틈 방지
-        k.box((px - W, y0, pz - W), (px + W, py + L, pz + W), stalk_mat,
-              rot=(axis, a, [px, py, pz]) if a else None)
-        if axis == "z": px -= math.sin(r) * L; py += math.cos(r) * L
-        else:           pz += math.sin(r) * L; py += math.cos(r) * L
-    a = 45.0 * sgn; hl = total_h * 0.34; hw = 1.25             # 이삭: 호를 이어 위로-바깥 끄덕임(2단 테이퍼)
-    k.box((px - hw, py - 0.4, pz - hw), (px + hw, py + hl * 0.62, pz + hw), head_mat, rot=(axis, a, [px, py, pz]))
-    k.box((px - hw + 0.4, py + hl * 0.55, pz - hw + 0.4), (px + hw - 0.4, py + hl, pz + hw - 0.4),
-          head_mat, rot=(axis, a, [px, py, pz]))          # 끝 테이퍼 = 이삭 꼭지
+    for length, angle in segs:
+        rad = math.radians(angle)
+        k.box((px - width, py, pz - width), (px + width, py + length, pz + width), stalk_mat,
+              rot=(axis, angle, [px, py, pz]) if angle else None)
+        if axis == "z":
+            px -= math.sin(rad) * length
+        else:
+            pz += math.sin(rad) * length
+        py += math.cos(rad) * length
+    fruit(k, px, py - 0.55, pz, 1.05, head_mat, bevel=0.28, rot=(axis, 45.0 * sgn, [px, py, pz]))
+    k.box((px - 0.55, py + 1.0, pz - 0.55), (px + 0.55, py + 2.0, pz + 0.55), head_mat,
+          rot=(axis, 45.0 * sgn, [px, py, pz]))
 
-# ── 각 작물: fn(stage 0~4, kit) ──────────────────────────────
+
+# ── 각 작물: fn(stage 0~4) ──────────────────────────────────
 def wheat(st, k):
-    stalk = Mat("7aa04e", var=0.8, grain="v"); gold_st = Mat("b8a04e", var=0.7, grain="v")
-    head_g = Mat("9ab86a", var=0.7); head_y = Mat("d8b23a", var=0.8)
-    POS = [(3.5, 6.5), (6, 9.5), (8.5, 6), (11, 9), (13, 6.5), (5, 4.5), (10, 12), (12.5, 11.5)]
+    green = Mat("719a49", var=0.85, grain="v")
+    gold = Mat("b8943f", var=0.78, grain="v")
+    head_green = Mat("9cb45c", var=0.82)
+    head_gold = Mat("d8ad43", var=0.88)
+    pos = [(4.0, 6.0), (7.0, 9.7), (9.5, 5.6), (12.0, 9.0), (5.8, 4.0), (11.0, 12.0), (13.2, 6.3)]
     if st == 0:
-        sprout(k, [((6, 2, 7.5), (7.6, 4.5, 8.5), ("z", 22.5)), ((8.4, 2.5, 7.5), (10, 5, 8.5), ("z", -22.5))])
-    elif st == 1:   # 어린 줄기 4대
-        for x, z in POS[:4]:
-            k.box((x-0.5, 0, z-0.5), (x+0.5, 5, z+0.5), stalk)
-    elif st == 2:   # 줄기 6대 + 풋이삭
-        for i, (x, z) in enumerate(POS[:6]):
-            h = 7 + (i % 3)
-            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk)
-            k.box((x-1, h-0.5, z-1), (x+1, h+2, z+1), head_g)
-    elif st == 3:   # 빽빽 8대, 노랗게 물들기 시작
-        for i, (x, z) in enumerate(POS):
-            h = 9 + (i % 3)
-            k.box((x-0.5, 0, z-0.5), (x+0.5, h, z+0.5), stalk if i % 2 else gold_st)
-            k.box((x-1.1, h-0.6, z-1.1), (x+1.1, h+2.2, z+1.1), head_g if i % 2 else head_y)
-    else:           # 성숙 — 크고 빽빽한 황금밭, 사방으로 살짝 끄덕이는 아치(고사리식 3분절)
-        for i, (x, z) in enumerate(POS):
-            total_h = 13 + (i % 3) * 1.5                        # 13/14.5/16 = 크고 껑충
-            dx, dz = x - 8, z - 8                               # 중심 기준 바깥 방향
+        sprout(k, mat=Mat(SPROUT, var=0.8))
+    elif st == 1:
+        for i, (x, z) in enumerate(pos[:4]):
+            stem(k, x, z, 4.8 + i * 0.35, green, 0.35)
+            leaf(k, x, z, 2.2, 3.2, 0.6, green, 22.5 if i % 2 else -22.5)
+    elif st == 2:
+        for i, (x, z) in enumerate(pos[:5]):
+            h = 7.0 + (i % 3) * 0.65
+            stem(k, x, z, h, green, 0.38)
+            leaf(k, x, z, 3.1, 3.4, 0.62, green, 22.5 if i % 2 else -22.5)
+            fruit(k, x, h - 0.6, z, 0.82, head_green, bevel=0.25)
+    elif st == 3:
+        for i, (x, z) in enumerate(pos[:6]):
+            h = 9.2 + (i % 3) * 0.8
+            stem(k, x, z, h, gold if i % 2 == 0 else green, 0.4)
+            leaf(k, x, z, 3.0, 4.0, 0.65, green, 22.5 if i % 2 else -22.5)
+            fruit(k, x, h - 0.5, z, 0.95, head_gold if i % 2 == 0 else head_green, bevel=0.28)
+    else:
+        for i, (x, z) in enumerate(pos):
+            h = 12.7 + (i % 3) * 1.25
+            dx, dz = x - 8, z - 8
             if abs(dx) >= abs(dz):
-                axis, sgn = "z", (1 if dx < 0 else -1)         # 좌우로 휨(바깥쪽)
+                axis, sgn = "z", 1 if dx < 0 else -1
             else:
-                axis, sgn = "x", (1 if dz > 0 else -1)         # 앞뒤로 휨(바깥쪽)
-            _arc_stalk(k, x, z, total_h, gold_st, head_y, axis, sgn)
+                axis, sgn = "x", 1 if dz > 0 else -1
+            _arc_stalk(k, x, z, h, gold, head_gold, axis, sgn)
+
 
 def carrot(st, k):
-    leaf = Mat(G_LEAF, var=0.9)
+    leaf_mat = Mat("4f913c", var=0.9, grain="v")
+    leaf_hi = Mat("6aa64a", var=0.78)
+    orange = Mat("d47a2e", gloss=True)
+    orange_hi = Mat("e89a36", gloss=True)
     if st == 0:
-        sprout(k, [((6.2, 2, 7.6), (7.8, 5, 8.4), ("z", 22.5)), ((8.2, 2, 7.6), (9.8, 5.2, 8.4), ("z", -22.5))])
-    elif st == 1:   # 잎 3장
-        for x, a in [(6, 30), (8, 0), (10, -30)]:
-            k.box((x-0.6, 0, 7.5), (x+0.6, 5, 8.5), leaf, rot=("z", a, [x, 0, 8]))
-    elif st == 2:   # 부채 5장
-        for x, a in [(4.5, 45), (6.5, 22.5), (8.5, 0), (10.5, -22.5), (12, -45)]:
-            k.box((x-0.7, 0, 7.4), (x+0.7, 7, 8.6), leaf, rot=("z", a, [x, 0, 8]))
-    elif st == 3:   # 큰 부채 + 어깨 살짝
-        for x, a in [(4, 45), (6.3, 22.5), (8.5, 0), (10.7, -22.5), (13, -45)]:
-            k.box((x-0.8, 0, 7.3), (x+0.8, 9, 8.7), leaf, rot=("z", a, [x, 0, 8]))
-        k.rounded_box((6.8, 0, 6.8), (9.4, 1.6, 9.4), Mat("d97a2b", gloss=True), bevel=0.5)
-    else:           # 성숙 대형 — 잎 12높이 + 주황 어깨 3개 큼직
-        for x, a in [(3.5, 45), (6, 22.5), (8.5, 0), (11, -22.5), (13.5, -45), (7, 30), (10, -30)]:
-            k.box((x-0.9, 0, 7.2), (x+0.9, 12, 8.8), leaf, rot=("z", a, [x, 0, 8]))   # ★피벗=잎 밑동(공용피벗은 바닥 밑 스윙)
-        for f, t in [((3.4, 0, 5.6), (6.8, 3, 9)), ((9, 0, 6.6), (12.6, 2.8, 10.2)), ((5.8, 0, 9.4), (9.2, 2.6, 12.8))]:
-            k.rounded_box(f, t, Mat("d97a2b", gloss=True), bevel=0.7)
+        sprout(k, mat=leaf_mat)
+    elif st == 1:
+        fan(k, [(6.8, 8, 22.5), (8, 8, 0), (9.2, 8, -22.5)], 4.7, 0.55, leaf_mat)
+    elif st == 2:
+        fan(k, [(5.1, 8, 45), (6.8, 8, 22.5), (8, 8, 0), (9.2, 8, -22.5), (10.9, 8, -45)], 7.0, 0.62, leaf_mat)
+        fruit(k, 8, 0.3, 8, 1.5, Mat("a9672b", gloss=True), bevel=0.55)
+    elif st == 3:
+        fan(k, [(4.8, 8, 45), (6.4, 8, 22.5), (8, 8, 0), (9.6, 8, -22.5), (11.2, 8, -45)], 9.2, 0.7, leaf_mat)
+        fruit(k, 6.2, 0.3, 7.3, 1.7, orange, bevel=0.62)
+        fruit(k, 9.8, 0.3, 8.8, 1.65, orange_hi, bevel=0.62)
+    else:
+        fan(k, [(4.4, 8, 45), (5.8, 8, 22.5), (7.2, 8, 0), (8.8, 8, 0), (10.2, 8, -22.5), (11.6, 8, -45)], 11.6, 0.76, leaf_mat)
+        leaf(k, 8, 8, 0.5, 10.5, 0.55, leaf_hi, 22.5, axis="x")
+        fruit(k, 5.7, 0.25, 7.2, 1.75, orange, bevel=0.7)
+        fruit(k, 9.9, 0.25, 8.8, 1.8, orange_hi, bevel=0.7)
+        fruit(k, 8, 0.4, 5.3, 1.55, Mat("cb6b2b", gloss=True), bevel=0.62)
+
 
 def potato(st, k):
-    bush = Mat(G_LEAF, var=0.9); bush2 = Mat("3f7a37", var=0.9)
+    leaf_mat = Mat("477f3c", var=0.92)
+    leaf_hi = Mat("639b4a", var=0.84)
+    tuber = Mat("ad824b", var=0.88)
+    tuber_hi = Mat("c99a5a", var=0.82)
     if st == 0:
-        sprout(k, [((6.4, 2.2, 7.5), (8, 4.4, 8.5), ("x", 22.5)), ((8, 2.6, 7.5), (9.6, 4.8, 8.5), ("x", -22.5))])
+        sprout(k, mat=leaf_mat)
     elif st == 1:
-        k.rounded_box((5, 0, 5.5), (10, 3.2, 10.5), bush)
+        fan(k, [(6.2, 8, 22.5), (8, 8, -22.5), (9.8, 8, 22.5)], 4.6, 0.8, leaf_mat)
     elif st == 2:
-        k.rounded_box((3.5, 0, 4.5), (9.5, 4.5, 10.5), bush)
-        k.rounded_box((8, 0, 6.5), (12.5, 3.8, 11.5), bush2)
-    elif st == 3:   # 두둑 + 덤불
-        k.box((3, 0, 4), (13, 1.4, 12), Mat(SOIL, var=0.9))
-        k.rounded_box((4, 1, 5), (10, 5.5, 11), bush)
-        k.rounded_box((8.5, 1, 6.5), (12.8, 4.6, 11.8), bush2)
-    else:           # 성숙 — 흰꽃 + 캐낸 감자
-        k.box((2.5, 0, 3.5), (13.5, 1.6, 12.5), Mat(SOIL, var=0.9))
-        k.rounded_box((3.5, 1, 4.5), (10, 6.5, 11), bush)
-        k.rounded_box((8.5, 1, 6), (13.3, 5.4, 12), bush2)
-        for f, t in [((5.5, 6.5, 6.5), (7, 7.8, 8)), ((9.5, 5.4, 8.5), (11, 6.7, 10))]:
-            k.box(f, t, Mat("eeeae0", var=0.5))
-        for f, t in [((11.6, 0, 4), (13.8, 1.8, 6.2)), ((2.2, 0, 8.8), (4.2, 1.6, 10.8))]:
-            k.rounded_box(f, t, Mat("c9a86a", var=0.7), bevel=0.5)
+        fan(k, [(5.0, 8, 45), (6.7, 8, 22.5), (8.5, 8, -22.5), (10.8, 8, -45)], 6.5, 0.86, leaf_mat)
+        fruit(k, 7.2, 0.2, 7.4, 1.2, tuber, bevel=0.45)
+    elif st == 3:
+        fan(k, [(4.4, 8, 45), (6.1, 8, 22.5), (8, 8, 0), (9.9, 8, -22.5), (11.6, 8, -45)], 8.4, 0.92, leaf_mat)
+        fruit(k, 6.0, 0.2, 7.0, 1.45, tuber, bevel=0.55)
+        fruit(k, 9.8, 0.2, 8.8, 1.4, tuber_hi, bevel=0.55)
+    else:
+        fan(k, [(4.0, 8, 45), (5.5, 8, 22.5), (7.2, 8, 0), (8.8, 8, 0), (10.5, 8, -22.5), (12, 8, -45)], 10.1, 0.98, leaf_mat)
+        fruit(k, 5.5, 0.15, 7.1, 1.55, tuber, bevel=0.62)
+        fruit(k, 9.8, 0.15, 8.7, 1.6, tuber_hi, bevel=0.62)
+        fruit(k, 8.0, 0.2, 5.6, 1.35, Mat("9f713f", var=0.88), bevel=0.52)
+        leaf(k, 8.0, 8.0, 5.0, 6.0, 0.55, leaf_hi, -22.5, axis="x")
+
 
 def tomato(st, k):
-    stick = Mat("8a6a44", var=0.7, grain="v"); vine = Mat(G_LEAF, var=0.9)
+    vine = Mat("5b7f3d", var=0.86, grain="v")
+    leaf_mat = Mat("4f8f3f", var=0.9)
+    green_fruit = Mat("8eae49", gloss=True)
+    red = Mat("c94335", gloss=True)
+    red_hi = Mat("e45a3d", gloss=True)
     if st == 0:
-        k.box((7.6, 0, 7.6), (8.4, 6, 8.4), stick)
-        sprout(k, [((6.4, 1.5, 7.5), (8, 3.5, 8.5), ("z", 22.5))])
+        sprout(k, mat=vine)
     elif st == 1:
-        k.box((7.6, 0, 7.6), (8.4, 9, 8.4), stick)
-        for y, a in [(2, 22.5), (5, -22.5)]:
-            k.box((6.2, y, 7.3), (9.8, y+1.8, 8.7), vine, rot=("y", a))
+        stem(k, 8, 8, 4.2, vine, 0.34)
+        fan(k, [(6.2, 8, 22.5), (9.8, 8, -22.5)], 3.8, 0.7, leaf_mat)
     elif st == 2:
-        k.box((7.6, 0, 7.6), (8.4, 12, 8.4), stick)
-        for y, a in [(2, 22.5), (5.5, -22.5), (9, 22.5)]:
-            k.box((5.8, y, 7.2), (10.2, y+2, 8.8), vine, rot=("y", a))
-    elif st == 3:   # 풋토마토(연녹 알)
-        k.box((7.6, 0, 7.6), (8.4, 14, 8.4), stick)
-        for y, a in [(2.5, 22.5), (6, -22.5), (9.5, 22.5), (12, -22.5)]:
-            k.box((5.6, y, 7.1), (10.4, y+2, 8.9), vine, rot=("y", a))
-        for f, t in [((5, 3.5, 6.8), (7.2, 5.7, 9)), ((9.2, 7, 7.4), (11.2, 9, 9.4))]:
-            k.rounded_box(f, t, Mat("9ab86a", gloss=True), bevel=0.5)
-    else:           # 성숙 대형 — 지지대 15 + 빨간 알 5개 큼직
-        k.box((7.6, 0, 7.6), (8.4, 15, 8.4), stick)
-        for y, a in [(2.5, 22.5), (6, -22.5), (9.5, 22.5), (12.5, -22.5)]:
-            k.box((5.4, y, 7,), (10.6, y+2.2, 9), vine, rot=("y", a))
-        for f, t in [((4.2, 2.6, 6.2), (7.4, 5.8, 9.4)), ((8.8, 5.8, 7), (12, 9, 10.2)),
-                     ((4.6, 8.4, 6.6), (7.4, 11.2, 9.4)), ((8.8, 11, 7.2), (11.4, 13.6, 9.8)),
-                     ((6, 13, 6.8), (8.2, 15.2, 9))]:
-            k.rounded_box(f, t, Mat("d1372c", gloss=True), bevel=0.6)
+        stem(k, 8, 8, 8.0, vine, 0.38)
+        fan(k, [(5.4, 8, 45), (6.8, 8, 22.5), (9.2, 8, -22.5), (10.6, 8, -45)], 4.6, 0.72, leaf_mat)
+        fruit(k, 6.1, 3.7, 7.3, 1.15, green_fruit, bevel=0.38)
+        fruit(k, 9.8, 5.7, 8.8, 1.1, green_fruit, bevel=0.38)
+    elif st == 3:
+        stem(k, 8, 8, 11.2, vine, 0.42)
+        fan(k, [(4.8, 8, 45), (6.2, 8, 22.5), (9.8, 8, -22.5), (11.2, 8, -45)], 5.6, 0.78, leaf_mat)
+        for x, y, z, size in [(5.8, 3.5, 7.1, 1.2), (10.2, 5.4, 8.7, 1.18), (6.2, 8.0, 8.6, 1.1), (9.9, 9.0, 7.0, 1.08)]:
+            fruit(k, x, y, z, size, green_fruit if y < 7 else red, bevel=0.4)
+    else:
+        stem(k, 8, 8, 13.5, vine, 0.45)
+        fan(k, [(4.4, 8, 45), (5.8, 8, 22.5), (10.2, 8, -22.5), (11.6, 8, -45)], 6.8, 0.84, leaf_mat)
+        for x, y, z, size, mat in [(5.6, 3.2, 7.0, 1.35, red), (10.3, 4.8, 8.8, 1.34, red_hi),
+                                    (6.2, 8.0, 8.8, 1.28, red), (10.0, 9.5, 6.9, 1.24, red_hi),
+                                    (8.0, 12.0, 8.0, 1.15, red)]:
+            fruit(k, x, y, z, size, mat, bevel=0.48)
+
 
 def cabbage(st, k):
-    outer = Mat("7fae6e", var=0.8); core = Mat("9cc48a", var=0.7)
+    outer = Mat("6d9d5e", var=0.83)
+    mid = Mat("83b66c", var=0.82)
+    core = Mat("a7d18c", var=0.77)
     if st == 0:
-        sprout(k, [((5.8, 1.5, 7.4), (7.9, 3.8, 8.6), ("z", 30)), ((8.1, 1.5, 7.4), (10.2, 3.8, 8.6), ("z", -30))])
+        sprout(k, mat=outer)
     elif st == 1:
-        k.rounded_box((5.5, 0, 5.5), (10.5, 3, 10.5), core, bevel=0.8)
+        fruit(k, 8, 0.1, 8, 2.2, core, bevel=0.8)
+        leaf(k, 6.0, 8, 0.5, 3.4, 1.0, outer, 22.5)
+        leaf(k, 10.0, 8, 0.5, 3.4, 1.0, outer, -22.5)
     elif st == 2:
-        for f, t, rr in [((3.5, 0, 6), (7, 4, 10), ("z", 22.5)), ((9, 0, 6), (12.5, 4, 10), ("z", -22.5))]:
-            k.box(f, t, outer, rot=(rr[0], rr[1], [(f[0]+t[0])/2, 0, (f[2]+t[2])/2]))
-        k.rounded_box((5.5, 0, 5.5), (10.5, 4, 10.5), core, bevel=1)
+        fruit(k, 8, 0.1, 8, 2.7, mid, bevel=1.0)
+        leaf(k, 5.0, 8, 0.5, 4.5, 1.25, outer, 22.5)
+        leaf(k, 11.0, 8, 0.5, 4.5, 1.25, outer, -22.5)
+        leaf(k, 8, 5.0, 0.5, 4.5, 1.25, outer, -22.5, axis="x")
     elif st == 3:
-        for f, t, rr in [((2.8, 0, 5.5), (7, 5, 10.5), ("z", 22.5)), ((9, 0, 5.5), (13.2, 5, 10.5), ("z", -22.5)),
-                         ((5.5, 0, 2.8), (10.5, 5, 7), ("x", -22.5)), ((5.5, 0, 9), (10.5, 5, 13.2), ("x", 22.5))]:
-            k.box(f, t, outer, rot=(rr[0], rr[1], [(f[0]+t[0])/2, 0, (f[2]+t[2])/2]))
-        k.rounded_box((5, 0, 5), (11, 5.5, 11), core, bevel=1.2)
+        fruit(k, 8, 0.15, 8, 3.2, mid, bevel=1.12)
+        leaf(k, 4.4, 8, 0.4, 5.3, 1.45, outer, 22.5)
+        leaf(k, 11.6, 8, 0.4, 5.3, 1.45, outer, -22.5)
+        leaf(k, 8, 4.4, 0.4, 5.3, 1.45, outer, -22.5, axis="x")
+        leaf(k, 8, 11.6, 0.4, 5.3, 1.45, outer, 22.5, axis="x")
     else:
-        for f, t, rr in [((2.5, 0, 5.5), (6.5, 5.5, 10.5), ("z", 30)), ((9.5, 0, 5.5), (13.5, 5.5, 10.5), ("z", -30)),
-                         ((5.5, 0, 2.5), (10.5, 5.5, 6.5), ("x", -30)), ((5.5, 0, 9.5), (10.5, 5.5, 13.5), ("x", 30))]:
-            k.box(f, t, outer, rot=(rr[0], rr[1], [(f[0]+t[0])/2, 0, (f[2]+t[2])/2]))
-        k.rounded_box((4.5, 0, 4.5), (11.5, 7.5, 11.5), core, bevel=1.4)
+        fruit(k, 8, 0.15, 8, 3.9, core, bevel=1.45)
+        fruit(k, 8, 1.1, 8, 2.9, mid, bevel=1.05)
+        leaf(k, 4.0, 8, 0.35, 6.2, 1.65, outer, 30)
+        leaf(k, 12.0, 8, 0.35, 6.2, 1.65, outer, -30)
+        leaf(k, 8, 4.0, 0.35, 6.2, 1.65, outer, -30, axis="x")
+        leaf(k, 8, 12.0, 0.35, 6.2, 1.65, outer, 30, axis="x")
+
 
 def mushroom(st, k):
-    cap = Mat("9a6f46", var=0.8); stem = Mat("d9caa2", var=0.7, grain="v", ao_top=True)
+    cap = Mat("8f6746", var=0.86, ao_top=True)
+    cap_hi = Mat("b18354", var=0.82, ao_top=True)
+    stem_mat = Mat("d4c39b", var=0.72, grain="v", ao_top=True)
     if st == 0:
-        k.box((7, 0, 7), (9, 2.5, 9), stem)
-        k.dome(8, 2, 8, 5, 2.8, cap, layers=2)
+        stem(k, 8, 8, 2.0, stem_mat, 0.6)
+        k.dome(8, 1.5, 8, 4.8, 2.6, cap, layers=3)
     elif st == 1:
-        k.box((6.8, 0, 6.8), (9.2, 3.5, 9.2), stem)
-        k.dome(8, 3, 8, 6.5, 3, cap, layers=2)
+        stem(k, 8, 8, 3.1, stem_mat, 0.72)
+        k.dome(8, 2.5, 8, 6.3, 3.0, cap_hi, layers=3)
     elif st == 2:
-        for x, z, h, w in [(5.5, 7, 3.5, 6), (10, 8.5, 5, 7)]:
-            k.box((x-1, 0, z-1), (x+1, h, z+1), stem)
-            k.dome(x, h-0.5, z, w, 3.2, cap)
+        for x, z, h, w, mat in [(5.5, 8, 3.3, 5.0, cap), (10.4, 8.4, 5.0, 6.5, cap_hi)]:
+            stem(k, x, z, h, stem_mat, 0.7)
+            k.dome(x, h - 0.5, z, w, 3.0, mat, layers=3)
     elif st == 3:
-        for x, z, h, w in [(4.5, 7.5, 4, 6), (8.5, 8.5, 6.5, 7.5), (12, 6.5, 3, 5)]:
-            k.box((x-1, 0, z-1), (x+1, h, z+1), stem)
-            k.dome(x, h-0.5, z, w, 3.4, cap)
+        for x, z, h, w, mat in [(4.7, 7.7, 3.7, 5.6, cap), (8.5, 8.3, 6.1, 7.6, cap_hi), (12.0, 7.0, 3.2, 4.8, cap)]:
+            stem(k, x, z, h, stem_mat, 0.76)
+            k.dome(x, h - 0.5, z, w, 3.2, mat, layers=3)
     else:
-        for x, z, h, w, rr in [(4.5, 7.5, 4.5, 6.5, ("z", 22.5)), (8.5, 8.5, 7.5, 8.5, None), (12, 6.5, 4, 6, ("z", -22.5))]:
-            k.box((x-1.1, 0, z-1.1), (x+1.1, h, z+1.1), stem)
-            if rr: k.dome(x, h-0.5, z, w, 3.8, cap, rot=rr)
-            else: k.dome(x, h-0.5, z, w, 3.8, cap)
+        for x, z, h, w, mat, rr in [(4.4, 7.5, 4.4, 6.0, cap, ("z", 22.5)),
+                                     (8.5, 8.3, 7.4, 8.4, cap_hi, None),
+                                     (12.1, 7.0, 4.0, 5.6, cap, ("z", -22.5))]:
+            stem(k, x, z, h, stem_mat, 0.82)
+            k.dome(x, h - 0.55, z, w, 3.6, mat, layers=3, rot=rr)
+
 
 def melon(st, k):
-    vine = Mat("5c8a4a", var=0.9)
-    striped = lambda: Mat("7fae52", var=0.6, grain="v", stripe="1e4020", stripe_w=2)   # 연녹 바탕 + 흑녹 줄(4면+윗면)
+    vine = Mat("4f8244", var=0.9, grain="v")
+    leaf_mat = Mat("5c9849", var=0.85)
+    rind = Mat("78a94f", var=0.72, stripe="245b31", stripe_w=2)
+    rind_hi = Mat("93bb59", var=0.68, stripe="2c6c35", stripe_w=2)
     if st == 0:
-        k.box((6, 0, 7.5), (10, 1.2, 8.5), vine, rot=("y", 22.5))
-        sprout(k, [((8.5, 1, 7.5), (10.3, 3.4, 8.5), ("z", -22.5))])
-    elif st == 1:   # 덩굴 뻗음
-        k.box((3.5, 0, 7.4), (9, 1.2, 8.6), vine, rot=("y", -22.5))
-        k.box((7.5, 0, 6.4), (12.5, 1.2, 7.6), vine, rot=("y", 22.5))
-        sprout(k, [((10.5, 1, 6.6), (12.2, 3.2, 7.6), ("z", -22.5))])
-    elif st == 2:   # 어린 멜론(무늬 없음, 연녹)
-        k.box((3.5, 0, 7.4), (8, 1.2, 8.6), vine, rot=("y", -22.5))
-        k.rounded_box((7.5, 0, 6.5), (12.5, 4.5, 11.5), Mat("b8c86a", var=0.9, grain="v"), bevel=0.9)
-    elif st == 3:   # 중멜론 — 줄무늬 시작
-        k.box((2.8, 0, 7), (7.5, 1.2, 8.2), vine, rot=("y", -22.5))
-        k.rounded_box((6, 0, 5.2), (13, 6.5, 12.2), striped(), bevel=1.2)
-    else:           # 성숙 — 큰 수박, 4면+윗면 줄무늬 + 꼭지 덩굴
-        k.box((2.2, 0, 6.4), (6.5, 1.2, 7.6), vine, rot=("y", 22.5))
-        k.rounded_box((4.5, 0, 4), (14, 9.5, 13.5), striped(), bevel=1.6)
-        k.box((8.6, 9.5, 8), (9.6, 11.2, 9), Mat("6b4a2a", var=0.7, grain="v"), rot=("z", 22.5))
+        k.box((5.5, 0, 8), (10.5, 0.9, 8.8), vine, rot=("y", 22.5))
+        sprout(k, angle=-22.5, mat=leaf_mat)
+    elif st == 1:
+        k.box((3.0, 0, 8), (11.0, 0.9, 8.8), vine, rot=("y", -22.5))
+        leaf(k, 10.0, 8, 0.5, 3.4, 0.8, leaf_mat, -22.5)
+        leaf(k, 11.8, 7.0, 0.5, 3.0, 0.75, leaf_mat, 22.5)
+    elif st == 2:
+        k.box((2.7, 0, 8), (8.5, 0.9, 8.8), vine, rot=("y", -22.5))
+        leaf(k, 9.0, 8, 0.5, 4.2, 0.9, leaf_mat, -22.5)
+        fruit(k, 10.2, 0.25, 8.0, 2.25, Mat("a4bd62", var=0.82, grain="v"), bevel=0.95)
+    elif st == 3:
+        k.box((2.0, 0, 7.5), (8.0, 0.9, 8.5), vine, rot=("y", -22.5))
+        leaf(k, 8.5, 8, 0.5, 4.7, 0.92, leaf_mat, -22.5)
+        fruit(k, 10.0, 0.25, 7.6, 3.0, rind_hi, bevel=1.2)
+    else:
+        k.box((1.4, 0, 7.0), (7.3, 0.95, 8.2), vine, rot=("y", 22.5))
+        leaf(k, 7.2, 7.6, 0.5, 5.6, 1.0, leaf_mat, 22.5)
+        fruit(k, 10.0, 0.25, 7.3, 3.8, rind, bevel=1.55)
+        k.box((9.6, 7.0, 7.0), (10.5, 9.0, 8.0), Mat(SOIL, var=0.65, grain="v"), rot=("z", 22.5))
+
 
 CROPS = {"wheat": wheat, "carrot": carrot, "potato": potato, "tomato": tomato,
          "cabbage": cabbage, "mushroom": mushroom, "melon": melon}
-STAGES = ["sprout", "young", "grown", "tall", "ripe"]   # ★기존 3이름 보존 + young/tall 신규
+STAGES = ["sprout", "young", "grown", "tall", "ripe"]
+
 
 def ensure_yml_items():
-    """crops.yml에 cropmodel_<eng>_{young,tall} 아이템 정의 멱등 추가."""
+    """crops.yml에 신규 young/tall 단계 아이템을 멱등 추가."""
     txt = open(CROPS_YML, encoding="utf-8").read()
     add = []
     for eng in CROPS:
-        for stg in ("young", "tall"):
-            iid = f"barkan:cropmodel_{eng}_{stg}"
-            if iid in txt: continue
-            add.append(f"  {iid}:\n    material: paper\n    model: barkan:item/furniture/crop/{eng}_{stg}\n")
+        for stage in ("young", "tall"):
+            item_id = f"barkan:cropmodel_{eng}_{stage}"
+            if item_id in txt:
+                continue
+            add.append(f"  {item_id}:\n    material: paper\n    model: barkan:item/furniture/crop/{eng}_{stage}\n")
     if add:
-        # items: 섹션 끝(파일 끝)에 덧붙임 — crops.yml은 items 트리 하나로 구성돼 있음
-        open(CROPS_YML, "a", encoding="utf-8").write("\n" + "\n".join(add))
+        with open(CROPS_YML, "a", encoding="utf-8") as f:
+            f.write("\n" + "\n".join(add))
     return len(add)
 
+
 def main():
-    for eng, fn in CROPS.items():
-        for si, stage in enumerate(STAGES):
-            k = Kit(seed=si * 7 + hash(eng) % 97)
-            fn(si, k)
+    for crop_index, (eng, fn) in enumerate(CROPS.items()):
+        for stage_index, stage in enumerate(STAGES):
+            k = Kit(seed=stage_index * 17 + crop_index * 31 + 7)
+            fn(stage_index, k)
             ref = f"barkan:furniture/crop/{eng}_{stage}"
             im, model = k.build(ref)
             im.save(f"{TEX}/{eng}_{stage}.png")
-            json.dump(model, open(f"{MODELS}/{eng}_{stage}.json", "w"), indent=1)
+            with open(f"{MODELS}/{eng}_{stage}.json", "w", encoding="utf-8") as f:
+                json.dump(model, f, indent=1)
     added = ensure_yml_items()
     print(f"OK — 7작물 × 5단계 = 35모델, crops.yml 아이템 +{added}")
+
 
 if __name__ == "__main__":
     main()
