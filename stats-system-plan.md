@@ -519,7 +519,7 @@ CREATE TABLE audit_log (                -- 웹 콘솔 운영 액션 감사 (Phas
 | 타입 | P | 훅 | ctx |
 |---|---|---|---|
 | `island.create` | P0 | `IslandManager#ensureIsland` | `{id, grid}` |
-| `island.upgrade` | P0 | `#upgradeBorder/#upgradeMember/#buyUpgrade`(호퍼/워프/액자/작물/가구 공용 차감점) | `{kind, lv, price}` |
+| `island.upgrade` | P0 | `#upgradeBorder/#upgradeMember/#buyUpgrade`(워프/작물 공용 차감점; 장식 엔티티 업그레이드 폐지) | `{kind, lv, price}` |
 | `island.furniture` | P2 | `IslandFurnitureListener#onPlace/#onBreak` | `{op:"place"\|"break", used, limit}` |
 | `alba.invite` / `alba.expire` | P2 | `IslandCommand#handleInvite` / `#sweepExpiredAlba` | `{target}` / `{alba}` |
 | `submit.do` | P0 | `IslandSubmitManager#submitMaterial/#submitAllFish/#submitDish` | `{kind, id, n, pts, island, guild}` — 섬·길드 **동시 적립**(이중) 구조 그대로 기록 |
