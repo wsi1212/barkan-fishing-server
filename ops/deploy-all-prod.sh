@@ -25,13 +25,16 @@ LOCK="/tmp/barkan-deploy-all-prod.lock"
 DEPLOY_ID="codex-$$-$(date +%Y%m%d%H%M%S)"
 REMOTE_STAGE="/home/ubuntu/mcserver/.deploy-staged/$DEPLOY_ID"
 REMOTE_STAGE_JAR="$REMOTE_STAGE/BlockShip-1.0.0-SNAPSHOT.jar"
+REMOTE_STAGE_MOTD="$REMOTE_STAGE/motd.properties"
 REMOTE_LIVE_JAR="/home/ubuntu/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar"
 SERVER_MAY_BE_DOWN=0
+MOTD_FILE="$ROOT/prod/motd.properties"
 
 [ -x "$ROOT/deploy-blockship.sh" ] || { echo "❌ deploy-blockship.sh 실행 권한 없음" >&2; exit 1; }
 [ -x "$ROOT/rp-deploy.sh" ] || { echo "❌ rp-deploy.sh 실행 권한 없음" >&2; exit 1; }
 [ -x "$ROOT/prod/betterhud/deploy-prod.sh" ] || { echo "❌ BetterHud deploy-prod.sh 실행 권한 없음" >&2; exit 1; }
 [ -f "$KEY" ] || { echo "❌ SSH 키 없음: $KEY" >&2; exit 1; }
+[ -f "$MOTD_FILE" ] || { echo "❌ MOTD 파일 없음: $MOTD_FILE" >&2; exit 1; }
 
 if ! mkdir "$LOCK" 2>/dev/null; then
   old=$(cat "$LOCK/pid" 2>/dev/null || true)
@@ -75,6 +78,32 @@ say "2) 메인 리소스팩 배포 (재시작은 마지막에 한 번)"
 # rp-deploy.sh 는 --restart 없이도 공개팩·prod server.properties SHA1까지 갱신한다.
 # 마지막 BetterHud 체인의 재시작이 두 팩을 함께 적용한다.
 "$ROOT/rp-deploy.sh" prod
+
+say "2-b) MOTD 반영 예약"
+scp -q -i "$KEY" -o StrictHostKeyChecking=no \
+  "$MOTD_FILE" "$PROD_HOST:$REMOTE_STAGE_MOTD"
+ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+  "python3 - '$REMOTE_STAGE_MOTD' <<'PY'
+from pathlib import Path
+import sys
+
+props = Path('/home/ubuntu/mcserver/server.properties')
+motd_file = Path(sys.argv[1])
+replacement = motd_file.read_text(encoding='utf-8').rstrip('\n') + '\n'
+lines = props.read_text(encoding='utf-8').splitlines(keepends=True)
+out = []
+seen = False
+for line in lines:
+    if line.startswith('motd='):
+        out.append(replacement)
+        seen = True
+    else:
+        out.append(line)
+if not seen:
+    out.append(replacement)
+props.write_text(''.join(out), encoding='utf-8')
+print('MOTD staged')
+PY"
 
 say "3) BetterHud + CraftEngine 리소스팩 + 마지막 재시작"
 # JSON은 1단계에서 prod에 올라갔지만 JAR은 아직 임시 경로에 있다. 서버를
