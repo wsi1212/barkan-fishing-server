@@ -4,7 +4,7 @@ main: com.barkan.worldwarp.WorldWarp
 api-version: "1.21"
 commands:
   월드:
-    description: 성 전시월드로 이동
+    description: 월드 이동 (OP 전용) + 놀이월드 추가 팩 배급
     aliases: [성전시]
     permission: barkanworldwarp.use
 permissions:
