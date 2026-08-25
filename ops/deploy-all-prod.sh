@@ -126,7 +126,16 @@ ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" "set -e
 
 # 위에서 서버를 멈췄으므로 BetterHud 체인의 내부 stop은 no-op이고, 최종
 # start가 새 JAR을 읽는다. 이 시점에는 jar-guard의 false positive가 없다.
-"$ROOT/prod/betterhud/deploy-prod.sh"
+BETTERHUD_ARGS=()
+if [ "${DEPLOY_DIALOGUE:-0}" = 1 ]; then
+  BETTERHUD_ARGS+=(--with-dialogue)
+  echo "  ★DEPLOY_DIALOGUE=1: 대화창 정의/초상화 assets도 함께 전송"
+fi
+# 현재 빌드 JAR을 명시적으로 넘긴다. BetterHud 스크립트가 원격의
+# 오래된 /tmp/BlockShip-new.jar를 발견해 새로 승격한 JAR을 덮어쓰는 일을 막는다.
+# ★bash 3.2(맥 기본) + set -u 에서는 빈 배열 전개 "${arr[@]}" 자체가 unbound 로 죽는다.
+# 2026-08-26 실전 배포가 정확히 이 줄에서 끊겼다(JAR 승격 직후 = 서버 정지 상태). +확장으로 회피.
+"$ROOT/prod/betterhud/deploy-prod.sh" "$JAR" ${BETTERHUD_ARGS[@]+"${BETTERHUD_ARGS[@]}"}
 SERVER_MAY_BE_DOWN=0
 
 say "4) 전체 배포 최종 대조"
@@ -145,6 +154,31 @@ for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json
   expected=$(shasum "$local_file" | awk '{print $1}')
   actual=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
     "sha1sum ~/mcserver/plugins/BlockShip/$f | awk '{print \$1}'")
+  # NpcManager.save()는 Gson pretty-print 결과를 마지막 개행 없이 저장한다.
+  # 따라서 재기동 뒤 dialogue.json은 의미상 동일해도 로컬 미러와 1바이트 차이가 날 수 있다.
+  # 이 경우에만 마지막 개행을 제거한 해시로 재확인하고, 그 외 내용 차이는 계속 실패시킨다.
+  if [ "$actual" != "$expected" ] && [ "$f" = "dialogue.json" ]; then
+    expected_normalized=$(perl -0777 -pe 's/\n\z//' "$local_file" | shasum | awk '{print $1}')
+    actual_normalized=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+      "perl -0777 -pe 's/\\n\\z//' ~/mcserver/plugins/BlockShip/$f | sha1sum | awk '{print \$1}'")
+    if [ "$actual_normalized" = "$expected_normalized" ]; then
+      echo "  $f 일치 (운영 저장 시 마지막 개행 정규화)"
+      continue
+    fi
+  fi
+  # recipes.json의 TR01 계열 통발은 부팅 시 TrapSpecs(Java 단일 진실원)가
+  # 폐기된 스폰도시 표기를 현행 항구 표기로 정규화한다. 해당 엔트리만 제외하고
+  # 비교해 나머지 레시피의 실제 누락·변경은 계속 검출한다.
+  if [ "$actual" != "$expected" ] && [ "$f" = "recipes.json" ]; then
+    expected_normalized=$(jq -S 'del(.recipes.TR01, .recipes.TR01D, .recipes.TR01Q, .recipes.TR01L)' \
+      "$local_file" | shasum | awk '{print $1}')
+    actual_normalized=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
+      "jq -S 'del(.recipes.TR01, .recipes.TR01D, .recipes.TR01Q, .recipes.TR01L)' ~/mcserver/plugins/BlockShip/$f | sha1sum | awk '{print \$1}'")
+    if [ "$actual_normalized" = "$expected_normalized" ]; then
+      echo "  $f 일치 (TR01 계열 통발은 Java 정규화)"
+      continue
+    fi
+  fi
   [ "$actual" = "$expected" ] || {
     echo "❌ $f SHA1 불일치: 로컬=$expected prod=$actual" >&2
     exit 1
@@ -155,5 +189,12 @@ done
 ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
   'test "$(systemctl is-active mcserver)" = active && test -s ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip'
 echo "  서버 active + CraftEngine 팩 존재 확인"
+
+say "5) staging 동기화 (06:00 조용한 되돌림 차단)"
+# 여기까지 왔으면 라이브가 최신이다. staging/ 에 남아 있던 낡은 jar·설정은 그날 밤
+# nightly-restart.sh 가 그대로 라이브에 덮어써 오늘 배포를 조용히 되돌린다(에러 없음).
+# staging 을 라이브와 같게 맞춰 그 경로를 무해하게 만든다. 상세는 sync-prod-staging.sh.
+"$ROOT/sync-prod-staging.sh" --jar-name "$(basename "$REMOTE_LIVE_JAR")" --with-config
+
 echo
-echo "✅ 전체 prod 배포 완료: Java/JSON/BetterHud/리소스팩/재시작/최종 해시 검증 통과"
+echo "✅ 전체 prod 배포 완료: Java/JSON/BetterHud/리소스팩/재시작/staging 동기화/최종 해시 검증 통과"

@@ -76,4 +76,10 @@ fi
 
 echo "▶ 기동"
 ssh -i "$KEY" -o StrictHostKeyChecking=no "$HOST" 'sudo systemctl start mcserver'
+
+# staging/ 에 남은 같은 이름의 낡은 jar 이 그날 밤 06:00 nightly 에 이걸 덮어쓰지
+# 못하게 라이브와 같은 상태로 맞춘다. JSON 은 이 스크립트가 안 올리므로 손대지 않는다.
+"$(dirname "$0")/sync-prod-staging.sh" --jar-name "$NAME" \
+  || echo "⚠ staging 동기화 실패 — 06:00 되돌림 위험. ops/sync-prod-staging.sh 를 직접 돌릴 것" >&2
+
 echo "✅ 배포 완료 — 부팅 ~50초"

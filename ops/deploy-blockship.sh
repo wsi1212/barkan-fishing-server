@@ -161,6 +161,14 @@ else
     "$REMOTE_USER@$REMOTE_HOST" "rm -rf '$REMOTE_STAGE'" || true
 fi
 
+# 즉시 배포는 staging/ 을 라이브와 같은 상태로 맞춘다 — 남아 있는 낡은 jar/설정이
+# 그날 밤 06:00 nightly 에 라이브를 덮어써 조용히 되돌리는 것을 막는다.
+# --no-restart 는 아직 JAR 을 승격하지 않았으므로 래퍼(deploy-all-prod.sh)가 맡는다.
+if [ "$RESTART_PROD" = 1 ]; then
+  "$(dirname "$0")/sync-prod-staging.sh" --jar-name "$JAR_NAME" --with-config \
+    || echo "⚠ staging 동기화 실패 — 06:00 되돌림 위험. ops/sync-prod-staging.sh 를 직접 돌릴 것" >&2
+fi
+
 echo ""
 echo "✅ 배포 완료"
 echo "  - 로컬 패더(dev): plugins/ 복사 + (가동중이면) 자동 재시작 완료"
