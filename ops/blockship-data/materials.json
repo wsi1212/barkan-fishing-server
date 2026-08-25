@@ -65,6 +65,11 @@
       "mcItem": "heart_of_the_sea",
       "desc": "서버 전역의 바다에서 드물게 낚이는 귀한 진주. 강화·조합에 두루 쓰여 화폐처럼 통하는 핵심 재료"
     },
+    "별똥별조각": {
+      "name": "별똥별 조각",
+      "mcItem": "amethyst_shard",
+      "desc": "유성우가 쏟아지는 밤에만 물가에서 건져 올릴 수 있는 별의 파편"
+    },
     "심해수정": {
       "name": "심해 수정",
       "mcItem": "prismarine_crystals",
@@ -658,6 +663,14 @@
       {
         "matId": "낡은갈고리",
         "chance": 10
+      }
+    ]
+  },
+  "weatherDrops": {
+    "유성우": [
+      {
+        "matId": "별똥별조각",
+        "chance": 5
       }
     ]
   }
