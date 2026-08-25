@@ -243,10 +243,10 @@ def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     g_diff = success_gain(dist, succ, success_rates(6, 0))
     V["난이도 (1점)"] = (income * g_diff / 6.0,
                       "존폭 확장 → 성공매출 +%(rodBonus 0→6 ÷6). 등급문턱에서 몰리는 계단식")
-    # 도주감소: 미스 '다음'에만 escapeBase를 floor(÷2) 낮추는 2차 방어선
+    # 도주감소: 미스 '다음'에만 escapeBase를 ×30/(30+v) 로 줄이는 2차 방어선(2026-08-26 체감형)
     g_esc = success_gain(dist, succ, success_rates(0, 20))
     V["도주감소 (1%)"] = (income * g_esc / 20.0,
-                       "미스 후에만 발동+floor(÷2) 감쇠 → 성공매출 +%(0→20 ÷20)")
+                       "미스 후에만 발동, 체감형 ×30/(30+v) → 성공매출 +%(0→20 ÷20). 2026-08-26 구 floor(÷2) 교체")
 
     # ── 게이트 경유 (재료확률) ───────────────────────────────────────
     # 이 구간 티어들 중 «재료가 관문»인 비율만큼만 값이 난다. 관문이 돈이면 0.

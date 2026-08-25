@@ -102,7 +102,7 @@ PRIMARY = {
     "크기":       {"E": 1, "D": 2,  "C": 4,  "B": 6,  "A": 10, "S": 14},
     "판매보너스": {"E": 1, "D": 3,  "C": 6,  "B": 10, "A": 18, "S": 24},
     "더블찬스":   {"E": 1, "D": 1,  "C": 2,  "B": 4,  "A": 7,  "S": 10},
-    "경험치":     {"E": 5, "D": 10, "C": 18, "B": 28, "A": 45, "S": 65},
+    "경험치":     {"E": 3, "D": 7, "C": 12, "B": 20, "A": 30, "S": 45},   # ★2026-08-26 ×2/3 (구 5/10/18/28/45/65)
     "트리플찬스": {"D": 0,  "C": 0,  "B": 1,  "A": 3,  "S": 5},
 }
 BUILDS = {
@@ -338,9 +338,10 @@ def stats_for(build, grade, shape, hybrid_with=None, hidden=False, theme_village
         if ax == "행운" and hidden and grade in CAP_HIDDEN_LUCK:
             cap = CAP_HIDDEN_LUCK[grade]
         st[ax] = min(st[ax], cap)
-    # 2026-08-07 level-pacing decision: equipment XP contribution is halved.
-    if "경험치" in st:
-        st["경험치"] /= 2
+    # ★2026-08-26 — 2026-08-07 감사 ④ «장비 경험치 ×0.5» 는 생성기에만 들어가고 라이브엔
+    #   끝내 반영되지 않았다(라이브 = 반값 전 값 그대로, C풀세팅 +154%). 유저 판단으로 강도를
+    #   ×0.5 → ×2/3 로 완화하고, 나눗셈 대신 **표 자체를 손으로 떨어뜨린 정수**로 교체했다
+    #   (15 이상은 5단위 — 기계식 ÷2 가 소수점 22.5 같은 값을 남겼던 문제도 같이 없앤다).
     return st
 
 

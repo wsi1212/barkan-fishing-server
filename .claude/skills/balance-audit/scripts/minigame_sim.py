@@ -7,7 +7,8 @@
   net = rodBonus - fishDifficulty(grade) - sizeDifficulty(size)
   barWidth = clamp(14 - net, 12, 30)
   zoneWidth = clamp(8 + floor(net/2), 1, 10)  (0 밑으로는 overflowDiff로 흡수)
-  escapeBase = clamp(params.escapeBase - floor(escapeReduction/2) - floor(net/4) + envEscape, 1, 100)
+  escapeBase = clamp(round(params.escapeBase * 30/(30+escapeReduction)) - floor(net/4) + envEscape, 1, 100)
+  ★2026-08-26 체감형으로 교체(구 «- floor(v/2)» 선형차감). MinigameTables.derive 와 동일.
 """
 import random
 import math
@@ -70,7 +71,7 @@ def derive(grade, rod_bonus, escape_reduction, size=0, env_diff=0, env_escape=0)
     if env_diff > 0:
         zone_width = max(1, zone_width - env_diff)
     bar_width = max(bar_width, zone_width + 2)
-    escape_base = p["escapeBase"] - math.floor(escape_reduction / 2.0) - math.floor(net / 4.0) + env_escape
+    escape_base = round(p["escapeBase"] * 30.0 / (30.0 + max(0, escape_reduction))) - math.floor(net / 4.0) + env_escape
     escape_base = max(1, min(100, escape_base))
     return dict(net=net, bar_width=bar_width, zone_width=zone_width, overflow_diff=overflow_diff,
                 escape_base=escape_base, escape_inc=p["escapeInc"], cursor_speed=p["cursorSpeed"],
