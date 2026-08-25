@@ -215,20 +215,33 @@ def objective(quest: dict, forage: dict[str, dict]) -> str:
 
 
 def style(npc: str) -> str:
+    # Keep this explicit.  The old substring rules made a single NPC's voice
+    # depend on branch order (for example 대사서 and 하르트무트).
     if npc == "하겐":
         return "guild_leader"
-    if npc in {"조반니", "하르트무트", "나디아", "도란", "대사서", "마르코", "로베르토", "카림", "유세프", "종지기", "왕실요리장"}:
+    if npc in {
+        "오마르", "카를로", "로베르토", "알도", "나디아", "조반니", "차석사서",
+        "종지기", "도박꾼테오", "금서고지기", "위병1", "위병2", "노파",
+        "왕실요리장", "하르트무트",
+    }:
         return "formal_o"
-    if npc in {"피노", "테클라", "레일라", "마르타", "대장간안내", "시장안내", "요리안내"}:
+    if npc in {
+        "사피르", "테클라", "대장간안내", "대사서", "리나", "레일라",
+        "시장안내", "궁정상인", "파티마", "도서관견습생", "피노",
+        "루디", "브리기테", "도박꾼달리아", "요리안내", "테레사", "아스트리드",
+        "필경사", "식당주인", "파비오", "사관", "누르", "실비아", "유누스",
+        "마르타", "베티나", "마르코", "도란",
+    }:
         return "polite"
-    if any(x in npc for x in ["할아버지", "오스발트", "알비스", "세르간", "노인", "노파"]):
-        return "elder"
-    if any(x in npc for x in ["왕", "영주", "라이너", "대사관"]):
-        return "authority"
-    if any(x in npc for x in ["대사서", "필경사", "사관", "나디아", "테클라", "마르타", "베티나", "레일라", "이자벨라"]):
-        return "polite"
-    if any(x in npc for x in ["하르트무트", "동굴", "펠릭스", "크로", "압바스", "카림", "엔리코", "피노", "조반니", "마테오", "게르하르트"]):
+    if npc in {
+        "마테오", "니코", "이자벨라", "엔리코", "길드접수원", "선원", "동굴탐험가",
+        "도박꾼엘리아스", "마리", "카림", "유세프", "할릴",
+    }:
         return "rough"
+    if npc in {"국왕", "영주", "근위병"}:
+        return "authority"
+    if npc in {"할아버지", "오스발트", "알비스", "세르간", "노인", "할릴", "은둔학자", "스벤", "로자", "지그프리트", "도박꾼자히르"}:
+        return "elder"
     return "friendly"
 
 
@@ -338,8 +351,18 @@ def clean_reviewed_text(text: str, npc: str = "") -> str:
         text = text[:-1] + "이야."
     if text.startswith("부탁 하나만 할게요. ") and text.endswith("일."):
         text = text[:-1] + "이에요."
-    formal_o = {"조반니", "하르트무트", "나디아", "도란", "대사서", "마르코", "로베르토", "카림", "유세프", "종지기", "왕실요리장"}
-    polite = {"피노", "테클라", "레일라", "마르타", "대장간안내", "시장안내", "요리안내"}
+    formal_o = {
+        "오마르", "카를로", "로베르토", "알도", "나디아", "조반니", "차석사서",
+        "종지기", "도박꾼테오", "금서고지기", "위병1", "위병2", "노파",
+        "왕실요리장", "하르트무트",
+    }
+    polite = {
+        "사피르", "테클라", "대장간안내", "대사서", "리나", "레일라", "시장안내",
+        "궁정상인", "파티마", "도서관견습생", "피노", "루디", "브리기테",
+        "도박꾼달리아", "요리안내", "테레사", "아스트리드", "필경사", "식당주인",
+        "파비오", "사관", "누르", "실비아", "유누스", "마르타", "베티나",
+        "마르코", "도란",
+    }
     if npc in formal_o:
         text = text.replace("일이야.", "일이오.")
         text = text.replace("일이에요.", "일이오.")
@@ -575,13 +598,28 @@ def main() -> None:
             if qid not in casino_goal:
                 continue
             goal = casino_goal[qid]
+            voice = style(npc)
             for i, line in enumerate(node.get("lines", [])):
                 if not any(token in line for token in ("카지노순익", "블랙잭승", "슬롯트리플", "카지노에서")):
                     continue
                 if key.startswith("인사/"):
-                    node["lines"][i] = f"이번 부탁은 {goal}예요."
+                    if voice == "formal_o":
+                        node["lines"][i] = f"이번 부탁은 {goal}이오."
+                    elif voice == "rough":
+                        node["lines"][i] = f"이번 부탁은 {goal}이야."
+                    elif voice == "authority":
+                        node["lines"][i] = f"이번 임무는 {goal}이다."
+                    else:
+                        node["lines"][i] = f"이번 부탁은 {goal}예요."
                 elif key.startswith("진행중/"):
-                    node["lines"][i] = f"아직 {goal}이 남아 있어요."
+                    if voice == "formal_o":
+                        node["lines"][i] = f"아직 {goal}이 남아 있소."
+                    elif voice == "rough":
+                        node["lines"][i] = f"아직 {goal} 남았어."
+                    elif voice == "authority":
+                        node["lines"][i] = f"아직 {goal}이 남았다."
+                    else:
+                        node["lines"][i] = f"아직 {goal}이 남아 있어요."
     q = quests.get("본섬08")
     if q:
         q["설명"] = [
