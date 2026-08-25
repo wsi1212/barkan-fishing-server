@@ -81,7 +81,8 @@
     "프리미엄무지개",
     "프리미엄불꽃",
     "서포터",
-    "건축가"
+    "건축가",
+    "알파테스터"
   ],
   "titles": {
     "뉴비": {
@@ -855,6 +856,17 @@
       "source": "admin",
       "animation": true,
       "palette": "gold"
+    },
+    "알파테스터": {
+      "name": "&bα 알파 테스터",
+      "color": "&b",
+      "desc": "&7아무것도 갖춰지지 않은 바다를 가장 먼저 건넌 이들",
+      "icon": "prismarine_crystals",
+      "tier": "유일",
+      "category": "특수",
+      "source": "limited",
+      "animation": true,
+      "palette": "alpha"
     },
     "물길을외운자": {
       "name": "&b물길을 외운 자",
