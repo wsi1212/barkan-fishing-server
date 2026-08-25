@@ -4,8 +4,9 @@
 #  · url·sha1 이 비어 있으면 배급을 조용히 건너뛴다(월드는 그대로 쓸 수 있다).
 #  · 값을 바꾼 뒤엔 /월드 리로드 (재시작 불필요).
 playworld-pack:
-  url: ""
-  sha1: ""
-  # true = 거부하면 접속이 끊긴다. 놀이월드는 스스로 찾아오는 곳이라 기본 true.
-  required: true
+  url: "https://github.com/wsi1212/minecraft-fish-resource-pack/releases/download/playworld-20260826-004245/barkan-playworld.zip"
+  sha1: "7a145d80ed7e9aece408a20c3f036cf7cee44295"
+  # false = 물어보기만 하고, 거절해도 접속은 유지된다(팩만 안 받음).
+  #   true 면 거절 시 접속이 끊긴다 — 놀이월드는 선택해서 오는 곳이라 묻는 쪽으로 둔다.
+  required: false
   prompt: "&6놀이월드 &f추가 리소스팩을 받아주세요 (리듬게임 음원)"

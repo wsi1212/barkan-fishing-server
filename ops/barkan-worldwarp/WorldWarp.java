@@ -63,7 +63,7 @@ public final class WorldWarp extends JavaPlugin implements org.bukkit.command.Co
         reloadConfig();
         packUrl = getConfig().getString("playworld-pack.url", "");
         packSha1 = getConfig().getString("playworld-pack.sha1", "");
-        packRequired = getConfig().getBoolean("playworld-pack.required", true);
+        packRequired = getConfig().getBoolean("playworld-pack.required", false);
         packPrompt = getConfig().getString("playworld-pack.prompt", "&6놀이월드 &f추가 리소스팩을 받아주세요");
         if (packUrl.isBlank() || packSha1.isBlank()) {
             getLogger().warning("playworld-pack.url/sha1 이 비어 있습니다 — 추가 팩 배급을 건너뜁니다.");
