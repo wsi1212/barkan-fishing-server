@@ -171,6 +171,34 @@ def p_cast_any(gr, minsize):
     return total
 
 
+def p_cast_cm(gr, thr):
+    """`fish_cm` 한 캐스팅이 목표를 낼 확률.
+
+    `fish_cm|어종|등급|개수|가다랑어=66.45;…` 은 **어종마다 다른 최소크기**를 요구한다
+    (대개 그 어종 크기 분포의 상위 몇 %). 자바 쪽은 표에 없는 어종이면 그냥 흘리므로
+    (`GoalText.sizeThreshold` → null → continue) 여기서도 확률 0으로 둔다."""
+    g0 = _start_grade(gr)
+    start = 0 if g0 is None else RANK[g0] - 1
+    total = 0.0
+    for g in ORDER[start:]:
+        pool = _BY_GRADE.get(g, [])
+        if pool:
+            total += RATE[g] * sum(p_size(s, g, thr[s]) for s in pool if s in thr) / len(pool)
+    return total
+
+
+def parse_cm_map(raw):
+    out = {}
+    for part in raw.split(";"):
+        if "=" in part:
+            k, _, val = part.partition("=")
+            try:
+                out[k.strip()] = float(val)
+            except ValueError:
+                pass
+    return out
+
+
 # ★달성 불가 목표 수집통 — 어종의 maxSize 보다 큰 크기를 요구하는 퀘스트는 «영구 미완료»다.
 #   2026-08-20 실측으로 본사이드_하겐02(붕어 50cm, 붕어 최대 48cm)를 잡아냈다.
 IMPOSSIBLE = []
@@ -264,8 +292,180 @@ CASINO_PROFIT_RATE = 1000.0
 ACTION_MINUTES = {"슬롯777": 1000 * 0.25}   # 기대 1,000스핀 × 스핀당 0.25분
 
 
-def goal_minutes(g):
-    """목표 하나의 예상 소요(분)."""
+# ══ 요리 — 재료 사슬과 «해금 게이트»가 곧 난이도다 (2026-08-26) ═══════════════
+#
+# v2 는 `craft|<요리>|1` 을 3분, `eatdish|<요리>` 를 3분으로 쳤다. 요리 이름이 뭐든 같은 값이다.
+# 그래서 `본사이드_루디02`(세이지 생선구이 제작+먹기)가 **4칸**으로 떠 있었다 — 실제로는
+#   ① 요리 숙련 **Lv.23** + 80,000원을 내야 레시피를 배울 수 있고(DishSpecs.UNLOCK_LEVEL),
+#   ② 그 요리 자체가 T3라 재료가 «야광베리 커스터드 ← 설산 서리차 ← 채집 4종» 사슬이다.
+# 필요레벨 1짜리 사이드 퀘스트가 사실상 서버 중반 콘텐츠였다. 유저 제보(2026-08-26).
+#
+# ── 모델 ────────────────────────────────────────────────────────────────────
+#   요리 비용 = 재료 사슬(재귀) + 조리 대기 + **해금 게이트**
+#
+#   재료는 `recipes.json` 의 CK_* 를 그대로 읽는다. 이건 부팅 때 `RecipeLoader.ensureCookingRecipes()`
+#   가 {@code DishSpecs} 에서 다시 구워내는 산출물이라, 사본을 얼려 두는 게 아니라 **매번 라이브를
+#   되읽는** 셈이다. 요리 밸런스를 고치면 다음 실행에 난이도가 저절로 따라온다.
+#
+#   ★해금 게이트가 이 모델의 핵심이다. 요리 숙련은 **조리 1회당 15 XP**(CookingGui.cook)뿐이고
+#     need 곡선은 100 에서 ×1.06 이다(SkillManager.needMul). Lv.23 = 누적 4,339 XP = **290 조리**.
+#     즉 «가장 싼 무해금 요리를 290번 만드는 시간»이 레시피를 배우기 전에 먼저 든다.
+#     퀘스트가 잠긴 요리를 요구하면 이 값이 비용의 대부분이다 — 그래서 반드시 센다.
+#     (FREE_DISHES 는 recipes.json 의 `locked:false` 로 그대로 드러난다.)
+COOK_XP_PER_CRAFT = 15          # CookingGui.cook — 조리 1회당 요리 숙련 XP
+COOK_NEED_BASE = 100            # SkillManager: 스킬 필요경험치 초기값
+COOK_NEED_MUL = 1.06            # SkillManager.needMul — 요리/수집 곡선
+# 해금 티어별 요리 숙련 레벨·정가. DishSpecs.UNLOCK_LEVEL / UNLOCK_COST 와 같은 값이다.
+COOK_UNLOCK_LEVEL = {1: 1, 2: 10, 3: 23, 4: 35}
+COOK_UNLOCK_COST = {1: 3_000, 2: 20_000, 3: 80_000, 4: 150_000}
+# lore 의 티어 라벨 → 해금 티어. DishSpecs 의 BUFF/SUBMIT/SELL_TIER_LABEL 을 뒤집은 표다.
+# ★모르는 라벨은 조용히 넘기지 않고 아래에서 하드 실패시킨다 — 라벨이 바뀌면 요리 난이도가
+#   통째로 헐값이 되는데, 그게 정확히 이번에 고친 버그다.
+COOK_TIER_LABEL = {
+    ("버프", "간단"): 1, ("버프", "보통"): 2, ("버프", "고급"): 3, ("버프", "특급"): 4,
+    ("제출", "일반"): 1, ("제출", "중급"): 2, ("제출", "전설"): 3,
+    ("판매", "소"): 1, ("판매", "중"): 2, ("판매", "대"): 3,
+    ("체력포션", "소"): 1, ("체력포션", "대"): 2,
+}
+# dish.tier 에서 파생한 해금 티어의 예외 — DishSpecs.UNLOCK_TIER_OVERRIDE 와 같은 값.
+COOK_UNLOCK_OVERRIDE = {"대연회": 4}
+COOK_BAD_LABEL = []             # 라벨 해석 실패 수집통 (저장 전 하드 실패)
+
+# 재료 종류별 단가(분/개). 낚시(fish)·작물(작물_*)·요리(dish)는 기존 규칙으로 넘긴다.
+COOK_FORAGE_MIN = 2.5           # 채집_* — goal_minutes 의 forage 와 같은 값
+COOK_ENHANCED_MIN = 2.0         # 강화밀·강화감자 등 (바닐라 산출 ×16 압축)
+COOK_RARE_MAT_MIN = 6.0         # 별빛진주·압축흑정석·진주코어·바르칸핵 등 특수 재료
+COOK_ACT_MIN = 0.5              # 조리 GUI 조작 1회
+
+RECIPES = {}
+if os.path.exists("recipes.json"):
+    RECIPES = json.load(open("recipes.json", encoding="utf-8")).get("recipes", {})
+
+DISHES = {}          # dishId → {tier, locked, ings, cook_sec, name}
+CRAFT_KEY = {}       # "세이지_생선구이"(craft 목표의 표기) → dishId
+
+
+def _dish_tier(dish_id, lore):
+    """lore 의 «[라벨] <용도> 요리» 줄에서 해금 티어를 읽는다."""
+    if dish_id in COOK_UNLOCK_OVERRIDE:
+        return COOK_UNLOCK_OVERRIDE[dish_id]
+    for line in lore:
+        t = re.sub(r"&.", "", line).strip()
+        m = re.match(r"^\[(.+?)\]\s*(버프|제출|판매)\s*요리$", t)
+        if m:
+            return COOK_TIER_LABEL.get((m.group(2), m.group(1)))
+        m = re.match(r"^\[(.+?)\]\s*체력포션$", t)
+        if m:
+            return COOK_TIER_LABEL.get(("체력포션", m.group(1)))
+        if t.startswith("★전설★") and "제출" in t:
+            return COOK_TIER_LABEL[("제출", "전설")]
+    return None
+
+
+def _cook_seconds(lore):
+    for line in lore:
+        t = re.sub(r"&.", "", line).strip()
+        m = re.match(r"^조리시간\s*(\d+)\s*(초|분|시간|일)$", t)
+        if m:
+            n = int(m.group(1))
+            return n * {"초": 1, "분": 60, "시간": 3600, "일": 86400}[m.group(2)]
+    return 0
+
+
+for _rid, _rec in RECIPES.items():
+    if _rec.get("category") != "요리" or not _rid.startswith("CK_"):
+        continue
+    _did = _rid[3:]
+    _lore = (_rec.get("result") or {}).get("lore", [])
+    _tier = _dish_tier(_did, _lore)
+    if _rec.get("locked") and _tier is None:
+        COOK_BAD_LABEL.append(_did)
+    DISHES[_did] = {
+        "name": _rec.get("displayName", _did),
+        "locked": bool(_rec.get("locked")),
+        "tier": _tier,
+        "ings": _rec.get("ingredients", []),
+        "cook_sec": _cook_seconds(_lore),
+    }
+    CRAFT_KEY[_rec.get("displayName", _did).replace(" ", "_")] = _did
+    CRAFT_KEY[_did] = _did
+
+
+def cook_xp_to_level(lv):
+    """요리 숙련 Lv.1 → Lv.`lv` 누적 XP. SkillManager 의 need 갱신을 그대로 이식."""
+    need, total = COOK_NEED_BASE, 0
+    for _ in range(max(0, int(lv) - 1)):
+        total += need
+        need = math.floor(need * COOK_NEED_MUL)
+    return total
+
+
+def dish_minutes(dish_id, qty=1, have=None, _stack=()):
+    """요리 `qty`개를 **손에 넣는** 시간(분) — 재료 사슬 + 조리 대기. 해금 게이트는 뺀 값.
+
+    `have` = 앞 퀘스트가 이미 쥐여 준 재료 {키: 개수}. 튜토리얼처럼 «받은 재료로 만들어라»인
+    경우 재료 비용은 0이다 — 이걸 안 빼면 첫 요리 퀘스트가 6칸으로 뜬다."""
+    d = DISHES.get(dish_id)
+    if d is None or dish_id in _stack:      # 미등록/순환 — 사슬 비용은 0으로 두고 조작비만
+        return COOK_ACT_MIN * qty
+    stack = _stack + (dish_id,)
+    total = 0.0
+    for _ in range(int(qty)):
+        total += COOK_ACT_MIN
+        for ing in d["ings"]:
+            kind, tid, n = ing.get("kind"), ing.get("typeOrMatId", ""), int(ing.get("qty", 1))
+            key = tid if kind != "dish" else "dish:" + tid
+            if have:                        # 이미 가진 만큼은 공짜 — 쓴 만큼 소모한다
+                use = min(n, have.get(key, 0))
+                if use:
+                    have[key] -= use
+                    n -= use
+            if n <= 0:
+                continue
+            if kind == "dish":
+                total += dish_minutes(tid, n, have, stack)
+            elif kind == "fish":
+                total += BASE_CAST * n * grade_mult(tid)
+            elif kind == "herbany" or tid.startswith("채집_"):
+                total += COOK_FORAGE_MIN * n
+            elif tid.startswith("작물_"):
+                total += crop_minutes(tid[len("작물_"):], n)
+            elif tid.startswith("강화"):
+                total += COOK_ENHANCED_MIN * n
+            else:
+                total += COOK_RARE_MAT_MIN * n
+        total += d["cook_sec"] / 60.0 * WAIT_WEIGHT
+    return total
+
+
+def _cheapest_free_dish():
+    """무해금 요리 중 가장 싼 것의 1회 제작 비용(분). 숙련 갈이의 단가다."""
+    free = [k for k, v in DISHES.items() if not v["locked"]]
+    return min((dish_minutes(k) for k in free), default=10.0)
+
+
+COOK_GRIND_MIN = None            # 지연 계산 (DISHES 가 다 실린 뒤)
+
+
+def dish_unlock_minutes(dish_id):
+    """레시피 해금 비용(분) — 요리 숙련 갈이 + 정가. 무해금이면 0."""
+    global COOK_GRIND_MIN
+    d = DISHES.get(dish_id)
+    if d is None or not d["locked"]:
+        return 0.0
+    tier = d["tier"] or 1
+    lv, cost = COOK_UNLOCK_LEVEL.get(tier, 1), COOK_UNLOCK_COST.get(tier, 0)
+    if COOK_GRIND_MIN is None:
+        COOK_GRIND_MIN = _cheapest_free_dish()
+    crafts = math.ceil(cook_xp_to_level(lv) / COOK_XP_PER_CRAFT)
+    return crafts * COOK_GRIND_MIN + cost / 4000.0
+
+
+def goal_minutes(g, made=(), have=None):
+    """목표 하나의 예상 소요(분).
+
+    `made` = 같은 퀘스트가 **이미 만들라고 시킨** 요리 id 집합. `craft X` + `eatdish X`
+    처럼 짝으로 오는 목표를 두 번 세지 않으려고 받는다."""
     p = g.split("|")
     v = p[0]
 
@@ -313,6 +513,15 @@ def goal_minutes(g):
         return fish(p[1], p[2], p[3], p[4], p[5] if len(p) > 5 else None)
     if v == "harpoon":
         return fish(p[1], p[2], p[3], p[4], harpoon=True)
+    if v == "fish_cm":
+        thr = parse_cm_map(p[4] if len(p) > 4 else "")
+        if p[1] not in ("아무", ""):
+            return fish(p[1], p[2], p[3], str(thr.get(p[1], 0)))
+        pc = p_cast_cm(p[2], thr)
+        if pc <= 0:
+            IMPOSSIBLE.append(("아무/" + str(p[2]) + " (fish_cm)", 0, None))
+            pc = 1e-6
+        return BASE_CAST * int(p[3]) * (1.0 / pc) * GEAR
     if v == "dogam":
         return dex_minutes(p[1], p[2])
     if v == "material":
@@ -322,7 +531,14 @@ def goal_minutes(g):
     if v == "mine":
         return 1.2 * int(p[2])
     if v == "craft":
+        did = CRAFT_KEY.get(p[1])
+        if did:                       # 요리 — 재료 사슬이 곧 비용 (해금 게이트는 퀘스트 단위로 따로)
+            return dish_minutes(did, int(p[2]), have)
         return 2.0 * int(p[2]) * (1.0 if p[1] == "아무" else 1.5)
+    if v == "recipe":
+        return 2.0                  # 상점까지 가서 사기 — 돈은 그 시점에 이미 있다
+    if v == "deliverfish":
+        return fish("아무", "아무", p[2], "0") + 3.0   # 낚기 + 가져다주기
     if v == "deliver":
         return 3.0 * int(p[2])
     if v == "harvest":
@@ -358,7 +574,13 @@ def goal_minutes(g):
     if v == "usebait":
         return 0.4 * int(p[1])
     if v == "eatdish":
-        return 3.0
+        n = int(p[2]) if len(p) > 2 and p[2].isdigit() else 1
+        did = CRAFT_KEY.get(p[1]) if len(p) > 1 else None
+        if did is None:               # 「아무 요리」 — 가장 싼 무해금 요리로 친다
+            return _cheapest_free_dish() * n + 0.5 * n
+        if did in made:               # 같은 퀘스트의 craft 목표가 이미 값을 냈다
+            return 0.5 * n
+        return dish_minutes(did, n, have) + 0.5 * n
     if v == "quest_daily":
         return 8.0
     if v in ("iceboxbuy", "iceboxstore"):
@@ -412,12 +634,81 @@ def to_rank(minutes):
     return max(1, min(20, int(round(r))))
 
 
+# ── 앞 퀘스트가 쥐여 준 것은 비용이 아니다 (2026-08-26) ──────────────────────
+#   `튜토_요리1`("받은 재료로 따뜻한 빵을 만들어라")의 재료 특수밀 2 + 강화밀 4 는 두 단계 앞
+#   `튜토08` 의 보상(`crop:밀:3,mat:강화밀:5`)으로 이미 손에 있다. 이걸 안 빼면 튜토리얼 첫
+#   요리가 6칸으로 뜬다. 선행 사슬을 몇 홉 거슬러 올라가 보상 아이템/재료를 모아 차감한다.
+GRANT_HOPS = 4
+
+
+def _grant_key(spec):
+    """보상 표기 → 재료 키. `crop:밀:3`→(작물_밀,3) · `mat:강화밀:5`→(강화밀,5) ·
+    `dish:들꽃꿀차:1`→(dish:들꽃꿀차,1) · 보상재료 `별빛진주:2`→(별빛진주,2)."""
+    parts = [x for x in spec.strip().split(":") if x != ""]
+    if len(parts) >= 3:
+        kind, name, qty = parts[0], parts[1], parts[2]
+        pre = {"crop": "작물_", "forage": "채집_", "dish": "dish:"}.get(kind, "")
+        return pre + name, int(qty) if qty.isdigit() else 1
+    if len(parts) == 2:
+        return parts[0], int(parts[1]) if parts[1].isdigit() else 1
+    return None, 0
+
+
+def ancestor_grants(qid):
+    """이 퀘스트 앞에서 받은 재료 {키: 개수} 와 이미 만들어 둔 요리 집합."""
+    have, made = collections.Counter(), set()
+    cur, seen = qid, set()
+    for _ in range(GRANT_HOPS):
+        prev = QUESTS.get(cur, {}).get("선행퀘스트")
+        if not prev or prev in seen or prev not in QUESTS:
+            break
+        seen.add(prev)
+        cur = prev
+        e = QUESTS[prev]
+        for field in ("보상아이템", "보상재료"):
+            for spec in str(e.get(field, "") or "").split(","):
+                k, n = _grant_key(spec)
+                if k:
+                    have[k] += n
+                    if k.startswith("dish:"):
+                        made.add(k[5:])
+        for g in e.get("목표", []):
+            pr = g.split("|")
+            if pr[0] == "craft" and len(pr) > 1 and pr[1] in CRAFT_KEY:
+                made.add(CRAFT_KEY[pr[1]])       # 앞 퀘스트가 만들라고 시킨 요리는 인벤에 있다
+    return have, made
+
+
+def quest_minutes(qid, e):
+    """퀘스트 하나의 예상 소요(분) — 목표 합 + 요리 해금 게이트(요리당 1회).
+
+    ★해금은 **퀘스트당 한 번**만 센다. `craft X` + `eatdish X` 처럼 같은 요리가 두 목표에
+      걸쳐 있어도 레시피는 한 번만 배우면 되기 때문이다."""
+    goals = e["목표"]
+    have, prior = ancestor_grants(qid)
+    own = {CRAFT_KEY[g.split("|")[1]] for g in goals
+           if g.split("|")[0] == "craft" and g.split("|")[1] in CRAFT_KEY}
+    total = sum(goal_minutes(g, own | prior, have) for g in goals)
+    gated = set()
+    for g in goals:
+        pr = g.split("|")
+        if pr[0] in ("craft", "eatdish") and len(pr) > 1:
+            did = CRAFT_KEY.get(pr[1])
+            if did:
+                gated.add(did)
+    for did in gated:
+        if did in prior:
+            continue                      # 앞 퀘스트가 이미 배우게 만들었다 — 해금은 한 번뿐
+        total += dish_unlock_minutes(did)
+    return total
+
+
 rows = []
 for qid, e in sorted(QUESTS.items()):
     if qid in MANUAL:
         rank, mins = MANUAL[qid], None
     else:
-        mins = sum(goal_minutes(g) for g in e["목표"])
+        mins = quest_minutes(qid, e)
         rank = to_rank(mins)
     e["난이도"] = rank
     rows.append((qid, rank, mins, e.get("카테고리", ""), e["필요레벨"],
@@ -425,6 +716,10 @@ for qid, e in sorted(QUESTS.items()):
 
 # ★저장 **전에** 막는다 — 규칙 없는 verb 로 계산한 난이도를 quests.json 에 굳히면
 #   그때부터 아무도 그게 틀렸다는 걸 모른다.
+if COOK_BAD_LABEL:
+    print("\n✗ 해금 티어를 못 읽은 요리 —", ", ".join(sorted(COOK_BAD_LABEL)))
+    sys.exit("  recipes.json lore 의 «[라벨] 용도 요리» 표기가 바뀌었다. COOK_TIER_LABEL 을 맞춰라.")
+
 if UNKNOWN:
     print("\n✗ 산정 규칙이 없는 목표 verb —")
     for _v, _n in UNKNOWN.most_common():
