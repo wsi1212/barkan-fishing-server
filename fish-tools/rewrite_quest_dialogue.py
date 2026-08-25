@@ -215,6 +215,8 @@ def objective(quest: dict, forage: dict[str, dict]) -> str:
 
 
 def style(npc: str) -> str:
+    if npc == "하겐":
+        return "guild_leader"
     if npc in {"조반니", "하르트무트", "나디아", "도란", "대사서", "마르코", "로베르토", "카림", "유세프", "종지기", "왕실요리장"}:
         return "formal_o"
     if npc in {"피노", "테클라", "레일라", "마르타", "대장간안내", "시장안내", "요리안내"}:
@@ -233,6 +235,8 @@ def style(npc: str) -> str:
 def replacements(kind: str, npc: str, goal: str) -> list[str]:
     s = style(npc)
     if kind == "accept":
+        if s == "guild_leader":
+            return [f"이번엔 {goal}을 맡기지.", "준비가 되면 시작하게."]
         if s == "elder":
             return [f"먼저 {goal}을 부탁하마.", "자세한 조건은 의뢰 내용을 확인하고, 준비가 되면 시작하거라."]
         if s == "authority":
@@ -245,6 +249,8 @@ def replacements(kind: str, npc: str, goal: str) -> list[str]:
             return [f"할 일은 간단해. {goal}야.", "준비됐으면 바로 움직여."]
         return [f"부탁 하나만 할게요. {goal}예요.", "내용을 확인하고 준비되면 시작해 주세요."]
     if kind == "progress":
+        if s == "guild_leader":
+            return [f"아직 {goal}을 끝내지 못했군.", "마치면 다시 찾아오게."]
         if s == "elder":
             return [f"아직 {goal}이 남았단다.", "마치거든 바로 돌아오너라."]
         if s == "authority":
@@ -257,6 +263,8 @@ def replacements(kind: str, npc: str, goal: str) -> list[str]:
             return [f"아직 {goal}을 못 끝냈군.", "끝나면 돌아와."]
         return [f"아직 {goal}이 남아 있어요.", "마치면 다시 이야기해요."]
     if kind == "complete":
+        if s == "guild_leader":
+            return [f"{goal}을 끝냈군. 수고 많았다.", "약속한 보상을 챙겨 가게."]
         if s == "elder":
             return [f"{goal}을 끝냈구나. 수고 많았다.", "약속한 보상을 받아 가거라."]
         if s == "authority":
@@ -269,6 +277,8 @@ def replacements(kind: str, npc: str, goal: str) -> list[str]:
             return [f"{goal}을 끝냈군. 수고했어.", "보상 받아."]
         return [f"{goal}을 마쳤네요. 고마워요.", "약속한 보상을 챙겨 가세요."]
     if kind == "first":
+        if s == "guild_leader":
+            return [f"처음 맡길 일은 {goal}이야."]
         if s == "elder":
             return [f"처음 맡길 일은 {goal}이란다."]
         if s == "authority":
@@ -280,6 +290,8 @@ def replacements(kind: str, npc: str, goal: str) -> list[str]:
         if s == "rough":
             return [f"첫 일은 {goal}이야."]
         return [f"처음 부탁할 일은 {goal}이에요."]
+    if s == "guild_leader":
+        return ["맡긴 일은 모두 끝났군.", "도와줘서 고맙다. 다음에 또 들르게."]
     if s == "elder":
         return ["네가 맡은 일은 모두 끝났구나.", "이곳에 남긴 손길을 오래 기억하마."]
     if s == "authority":
@@ -316,6 +328,12 @@ ITEM_CATCH_NAMES = {
 
 def clean_reviewed_text(text: str, npc: str = "") -> str:
     """Small, deterministic copy edits found by the Korean-language audit."""
+    if npc == "하겐":
+        text = text.replace("부탁 하나만 할게요. ", "부탁 하나 하지. ")
+        text = text.replace("일이에요.", "일이야.")
+        text = text.replace("남아 있어요.", "남았군.")
+        text = text.replace("마치면 다시 이야기해요.", "마치면 다시 찾아오게.")
+        text = text.replace("좋아요. 필요한 건 모두 모였어요.", "좋아. 필요한 건 모두 모였군.")
     if text.startswith("할 일은 간단해. ") and text.endswith("일."):
         text = text[:-1] + "이야."
     if text.startswith("부탁 하나만 할게요. ") and text.endswith("일."):
