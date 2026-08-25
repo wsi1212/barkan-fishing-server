@@ -220,6 +220,21 @@ def _op_uuids(blockship_dir):
             if isinstance(entry, dict) and entry.get("uuid")}
 
 
+def _guild_owner_uuid(guild):
+    """길드장 UUID — ownerUuid 가 UUID 가 아닌 옛 레코드면 MASTER 멤버 키로 대신 찾는다.
+
+    ownerId 는 닉네임이라 op 판정에 쓰면 닉 변경 한 번에 어긋난다
+    (인게임 GuildData.resolveOwnerUuid 과 같은 규칙).
+    """
+    raw = str(guild.get("ownerUuid") or "").strip().lower()
+    if len(raw) == 36 and raw.count("-") == 4:
+        return raw
+    for uuid, member in (guild.get("members") or {}).items():
+        if isinstance(member, dict) and member.get("role") == "MASTER":
+            return str(uuid).strip().lower()
+    return ""
+
+
 def _drop_ops(rows, op_uuids, key="uuid"):
     """행 목록에서 OP 소유 행을 뺀다. uuid 가 비어 있는 행은 판정 불가라 남긴다."""
     if not op_uuids:
@@ -326,6 +341,11 @@ def public_ranking():
 
         guild_rows = []
         for guild_id, guild in read_plugin_json("guilds.json").items():
+            # ★길드장이 op 인 길드는 순위표에서 뺀다(인게임 GuildManager 와 같은 기준) —
+            #   1인 op 길드가 점수 1,000만으로 1위를 차지하고 있었다. op 멤버의 기여분만 빼면
+            #   그 길드 점수만 조용히 깎여 무고한 길드원의 순위가 뒤틀리므로 길드장 기준으로 자른다.
+            if _guild_owner_uuid(guild) in op_uuids:
+                continue
             members = guild.get("members") or {}
             score = (
                 sum(player_levels.get(str(uuid), 0) * 100 for uuid in members)
