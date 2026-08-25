@@ -11,6 +11,7 @@ no-bold-format.py(PreToolUse, 볼드·빈권한게이트 '차단')의 짝. 여�
 - 금액 취급 파일의 raw Long.parseLong/Double.parseDouble (오버플로 포화)     : 수표 오버플로 버그
 - ★OP 전용 명령(setPermission blockship.admin)에 영타/한글초성 별칭         : 별칭 규칙(아래)
 - ★OP스러운 명령(isOp/hasPermission admin 체크)인데 setPermission 누락      : 2026-07-25 명령어 전수조사 사고
+- ★인벤 초과분을 바닥에 드롭하거나 addItem 반환값을 버림                       : 2026-08-26 우편함 일원화
 - ★"execute in " 뒤 Worlds.dimKey() 없이 월드이름 직접 연결/"minecraft:world" 리터럴 : 2026-06-06 워프 무응답 버그
 
 명령 별칭 규칙(구 CLAUDE.md에서 이관):
@@ -145,6 +146,33 @@ def check_world_teleport(text, warns):
                          "— dimension key 불일치 시 tp가 조용히 무시됨. Worlds.dimKey(world) 사용." % i)
 
 
+MAIL_EXEMPT = ("mail/ItemDelivery.java", "mail/MailboxManager.java",
+               "trade/TradeManager.java", "skill/SkillManager.java", "crop/CropManager.java")
+
+
+def check_inventory_overflow(text, fp, warns):
+    """인벤 초과분을 바닥에 떨구거나 통째로 버리는 패턴 (2026-08-26 우편함 일원화 재발방지).
+
+    바닥 아이템은 5분이면 디스폰된다 — 인벤이 꽉 찬 줄 모르고 계속 플레이하면 보상이 조용히 증발했다.
+    새 지급 경로는 com.blockship.mail.ItemDelivery.give(p, "출처", item) 하나만 쓴다.
+    폴백 드롭이 정당한 파일(우편 저장 실패 반환·주인 오프라인 회수·바닐라 수확)은 MAIL_EXEMPT 로 뺀다.
+    """
+    if any(fp.endswith(x) or x in fp for x in MAIL_EXEMPT):
+        return
+    lines = text.splitlines()
+    for i, ln in enumerate(lines, 1):
+        # ① addItem(...) 의 잔량을 바닥에 떨구는 고전 패턴 (같은 줄 또는 다음 줄에 drop)
+        if ".addItem(" in ln and ".values()" in ln:
+            window = " ".join(lines[i - 1:i + 2])
+            if "dropItem" in window:
+                warns.append("[우편함] %d줄: addItem 잔량을 바닥에 떨굼 — 5분 뒤 디스폰돼 유실된다. "
+                             "com.blockship.mail.ItemDelivery.give(p, \"출처\", item) 사용." % i)
+        # ② 반환값을 아예 안 쓰는 addItem — 초과분이 바닥에도 안 떨어지고 그냥 사라진다
+        if re.search(r"^\s*(?:\w+(?:\.\w+)*)?\.?getInventory\(\)\.addItem\([^;]*\);\s*$", ln):
+            warns.append("[우편함] %d줄: addItem 반환값(초과분)을 버림 — 인벤이 꽉 차면 아이템이 «조용히» 사라진다. "
+                         "com.blockship.mail.ItemDelivery.give(p, \"출처\", item) 사용." % i)
+
+
 def line_positions(text, needle):
     return [i for i, ln in enumerate(text.splitlines()) if needle in ln]
 
@@ -202,6 +230,9 @@ def main():
 
     # cross-world 텔레포트 dimKey 우회
     check_world_teleport(text, warns)
+
+    # 인벤 초과분 바닥 드롭/무시 (우편함 일원화)
+    check_inventory_overflow(text, fp, warns)
 
     if warns:
         print(json.dumps({"hookSpecificOutput": {
