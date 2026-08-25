@@ -188,6 +188,46 @@ def _read_live_player_rows(playerdata_dir):
     return rows
 
 
+def _op_uuids(blockship_dir):
+    """랭킹에서 뺄 OP UUID 집합.
+
+    권위는 게임 서버 루트의 ops.json 하나다 — 인게임 RankingExclusion 이 보는 Bukkit op 목록이
+    바로 그 파일이라, /op·/deop 한 번에 인게임과 홈페이지가 함께 따라온다. 별도 제외 명단을
+    만들면 한쪽만 갱신되는 날이 온다.
+
+    경로는 BLOCKSHIP_DATA_DIR(=plugins/BlockShip)에서 두 단계 위(서버 루트)로 역산하고,
+    다른 배치에서는 OPS_FILE 로 직접 지정한다. 못 읽으면 빈 집합(=아무도 안 뺌)이지만 조용히
+    넘기지 않고 로그를 남긴다 — 안 그러면 제외가 사라진 걸 아무도 모른다.
+    """
+    path = os.environ.get("OPS_FILE")
+    if not path:
+        if not blockship_dir:
+            return set()
+        path = os.path.join(os.path.dirname(os.path.dirname(blockship_dir)), "ops.json")
+    try:
+        with open(path, encoding="utf-8") as file:
+            entries = json.load(file)
+    except OSError as error:
+        print(f"[ranking] ops.json 을 읽지 못해 OP 제외를 건너뜁니다 ({path}): {error}", flush=True)
+        return set()
+    except (ValueError, TypeError) as error:
+        print(f"[ranking] ops.json 이 손상돼 OP 제외를 건너뜁니다 ({path}): {error}", flush=True)
+        return set()
+    if not isinstance(entries, list):
+        return set()
+    return {str(entry.get("uuid")).strip().lower()
+            for entry in entries
+            if isinstance(entry, dict) and entry.get("uuid")}
+
+
+def _drop_ops(rows, op_uuids, key="uuid"):
+    """행 목록에서 OP 소유 행을 뺀다. uuid 가 비어 있는 행은 판정 불가라 남긴다."""
+    if not op_uuids:
+        return rows
+    return [row for row in rows
+            if str(row.get(key) or "").strip().lower() not in op_uuids]
+
+
 def _sort_player_rows(rows, field, secondary):
     """공개 랭킹용 개인 행 정렬(동점이면 보조 수치·이름 순)."""
     return sorted(
@@ -235,6 +275,12 @@ def public_ranking():
         live_player_rows = _read_live_player_rows(playerdata_dir)
         player_rows = live_player_rows or snapshot_rows
 
+        # ★공개 순위표에서 OP 를 뺀다(인게임 /랭킹 과 같은 ops.json 기준).
+        #   길드 점수 계산에 쓰는 player_levels 는 원본을 그대로 쓴다 — 길드는 「유저」가 아니라
+        #   여기서 op 멤버를 빼면 그 길드의 점수만 조용히 깎여 순위가 뒤틀린다.
+        op_uuids = _op_uuids(blockship_dir)
+        public_player_rows = _drop_ops(player_rows, op_uuids)
+
         def read_plugin_json(filename):
             if not blockship_dir:
                 return {}
@@ -244,9 +290,9 @@ def public_ranking():
             except (OSError, ValueError, TypeError):
                 return {}
 
-        level_rows = _sort_player_rows(player_rows, "level", "total_fish")
-        fish_rows = _sort_player_rows(player_rows, "total_fish", "level")
-        wealth_rows = _sort_player_rows(player_rows, "money", "level")
+        level_rows = _sort_player_rows(public_player_rows, "level", "total_fish")
+        fish_rows = _sort_player_rows(public_player_rows, "total_fish", "level")
+        wealth_rows = _sort_player_rows(public_player_rows, "money", "level")
         player_levels = {
             str(row["uuid"]): _number(row.get("level"), 0)
             for row in player_rows if row.get("uuid")
@@ -312,6 +358,8 @@ def public_ranking():
 
         island_rows = []
         for island in read_plugin_json("islands.json").values():
+            if str(island.get("ownerUuid") or "").strip().lower() in op_uuids:
+                continue
             owner = island.get("ownerName") or "알 수 없는 섬장"
             visitors = int(island.get("visitCount") or len(island.get("visitLog") or {}))
             island_rows.append({
@@ -324,7 +372,7 @@ def public_ranking():
         island_rows.sort(key=lambda row: (-row["visitors"], row["name"].casefold()))
 
         popularity_rows = []
-        for player in live_player_rows:
+        for player in _drop_ops(live_player_rows, op_uuids):
             popularity = _number(player.get("popularity"), 0)
             if popularity > 0:
                 popularity_rows.append({
@@ -362,6 +410,7 @@ def public_ranking():
                         ORDER BY net DESC, name COLLATE NOCASE ASC
                         LIMIT 100"""
                 ).fetchall()]
+                casino_rows = _drop_ops(casino_rows, op_uuids)
             except sqlite3.DatabaseError:
                 casino_rows = []
             finally:
