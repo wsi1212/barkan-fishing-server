@@ -72,7 +72,7 @@ description: >-
 
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
-| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md), ★[audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) (수입공식 오류 — 앵커 32,489원/h는 **폐기 대기**) |
+| 🎣 낚시 | ✅ 완료(2026-07-24, 갱신중) — ★난이도/도주감소 재실측 + 전면 리밸런싱 + 골드곡선 v2(스킬트리·길드·플레이어티어 반영, 2026-07-25) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md) | [audits/2026-07-24.md](audits/2026-07-24.md), [audits/2026-07-25-difficulty-stat-value.md](audits/2026-07-25-difficulty-stat-value.md), [audits/2026-07-25-full-rebalance.md](audits/2026-07-25-full-rebalance.md), [audits/2026-07-25-gold-curve-redesign.md](audits/2026-07-25-gold-curve-redesign.md), ★[audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) (수입공식 오류 — 앵커 32,489원/h는 **폐기 대기**), ★★[audits/2026-08-26-material-chance-revaluation.md](audits/2026-08-26-material-chance-revaluation.md) (재료확률 0.50→1.00 재평가 + 게이트 표 3중 오류 정정 + 🔴미끼 소모규칙 붕괴) |
 | 🔱 작살(harpoon) | 🔴 **미모델링 발견(2026-08-03)** — 등급 롤 우회(어종 균등)+quality 70~100 고정+한계비용 0. 낚시 모듈은 rod만 다뤘음 | (미작성 — HarpoonManager/HarpoonListener) | (미작성) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
@@ -132,6 +132,9 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
 ```
 - 각 스탯 1단위를 원/h로 환산(판매1%=1.0 앵커). 요리·날씨·장비를 비교할 **공통 화폐**.
 - 상세·방법론·직관 교정: [references/stat-values.md](references/stat-values.md).
+- ★**재료 게이트 수치는 손으로 적지 말 것** — `scripts/material_gate.py` 가 라이브 recipes/
+  materials/parts 에서 매번 다시 뽑는다(구 표를 손으로 옮겨 적었다가 «아이템 1점을 1티어라
+  부르고 별빛진주를 8%로 적는» 3중 오류가 4개월 갔다, 2026-08-26).
 - ★**income 곱셈이 안 통하는 스탯이 있다** — 그걸 «0» 이나 «별도 효용»으로 치우지 말 것.
   `재료확률`은 게이트 렌즈(재료 게이트 ÷(1+v/100)), `돌진쿨감`은 작살 사이클 모델로 값을 낸다.
   둘 다 2026-08-23에 편입했고, 1차 모델이 종결값을 0으로 뱉었다가 요리 싱크를 세어 고쳤다 —
