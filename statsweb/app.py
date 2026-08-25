@@ -14,6 +14,7 @@ import datetime
 import json
 import math
 import os
+import re
 import secrets
 import sys
 import time
@@ -136,11 +137,93 @@ def _number(value, default=0):
         return default
 
 
-def _read_live_player_rows(playerdata_dir):
+_KST = datetime.timezone(datetime.timedelta(hours=9))
+_ISO_DATE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})")
+# 구 DateFormat(SHORT,SHORT) 잔재 — "4/7/26," 처럼 공백에서 잘린 조각까지 받는다.
+_US_DATE = re.compile(r"^(\d{1,2})/(\d{1,2})/(\d{2})\s*,?\s*$")
+
+
+def _parse_date_millis(raw):
+    """날짜 문자열 → 그날 00:00 KST 의 epoch millis. 못 읽으면 0.
+
+    인게임 RankingActivity.parseDateMillis 와 같은 규칙이다 — 저장 포맷인 yyyy-MM-dd 를
+    먼저 보고, 안 되면 구 US 포맷을 시도한다. "26." 같은 조각은 0(=단서 없음)이다.
+    """
+    if not raw:
+        return 0
+    text = str(raw).strip()
+    match = _ISO_DATE.match(text)
+    if not match:
+        match_us = _US_DATE.match(text)
+        if not match_us:
+            return 0
+        month, day, year = int(match_us.group(1)), int(match_us.group(2)), 2000 + int(match_us.group(3))
+    else:
+        year, month, day = int(match.group(1)), int(match.group(2)), int(match.group(3))
+    try:
+        return int(datetime.datetime(year, month, day, tzinfo=_KST).timestamp() * 1000)
+    except ValueError:
+        return 0
+
+
+def _ranking_dormant_days(blockship_dir):
+    """휴면 제외 기준일 — plugins/BlockShip/config.yml 의 ranking.dormant-days 가 권위다.
+
+    인게임 RankingExclusion 이 ops.json 하나를 보는 것과 같은 이유로 값을 여기 베끼지 않는다.
+    config.yml 을 못 읽으면 인게임 기본값과 같은 90 을 쓴다(=제외가 조용히 꺼지지 않는다).
+    PyYAML 의존을 늘리지 않으려고 두 줄짜리 키 하나만 직접 훑는다.
+    """
+    override = os.environ.get("RANKING_DORMANT_DAYS")
+    if override:
+        try:
+            return max(0, int(override))
+        except ValueError:
+            pass
+    if not blockship_dir:
+        return 90
+    path = os.path.join(blockship_dir, "config.yml")
+    try:
+        with open(path, encoding="utf-8") as file:
+            in_ranking = False
+            for line in file:
+                if not line.strip() or line.lstrip().startswith("#"):
+                    continue
+                if not line[:1].isspace():                    # 최상위 키로 되돌아옴
+                    in_ranking = line.strip().startswith("ranking:")
+                    continue
+                if in_ranking:
+                    found = re.match(r"\s+dormant-days:\s*(\d+)", line)
+                    if found:
+                        return max(0, int(found.group(1)))
+    except (OSError, ValueError):
+        pass
+    return 90
+
+
+def _drop_dormant(rows, days, now_millis=None):
+    """마지막 활동일이 days 일보다 오래된 행을 뺀다. 단서가 없는 행(0)은 남긴다."""
+    if days <= 0:
+        return rows
+    cutoff = (now_millis or int(datetime.datetime.now().timestamp() * 1000)) - days * 86_400_000
+    kept = []
+    for row in rows:
+        last = _number(row.get("last_active"), 0)
+        if last and last < cutoff:
+            continue
+        kept.append(row)
+    return kept
+
+
+def _read_live_player_rows(playerdata_dir, world_playerdata_dir=""):
     """현재 playerdata/*.json을 공개 랭킹 행으로 변환한다.
 
     PlayerDataManager가 원자 교체로 저장하므로 읽는 순간 파일이 교체돼도
     찢어진 JSON을 보지 않는다. 개별 파일 오류는 해당 유저만 건너뛴다.
+
+    ★last_active(마지막 활동 epoch millis)를 같이 실어 휴면 제외에 쓴다. 인게임은
+    OfflinePlayer.getLastSeen() 을 보지만 여기서는 그 값의 출처인 world/playerdata/<uuid>.dat
+    의 mtime 으로 대신한다(로그아웃 때 쓰이는 파일이다). 최대 몇 시간 어긋날 수 있으나
+    기준이 90일 단위라 판정이 갈리지 않는다.
     """
     if not playerdata_dir or not os.path.isdir(playerdata_dir):
         return []
@@ -165,6 +248,19 @@ def _read_live_player_rows(playerdata_dir):
                 name = str(player.get("name") or "").strip()
                 if not name:
                     continue
+                extra_strs = player.get("extraStrs")
+                if not isinstance(extra_strs, dict):
+                    extra_strs = {}
+                last_active = max(
+                    _parse_date_millis(extra_strs.get("마지막접속날짜")),
+                    _parse_date_millis(extra_strs.get("주간접속날짜")),
+                )
+                if world_playerdata_dir:
+                    try:
+                        last_active = max(last_active, int(os.path.getmtime(
+                            os.path.join(world_playerdata_dir, uuid + ".dat")) * 1000))
+                    except OSError:
+                        pass    # 지금 월드에서 논 적 없는 계정 — 위 날짜 단서로만 판단한다
                 level = player.get("fishingLevel", player.get("level"))
                 current_exp = player.get("currentExp", player.get("curExp"))
                 total_fish = extra_nums.get("총낚시", player.get("totalFish"))
@@ -182,6 +278,7 @@ def _read_live_player_rows(playerdata_dir):
                     "dex_fish": len(dex_discovery.get("물고기", []))
                     if isinstance(dex_discovery, dict) else _number(player.get("dexFish"), 0),
                     "popularity": _number(player.get("popularity"), 0),
+                    "last_active": last_active,
                 })
             except (OSError, ValueError, TypeError):
                 continue
@@ -287,7 +384,11 @@ def public_ranking():
             "PLAYERDATA_DIR",
             os.path.join(blockship_dir, "playerdata") if blockship_dir else "",
         )
-        live_player_rows = _read_live_player_rows(playerdata_dir)
+        world_playerdata_dir = os.environ.get("WORLD_PLAYERDATA_DIR", "")
+        if not world_playerdata_dir and blockship_dir:
+            world_playerdata_dir = os.path.join(
+                os.path.dirname(os.path.dirname(blockship_dir)), "world", "playerdata")
+        live_player_rows = _read_live_player_rows(playerdata_dir, world_playerdata_dir)
         player_rows = live_player_rows or snapshot_rows
 
         # ★공개 순위표에서 OP 를 뺀다(인게임 /랭킹 과 같은 ops.json 기준).
@@ -295,6 +396,11 @@ def public_ranking():
         #   여기서 op 멤버를 빼면 그 길드의 점수만 조용히 깎여 순위가 뒤틀린다.
         op_uuids = _op_uuids(blockship_dir)
         public_player_rows = _drop_ops(player_rows, op_uuids)
+        # ★휴면 계정도 뺀다(인게임 RankingActivity 와 같은 config.yml 기준). 개인 랭킹은
+        #   playerdata 를 전부 읽어 접속 여부를 안 보기 때문에, 떠난 계정이 파일만 남아
+        #   상위권에 눌러앉는다 — 2026-08-26 prod 에서 5개월 미접속 계정이 레벨 1위였다.
+        #   길드/섬 점수는 그대로 둔다(엔티티 랭킹이고, 시즌 리셋이 이미 낡은 기록을 턴다).
+        public_player_rows = _drop_dormant(public_player_rows, _ranking_dormant_days(blockship_dir))
 
         def read_plugin_json(filename):
             if not blockship_dir:
