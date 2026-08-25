@@ -34,6 +34,10 @@ export function textChannelName(guildId) {
   const cleaned = String(guildId).trim().toLowerCase().replace(/\s+/g, "-").replace(/[^0-9a-z가-힣ㄱ-ㅎㅏ-ㅣ_-]/gu, "");
   return cleaned.slice(0, 90) || "guild";
 }
+/** 음성 채널은 표시 이름이라 정규화하지 않고 길이만 자른다. */
+export function voiceChannelName(guildId) {
+  return String(guildId).slice(0, 90);
+}
 export function safeFileName(guildId) {
   return String(guildId).replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_-]/gu, "_").slice(0, 60) || "guild";
 }
@@ -154,11 +158,30 @@ export async function provisionGuild(guild, guildId, existing, categoryPrefix) {
   }
   if (!voice) {
     voice = await guild.channels.create({
-      name: String(guildId).slice(0, 90), type: ChannelType.GuildVoice, parent: category.id,
+      name: voiceChannelName(guildId), type: ChannelType.GuildVoice, parent: category.id,
       permissionOverwrites: overwrites(VOICE_ALLOW), reason: `길드 ${guildId} 전용 음성`,
     });
   }
+  // 길드가 개명하면 id 는 그대로 물려받고 이름만 어긋난다. 여기서 따라잡는다 —
+  // 개명 전용 경로를 따로 두지 않는 이유: 30분마다 도는 reconcile 이 이 함수를 지나므로,
+  // 작업이 유실돼도 다음 정기 점검에서 저절로 맞는다. 관리자가 손으로 바꾼 이름도 되돌린다.
+  await renameIfNeeded(role, roleName, guildId);
+  await renameIfNeeded(text, textChannelName(guildId), guildId);
+  await renameIfNeeded(voice, voiceChannelName(guildId), guildId);
+
   return { roleId: role.id, categoryId: category.id, textChannelId: text.id, voiceChannelId: voice.id };
+}
+
+/**
+ * 이름이 다를 때만 바꾼다.
+ *
+ * <p>디스코드는 채널 이름 변경을 10분에 2회로 조인다. 매번 무조건 setName 을 부르면
+ * 30분 reconcile 이 그 예산을 태워, 정작 개명했을 때 못 바꾼다.</p>
+ */
+async function renameIfNeeded(target, want, guildId) {
+  if (!target || !want || target.name === want) return false;
+  await target.setName(want, `길드 ${guildId} 이름 동기화`);
+  return true;
 }
 
 /** 채널을 지우면 대화도 같이 사라지므로, 삭제 전에 전문을 JSONL 로 떨군다. */

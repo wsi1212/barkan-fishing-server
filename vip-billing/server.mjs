@@ -1799,9 +1799,15 @@ async function route(req, res) {
     const data = await bodyJson(req);
     if (!Array.isArray(data.guilds)) return json(res, 400, { error: "invalid_request" });
     const snapshot = new Map();
+    const renames = [];
     for (const raw of data.guilds) {
       const guildId = String(raw?.id ?? "").trim();
       if (!guildId || guildId.length > 64) return json(res, 400, { error: "invalid_guild_id" });
+      // 게임이 개명 직후 24시간 동안만 붙여 보내는 힌트. 없으면 그냥 평소 스냅샷이다.
+      const renamedFrom = String(raw?.renamedFrom ?? "").trim();
+      if (renamedFrom && renamedFrom !== guildId && renamedFrom.length <= 64) {
+        renames.push({ from: renamedFrom, to: guildId });
+      }
       const members = [];
       for (const m of Array.isArray(raw.members) ? raw.members : []) {
         const uuid = String(m?.uuid ?? "").trim();
@@ -1815,6 +1821,45 @@ async function route(req, res) {
     const client = await pool.connect();
     try {
       await client.query("BEGIN");
+      // 개명 인수인계 — «대량 삭제 방어»보다 «먼저» 해야 한다. 채널·역할 행을 새 ID 로 옮겨
+      // 놓지 않으면 바로 아래 비교가 개명을 «옛 길드 해산 + 새 길드 신설»로 읽고,
+      // guild_delete 가 큐에 들어가 봇이 길드 채널을 대화째 지운다.
+      // 멱등하다 — 이미 옮겼거나 새 ID 가 이미 provisioned 면 아무 일도 안 한다.
+      const carried = new Set();
+      for (const { from, to } of renames) {
+        if (!snapshot.has(to)) continue;
+        const gate = await client.query(
+          `SELECT 1 FROM guild_discord WHERE guild_id=$1
+             AND NOT EXISTS (SELECT 1 FROM guild_discord WHERE guild_id=$2)`,
+          [from, to]
+        );
+        if (!gate.rowCount) continue;
+        // guild_member_mirror 가 guild_mirror 를 참조하므로 새 부모를 먼저 만든다.
+        await client.query(
+          `INSERT INTO guild_mirror (guild_id, owner_uuid, updated_at)
+             SELECT $2, owner_uuid, NOW() FROM guild_mirror WHERE guild_id=$1
+           ON CONFLICT (guild_id) DO NOTHING`,
+          [from, to]
+        );
+        await client.query("UPDATE guild_member_mirror SET guild_id=$2 WHERE guild_id=$1", [from, to]);
+        await client.query("DELETE FROM guild_mirror WHERE guild_id=$1", [from]);
+        await client.query("UPDATE guild_discord SET guild_id=$2, updated_at=NOW() WHERE guild_id=$1", [from, to]);
+        // (kind, guild_id) 부분 유니크 인덱스가 있어서, 같은 종류의 대기 작업이 양쪽에
+        // 있으면 UPDATE 가 충돌한다. 옛 쪽을 버리고 새 쪽을 남긴다.
+        await client.query(
+          `DELETE FROM guild_discord_jobs old
+            WHERE old.guild_id=$1 AND old.done_at IS NULL
+              AND EXISTS (SELECT 1 FROM guild_discord_jobs cur
+                           WHERE cur.guild_id=$2 AND cur.done_at IS NULL AND cur.kind = old.kind)`,
+          [from, to]
+        );
+        await client.query(
+          "UPDATE guild_discord_jobs SET guild_id=$2 WHERE guild_id=$1 AND done_at IS NULL",
+          [from, to]
+        );
+        carried.add(to);
+        console.log(`[Guild] rename carry-over ${from} → ${to}`);
+      }
       // 대량 삭제 방어. 게임 쪽에서 guilds.json 을 못 읽었거나 반쯤 로드된 상태로 스냅샷이 오면
       // 그대로 반영할 경우 멀쩡한 길드 채널을 통째로 지운다(2026-08 staging JSON 덮어쓰기 사고와 같은 계열).
       // 정상적인 대량 해체는 force:true 로 명시해야 통과한다.
@@ -1852,6 +1897,9 @@ async function route(req, res) {
       }
       const provisionedIds = new Set(provisionedBefore.rows.map((row) => row.guild_id));
       let queued = 0;
+      // 인수인계한 길드는 이미 provisioned 라 아래 생성 분기에 안 걸린다. 채널·역할 «이름»은
+      // 아직 옛 이름이므로, 봇의 provision 경로를 한 번 돌려 이름을 맞추게 한다.
+      for (const guildId of carried) { await enqueueGuildJob(client, "guild_create", guildId); queued += 1; }
       for (const [guildId, guild] of snapshot) {
         if (!provisionedIds.has(guildId)) { await enqueueGuildJob(client, "guild_create", guildId); queued += 1; }
         const after = new Set(guild.members.map((m) => `${m.uuid}:${m.rank}`));

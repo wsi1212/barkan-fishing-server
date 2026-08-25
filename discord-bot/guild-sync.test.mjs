@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { ChannelType } from "discord.js";
 import {
   CATEGORY_CHANNEL_LIMIT, GUILD_ROLE_PREFIX, SERVER_CHANNEL_LIMIT,
-  pickCategory, planMemberSync, provisionGuild, safeFileName, textChannelName,
+  pickCategory, planMemberSync, provisionGuild, safeFileName, textChannelName, voiceChannelName,
 } from "./guild-sync.mjs";
 
 const RANKS = new Map([["MASTER", "r_master"], ["VICE_MASTER", "r_vice"], ["OFFICER", "r_officer"], ["MEMBER", "r_member"]]);
@@ -125,15 +125,19 @@ function fakeGuildFull({ roles = [], channels = [] } = {}) {
   const roleCache = new Map(roles.map(r => [r.id, r]));
   const chanCache = new Map(channels.map(c => [c.id, c]));
   const created = { roles: 0, channels: 0 };
+  const renamed = [];
+  for (const r of roleCache.values()) r.setName = async n => { r.name = n; renamed.push(r.id); };
+  for (const c of chanCache.values()) c.setName = async n => { c.name = n; renamed.push(c.id); };
   return {
     created,
+    renamed,
     roles: {
       everyone: { id: "everyone" },
       cache: roleCache,
       fetch: async id => roleCache.get(id) ?? null,
       create: async options => {
         created.roles += 1;
-        const r = { id: `role_${roleCache.size}`, name: options.name };
+        const r = { id: `role_${roleCache.size}`, name: options.name, setName: async n => { r.name = n; renamed.push(r.id); } };
         roleCache.set(r.id, r); return r;
       },
     },
@@ -146,6 +150,7 @@ function fakeGuildFull({ roles = [], channels = [] } = {}) {
           id: `chan_${chanCache.size}`, name: options.name, type: options.type,
           parentId: options.parent ?? null,
           permissionOverwrites: { cache: new Map((options.permissionOverwrites ?? []).map(o => [o.id, o])) },
+          setName: async n => { c.name = n; renamed.push(c.id); },
         };
         chanCache.set(c.id, c); return c;
       },
@@ -205,4 +210,46 @@ test("이름이 전부 걸러지면 빈 이름 대신 대체값을 쓴다", () =
 
 test("길드 역할 접두어는 다른 역할과 겹치지 않을 만큼 특이하다", () => {
   assert.ok(GUILD_ROLE_PREFIX.startsWith("["));
+});
+
+
+// ===== 개명 동기화 =====
+// 길드가 개명하면 백엔드가 채널·역할 id 를 새 ID 로 물려주므로 여기서는 «이름만» 어긋난다.
+// 개명 전용 경로 없이 provision 이 지나가며 맞춘다.
+
+test("이름이 어긋난 역할·채널은 새 길드 이름으로 고쳐 준다", async () => {
+  const guild = fakeGuildFull({
+    roles: [{ id: "existing_role", name: `${GUILD_ROLE_PREFIX}옛이름` }],
+    channels: [
+      category("cat1", 1),
+      { ...ownedChannel("t1", ChannelType.GuildText, "existing_role", "cat1"), name: "옛이름" },
+      { ...ownedChannel("v1", ChannelType.GuildVoice, "existing_role", "cat1"), name: "옛이름" },
+    ],
+  });
+  const result = await provisionGuild(guild, "새이름", {
+    roleId: "existing_role", categoryId: "cat1", textChannelId: "t1", voiceChannelId: "v1",
+  }, "길드");
+  assert.equal(guild.created.roles, 0, "개명은 새로 만드는 일이 아니다");
+  assert.equal(guild.created.channels, 0);
+  assert.deepEqual(result, { roleId: "existing_role", categoryId: "cat1", textChannelId: "t1", voiceChannelId: "v1" });
+  assert.equal(guild.roles.cache.get("existing_role").name, `${GUILD_ROLE_PREFIX}새이름`);
+  assert.equal(guild.channels.cache.get("t1").name, textChannelName("새이름"));
+  assert.equal(guild.channels.cache.get("v1").name, voiceChannelName("새이름"));
+});
+
+test("이름이 이미 맞으면 setName 을 부르지 않는다", async () => {
+  // 디스코드는 채널 개명을 10분에 2회로 조인다. 30분 reconcile 이 매번 부르면
+  // 정작 개명이 필요할 때 예산이 없다.
+  const guild = fakeGuildFull({
+    roles: [{ id: "existing_role", name: `${GUILD_ROLE_PREFIX}러지` }],
+    channels: [
+      category("cat1", 1),
+      { ...ownedChannel("t1", ChannelType.GuildText, "existing_role", "cat1"), name: textChannelName("러지") },
+      { ...ownedChannel("v1", ChannelType.GuildVoice, "existing_role", "cat1"), name: voiceChannelName("러지") },
+    ],
+  });
+  await provisionGuild(guild, "러지", {
+    roleId: "existing_role", categoryId: "cat1", textChannelId: "t1", voiceChannelId: "v1",
+  }, "길드");
+  assert.deepEqual(guild.renamed, [], "이름이 같으면 건드리지 않는다");
 });
