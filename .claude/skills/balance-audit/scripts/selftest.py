@@ -235,6 +235,10 @@ def t7_drift(rows):
             rd.get("pos1") and rd.get("pos1") != [0, 0, 0])
         if a not in Rj or not has_area or a not in Fj.get("regions", {}):
             ghost.append(a)
+    #  ★지역 ID 는 명령어 인자라 공백 대신 밑줄을 쓴다(기억의_연못 · 레드_로드 · 폭포_뒤_동굴_1층).
+    #    밑줄을 빠뜨리면 `MaterialLoader.normalizeDropTableRegionIds` 가 정규 ID 로 승격하고
+    #    `mergeMissingDefaults` 가 원래 키를 다시 넣어 **같은 지역이 두 항목**이 된다
+    #    (실측: 기억의연못 + 기억의_연못 = 14 지역). 이 검사가 그 중복도 잡는다.
     ok(not ghost, "드랍표 유령 지역", f"{ghost or '없음'}  (영역·어종 풀 없는 지역)")
     p = os.path.join(SKILL, "references/cross-economy-values.md")
     if os.path.exists(p):
