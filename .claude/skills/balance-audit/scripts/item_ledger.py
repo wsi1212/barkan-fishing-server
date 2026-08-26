@@ -191,8 +191,13 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
             key = 10 if lv < 20 else (30 if lv < 50 else 60)
             b, dist = spear_base[key]
             spear_val = HM.income(HM.effective(name), dist) - b
-        # 릴·미끼는 주스탯이 경험치(성장)다 — 빼면 전부 «살 이유 없음»으로 오판된다(2026-08-05 사고)
-        eff = inc + gate + (growth if cat in ("릴", "미끼") else 0.0) + spear_val
+        # ★2026-08-27 — 성장(경험치)을 **전 카테고리**에 포함한다.
+        #   구 동작은 릴·미끼만 포함했는데 낚싯대에도 경험치 라인이 있다(수련생·경험의·학도의·
+        #   전승자). 그래서 경험의 낚싯대가 19.5h(최악)로 잡혔지만 성장을 넣으면 8.4h(상위권)다.
+        #   근거: stat_value 의 경험치 값 자체가 「레벨링 국면: income 1%와 동가치(병렬진행)」로
+        #   정의돼 있다 — 이미 원/h 로 환산된 값이므로 카테고리에 따라 넣고 빼면 일관성이 깨진다.
+        #   ★단 이 값은 **만렙 후 0** 이다. growth_share 컬럼으로 그 비중을 드러낸다.
+        eff = inc + gate + growth + spear_val
 
         # ── 유지비 (2026-08-26 신설) ──────────────────────────────────
         #   ★내구보존은 reduceDurability() **전체를 스킵**한다 — 릴/줄/바늘/찌 4슬롯의 내구와
@@ -223,6 +228,7 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
                    or k in DASH_KEY or k in UPKEEP or (cat == "작살" and k in SPEAR_ONLY)]
         cover = (len(modeled) / len(keys)) if keys else 0.0
         gate_led = (gate / eff) if eff > 0 else 0.0
+        growth_share = (growth / eff) if eff > 0 else 0.0
 
         rec = D.recby.get(name)
         mat_h, lam, hact, unres = (0.0, {}, {}, [])
@@ -246,7 +252,7 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
                          currency=cur, p_cost=p_cost,
                          inc=inc, growth=growth, gate=gate, dash=dash, spear=spear_val, eff=eff,
                          dur_val=dur_val, own_upkeep=own_upkeep, eff_net=eff_net,
-                         cover=cover, gate_led=gate_led,
+                         cover=cover, gate_led=gate_led, growth_share=growth_share,
                          mat_h=mat_h, mat_won=mat_won, total=total,
                          payback=(total / eff_net if (eff_net > 0 and total == total)
                                   else float("inf")),
@@ -477,6 +483,9 @@ def main():
     gl = [r for r in rows if r["gate_led"] > 0.5 and r["eff"] > 0]
     print(f"  게이트가치(재료확률) 주도 아이템 {len(gl)}종 — income 아이템과 직접 비교할 때 주의: "
           f"{', '.join(r['name'] for r in sorted(gl, key=lambda r: -r['gate_led'])[:6])}")
+    gs = [r for r in rows if r["growth_share"] > 0.5 and r["eff"] > 0]
+    print(f"  성장가치(경험치) 주도 아이템 {len(gs)}종 — ★만렙 후 가치가 0 이 된다: "
+          f"{', '.join(r['name'] for r in sorted(gs, key=lambda r: -r['growth_share'])[:6])}")
 
     warn, summary = ladder_checks(rows)
     print(f"\n{'='*118}\n사다리 검사\n{'='*118}")
