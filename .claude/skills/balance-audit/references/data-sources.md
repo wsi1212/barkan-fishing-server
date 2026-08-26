@@ -1,7 +1,7 @@
 # 밸런스 권위 소스 지도
 
 각 수치가 **실제로 사는 위치**. pull.py가 이 위치들을 파싱한다. 코드 구조가 바뀌면 여기와
-pull.py를 함께 갱신할 것. (검증 기준일: 2026-07-24)
+pull.py를 함께 갱신할 것. (검증 기준일: 2026-08-26)
 
 **두 루트**
 - `JAVA/` = `/Users/user/development/blockship-plugin/src/main/java/com/blockship/`
@@ -56,7 +56,9 @@ pull.py를 함께 갱신할 것. (검증 기준일: 2026-07-24)
 ## D. 장비 / 강화 / 부품
 | 수치 | 위치 | 비고 |
 |---|---|---|
-| 부품 스탯 표 **84종** (낚싯대20·릴12·줄14·바늘14·미끼13·찌11) | `JSON/parts.json` (`parts`) → `JAVA/parts/PartLoader.java` | ★CLAUDE.md "131"은 stale |
+| 부품/장비 스탯 표 **255종** (낚싯대76·작살55·릴25·줄25·바늘25·찌25·미끼24) | `JSON/parts.json` (`parts`) → `JAVA/parts/PartLoader.java` | ★2026-08-26 실측. 구 문서의 "84종(낚싯대20·릴12·줄14·바늘14·미끼13·찌11)"과 CLAUDE.md "131종"은 **둘 다 stale** — 작살 카테고리 자체가 빠져 있었다. 권위는 `pull.py` 의 `part_total` |
+| ★parts.json `price` 필드의 통화 | 同 | 잠수상점·캐시 아이템도 원 가격을 갖는데 **그 값으로는 살 수 없다**(실제 가격은 `JAVA/afk/AfkShopGui.java` ITEMS 의 P). 원 원장에 섞지 말 것 |
+| 작살 전투 규칙 (체력·제한시간·찌르기 간격·돌진 피해) | `JAVA/harpoon/HarpoonManager.java` `calcFishHp`/`escapeWindowBase`/`jabGapTicks`/`DASH_*`, `HarpoonListener.JAB_GAP_TICKS` | ★돌진은 `공격력×2` 피해다(`sweepAttack(..., getAttackPower*2)`) — 빼면 등급 천장이 어긋난다 |
 | 강화 성공률 `SUCCESS[]`, 비용 `COST[]`, 하락 `DOWN[]`, 체크포인트 {5,10,15}, 진주 `PEARL[]` | `JAVA/enhance/EnhanceManager.java` L45~57 | +16부터 성공률 급락(5→1)의 "벽" |
 | 강화 성공 계산 `base*(1+boost/100)` | 同 L543~552 | |
 | 레벨별 강화 스탯 증가표 | `JSON/enhance.json` (`order`,`table`) → `JAVA/enhance/EnhanceLoader.java` | 비용곡선과 별개 |
@@ -79,7 +81,8 @@ balance.md는 하드코딩 값의 거의 완전한 미러 → 축마다 이중�
 | 등급 해금 30/45/60 | `RewardMath.levelBonus()` | §3.3/§7 |
 | 강화 SUCCESS/COST/DOWN/PEARL | `EnhanceManager` | §10.3 |
 | ~~등급업 캡~~ | 2026-07-24 코드+balance.md 동시 폐지로 **해소** | 크리배율 캡(8)·콤보캡(20%)도 함께 폐지 |
-| 부품 수 | parts.json=**84** | §14="84종", CLAUDE.md="131" ← stale |
+| 부품/장비 수 | parts.json=**255** | §14="84종", CLAUDE.md="131" ← **둘 다 stale**. `selftest.py` §7 이 자동 감시 |
+| 실측 처리량 | `measured.py`(= pull_players.py 스냅샷) | 구 문서 "220 포획/h·259 시도/h" ← stale (실측 190.1 / 194.0) |
 
 **★참고**: 기존 가드 `scripts/.claude/hooks/balance-check.sh`는 `*.sk`/`balance.md` 편집만 감시하고
 **Java 소스는 감시 안 함**. 이 스킬이 그 공백을 메운다 — 반드시 Java 상수+JSON을 직접 읽는다.

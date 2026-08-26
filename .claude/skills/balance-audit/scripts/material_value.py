@@ -43,7 +43,7 @@ pull_players.py 스냅샷의 income_by_band 에서 온다(가정 상수 금지).
     python3 material_value.py --demand-set A   # A 등급 풀세팅 BOM 의 LP 해 + 병목
     python3 material_value.py --json           # 다른 스크립트(item_ledger)용 출력
 """
-import argparse, collections, json, os, sys, time
+import argparse, collections, importlib.util, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
@@ -51,16 +51,17 @@ BS = os.environ.get("BLOCKSHIP_DATA",
                     "/Users/user/Library/Application Support/feather/player-server/servers/"
                     "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip")
 
-# ── 실측 상수 폴백 (스냅샷이 없을 때만. 있으면 스냅샷이 이긴다) ─────────────
-FALLBACK = {
-    "catches_per_active_h": 190.1,
-    "attempts_per_active_h": 194.0,     # 내구/미끼 소모 1회 = fish.result 1건
-    "income_by_band": {"Lv1-9": 76493, "Lv10-19": 99645, "Lv20-29": 115083},
-    "island_mine_per_hour": {"돌": 1926, "구리": 1577, "청금석": 1181, "석탄": 1054,
-                             "철": 863, "금": 350, "다이아몬드": 284, "에메랄드": 281,
-                             "네더라이트": 18},
-    "drill_per_hour": {"흑정석": 2715, "철광석": 340},
-}
+# ── 실측 상수는 measured.py 단일 출처 (2026-08-26) ─────────────────────────
+def _load_mod(name):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, name + ".py"))
+    m = importlib.util.module_from_spec(spec)
+    sv, sys.argv = sys.argv, [name]
+    spec.loader.exec_module(m)
+    sys.argv = sv
+    return m
+
+
+MEAS = _load_mod("measured")
 # 섬광산 ore 이름 → 레시피가 쓰는 바닐라 item id
 ORE_TO_ITEM = {"철": "iron ingot", "석탄": "coal", "청금석": "lapis lazuli",
                "구리": "copper ingot", "금": "gold ingot", "다이아몬드": "diamond",
@@ -121,32 +122,7 @@ def simplex_max(c, A, b, eps=1e-11, max_iter=20000):
 #  데이터
 # ══════════════════════════════════════════════════════════════════════════
 def load_snapshot(path=None):
-    """가장 최근 players 스냅샷을 읽어 실측 상수를 만든다. 없으면 FALLBACK."""
-    d = dict(FALLBACK)
-    d["_source"] = "FALLBACK (pull_players.py 스냅샷 없음)"
-    snapdir = os.path.join(SKILL, "audits", "snapshots")
-    if path is None and os.path.isdir(snapdir):
-        cands = sorted(f for f in os.listdir(snapdir) if f.endswith("-players.raw.json"))
-        path = os.path.join(snapdir, cands[-1]) if cands else None
-    if not path or not os.path.exists(path):
-        return d
-    s = json.load(open(path, encoding="utf-8"))
-    f = s.get("fishing") or {}
-    if f.get("catches_per_active_h"):
-        d["catches_per_active_h"] = f["catches_per_active_h"]
-    if f.get("results_per_active_h"):
-        d["attempts_per_active_h"] = f["results_per_active_h"]
-    if s.get("income_by_band"):
-        d["income_by_band"] = {k: v["gross_per_active_h"] for k, v in s["income_by_band"].items()
-                               if k != "미상"}
-    if (s.get("island_mine") or {}).get("per_hour"):
-        d["island_mine_per_hour"] = s["island_mine"]["per_hour"]
-    if (s.get("drill") or {}).get("per_hour"):
-        d["drill_per_hour"] = s["drill"]["per_hour"]
-    d["region_mix_pct"] = s.get("region_mix_pct", {})
-    d["max_level_observed"] = (s.get("coverage") or {}).get("max_level_observed")
-    d["_source"] = os.path.basename(path)
-    return d
+    return MEAS.load(path)
 
 
 class Data:
@@ -275,11 +251,8 @@ class Data:
         return (1.0 / best) if best > 0 else float("inf")
 
     def wage(self, band=None):
-        """원 환산 환율(원/h). 구간 미지정이면 관측 최고 구간."""
-        inc = self.k["income_by_band"]
-        if band and band in inc:
-            return inc[band]
-        return inc[sorted(inc)[-1]] if inc else 0.0
+        """원 환산 환율(원/h). 구간 미지정이면 관측 최고 구간(Lv30+ 은 실측이 없다)."""
+        return MEAS.wage(band, self.k)[0]
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -355,11 +328,9 @@ def main():
         print(json.dumps(out, ensure_ascii=False, indent=1))
         return
 
-    print(f"실측 상수 출처: {D.k['_source']}")
-    print(f"  포획 {D.k['catches_per_active_h']}/h · 시도(소모) {D.k['attempts_per_active_h']}/h · "
-          f"원 환산 환율 {W:,.0f}원/h" + (f" ({a.band})" if a.band else " (관측 최고 구간)"))
-    if D.k.get("max_level_observed"):
-        print(f"  ★실측 커버리지 Lv.{D.k['max_level_observed']} — 그 위 등급의 결론은 외삽이다.")
+    print(MEAS.banner(D.k))
+    print(f"  원 환산 환율 {W:,.0f}원/h" + (f" ({a.band})" if a.band else " (관측 최고 구간)")
+          + f"  ★Lv.{D.k['max_level_observed']} 초과 구간의 결론은 외삽이다.")
 
     print("\n=== 활동별 시간당 산출 (LP 공급행렬) ===")
     for name, r in D.act.items():

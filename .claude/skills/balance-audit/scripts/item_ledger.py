@@ -52,6 +52,8 @@ def _load(name):
 
 MV = _load("material_value")
 SV = _load("stat_value")
+HV = _load("harpoon_value")   # 창 전용 스탯 6종 + 돌진쿨감의 원/h 모델 (2026-08-26)
+MEAS = _load("measured")      # ★실측 상수 단일 출처
 
 # ── 스탯 → 가치축 배정 (gear_payback.py 와 같은 분류를 유지한다) ────────────
 STAT_KEY = {
@@ -63,8 +65,11 @@ STAT_KEY = {
 GROWTH_KEY = {"경험치": "경험치 (1%)"}
 GATE_KEY = {"재료확률": "재료확률 (1%)"}
 DASH_KEY = {"돌진쿨감": "돌진쿨감 (1%)"}
-# 창 전용 — 원/h 모델이 아직 없다. «가동률/편의»로 따로 표기하고 성능에 넣지 않는다.
-SPEAR_ONLY = {"수중호흡", "호흡시간", "수영속도", "공격력", "공격속도", "야간투시"}
+# 창 전용 — ★2026-08-26 부터 harpoon_value.py 가 원/h 모델을 낸다(사이클 + 등급천장, 실측 16/16
+# 검증). 그전까지는 «모델 없음»이라 작살 55종 중 37종이 판정 불가였다.
+# 야간투시만 여전히 모델이 없다(심해 3종 전용 편의 효과).
+SPEAR_ONLY = {"수중호흡", "호흡시간", "수영속도", "공격력", "공격속도", "돌진쿨감"}
+SPEAR_UNMODELED = {"야간투시"}
 # 낚싯대 전용 유지비 절감 — 회수시간이 아니라 유지비 쪽에서 값이 난다.
 UPKEEP = {"내구보존"}
 SPECIAL = {"등급특화"}
@@ -145,9 +150,16 @@ def load_usage():
     return used, (s.get("rod_usage") or {})
 
 
-def build(D, statvals, incomes, harp_ratio):
+def build(D, statvals, incomes, harp_ratio, HM=None):
     """parts.json 전체를 원장 행으로."""
     afk = afk_shop_costs()
+    # 작살 기준선 = 무료 나무 작살(Lv1). 낚싯대의 «나뭇가지»와 같은 역할 —
+    # 작살 성능은 «이 작살이 무료 작살 대비 시간당 얼마를 더 벌어주나»로 잰다.
+    spear_base = {}
+    if HM:
+        for lvl in (10, 30, 60):
+            dist = HM.dist_for(lvl)
+            spear_base[lvl] = (HM.income(HM.effective("나무 작살"), dist), dist)
     rows = []
     for name, m in D.meta.items():
         cat, grade, lv, price = m["cat"], m["grade"], m["lvl"], m["price"]
@@ -167,12 +179,20 @@ def build(D, statvals, incomes, harp_ratio):
                 growth += v * V[GROWTH_KEY[k]] * scale
             elif k in GATE_KEY:
                 gate += v * V[GATE_KEY[k]]
-            elif k in DASH_KEY:
+            elif k in DASH_KEY and cat != "작살":
                 dash += v * V[DASH_KEY[k]]
-            elif k not in SPEAR_ONLY | UPKEEP | SPECIAL:
+            elif k not in SPEAR_ONLY | SPEAR_UNMODELED | UPKEEP | SPECIAL:
                 unknown.append(k)
+        # ── 작살: 창 전용 스탯을 harpoon_value 모델로 환산 ────────────────
+        #   돌진쿨감은 stat_value 의 «사이클» 근사가 아니라 이 모델(교전 DPS + 사이클)로 센다 —
+        #   돌진이 공격력×2 피해라 교전 안에서 등급 천장을 직접 움직인다.
+        spear_val = 0.0
+        if cat == "작살" and HM and name in HM.spears:
+            key = 10 if lv < 20 else (30 if lv < 50 else 60)
+            b, dist = spear_base[key]
+            spear_val = HM.income(HM.effective(name), dist) - b
         # 릴·미끼는 주스탯이 경험치(성장)다 — 빼면 전부 «살 이유 없음»으로 오판된다(2026-08-05 사고)
-        eff = inc + gate + (growth if cat in ("릴", "미끼") else 0.0) + (dash if cat == "작살" else 0.0)
+        eff = inc + gate + (growth if cat in ("릴", "미끼") else 0.0) + spear_val
 
         # ── 유지비 (2026-08-26 신설) ──────────────────────────────────
         #   ★내구보존은 reduceDurability() **전체를 스킵**한다 — 릴/줄/바늘/찌 4슬롯의 내구와
@@ -200,7 +220,7 @@ def build(D, statvals, incomes, harp_ratio):
         #    따로 보고한다 — 판정하려면 먼저 그 스탯들의 가치 모델을 만들어야 한다.
         keys = [k for k, v in stats.items() if isinstance(v, (int, float))]
         modeled = [k for k in keys if k in STAT_KEY or k in GROWTH_KEY or k in GATE_KEY
-                   or k in DASH_KEY or k in UPKEEP]
+                   or k in DASH_KEY or k in UPKEEP or (cat == "작살" and k in SPEAR_ONLY)]
         cover = (len(modeled) / len(keys)) if keys else 0.0
         gate_led = (gate / eff) if eff > 0 else 0.0
 
@@ -224,7 +244,7 @@ def build(D, statvals, incomes, harp_ratio):
         rows.append(dict(name=name, cat=cat, grade=grade, lv=lv, price=price, dur=m["dur"],
                          src=m["src"], stage=stage, wage=wage, measured=bool(wage_band),
                          currency=cur, p_cost=p_cost,
-                         inc=inc, growth=growth, gate=gate, dash=dash, eff=eff,
+                         inc=inc, growth=growth, gate=gate, dash=dash, spear=spear_val, eff=eff,
                          dur_val=dur_val, own_upkeep=own_upkeep, eff_net=eff_net,
                          cover=cover, gate_led=gate_led,
                          mat_h=mat_h, mat_won=mat_won, total=total,
@@ -326,18 +346,9 @@ def main():
 
     D = MV.Data()
     k = D.k
-    # ★실측으로 stat_value 의 가정 상수를 덮어쓴다 — 안 하면 income 이 14% 과대계상된다.
-    snapdir = os.path.join(SKILL, "audits", "snapshots")
-    q = 69.3
-    cands = sorted(f for f in os.listdir(snapdir) if f.endswith("-players.raw.json")) \
-        if os.path.isdir(snapdir) else []
-    if cands:
-        s = json.load(open(os.path.join(snapdir, cands[-1]), encoding="utf-8"))
-        q = (s.get("fishing") or {}).get("quality_mean") or q
-    SV.CATCH_PER_HOUR = k["catches_per_active_h"]
-    SV.CASTS_PER_HOUR = k["attempts_per_active_h"]
-    SV.SIZE_SCORE = q
-    SV.income_of.__defaults__ = (q, 0.0)
+    # ★실측을 stat_value 에 주입 (measured.apply 가 income_of 기본인자까지 갈아 준다)
+    MEAS.apply(SV, k)
+    q = k["size_score"]
 
     statvals, incomes = {}, {}
     for stage in SV.STAGES:
@@ -346,21 +357,20 @@ def main():
         incomes[stage] = r["income"]
 
     # 작살 income 비 — 처리량 × quality 가격배율
-    hs = (json.load(open(os.path.join(snapdir, cands[-1]), encoding="utf-8")).get("harpoon")
-          or {}) if cands else {}
+    hs = k.get("harpoon") or {}
     h_catch = hs.get("catches_per_active_h") or 174.8
     h_q = hs.get("quality_mean") or HARPOON_QUALITY
     harp_ratio = (h_catch / SV.CATCH_PER_HOUR) * (SV.size_mult(h_q) / SV.size_mult(q))
 
-    print(f"실측 상수: 포획 {SV.CATCH_PER_HOUR}/h · 소모 {SV.CASTS_PER_HOUR}/h · "
-          f"크기점수 {q} · 출처 {k['_source']}")
+    print(MEAS.banner(k))
     print(f"모델 시급: " + " / ".join(f"{s} {incomes[s]:,.0f}" for s in SV.STAGES) +
           "  ·  실측 시급: " + " / ".join(f"{b} {v:,.0f}" for b, v in k["income_by_band"].items()))
     print(f"작살 income 비: 처리량 ×{h_catch/SV.CATCH_PER_HOUR:.3f} × quality "
           f"×{SV.size_mult(h_q)/SV.size_mult(q):.3f} = ×{harp_ratio:.3f}  "
           f"(작살 {h_catch} 포획/h · quality {h_q})")
 
-    rows = build(D, statvals, incomes, harp_ratio)
+    HM = HV.Model()
+    rows = build(D, statvals, incomes, harp_ratio, HM)
     used, rod_used = load_usage()
 
     if a.dead:
@@ -460,8 +470,10 @@ def main():
     low = [r for r in rows if r["cover"] < 0.5 and r["currency"] == "원"]
     bycat = collections.Counter(r["cat"] for r in low)
     print("  제외: " + (", ".join(f"{c} {n}종" for c, n in bycat.most_common()) or "없음"))
-    print(f"  모델 없는 스탯: {', '.join(sorted(SPEAR_ONLY))} "
+    print(f"  모델 없는 스탯: {', '.join(sorted(SPEAR_UNMODELED))} "
           f"(작살 {sum(1 for r in rows if r['cat']=='작살')}종 중 {bycat.get('작살',0)}종이 여기 걸린다)")
+    print(f"  ★창 전용 스탯 {len(SPEAR_ONLY)}종은 harpoon_value.py 가 모델링한다"
+          f"(실측 교전 16/16 검증) — 2026-08-26 이전엔 37종이 판정 불가였다.")
     gl = [r for r in rows if r["gate_led"] > 0.5 and r["eff"] > 0]
     print(f"  게이트가치(재료확률) 주도 아이템 {len(gl)}종 — income 아이템과 직접 비교할 때 주의: "
           f"{', '.join(r['name'] for r in sorted(gl, key=lambda r: -r['gate_led'])[:6])}")

@@ -74,7 +74,7 @@ description: >-
 
 ### 제7원칙 — 가정 상수 금지, 실측이 권위 (2026-08-26 신설)
 prod 텔레메트리(`telemetry/events-*.db`, `stats.db`)에 알파 테스터 실측이 쌓여 있다. **모델 상수는
-거기서 온다.** 2026-07-24~08-26 넉 달간 이 스킬은 「220 포획/h · 시도 259/h · 완주율 85%」로
+거기서 온다.** 2026-07-24~08-26 넉 달간 이 스킬은 구 가정 「220 포획/h · 시도 259/h · 완주율 85%」로
 돌았고, 실측은 **190.1 / 194.0 / 97.2%** 였다 — 소모품 유지비는 34% 과대, 수입은 14% 과대였다.
 감사 첫 스텝은 이제 `pull_players.py` 다. 상세·함정 7개: [telemetry-data-sources.md](references/telemetry-data-sources.md).
 ★**실측 커버리지가 곧 결론의 유효범위다.** 관측 최고 레벨을 넘는 구간(2026-08-26 기준 Lv.26 초과)
@@ -107,7 +107,7 @@ prod 텔레메트리(`telemetry/events-*.db`, `stats.db`)에 알파 테스터 �
 | 📊 실측(알파 테스터) | ✅ 신설(2026-08-26) — 모델 상수 전면 교체(포획 220→190.1·소모 259→194.0·완주 85→97%), 실사용 장비 24/255종 | [telemetry-data-sources.md](references/telemetry-data-sources.md) | 同 문서 §실측요약 | [audits/2026-08-26-material-and-gear-precision.md](audits/2026-08-26-material-and-gear-precision.md) |
 | 🧾 장비 사다리(재료·성능·레벨) | ✅ 신설(2026-08-26) — 🔴 지배 55종·🟡 역전 154쌍·전 카테고리 B→A 도매할인 위반 | [item-ladder-metrics.md](references/item-ladder-metrics.md) | 同 문서 | 同 리포트 |
 | 🧪 재료 가치(LP 그림자가격) | ✅ 신설(2026-08-26) — 결합생산·다지역·광질 반영. A/S 「재료 관문」 판정 철회 | [material-value.md](references/material-value.md) | 同 문서 §경보선 | 同 리포트 |
-| 🔱 작살(harpoon) | 🟡 **부분 판정(2026-08-26)** — 08-03 지적 3개 중 등급롤은 해소, quality 70~100 고정·한계비용 0은 잔존. ★실측이 「작살 저평가」 전제를 뒤집음(처리량 174.8 < 낚싯대 190.1, income 비 ×1.001). 창 전용 스탯 6종 모델 부재로 55종 중 37종 판정 불가 | [harpoon-data-sources.md](references/harpoon-data-sources.md) | 同 문서 §경보선 | [audits/2026-08-26-material-and-gear-precision.md](audits/2026-08-26-material-and-gear-precision.md) |
+| 🔱 작살(harpoon) | ✅ **완료(2026-08-26)** — 창 전용 스탯 6종 모델 신설(사이클+등급천장, 실측 교전 16/16 검증) → 55종 전부 판정 가능. 🔴 지배 30종·🟡 역전 77쌍·C→A 도매할인 +289%. ★실측이 「작살 저평가」 전제를 뒤집음(처리량 174.8 < 낚싯대 190.1, income 비 ×1.001) · ★공격력 1↔2 가 A 등급 천장을 가르므로 D 티어 빌드 4종이 무료급 철 작살에 지배당함 | [harpoon-data-sources.md](references/harpoon-data-sources.md) | 同 문서 §경보선 | [audits/2026-08-26-material-and-gear-precision.md](audits/2026-08-26-material-and-gear-precision.md) |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
@@ -121,12 +121,14 @@ prod 텔레메트리(`telemetry/events-*.db`, `stats.db`)에 알파 테스터 �
 **전 경제 통합 골드가치표**: [cross-economy-values.md](references/cross-economy-values.md) —
 ★2026-08-05 전면 재산정. 구 단일 앵커 32,489원/h는 **폐기**했다(피티 미반영 + 150캐스트 가정의
 곱절 오류, 게다가 구간마다 시급이 4배 차이나 단일 상수가 성립하지 않음). 지금은 **구간별 앵커**
-(초반 95,403 / 중반 133,022 / 종결 370,210원/h)를 쓰고, 활동의 레벨 게이트에 맞는 것을 권장값으로
-표시한다. 앵커는 `price_ladder.py`에서 자동 파생되므로 낚시 수치가 바뀌면 전 경제가 같이 갱신된다.
+를 쓰고, 활동의 레벨 게이트에 맞는 것을 권장값으로 표시한다. ★**2026-08-26 재교체**: 실측
+**초반 76,493 / 중반 115,083 / 종결 327,043(외삽)** — 구 값(95,403 / 133,022 / 370,210)은
+«220 포획/h» 가정에서 나왔고 실측은 190.1 이었다. 앵커는 `measured.py` → `price_ladder.py` 로
+자동 파생되므로 실측 스냅샷을 갱신하면 전 경제가 같이 갱신된다.
 재계산: `scripts/cross_economy_values.py --anchor 중반`.
 
 **장비/소모처 가격 사다리**: [scripts/price_ladder.py](scripts/price_ladder.py) — 실측 처리량
-(220 포획/h) + 피티 반영 MC로 구간 수입을 뽑고, "풀세팅 = 구간 수입의 45%" 기준으로 장비 가격
+(`measured.py`, 실측 190.1 포획/h) + 피티 반영 MC로 구간 수입을 뽑고, "풀세팅 = 구간 수입의 45%" 기준으로 장비 가격
 밴드를, "쓰는 시점의 노동시간" 기준으로 소모처 값을 역산한다. 2026-08-05 리프라이싱의 근거.
 
 ### 경제별 모듈 추가 패턴 (새 경제 감사 요청 시)
@@ -143,7 +145,16 @@ prod 텔레메트리(`telemetry/events-*.db`, `stats.db`)에 알파 테스터 �
 
 ## 낚시 경제 감사 루프 (매번 이 순서대로)
 
-### 0. 실측 상수 갱신 (★2026-08-26 신설 — 이걸 건너뛰면 나머지 전부가 가정 위에 선다)
+### 0-a. 자기점검 (★먼저 돌린다 — 도구가 고장난 채 감사하면 틀린 리포트가 남는다)
+```bash
+python3 .claude/skills/balance-audit/scripts/selftest.py
+```
+검사 8종: 라이브 JSON 스키마 · 실측 스냅샷 유효성 · **상수 단일화**(스크립트 간 같은 값인가) ·
+LP 쌍대성 검산 · 작살 모델 vs 실측 대조 · 모델 커버리지 · 문서 드리프트 · 획득 불가 콘텐츠.
+🔴 가 하나라도 있으면 감사를 진행하지 말 것. 🟡 는 진행하되 리포트에 명시한다.
+★이 스킬의 실패 양식은 «틀린 수치가 조용히 오래 사는 것»이다(넉 달 3건). selftest 가 그 방어다.
+
+### 0-b. 실측 상수 갱신 (★2026-08-26 신설 — 이걸 건너뛰면 나머지 전부가 가정 위에 선다)
 ```bash
 python3 .claude/skills/balance-audit/scripts/pull_players.py --fetch
 ```
@@ -202,6 +213,8 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
 python3 .claude/skills/balance-audit/scripts/material_value.py     # 재료 λ(h/개) + 등급별 풀세팅 LP
 python3 .claude/skills/balance-audit/scripts/item_ledger.py        # 장비 255종 원장 + 사다리 검사 4종
 python3 .claude/skills/balance-audit/scripts/item_ledger.py --dead # 죽은 콘텐츠
+python3 .claude/skills/balance-audit/scripts/harpoon_value.py      # 창 전용 스탯 + 등급천장
+python3 .claude/skills/balance-audit/scripts/harpoon_value.py --validate  # 모델 vs 실측 대조
 ```
 - `material_value.py` 가 **재료 «원/개» 의 유일한 권위**다. 표를 손으로 옮겨 적지 말 것(제8원칙).
 - `item_ledger.py` 가 «재료 · 성능 · 레벨제한» 3축을 한 원장에 넣고 지배·역전·도매할인·편차를
@@ -210,7 +223,13 @@ python3 .claude/skills/balance-audit/scripts/item_ledger.py --dead # 죽은 콘�
   `material_value.py` 와 다르면 **LP 쪽이 맞다**. 낚싯대 게이트 «가장 나쁜 경우» 상한이 필요할
   때만 참고로 쓰고, 수치를 리포트에 옮길 때는 LP 값을 쓸 것.
 - ★`gear_payback.py` 도 구 버전이다(재료비 0, 레벨축 없음, 유령가격 미분리, 작살 270 포획/h 가정).
-  `item_ledger.py` 가 대체하며, 남겨 둔 건 과거 감사와의 델타 비교용이다.
+  `item_ledger.py` 가 대체하며, 남겨 둔 건 과거 감사와의 델타 비교용이다. 둘 다 실행하면
+  터미널에 DEPRECATED 경고를 띄운다.
+- `harpoon_value.py` 가 **창 전용 스탯 6종**(공격력·공격속도·수영속도·수중호흡·호흡시간·돌진쿨감)의
+  원/h 를 낸다. income 곱셈이 아니라 **사이클 + 등급천장** 모델이다 — 공격력이 부족하면 그 등급은
+  제한시간 안에 못 잡으므로 가치가 계단으로 뛴다. `--validate` 가 예측을 prod 실측 포획 기록과
+  대조하는 회귀 테스트이고, **불일치가 곧 «모델이 코드 규칙을 놓쳤다»는 신호**다(실제로 그렇게
+  «돌진 피해 = 공격력 ×2» 를 찾았다). 경보선: [harpoon-data-sources.md](references/harpoon-data-sources.md).
 
 ### 5. 이슈 판정 (metrics.md 경보선 대조)
 각 축을 metrics.md의 정상 범위와 대조해 이슈를 등급화한다:
@@ -260,13 +279,35 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 연속성이다. blockship-plugin이 아니라 이 scripts 레포에 커밋하며, 커밋은 규칙상 물어보지 않고 바로.
 `pending.raw.json`은 임시 파일이니 커밋하지 않는다.
 
+## 스크립트 지도 (무엇이 무엇을 대체했는가)
+
+| 스크립트 | 역할 | 상태 |
+|---|---|---|
+| `measured.py` | **실측 상수 단일 출처.** 다른 스크립트는 여기서만 가져간다 | ✅ 권위 |
+| `pull_players.py` | prod 텔레메트리 → 실측 스냅샷 (감사 0-b 단계) | ✅ 권위 |
+| `selftest.py` | 스킬 회귀 테스트 8종 (감사 0-a 단계) | ✅ 권위 |
+| `pull.py` / `diff.py` | 라이브 Java·JSON 스냅샷 + 델타 | ✅ 권위 |
+| `stat_value.py` | 낚싯대 스탯 원/h (판매보너스 1% = 앵커) | ✅ 권위 |
+| `material_value.py` | 재료 원/개 = 시간 LP 쌍대가격 | ✅ 권위 |
+| `item_ledger.py` | 장비 255종 재료·성능·레벨 원장 + 사다리 4종 | ✅ 권위 |
+| `harpoon_value.py` | 창 전용 스탯 6종 + 등급천장 | ✅ 권위 |
+| `price_ladder.py` | 구간 수입·가격 밴드 역산 | ✅ 권위 |
+| `minigame_sim.py` `gradroller_sim.py` | 난이도·등급 롤 시뮬 | ✅ 권위 |
+| `cross_economy_values.py` `buff_values.py` `cooking_full_audit.py` `bait_reprice.py` `xp_curve_lv70.py` `gold_curve*.py` `gen_balance_workbook.py` | 경제별 파생 | ✅ 그대로 |
+| `material_gate.py` | 구 재료 게이트 휴리스틱 | ⛔ **DEPRECATED** → `material_value.py` |
+| `gear_payback.py` | 구 회수시간 | ⛔ **DEPRECATED** → `item_ledger.py` |
+
+**상수를 스크립트에 하드코딩하지 말 것.** 2026-08-26 이전엔 구 가정 `220 포획/h` 가 네 파일에 흩어져
+있었고 하나만 고쳐진 채 넉 달을 갔다. 새 상수가 필요하면 `measured.py` 에 넣고 거기서 읽는다 —
+`selftest.py` §3 이 스크립트 간 값이 갈라지는 순간 잡는다.
+
 ## 주의
 - **읽기 전용 감사다.** 이 스킬은 밸런스를 *진단*만 한다. 수치를 실제로 바꾸는 건 별개 작업 —
   리포트의 조치 권고를 사용자가 승인한 뒤에 코드를 고친다.
 - pull.py는 Java **정규식 파싱**이라 코드 구조가 바뀌면 깨질 수 있다. warnings가 곧 조기경보다.
 - 부품 총계는 **255종**이 정답(2026-08-26 parts.json 실측: 낚싯대 76·작살 55·릴 25·줄 25·바늘 25·
-  찌 25·미끼 24). data-sources.md 의 "84종"과 CLAUDE.md 의 "131종"은 **둘 다 stale** 이다 —
-  카테고리 구성도 틀렸다(구 문서는 릴 12·줄 14·바늘 14·미끼 13·찌 11, 작살 항목 자체가 없음).
+  찌 25·미끼 24). CLAUDE.md 의 "131종"은 stale 이다(작살 항목 자체가 없다) — 발견하면 드리프트로
+  보고할 것. references 쪽은 2026-08-26 에 갱신했고 `selftest.py` §7 이 재발을 감시한다.
 - **구 스크립트를 새 것과 섞어 쓰지 말 것.** `material_gate.py`(재료)·`gear_payback.py`(회수시간)는
   각각 `material_value.py`·`item_ledger.py` 로 대체됐다. 같은 리포트 안에서 두 계열의 숫자를
   나란히 쓰면 단위·전제가 달라 또 3중 오류가 난다(2026-08-26 이전이 그랬다).

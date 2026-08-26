@@ -37,15 +37,23 @@ def _load(name):
 
 PL = _load("price_ladder")
 MG = _load("minigame_sim")
+MEAS = _load("measured")     # ★실측 상수 단일 출처 (2026-08-26)
 
 PRICE = PL.PRICE
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S", "M", "L", "G"]
 
-# ── 실측 파라미터 (2026-08-05 prod 텔레메트리) ─────────────────────────────
-CATCH_PER_HOUR = 220          # 포획/h — 활성 사이클 16.2초
-COMPLETION = 0.85             # 캐스트→포획 완주율 실측(82~85%)
-CASTS_PER_HOUR = CATCH_PER_HOUR / COMPLETION   # ≈ 259 시도/h
-SIZE_SCORE = 65.6             # 실측 평균 크기점수
+# ── 실측 파라미터 ─────────────────────────────────────────────────────────
+# ★2026-08-26: 하드코딩을 폐기하고 measured.py(= pull_players.py 스냅샷) 단일 출처로 바꿨다.
+#   구 값 «220 / 0.85 / 259 / 65.6» 은 근거 없이 넉 달을 갔고 실측은 190.1 / 0.972 / 194.0 / 69.3
+#   이었다. 소모품 유지비 34% 과대, 수입 14% 과대의 원인이 이 네 줄이었다.
+#   ★CASTS_PER_HOUR 의 의미가 바뀌었다 — 「캐스트/h」가 아니라 «소모 1회 = fish.result 1건»의
+#     빈도다(EquipmentManager.reduceDurability 는 결과마다 1회). 캐스트는 249/h 지만 그중
+#     62% 만 결과가 되고, 미끼·내구는 결과에만 붙는다.
+_K = MEAS.load()
+CATCH_PER_HOUR = _K["catches_per_active_h"]
+COMPLETION = _K["completion_pct"] / 100.0
+CASTS_PER_HOUR = _K["attempts_per_active_h"]
+SIZE_SCORE = _K["size_score"]
 REACT_TICKS = MG.ms_to_ticks(250 + 40)         # 반응 250ms + 핑 40ms = 6틱
 
 DEFAULT_CRIT_RATE = 0.20      # 기준 크리율(크리배율 가치가 여기 비례)
@@ -331,7 +339,8 @@ def main():
     args = ap.parse_args()
 
     stages = list(STAGES) if (args.all_stages or args.stage is None) else [args.stage]
-    print(f"기준: 포획 {CATCH_PER_HOUR}/h · 완주율 {COMPLETION:.0%} → 시도 {CASTS_PER_HOUR:.0f}/h · "
+    print("  " + MEAS.banner(_K))
+    print(f"기준: 포획 {CATCH_PER_HOUR}/h · 완주율 {COMPLETION:.0%} · 소모 {CASTS_PER_HOUR:.0f}/h · "
           f"크기점수 {SIZE_SCORE} · 크리율 {args.crit_rate:.0%} · 크리배율 {args.crit_dmg}")
     print("★구 버전(flat 확률 + 150캐스트)과 비교 불가 — 2026-08-05 전면 교체")
     result = {}

@@ -249,6 +249,57 @@ def main():
       f"({snap['harpoon']['quality_min']}~{snap['harpoon']['quality_max']}) · "
       f"스폰→포획 {snap['harpoon']['spawn_to_catch_pct']:.0f}% · 명중 {snap['harpoon']['hit_rate_pct']:.0f}%")
 
+    # ── 작살 교전 미세구조 (창 전용 스탯 모델의 입력) ───────────────────
+    #   ★harpoon_value.py 가 이 값들로 «등급 천장»을 계산한다. 특히 aim_gap 은 분포째로
+    #     남긴다 — 중위값만 쓰면 경계 등급(철 작살 × S)에서 이진 판정이 실측과 어긋난다.
+    hp_by_player = collections.defaultdict(list)
+    for e in ev:
+        if e[0] == "harpoon.hit" and is_real(e):
+            hp_by_player[e[3]].append((e[1], e[5]))
+    aim = []
+    for L in hp_by_player.values():
+        L.sort()
+        for (t1, d1), (t2, d2) in zip(L, L[1:]):
+            # 같은 교전으로 보는 조건: 4초 이내 + 같은 등급 (물고기 id 가 로그에 없다)
+            if t2 - t1 <= 4000 and d1.get("grade") == d2.get("grade"):
+                aim.append((t2 - t1) / 1000.0)
+    approach, cyc, act_gap = [], [], []
+    last_spawn = {}
+    last_catch = {}
+    for e in ev:
+        if not is_real(e):
+            continue
+        if e[0] == "harpoon.spawn":
+            last_spawn[e[3]] = e[1]
+        elif e[0] == "harpoon.hit" and last_spawn.get(e[3]):
+            if e[1] - last_spawn[e[3]] < 60_000:
+                approach.append((e[1] - last_spawn[e[3]]) / 1000.0)
+            last_spawn[e[3]] = None
+        elif e[0] == "harpoon.catch":
+            p0 = last_catch.get(e[3])
+            if p0 and e[1] - p0 < 120_000:
+                cyc.append((e[1] - p0) / 1000.0)
+            last_catch[e[3]] = e[1]
+    per_act = collections.defaultdict(list)
+    for e in ev:
+        if e[0] in ("harpoon.swing", "harpoon.miss", "harpoon.hit") and is_real(e):
+            per_act[e[3]].append(e[1])
+    for L in per_act.values():
+        L.sort()
+        act_gap += [(b - a) / 1000.0 for a, b in zip(L, L[1:]) if 3000 <= b - a <= 40_000]
+    med = lambda L: round(st.median(L), 3) if L else None
+    snap["harpoon"].update({
+        "aim_gap_s": med(aim), "aim_gap_n": len(aim),
+        # 분포째 보존 — harpoon_value.py 가 경험분포로 몬테카를로한다(중위값만으로는 경계 오판)
+        "aim_gap_sample": [round(x, 3) for x in sorted(aim)][:2000],
+        "approach_s": med(approach), "approach_n": len(approach),
+        "cycle_s": med(cyc), "cycle_n": len(cyc),
+        "surface_s": med(act_gap), "surface_n": len(act_gap),
+    })
+    if aim:
+        P(f"작살 교전: 조준간격 중위 {med(aim)}s(n={len(aim)}) · 접근 {med(approach)}s · "
+          f"사이클 {med(cyc)}s · 행동공백 {med(act_gap)}s")
+
     # ── 섬광산 / 드릴 (장비 레시피의 광질 재료 원가 실측) ───────────────
     for key, typ in (("island_mine", "imine.min"), ("drill", "mine.min")):
         buckets = [e[5] for e in ev if e[0] == typ and is_real(e)]

@@ -39,8 +39,14 @@ NEED = [500, 521, 534, 546, 556, 566, 575, 583, 591, 599, 607, 614, 621, 628, 63
         203720, 224092, 246501, 271151, 298266]
 
 # ── 실측 파라미터 (2026-08-05 prod 텔레메트리) ─────────────────────────────
-CATCH_PER_HOUR = 220          # 낚싯대 활성 사이클 16.2s + 완주율 85% → 220 포획/h
-SIZE_SCORE = 65.6             # 실측 평균 크기점수
+# ★2026-08-26: measured.py 단일 출처로 교체(구 하드코딩 220 / 65.6 는 실측과 14% / 6% 어긋났다).
+import importlib.util as _ilu, sys as _sys, os as _os
+_spec = _ilu.spec_from_file_location("measured", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "measured.py"))
+_MEAS = _ilu.module_from_spec(_spec); _sv = _sys.argv; _sys.argv = ["measured"]
+_spec.loader.exec_module(_MEAS); _sys.argv = _sv
+_K = _MEAS.load()
+CATCH_PER_HOUR = _K["catches_per_active_h"]
+SIZE_SCORE = _K["size_score"]
 PRICE_MULT = 0.5 + SIZE_SCORE / 200.0   # 가격 배율 0.828
 XP_MULT = 0.5 + SIZE_SCORE / 100.0      # XP 배율 1.156
 
@@ -247,7 +253,7 @@ def sink_report(rows):
 
 def main():
     rows = stage_table()
-    print(f"기준: {CATCH_PER_HOUR} 포획/h · 크기점수 {SIZE_SCORE} (2026-08-05 prod 실측)\n")
+    print("  " + _MEAS.banner(_K) + "\n")
     print(f"{'티어':<4}{'레벨':>9}{'원/포획':>9}{'원/h':>11}{'구간h':>8}{'구간수입':>14}")
     print("─" * 58)
     for r in rows:
@@ -304,7 +310,7 @@ def main():
     print("\n# EquipmentManager.gradeUnitRate (부품 수리 단가, 원/내구1점)")
     for g in ["E", "D", "C", "B", "A", "S", "M", "L", "G"]:
         old = OLD_UNIT_RATE[g]
-        cost_h = 220 * unit[g] * 4
+        cost_h = CATCH_PER_HOUR * unit[g] * 4
         print(f"  {g}: {old:>6} → {unit[g]:>5}   (4부품 유지비 {cost_h:>9,}원/h)")
 
     sink_report(rows)
