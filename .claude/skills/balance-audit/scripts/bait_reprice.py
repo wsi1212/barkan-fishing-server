@@ -15,11 +15,27 @@ bait_reprice.py — 미끼 가격 재산출.
 
 ## 가격 공식
 
-    가격 = V수입 + 싱크
-      V수입 = 그 미끼의 **수입축 스탯 가치**(원/시도)
-              = Σ(스탯 × stat_value 원/h) ÷ 소모/h
+    가격 = V수입 + c × V진행 + s × 포획당 실현가
+      V수입 = 수입축 스탯 가치(원/시도) = Σ(스탯 × stat_value 원/h) ÷ 소모/h
               수입축 = 행운·등급업·크기·판매보너스·더블·트리플·크리확률·크리배율·도망감소
-      싱크  = s × 포획당 실현가(그 구간)          ← 설계 레버 하나
+      V진행 = 진행축(경험치·재료확률) 가치(원/시도)
+      c     = 진행축 지불배수 ← 레버 2
+      s     = 싱크 비율 ← 레버 1
+
+★★2026-08-27 정정 — 「가격이 5~80배 과대」는 **틀린 결론이었다**. 그 판정은 «낚시 수입만이
+유일한 수입원»이라는 암묵 가정에서 나왔는데, 실측 자금 유입은 **카지노 59.4% · 낚시 판매 16.2% ·
+퀘스트 15.8% · 업적 3.5%** 다(money.txn 실측, admin/길드금고 제외). 낚시 판매는 유입의 1/6이라
+«수입잠식 1678%» 는 *낚시 수입 대비* 사실이어도 파산 판정으로 읽으면 안 된다 — 실제로 유저는
+370원 수집 미끼를 가장 많이 산다(74회, 최다 구매).
+또 단위를 per-시도로 맞추면: 재료확률 1% 의 골드 가치는 **4.3원(초반)~19원(종결)/시도** 인데
+채집 라인 현행 단가는 **31~647원/재확 1%** — 이미 7~34배 프리미엄이다.
+⇒ **가격은 대체로 맞고 문제는 스탯 크기다.** 그래서 처방은 «스탯 너프 + 가격 유지»이고,
+그러면 재확 단가가 자동으로 2~3배 오른다(= 유저가 요청한 «가격도 비싸게»의 실질).
+
+★c 를 1 보다 크게 두는 것이 정당한 이유: **재료는 돈으로 살 수 없다**(어종 재료에 상점 경로가
+없고 마켓 물량도 거의 없다). 대체 공급이 없는 재화는 프리미엄이 붙는 게 정상이고, 골드 환산
+(`stat_value` 의 게이트 렌즈)은 그 프리미엄을 **구조적으로 못 잡는다** — 모델은 «시간을 시급으로
+환산»할 뿐이다. 유저 체감이 「채집 미끼가 사기다」인 근거가 여기 있고, 그 체감은 모델보다 우선한다.
 
 이 형태의 성질:
   · `가격 > V수입` 이 **구조적으로 보장**된다(싱크가 양수인 한). 철학의 하드 룰.
@@ -87,6 +103,8 @@ PURE_PROFIT = {"판매보너스", "더블찬스", "트리플찬스", "도망감�
 #  ★평탄(flat)으로 둔다: 절대 싱크는 구간 수입에 비례해 자동으로 커지고, 상위 등급은 같은
 #    비율로 훨씬 많은 스탯을 주므로 「상위 등급이 가성비가 좋아야」 원칙이 자동 충족된다.
 DEFAULT_SINK = 0.12
+#  진행축 지불배수. 0 이면 진행은 공짜(구 동작), 1 이면 골드 환산 그대로, >1 이면 프리미엄.
+DEFAULT_CHARGE = 1.0
 #  가격 라운딩 — 상점 표기가 읽히도록. 자릿수별 단계.
 def tidy(p):
     if p < 50:
@@ -145,28 +163,88 @@ def build():
     return k, A, rows
 
 
-def price_of(r, s):
-    return tidy(r["v_inc"] + s * r["per_catch"])
+def price_of(r, s, c=DEFAULT_CHARGE):
+    return tidy(r["v_inc"] + c * r["v_prog"] + s * r["per_catch"])
+
+
+# ── 채집/수집 라인 스탯 재설계 (2026-08-27 유저 지시) ─────────────────────
+#  근거: 미끼가 같은 등급 부품과 **재료확률이 동일**(D4/C8/B15/A20)한데 **행운만 2~3배**다
+#        (미끼 D4·C7·B12·A17 ↔ 부품 D2·C3·B4·A6). 게다가 미끼는 6번째 슬롯이라 세트 합계에
+#        순증하고, 유일하게 갈아 끼우는 슬롯이라 «상황별 최적 선택» 프리미엄이 이미 있다.
+#  처방: 재료확률은 부품 사다리의 절반으로, 행운은 부품 라인에 정렬. 경험치는 유지.
+NERF_MATCHANCE = {"D": 2, "C": 4, "B": 7, "A": 10}     # 부품 4/8/15/20 의 절반
+NERF_LUCK = {"D": 2, "C": 3, "B": 4, "A": 6}           # 부품 라인과 동일
+COLLECTOR_LINE = {"채집 미끼", "수집 미끼", "유적 미끼", "수집상 미끼"}
+
+# ── 확정 제안 (2026-08-27) ────────────────────────────────────────────────
+#  채집 라인: 스탯 반감 + **가격 유지**(D 만 너프폭이 커서 소폭 인상, A 는 절대가가 실측
+#             사용 0 일 만큼 비싸 반감). 결과적으로 재확 단가가 2~3배 오른다.
+#  나머지: 모델가(V수입 + 싱크)로 정상화. 특히 A 수입축 4종은 6,435~10,370원 → 190~270원
+#          (실측 사용 0 회라 인하로 잃는 것이 없다).
+FINAL_COLLECTOR_PRICE = {"채집 미끼": 180, "수집 미끼": 370, "유적 미끼": 1395, "수집상 미끼": 6500}
+
+
+def apply_nerf(rows, k, A):
+    """채집/수집 라인에 스탯 재설계를 적용하고 V수입·V진행을 다시 계산한다."""
+    V = {}
+    for st in SV.STAGES:
+        r = SV.compute(st)
+        V[st] = {kk: v[0] for kk, v in r["V"].items()}
+    for r in rows:
+        if r["name"] not in COLLECTOR_LINE:
+            continue
+        g = r["grade"]
+        old = dict(r["stats"])
+        if "재료확률" in r["stats"] and g in NERF_MATCHANCE:
+            r["stats"]["재료확률"] = NERF_MATCHANCE[g]
+        if "행운" in r["stats"] and g in NERF_LUCK:
+            r["stats"]["행운"] = NERF_LUCK[g]
+        S = stage_of(r["lv"])
+        r["v_inc"] = sum(v * V[S][INCOME[kk]] for kk, v in r["stats"].items() if kk in INCOME) / A
+        r["v_prog"] = sum(v * V[S][PROGRESS[kk]] for kk, v in r["stats"].items() if kk in PROGRESS) / A
+        r["nerfed"] = (old, dict(r["stats"]))
+    return rows
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sink", type=float, default=DEFAULT_SINK, help="싱크 비율 (기본 0.12)")
+    ap.add_argument("--charge", type=float, default=DEFAULT_CHARGE,
+                    help="진행축 지불배수 c (기본 1.0 · >1 이면 프리미엄)")
+    ap.add_argument("--nerf", action="store_true",
+                    help="채집/수집 라인 스탯 재설계안을 적용해 재산출")
+    ap.add_argument("--final", action="store_true",
+                    help="확정 제안 — 채집 라인 너프 + 가격 유지, 나머지는 모델가")
     ap.add_argument("--sweep", action="store_true")
     ap.add_argument("--apply-plan", action="store_true")
     a = ap.parse_args()
 
     k, A, rows = build()
+    if a.final:
+        a.nerf = True
+    if a.nerf:
+        rows = apply_nerf(rows, k, A)
     live = [r for r in rows if not r["other_cur"] and r["name"] not in KEEP]
 
     if a.apply_plan:
         for r in live:
-            print(f"{r['name']}\t{r['price']}\t{price_of(r, a.sink)}")
+            st = ",".join(f"{kk}:{int(v)}" for kk, v in r["stats"].items())
+            pf = (FINAL_COLLECTOR_PRICE.get(r["name"]) if a.final else None) \
+                 or price_of(r, a.sink, a.charge)
+            print(f"{r['name']}\t{r['price']}\t{pf}\t{st}")
         return
 
     print(MEAS.banner(k))
-    print(f"소모 {A:.0f}회/h (fish.result 1건 = 미끼 1개) · 싱크 s = {a.sink:.0%} of 포획당 실현가")
-    print("가격 = V수입 + 싱크  →  «돈으로는 항상 손해»가 구조적으로 보장된다")
+    print(f"소모 {A:.0f}회/h (fish.result 1건 = 미끼 1개) · 싱크 s = {a.sink:.0%} · 진행축 배수 c = {a.charge:.1f}"
+          + ("  · ★채집/수집 라인 스탯 너프 적용" if a.nerf else ""))
+    print("가격 = V수입 + c×V진행 + 싱크  →  «돈(수입)으로는 항상 손해»가 구조적으로 보장된다")
+    if a.nerf:
+        print("\n=== 채집/수집 라인 스탯 재설계 ===")
+        for r in rows:
+            if r.get("nerfed"):
+                o, n = r["nerfed"]
+                ch = ", ".join(f"{kk} {int(o[kk])}→{int(n[kk])}" for kk in n if o.get(kk) != n.get(kk))
+                print(f"  {r['grade']} Lv{r['lv']:<3}{r['name']:<16}{ch}")
 
     if a.sweep:
         print("\n=== 싱크 s 민감도 (등급별 신가격 중위) ===")
@@ -176,9 +254,9 @@ def main():
             import statistics as st
             row = []
             for g in gs:
-                arr = [price_of(r, s) for r in live if r["grade"] == g]
+                arr = [price_of(r, s, a.charge) for r in live if r["grade"] == g]
                 row.append(st.median(arr) if arr else 0)
-            mx = max((price_of(r, s) for r in live if r["grade"] == "A"), default=0)
+            mx = max((price_of(r, s, a.charge) for r in live if r["grade"] == "A"), default=0)
             print(f"{s:>5.0%}" + "".join(f"{v:>12,.0f}" for v in row) + f"{mx:>12,.0f}")
         return
 
@@ -195,7 +273,8 @@ def main():
             print(f"{r['grade']:<3}{r['lv']:>4} {r['name']:<16}{r['v_inc']:>7,.0f}{r['v_prog']:>7,.0f}"
                   f"{'-':>7}{'유지':>8}{r['price']:>8,}{'-':>7}{'-':>9}{'-':>9}  ★유저 지시로 고정")
             continue
-        p = price_of(r, a.sink)
+        p = (FINAL_COLLECTOR_PRICE.get(r["name"]) if a.final else None) \
+            or price_of(r, a.sink, a.charge)
         axis = []
         if r["has_prog"]:
             axis.append("진행")
@@ -215,14 +294,16 @@ def main():
 
     # ── 하드 룰 검증 ────────────────────────────────────────────────────
     print("\n=== 하드 룰 검증 — 「가격 > V수입」 (돈으로는 항상 손해) ===")
-    bad = [r for r in live if price_of(r, a.sink) <= r["v_inc"]]
+    final_p = lambda r: ((FINAL_COLLECTOR_PRICE.get(r["name"]) if a.final else None)
+                         or price_of(r, a.sink, a.charge))
+    bad = [r for r in live if final_p(r) <= r["v_inc"]]
     if bad:
         for r in bad:
-            print(f"  🔴 {r['name']} 신가격 {price_of(r,a.sink):,} ≤ V수입 {r['v_inc']:,.0f} "
+            print(f"  🔴 {r['name']} 신가격 {final_p(r):,} ≤ V수입 {r['v_inc']:,.0f} "
                   f"— 라운딩이 싱크를 먹었다. s 를 올리거나 tidy() 단계를 줄일 것")
     else:
         print(f"  🟢 {len(live)}종 전부 통과 (최소 여유 "
-              f"{min(price_of(r,a.sink)-r['v_inc'] for r in live):,.0f}원/시도)")
+              f"{min(final_p(r)-r['v_inc'] for r in live):,.0f}원/시도)")
 
     # ── 철학 위반 콘텐츠 ────────────────────────────────────────────────
     pp = [r for r in live if r["pure_profit"]]
@@ -236,26 +317,28 @@ def main():
         print("   (c) 삭제 — 다만 콘텐츠가 줄어든다")
 
     # ── ★구조 진단: 수입축에만 스탯이 실린 미끼는 «값을 매기든 안 매기든 무의미»하다 ──
-    #  철학이 「가격 > V수입」이면, income 을 X% 올리는 미끼는 가격도 X%+ 여야 한다 →
-    #  플레이어 순수입은 그대로고 클릭만 늘어난다(wash). 즉 **수입축 스탯은 미끼에 실릴 수 없다.**
-    #  미끼가 의미를 가지려면 가치가 진행축(경험치·재료확률)이나 수집축에 있어야 한다.
-    print("\n=== ★구조 진단 — 미끼가 수입을 몇 % 올리나 (클수록 «가격을 매기면 무의미») ===")
+    #  ★2026-08-27 판정 완화 (유저 지적). 초안은 「수입축 전용 미끼는 wash 니까 스탯을 진행축으로
+    #  옮겨야 한다」고 결론했는데 그건 **단일 최적 로드아웃을 가정한 모델의 결론**이다. 실제로는
+    #   ① 유저는 판매·더블·크리에 «혹해서» 산다(체감 매력은 모델 밖) ② 자기 장비가 크리 빌드면
+    #      크리 미끼를 사고, 그 **시너지를 모델이 모른다** ③ 판매보너스는 상황에 따라 더/덜 효율적이다.
+    #  그래서 이 표는 «판정»이 아니라 **모델 한계 표시**다 — 수입 증가폭이 클수록 「가격 > 효율」
+    #  규칙이 순수입에 미치는 영향이 커진다는 정보만 준다. 스탯 이관 권고는 철회했다.
+    print("\n=== 구조 정보 — 미끼가 수입을 몇 % 올리나 (모델 한계 표시, 판정 아님) ===")
     print(f"{'등급':<3}{'Lv':>4} {'이름':<16}{'수입증가':>9}{'V진행 비중':>11}  판정")
     wash = []
     for r in live:
         gross = r["per_catch"] * k["catches_per_active_h"]
         up = r["v_inc"] * A / gross * 100
         share = r["v_prog"] / (r["v_inc"] + r["v_prog"]) * 100 if (r["v_inc"] + r["v_prog"]) else 0
-        verdict = ("🟢 진행축 주도" if share >= 50 else
-                   "🟡 절반은 진행" if share >= 20 else
-                   "🔴 수입축 전용 = wash")
+        verdict = ("진행축 주도" if share >= 50 else
+                   "혼합" if share >= 20 else
+                   "수입축 위주 (시너지·체감은 모델 밖)")
         if share < 20:
             wash.append(r)
         print(f"{r['grade']:<3}{r['lv']:>4} {r['name']:<16}{up:>8.1f}%{share:>10.0f}%  {verdict}")
-    print(f"\n  🔴 수입축 전용 {len(wash)}/{len(live)}종 — 이들은 가격을 어떻게 잡아도 "
-          f"«순수입 변화 0 + 클릭 증가»가 된다.")
-    print("  처방: 판매보너스·더블·트리플·크리 지분을 **경험치·재료확률**로 옮기거나, 그 미끼를")
-    print("        «수집 전용»으로 재정의(행운·크기·등급업만 남기고 도감/기록 보상과 묶기)할 것.")
+    print(f"\n  수입축 위주 {len(wash)}/{len(live)}종. ★이건 결함 목록이 아니다 — 빌드 시너지와")
+    print("  체감 매력은 이 모델이 재지 못한다(유저 판단, 2026-08-27). 다만 수입 증가폭이 큰 미끼는")
+    print("  「가격 > 효율」 규칙 때문에 가격도 같이 커진다는 점만 알고 있을 것.")
 
     # ── 가격 역전 = 스탯 역전의 그림자 ──────────────────────────────────
     #  가격이 V수입을 따라가므로, 등급이 올라가는데 신가격이 내려가면 그건 «가격 버그»가 아니라
@@ -265,14 +348,14 @@ def main():
     for hi in live:
         for lo in live:
             if (hi["ord"] > lo["ord"] and hi["lv"] > lo["lv"]
-                    and price_of(hi, a.sink) < price_of(lo, a.sink) * 0.98):
+                    and price_of(hi, a.sink, a.charge) < price_of(lo, a.sink, a.charge) * 0.98):
                 inv.append((hi, lo))
     if not inv:
         print("  🟢 없음")
-    for hi, lo in sorted(inv, key=lambda t: price_of(t[1], a.sink) / max(1, price_of(t[0], a.sink)),
-                         reverse=True)[:8]:
-        print(f"  🟡 {hi['grade']} Lv{hi['lv']:<3}{hi['name']:<16}{price_of(hi,a.sink):>7,}원 "
-              f"< {lo['grade']} Lv{lo['lv']:<3}{lo['name']:<16}{price_of(lo,a.sink):>7,}원 "
+    for hi, lo in sorted(inv, key=lambda t: price_of(t[1], a.sink, a.charge)
+                         / max(1, price_of(t[0], a.sink, a.charge)), reverse=True)[:8]:
+        print(f"  🟡 {hi['grade']} Lv{hi['lv']:<3}{hi['name']:<16}{price_of(hi,a.sink,a.charge):>7,}원 "
+              f"< {lo['grade']} Lv{lo['lv']:<3}{lo['name']:<16}{price_of(lo,a.sink,a.charge):>7,}원 "
               f"(V수입 {hi['v_inc']:,.0f} < {lo['v_inc']:,.0f})")
 
     # ── 다른 통화 미끼는 철학을 우회한다 ────────────────────────────────
@@ -290,6 +373,26 @@ def main():
         print("  AFK 시간의 기회비용이 0 에 가까우므로 이 미끼는 **끼면 돈을 번다** — 철학 위반이다.")
         print("  처방: P 가격을 올리거나(1P ≈ 원 환산 기준을 정하고 V수입 위로), 미끼 판매를 빼고")
         print("        다른 편의 품목으로 바꾸거나, 수입축 스탯을 진행축으로 갈아탈 것.")
+
+    # ── 재료확률 단가 (유저 요청 «가격도 비싸게» 의 실질 검증) ──────────────
+    coll = [r for r in rows if r["name"] in COLLECTOR_LINE]
+    if coll:
+        print("\n=== 재료확률 단가 (원/재확 1%) — 스탯 너프의 실질 효과 ===")
+        print(f"{'미끼':<12}{'현재 재확':>8}{'현재가':>9}{'현 단가':>8}   "
+              f"{'신 재확':>7}{'신가격':>9}{'신 단가':>8}{'단가배율':>9}   재확 1% 골드가치/시도")
+        Vm = {}
+        for st in SV.STAGES:
+            Vm[st] = SV.compute(st)["V"]["재료확률 (1%)"][0] / A
+        for r in sorted(coll, key=lambda r: r["ord"]):
+            old = r.get("nerfed", (r["stats"], r["stats"]))[0]
+            mo, mn = old.get("재료확률", 0), r["stats"].get("재료확률", 0)
+            po, pn = r["price"], final_p(r)
+            if not (mo and mn):
+                continue
+            print(f"{r['name']:<12}{mo:>8g}{po:>9,}{po/mo:>8,.0f}   {mn:>7g}{pn:>9,}"
+                  f"{pn/mn:>8,.0f}{(pn/mn)/(po/mo):>8.2f}x   {Vm[stage_of(r['lv'])]:>10,.1f}원")
+        print("  ★재확 1% 의 골드가치가 4~19원/시도인데 단가는 90~650원 — 이미 7~34배 프리미엄이다.")
+        print("    재료는 돈으로 살 수 없으니(어종 재료 상점 경로 없음) 그 프리미엄 자체는 정당하다.")
 
     # ── 사다리 검증 ──────────────────────────────────────────────────────
     print("\n=== 사다리 — 등급이 오르면 «태운 돈당 진행»이 좋아지는가 ===")
@@ -311,7 +414,7 @@ def main():
         if not cand:
             continue
         best = max(cand, key=lambda r: r["v_inc"] + r["v_prog"])
-        p = price_of(best, a.sink)
+        p = final_p(best)
         sink_h = (p - best["v_inc"]) * A
         gross = best["per_catch"] * k["catches_per_active_h"]
         print(f"  {label:<14} {best['name']:<16} {p:>7,}원  →  싱크 {sink_h:>10,.0f}원/h "
