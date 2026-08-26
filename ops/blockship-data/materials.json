@@ -263,7 +263,7 @@
     "자수정": {
       "name": "자수정",
       "mcItem": "paper",
-      "desc": "레드_로드의 자수정 광맥에서 드릴로 캐낸 보라색 결정"
+      "desc": "레드 로드의 자수정 광맥에서 드릴로 캐낸 보라색 결정"
     },
     "강화멜론": {
       "name": "강화 멜론",
@@ -276,14 +276,14 @@
       "desc": "스위트베리 16개를 압축한 강화 농산물"
     },
     "철광석": {
-      "name": "철광석",
+      "name": "적철석",
       "mcItem": "paper",
-      "desc": "mine 월드 철광산 구역에서 드릴로 캐낸 무거운 철 원석"
+      "desc": "철광산 구역에서 드릴로 캐낸 붉은 기가 도는 무거운 철 원석"
     },
     "압축철광석": {
-      "name": "압축 철광석",
+      "name": "압축 적철석",
       "mcItem": "paper",
-      "desc": "철광석 9개를 압축한 고밀도 철괴 (레시피 COMP_IRON)"
+      "desc": "적철석 9개를 압축한 고밀도 철괴 (레시피 COMP_IRON)"
     },
     "심해전왕의핵": {
       "name": "심해전왕의 핵",
@@ -295,10 +295,20 @@
       "mcItem": "paper",
       "desc": "지워진 이름들의 원본 낱장. 보이는데도 읽히지 않는다"
     },
+    "심해어가면": {
+      "name": "심해어 가면",
+      "mcItem": "paper",
+      "desc": "심해어의 비늘을 엮어 만든 잠입용 가면"
+    },
     "강화호박": {
       "name": "강화 호박",
       "mcItem": "paper",
       "desc": "호박 16개를 압축한 강화 농산물"
+    },
+    "강화사과": {
+      "name": "강화 사과",
+      "mcItem": "paper",
+      "desc": "사과 16개를 압축한 강화 농산물"
     },
     "강화사탕수수": {
       "name": "강화 사탕수수",
@@ -315,27 +325,19 @@
     "강": [
       {
         "matId": "물고기비늘",
-        "chance": 14
-      },
-      {
-        "matId": "녹슨부품",
-        "chance": 12
-      },
-      {
-        "matId": "낡은갈고리",
         "chance": 10
       },
       {
         "matId": "강화실",
-        "chance": 8
+        "chance": 6
       },
       {
-        "matId": "깃털찌조각",
-        "chance": 5
+        "matId": "녹슨부품",
+        "chance": 9
       },
       {
         "matId": "진주",
-        "chance": 8
+        "chance": 5
       },
       {
         "matId": "별빛진주",
@@ -349,67 +351,75 @@
       },
       {
         "matId": "강화실",
-        "chance": 8
+        "chance": 6
       },
       {
         "matId": "거대비늘",
-        "chance": 5
+        "chance": 13
       },
       {
-        "matId": "깃털찌조각",
-        "chance": 5
-      },
-      {
-        "matId": "녹슨부품",
+        "matId": "진주",
         "chance": 7
       },
       {
         "matId": "별빛진주",
-        "chance": 2
-      },
-      {
-        "matId": "진주",
-        "chance": 8
+        "chance": 3
       }
     ],
     "정상": [
       {
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
+      {
         "matId": "안개수정",
-        "chance": 8
+        "chance": 10
+      },
+      {
+        "matId": "진주",
+        "chance": 7
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 4
+      }
+    ],
+    "오아시스": [
+      {
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
+      {
+        "matId": "보석",
+        "chance": 6
+      },
+      {
+        "matId": "진주",
+        "chance": 12
       },
       {
         "matId": "별빛진주",
         "chance": 2
       },
       {
-        "matId": "행운의구슬",
-        "chance": 5
-      },
-      {
-        "matId": "바르칸조각",
-        "chance": 4
-      },
-      {
-        "matId": "진주",
-        "chance": 8
-      }
-    ],
-    "오아시스": [
-      {
-        "matId": "진주",
-        "chance": 8
-      },
-      {
         "matId": "미끼",
-        "chance": 8
+        "chance": 6
       },
       {
         "matId": "나뭇가지",
-        "chance": 8
+        "chance": 5
       },
       {
         "matId": "깨진 토기 조각",
-        "chance": 7
+        "chance": 5
       },
       {
         "matId": "미감정 유물",
@@ -417,179 +427,121 @@
       },
       {
         "matId": "진주조개",
-        "chance": 4
-      },
-      {
-        "matId": "보석",
-        "chance": 7
+        "chance": 3
       },
       {
         "matId": "고대 유물",
         "chance": 1
-      },
-      {
-        "matId": "별빛진주",
-        "chance": 2
-      }
-    ],
-    "바르칸": [
-      {
-        "matId": "물고기비늘",
-        "chance": 12
-      },
-      {
-        "matId": "녹슨부품",
-        "chance": 10
-      },
-      {
-        "matId": "강화실",
-        "chance": 7
-      },
-      {
-        "matId": "낡은갈고리",
-        "chance": 6
-      },
-      {
-        "matId": "별빛진주",
-        "chance": 2
-      },
-      {
-        "matId": "진주",
-        "chance": 8
       }
     ],
     "붉은사막": [
       {
         "matId": "물고기비늘",
-        "chance": 12
-      },
-      {
-        "matId": "행운의구슬",
-        "chance": 5
+        "chance": 10
       },
       {
         "matId": "강화실",
         "chance": 6
       },
       {
-        "matId": "별빛진주",
+        "matId": "행운의구슬",
+        "chance": 8
+      },
+      {
+        "matId": "용암수지",
         "chance": 2
       },
       {
         "matId": "진주",
-        "chance": 8
+        "chance": 6
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 3
       }
     ],
     "대양": [
       {
-        "matId": "산호조각",
-        "chance": 10
-      },
-      {
         "matId": "물고기비늘",
-        "chance": 12
+        "chance": 10
       },
       {
         "matId": "강화실",
         "chance": 6
       },
       {
-        "matId": "별빛진주",
-        "chance": 2
+        "matId": "산호조각",
+        "chance": 9
       },
       {
         "matId": "진주",
-        "chance": 8
+        "chance": 6
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 3
       }
     ],
     "원양": [
       {
-        "matId": "별빛진주",
-        "chance": 2
+        "matId": "물고기비늘",
+        "chance": 10
       },
       {
-        "matId": "산호조각",
+        "matId": "강화실",
         "chance": 6
       },
       {
-        "matId": "바르칸조각",
-        "chance": 3
+        "matId": "용비늘",
+        "chance": 4
       },
       {
         "matId": "진주",
-        "chance": 8
+        "chance": 7
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 3
       }
     ],
     "늪지대": [
       {
-        "matId": "거대비늘",
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
         "chance": 6
       },
       {
-        "matId": "물고기비늘",
-        "chance": 12
-      },
-      {
-        "matId": "깃털찌조각",
+        "matId": "고대비늘",
         "chance": 5
-      },
-      {
-        "matId": "별빛진주",
-        "chance": 2
       },
       {
         "matId": "진주",
         "chance": 8
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 4
       }
     ],
     "레드_로드": [
+      {
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
       {
         "matId": "바르칸조각",
         "chance": 4
       },
       {
-        "matId": "별빛진주",
-        "chance": 2
-      },
-      {
         "matId": "진주",
-        "chance": 8
-      }
-    ],
-    "물보라동굴": [
-      {
-        "matId": "안개수정",
-        "chance": 10
-      },
-      {
-        "matId": "물고기비늘",
-        "chance": 10
-      },
-      {
-        "matId": "강화실",
-        "chance": 7
-      },
-      {
-        "matId": "별빛진주",
-        "chance": 2
-      },
-      {
-        "matId": "진주",
-        "chance": 8
-      }
-    ],
-    "스폰도시": [
-      {
-        "matId": "물고기비늘",
-        "chance": 10
-      },
-      {
-        "matId": "강화실",
         "chance": 6
-      },
-      {
-        "matId": "진주",
-        "chance": 8
       },
       {
         "matId": "별빛진주",
@@ -602,22 +554,30 @@
         "chance": 10
       },
       {
-        "matId": "산호조각",
-        "chance": 5
+        "matId": "강화실",
+        "chance": 6
       },
       {
         "matId": "진주",
-        "chance": 8
+        "chance": 5
       },
       {
         "matId": "별빛진주",
-        "chance": 2
+        "chance": 1
       }
     ],
     "폭포_뒤_동굴_1층": [
       {
-        "matId": "안개수정",
-        "chance": 8
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
+      {
+        "matId": "심해수정",
+        "chance": 6
       },
       {
         "matId": "진주",
@@ -625,17 +585,7 @@
       },
       {
         "matId": "별빛진주",
-        "chance": 2
-      }
-    ],
-    "기억의연못": [
-      {
-        "matId": "별빛진주",
-        "chance": 2
-      },
-      {
-        "matId": "진주",
-        "chance": 8
+        "chance": 4
       }
     ],
     "항구": [
@@ -648,16 +598,38 @@
         "chance": 6
       },
       {
-        "matId": "진주",
+        "matId": "낡은갈고리",
         "chance": 8
+      },
+      {
+        "matId": "진주",
+        "chance": 4
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 1
+      }
+    ],
+    "기억의_연못": [
+      {
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
+      {
+        "matId": "깃털찌조각",
+        "chance": 9
+      },
+      {
+        "matId": "진주",
+        "chance": 5
       },
       {
         "matId": "별빛진주",
         "chance": 2
-      },
-      {
-        "matId": "낡은갈고리",
-        "chance": 10
       }
     ]
   },

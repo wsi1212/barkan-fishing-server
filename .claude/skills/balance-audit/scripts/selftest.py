@@ -273,6 +273,36 @@ def t8_unobtainable(rows):
        warn_only=True)
 
 
+def t9_cast_cost():
+    """[9] 요구 캐스트 — 성능 비례 + 등급별 가성비 단조.
+
+    2026-08-27 신설. 이 두 성질은 «장비 하나 만드는 데 필요한 캐스트»의 설계 계약이고,
+    레시피를 손으로 고치면 조용히 깨진다(그래서 여기서 감시한다):
+      · 같은 (카테고리, 등급) 안에서 요구캐스트는 순성능에 비례해야 한다 → κ 변동이 작아야 함
+      · κ(= 성능 1,000원/h 당 캐스트)는 등급이 오를수록 **오르면 안 된다**
+        (유저 원칙: 상위 등급은 가성비가 좋아야 한다)
+    """
+    print("\n[9] 요구 캐스트 계약 (cast_cost.py)")
+    CC = _load("cast_cost")
+    _, _, rows, cph = CC.build_rows()
+    pool = [r for r in rows if r["craftable"] and r["src"] in CC.DEFAULT_SRC]
+    cur, iso = CC.kappa_table(pool)
+    tg, clamps, _ = CC.targets(pool, iso)
+    off = [(n, v["scale"]) for n, v in tg.items()
+           if not v["clamped"] and abs(v["scale"] - 1) > 0.15]
+    ok(not off, "요구캐스트 ↔ 성능 비례 (목표 대비 ±15% 초과)",
+       f"{len(off)}종 " + ", ".join(f"{n} ×{s:.2f}" for n, s in sorted(off, key=lambda x: -abs(x[1]-1))[:6]))
+    bad = []
+    for cat in {c for c, _ in cur}:
+        gs = [g for g in CC.GRADE_ORDER if (cat, g) in cur]
+        for a_, b_ in zip(gs, gs[1:]):
+            if cur[(cat, b_)] > cur[(cat, a_)] * 1.10:
+                bad.append(f"{cat} {a_}({cur[(cat,a_)]:.1f})→{b_}({cur[(cat,b_)]:.1f})")
+    ok(not bad, "κ 등급 단조 (상위 등급 가성비 역전)", "; ".join(bad))
+    ok(not clamps, "동레벨 성능 이상치 (재료가 아니라 스탯 결함)",
+       "; ".join(f"{c} Lv{l} +{e*100:.0f}%" for c, l, e, _ in clamps), warn_only=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
@@ -289,6 +319,8 @@ def main():
     rows = t6_coverage(D)
     t7_drift(rows)
     t8_unobtainable(rows)
+    if not a.quick:
+        t9_cast_cost()
     print("\n" + "=" * 78)
     if FAILS:
         print(f"🔴 실패 {len(FAILS)}건 — 감사를 진행하지 말 것")
