@@ -4730,7 +4730,7 @@
           "kind": "custom",
           "typeOrMatId": "작물_토마토",
           "displayName": "특수 토마토",
-          "mcItem": "sweet_berries",
+          "mcItem": "paper",
           "qty": 2
         },
         {
@@ -5515,7 +5515,7 @@
           "kind": "custom",
           "typeOrMatId": "작물_토마토",
           "displayName": "특수 토마토",
-          "mcItem": "sweet_berries",
+          "mcItem": "paper",
           "qty": 1
         },
         {
@@ -5788,7 +5788,7 @@
           "kind": "custom",
           "typeOrMatId": "작물_토마토",
           "displayName": "특수 토마토",
-          "mcItem": "sweet_berries",
+          "mcItem": "paper",
           "qty": 1
         }
       ]
@@ -5933,7 +5933,7 @@
           "kind": "custom",
           "typeOrMatId": "작물_토마토",
           "displayName": "특수 토마토",
-          "mcItem": "sweet_berries",
+          "mcItem": "paper",
           "qty": 2
         },
         {
@@ -6841,7 +6841,7 @@
           "kind": "custom",
           "typeOrMatId": "작물_토마토",
           "displayName": "특수 토마토",
-          "mcItem": "sweet_berries",
+          "mcItem": "paper",
           "qty": 25
         },
         {
