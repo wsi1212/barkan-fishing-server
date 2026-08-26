@@ -218,8 +218,24 @@ def t7_drift(rows):
        warn_only=True)
     # 확률표를 문서에 옮겨 적은 흔적 — materials.json 과 대조
     M = json.load(open(os.path.join(BS, "materials.json"), encoding="utf-8"))
+    # ★2026-08-27 «단일 값» 검사 폐지 — 재료 지역 분배 재설계로 진주·별빛진주에
+    #   접근 비용 기울기가 들어갔다(그전엔 16/16 지역 균일 8%/2% 라 지역 차별이 0 이었다).
+    #   이제 검사할 것은 «값이 하나인가»가 아니라 «기울기가 살아 있는가»다.
     star = {d["chance"] for t in M["dropTables"].values() for d in t if d["matId"] == "별빛진주"}
-    ok(star == {2}, "별빛진주 확률(라이브)", f"{sorted(star)}%")
+    pearl = {d["chance"] for t in M["dropTables"].values() for d in t if d["matId"] == "진주"}
+    ok(len(star) > 1, "별빛진주 지역 기울기", f"{sorted(star)}%  (1종이면 균일=설계 위반)")
+    ok(len(pearl) > 1, "진주 지역 기울기", f"{sorted(pearl)}%")
+    # 드랍표 항목은 «영역이 있고 어종 풀이 있는» 지역에만 — 2026-08-27 규칙
+    Fj = json.load(open(os.path.join(BS, "fish.json"), encoding="utf-8"))
+    Rj = json.load(open(os.path.join(BS, "regions.json"), encoding="utf-8"))
+    ghost = []
+    for a in M["dropTables"]:
+        rd = Rj.get(a) or {}
+        has_area = len(rd.get("polygon") or []) >= 3 or (
+            rd.get("pos1") and rd.get("pos1") != [0, 0, 0])
+        if a not in Rj or not has_area or a not in Fj.get("regions", {}):
+            ghost.append(a)
+    ok(not ghost, "드랍표 유령 지역", f"{ghost or '없음'}  (영역·어종 풀 없는 지역)")
     p = os.path.join(SKILL, "references/cross-economy-values.md")
     if os.path.exists(p):
         s = open(p, encoding="utf-8").read()
