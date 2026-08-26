@@ -65,8 +65,30 @@ LINES = {
 #  (낚싯대 기본 + 강화 총량 + 숙련부품 3층이 «순간이동 문턱»을 함께 만들기 때문에
 #   한 곳에서만 정의해야 한다).
 DIFF_BY_GRADE = EL.ROD_DIFF
-#: 등급별 회수시간 목표(h). 등급이 오르면 완만하게 길어진다(상위 등급은 «오래 쓰는» 물건).
-TARGET = {"E": None, "D": 10.5, "C": 11.0, "B": 12.5}
+#  ★2026-08-27 **회수시간 목표 폐기 → 순성능 사다리**. 유저 결정:
+#    "회수는 일단 빼고 계산 다시 해줘. 왜냐면 짜피 재료들 밸런스도 다시 조정해야하거든,
+#     그래서 일단 성능들로만 해줘. 성능은 레벨이 같아도 10% 20%정도는 달라도됨."
+#    재료·가격이 곧 재조정될 예정이라 회수시간(= 성능 ÷ 비용)을 맞추는 것은 «움직이는
+#    분모»에 맞추는 일이다. 성능만 사다리에 올려놓고 비용은 나중에 덮는다.
+#
+#  사다리 = 스폰마을 Lv≥5 낚싯대 21종의 순성능 로그선형 적합 (2026-08-27 라이브 실측):
+#      ln(순성능) = 8.814 + 0.0667 × Lv       → 레벨당 +6.9%
+#      평균 절대편차 14.8% (적합 전) · Lv5 9,391 · Lv13 16,012 · Lv27 40,737 원/h
+#  ★계수를 매 실행마다 재적합하지 않는다 — 자기 출력에 다시 맞추면 사다리가 표류한다.
+#    전체 파워 레벨을 올리거나 내리려면 EFF_A 를 옮긴다(기울기 EFF_B 는 진행 속도).
+EFF_A, EFF_B = 8.814, 0.0667
+#: 허용 밴드 — 유저 확정 «같은 레벨이라도 10~20% 차이는 가격으로 커버». 안쪽(±10%)을 목표로
+#  잡고 바깥(±20%)을 경보선으로 쓴다.
+BAND_OK, BAND_WARN = 0.10, 0.20
+#: E급 3종은 사다리 밖 — 튜토리얼 구간이다. 나뭇가지는 무료(가격 0·재료 0)라 성능도 거의 0
+#  이어야 하고, 초보자/초보 낚싯대는 Lv1 사다리값(7,178)의 1/3 로 «시작점 이전»에 둔다.
+EXEMPT = {"나뭇가지", "초보자 낚싯대", "초보 낚싯대"}
+
+
+def eff_target(lv):
+    import math
+    return math.exp(EFF_A + EFF_B * lv)
+
 
 #: 설계 대상 — 이름: (등급, 라인표시, 부스탯, 등급특화, 돈가격 덮어쓰기|None)
 #  ★부스탯 수치는 --tune 산출값이다. 손으로 만지지 말고 --tune 을 다시 돌릴 것.
@@ -75,25 +97,25 @@ DESIGN = {
     "초보자 낚싯대":       ("E", "입문", {"경험치": 3}, None, None),
     "초보 낚싯대":         ("E", "입문", {"크기": 3, "크리확률": 2}, None, None),
     "튼튼한 막대기":       ("D", "숙련", {"도망감소": 3, "경험치": 2}, None, 8700),
-    "참나무 낚싯대":       ("C", "숙련", {"도망감소": 4, "경험치": 2}, None, 48200),
-    "전문가 낚싯대":       ("B", "숙련", {"도망감소": 8, "경험치": 4}, None, 52300),
+    "참나무 낚싯대":       ("C", "숙련", {"도망감소": 9, "경험치": 4}, None, 48200),
+    "전문가 낚싯대":       ("B", "숙련", {"도망감소": 11, "경험치": 6}, None, 52300),
     "낚시견습생의 낚싯대":  ("D", "크리", {"크기": 11, "크리확률": 7}, None, None),
-    "낚시꾼의 낚싯대":     ("C", "크리", {"크기": 11, "크리확률": 8}, None, None),
-    "예리한 낚싯대":       ("B", "크리", {"크기": 15, "크리확률": 11, "크리배율": 2}, None, None),
+    "낚시꾼의 낚싯대":     ("C", "크리", {"크기": 14, "크리확률": 10}, None, None),
+    "예리한 낚싯대":       ("B", "크리", {"크기": 14, "크리확률": 10, "크리배율": 1}, None, None),
     "대나무 막대기":       ("D", "행운", {"행운": 11, "등급업": 3}, None, None),
-    "잉어꾼의 낚싯대":     ("C", "행운", {"행운": 13, "등급업": 5}, "C:50", None),
-    "숙련자의 낚싯대":     ("B", "행운", {"행운": 17, "등급업": 8}, None, None),
+    "잉어꾼의 낚싯대":     ("C", "행운", {"행운": 12, "등급업": 4}, "C:50", None),
+    "숙련자의 낚싯대":     ("B", "행운", {"행운": 12, "등급업": 5}, None, None),
     "장터 낚싯대":         ("D", "상인", {"판매보너스": 8, "더블찬스": 3}, None, None),
-    "장사꾼의 낚싯대":     ("C", "상인", {"판매보너스": 6, "더블찬스": 2}, None, None),
-    "거래상의 낚싯대":     ("B", "상인", {"판매보너스": 17, "더블찬스": 7}, None, None),
-    "수련생 낚싯대":       ("D", "성장", {"경험치": 8, "트리플찬스": 1}, None, None),
-    "경험의 낚싯대":       ("C", "성장", {"경험치": 6, "트리플찬스": 1}, None, None),
-    "학도의 낚싯대":       ("B", "성장", {"경험치": 17, "트리플찬스": 2}, None, None),
-    "다목적 낚싯대":       ("C", "혼합", {"도망감소": 3, "판매보너스": 5, "더블찬스": 2}, None, 84500),
-    "겸업 낚싯대":         ("B", "기타", {"등급업": 5, "크리확률": 8, "크기": 14}, None, None),
-    "만능 낚싯대":         ("B", "혼합", {"도망감소": 5, "판매보너스": 9, "더블찬스": 4}, None, 64300),
-    "채집용 낚싯대":       ("D", "채집", {"재료확률": 10, "경험치": 3}, None, None),
-    "수집가의 낚싯대":     ("C", "채집", {"재료확률": 19, "경험치": 5}, None, None),
+    "장사꾼의 낚싯대":     ("C", "상인", {"판매보너스": 13, "더블찬스": 4}, None, None),
+    "거래상의 낚싯대":     ("B", "상인", {"판매보너스": 19, "더블찬스": 8}, None, None),
+    "수련생 낚싯대":       ("D", "성장", {"경험치": 9, "트리플찬스": 1}, None, None),
+    "경험의 낚싯대":       ("C", "성장", {"경험치": 13, "트리플찬스": 2}, None, None),
+    "학도의 낚싯대":       ("B", "성장", {"경험치": 19, "트리플찬스": 2}, None, None),
+    "다목적 낚싯대":       ("C", "혼합", {"도망감소": 6, "판매보너스": 10, "더블찬스": 4}, None, 84500),
+    "겸업 낚싯대":         ("B", "기타", {"등급업": 4, "크리확률": 6, "크기": 11}, None, None),
+    "만능 낚싯대":         ("B", "혼합", {"도망감소": 6, "판매보너스": 10, "더블찬스": 5}, None, 64300),
+    "채집용 낚싯대":       ("D", "채집", {"재료확률": 11, "경험치": 3}, None, None),
+    "수집가의 낚싯대":     ("C", "채집", {"재료확률": 16, "경험치": 4}, None, None),
     "탐사자의 낚싯대":     ("B", "채집", {"재료확률": 28, "경험치": 7}, None, None),
 }
 #: 숙련 계열 부품 — 각 슬롯의 «군더더기 없는 기본형» 시리즈에 난이도를 부스탯으로 준다.
@@ -212,67 +234,95 @@ for _slot, _mem in EL.SKILL_SERIES.items():
         _BASE_PRICE[_n] = int(_P[_slot][_n].split("|")[2])
 
 
-def tune(rounds=10):
-    """부스탯·돈가격을 회수시간 목표에 맞춘다.
+def tune(rounds=14):
+    """부스탯을 **순성능 사다리**에 맞춘다(회수시간·가격은 건드리지 않는다).
 
-    · 부스탯 = 정수 스케일(라인 정체성 유지, 최소 1)
-    · 돈가격 = 목표에서 **직접 역산**(price = 순성능 × 목표h − 재료원). 난이도처럼
-      «값이 큰데 정수라 못 줄이는» 스탯이 들어오면 부스탯만으로는 절대 목표에 못 닿는다
-      — 그때 유일하게 남는 자유도가 가격이다(실측: 참나무 난이도 5 하나가 그 등급 예산
-      전부를 먹어 부스탯을 바닥까지 깎아도 8.8h 였다).
+    난이도는 3층 예산(`enhance_lines.ROD_DIFF`)으로 고정이고 순성능의 큰 몫을 차지한다 —
+    남은 자유도인 부스탯만 정수 스케일한다. 최소 1 을 지켜 라인 정체성이 사라지지 않게 한다.
     """
     cur = {n: dict(v[2]) for n, v in DESIGN.items()}
-    prices = {}
     for _ in range(rounds):
-        sel = ledger(cur, prices)
+        sel = ledger(cur)
         moved = 0
         for n, (g, line, s0, spec, price) in DESIGN.items():
-            tg = TARGET.get(g)
-            if tg is None:
+            if n in EXEMPT or not cur[n]:
                 continue
             r = sel[n]
-            if r["eff_net"] <= 0 or r["total"] <= 0:
+            if r["eff_net"] <= 0:
                 continue
-            if price is not None:                       # 가격 자유도가 있는 행 → 역산
-                want = r["eff_net"] * tg - r["mat_won"]
-                newp = max(0, int(round(want / 100.0) * 100))
-                if prices.get(n) != newp:
-                    prices[n] = newp
-                    moved += 1
+            want = eff_target(r["lv"])
+            ratio = r["eff_net"] / want
+            if abs(ratio - 1) <= BAND_OK * 0.6:        # 밴드 안쪽이면 건드리지 않는다
                 continue
-            if not cur[n]:
-                continue
-            f = max(0.55, min(1.8, (r["total"] / tg) / r["eff_net"]))
-            if abs(f - 1) < 0.03:
-                continue
+            # 부스탯이 만드는 몫만 스케일한다 — 난이도 고정분은 분모에서 뺀다
+            fixed = r["eff_net"] - _sub_value(n, cur[n], r)
+            need = max(0.0, want - fixed)
+            have = max(1.0, _sub_value(n, cur[n], r))
+            f = max(0.5, min(2.2, need / have))
             new = {a: max(MINV[a], int(round(b * f))) for a, b in cur[n].items()}
             if new != cur[n]:
                 cur[n] = new
                 moved += 1
-        # 숙련 계열 부품 — ★«추가한 가치만큼만» 올린다(목표 회수로 역산하지 않는다).
-        #   역산을 쓰면 릴 3종 가격이 6.8배로 뛰었다. 그건 난이도 1 을 얹어서가 아니라
-        #   **릴 슬롯이 원래 싸다**(회수 중위 6.6h)는 별개 문제 때문이다. 그 문제를 여기서
-        #   손대면 같은 시리즈의 나머지 19종과 역전이 생긴다(숙련 릴이 일반 릴보다 나쁨).
-        #   ⇒ 인상분 = 난이도 1 점의 원/h × 그 등급 목표 회수시간. 슬롯 리밸런스는 별건.
-        for slot, members in EL.SKILL_SERIES.items():
-            for pname, pg in members.items():
-                r = sel.get(pname)
-                tg = PART_TARGET_BY_SLOT.get(slot, PART_TARGET).get(pg)
-                if not r or tg is None:
-                    continue
-                if slot == "줄":
-                    # ★줄은 이미 목표의 2배 넘게 어긋나 있다(축 가치 문제, 위 주석 참조).
-                    #   여기에 난이도 값만큼 더 받으면 더 나빠진다 — 원가 인하가 선행 조건이다.
-                    continue
-                stage = IL.STAGE_OF_LEVEL(r["lv"])
-                dv = SV.diff_curve(stage)[1] * EL.PART_DIFF[pg]
-                newp = int(round((_BASE_PRICE[pname] + dv * tg) / 100.0) * 100)
-                if prices.get(pname) != newp:
-                    prices[pname] = newp
-                    moved += 1
+        moved += _apply_line_floor(cur)
         if not moved:
             break
-    return cur, prices
+    _apply_line_floor(cur)
+    return cur, None
+
+
+def _line_of_design(name):
+    g, line, *_ = DESIGN[name]
+    return line
+
+
+def _apply_line_floor(cur):
+    """라인 안에서 메인 스탯이 레벨과 함께 **감소하지 않게** 하는 하한 제약.
+
+    ★왜 필요한가 — `item_ledger` 는 스탯 1점을 **그 아이템 레벨의 구간(stage)** 가치로
+      센다. 스폰마을은 Lv5~27 이라 Lv20 에서 초반→중반 경계를 넘고, 그 순간 판매보너스
+      1% 가 843 → 1,175 원/h 로 **39% 도약**한다. 사다리는 레벨당 6.9% 만 오르므로 B급
+      낚싯대는 «더 적은 점수로 목표 성능»을 달성하고, 표시 숫자가 내려간다(실측: 예리한
+      크기 10 < 낚시꾼의 14 · 숙련자의 행운 11 < 잉어꾼의 12).
+      성능은 맞지만 **유저 눈에는 하향**이다 — 구간 경계는 모델의 산물이고 설계 사실이
+      아니므로, 표시 숫자 쪽을 우선한다. 그 대가로 그 낚싯대는 사다리 위쪽 밴드로 올라간다
+      (유저 허용 «같은 레벨 10~20% 차이는 가격으로 커버»의 여유를 여기에 쓴다).
+    """
+    changed = 0
+    for line, (mainst, subs) in LINES.items():
+        # 메인만이 아니라 **부스탯까지** 단조로 만든다 — 부스탯도 유저가 읽는 숫자다
+        #   (실측: 예리한 크리확률 8 < 낚시꾼의 10 — 메인만 보면 놓친다).
+        keys = [mainst if mainst != "난이도" else "도망감소"] + list(subs)
+        members = sorted((_lv_of(n), n) for n in DESIGN
+                         if n not in EXEMPT and _line_of_design(n) == line)
+        for key in keys:
+            floor = 0
+            for _lv, n in members:
+                if key not in cur[n]:
+                    continue
+                if cur[n][key] < floor:
+                    cur[n][key] = floor
+                    changed += 1
+                floor = max(floor, cur[n][key])
+    return changed
+
+
+_LVCACHE = {}
+
+
+def _lv_of(name):
+    if not _LVCACHE:
+        P = json.load(open(os.path.join(MV.BS, "parts.json"), encoding="utf-8"))
+        for k, v in P["parts"]["낚싯대"].items():
+            _LVCACHE[k] = int(v.split("|")[5])
+    return _LVCACHE[name]
+
+
+def _sub_value(name, subs, row):
+    """그 낚싯대의 순성능 중 «부스탯이 만든 몫»(원/h). 난이도 누적곡선 몫을 뺀 값."""
+    stage = IL.STAGE_OF_LEVEL(row["lv"])
+    dv = diff_of(name)
+    diff_part = SV.diff_curve(stage).get(int(dv), 0.0) if dv else 0.0
+    return max(0.0, row["eff_net"] - diff_part)
 
 
 def main():
@@ -300,22 +350,70 @@ def main():
         print("}")
         return
 
-    print(f"\n{'등':<3}{'라인':<7}{'이름':<20}{'돈':>9}{'재료원':>10}{'총비용':>10}"
-          f"{'순성능':>9}{'회수h':>7}  스탯")
-    byg = collections.defaultdict(list)
-    for n, (g, line, s0, spec, price) in DESIGN.items():
+    print(f"\n{'등':<3}{'Lv':<4}{'라인':<7}{'이름':<20}{'순성능':>9}{'사다리':>9}{'편차':>8}"
+          f"{'':<2}스탯")
+    dev, warn = [], []
+    for n, (g, line, s0, spec, price) in sorted(
+            DESIGN.items(), key=lambda kv: sel[kv[0]]["lv"]):
         r = sel[n]
-        pb = r["payback"]
-        if TARGET.get(g) and r["total"] > 0 and pb < 1e6:
-            byg[g].append(pb)
-        print(f"{g:<3}{line:<7}{n:<20}{r['price']:>9,.0f}{r['mat_won']:>10,.0f}"
-              f"{r['total']:>10,.0f}{r['eff_net']:>9,.0f}"
-              f"{('∞' if pb >= 1e6 else f'{pb:.1f}'):>7}  {stat_str(n, (subs or {}).get(n))}")
-    print()
-    for g in "DCB":
-        if g in byg:
-            print(f"  {g}: 중위 {st.median(byg[g]):.1f}h · {min(byg[g]):.1f}~{max(byg[g]):.1f}h"
-                  f" · 편차 {max(byg[g]) / min(byg[g]):.2f}배")
+        if n in EXEMPT:
+            print(f"{g:<3}{r['lv']:<4}{line:<7}{n:<20}{r['eff_net']:>9,.0f}"
+                  f"{'—':>9}{'면제':>8}  {stat_str(n, (subs or {}).get(n))}")
+            continue
+        t = eff_target(r["lv"])
+        d = r["eff_net"] / t - 1
+        dev.append(abs(d))
+        mark = "  " if abs(d) <= BAND_OK else ("🟡" if abs(d) <= BAND_WARN else "🔴")
+        if abs(d) > BAND_OK:
+            warn.append((n, d))
+        print(f"{g:<3}{r['lv']:<4}{line:<7}{n:<20}{r['eff_net']:>9,.0f}{t:>9,.0f}"
+              f"{d*100:>+7.1f}%{mark}{stat_str(n, (subs or {}).get(n))}")
+    print(f"\n  사다리 ln(순성능) = {EFF_A} + {EFF_B}×Lv (레벨당 +6.9%)")
+    print(f"  평균 절대편차 {sum(dev)/len(dev)*100:.1f}% · 최대 {max(dev)*100:.1f}%"
+          f" · 밴드(±{BAND_OK*100:.0f}%) 밖 {len(warn)}종")
+
+    # 같은 레벨 산포 · 레벨 단조성
+    byl = collections.defaultdict(list)
+    for n in DESIGN:
+        if n in EXEMPT:
+            continue
+        byl[sel[n]["lv"]].append((n, sel[n]["eff_net"]))
+    print("\n  같은 레벨 산포 (유저 허용 10~20%):")
+    for lv in sorted(byl):
+        a_ = byl[lv]
+        if len(a_) < 2:
+            continue
+        v = [x[1] for x in a_]
+        sp = max(v) / min(v) - 1
+        print(f"    Lv{lv:<3} {len(a_)}종  {min(v):,.0f}~{max(v):,.0f}  산포 {sp*100:+.1f}%"
+              f"{'  🟡' if sp > BAND_WARN else ''}  " + ", ".join(x[0] for x in a_))
+    # 라인 안 «메인 스탯» 단조성 — 성능이 같아도 상위 레벨의 정체성 스탯이 더 작으면
+    # 유저 눈에는 하향이다. 난이도가 예산을 먹을 때 정확히 이 역전이 생긴다.
+    print("\n  라인 안 메인 스탯 단조성:")
+    for ln, (mainst, _subs) in LINES.items():
+        seqm = []
+        for n, (g, line, s0, spec, price) in DESIGN.items():
+            if n in EXEMPT or DIFF_KEY.get(line, line) != ln and line != ln:
+                continue
+            st = {k: v for k, v in (x.split(":", 1) for x in
+                                    stat_str(n, (subs or {}).get(n)).split(",") if ":" in x)}
+            key = mainst if mainst != "난이도" else "도망감소"
+            if key in st:
+                seqm.append((sel[n]["lv"], int(st[key]), n))
+        seqm.sort()
+        if len(seqm) < 2:
+            continue
+        bad = [(seqm[i], seqm[i + 1]) for i in range(len(seqm) - 1)
+               if seqm[i + 1][1] < seqm[i][1]]
+        line_s = " → ".join(f"Lv{l} {v}" for l, v, _ in seqm)
+        print(f"    {ln:<4} {key:<6} {line_s}" + ("  🔴 역전" if bad else "  🟢"))
+
+    seq = sorted(((sel[n]["lv"], sel[n]["eff_net"], n) for n in DESIGN if n not in EXEMPT))
+    inv = [(seq[i], seq[i + 1]) for i in range(len(seq) - 1)
+           if seq[i + 1][1] < seq[i][1] * (1 - BAND_WARN)]
+    print(f"\n  레벨 역전(다음 레벨이 {BAND_WARN*100:.0f}% 이상 약함): {len(inv)}건"
+          + ("".join(f"\n    Lv{a[0]} {a[2]} {a[1]:,.0f} → Lv{b[0]} {b[2]} {b[1]:,.0f}"
+                     for a, b in inv) if inv else " 🟢"))
 
     print(f"\n=== 숙련 계열 부품 (난이도 부스탯 신설) ===")
     print(f"  {'슬롯':<4}{'이름':<16}{'등':<3}{'난이도':>5}{'돈':>10}{'재료원':>10}"

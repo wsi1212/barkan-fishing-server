@@ -86,16 +86,21 @@ NEW_TOTAL = {"E": 0, "D": 1, "C": 1, "B": 2, "A": 3, "S": 3}   # 신규스탯 �
 #    복제하면 갈라진다(내구보존 사태와 같은 실패 모드).
 #      ① 낚싯대 기본 ROD_DIFF   ② 강화 총량 ENH_DIFF   ③ 숙련 계열 부품 PART_DIFF × 4슬롯
 #    합계가 «순간이동 문턱»(S: rodBonus 9)을 만든다.
+#    ★2026-08-27 기타 라인 C/S 는 **기본을 낮추고 강화로 옮겼다**(C 2→1 · ENH 1→2,
+#      S 4→3 · ENH 3→4). 합계는 그대로다. 이유: 난이도 2 는 초반 구간에서 9,931원/h 라
+#      Lv10 성능 사다리(13,108)의 **53%**를 먹는다. 그래서 C 급 일반 라인의 정체성 스탯이
+#      D 급보다 작아졌다(실측: 잉어꾼의 행운 6 < 대나무 막대기 행운 11 — 라인 안 역전).
+#      기본이 낮으면 부스탯 예산이 살고, 난이도는 강화 투자로 따라온다.
 ENH_DIFF = {
     "숙련": {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4, "S": 5},
     "혼합": {"E": 0, "D": 1, "C": 1, "B": 2, "A": 2, "S": 3},
-    "기타": {"E": 0, "D": 0, "C": 1, "B": 2, "A": 2, "S": 3},
+    "기타": {"E": 0, "D": 0, "C": 2, "B": 2, "A": 2, "S": 4},
     "채집": {"E": 0, "D": 0, "C": 0, "B": 0, "A": 0, "S": 0},
 }
 ROD_DIFF = {
     "숙련": {"E": 0, "D": 2, "C": 3, "B": 4, "A": 5, "S": 6},
     "혼합": {"E": 0, "D": 2, "C": 3, "B": 3, "A": 3, "S": 4},
-    "기타": {"E": 0, "D": 1, "C": 2, "B": 2, "A": 3, "S": 4},
+    "기타": {"E": 0, "D": 1, "C": 1, "B": 2, "A": 3, "S": 3},
     "채집": {"E": 0, "D": 0, "C": 0, "B": 0, "A": 0, "S": 0},
 }
 #: 숙련 계열 부품 1개당 난이도 (릴·줄·바늘·찌 4슬롯 — 미끼는 행운 축 유지)
@@ -222,11 +227,16 @@ def build_table(name, base, grade, mx):
     if not growable:                       # 나뭇가지처럼 스탯이 난이도/재확뿐인 경우
         growable = [(LINES[line][0] if LINES[line][0] != "난이도" else "도망감소", 1)]
 
-    if line == "숙련":
-        # ★강제 — 도망감소의 정규화 가치(0.36)가 낮아 «가치순»으로는 경험치 2점에도 밀린다.
-        #   그러면 숙련형 강화가 성장형처럼 보인다(실측: 참나무가 그렇게 잡혔다).
-        #   도망감소는 난이도와 같은 «놓치지 않는다» 축이므로 이 라인의 성장축이 맞다.
-        growable.sort(key=lambda kv: (kv[0] != "도망감소", -kv[1] * W.get(kv[0], 1.0)))
+    # ★주스탯은 «그 라인의 메인»으로 **강제**한다. «정규화 가치 최대»로 고르면 단가 높은
+    #   스탯이 라인 정체성을 계속 이긴다 — 실측: 행운 라인 14종 전부가 등급업(2.11)에
+    #   행운(0.40)이 밀려 «강화하면 등급업만 오르는 행운 낚싯대»가 됐고, 숙련형은
+    #   도망감소(0.36)가 경험치 2점에도 밀려 성장형처럼 보였다. 유저 요청은
+    #   «같은 계열의 스탯»이 오르는 것이므로 가치가 아니라 계열이 기준이다.
+    want_main = LINES[line][0]
+    if want_main == "난이도":
+        want_main = "도망감소"        # 난이도는 정수 사다리 — 성장축은 같은 축의 도망감소
+    if any(k == want_main for k, _ in growable):
+        growable.sort(key=lambda kv: (kv[0] != want_main, -kv[1] * W.get(kv[0], 1.0)))
     main_stat, mbase = growable[0]
     for l, v in spread(int(round(mbase * MAIN_MULT)), lv).items():
         plan[l][main_stat] = plan[l].get(main_stat, 0) + v
@@ -283,7 +293,7 @@ def build_table(name, base, grade, mx):
     for l in lv:
         d = {k: v for k, v in (plan.get(l) or {}).items() if v > 0}
         out[str(l)] = ",".join(f"{k}:{int(d[k])}" for k in order if d.get(k))
-    return line, dk, out
+    return line, dk, out, main_stat
 
 
 def generate():
@@ -296,9 +306,9 @@ def generate():
         mx = (E["table"].get(name) or {}).get("max")
         if mx is None:
             mx = {"E": 3, "D": 8, "C": 10, "B": 13, "A": 15, "S": 20}.get(grade, 8)
-        line, dk, levels = build_table(name, base, grade, mx)
+        line, dk, levels, main_stat = build_table(name, base, grade, mx)
         table[name] = {"max": mx, "levels": levels}
-        meta[name] = (grade, f[6], line, dk, base, mx)
+        meta[name] = (grade, f[6], line, dk, base, mx, main_stat)
     return table, meta
 
 
@@ -325,7 +335,7 @@ def main():
 
     if a.rod:
         t = table[a.rod]
-        g, src, line, dk, base, mx = meta[a.rod]
+        g, src, line, dk, base, mx, main_stat = meta[a.rod]
         print(f"{a.rod} [{g}] {src} · 라인 {line} · 난이도예산 {dk} · max {mx}")
         print(f"  기본: {','.join(f'{k}:{int(v)}' for k, v in base.items())}")
         for i in range(1, mx + 1):
@@ -343,29 +353,40 @@ def main():
             s = ROD_DIFF[dk]["S"] + ENH_DIFF[dk]["S"]
             ok = "✓" if c >= aa and abs(c - b) <= 1 else "✗"
             print(f"  {dk:<4} C풀강 {c:>2} · B중반 {b:>2} · A기본 {aa:>2} · S풀강 {s:>2}   {ok}")
-        print("\n=== 강화 후 라인 이탈 검사 (주스탯이 기본 라인과 다르면 ✗) ===")
+        print("\n=== 강화 주스탯 = 설계 의도 검사 ===")
+        #  ★«정규화 가치 최대» 로 판정하면 안 된다 — 숙련형의 성장축인 도망감소는 단가가
+        #    0.36 이라 ×2.0 을 받아도 경험치 ×1.5 에 가치로 밀린다. 검사할 것은 «어느 스탯이
+        #    주스탯 자리를 받았는가»(build_table 이 고른 값)이지 «어느 스탯이 값이 큰가»가 아니다.
         bad = []
-        for name, (g, src, line, dk, base, mx) in meta.items():
+        for name, m in meta.items():
+            grade, src, line, dk, base, mx, main_stat = m
             c = cum(table[name]["levels"], mx)
             if not c:
                 continue
-            gr = [k for k in base if k != "난이도" and base[k] > 0]
-            if not gr:
-                continue
-            want = max(gr, key=lambda k: base[k] * W.get(k, 1.0))
-            top = max((k for k in c if k != "난이도"), key=lambda k: c[k] * W.get(k, 1.0),
-                      default=None)
-            if top and top != want:
-                bad.append((name, want, top))
-        print(f"  이탈 {len(bad)}종" + (f": {bad[:8]}" if bad else " 🟢"))
+            top_cnt = max((k for k in c if k != "난이도"), key=lambda k: c[k], default=None)
+            if top_cnt != main_stat:
+                bad.append((name, main_stat, top_cnt))
+        # ★«불일치»는 대부분 무해하다 — 혼합형(다목적·사막·전갈)은 부스탯의 «점수»가
+        #   주스탯보다 클 수 있다(부스탯 ×1.5 × 큰 기본치 > 주스탯 ×2.0 × 작은 기본치).
+        #   주스탯 «자리»는 라인 메인이 맞게 받았고, 이 줄은 그 사실을 드러내는 정보다.
+        print(f"  주스탯 자리 ≠ 최다 점수 {len(bad)}종(혼합형은 정상)"
+              + (f": {[(n, a, b) for n, a, b in bad[:6]]}" if bad else " 🟢"))
+        print("  라인별 주스탯 배정:")
+        import collections as _c
+        agg = _c.defaultdict(_c.Counter)
+        for name, m in meta.items():
+            agg[m[2]][m[6]] += 1
+        for ln in sorted(agg):
+            print(f"    {ln:<4} " + " · ".join(f"{k} {v}종" for k, v in agg[ln].most_common()))
+
         print("\n=== 채집형 난이도 누출 검사 ===")
-        leak = [n for n, (g, s, l, dk, b, mx) in meta.items()
-                if l == "채집" and cum(table[n]["levels"], mx).get("난이도", 0) > 0]
+        leak = [n for n, m in meta.items()
+                if m[2] == "채집" and cum(table[n]["levels"], m[5]).get("난이도", 0) > 0]
         print(f"  누출 {len(leak)}종" + (f": {leak}" if leak else " 🟢"))
         return
 
     print(f"{'낚싯대':<20}{'등':<3}{'라인':<5}{'예산':<5}{'max':>4}  기본 → 풀강 누적")
-    for name, (g, src, line, dk, base, mx) in meta.items():
+    for name, (g, src, line, dk, base, mx, main_stat) in meta.items():
         c = cum(table[name]["levels"], mx)
         print(f"{name:<20}{g:<3}{line:<5}{dk:<5}{mx:>4}  "
               f"{','.join(f'{k}{int(v)}' for k, v in base.items())}"
