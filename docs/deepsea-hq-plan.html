@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="바르칸 열도 · 심해교단 본부 굴착 도면 — 종단면, 층별 평면, 지역 등록, 퀘스트 배치.">
+<title>심해교단 본부 도면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+<style>
+/* ── standalone reset (아티팩트 호스트가 주던 것을 대체) ───────────── */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body,h1,h2,h3,h4,p,figure,blockquote,dl,dd,ul,ol{margin:0}
+ul[class],ol[class]{list-style:none;padding:0}
+img,svg,video{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+table{border-collapse:collapse}
+:where(a){color:var(--cyan)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+<style>
+/* ── standalone 전용: 테마 토글 + 공유 머리말 + 인쇄 ──────────────── */
+.theme-btn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  display:inline-flex; align-items:center; gap:7px;
+  padding:7px 13px; border:1px solid var(--rule); border-radius:2px;
+  background:var(--panel); color:var(--ink-2); cursor:pointer;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase;
+  box-shadow:var(--shadow); transition:color .15s, border-color .15s;
+}
+.theme-btn:hover{color:var(--cyan); border-color:var(--cyan)}
+.theme-btn:focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+.theme-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--cyan)}
+
+.share-note{
+  max-width:1060px; margin:0 auto; padding:11px 22px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px;
+  letter-spacing:.04em; color:var(--ink-3); border-bottom:1px solid var(--rule-soft);
+}
+.share-note b{color:var(--cyan); font-weight:600}
+
+@media print{
+  :root{--ground:#fff; --panel:#fff; --panel-2:#f2f6f7; --void:#fff}
+  .theme-btn, .share-note{display:none}
+  body{background:#fff}
+  header{padding-top:0}
+  section{padding-top:26px; break-inside:avoid}
+  .sheet{break-inside:avoid; box-shadow:none}
+  .grid{grid-template-columns:1fr 1fr}
+  footer{margin-top:26px}
+  @page{margin:14mm}
+}
+</style>
+</head>
+<body>
+<button class="theme-btn" id="themeBtn" type="button" aria-label="테마 전환"><span class="dot"></span><span id="themeLbl">밝음</span></button>
+<p class="share-note">바르칸 열도 · 빌드팀 공유본 &nbsp;·&nbsp; 이 파일 하나만 있으면 열린다 &nbsp;·&nbsp; <b>Ctrl/⌘+P → PDF</b> 로 현장 인쇄본</p>
+<style>
+:root{
+  --ground:#E5EDEF;  --panel:#F8FBFC;  --panel-2:#DCE7EA;
+  --ink:#0C1E26;     --ink-2:#3E5D69;  --ink-3:#7A959F;
+  --rule:#BCCFD5;    --rule-soft:#D3E0E4;
+  --rock:#C6D7DD;    --rock-line:#A3BCC5;
+  --void:#FFFFFF;
+  --cyan:#0C7A72;    --cyan-2:#149C90;  --cyan-wash:#D3EDE9;
+  --water:#8FCBCE;   --water-line:#4FA3A8;
+  --ember:#AC5A26;   --ember-wash:#F3DECB;
+  --shadow:0 1px 2px rgba(12,30,38,.06), 0 8px 24px -12px rgba(12,30,38,.22);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#06121A; --panel:#0D2029; --panel-2:#132D38;
+    --ink:#CCDFE5;    --ink-2:#87A6B1; --ink-3:#587681;
+    --rule:#1E3E4A;   --rule-soft:#152F3A;
+    --rock:#0A1B23;   --rock-line:#1C3B47;
+    --void:#16333E;
+    --cyan:#4CC6B8;   --cyan-2:#6FDACD; --cyan-wash:#123A3B;
+    --water:#17505C;  --water-line:#3E9AA2;
+    --ember:#E39257;  --ember-wash:#3B2517;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#06121A; --panel:#0D2029; --panel-2:#132D38;
+  --ink:#CCDFE5;    --ink-2:#87A6B1; --ink-3:#587681;
+  --rule:#1E3E4A;   --rule-soft:#152F3A;
+  --rock:#0A1B23;   --rock-line:#1C3B47;
+  --void:#16333E;
+  --cyan:#4CC6B8;   --cyan-2:#6FDACD; --cyan-wash:#123A3B;
+  --water:#17505C;  --water-line:#3E9AA2;
+  --ember:#E39257;  --ember-wash:#3B2517;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  font-weight:350; line-height:1.7; letter-spacing:-.005em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px; margin:0 auto; padding:0 22px 96px}
+h1,h2,h3{font-family:"Gowun Batang","Nanum Myeongjo",Batang,Georgia,serif; font-weight:700; text-wrap:balance; margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+/* ── header ─────────────────────────────────────────── */
+header{padding:64px 0 34px; border-bottom:1px solid var(--rule)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:500;
+  letter-spacing:.22em; text-transform:uppercase; color:var(--cyan); margin:0 0 16px
+}
+h1{font-size:clamp(38px,6.4vw,62px); line-height:1.08; letter-spacing:-.02em}
+h1 em{font-style:normal; color:var(--ink-3)}
+.lede{max-width:60ch; color:var(--ink-2); font-size:16.5px; margin:20px 0 0}
+.facts{
+  display:flex; flex-wrap:wrap; gap:0; margin-top:34px;
+  border:1px solid var(--rule); border-radius:3px; overflow:hidden; background:var(--panel)
+}
+.fact{flex:1 1 150px; padding:14px 18px; border-right:1px solid var(--rule)}
+.fact:last-child{border-right:0}
+.fact dt{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 4px}
+.fact dd{margin:0; font-family:"IBM Plex Mono",monospace; font-size:19px; font-weight:500;
+  font-variant-numeric:tabular-nums; color:var(--ink)}
+.fact dd small{font-size:12px; font-weight:400; color:var(--ink-3); margin-left:3px}
+
+/* ── sections ───────────────────────────────────────── */
+section{padding-top:60px}
+.sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px}
+.sec-num{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  color:var(--cyan); letter-spacing:.1em}
+h2{font-size:clamp(23px,3vw,30px); letter-spacing:-.015em}
+.sec-note{color:var(--ink-2); font-size:14.5px; max-width:64ch; margin:8px 0 26px}
+
+/* ── drawing sheet ──────────────────────────────────── */
+.sheet{
+  background:var(--panel); border:1px solid var(--rule); border-radius:3px;
+  box-shadow:var(--shadow); overflow:hidden
+}
+.sheet-bar{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  padding:11px 16px; border-bottom:1px solid var(--rule); background:var(--panel-2)
+}
+.sheet-id{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+  letter-spacing:.12em; color:var(--cyan)}
+.sheet-name{font-family:"Gowun Batang","Nanum Myeongjo",Batang,serif; font-weight:700; font-size:16px}
+.sheet-meta{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:11.5px;
+  color:var(--ink-3); font-variant-numeric:tabular-nums}
+.sheet-body{padding:10px 6px 6px; overflow-x:auto}
+.sheet svg{display:block; width:100%; height:auto}
+.sheet-foot{
+  padding:10px 16px 13px; border-top:1px dashed var(--rule);
+  font-size:13.5px; color:var(--ink-2)
+}
+.sheet-foot b{font-weight:600; color:var(--ink)}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px}
+.span-2{grid-column:1/-1}
+
+/* svg text */
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace; fill:var(--ink-2)}
+.t-room{font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif !important; font-weight:500; fill:var(--ink)}
+.t-q{fill:var(--cyan); font-weight:600}
+.t-dim{fill:var(--ink-3)}
+.t-em{fill:var(--ember); font-weight:600}
+
+/* ── tables ─────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto; border:1px solid var(--rule); border-radius:3px; background:var(--panel)}
+table{border-collapse:collapse; width:100%; min-width:520px; font-size:14px}
+th,td{padding:9px 14px; text-align:left; border-bottom:1px solid var(--rule-soft); vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3);
+  background:var(--panel-2); border-bottom:1px solid var(--rule); white-space:nowrap
+}
+tbody tr:last-child td{border-bottom:0}
+td.m{font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-variant-numeric:tabular-nums;
+  color:var(--ink-2); white-space:nowrap}
+td.q{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--cyan); font-weight:500; white-space:nowrap}
+
+/* ── callout ────────────────────────────────────────── */
+.warn{
+  margin-top:20px; padding:14px 18px; border-radius:3px;
+  background:var(--ember-wash); border-left:3px solid var(--ember);
+  font-size:14px; color:var(--ink)
+}
+.warn b{color:var(--ember); font-weight:600}
+
+/* ── notes list ─────────────────────────────────────── */
+.notes{list-style:none; padding:0; margin:0; display:grid; gap:2px}
+.notes li{
+  display:grid; grid-template-columns:34px 1fr; gap:14px; align-items:start;
+  padding:15px 4px; border-bottom:1px solid var(--rule-soft)
+}
+.notes li:last-child{border-bottom:0}
+.notes .k{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--cyan);
+  border:1px solid var(--cyan); border-radius:2px; text-align:center; padding:1px 0; margin-top:3px
+}
+.notes p{margin:0; font-size:14.5px; color:var(--ink-2)}
+.notes p b{color:var(--ink); font-weight:600}
+
+.order{
+  display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:22px;
+  font-family:"IBM Plex Mono",monospace; font-size:12.5px
+}
+.order span{
+  padding:5px 11px; border:1px solid var(--rule); border-radius:2px;
+  background:var(--panel); color:var(--ink)
+}
+.order i{font-style:normal; color:var(--ink-3)}
+
+footer{margin-top:70px; padding-top:22px; border-top:1px solid var(--rule);
+  font-size:13px; color:var(--ink-3)}
+</style>
+
+<!-- shared drawing patterns -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <pattern id="rock" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="3" height="3" fill="var(--rock)"/>
+    <line x1="0" y1="0" x2="0" y2="3" stroke="var(--rock-line)" stroke-width=".7"/>
+  </pattern>
+  <pattern id="rockL" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="14" height="14" fill="var(--rock)"/>
+    <line x1="0" y1="0" x2="0" y2="14" stroke="var(--rock-line)" stroke-width="3"/>
+  </pattern>
+  <pattern id="g5" width="5" height="5" patternUnits="userSpaceOnUse">
+    <rect width="5" height="5" fill="var(--void)"/>
+    <path d="M5 0V5M0 5H5" stroke="var(--rule-soft)" stroke-width=".25"/>
+  </pattern>
+  <pattern id="aquaL" width="18" height="18" patternUnits="userSpaceOnUse">
+    <rect width="18" height="18" fill="var(--water)"/>
+    <path d="M0 9q4.5 -5 9 0t9 0" fill="none" stroke="var(--water-line)" stroke-width="1.4" opacity=".8"/>
+  </pattern>
+  <pattern id="aqua" width="4" height="4" patternUnits="userSpaceOnUse">
+    <rect width="4" height="4" fill="var(--water)"/>
+    <path d="M0 2q1 -1.1 2 0t2 0" fill="none" stroke="var(--water-line)" stroke-width=".35" opacity=".8"/>
+  </pattern>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--cyan)"/>
+  </marker>
+</defs></svg>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Deep Sea Cult — Excavation Drawing</p>
+  <h1>심해교단 본부<br><em>협곡 벽면 굴착 도면</em></h1>
+  <p class="lede">
+    벽면을 한 점만 뚫고 안쪽으로 <b>6층 수직 구조</b>를 판다. 깊이가 곧 교단 서열이고,
+    심해33에서 레비아가 <em>아래에서 올라오는</em> 그림이 여기서 나온다.
+    좌표는 본부 원점 <span class="mono">(0, Y, 0)</span> 기준 상대좌표 — X=동서, Z=남북.
+  </p>
+  <dl class="facts">
+    <div class="fact"><dt>깊이 범위</dt><dd>Y64<small>→</small>Y2</dd></div>
+    <div class="fact"><dt>층</dt><dd>6<small>+지선 1</small></dd></div>
+    <div class="fact"><dt>굴착량</dt><dd>≈120,000<small>블록</small></dd></div>
+    <div class="fact"><dt>월드</dt><dd>deep_sea</dd></div>
+    <div class="fact"><dt>배치 퀘스트</dt><dd>7<small>메인</small> 7<small>사이드</small></dd></div>
+  </dl>
+</header>
+
+<!-- ══════════ 1. SECTION ══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">A</span><h2>종단면</h2></div>
+  <p class="sec-note">
+    수직축(Y)은 실척, 수평은 모식이다. L2에서 갈라지는 가지 3개는 단면에 들어오지 않으니 평면도를 볼 것.
+  </p>
+
+  <div class="sheet">
+    <div class="sheet-bar">
+      <span class="sheet-id">A-01</span>
+      <span class="sheet-name">주 하강축 종단면</span>
+      <span class="sheet-meta">V 1:1 · H 모식</span>
+    </div>
+    <div class="sheet-body">
+      <svg viewBox="-95 22 1150 606" role="img" aria-label="심해교단 본부 종단면도">
+        <!-- depth rail -->
+        <line x1="-24" y1="40" x2="-24" y2="600" stroke="var(--rule)" stroke-width="1"/>
+        <g class="mono" font-size="11" text-anchor="end" fill="var(--ink-3)">
+          <g stroke="var(--rule)" stroke-width="1">
+            <line x1="-34" y1="40" x2="-24" y2="40"/><line x1="-34" y1="110" x2="-24" y2="110"/>
+            <line x1="-34" y1="180" x2="-24" y2="180"/><line x1="-34" y1="250" x2="-24" y2="250"/>
+            <line x1="-34" y1="320" x2="-24" y2="320"/><line x1="-34" y1="390" x2="-24" y2="390"/>
+            <line x1="-34" y1="460" x2="-24" y2="460"/><line x1="-34" y1="530" x2="-24" y2="530"/>
+            <line x1="-34" y1="600" x2="-24" y2="600"/>
+          </g>
+          <text x="-39" y="44">Y64</text><text x="-39" y="114">Y56</text>
+          <text x="-39" y="184">Y48</text><text x="-39" y="254">Y40</text>
+          <text x="-39" y="324">Y32</text><text x="-39" y="394">Y24</text>
+          <text x="-39" y="464">Y16</text><text x="-39" y="534">Y8</text>
+          <text x="-39" y="604">Y0</text>
+        </g>
+
+        <!-- canyon water -->
+        <rect x="0" y="30" width="104" height="580" fill="url(#aquaL)" opacity=".55"/>
+        <text x="52" y="560" class="mono" font-size="12" text-anchor="middle" fill="var(--water-line)">협곡</text>
+
+        <!-- rock mass -->
+        <rect x="104" y="30" width="936" height="580" fill="url(#rockL)"/>
+        <line x1="134" y1="30" x2="134" y2="610" stroke="var(--rock-line)" stroke-width="1.5" stroke-dasharray="6 5"/>
+        <text x="140" y="596" class="mono" font-size="11" fill="var(--ink-3)">벽면 두께 ≈30</text>
+
+        <!-- L0 landing (half open) -->
+        <rect x="134" y="40" width="226" height="70" fill="var(--void)" stroke="var(--ink-2)" stroke-width="2"/>
+        <line x1="134" y1="40" x2="360" y2="40" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="9 6"/>
+        <text x="176" y="66" class="t-room" font-size="15">L0 착지 광장</text>
+        <text x="176" y="84" class="mono t-dim" font-size="11">31×31 · Y56–64 · 천장 뚫림</text>
+        <!-- wall opening -->
+        <rect x="104" y="52" width="30" height="46" fill="var(--void)" stroke="var(--cyan)" stroke-width="2"/>
+        <text x="119" y="128" class="mono t-q" font-size="11" text-anchor="middle">개구</text>
+        <!-- whale + wreck -->
+        <path d="M14 84 q22 -16 46 -3 q-12 15 -46 3z" fill="var(--water-line)" opacity=".75"/>
+        <text x="18" y="72" class="mono" font-size="11" fill="var(--water-line)">🐋 고래 사체</text>
+        <text x="10" y="150" class="mono" font-size="11" fill="var(--water-line)">🚢 침몰선 무덤</text>
+        <path d="M12 158 h58" stroke="var(--water-line)" stroke-width="2" stroke-dasharray="4 3"/>
+
+        <!-- stair L0→L1 -->
+        <path d="M330 110 v12 h-16 v12 h-16 v12 h-16 v12 h-16 v12 h-16 v10"
+              fill="none" stroke="var(--ink-2)" stroke-width="2"/>
+        <text x="336" y="150" class="mono t-dim" font-size="11">계단 24</text>
+
+        <!-- L1 -->
+        <rect x="196" y="118.75" width="188" height="61.25" fill="var(--void)" stroke="var(--ink-2)" stroke-width="2"/>
+        <line x1="306" y1="118.75" x2="306" y2="180" stroke="var(--rule)" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <text x="210" y="142" class="t-room" font-size="14">L1 정문 검문소</text>
+        <text x="210" y="159" class="mono t-dim" font-size="10.5">13×13 + 통로24 · Y48–55</text>
+        <text x="316" y="176" class="mono t-q" font-size="11">심해27</text>
+        <!-- drop to L2 -->
+        <rect x="228" y="180" width="34" height="8.75" fill="var(--void)" stroke="var(--ink-2)" stroke-width="1.4"/>
+
+        <!-- L2 ring -->
+        <rect x="160" y="188.75" width="620" height="61.25" fill="var(--void)" stroke="var(--ink-2)" stroke-width="2"/>
+        <text x="182" y="212" class="t-room" font-size="14">L2 중앙 회랑</text>
+        <text x="182" y="229" class="mono t-dim" font-size="10.5">도넛 45×45 · Y40–47</text>
+        <text x="600" y="212" class="mono" font-size="11" fill="var(--ink-2)">◈ 울지 않는 것</text>
+        <!-- shaft -->
+        <rect x="420" y="188.75" width="100" height="148.75" fill="var(--void)" stroke="var(--cyan)" stroke-width="2.5"/>
+        <path d="M420 188.75 L520 337.5 M520 188.75 L420 337.5" stroke="var(--cyan)" stroke-width=".9" opacity=".45"/>
+        <text x="470" y="270" class="t-q" font-size="12.5" text-anchor="middle">수직갱</text>
+        <text x="470" y="286" class="mono t-q" font-size="10.5" text-anchor="middle">15×15</text>
+        <text x="470" y="302" class="mono t-q" font-size="10.5" text-anchor="middle">Y47→30</text>
+
+        <!-- branch stubs -->
+        <g stroke="var(--cyan)" stroke-width="2" fill="none" marker-end="url(#ar)">
+          <path d="M780 205 h72"/><path d="M780 236 h72"/><path d="M160 220 h-56"/>
+        </g>
+        <g class="mono" font-size="11.5">
+          <text x="860" y="209" fill="var(--cyan)">북 ↑ L3 사육 수조</text>
+          <text x="860" y="240" fill="var(--cyan)">동 → L4 기록고</text>
+          <text x="98" y="224" fill="var(--ember)" text-anchor="end">← 서 이름있는자리</text>
+        </g>
+        <text x="860" y="264" class="mono t-dim" font-size="10.5">가지 3 — 단면 밖, 평면도 참조</text>
+
+        <!-- L5 sanctum -->
+        <polygon points="190,337.5 190,356 256,356 256,374 322,374 322,392 376,392 376,425 474,425 474,392 528,392 528,374 594,374 594,356 660,356 660,337.5"
+                 fill="var(--void)" stroke="var(--ink-2)" stroke-width="2"/>
+        <text x="204" y="352" class="t-room" font-size="14">L5 무명의 성소</text>
+        <text x="204" y="369" class="mono t-dim" font-size="10.5">41×41 h22 · Y18–30</text>
+        <text x="672" y="352" class="mono t-q" font-size="11">심해28</text>
+        <text x="672" y="368" class="mono t-q" font-size="11">심해31</text>
+        <!-- altar + opening -->
+        <rect x="386" y="416" width="78" height="9" fill="var(--cyan)" opacity=".85"/>
+        <text x="425" y="411" class="t-q" font-size="11.5" text-anchor="middle">제단</text>
+        <rect x="399" y="425" width="52" height="35" fill="url(#aquaL)" stroke="var(--cyan)" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="470" y="450" class="mono t-dim" font-size="10.5">개구부 11×11</text>
+
+        <!-- L6 abyss -->
+        <rect x="150" y="460" width="560" height="122.5" rx="46" fill="url(#aquaL)" stroke="var(--water-line)" stroke-width="2.5"/>
+        <text x="182" y="492" class="t-room" font-size="14">L6 심연 의식장</text>
+        <text x="182" y="509" class="mono t-dim" font-size="10.5">⌀51 원통 · Y2–16 · 전면 수중</text>
+        <text x="425" y="556" font-size="19" text-anchor="middle">🐟</text>
+        <text x="425" y="576" class="t-q" font-size="12.5" text-anchor="middle">심해전왕 레비아</text>
+        <text x="640" y="492" class="mono t-q" font-size="11" text-anchor="end">심해32 · 심해33</text>
+      </svg>
+    </div>
+    <div class="sheet-foot">
+      <b>수직갱이 이 설계의 핵심이다.</b> L2에서 아래를 보면 Y30 성소 천장의 빛이 보이고, L5에서 올려다보면 회랑 실루엣이 보인다.
+      심해28 도착 순간의 「내가 저기를 지나왔구나」가 여기서 나온다. 단, 갱은 유리·난간으로 <b>막아 둔다</b> — 남쪽 정규 하강로로만 내려가야 순서가 안 꼬인다.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 2. PLANS ══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">B</span><h2>층별 평면</h2></div>
+  <p class="sec-note">
+    전부 1칸 = 1블록 실척. 빗금은 <b>안 파는 암반</b>, 흰 바닥의 옅은 격자는 <span class="mono">5블록</span> 눈금이다. 위쪽이 북(−Z).
+  </p>
+
+  <div class="grid">
+
+    <!-- L1 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-01</span><span class="sheet-name">L1 정문 검문소</span><span class="sheet-meta">Y48–54</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-14 -7 28 57" role="img" aria-label="L1 정문 검문소 평면도">
+          <rect x="-14" y="-7" width="28" height="57" fill="url(#rock)"/>
+          <!-- corridor -->
+          <rect x="-2.5" y="0" width="5" height="24" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.144"/>
+          <!-- checkroom -->
+          <rect x="-6.5" y="24" width="13" height="13" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.144"/>
+          <!-- spiral down -->
+          <rect x="-2" y="37" width="4" height="3" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.124"/>
+          <circle cx="0" cy="43.5" r="3.5" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.144"/>
+          <path d="M0 43.5 m0 -2.4 a2.4 2.4 0 1 1 -1.7 .7" fill="none" stroke="var(--ink-3)" stroke-width="0.165"/>
+          <!-- entry -->
+          <path d="M0 -5.5 V-1" stroke="var(--cyan)" stroke-width="0.247" marker-end="url(#ar)"/>
+          <text x="0" y="-3" class="mono t-dim" font-size="0.7" text-anchor="middle" dx="6">L0 계단</text>
+          <!-- guards -->
+          <g fill="var(--ink-2)">
+            <circle cx="-1.6" cy="7" r=".35"/><circle cx="1.6" cy="16" r=".35"/>
+            <circle cx="-4" cy="28" r=".35"/><circle cx="4" cy="28" r=".35"/>
+            <circle cx="-4" cy="34" r=".35"/><circle cx="4" cy="34" r=".35"/>
+          </g>
+          <text x="0" y="31" class="t-room" font-size="0.865" text-anchor="middle">검문실</text>
+          <!-- quest -->
+          <rect x="-6.5" y="23.4" width="13" height="1.2" fill="var(--cyan)"/>
+          <text x="8.2" y="22" class="mono t-q" font-size="0.824">심해27</text>
+          <text x="8.2" y="24.8" class="mono t-dim" font-size="0.7">리전 시작선</text>
+          <!-- dims -->
+          <g stroke="var(--ink-3)" stroke-width="0.082">
+            <path d="M-9.5 0 V24"/><path d="M-10.3 0 h1.6"/><path d="M-10.3 24 h1.6"/>
+            <path d="M-6.5 41 H6.5"/><path d="M-6.5 40.2 v1.6"/><path d="M6.5 40.2 v1.6"/>
+          </g>
+          <text x="-10.8" y="12" class="mono t-dim" font-size="0.783" text-anchor="middle" transform="rotate(-90 -10.8 12)">통로 24</text>
+          <text x="0" y="40.3" class="mono t-dim" font-size="0.783" text-anchor="middle">13</text>
+          <text x="-4" y="13" class="mono t-dim" font-size="0.783">폭5</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">통로는 <b>일부러 좁고 길게</b>. 잠입 긴장감이 전부 여기서 나온다. 가면 미착용은 코드로 못 막으니 파수 대사 + 표지판으로 유도.</div>
+    </div>
+
+    <!-- L2 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-02</span><span class="sheet-name">L2 중앙 회랑</span><span class="sheet-meta">Y40–47</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-34 -34 68 68" role="img" aria-label="L2 중앙 회랑 평면도">
+          <rect x="-34" y="-34" width="68" height="68" fill="url(#rock)"/>
+          <rect x="-22.5" y="-22.5" width="45" height="45" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.4"/>
+          <!-- shaft -->
+          <rect x="-7.5" y="-7.5" width="15" height="15" fill="url(#g5)" stroke="var(--cyan)" stroke-width="0.55"/>
+          <path d="M-7.5 -7.5 L7.5 7.5 M7.5 -7.5 L-7.5 7.5" stroke="var(--cyan)" stroke-width="0.3" opacity=".5"/>
+          <text x="0" y="-1.4" class="t-q" font-size="2.4" text-anchor="middle">수직갱</text>
+          <text x="0" y="1.8" class="mono t-q" font-size="2" text-anchor="middle">15×15 ↓</text>
+          <text x="0" y="4.8" class="mono t-dim" font-size="1.8" text-anchor="middle">Y47→30</text>
+          <!-- branches -->
+          <rect x="-3.5" y="-30.5" width="7" height="8" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.35"/>
+          <rect x="-3.5" y="22.5" width="7" height="8" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.35"/>
+          <rect x="22.5" y="-3.5" width="8" height="7" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.35"/>
+          <rect x="-30.5" y="-3.5" width="8" height="7" fill="url(#g5)" stroke="var(--ember)" stroke-width="0.45"/>
+          <g class="mono" font-size="2.1" text-anchor="middle">
+            <text x="0" y="-31.6" class="t-q">↑ 북 · L3 사육 수조</text>
+            <text x="0" y="33.4" class="t-q">↓ 남 · L5 성소 하강</text>
+            <text x="26.5" y="-5.2" class="t-q">→ 동</text>
+            <text x="26.5" y="7.6" class="t-q">L4 기록고</text>
+            <text x="-26.5" y="-5.2" class="t-em">← 서</text>
+            <text x="-26.5" y="7.6" class="t-em">터널 120</text>
+          </g>
+          <!-- npc -->
+          <circle cx="-18" cy="14" r="1" fill="var(--ink-2)"/>
+          <text x="-16.4" y="14.8" class="mono" font-size="2" fill="var(--ink-2)">울지 않는 것</text>
+          <!-- dims -->
+          <g stroke="var(--ink-3)" stroke-width="0.22">
+            <path d="M-22.5 -26 H22.5"/><path d="M-22.5 -26.8 v1.6"/><path d="M22.5 -26.8 v1.6"/>
+          </g>
+          <text x="12" y="-26.9" class="mono t-dim" font-size="2.2" text-anchor="middle">45</text>
+          <text x="-14.5" y="-17" class="t-room" font-size="2.4">회랑 폭 15</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">허브. 이 도넛에서 <b>4방향</b>이 갈린다. 성소·기록고·수조 세 갈래는 심해28 전에 열려 있어도 되지만, 서터널은 심해27 클리어 전엔 막아 두는 편이 좋다.</div>
+    </div>
+
+    <!-- L3 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-03</span><span class="sheet-name">L3 사육 수조 · 폐 부화장</span><span class="sheet-meta">Y34–46</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-25 -7 50 64" role="img" aria-label="L3 사육 수조 평면도">
+          <rect x="-25" y="-7" width="50" height="64" fill="url(#rock)"/>
+          <rect x="-18.5" y="0" width="37" height="28" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.294"/>
+          <!-- tanks -->
+          <g stroke="var(--water-line)" stroke-width="0.331" fill="url(#aqua)">
+            <rect x="-14" y="1"    width="9" height="8"/><rect x="5" y="1"    width="9" height="8"/>
+            <rect x="-14" y="10"   width="9" height="8"/><rect x="5" y="10"   width="9" height="8"/>
+            <rect x="-14" y="19"   width="9" height="8"/><rect x="5" y="19"   width="9" height="8"/>
+          </g>
+          <g class="mono t-dim" font-size="1.323" text-anchor="middle" fill="var(--ink-2)">
+            <text x="-9.5" y="5.7">1</text><text x="9.5" y="5.7">2</text>
+            <text x="-9.5" y="14.7">3</text><text x="9.5" y="14.7">4</text>
+            <text x="-9.5" y="23.7">5</text><text x="9.5" y="23.7">6</text>
+          </g>
+          <!-- drain corridor -->
+          <rect x="-3.5" y="0" width="7" height="28" fill="none" stroke="var(--cyan)" stroke-width="0.331" stroke-dasharray="1.029 0.735"/>
+          <text x="0" y="14" class="t-q" font-size="1.47" text-anchor="middle" transform="rotate(-90 0 14)">배수 통로 폭7 — 심해29 동선</text>
+          <!-- entry -->
+          <path d="M0 -5.5 V-.8" stroke="var(--cyan)" stroke-width="0.441" marker-end="url(#ar)"/>
+          <text x="1.4" y="-3.4" class="mono t-dim" font-size="1.396">L2에서</text>
+          <!-- sealed door -->
+          <rect x="-2" y="28" width="4" height="5" fill="url(#g5)" stroke="var(--ink-3)" stroke-width="0.221" stroke-dasharray="0.735 0.588"/>
+          <text x="3" y="31.4" class="mono t-dim" font-size="1.396">봉인문</text>
+          <!-- hatchery -->
+          <rect x="-10" y="33" width="20" height="16" fill="var(--void)" stroke="var(--ink-3)" stroke-width="0.294" stroke-dasharray="1.47 0.882"/>
+          <g fill="url(#aqua)" opacity=".7" stroke="var(--water-line)" stroke-width="0.184">
+            <path d="M-8.6 35 h7 l-1 4.6 h-6z"/><path d="M2 35 h6.4 l.4 5.4 h-7.2z"/>
+            <path d="M-8 42.4 h5.6 l1 5 h-7z"/><path d="M3.4 43 h5 l-.6 4.4 h-5.2z"/>
+          </g>
+          <text x="0" y="41.6" class="t-room" font-size="1.617" text-anchor="middle">폐 부화장</text>
+          <text x="0" y="51.6" class="mono t-dim" font-size="1.396" text-anchor="middle">20×16 · 조명 없음</text>
+          <text x="0" y="54.6" class="mono t-em" font-size="1.396" text-anchor="middle">심사이드_비늘01</text>
+          <!-- dims -->
+          <g stroke="var(--ink-3)" stroke-width="0.162">
+            <path d="M-18.5 -3 H18.5"/><path d="M-18.5 -3.8 v1.6"/><path d="M18.5 -3.8 v1.6"/>
+            <path d="M22 0 V28"/><path d="M21.2 0 h1.6"/><path d="M21.2 28 h1.6"/>
+          </g>
+          <text x="-12" y="-3.9" class="mono t-dim" font-size="1.617" text-anchor="middle">37</text>
+          <text x="23.4" y="14" class="mono t-dim" font-size="1.617" text-anchor="middle" transform="rotate(-90 23.4 14)">28</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">수조는 <b>9×9×8 유리 + 물</b>, 안에 작살 표적. 폐 부화장엔 <b>광원을 하나도 넣지 않는다</b> — 심해24에서 캔 발광버섯 몇 개가 전부다.</div>
+    </div>
+
+    <!-- L4 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-04</span><span class="sheet-name">L4 무명의 기록고</span><span class="sheet-meta">Y32–42</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-19 -19 38 38" role="img" aria-label="L4 기록고 평면도">
+          <rect x="-19" y="-19" width="38" height="38" fill="url(#rock)"/>
+          <rect x="-13.5" y="-13.5" width="27" height="27" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.224"/>
+          <!-- radial shelves -->
+          <g fill="var(--panel-2)" stroke="var(--ink-2)" stroke-width="0.168">
+            <g transform="rotate(0)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(45)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(90)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(135)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(225)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(270)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(315)"><rect x="-1.4" y="-12.4" width="2.8" height="6.4"/></g>
+            <g transform="rotate(22.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+            <g transform="rotate(67.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+            <g transform="rotate(112.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+            <g transform="rotate(247.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+            <g transform="rotate(292.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+            <g transform="rotate(337.5)"><rect x="-1.2" y="-11.2" width="2.4" height="4.6"/></g>
+          </g>
+          <!-- central reading well + ladder -->
+          <circle cx="0" cy="0" r="3.6" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.196"/>
+          <path d="M-1 -2.6 V2.6 M1 -2.6 V2.6 M-1 -1.4 H1 M-1 0 H1 M-1 1.4 H1" stroke="var(--ink-3)" stroke-width="0.157"/>
+          <text x="0" y="6.6" class="mono t-dim" font-size="1.062" text-anchor="middle">열람대 · 사다리 3층</text>
+          <!-- page marker -->
+          <circle cx="0" cy="-9.2" r=".84" fill="var(--cyan)"/>
+          <path d="M1.6 -9.9 H4.6" stroke="var(--cyan)" stroke-width=".157"/>
+          <text x="5.2" y="-11.6" class="mono t-q" font-size="1.118">무명의 낱장</text>
+          <text x="5.2" y="-9.2" class="mono t-dim" font-size="1.006">최상단 Y41</text>
+          <text x="5.2" y="-6.8" class="mono t-dim" font-size="1.006">심해30</text>
+          <!-- entry -->
+          <rect x="-2" y="13.5" width="4" height="5" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.168"/>
+          <path d="M0 17.6 V14.4" stroke="var(--cyan)" stroke-width="0.307" marker-end="url(#ar)"/>
+          <g stroke="var(--ink-3)" stroke-width="0.123">
+            <path d="M-13.5 -16 H13.5"/><path d="M-13.5 -16.8 v1.6"/><path d="M13.5 -16.8 v1.6"/>
+          </g>
+          <text x="-8" y="-16.9" class="mono t-dim" font-size="1.23" text-anchor="middle">27</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">올라가는 동선을 <b>일부러 길게</b> 뺀다 — 심해30은 낱장 1개 줍는 게 전부라, 거리가 곧 무게다.</div>
+    </div>
+
+    <!-- L5 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-05</span><span class="sheet-name">L5 무명의 성소</span><span class="sheet-meta">Y18–30</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-27 -27 54 54" role="img" aria-label="L5 무명의 성소 평면도">
+          <rect x="-27" y="-27" width="54" height="54" fill="url(#rock)"/>
+          <rect x="-20.5" y="-20.5" width="41" height="41" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.318"/>
+          <!-- terraces -->
+          <g fill="none" stroke="var(--ink-2)" stroke-width="0.278">
+            <rect x="-16" y="-16" width="32" height="32" rx="2.5"/>
+            <rect x="-11.5" y="-11.5" width="23" height="23" rx="2"/>
+            <rect x="-7" y="-7" width="14" height="14" rx="1.5"/>
+          </g>
+          <text x="-18.6" y="-17.4" class="mono t-dim" font-size="1.509">4단 · 단높이 3</text>
+          <!-- congregation dots -->
+          <g fill="var(--ink-3)" opacity=".75">
+            <circle cx="-13.6" cy="-13.6" r=".44"/><circle cx="-6" cy="-13.6" r=".44"/><circle cx="2" cy="-13.6" r=".44"/><circle cx="9.5" cy="-13.6" r=".44"/><circle cx="13.6" cy="-9" r=".44"/>
+            <circle cx="13.6" cy="-1" r=".44"/><circle cx="13.6" cy="7" r=".44"/><circle cx="9" cy="13.6" r=".44"/><circle cx="1" cy="13.6" r=".44"/><circle cx="-7" cy="13.6" r=".44"/>
+            <circle cx="-13.6" cy="9" r=".44"/><circle cx="-13.6" cy="1" r=".44"/><circle cx="-13.6" cy="-6" r=".44"/>
+            <circle cx="-9.2" cy="-9.2" r=".4"/><circle cx="0" cy="-9.6" r=".4"/><circle cx="9.2" cy="-9.2" r=".4"/>
+            <circle cx="9.6" cy="0" r=".4"/><circle cx="9.2" cy="9.2" r=".4"/><circle cx="0" cy="9.6" r=".4"/><circle cx="-9.2" cy="9.2" r=".4"/><circle cx="-9.6" cy="0" r=".4"/>
+          </g>
+          <!-- ceiling shaft -->
+          <rect x="-7.5" y="-7.5" width="15" height="15" fill="none" stroke="var(--cyan)" stroke-width="0.318" stroke-dasharray="1.27 0.953"/>
+          <text x="7.9" y="-8.2" class="mono t-q" font-size="1.509">↑ 천장 수직갱</text>
+          <!-- altar + opening -->
+          <rect x="-5.5" y="-5.5" width="11" height="11" fill="url(#aqua)" stroke="var(--cyan)" stroke-width="0.318" stroke-dasharray="1.112 0.794"/>
+          <rect x="-4.5" y="-4.5" width="9" height="9" fill="var(--cyan)" opacity=".85"/>
+          <text x="0" y=".6" class="mono" font-size="1.588" text-anchor="middle" fill="var(--panel)">제단 9×9</text>
+          <text x="0" y="3.4" class="mono" font-size="1.35" text-anchor="middle" fill="var(--panel)">볼프람</text>
+          <text x="6.3" y="7.8" class="mono t-q" font-size="1.509">개구부 11×11 ↓</text>
+          <!-- entry -->
+          <rect x="-3" y="20.5" width="6" height="5" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.238"/>
+          <path d="M0 24.6 V21.4" stroke="var(--cyan)" stroke-width="0.437" marker-end="url(#ar)"/>
+          <text x="4" y="24.4" class="mono t-q" font-size="1.588">심해28</text>
+          <g stroke="var(--ink-3)" stroke-width="0.175">
+            <path d="M-20.5 -23 H20.5"/><path d="M-20.5 -23.8 v1.6"/><path d="M20.5 -23.8 v1.6"/>
+          </g>
+          <text x="-11" y="-23.9" class="mono t-dim" font-size="1.747" text-anchor="middle">41</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">심해31 클리어 = <b>제단 바닥이 열린다</b>. 개구부는 처음엔 블록으로 막아 두고 커맨드로 여는 게 깔끔하다. 신도석엔 심해어 40~60.</div>
+    </div>
+
+    <!-- L6 -->
+    <div class="sheet">
+      <div class="sheet-bar"><span class="sheet-id">B-06</span><span class="sheet-name">L6 심연 의식장</span><span class="sheet-meta">Y2–16</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-33 -33 66 66" role="img" aria-label="L6 심연 의식장 평면도">
+          <rect x="-33" y="-33" width="66" height="66" fill="url(#rock)"/>
+          <circle cx="0" cy="0" r="25.5" fill="url(#aqua)" stroke="var(--water-line)" stroke-width="0.534"/>
+          <circle cx="0" cy="0" r="19" fill="none" stroke="var(--water-line)" stroke-width="0.291" opacity=".55"/>
+          <circle cx="0" cy="0" r="12.5" fill="none" stroke="var(--water-line)" stroke-width="0.291" opacity=".55"/>
+          <!-- drop point -->
+          <circle cx="0" cy="0" r="5.5" fill="none" stroke="var(--cyan)" stroke-width="0.485" stroke-dasharray="1.554 1.165"/>
+          <path d="M0 -3.4 V3" stroke="var(--cyan)" stroke-width="0.534" marker-end="url(#ar)"/>
+          <text x="6.6" y="-3.6" class="mono t-q" font-size="2.039">낙하 지점</text>
+          <text x="6.6" y="-.8" class="mono t-dim" font-size="1.748">Y16 → Y6 수낙하</text>
+          <text x="0" y="12" font-size="4.467" text-anchor="middle">🐟</text>
+          <text x="0" y="16.4" class="t-q" font-size="2.33" text-anchor="middle">심해전왕 레비아</text>
+          <text x="0" y="19.6" class="mono t-q" font-size="1.845" text-anchor="middle">심해33 · 바닥 Y2</text>
+          <text x="-24" y="-24" class="mono t-q" font-size="2.039">심해32</text>
+          <text x="-24" y="-21" class="mono t-dim" font-size="1.748">하강 중 S 12</text>
+          <g stroke="var(--ink-3)" stroke-width="0.214">
+            <path d="M-25.5 -29 H25.5"/><path d="M-25.5 -29.8 v1.6"/><path d="M25.5 -29.8 v1.6"/>
+          </g>
+          <text x="10" y="-29.9" class="mono t-dim" font-size="2.233" text-anchor="middle">⌀51</text>
+        </svg>
+      </div>
+      <div class="sheet-foot"><b>물은 여기에만 채운다.</b> 위층까지 물이면 이동이 지옥이고 심해29 작살 판정도 꼬인다. L3 수조는 유리로 가둔 물이라 예외.</div>
+    </div>
+
+    <!-- village -->
+    <div class="sheet span-2">
+      <div class="sheet-bar"><span class="sheet-id">B-07</span><span class="sheet-name">이름있는자리 — 도망친 심해어 마을</span><span class="sheet-meta">Y36–50 · L2 서터널 120칸 끝</span></div>
+      <div class="sheet-body">
+        <svg viewBox="-30 -26 76 52" role="img" aria-label="이름있는자리 평면도">
+          <rect x="-30" y="-26" width="76" height="52" fill="url(#rock)"/>
+          <!-- irregular cavern -->
+          <path d="M-24 -2 C-25 -12, -17 -20, -6 -20 C4 -21, 14 -17, 18 -9 C22 -2, 20 9, 12 15 C4 21, -8 21, -16 15 C-22 10, -23 5, -24 -2 Z"
+                fill="url(#g5)" stroke="var(--ink)" stroke-width="0.23"/>
+          <!-- tunnel from east -->
+          <path d="M18 -3 h26 v6 h-26" fill="url(#g5)" stroke="var(--ink)" stroke-width="0.201"/>
+          <path d="M42 0 H22" stroke="var(--ember)" stroke-width="0.345" marker-end="url(#ar)"/>
+          <text x="32" y="-4.4" class="mono t-em" font-size="1.208" text-anchor="middle">서터널 120 ← L2</text>
+          <!-- huts -->
+          <g fill="var(--ember-wash)" stroke="var(--ember)" stroke-width="0.23">
+            <rect x="-16" y="-12" width="7" height="6" rx=".6"/>
+            <rect x="-3" y="-16" width="7.5" height="6" rx=".6"/>
+            <rect x="-18" y="4" width="7" height="6" rx=".6"/>
+            <rect x="4" y="2" width="7.5" height="6" rx=".6"/>
+          </g>
+          <g class="mono t-em" font-size="1.208" text-anchor="middle">
+            <text x="-12.5" y="-13">모르</text>
+            <text x="0.7" y="-17">비늘 짜는 이</text>
+            <text x="-14.5" y="12.8">일곱-셋</text>
+            <text x="7.7" y="10.8">가라앉은 하</text>
+          </g>
+          <!-- lights -->
+          <g fill="var(--ember)">
+            <circle cx="-19" cy="-4" r=".46"/><circle cx="-7" cy="-6" r=".46"/><circle cx="6" cy="-9" r=".46"/>
+            <circle cx="12" cy="4" r=".46"/><circle cx="-4" cy="10" r=".46"/><circle cx="-13" cy="16" r=".46"/>
+            <circle cx="2" cy="16" r=".46"/><circle cx="-21" cy="6" r=".46"/>
+          </g>
+          <text x="-2" y="-1" class="t-room" font-size="1.61" text-anchor="middle">이름있는자리</text>
+          <text x="-2" y="2.4" class="mono t-dim" font-size="1.15" text-anchor="middle">≈45×42 비정형 · Y36–50</text>
+          <text x="-27" y="22" class="mono t-em" font-size="1.265">심사이드 7 전부 여기</text>
+          <text x="-27" y="-22" class="mono t-dim" font-size="1.208">◉ = 촛불 · 발광버섯 (횃불 금지)</text>
+        </svg>
+      </div>
+      <div class="sheet-foot">
+        <b>성소와 조명 톤을 정반대로.</b> 본부는 시안 단색, 여기는 주황 촛불이다.
+        「눈이 퇴화하지 않은 것들」이 사는 곳이라 불을 쓴다 — 이 대비 하나가 심사이드 7개의 정서를 전부 지탱한다.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ 3. REGION ══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">C</span><h2>지역 등록</h2></div>
+  <p class="sec-note"><span class="mono">/지역 생성</span> — 심해20·27·28이 <span class="mono">area|</span> 목표라 여기가 비면 메인 사슬이 멈춘다.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>지역</th><th>월드</th><th>범위</th><th>계층</th></tr></thead>
+      <tbody>
+        <tr><td class="q">심해협곡</td><td class="m">world</td><td>협곡 입구 + 하강 구간만. <b>본부는 포함하지 않음</b></td><td class="m">단독</td></tr>
+        <tr><td class="q">심해교단본부</td><td class="m">deep_sea</td><td>전체 — L1 검문실 문턱 ~ L6 바닥</td><td class="m">상위</td></tr>
+        <tr><td class="q">무명의성소</td><td class="m">deep_sea</td><td>L5만 · XZ ±24 · <b>Y18–30</b></td><td class="m">하위</td></tr>
+        <tr><td class="q">이름있는자리</td><td class="m">deep_sea</td><td>서터널 끝 공동 · XZ ±24 · <b>Y36–50</b></td><td class="m">하위</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="warn">
+    <b>⚠ 하위 두 지역은 Y를 반드시 자른다.</b>
+    성소는 L2 회랑 바로 아래고, 이름있는자리는 서쪽으로 빠져 있지만 터널이 L2와 같은 Y대다.
+    Y를 안 지정하면 상위 <span class="mono">심해교단본부</span>와 XZ가 겹쳐 판정이 튄다.
+  </p>
+</section>
+
+<!-- ══════════ 4. QUEST MAP ══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">D</span><h2>퀘스트 배치</h2></div>
+  <p class="sec-note">데이터는 전부 들어가 있다. 남은 건 이 표의 오른쪽 칸이다.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>퀘스트</th><th>위치</th><th>필요한 배치</th></tr></thead>
+      <tbody>
+        <tr><td class="q">심해27</td><td>L1 검문실</td><td class="m">리전 심해교단본부</td></tr>
+        <tr><td class="q">심해28</td><td>L5 성소 입구</td><td class="m">리전 무명의성소</td></tr>
+        <tr><td class="q">심해29</td><td>L3 배수 통로</td><td>수조 안에 작살 표적 몹</td></tr>
+        <tr><td class="q">심해30</td><td>L4 최상단 서가</td><td class="m">무명의낱장 배치</td></tr>
+        <tr><td class="q">심해31</td><td>L5 제단</td><td>볼프람 NPC + M등급 표적</td></tr>
+        <tr><td class="q">심해32</td><td>L6 하강</td><td>제단 개구부 개방 처리</td></tr>
+        <tr><td class="q">심해33</td><td>L6 바닥</td><td class="m">레비아 + 심해전왕의핵</td></tr>
+        <tr><td class="q">심사이드 ×7</td><td>이름있는자리</td><td>Citizens NPC 4 — <b>citizensId 비어 있음</b></td></tr>
+        <tr><td class="q">비늘01</td><td>L3 폐 부화장</td><td class="m">—</td></tr>
+        <tr><td class="q">비늘02</td><td>L0 북쪽 벽면 고래</td><td class="m">—</td></tr>
+        <tr><td class="q">모르03</td><td>L0 서쪽 침몰선</td><td class="m">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ 5. NOTES ══════════ -->
+<section>
+  <div class="sec-head"><span class="sec-num">E</span><h2>동굴처럼 파는 요령</h2></div>
+  <p class="sec-note">교단이 <em>지은</em> 곳과 <em>판</em> 곳이 구분돼야 「동굴에 파고든 종교」가 된다.</p>
+  <ul class="notes">
+    <li><span class="k">01</span><p><b>직각 금지.</b> 방은 각지게, 통로는 전부 비정형으로. <span class="mono">//brush sphere 0 4</span>로 굴려 파고 나중에 다듬는다.</p></li>
+    <li><span class="k">02</span><p><b>벽 재료 3~4종 혼합.</b> 심해암 70% + 응회암 15% + 검은 유리질 10% + 프리즈머린 5%. 단일 블록이면 파낸 티가 난다.</p></li>
+    <li><span class="k">03</span><p><b>천장 높이를 통로마다 바꾼다.</b> 4 → 6 → 3 이런 식으로. 일정하면 복도로 보인다.</p></li>
+    <li><span class="k">04</span><p><b>지음 / 팜 대비.</b> 검문실·성소·기록고만 각지고 대칭. 나머지는 전부 비정형. 이 대비가 설계의 절반이다.</p></li>
+    <li><span class="k">05</span><p><b>광원은 시안 단색.</b> 바다랜턴 + 프리즈머린 계열만. 횃불 하나 넣는 순간 심해가 아니게 된다 — 이름있는자리만 예외.</p></li>
+    <li><span class="k">06</span><p><b>물은 L6에만.</b> L3 수조는 유리로 가둔 물이라 괜찮다.</p></li>
+  </ul>
+
+  <div class="sec-head" style="margin-top:46px"><span class="sec-num">F</span><h2>시공 순서</h2></div>
+  <p class="sec-note"><b>수직갱을 먼저 뚫어야</b> 나머지 층의 Y가 자동으로 정해진다. 나중에 뚫으면 층 하나는 반드시 안 맞는다.</p>
+  <div class="order">
+    <span>L2 회랑 + 수직갱</span><i>→</i>
+    <span>L5 성소</span><i>→</i>
+    <span>L1 정문</span><i>→</i>
+    <span>L6 심연</span><i>→</i>
+    <span>L3 / L4</span><i>→</i>
+    <span>이름있는자리</span>
+  </div>
+</section>
+
+<footer>
+  바르칸 열도 · 심해 챕터(Lv50–70) 굴착 도면 — 퀘스트 데이터 완료, 지역 4 · Citizens NPC 5 미배치.
+</footer>
+
+</div>
+<script>
+(function () {
+  var KEY = 'barkan-deepsea-theme';
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var lbl  = document.getElementById('themeLbl');
+
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function systemDark() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function paint() {
+    var t = root.getAttribute('data-theme');
+    var dark = t ? t === 'dark' : systemDark();
+    lbl.textContent = dark ? '어두움' : '밝음';
+    btn.setAttribute('aria-label', '테마 전환 — 현재 ' + (dark ? '어두움' : '밝음'));
+  }
+
+  var saved = stored();
+  if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  paint();
+
+  btn.addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme');
+    var dark = cur ? cur === 'dark' : systemDark();
+    var next = dark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    paint();
+  });
+
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var on = function () { if (!root.getAttribute('data-theme')) paint(); };
+    if (mq.addEventListener) mq.addEventListener('change', on);
+    else if (mq.addListener) mq.addListener(on);
+  }
+})();
+</script>
+</body>
+</html>
