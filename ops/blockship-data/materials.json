@@ -2,7 +2,7 @@
   "materials": {
     "낡은갈고리": {
       "name": "낡은 갈고리",
-      "mcItem": "tripwire_hook",
+      "mcItem": "paper",
       "desc": "낚싯대 조합에 사용되는 오래된 갈고리"
     },
     "물고기비늘": {
@@ -12,282 +12,282 @@
     },
     "강화실": {
       "name": "강화 실",
-      "mcItem": "string",
+      "mcItem": "paper",
       "desc": "특수 처리된 낚싯줄 재료"
     },
     "녹슨부품": {
       "name": "녹슨 부품",
-      "mcItem": "iron_nugget",
+      "mcItem": "paper",
       "desc": "낡고 녹슨 금속 부품"
     },
     "깃털찌조각": {
       "name": "깃털 찌 조각",
-      "mcItem": "feather",
+      "mcItem": "paper",
       "desc": "찌 제작에 쓰이는 희귀 깃털"
     },
     "안개수정": {
       "name": "안개 수정",
-      "mcItem": "amethyst_shard",
+      "mcItem": "paper",
       "desc": "안개에 잠긴 신비한 결정"
     },
     "행운의구슬": {
       "name": "행운의 구슬",
-      "mcItem": "prismarine_crystals",
+      "mcItem": "paper",
       "desc": "행운이 깃든 푸른 구슬"
     },
     "산호조각": {
       "name": "산호 조각",
-      "mcItem": "brain_coral",
+      "mcItem": "paper",
       "desc": "산호초에서 떨어진 조각"
     },
     "진주": {
       "name": "진주",
-      "mcItem": "nautilus_shell",
+      "mcItem": "paper",
       "desc": "조개에서 채취한 빛나는 진주"
     },
     "거대비늘": {
       "name": "거대 비늘",
-      "mcItem": "turtle_scute",
+      "mcItem": "paper",
       "desc": "대물에서만 얻는 두꺼운 비늘"
     },
     "바르칸조각": {
       "name": "바르칸 조각",
-      "mcItem": "amethyst_cluster",
+      "mcItem": "paper",
       "desc": "바르칸 열도 특산 광물 조각"
     },
     "용비늘": {
       "name": "용 비늘",
-      "mcItem": "dragon_breath",
+      "mcItem": "paper",
       "desc": "G등급 보스에서 드물게 떨어지는 비늘"
     },
     "별빛진주": {
       "name": "별빛 진주",
-      "mcItem": "heart_of_the_sea",
+      "mcItem": "paper",
       "desc": "서버 전역의 바다에서 드물게 낚이는 귀한 진주. 강화·조합에 두루 쓰여 화폐처럼 통하는 핵심 재료"
     },
     "별똥별조각": {
       "name": "별똥별 조각",
-      "mcItem": "amethyst_shard",
+      "mcItem": "paper",
       "desc": "유성우가 쏟아지는 밤에만 물가에서 건져 올릴 수 있는 별의 파편"
     },
     "심해수정": {
       "name": "심해 수정",
-      "mcItem": "prismarine_crystals",
+      "mcItem": "paper",
       "desc": "깊은 바다의 압력으로 단단해진 푸른 수정"
     },
     "고대비늘": {
       "name": "고대 비늘",
-      "mcItem": "nautilus_shell",
+      "mcItem": "paper",
       "desc": "오래된 물고기에게서 얻는 단단한 비늘"
     },
     "용암수지": {
       "name": "용암 수지",
-      "mcItem": "magma_cream",
+      "mcItem": "paper",
       "desc": "붉은사막의 열기로 굳은 끈적한 수지"
     },
     "강화석탄": {
       "name": "강화 석탄",
-      "mcItem": "coal",
+      "mcItem": "paper",
       "desc": "석탄 16개를 압축한 강화 광물"
     },
     "강화철괴": {
       "name": "강화 철괴",
-      "mcItem": "iron_ingot",
+      "mcItem": "paper",
       "desc": "철괴 16개를 압축한 강화 광물"
     },
     "강화금괴": {
       "name": "강화 금괴",
-      "mcItem": "gold_ingot",
+      "mcItem": "paper",
       "desc": "금괴 16개를 압축한 강화 광물"
     },
     "강화구리괴": {
       "name": "강화 구리괴",
-      "mcItem": "copper_ingot",
+      "mcItem": "paper",
       "desc": "구리괴 16개를 압축한 강화 광물"
     },
     "강화다이아몬드": {
       "name": "강화 다이아몬드",
-      "mcItem": "diamond",
+      "mcItem": "paper",
       "desc": "다이아몬드 16개를 압축한 강화 보석"
     },
     "강화청금석": {
       "name": "강화 청금석",
-      "mcItem": "lapis_lazuli",
+      "mcItem": "paper",
       "desc": "청금석 16개를 압축한 강화 광물"
     },
     "강화에메랄드": {
       "name": "강화 에메랄드",
-      "mcItem": "emerald",
+      "mcItem": "paper",
       "desc": "에메랄드 16개를 압축한 강화 보석"
     },
     "강화네더라이트파편": {
       "name": "강화 네더라이트 파편",
-      "mcItem": "netherite_scrap",
+      "mcItem": "paper",
       "desc": "네더라이트 파편 8개를 압축한 희귀 광물"
     },
     "강화밀": {
       "name": "강화 밀",
-      "mcItem": "wheat",
+      "mcItem": "paper",
       "desc": "밀 16개를 압축한 강화 농산물"
     },
     "강화당근": {
       "name": "강화 당근",
-      "mcItem": "carrot",
+      "mcItem": "paper",
       "desc": "당근 16개를 압축한 강화 농산물"
     },
     "강화감자": {
       "name": "강화 감자",
-      "mcItem": "potato",
+      "mcItem": "paper",
       "desc": "감자 16개를 압축한 강화 농산물"
     },
     "강화비트루트": {
       "name": "강화 비트루트",
-      "mcItem": "beetroot",
+      "mcItem": "paper",
       "desc": "비트루트 16개를 압축한 강화 농산물"
     },
     "압축석탄블록": {
       "name": "압축 석탄 블록",
-      "mcItem": "coal_block",
+      "mcItem": "paper",
       "desc": "강화 석탄 32개를 압축한 고밀도 블록"
     },
     "압축철블록": {
       "name": "압축 철 블록",
-      "mcItem": "iron_block",
+      "mcItem": "paper",
       "desc": "강화 철괴 32개를 압축한 고밀도 블록"
     },
     "압축금블록": {
       "name": "압축 금 블록",
-      "mcItem": "gold_block",
+      "mcItem": "paper",
       "desc": "강화 금괴 32개를 압축한 고밀도 블록"
     },
     "압축다이아블록": {
       "name": "압축 다이아 블록",
-      "mcItem": "diamond_block",
+      "mcItem": "paper",
       "desc": "강화 다이아몬드 32개를 압축한 고밀도 블록"
     },
     "압축에메랄드블록": {
       "name": "압축 에메랄드 블록",
-      "mcItem": "emerald_block",
+      "mcItem": "paper",
       "desc": "강화 에메랄드 32개를 압축한 고밀도 블록"
     },
     "황금건초더미": {
       "name": "황금 건초 더미",
-      "mcItem": "hay_block",
+      "mcItem": "paper",
       "desc": "강화 밀 32개를 압축한 최상급 농산물"
     },
     "황금당근": {
       "name": "황금 당근",
-      "mcItem": "golden_carrot",
+      "mcItem": "paper",
       "desc": "강화 당근 32개를 압축한 최상급 농산물"
     },
     "네더라이트주괴": {
       "name": "네더라이트 주괴",
-      "mcItem": "netherite_ingot",
+      "mcItem": "paper",
       "desc": "최상급 합금 주괴"
     },
     "정제된갈고리": {
       "name": "정제된 갈고리",
-      "mcItem": "tripwire_hook",
+      "mcItem": "paper",
       "desc": "본섬 — 낡은 갈고리를 다듬은 부품"
     },
     "단단한자루": {
       "name": "단단한 자루",
-      "mcItem": "stick",
+      "mcItem": "paper",
       "desc": "본섬 — 낚싯대 손잡이용 부품"
     },
     "강철심": {
       "name": "강철 심",
-      "mcItem": "iron_ingot",
+      "mcItem": "paper",
       "desc": "본섬 — 단단한 금속 심"
     },
     "행운의매듭": {
       "name": "행운의 매듭",
-      "mcItem": "chorus_fruit",
+      "mcItem": "paper",
       "desc": "안개섬 — 행운이 깃든 매듭"
     },
     "진주코어": {
       "name": "진주 코어",
-      "mcItem": "heart_of_the_sea",
+      "mcItem": "paper",
       "desc": "산호군도 — 진주를 응결한 코어"
     },
     "바르칸핵": {
       "name": "바르칸 핵",
-      "mcItem": "netherite_ingot",
+      "mcItem": "paper",
       "desc": "심연균열 — 바르칸 열도의 정수"
     },
     "미끼": {
       "name": "미끼",
-      "mcItem": "string",
+      "mcItem": "paper",
       "desc": "낚시에 쓰는 미끼"
     },
     "나뭇가지": {
       "name": "나뭇가지",
-      "mcItem": "stick",
+      "mcItem": "paper",
       "desc": "물가에 떠내려온 나뭇가지"
     },
     "깨진 토기 조각": {
       "name": "깨진 토기 조각",
-      "mcItem": "brick",
+      "mcItem": "paper",
       "desc": "오아시스 바닥에서 건진 깨진 토기 조각"
     },
     "미감정 유물": {
       "name": "미감정 유물",
-      "mcItem": "clay_ball",
+      "mcItem": "paper",
       "desc": "감정이 필요한 정체불명의 유물"
     },
     "진주조개": {
       "name": "진주조개",
-      "mcItem": "nautilus_shell",
+      "mcItem": "paper",
       "desc": "사막 오아시스의 진주조개"
     },
     "보석": {
       "name": "보석",
-      "mcItem": "emerald",
+      "mcItem": "paper",
       "desc": "오아시스 바닥에서 빛나는 보석"
     },
     "고대 유물": {
       "name": "고대 유물",
-      "mcItem": "echo_shard",
+      "mcItem": "paper",
       "desc": "사막 깊은 곳의 고대 유물"
     },
     "흑정석": {
       "name": "흑정석",
-      "mcItem": "black_stained_glass",
+      "mcItem": "paper",
       "desc": "광산 깊은 곳에서 드릴로 캐낸 검은 원석"
     },
     "압축흑정석": {
       "name": "압축 흑정석",
-      "mcItem": "blackstone",
+      "mcItem": "paper",
       "desc": "흑정석 9개를 압축한 고밀도 광석. 드릴·낚싯대 제작의 핵심 재료"
     },
     "자수정": {
       "name": "자수정",
-      "mcItem": "amethyst_shard",
+      "mcItem": "paper",
       "desc": "레드_로드의 자수정 광맥에서 드릴로 캐낸 보라색 결정"
     },
     "강화멜론": {
       "name": "강화 멜론",
-      "mcItem": "melon_slice",
+      "mcItem": "paper",
       "desc": "멜론 조각 32개를 압축한 강화 농산물"
     },
     "강화스위트베리": {
       "name": "강화 스위트베리",
-      "mcItem": "sweet_berries",
+      "mcItem": "paper",
       "desc": "스위트베리 16개를 압축한 강화 농산물"
     },
     "철광석": {
       "name": "철광석",
-      "mcItem": "raw_iron",
+      "mcItem": "paper",
       "desc": "mine 월드 철광산 구역에서 드릴로 캐낸 무거운 철 원석"
     },
     "압축철광석": {
       "name": "압축 철광석",
-      "mcItem": "iron_block",
+      "mcItem": "paper",
       "desc": "철광석 9개를 압축한 고밀도 철괴 (레시피 COMP_IRON)"
     },
     "심해전왕의핵": {
       "name": "심해전왕의 핵",
-      "mcItem": "heart_of_the_sea",
+      "mcItem": "paper",
       "desc": "심해전왕 레비아를 쓰러뜨려 얻는 심연의 핵"
     },
     "무명의낱장": {
@@ -297,17 +297,17 @@
     },
     "강화호박": {
       "name": "강화 호박",
-      "mcItem": "pumpkin",
+      "mcItem": "paper",
       "desc": "호박 16개를 압축한 강화 농산물"
     },
     "강화사탕수수": {
       "name": "강화 사탕수수",
-      "mcItem": "sugar_cane",
+      "mcItem": "paper",
       "desc": "사탕수수 16개를 압축한 강화 농산물"
     },
     "강화코코아": {
       "name": "강화 코코아",
-      "mcItem": "cocoa_beans",
+      "mcItem": "paper",
       "desc": "코코아 콩 16개를 압축한 강화 농산물"
     }
   },

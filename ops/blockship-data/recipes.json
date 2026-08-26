@@ -8,7 +8,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "coal",
+        "mcItem": "paper",
         "name": "&e강화 석탄",
         "lore": [
           "&7석탄 16개를 압축한 강화 광물",
@@ -35,7 +35,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "iron ingot",
+        "mcItem": "paper",
         "name": "&e강화 철괴",
         "lore": [
           "&7철괴 16개를 압축한 강화 광물",
@@ -62,7 +62,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "gold ingot",
+        "mcItem": "paper",
         "name": "&e강화 금괴",
         "lore": [
           "&7금괴 16개를 압축한 강화 광물",
@@ -89,7 +89,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "copper ingot",
+        "mcItem": "paper",
         "name": "&e강화 구리괴",
         "lore": [
           "&7구리괴 16개를 압축한 강화 광물",
@@ -116,7 +116,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "diamond",
+        "mcItem": "paper",
         "name": "&b강화 다이아몬드",
         "lore": [
           "&7다이아몬드 16개를 압축한 강화 보석",
@@ -143,7 +143,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "lapis lazuli",
+        "mcItem": "paper",
         "name": "&9강화 청금석",
         "lore": [
           "&7청금석 16개를 압축한 강화 광물",
@@ -170,7 +170,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "emerald",
+        "mcItem": "paper",
         "name": "&a강화 에메랄드",
         "lore": [
           "&7에메랄드 16개를 압축한 강화 보석",
@@ -197,7 +197,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "wheat",
+        "mcItem": "paper",
         "name": "&a강화 밀",
         "lore": [
           "&7밀 16개를 압축한 강화 농산물",
@@ -224,7 +224,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "carrot",
+        "mcItem": "paper",
         "name": "&6강화 당근",
         "lore": [
           "&7당근 16개를 압축한 강화 농산물",
@@ -251,7 +251,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "potato",
+        "mcItem": "paper",
         "name": "&e강화 감자",
         "lore": [
           "&7감자 16개를 압축한 강화 농산물",
@@ -278,7 +278,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "beetroot",
+        "mcItem": "paper",
         "name": "&c강화 비트루트",
         "lore": [
           "&7비트루트 16개를 압축한 강화 농산물",
@@ -305,7 +305,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "pumpkin",
+        "mcItem": "paper",
         "name": "&6강화 호박",
         "lore": [
           "&7호박 16개를 압축한 강화 농산물",
@@ -332,7 +332,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "melon slice",
+        "mcItem": "paper",
         "name": "&a강화 멜론",
         "lore": [
           "&7멜론 조각 32개를 압축한 강화 농산물",
@@ -359,7 +359,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "sugar cane",
+        "mcItem": "paper",
         "name": "&a강화 사탕수수",
         "lore": [
           "&7사탕수수 16개를 압축한 강화 농산물",
@@ -387,7 +387,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "cocoa beans",
+        "mcItem": "paper",
         "name": "&6강화 코코아",
         "lore": [
           "&7코코아 콩 16개를 압축한 강화 농산물",
@@ -415,7 +415,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "sweet berries",
+        "mcItem": "paper",
         "name": "&c강화 스위트베리",
         "lore": [
           "&7스위트베리 16개를 압축한 강화 농산물",
@@ -442,7 +442,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "hay block",
+        "mcItem": "paper",
         "name": "&6황금 건초 더미",
         "lore": [
           "&7강화 밀 32개를 압축한 최상급 농산물",
@@ -470,7 +470,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "golden carrot",
+        "mcItem": "paper",
         "name": "&6황금 당근",
         "lore": [
           "&7강화 당근 32개를 압축한 최상급 농산물",
@@ -632,7 +632,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "tripwire hook",
+        "mcItem": "paper",
         "name": "&f정제된 갈고리",
         "lore": [
           "&7본섬 — 낡은 갈고리를 다듬은 부품",
@@ -659,7 +659,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "stick",
+        "mcItem": "paper",
         "name": "&f단단한 자루",
         "lore": [
           "&7본섬 — 낚싯대 손잡이용 부품",
@@ -693,7 +693,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "iron ingot",
+        "mcItem": "paper",
         "name": "&7강철 심",
         "lore": [
           "&7본섬 — 단단한 금속 심",
@@ -734,7 +734,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "chorus fruit",
+        "mcItem": "paper",
         "name": "&d행운의 매듭",
         "lore": [
           "&7안개섬 — 행운이 깃든 매듭",
@@ -782,7 +782,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "heart of the sea",
+        "mcItem": "paper",
         "name": "&b진주 코어",
         "lore": [
           "&7산호군도 — 진주를 응결한 코어",
@@ -823,7 +823,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "netherite ingot",
+        "mcItem": "paper",
         "name": "&5바르칸 핵",
         "lore": [
           "&7심연균열 — 바르칸 열도의 정수",
@@ -864,7 +864,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "nautilus shell",
+        "mcItem": "paper",
         "name": "&b진주",
         "lore": [
           "&7사막 오아시스의 진주조개를 열어 얻은 진주",
@@ -4032,7 +4032,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "blackstone",
+        "mcItem": "paper",
         "name": "&8압축 흑정석",
         "lore": [
           "&7흑정석 9개를 압축한 고밀도 광석.",
@@ -4058,7 +4058,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "iron_block",
+        "mcItem": "paper",
         "name": "&f압축 철광석",
         "lore": [
           "&7철광석 9개를 압축한 고밀도 철괴.",
@@ -16766,7 +16766,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "netherite scrap",
+        "mcItem": "paper",
         "name": "&d강화 네더라이트 파편",
         "lore": [
           "&7네더라이트 파편 8개를 압축한 희귀 광물",
@@ -16793,7 +16793,7 @@
       "resultMode": "direct",
       "drillTier": 0,
       "result": {
-        "mcItem": "netherite ingot",
+        "mcItem": "paper",
         "name": "&d네더라이트 주괴",
         "lore": [
           "&7최상급 합금 주괴",
@@ -16818,6 +16818,35 @@
           "qty": 4
         }
       ]
+    },
+    "C12": {
+      "id": "C12",
+      "category": "재료",
+      "displayName": "심해어가면",
+      "locked": false,
+      "resultMode": "direct",
+      "drillTier": 0,
+      "result": {
+        "mcItem": "paper",
+        "name": "&3심해어 가면",
+        "lore": [
+          "&7심해어의 비늘을 엮어 만든 잠입용 가면",
+          "",
+          "&8[조합 재료]",
+          "&8mat:심해어가면"
+        ]
+      },
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "물고기 비늘",
+          "mcItem": "paper",
+          "qty": 10
+        }
+      ],
+      "village": "상단",
+      "materialDiscountVersion": 1
     },
     "P109": {
       "id": "P109",
