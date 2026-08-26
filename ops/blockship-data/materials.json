@@ -300,11 +300,6 @@
       "mcItem": "pumpkin",
       "desc": "호박 16개를 압축한 강화 농산물"
     },
-    "강화사과": {
-      "name": "강화 사과",
-      "mcItem": "apple",
-      "desc": "사과 16개를 압축한 강화 농산물"
-    },
     "강화사탕수수": {
       "name": "강화 사탕수수",
       "mcItem": "sugar_cane",

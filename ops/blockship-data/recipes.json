@@ -434,33 +434,6 @@
         }
       ]
     },
-    "F10": {
-      "id": "F10",
-      "category": "요리재료",
-      "displayName": "강화 사과",
-      "locked": false,
-      "resultMode": "direct",
-      "drillTier": 0,
-      "result": {
-        "mcItem": "apple",
-        "name": "&c강화 사과",
-        "lore": [
-          "&7사과 16개를 압축한 강화 농산물",
-          "",
-          "&8[조합 재료]",
-          "&8mat:강화사과"
-        ]
-      },
-      "ingredients": [
-        {
-          "kind": "item",
-          "typeOrMatId": "apple",
-          "displayName": "사과",
-          "mcItem": "apple",
-          "qty": 16
-        }
-      ]
-    },
     "A06": {
       "id": "A06",
       "category": "요리재료",
@@ -4714,9 +4687,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화당근",
-          "displayName": "강화 당근",
-          "mcItem": "carrot",
+          "typeOrMatId": "강화비트루트",
+          "displayName": "강화 비트루트",
+          "mcItem": "beetroot",
           "qty": 3
         }
       ]
@@ -4880,9 +4853,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화사탕수수",
+          "displayName": "강화 사탕수수",
+          "mcItem": "sugar_cane",
           "qty": 2
         }
       ]
@@ -4922,9 +4895,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화사과",
-          "displayName": "강화 사과",
-          "mcItem": "apple",
+          "typeOrMatId": "강화사탕수수",
+          "displayName": "강화 사탕수수",
+          "mcItem": "sugar_cane",
           "qty": 3
         },
         {
@@ -4990,9 +4963,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화비트루트",
+          "displayName": "강화 비트루트",
+          "mcItem": "beetroot",
           "qty": 2
         }
       ]
@@ -5220,9 +5193,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화스위트베리",
+          "displayName": "강화 스위트베리",
+          "mcItem": "sweet_berries",
           "qty": 3
         }
       ]
@@ -5298,9 +5271,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화당근",
-          "displayName": "강화 당근",
-          "mcItem": "carrot",
+          "typeOrMatId": "강화비트루트",
+          "displayName": "강화 비트루트",
+          "mcItem": "beetroot",
           "qty": 2
         }
       ]
@@ -5661,9 +5634,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화호박",
+          "displayName": "강화 호박",
+          "mcItem": "pumpkin",
           "qty": 3
         }
       ]
@@ -6253,9 +6226,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화밀",
-          "displayName": "강화 밀",
-          "mcItem": "wheat",
+          "typeOrMatId": "강화스위트베리",
+          "displayName": "강화 스위트베리",
+          "mcItem": "sweet_berries",
           "qty": 16
         },
         {
@@ -6880,9 +6853,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화당근",
-          "displayName": "강화 당근",
-          "mcItem": "carrot",
+          "typeOrMatId": "강화코코아",
+          "displayName": "강화 코코아",
+          "mcItem": "cocoa_beans",
           "qty": 1
         }
       ]
@@ -6933,9 +6906,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화사탕수수",
+          "displayName": "강화 사탕수수",
+          "mcItem": "sugar_cane",
           "qty": 3
         }
       ]
@@ -6993,9 +6966,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화스위트베리",
-          "displayName": "강화 스위트베리",
-          "mcItem": "sweet_berries",
+          "typeOrMatId": "강화코코아",
+          "displayName": "강화 코코아",
+          "mcItem": "cocoa_beans",
           "qty": 6
         }
       ]
@@ -7166,9 +7139,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화사과",
-          "displayName": "강화 사과",
-          "mcItem": "apple",
+          "typeOrMatId": "강화코코아",
+          "displayName": "강화 코코아",
+          "mcItem": "cocoa_beans",
           "qty": 8
         },
         {
@@ -14181,9 +14154,9 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "강화감자",
-          "displayName": "강화 감자",
-          "mcItem": "potato",
+          "typeOrMatId": "강화멜론",
+          "displayName": "강화 멜론",
+          "mcItem": "melon_slice",
           "qty": 2
         }
       ]
@@ -18857,7 +18830,6 @@
       "F07",
       "F08",
       "F09",
-      "F10",
       "A06",
       "A07"
     ],

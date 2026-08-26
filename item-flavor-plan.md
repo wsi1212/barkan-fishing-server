@@ -21,7 +21,7 @@
 | **부품** | **86** | `BlockShip/parts.json` | ✗ 없음 | `parts/EquipmentManager.java:246` `buildPartDisplay` |
 | ↳ 낚싯대 22 / 릴 12 / 줄 14 / 바늘 14 / 미끼 13 / 찌 11 | | 포맷 `이름\|등급\|가격\|내구\|스탯\|레벨제한\|출처` (설명 필드 없음) | | |
 | **조합 재료** | **43** | `BlockShip/materials.json` `desc` | ✓ **있음**(기능 위주) | `crafting/CraftingManager.java:507` |
-| ↳ 레시피 전용 재료 | 4 | `recipes.json` 직접 lore (강화사과·강화사탕수수·강화코코아·강화호박) | △ 1줄 있음 | `recipes.json` `result.lore[0]` |
+| ↳ 레시피 전용 재료 | 3 | `recipes.json` 직접 lore (강화사탕수수·강화코코아·강화호박) | △ 1줄 있음 | `recipes.json` `result.lore[0]` |
 | **채집물** | **31** | `pixel-forge/manifest.json` → `forage-types.json` + CE `forage_custom.yml` | ✗ 없음 | `pixel-forge/build.py:104` (CE lore 생성) |
 | **특수작물** | **7** | `crop/CropSpecs.java:62-68` | ✗ 없음 | `CropSpecs.seedItem:89` / `outputItem:104` |
 | **요리** | **47** | `cooking/DishSpecs.java` | △ 버프 수치만 | `DishSpecs.buildDish:367` |
