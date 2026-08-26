@@ -48,6 +48,19 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/ops/hooks/guard-instance-data.py\"",
+            "statusMessage": "인스턴스 데이터 서버간 복사 차단 검사",
+            "description": "dev/prod 는 유저 데이터가 별개인 서버다. regions/islands/guilds/playerdata 등 인스턴스 전용 상태를 상대 서버의 plugins/ 트리에 쓰는 걸 차단(exit 2). 사고 3건(08-23·08-25·08-26 섬 소실) 재발 방지. 탈출구 ALLOW_INSTANCE_DATA_WRITE=1."
+          }
+        ]
+      }
     ]
   }
 }

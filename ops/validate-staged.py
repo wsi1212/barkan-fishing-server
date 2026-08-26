@@ -47,10 +47,43 @@ def reject(msg):
     sys.exit(1)
 
 
+def _instance_files():
+    """인스턴스 전용 파일 목록을 guard-instance-data.py 에서 가져온다.
+
+    목록을 여기 복제하면 언젠가 한쪽만 늘어난다 — 권위는 훅 파일 하나다.
+    prod 에서는 같은 디렉터리(~/mcserver/scripts/), 레포에서는 ops/hooks/ 에 있다.
+    못 찾으면 **거부**한다 — 검사가 조용히 사라지는 쪽이 훨씬 위험하다.
+    """
+    import importlib.util
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    for cand in (os.path.join(here, 'guard-instance-data.py'),
+                 os.path.join(here, 'hooks', 'guard-instance-data.py')):
+        if os.path.exists(cand):
+            spec = importlib.util.spec_from_file_location('guard_instance_data', cand)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod.INSTANCE_FILES
+    reject('guard-instance-data.py 를 찾을 수 없다 — 인스턴스 데이터 검사 불가, 안전을 위해 거부')
+
+
+
+
+
 def main():
     if len(sys.argv) < 3:
         reject('사용법: validate-staged.py <staged> <live>')
     staged, live = sys.argv[1], sys.argv[2]
+
+    # ★인스턴스 전용 상태는 애초에 배포 대상이 아니다 — dev 와 prod 가 각자 따로 들고 있는
+    #   유저 데이터다. 항목수 검사로는 못 막힌다: dev 쪽이 더 크기만 하면 통과해 버리고,
+    #   그러면 남의 서버 유저 상태를 덮는다.
+    #   2026-08-25 실사고: dev regions.json 이 prod 를 덮어 개인섬 5개의 지역이 사라졌고,
+    #   하루 뒤 소유자가 /섬 을 치는 순간 「지역 없음 → 새 격자로 재발급」 =  섬 초기화.
+    #   목록 권위는 ops/hooks/guard-instance-data.py 의 INSTANCE_FILES 다(복제하지 말 것).
+    if os.path.basename(staged) in _instance_files():
+        reject('인스턴스 전용 데이터(서버별 유저 상태) — 배포 대상 아님')
+
     if not staged.endswith('.json'):
         sys.exit(0)                                    # jar/기타는 이 검사 대상 아님
     # ★중복 키를 먼저 잡는다 — 파이썬 json 은 중복을 조용히 덮어쓰지만 서버의 gson 은

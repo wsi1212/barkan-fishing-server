@@ -47,6 +47,10 @@ SCRIPTS_REPO="/Users/user/Library/Application Support/feather/player-server/serv
 DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json" "recipes.json" "materials.json" "item-flavor.json")
 # 주의: collectibles.json/quests.json/regions.json/env-bonuses.json 은 월드/배치별이라 sync 제외(수동 관리)
 
+# ★제외 목록을 주석이 아니라 코드로 지킨다 — 목록 권위는 ops/hooks/guard-instance-data.py.
+#   섬·길드·플레이어 상태가 sync 목록에 끼면 상대 서버의 유저 데이터를 지운다(사고 3건).
+python3 "$SCRIPTS_REPO/ops/hooks/guard-instance-data.py" --check-list "${DATA_FILES[@]}"
+
 echo "▶ BlockShip 빌드"
 cd "$BLOCKSHIP_DIR"
 ./gradlew build
