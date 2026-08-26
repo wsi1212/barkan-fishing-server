@@ -293,6 +293,7 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 | `harpoon_value.py` | 창 전용 스탯 6종 + 등급천장 | ✅ 권위 |
 | `price_ladder.py` | 구간 수입·가격 밴드 역산 | ✅ 권위 |
 | `minigame_sim.py` `gradroller_sim.py` | 난이도·등급 롤 시뮬 | ✅ 권위 |
+| `enhance_lines.py` | 강화표(enhance.json) **라인 기반 재생성** + **난이도 3층 예산의 단일 권위**(낚싯대 기본 ROD_DIFF · 강화 총량 ENH_DIFF · 숙련부품 PART_DIFF) | ✅ 권위 |
 | `rod_lines.py` | 스폰마을 낚싯대 **라인 설계** — 라인별 메인/부스탯 고정 → 난이도는 순간이동 문턱에서 역산 → 남은 자유도만 회수시간에 적합 | ✅ 권위 |
 | `cross_economy_values.py` `buff_values.py` `cooking_full_audit.py` `bait_reprice.py` `xp_curve_lv70.py` `gold_curve*.py` `gen_balance_workbook.py` | 경제별 파생 | ✅ 그대로 |
 | `material_gate.py` | 구 재료 게이트 휴리스틱 | ⛔ **DEPRECATED** → `material_value.py` |
@@ -306,6 +307,29 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 `stat_value.diff_curve(stage)` 가 누적표를 주고 `item_ledger` 는 그걸 조회한다.
 그리고 «순간이동(overflowDiff>0)» 은 캘리브레이션과 무관하게 참인 **구조 지표**다 —
 난이도를 논할 때는 성공률보다 이걸 먼저 쓴다(`rod_lines.teleport_frac`).
+
+### ★난이도 예산은 3층이고 한 곳에서만 정의한다 (2026-08-27)
+
+    ① 낚싯대 기본  `enhance_lines.ROD_DIFF`
+    ② 강화 총량    `enhance_lines.ENH_DIFF`   ← 배수 금지. 등급당 +1 사다리다
+    ③ 숙련 부품    `enhance_lines.PART_DIFF` × 릴·줄·바늘·찌 4슬롯
+
+세 층의 합이 «순간이동 문턱»을 만든다. 한 층만 보고 조정하면 목표가 깨진다.
+유저 제약 두 개가 이 구조를 강제했다 — «C풀강 ≥ B중반강화 ≥ A기본»(강화가 2등급을
+건너뛰면 안 됨)과 «C풀강 + C 숙련부품 → S 순간이동 0%». 강화만으로는 둘을 동시에
+만족시킬 수 없어서 부품이 나머지를 대야 한다.
+
+**주스탯 배수 규칙**: 풀강 시 주스탯 `+= 기본 × 2.0`(총 3배). 근거는 등급 사다리가
+×1.7 이라는 것 — C 6 → 풀강 18 = A 기본. 유저의 «잘해야 A기본» 이 이 배수의 상한이다.
+**난이도만 예외**로 총량 고정표를 쓴다(정수 사다리라 배수를 쓰면 C→S 가 된다).
+
+### ★도망감소는 난이도의 대체재가 아니다 (2026-08-27)
+
+0→80 이 B 를 69%→100% 로 올리지만 **A 는 +5%p · S 는 +2%p** 뿐이고 80 에서 포화한다.
+존폭이 1~2칸인 A/S 에서는 도주율을 낮춰도 계속 미스해 `escapeInc` 가 100 까지 밀어올린다.
+난이도는 «맞히게» 해주고 도망감소는 «한 번 더 기회»를 준다 — 존이 1칸이면 기회를 더 줘도
+못 맞힌다. ⇒ 줄 슬롯(도망감소 전담)은 회수 중위 19.7h 로 홀로 무너져 있는데(릴 6.6 ·
+바늘 9.5 · 찌 11.8, 재료원은 4슬롯 동일) **수치를 3배로 올려도 해결되지 않는다.**
 
 **시뮬 상수는 라이브와 짝이다.** `minigame_sim.MAX_ZONE_JUMP` ↔
 `MinigameManager.MAX_ZONE_JUMP` · `success_rates` 의 크기난이도 가중 ↔
