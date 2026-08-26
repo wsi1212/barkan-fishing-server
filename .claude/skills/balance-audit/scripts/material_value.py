@@ -250,9 +250,32 @@ class Data:
             best = max(best, r.get(mid, 0.0))
         return (1.0 / best) if best > 0 else float("inf")
 
-    def wage(self, band=None):
-        """원 환산 환율(원/h). 구간 미지정이면 관측 최고 구간(Lv30+ 은 실측이 없다)."""
-        return MEAS.wage(band, self.k)[0]
+    def wage(self, band=None, stage=None):
+        """원 환산 환율(원/h).
+
+        ★2026-08-27 결함 수정. 구 동작은 «구간 미지정이면 관측 최고 구간(115,083)»이었고,
+          그래서 A/S 세트의 «돈 게이트»를 종결 시급이 아니라 Lv20-29 시급으로 나눴다.
+          A 세트 3,982,600원 ÷ 115,083 = 34.6h (실제 종결 시급 327,043 이면 12.2h) →
+          「A·S 는 돈이 관문」 판정이 이 한 줄에서 나왔고, 종결 시급을 쓰면 뒤집힌다
+          (재료 13.74h > 돈 12.18h). item_ledger 는 같은 상황에서 종결 모델값을 써서
+          두 스크립트가 서로 다른 시급을 쓰고 있었다 — selftest §3 이 포획/h·크기점수만
+          대조하고 시급은 안 봐서 못 잡았다.
+          이제 stage 를 받으면 그 구간의 모델 시급으로 외삽하고, 외삽임을 호출부에 알린다.
+        """
+        w, measured = MEAS.wage(band, self.k)
+        if measured or stage is None:
+            return w
+        return self.stage_wage(stage)
+
+    _stage_wage_cache = None
+
+    def stage_wage(self, stage):
+        """실측이 없는 구간(Lv30+)의 모델 시급. stat_value 의 구간 수입을 그대로 쓴다."""
+        if Data._stage_wage_cache is None:
+            SV = _load_mod("stat_value")
+            MEAS.apply(SV, self.k)
+            Data._stage_wage_cache = {st: SV.compute(st)["income"] for st in SV.STAGES}
+        return Data._stage_wage_cache.get(stage, self.wage())
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -358,9 +381,14 @@ def main():
         if not names:
             continue
         h, lam, hact, unres = D.gate(bom)
+        # ★등급이 쓰이는 구간의 시급으로 나눈다 — 관측 최고 구간으로 일괄 나누면 A/S 의
+        #   돈 게이트가 3배 부풀어 「돈이 관문」으로 뒤집힌다(2026-08-27 수정).
+        stage_of_grade = {"D": "초반", "C": "초반", "B": "중반", "A": "종결", "S": "종결"}[g]
+        Wg = D.wage(None, stage_of_grade) if stage_of_grade == "종결" else W
+        ext = "~" if stage_of_grade == "종결" else ""
         print(f"\n  [{g}] {' + '.join(names)}")
-        print(f"      가격합 {price:,}원 (= {price/W:.2f}h 노동)  ·  재료 게이트 {h:.2f}h  "
-              f"→ 관문: {'재료' if h > price/W else '돈'}")
+        print(f"      가격합 {price:,}원 (= {price/Wg:.2f}h 노동{ext}, 시급 {Wg:,.0f})  ·  "
+              f"재료 게이트 {h:.2f}h  → 관문: {'재료' if h > price/Wg else '돈'}")
         print(f"      활동배분: " + ", ".join(f"{k} {v:.2f}h" for k, v in
                                           sorted(hact.items(), key=lambda kv: -kv[1])))
         binding = sorted(lam.items(), key=lambda kv: -kv[1] * bom_qty(bom, kv[0]))

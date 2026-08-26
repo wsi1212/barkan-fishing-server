@@ -115,6 +115,24 @@ def t3_constants(k):
     # income_of 기본인자까지 갈렸는지 (조용한 오차의 단골)
     ok(abs(SV.income_of.__defaults__[0] - k["size_score"]) < 1e-6,
        "income_of 기본인자 주입", f"{SV.income_of.__defaults__[0]} vs {k['size_score']}")
+    # ★2026-08-27 신설 — 시급 단일화. 이걸 안 봐서 결함이 통과했다:
+    #   material_value 는 Lv30+ 에 «관측 최고 구간»(115,083)을, item_ledger 는 «종결 모델»
+    #   (327,043)을 쓰고 있었다. A 세트 관문 판정이 그 차이 하나로 뒤집혔다
+    #   (돈 34.6h ↔ 12.2h → 「돈이 관문」 오판).
+    end_model = SV.compute("종결")["income"]
+    end_mv = D.wage(None, "종결")
+    ok(abs(end_model - end_mv) < 1.0, "종결 시급 일치 (material_value ↔ stat_value)",
+       f"stat_value {end_model:,.0f} · material_value {end_mv:,.0f}")
+    # stat_value 의 게이트가 LP 에서 오는지 (구 하드코딩 표가 되살아나면 잡는다)
+    G = SV._gates()
+    MVD = MV.Data()
+    lp = {}
+    for g in ("D", "C", "B", "A", "S"):
+        names, bom, price = MV.full_set_bom(MVD, g)
+        if names:
+            lp[g] = round(MVD.gate(bom)[0], 2)
+    ok(all(abs(G[g][0] - lp[g]) < 0.01 for g in lp if g in G),
+       "재료 게이트 = LP 쌍대해", " ".join(f"{g} {G[g][0]:.2f}" for g in sorted(G)))
     return D
 
 

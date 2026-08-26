@@ -102,10 +102,35 @@ MAX_MAGNITUDE = {
 #      낙관 하한(전 재료 동시)은 D 1.93 / C 3.64 / B 5.38 / A 10.00 / S 11.82 — 그 하한을 써도
 #      D·C·B 는 여전히 «재료가 관문»이라 결론은 안 바뀐다.
 # 재현: scripts/material_gate.py (이 표의 권위)
-MAT_GATE_H = {"D": 7.22, "C": 7.61, "B": 12.59, "A": 12.73, "S": 20.91}   # 풀세팅 포획 시간(h)
+# ★★2026-08-27 — 하드코딩 폐기. 이 표는 deprecated material_gate.py 산출이었고
+#   LP(material_value.py)와 최대 68% 어긋났다(D 7.22 vs 4.31). 이제 LP 에서 매번 다시 뽑는다.
+#   구 값(이력): D 7.22 · C 7.61 · B 12.59 · A 12.73 · S 20.91
+#  ★지연 로딩 — 모듈 임포트 시점에 material_value 를 부르면 순환이 된다
+#    (material_value.Data.stage_wage 가 stat_value 의 구간 수입을 쓴다).
+#    또 여기서는 **시급을 쓰지 않는다** — 재료 게이트(h)와 세트 가격(원)만 가져오고,
+#    «돈 게이트»는 compute() 안에서 그 구간의 income 으로 나눠 만든다. 그래야 시급이
+#    한 곳(compute)에서만 결정되고 스크립트 간 불일치가 생기지 않는다(2026-08-27 결함).
+_GATES = None
+
+
+def _gates():
+    """{등급: (재료게이트h, 풀세팅가격원)} — LP(material_value) 실측. 첫 호출에 1회만."""
+    global _GATES
+    if _GATES is None:
+        MV = _load("material_value")
+        D = MV.Data()
+        _GATES = {}
+        for g in ("D", "C", "B", "A", "S"):
+            names, bom, price = MV.full_set_bom(D, g)
+            if not names:
+                continue
+            h, _, _, _ = D.gate(bom)
+            _GATES[g] = (round(h, 2), price)
+    return _GATES
 # 가격 게이트도 같은 단위(풀세팅 가격 ÷ 그 티어 실측 수입)로 맞췄다. 구 표는 아이템 1점 평균
 # 가격을 중반 앵커로 나눈 값이라 단위가 재료 쪽과 어긋나 있었다.
-GOLD_GATE_H = {"D": 0.55, "C": 1.04, "B": 3.20, "A": 11.52, "S": 16.98}  # 노동 시간(h)
+# 구 값(이력): MAT_GATE_H D 7.22 · C 7.61 · B 12.59 · A 12.73 · S 20.91
+#              GOLD_GATE_H D 0.55 · C 1.04 · B 3.20 · A 11.52 · S 16.98 (구 앵커 345,778·370,210)
 STAGE_TIERS = {"초반": ["D", "C"], "중반": ["B"], "종결": ["A", "S"]}
 # ★2026-08-26 폐기(0.5 → 1.0). 구 근거는 "진행은 레벨 축과 장비 축 둘인데 재료확률은 장비 축만
 # 당기므로 절반"이었고 «경험치와 대칭»이라 적혀 있었지만, 실은 **비대칭 이중할인**이었다:
@@ -283,14 +308,19 @@ def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     # ── 게이트 경유 (재료확률) ───────────────────────────────────────
     # 이 구간 티어들 중 «재료가 관문»인 비율만큼만 값이 난다. 관문이 돈이면 0.
     tiers = STAGE_TIERS[stage]
-    binding = [t for t in tiers if MAT_GATE_H[t] > GOLD_GATE_H[t]]
+    G = _gates()
+    # 돈 게이트 = 풀세팅 가격 ÷ **이 구간의 income** (시급을 여기서 딱 한 번 결정한다)
+    mat_gate = {t: G[t][0] for t in tiers if t in G}
+    gold_gate = {t: G[t][1] / income for t in tiers if t in G}
+    binding = [t for t in tiers if t in G and mat_gate[t] > gold_gate[t]]
     gear_share = len(binding) / len(tiers)
     # 장비 게이트가 돈으로 넘어간 구간에서도 요리·작살·중간재 싱크가 재료를 관문으로 남긴다.
     sink_share = max(gear_share, NON_GEAR_SINK_SHARE[stage])
     V["재료확률 (1%)"] = (
         income * 0.01 * sink_share * GEAR_AXIS_SHARE,
         f"재료 게이트 ÷(1+v/100). 장비 재료관문 {len(binding)}/{len(tiers)}({','.join(tiers)})"
-        f", 비장비싱크 {NON_GEAR_SINK_SHARE[stage]:g} → 유효 {sink_share:g} × 장비축 {GEAR_AXIS_SHARE:g}")
+        f", 비장비싱크 {NON_GEAR_SINK_SHARE[stage]:g} → 유효 {sink_share:g} × 장비축 {GEAR_AXIS_SHARE:g}"
+        f" · 게이트(LP) " + " ".join(f"{t} 재료{mat_gate[t]:.1f}h↔돈{gold_gate[t]:.1f}h" for t in tiers if t in G))
 
     # ── 작살 사이클 경유 (돌진쿨감) ─────────────────────────────────
     base_c = harpoon_cycles(0)
