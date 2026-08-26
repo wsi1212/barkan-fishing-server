@@ -5,3 +5,6 @@ stats-lab/sandbox-data/
 __pycache__/
 discord-bot/node_modules
 casino-tools/rendered/
+
+# balance-audit 텔레메트리 사본 (prod DB 36MB+, 매번 다시 받으면 된다 — 레포는 이미 2GB push 상한 근처)
+.claude/skills/balance-audit/audits/telemetry-cache/
