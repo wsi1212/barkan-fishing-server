@@ -106,7 +106,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - `/콤보` (조회=일반, `/콤보 <n>` 설정만 op) · `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
-- `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — 비,뇌우,태풍,안개,모래바람,눈보라,열대야,땡볕
+- `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — **날씨 목록을 여기 적지 않는다**(드리프트). `/날씨설정` 을 인자 없이 치면 WeatherManager 가 정의한 전체 목록 + 각각의 전역/지역·시간 조건을 출력한다. 지역전용 날씨는 지역 `allowedWeathers` 화이트리스트에 이름이 있어야 자동 발동한다 — 비어 있으면 OP 수동 발동만 되고 자동으로는 영원히 안 뜬다(2026-08-27 태풍·눈보라가 그 상태였다).
 - **중요**: 서버 최초 설정 시 `/gamerule advance_weather false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
 - **⚠️ 1.21.11 게임룰 개명 — 옛 camelCase 이름은 전부 없는 이름이다.** 콘솔/RCON 에서 `gamerule doWeatherCycle` 같은 걸 치면 `Incorrect argument for command` 만 나오고 **에러 원인이 안 보인다**(룰이 없다는 말을 안 해 준다). 이름은 level.dat `game_rules` 가 권위 — snake_case 인데다 **뜻까지 바뀐 게 있다**:
   - `doDaylightCycle` → **`advance_time`** · `doWeatherCycle` → **`advance_weather`**
