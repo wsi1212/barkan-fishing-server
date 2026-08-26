@@ -32,6 +32,9 @@ FISH_DIFFICULTY = {"E": 0, "D": 2, "C": 4, "B": 8, "A": 12, "S": 16, "M": 24, "L
 
 MAX_STEPS = 200  # 라이브 startJava 기본값(10초)
 
+#: 존 «순간이동» 1회 최대 도약 칸수 — MinigameManager.MAX_ZONE_JUMP 와 짝. 어긋나면 S+ 오평가.
+MAX_ZONE_JUMP = 5
+
 
 def speed_mult(step, pattern):
     if pattern == 0:
@@ -113,8 +116,19 @@ def simulate_round(d, delay_ticks, rng):
                 zone_move_count += 1
                 if zone_move_count >= zone_move_interval:
                     zone_move_count = 0
-                    zone_start = rng.randint(0, max(0, bar_width - zone_width))
-                    zone_end = zone_start + zone_width - 1
+                    # ★2026-08-27 라이브 동기화 — MinigameManager.repositionZoneRandom 은
+                    #   2026-08-26 부터 «바 전체 무작위»가 아니라 근거리 도약(±MAX_ZONE_JUMP)이다.
+                    #   시뮬은 옛 전체무작위를 그대로 쓰고 있어 S+ 순간이동을 과하게 어렵게
+                    #   평가했다(존폭 1칸에서 바 반대편으로 사라지는 구간이 실제보다 잦음).
+                    ms = max(0, bar_width - zone_width)
+                    if ms > 0:
+                        mj = min(MAX_ZONE_JUMP, ms)
+                        lo = max(0, zone_start - mj); hi = min(ms, zone_start + mj)
+                        nxt = rng.randint(lo, hi)
+                        if nxt == zone_start:  # 제자리는 순간이동이 아니다
+                            nxt = zone_start - 1 if zone_start > lo else (zone_start + 1 if zone_start < hi else zone_start)
+                        zone_start = nxt
+                        zone_end = zone_start + zone_width - 1
             if d["spot_move_speed"] > 0:
                 if spot_cooldown > 0:
                     spot_cooldown -= 1

@@ -293,9 +293,24 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 | `harpoon_value.py` | 창 전용 스탯 6종 + 등급천장 | ✅ 권위 |
 | `price_ladder.py` | 구간 수입·가격 밴드 역산 | ✅ 권위 |
 | `minigame_sim.py` `gradroller_sim.py` | 난이도·등급 롤 시뮬 | ✅ 권위 |
+| `rod_lines.py` | 스폰마을 낚싯대 **라인 설계** — 라인별 메인/부스탯 고정 → 난이도는 순간이동 문턱에서 역산 → 남은 자유도만 회수시간에 적합 | ✅ 권위 |
 | `cross_economy_values.py` `buff_values.py` `cooking_full_audit.py` `bait_reprice.py` `xp_curve_lv70.py` `gold_curve*.py` `gen_balance_workbook.py` | 경제별 파생 | ✅ 그대로 |
 | `material_gate.py` | 구 재료 게이트 휴리스틱 | ⛔ **DEPRECATED** → `material_value.py` |
 | `gear_payback.py` | 구 회수시간 | ⛔ **DEPRECATED** → `item_ledger.py` |
+| ~~`rod_rebalance.py`~~ | 구 낚싯대 라인 스케일러 | ⛔ **삭제(2026-08-27)** → `rod_lines.py` |
+
+### ★난이도는 «단가 × 점수»로 세지 않는다 (2026-08-27)
+
+`zoneWidth = 8 + floor(net/2)` 라 난이도 1점이 두 점마다 존 한 칸을 넓히고, 등급마다
+«이미 100%» 인 지점에서 값이 죽는다. 1점의 값이 구간에 따라 **3~4배** 다르다.
+`stat_value.diff_curve(stage)` 가 누적표를 주고 `item_ledger` 는 그걸 조회한다.
+그리고 «순간이동(overflowDiff>0)» 은 캘리브레이션과 무관하게 참인 **구조 지표**다 —
+난이도를 논할 때는 성공률보다 이걸 먼저 쓴다(`rod_lines.teleport_frac`).
+
+**시뮬 상수는 라이브와 짝이다.** `minigame_sim.MAX_ZONE_JUMP` ↔
+`MinigameManager.MAX_ZONE_JUMP` · `success_rates` 의 크기난이도 가중 ↔
+`MinigameTables.sizeDifficulty`. 2026-08-27 전까지 둘 다 어긋나 있었고(전체무작위 도약 ·
+size=0 고정) S+ 평가가 통째로 틀렸다.
 
 **상수를 스크립트에 하드코딩하지 말 것.** 2026-08-26 이전엔 구 가정 `220 포획/h` 가 네 파일에 흩어져
 있었고 하나만 고쳐진 채 넉 달을 갔다. 새 상수가 필요하면 `measured.py` 에 넣고 거기서 읽는다 —

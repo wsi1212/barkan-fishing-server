@@ -24,6 +24,10 @@ import argparse, importlib.util, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
+#: 라이브 데이터 폴더 — material_value.BS 와 같은 규약(BLOCKSHIP_DATA 로 덮어쓰기 가능)
+BS = os.environ.get("BLOCKSHIP_DATA",
+                    "/Users/user/Library/Application Support/feather/player-server/servers/"
+                    "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip")
 
 
 def _load(name):
@@ -222,10 +226,64 @@ def grade_dist(pool, level, luck=0, n=400_000, seed=20260805):
     return {g: cnt.get(g, 0) / n for g in GRADE_ORDER}
 
 
+# ── 등급별 크기난이도 분포 (★2026-08-27 신설) ─────────────────────────────
+#  `MinigameTables.derive` 는 net = rodBonus − fishDifficulty(등급) − **sizeDifficulty(cm)** 다.
+#  여기서 sizeDifficulty 는 0(<50cm)~7(350cm+) 이고 «존폭»에 직접 들어간다. 그런데 시뮬은
+#  넉 달 내내 **size=0** 으로만 돌았다 — 즉 «모든 물고기가 50cm 미만»이라는 가정이었다.
+#  S 급 46종의 기대 sizeDifficulty 는 3.23 이다(fish.json 균등 롤). 3점을 빼먹으면 존폭이
+#  1~2칸 넓게 잡히고, «순간이동(zoneWidth<1)» 구간에 언제 진입하는지가 통째로 어긋난다.
+#  ⇒ 등급별 sizeDifficulty **분포**를 fish.json 에서 뽑아 가중평균 성공률을 낸다(정수 축이라
+#     기대값 하나로 뭉개면 계단을 못 넘는다 — 3.23 과 {3:0.77,4:0.23} 은 다른 답을 준다).
+_SIZE_DIST = None
+
+
+def size_difficulty_dist():
+    """등급 → {sizeDifficulty: 확률}. fish.json 의 [min,max] 균등 롤 · 종별 등가중."""
+    global _SIZE_DIST
+    if _SIZE_DIST is not None:
+        return _SIZE_DIST
+    import collections, json as _json, os as _os
+    path = _os.path.join(BS, "fish.json")
+    out = {}
+    try:
+        fish = _json.load(open(path, encoding="utf-8"))["fish"]
+    except Exception:
+        _SIZE_DIST = {g: {0: 1.0} for g in GRADE_ORDER}
+        return _SIZE_DIST
+    byg = collections.defaultdict(list)
+    for d in fish.values():
+        byg[d.get("grade")].append((float(d["minSize"]), float(d["maxSize"])))
+    for g in GRADE_ORDER:
+        acc = collections.Counter()
+        rows = byg.get(g) or []
+        if not rows:
+            out[g] = {0: 1.0}
+            continue
+        for mn, mx in rows:
+            for i in range(101):                       # 균등 롤 100분할
+                sz = mn + (mx - mn) * i / 100.0
+                sd = 0 if sz < 50 else min(int((sz - 50) // 50) + 1, 7)
+                acc[sd] += 1.0 / (101 * len(rows))
+        out[g] = dict(acc)
+    _SIZE_DIST = out
+    return out
+
+
 def success_rates(rod_bonus, escape_reduction, trials=4000):
-    """등급별 미니게임 성공률 (minigame_sim, 반응 250ms+핑 40ms)."""
-    return {g: MG.simulate_catch(g, rod_bonus, escape_reduction, REACT_TICKS, trials, seed=7)
-            for g in GRADE_ORDER}
+    """등급별 미니게임 성공률 (minigame_sim, 반응 250ms+핑 40ms, 크기난이도 가중)."""
+    sdist = size_difficulty_dist()
+    out = {}
+    for g in GRADE_ORDER:
+        acc = 0.0
+        for sd, w in sorted(sdist[g].items()):
+            if w < 0.005:                              # 꼬리는 버린다(시뮬 비용)
+                continue
+            n = max(400, int(trials * w))
+            acc += w * MG.simulate_catch(g, rod_bonus, escape_reduction, REACT_TICKS,
+                                         n, seed=7 + sd, size=sd)
+        tot = sum(w for sd, w in sdist[g].items() if w >= 0.005)
+        out[g] = acc / tot if tot else 0.0
+    return out
 
 
 def income_of(dist, size_score=SIZE_SCORE, sell_bonus=0.0):
@@ -272,6 +330,37 @@ def success_rates_cal(rod_bonus, escape_reduction, trials=6000):
     raw = success_rates(rod_bonus, escape_reduction, trials)
     cal = _calibration()
     return {g: min(1.0, max(0.0, v + cal.get(g, 0.0))) for g, v in raw.items()}
+
+
+# ── 난이도 «누적» 가치 곡선 (★2026-08-27 신설) ─────────────────────────────
+#  난이도는 선형이 아니다. zoneWidth = 8+floor(net/2) 라 1점이 두 점마다 한 칸을 넓히고,
+#  등급마다 «이미 100%」가 되는 지점에서 값이 죽는다. 실제로 보정 후 곡선은
+#      0→2  B +18%p · A +8%p     (계단 하나)
+#      4→6  B 이미 100% · A +14%p
+#      8→12 A·B 포화, S +18%p 만 남음
+#  즉 «1점의 값»은 그 낚싯대가 이미 몇 점을 갖고 있느냐에 따라 3~4배 다르다. 단가 하나로
+#  곱하면 저난이도는 과소, 고난이도는 과대 평가된다 — 숙련형(난이도 6~10)을 설계하는 순간
+#  그 오차가 그대로 «회수시간»에 실린다.
+#  ⇒ d 점의 값을 **누적 곡선**으로 준다: Vdiff(d) = income × success_gain(0 → d).
+#     item_ledger 는 d×단가 대신 이 표를 읽는다.
+_DIFF_CURVE = {}
+
+
+def diff_curve(stage, dmax=16, trials=3000):
+    """stage → {난이도 d: 누적 원/h}. d=0 은 0. 단조 증가로 클램프한다(MC 잡음 제거)."""
+    if stage in _DIFF_CURVE:
+        return _DIFF_CURVE[stage]
+    pool, level = STAGES[stage]
+    dist = grade_dist(pool, level)
+    income, _ = income_of(dist)
+    base = success_rates_cal(0, 0, trials)
+    out, run = {0: 0.0}, 0.0
+    for d in range(1, dmax + 1):
+        g = success_gain(dist, base, success_rates_cal(d, 0, trials))
+        run = max(run, income * g)      # MC 잡음으로 뒤 점이 낮게 나오면 앞 값을 유지
+        out[d] = run
+    _DIFF_CURVE[stage] = out
+    return out
 
 
 def success_gain(dist, base_succ, new_succ):

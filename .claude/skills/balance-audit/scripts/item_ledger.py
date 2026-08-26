@@ -71,14 +71,15 @@ DASH_KEY = {"돌진쿨감": "돌진쿨감 (1%)"}
 SPEAR_ONLY = {"수중호흡", "호흡시간", "수영속도", "공격력", "공격속도", "돌진쿨감"}
 SPEAR_UNMODELED = {"야간투시"}
 # 낚싯대 전용 유지비 절감 — 회수시간이 아니라 유지비 쪽에서 값이 난다.
-UPKEEP = {"내구보존"}
+#: 유지비 절감축 — 2026-08-27 «내구보존» 폐지로 비었다. 집합은 남겨 둔다(다시 그런 축이
+#  생기면 여기에 넣으면 되고, 비어 있는 채로도 모델커버리지 계산이 그대로 돈다).
+UPKEEP = set()
 SPECIAL = {"등급특화"}
 
 # EquipmentManager.gradeUnitRate — 내구 1점 회복 단가(원). 내구는 시도 1건에 1점 깎인다.
 REPAIR_RATE = {"E": 5, "D": 11, "C": 15, "B": 18, "A": 39, "S": 60, "M": 100, "L": 150, "G": 220}
-# ★내구보존 가치의 전제 미끼 — 「현실」 시나리오는 실제로 쓸 수 있는 최저가 미끼(지렁이 5원)다.
-#   설계 의도대로 «그 레벨 권장 미끼»를 쓰면 내구보존 가치가 수십 배로 뛴다. 그 격차 자체가
-#   미끼 소모규칙이 붕괴했다는 증거이므로, 여기서는 현실 시나리오를 기본으로 쓰고 격차를 표기한다.
+#: 세트 유지비 산정용 최저가 미끼(지렁이 5원). 내구보존이 있던 동안 «절감액»의 분모였고,
+#  스탯 폐지 후에도 미끼 자기유지비의 하한 기준으로 남는다.
 CHEAPEST_BAIT = 5
 
 STAGE_OF_LEVEL = lambda lv: "초반" if lv < 20 else ("중반" if lv < 50 else "종결")
@@ -169,11 +170,17 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
         # 작살은 같은 스탯 1점의 값이 낚싯대와 다르다(처리량·quality 차) → 실측 비로 스케일
         scale = harp_ratio if cat == "작살" else 1.0
         inc = growth = gate = dash = 0.0
+        diff_pts = 0.0
         unknown = []
         for k, v in stats.items():
             if not isinstance(v, (int, float)):
                 continue
-            if k in STAT_KEY:
+            if k == "난이도":
+                # ★난이도만 «누적 곡선»으로 센다(단가 × 점수 금지) — stat_value.diff_curve 참조.
+                #   존폭이 2점마다 1칸 넓어지고 등급별로 100% 에서 포화하는 계단 함수라
+                #   단가 하나로 곱하면 고난이도(숙련형 6~10)를 통째로 과대평가한다.
+                diff_pts += v
+            elif k in STAT_KEY:
                 inc += v * V[STAT_KEY[k]] * scale
             elif k in GROWTH_KEY:
                 growth += v * V[GROWTH_KEY[k]] * scale
@@ -197,13 +204,17 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
         #   근거: stat_value 의 경험치 값 자체가 「레벨링 국면: income 1%와 동가치(병렬진행)」로
         #   정의돼 있다 — 이미 원/h 로 환산된 값이므로 카테고리에 따라 넣고 빼면 일관성이 깨진다.
         #   ★단 이 값은 **만렙 후 0** 이다. growth_share 컬럼으로 그 비중을 드러낸다.
-        eff = inc + gate + growth + spear_val
+        # 난이도 누적 곡선 (작살은 미니게임이 없어 해당 없음 — HarpoonManager 가 제외한다)
+        diff_val = 0.0
+        if diff_pts > 0 and cat != "작살":
+            curve = SV.diff_curve(stage)
+            d = int(round(diff_pts))
+            diff_val = curve.get(d, curve[max(curve)])
+        eff = inc + gate + growth + spear_val + diff_val
 
         # ── 유지비 (2026-08-26 신설) ──────────────────────────────────
-        #   ★내구보존은 reduceDurability() **전체를 스킵**한다 — 릴/줄/바늘/찌 4슬롯의 내구와
-        #     **미끼 1개까지 같이 아낀다**. 그래서 income 스탯이 아니라 «유지비 절감»으로 값이 난다.
-        #     여태 이 스탯을 0으로 두고 있었다(gear_payback OTHER 집합) → 내구보존 특화 낚싯대
-        #     (참나무·전문가·흑단목·수호자)가 전부 «살 이유 없음»으로 잡혀 있었다.
+        #   ★2026-08-27 «내구보존» 스탯 폐지 — 소모를 확률로 스킵하는 경로가 없어졌다.
+        #     수리비·미끼값은 이제 스탯으로 깎이지 않는 고정 유지비다(자기유지비만 남음).
         A = SV.CASTS_PER_HOUR
         own_upkeep = 0.0
         if cat in ("릴", "줄", "바늘", "찌"):
@@ -212,10 +223,7 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
             unit = (m["price"] if name not in afk
                     else afk[name][0] / max(1, afk[name][1]))   # P 단위는 아래에서 분리 표기
             own_upkeep = A * unit if name not in afk else 0.0
-        set_upkeep = A * (4 * REPAIR_RATE.get(grade, 5) + CHEAPEST_BAIT)
-        dur_val = stats.get("내구보존", 0) / 100.0 * set_upkeep if isinstance(
-            stats.get("내구보존", 0), (int, float)) else 0.0
-        eff += dur_val
+        dur_val = 0.0          # 구 내구보존 절감액 — 스탯 폐지로 영구 0(컬럼 호환 유지)
         eff_net = eff - own_upkeep
 
         # ── 모델 커버리지 ──────────────────────────────────────────────
