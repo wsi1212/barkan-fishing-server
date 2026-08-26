@@ -241,6 +241,39 @@ def income_of(dist, size_score=SIZE_SCORE, sell_bonus=0.0):
     return per_catch * CATCH_PER_HOUR, per_catch
 
 
+# ── minigame 성공률 실측 캘리브레이션 (★2026-08-27 신설) ────────────────────
+#  문제: `minigame_sim` 의 절대 성공률이 실측과 크게 어긋난다(모집단 평균 난이도 1.81 기준).
+#        B 모델 63.1% ↔ 실측 87.0% (+23.9%p) · A 30.2% ↔ 70.6% (+40.4%p) · S 4.5% ↔ 19.0%
+#  결과: «난이도로 개선할 여지»가 과대평가돼 난이도 정규화가 8.87 까지 부풀었다. 그 값이
+#        낚싯대 D 등급 목표 총합의 68% 를 먹어 라인 밸런스 산출이 극단값을 뱉었다.
+#  처방: 모집단 평균 난이도에서 모델이 실측과 만나도록 등급별 오프셋을 더한다(모양은 모델,
+#        수준은 실측). 상한 1.0 으로 클램프한다.
+#  ★한계: 도주 기록에 `st` 가 없어(logFishResultFail) «난이도별» 도주율은 관측 불가다.
+#        그래서 «수준»만 실측으로 맞추고 «난이도 반응 곡선»은 여전히 모델을 믿는다.
+#        텔레메트리에 실패 시 st 를 남기면 곡선까지 실측으로 검증할 수 있다.
+_CAL = None
+
+
+def _calibration():
+    global _CAL
+    if _CAL is None:
+        meas = _K.get("success_by_grade") or {}
+        md = _K.get("mean_difficulty_stat")
+        if not meas or md is None:
+            _CAL = {}
+        else:
+            base = success_rates(int(round(md)), 0)
+            _CAL = {g: meas[g] - base.get(g, 0.0) for g in meas}
+    return _CAL
+
+
+def success_rates_cal(rod_bonus, escape_reduction, trials=6000):
+    """실측 수준으로 보정한 등급별 성공률."""
+    raw = success_rates(rod_bonus, escape_reduction, trials)
+    cal = _calibration()
+    return {g: min(1.0, max(0.0, v + cal.get(g, 0.0))) for g, v in raw.items()}
+
+
 def success_gain(dist, base_succ, new_succ):
     """미니게임 성공률 개선이 '성공 매출'을 몇 % 늘리는지 (비율만 씀).
 
@@ -255,7 +288,8 @@ def success_gain(dist, base_succ, new_succ):
 def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     pool, level = STAGES[stage]
     dist = grade_dist(pool, level)
-    succ = success_rates(0, 0)                 # 기준 = 스탯 0 (나뭇가지) — 델타 산출 전용
+    succ = success_rates_cal(0, 0)             # 기준 = 스탯 0 (나뭇가지) — 델타 산출 전용
+                                               # ★실측 캘리브레이션 적용 (2026-08-27)
     income, per_catch = income_of(dist)
     m = size_mult(SIZE_SCORE)
     avg_catch = per_catch
@@ -297,11 +331,11 @@ def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
 
     # ── 미니게임 경유 (성공률 개선 '비율' × income) ──────────────────
     # 난이도: rodBonus가 zoneWidth를 넓혀 성공률을 올린다. 등급별 S자라 구간 평균으로 근사.
-    g_diff = success_gain(dist, succ, success_rates(6, 0))
+    g_diff = success_gain(dist, succ, success_rates_cal(6, 0))
     V["난이도 (1점)"] = (income * g_diff / 6.0,
                       "존폭 확장 → 성공매출 +%(rodBonus 0→6 ÷6). 등급문턱에서 몰리는 계단식")
     # 도주감소: 미스 '다음'에만 escapeBase를 ×30/(30+v) 로 줄이는 2차 방어선(2026-08-26 체감형)
-    g_esc = success_gain(dist, succ, success_rates(0, 20))
+    g_esc = success_gain(dist, succ, success_rates_cal(0, 20))
     V["도주감소 (1%)"] = (income * g_esc / 20.0,
                        "미스 후에만 발동, 체감형 ×30/(30+v) → 성공매출 +%(0→20 ÷20). 2026-08-26 구 floor(÷2) 교체")
 

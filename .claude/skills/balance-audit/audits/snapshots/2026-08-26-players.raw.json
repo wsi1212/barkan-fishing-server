@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-26 12:21:50",
+ "generated": "2026-08-26 15:33:22",
  "source_dbs": [
   "events-2026-07.db",
   "events-2026-08.db"
@@ -49,6 +49,31 @@
   "quality_mean": 69.3,
   "quality_median": 65.0,
   "xp_per_catch_mean": 5.61,
+  "success_by_grade": {
+   "E": 0.996,
+   "D": 0.995,
+   "C": 0.9814,
+   "A": 0.7064,
+   "B": 0.8702,
+   "S": 0.1053
+  },
+  "escape_by_grade_pct": {
+   "E": 0.4,
+   "D": 0.5,
+   "C": 1.86,
+   "A": 29.36,
+   "B": 12.98,
+   "S": 89.47
+  },
+  "grade_sample_n": {
+   "E": 1254,
+   "D": 1391,
+   "C": 966,
+   "A": 109,
+   "B": 262,
+   "S": 19
+  },
+  "mean_difficulty_stat": 1.81,
   "grade_dist_pct": {
    "S": 0.051,
    "A": 1.98,

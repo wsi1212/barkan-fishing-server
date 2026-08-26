@@ -37,6 +37,9 @@ FALLBACK = {
     "cast_to_result_pct": 62.0,      # 캐스트 → 결과
     "escape_pct": 2.8,
     "size_score": 69.3,              # 평균 quality
+    # ★등급별 실측 성공률 (1 − 도주율). 전체 97.2% 는 E/D/C 물량에 묻힌 값이고 고등급은 다르다.
+    "success_by_grade": {"E": 0.996, "D": 0.995, "C": 0.981, "B": 0.870, "A": 0.706, "S": 0.190},
+    "mean_difficulty_stat": 1.81,    # 모집단 평균 난이도 스탯 (캘리브레이션 기준점)
     "income_by_band": {"Lv1-9": 76493, "Lv10-19": 99645, "Lv20-29": 115083},
     "per_catch_by_band": {"Lv1-9": 402.0, "Lv10-19": 524.0, "Lv20-29": 606.0},
     "max_level_observed": 26,
@@ -78,7 +81,9 @@ def load(path=None, refresh=False):
                          ("completion_pct", "completion_pct"),
                          ("cast_to_result_pct", "cast_to_result_pct"),
                          ("escape_pct", "escape_pct"),
-                         ("quality_mean", "size_score")):
+                         ("quality_mean", "size_score"),
+                         ("success_by_grade", "success_by_grade"),
+                         ("mean_difficulty_stat", "mean_difficulty_stat")):
             if f.get(src) is not None:
                 k[dst] = f[src]
         if s.get("income_by_band"):

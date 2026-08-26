@@ -187,6 +187,30 @@ def main():
         "quality_median": st.median([d.get("q", 0) for d in oks]) if oks else None,
         "xp_per_catch_mean": round(st.mean([d.get("xp", 0) for d in oks]), 2) if oks else None,
     }
+    # ★2026-08-27 신설 — 등급별 도주율 + 모집단 평균 난이도.
+    #   전체 도주율 2.8% 는 E/D/C 물량에 묻힌 값이고 실제로는 B 13% · A 29% · S 81% 다.
+    #   minigame_sim 의 절대 성공률(B 44%)이 실측(87%)과 40%p 어긋나 난이도·도주감소 가치가
+    #   부풀려져 있었다 → stat_value 가 이 값으로 모델을 캘리브레이션한다.
+    #   ★도주 기록에는 st 필드가 없어(logFishResultFail) «난이도별» 도주율은 관측 불가다.
+    gd_all, gd_esc = collections.Counter(), collections.Counter()
+    for d in results:
+        g = d.get("g") or "?"
+        gd_all[g] += 1
+        if d.get("res") == "도주":
+            gd_esc[g] += 1
+    snap["fishing"]["success_by_grade"] = {
+        g: round(1 - gd_esc.get(g, 0) / gd_all[g], 4) for g in gd_all if gd_all[g] >= 10}
+    snap["fishing"]["escape_by_grade_pct"] = {
+        g: round(gd_esc.get(g, 0) / gd_all[g] * 100, 2) for g in gd_all if gd_all[g] >= 10}
+    snap["fishing"]["grade_sample_n"] = dict(gd_all)
+    dl = [(d.get("st") or {}).get("diff") for d in oks]
+    dl = [x for x in dl if x is not None]
+    snap["fishing"]["mean_difficulty_stat"] = round(sum(dl) / len(dl), 2) if dl else None
+    P("등급별 도주율: " + " · ".join(
+        f"{g} {snap['fishing']['escape_by_grade_pct'][g]:.1f}%"
+        for g in "EDCBASMLG" if g in snap["fishing"]["escape_by_grade_pct"])
+      + f"  · 모집단 평균 난이도 {snap['fishing']['mean_difficulty_stat']}")
+
     gd = collections.Counter(d.get("g") for d in oks)
     tot = sum(gd.values()) or 1
     snap["fishing"]["grade_dist_pct"] = {k: round(v / tot * 100, 3)
