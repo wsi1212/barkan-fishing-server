@@ -10,10 +10,18 @@ material_distribution.py — 재료 «지역 분배» 감사 (2026-08-27 신설)
      «강 전용 / 늪지대 전용» 같은 **독점**이 있는가?
 
 ────────────────────────────────────────────────────────────────────────────
-«가기 어려움»을 무엇으로 재는가
+«가기 어려움»을 무엇으로 재는가 — 판매상 거리 + 어종 난이도
 ────────────────────────────────────────────────────────────────────────────
-regions.json 의 레벨제한은 대부분 0 이라(원양 50 · 심해협곡 62 등 소수만) 게이트가
-아니다. 실제 난이도는 **그 지역 어종 풀의 평균 등급**이다 — 등급이 높으면 미니게임
+★**주축은 «가장 가까운 물고기 판매상까지의 거리»**다(2026-08-27 유저 확정). 고정점
+  (항구)이 아니다 — `/판매`(SellCommand)는 «가장 가까운 판매상»으로 안내하므로
+  (`shop=true` + `shopItems` 빈 NPC) 상단마을에서 낚으면 상단마을에서 판다.
+  페리는 미구성(`ferries.json` 에 `test` 노선 하나)이라 이동은 전부 도보/말이고
+  **거리가 곧 왕복 비용**이다.
+  판매상 좌표의 권위는 **prod `Citizens/saves.yml`** — npc.json 에는 좌표가 없고
+  dev 사본은 낡았다(판매상 8명 중 1명만 있었다).
+
+보조축은 난이도다. regions.json 의 레벨제한은 대부분 0 이라(원양 50 · 심해협곡 62 등
+소수만) 게이트가 아니고, 실제 난이도는 **그 지역 어종 풀의 평균 등급**이다 — 등급이 높으면 미니게임
 존폭이 좁아져(zoneWidth = 8+floor(net/2)) 장비 없이는 아예 못 낚는다. 그래서
 `fish.json.regions[지역]["기본"]` 의 등급 분포로 «평균 등급 인덱스»(E=0 … G=8)를 낸다.
 실측 지역 분포도 이 순서를 뒷받침한다(쉬운 항구 67.2% ↔ 어려운 늪지대 1.3%).
@@ -38,6 +46,14 @@ BS = os.environ.get("BLOCKSHIP_DATA",
                     "/Users/user/Library/Application Support/feather/player-server/servers/"
                     "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip")
 GRADES = list("EDCBASMLG")
+#: 물고기 판매상 좌표 — prod Citizens/saves.yml 실측 (2026-08-27).
+#  `shop=true` 이면서 `shopItems` 가 빈 NPC = 물고기 판매상(SellCommand 필터와 동일).
+#  ★drift: npc.json 에는 한스·궁정상인이 있는데 prod 에 스폰돼 있지 않고,
+#    반대로 prod 의 헬가는 npc.json 에 없다. 좌표 권위는 prod saves.yml 이다.
+SELLERS = {"그레타": (301.5, 1005.5), "오토": (444.5, 919.5), "헬가": (369.5, 873.5),
+           "카심": (-428.5, 211.5), "틸만": (425.6, 199.8),
+           "파올로": (1132.0, -65.0), "루카": (1168.0, -167.0)}
+
 #: 실측 지역 분포(%) — audits/snapshots/*-players.raw.json region_mix_pct
 SHARE = {"항구": 67.23, "강": 18.88, "협곡": 4.32, "오아시스": 4.27, "늪지대": 1.29,
          "정상": 1.23, "기억의연못": 1.16, "스폰도시": 0.8, "강_상류": 0.51,
@@ -68,6 +84,36 @@ def load():
     R = json.load(open(os.path.join(BS, "recipes.json"), encoding="utf-8"))
     P = json.load(open(os.path.join(BS, "parts.json"), encoding="utf-8"))
     return M, F, R, P
+
+
+def centroid(rd):
+    """지역 폴리곤의 **면적 가중** 무게중심. 단순 평균은 정점 밀집 쪽으로 쏠린다."""
+    poly = rd.get("polygon") or []
+    if len(poly) >= 3:
+        A = cx = cy = 0.0
+        for i in range(len(poly)):
+            x1, y1 = poly[i]
+            x2, y2 = poly[(i + 1) % len(poly)]
+            cr = x1 * y2 - x2 * y1
+            A += cr
+            cx += (x1 + x2) * cr
+            cy += (y1 + y2) * cr
+        if abs(A) > 1e-9:
+            A *= 0.5
+            return cx / (6 * A), cy / (6 * A)
+        return sum(q[0] for q in poly) / len(poly), sum(q[1] for q in poly) / len(poly)
+    p1, p2 = rd.get("pos1"), rd.get("pos2")
+    if p1 and p2 and p1 != [0, 0, 0]:
+        return (p1[0] + p2[0]) / 2, (p1[2] + p2[2]) / 2
+    return None
+
+
+def seller_distance(rd):
+    """그 지역 중심 → 가장 가까운 물고기 판매상 (거리, 이름). 좌표 없으면 (None, None)."""
+    c = centroid(rd)
+    if not c:
+        return None, None
+    return min((math.dist(c, xz), n) for n, xz in SELLERS.items())
 
 
 def region_difficulty(F):
@@ -189,8 +235,9 @@ def main():
         src = [x for x, t in dt.items() if any(e["matId"] == m for e in t)]
         if len(src) == 1:
             excl[src[0]].append(m)
-    print(f"\n{'지역':<14}{'난이도':>6}{'어종':>5}{'최고':>5}  |{'재료':>5}{'합%':>6}"
-          f"{'기대개/100캐':>11}{'최고티어':>8}{'전용':>5}  실측방문%")
+    Rj = json.load(open(os.path.join(BS, "regions.json"), encoding="utf-8"))
+    print(f"\n{'지역':<14}{'판매상':>7}{'거리':>6}{'난이도':>6}{'비용':>6}  |{'재료':>5}{'합%':>6}"
+          f"{'전용':>5}  실측방문%")
     rows = []
     for area in areas:
         t = dt[area]
@@ -200,10 +247,24 @@ def main():
         best = max((tier.get(e["matId"], ("E", "E", 0))[0] for e in t),
                    key=lambda g: GRADES.index(g), default="—")
         rows.append((area, d, n, tot, best, len(excl.get(area, []))))
-    for area, d, n, tot, best, ex in sorted(rows, key=lambda r: (r[1][0] if r[1] else -1)):
-        dd = f"{d[0]:>6.2f}{d[1]:>5}{d[2]:>5}" if d else f"{'—':>6}{'—':>5}{'—':>5}"
-        print(f"{area:<14}{dd}  |{n:>5}{tot:>6}{tot/100:>11.2f}{best:>8}{ex:>5}"
+    dists = {a: seller_distance(Rj.get(a) or {}) for a in areas}
+    dmax = max((v[0] for v in dists.values() if v[0]), default=1.0)
+    dvals = [r[1][0] for r in rows if r[1]]
+    lo, hi = (min(dvals), max(dvals)) if dvals else (0, 1)
+    cost = {}
+    for area, d, n, tot, best, ex in rows:
+        dd, _nm = dists.get(area, (None, None))
+        cost[area] = ((dd / dmax if dd else 0.5)
+                      + ((d[0] - lo) / (hi - lo) if d and hi > lo else 0.5))
+    for area, d, n, tot, best, ex in sorted(rows, key=lambda r: cost[r[0]]):
+        dd, nm = dists.get(area, (None, None))
+        print(f"{area:<14}{(nm or '—'):>7}{(f'{dd:.0f}' if dd else '—'):>6}"
+              f"{(f'{d[0]:.2f}' if d else '—'):>6}{cost[area]:>6.2f}  |{n:>5}{tot:>6}{ex:>5}"
               f"  {SHARE.get(area, 0):>8.2f}%")
+    cs = [(cost[r[0]], r[3]) for r in rows]
+    print(f"\n  ★스피어만 (접근 비용 ↔ 합확률) "
+          f"{spearman([c for c, _ in cs], [t for _, t in cs]):+.2f}"
+          "   ← 이것이 이 감사의 1번 지표다")
 
     have = [(r[0], r[1][0], r[3], r[2]) for r in rows if r[1]]
     print(f"\n  스피어만 상관 (난이도 ↔ …)")
