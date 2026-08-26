@@ -104,7 +104,10 @@ PURE_PROFIT = {"판매보너스", "더블찬스", "트리플찬스", "도망감�
 #    비율로 훨씬 많은 스탯을 주므로 「상위 등급이 가성비가 좋아야」 원칙이 자동 충족된다.
 DEFAULT_SINK = 0.12
 #  진행축 지불배수. 0 이면 진행은 공짜(구 동작), 1 이면 골드 환산 그대로, >1 이면 프리미엄.
-DEFAULT_CHARGE = 1.0
+#  ★1.5 로 확정(2026-08-27). 채집 라인은 수입축이 0 이라 가격 전체가 «진행 대가 + 싱크»다.
+#    c=1.0 → 수집 미끼 150원(낚시 수입의 29% 소모) / c=1.5 → 190원(37%) / c=2.0 → 230원(45%).
+#    37% = 「재료를 캐는 동안 낚시 수입의 1/3 을 낸다」로 읽히고, 진행 가치의 약 2.4배를 지불한다.
+DEFAULT_CHARGE = 1.5
 #  가격 라운딩 — 상점 표기가 읽히도록. 자릿수별 단계.
 def tidy(p):
     if p < 50:
@@ -167,22 +170,24 @@ def price_of(r, s, c=DEFAULT_CHARGE):
     return tidy(r["v_inc"] + c * r["v_prog"] + s * r["per_catch"])
 
 
-# ── 채집/수집 라인 스탯 재설계 (2026-08-27 유저 지시) ─────────────────────
-#  근거: 미끼가 같은 등급 부품과 **재료확률이 동일**(D4/C8/B15/A20)한데 **행운만 2~3배**다
-#        (미끼 D4·C7·B12·A17 ↔ 부품 D2·C3·B4·A6). 게다가 미끼는 6번째 슬롯이라 세트 합계에
-#        순증하고, 유일하게 갈아 끼우는 슬롯이라 «상황별 최적 선택» 프리미엄이 이미 있다.
-#  처방: 재료확률은 부품 사다리의 절반으로, 행운은 부품 라인에 정렬. 경험치는 유지.
-NERF_MATCHANCE = {"D": 2, "C": 4, "B": 7, "A": 10}     # 부품 4/8/15/20 의 절반
-NERF_LUCK = {"D": 2, "C": 3, "B": 4, "A": 6}           # 부품 라인과 동일
+# ── 채집 라인 재설계 — «재료확률 전문 미끼» (2026-08-27 유저 지시) ──────────
+#  지시: "채집 시리즈들 행운을 없애고 재료확률을 살리는 방향으로 가자 그래야 좀 독창적이지"
+#
+#  왜 이게 더 좋은 설계인가:
+#   ① **정체성이 갈린다.** 지금은 모든 미끼에 행운이 붙어 «행운 미끼 + 약간의 무엇»이라 선택이
+#      없다(실측: 22종 전부 행운 보유). 채집 라인에서 행운을 빼면 처음으로 진짜 분기가 생긴다 —
+#      「물고기 값을 올릴 것인가(행운·판매·크리) vs 재료를 캘 것인가(채집)」.
+#   ② **철학이 문자 그대로 성립한다.** 행운을 빼면 V수입 ≈ 0 이라 어떤 가격이든 «돈으로는
+#      손해»가 자동 보장된다. 「돈을 써서 재료를 얻는다」가 은유가 아니라 회계가 된다.
+#   ③ **행운은 재료확률보다 훨씬 싸다** — 초반 행운 1점 ≈ 재료확률 0.4%. 그래서 행운을 통째로
+#      빼도 잃는 가치가 작고, 그 몫을 재료확률로 되돌려 주면 «강화»처럼 느껴진다(체감 이득).
+#
+#  스탯 처방: 행운·등급업·판매보너스(수입축) 전부 제거 → 경험치 유지 + 재료확률 ×1.5
+#            (÷2 너프 초안은 폐기. 이 라인은 «약하게»가 아니라 «전문화»가 목표다)
+NERF_MATCHANCE = {"D": 6, "C": 12, "B": 22, "A": 30}   # 현행 4/8/15/20 의 ×1.5
+STRIP_STATS = {"행운", "등급업", "판매보너스", "더블찬스", "트리플찬스",
+               "크리확률", "크리배율", "크기", "도망감소"}
 COLLECTOR_LINE = {"채집 미끼", "수집 미끼", "유적 미끼", "수집상 미끼"}
-
-# ── 확정 제안 (2026-08-27) ────────────────────────────────────────────────
-#  채집 라인: 스탯 반감 + **가격 유지**(D 만 너프폭이 커서 소폭 인상, A 는 절대가가 실측
-#             사용 0 일 만큼 비싸 반감). 결과적으로 재확 단가가 2~3배 오른다.
-#  나머지: 모델가(V수입 + 싱크)로 정상화. 특히 A 수입축 4종은 6,435~10,370원 → 190~270원
-#          (실측 사용 0 회라 인하로 잃는 것이 없다).
-FINAL_COLLECTOR_PRICE = {"채집 미끼": 180, "수집 미끼": 370, "유적 미끼": 1395, "수집상 미끼": 6500}
-
 
 def apply_nerf(rows, k, A):
     """채집/수집 라인에 스탯 재설계를 적용하고 V수입·V진행을 다시 계산한다."""
@@ -195,10 +200,11 @@ def apply_nerf(rows, k, A):
             continue
         g = r["grade"]
         old = dict(r["stats"])
-        if "재료확률" in r["stats"] and g in NERF_MATCHANCE:
+        for k_ in list(r["stats"]):
+            if k_ in STRIP_STATS:
+                r["stats"].pop(k_)          # 수입축 전부 제거 → 채집 전문화
+        if g in NERF_MATCHANCE:
             r["stats"]["재료확률"] = NERF_MATCHANCE[g]
-        if "행운" in r["stats"] and g in NERF_LUCK:
-            r["stats"]["행운"] = NERF_LUCK[g]
         S = stage_of(r["lv"])
         r["v_inc"] = sum(v * V[S][INCOME[kk]] for kk, v in r["stats"].items() if kk in INCOME) / A
         r["v_prog"] = sum(v * V[S][PROGRESS[kk]] for kk, v in r["stats"].items() if kk in PROGRESS) / A
@@ -210,7 +216,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sink", type=float, default=DEFAULT_SINK, help="싱크 비율 (기본 0.12)")
     ap.add_argument("--charge", type=float, default=DEFAULT_CHARGE,
-                    help="진행축 지불배수 c (기본 1.0 · >1 이면 프리미엄)")
+                    help="진행축 지불배수 c (기본 1.5 · >1 이면 프리미엄)")
     ap.add_argument("--nerf", action="store_true",
                     help="채집/수집 라인 스탯 재설계안을 적용해 재산출")
     ap.add_argument("--final", action="store_true",
@@ -239,11 +245,13 @@ def main():
           + ("  · ★채집/수집 라인 스탯 너프 적용" if a.nerf else ""))
     print("가격 = V수입 + c×V진행 + 싱크  →  «돈(수입)으로는 항상 손해»가 구조적으로 보장된다")
     if a.nerf:
-        print("\n=== 채집/수집 라인 스탯 재설계 ===")
+        print("\n=== 채집 라인 재설계 — «재료확률 전문 미끼» (수입축 제거 + 재확 ×1.5) ===")
         for r in rows:
             if r.get("nerfed"):
                 o, n = r["nerfed"]
-                ch = ", ".join(f"{kk} {int(o[kk])}→{int(n[kk])}" for kk in n if o.get(kk) != n.get(kk))
+                keys = list(dict.fromkeys(list(o) + list(n)))
+                ch = ", ".join(f"{kk} {int(o.get(kk,0))}→{int(n.get(kk,0))}"
+                               for kk in keys if o.get(kk) != n.get(kk))
                 print(f"  {r['grade']} Lv{r['lv']:<3}{r['name']:<16}{ch}")
 
     if a.sweep:
@@ -347,7 +355,10 @@ def main():
     inv = []
     for hi in live:
         for lo in live:
-            if (hi["ord"] > lo["ord"] and hi["lv"] > lo["lv"]
+            # ★축이 다르면 역전이 아니다 — 진행축 전문 미끼가 수입축 미끼보다 비싼 것은
+            #   설계 의도다(다른 물건을 파는 것이다). 같은 축끼리만 비교한다.
+            if (hi["has_prog"] == lo["has_prog"]
+                    and hi["ord"] > lo["ord"] and hi["lv"] > lo["lv"]
                     and price_of(hi, a.sink, a.charge) < price_of(lo, a.sink, a.charge) * 0.98):
                 inv.append((hi, lo))
     if not inv:
