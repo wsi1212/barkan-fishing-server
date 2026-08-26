@@ -174,11 +174,15 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 ### Dev / Prod 분리 (옵션 C - 하이브리드)
 - **Mac** = dev: 본인이 개발/테스트하는 곳 (★**feather 미사용** — `~/dev-mc.sh start/stop/restart/cmd <명령>/log [N]`로 관리, RCON 25575 pw devtest2026. 서버파일은 옛 feather 폴더 경로에 있지만 실행/재시작은 dev-mc.sh)
 - **Oracle (춘천)** = prod: 베타 유저 접속하는 운영 서버
-- **유저 데이터(`world/` 등)는 환경별 별개** — sync 금지!
+- **prod 가 데이터 권위, dev 는 그 미러** (2026-08-27 유저 결정). 출시 후에도 사람들은 prod 에서 놀고 dev 는 극히 일부 상황에서만 쓴다 → **prod→dev 전체 클론이 정상 작업**이다(`~/mc-sync/mc-sync.sh`). 반대 방향(dev→prod)은 진짜 유저 진행도를 지우므로 여전히 금지에 가깝다 — 코드·콘텐츠를 prod 로 보내는 건 `~/deploy-blockship.sh` 이지 데이터 클론이 아니다.
+  - ★작업 원본은 **dev 라이브 폴더가 아니라 git 레포 `ops/blockship-data/`** 다. dev 의 `plugins/BlockShip/` 은 굴려보는 런타임 사본이라 덮여도 레포에서 다시 나온다. 이 구조라서 prod→dev 미러가 안전하다 — 구조가 바뀌면 이 전제부터 다시 볼 것.
 - 코드(jar, 설정)만 dev → prod 동기화
 - **dev 코드 배포 한 줄**: `~/deploy-dev.sh` (BlockShip 빌드 → dev plugins/ 복사 → dev-mc.sh restart 자동)
 - **⚠️ dev 기동 느림(~83s, 타임아웃 90s 아슬아슬)**: 타임아웃 떠도 실패 아님(그냥 느림), 몇 초 더 기다리면 뜸. 곧바로 재시작하면 뜨는 중인 인스턴스가 `world/session.lock`을 잡은 채라 새 인스턴스가 죽고 **좀비 java 누적**(락만 잡고 25565 미리슨) — 감지: `ps aux|grep paper-1.21.11.jar` 2개 이상. 해결: `pkill -9 -f paper-1.21.11.jar` → 락 해제 확인 → `dev-mc.sh start` 1회.
-- **prod↔dev 데이터 동기화(수동, 기본 꺼짐)**: `~/mc-sync/mc-sync.sh` (launchd 자동 sync는 2026-07-05 해제 — dev의 플러그인 편집이 매일 덮여 유실된 사고 이후 수동 전환). `DATA_PATHS` 비어있어 **플러그인 데이터는 sync 안 됨**, 월드만 prod→dev 미러. `--dry-run`으로 미리 확인.
+- **prod↔dev 데이터 동기화(수동 실행)**: `~/mc-sync/mc-sync.sh`. launchd 자동 sync 는 2026-07-05 해제(dev 플러그인 편집이 매일 덮여 유실된 사고) — **수동 실행만**. 방향은 `config.env` 의 `DIRECTION`(기본 `prod_to_dev`), dev→prod 는 `CONFIRM_OVERWRITE_PROD=yes` 인터록이 걸려 있다. 목적지를 정지시키고 목적지 게임데이터를 백업(`~/mc-sync/backups/gamedata-dev-<TS>/`)한 뒤 미러한다. 월드는 **소스에서 자동 발견**되므로 목적지 고유 월드(dev 의 `SuperiorWorld` 등)는 안 지워진다.
+  - ★`DATA_PATHS` 는 **비어 있지 않다**(2026-08-27 실측 — 옛 문서는 「비어있어 플러그인 데이터 sync 안 됨」이라 적혀 있었으나 값이 되채워져 있었고 주석만 옛 상태였다). 현재 `plugins/BlockShip` · Citizens `saves.yml`/`shops.yml`/`skins` · `Multiverse-Core/worlds.yml` 이 **전부 덮인다**. 「안 덮인다」고 믿고 dev 에서 작업하면 그대로 잃는다.
+  - ★**`--dry-run` 은 이 맥에서 무용지물이다.** macOS 는 rsync 가 아니라 **openrsync**(protocol 29, "2.6.9 compatible") 라 `--dry-run --stats` 가 항상 `Number of files transferred: 0` 을 낸다. 미리보기는 `rsync -an --itemize-changes` 로 직접 볼 것.
+  - 2026-08-27 스크립트 결함 2개 수정: ① `${DRY_RUN:+[dry] }` 가 `DRY_RUN=0` 에서도 확장돼 **진짜 실행이 로그에 `[dry]` 로 찍혔다** ② `rsync | grep … || true` 가 rsync 종료코드를 삼켜 **깨진 전송도 exit 0** 이었다(실제로 `world` 가 14 region 부족한 채 「성공」으로 끝났다). 이제 실패를 모아 비영점 종료한다.
 
 ### 자동 sync (옵션 C)
 **BlockShip Java plugin** — 빌드 후 배포 스크립트
