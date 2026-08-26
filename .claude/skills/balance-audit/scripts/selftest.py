@@ -225,6 +225,15 @@ def t7_drift(rows):
     pearl = {d["chance"] for t in M["dropTables"].values() for d in t if d["matId"] == "진주"}
     ok(len(star) > 1, "별빛진주 지역 기울기", f"{sorted(star)}%  (1종이면 균일=설계 위반)")
     ok(len(pearl) > 1, "진주 지역 기울기", f"{sorted(pearl)}%")
+    # ★별빛진주는 A/S 종결 재료(사용처 63곳 중 A 46 · S 7 · G 1)다. E/D 레시피에 내려오면
+    #   진주(전 티어 공통 기초, 203곳)와 역할이 뒤섞인다 — 저티어 대체재는 진주를 쓸 것.
+    Pj = json.load(open(os.path.join(BS, "parts.json"), encoding="utf-8"))["parts"]
+    gr = {n: v.split("|")[1] for sl, it in Pj.items() for n, v in it.items()}
+    Rj = json.load(open(os.path.join(BS, "recipes.json"), encoding="utf-8"))["recipes"]
+    low = [r.get("resultPartName") or r.get("rodPartName") for r in Rj.values()
+           if (gr.get(r.get("resultPartName") or r.get("rodPartName") or "") in ("E", "D")
+               and any(i["typeOrMatId"] == "별빛진주" for i in r["ingredients"]))]
+    ok(not low, "별빛진주 저티어 침범", f"{low or '없음'}  (E/D 레시피는 진주를 쓸 것)")
     # 드랍표 항목은 «영역이 있고 어종 풀이 있는» 지역에만 — 2026-08-27 규칙
     Fj = json.load(open(os.path.join(BS, "fish.json"), encoding="utf-8"))
     Rj = json.load(open(os.path.join(BS, "regions.json"), encoding="utf-8"))
