@@ -36,11 +36,32 @@ rod_rebalance.py — 낚싯대 «라인 밸런스» 산출. 같은 등급·같�
 - **그 외 라인**: 주력 쌍의 부여량을 목표 비율로 스케일. 난이도·행운(보편 부스탯)과
   내구보존은 건드리지 않는다.
 
-## 왜 재확을 «올리지 않고 내리는가»
-미끼에서는 행운이 동급 부품의 2~3배라 «수입축 제거»가 곧 너프였다. 낚싯대는 행운이
-사다리 정상 수준(2/3/4/16)이라 빼도 잃는 게 작고(정규화 0.40), 재확만 부품 사다리의
-2.5배(10/18/28/50 ↔ 부품 4/8/15/20)다. 즉 낚싯대 채집 라인의 과함은 **재확 자체**에 있다.
-그래서 여기서는 재확을 목표에 맞춰 **내린다**(미끼와 반대 방향인 이유).
+## 채집 라인 = «재료확률 전문 낚싯대» (★2026-08-27 유저 확정)
+
+초안은 재확을 목표에 맞춰 **내렸다**(10→2 / 18→12 / 28→12). 유저 판단이 그걸 뒤집었다:
+
+> "낚싯대도 재확이 그렇게 사기면 다른 스탯을 거의 죽여버리거나 없애고 그냥 재료확률만 냅둬.
+>  그게 유저입장에서는 더 좋을거야"
+
+맞다. 재확을 깎으면 «채집 낚싯대»라는 정체성이 사라지고 그냥 약한 낚싯대가 된다(D 재확 2는
+부품 사다리 4보다도 낮다). 대신 **다른 스탯을 없애면** 같은 밸런스를 얻으면서 정체성은 살아
+있고, 선택이 진짜 트레이드오프가 된다.
+
+처방: 재확·경험치·내구보존만 남기고 **난이도·행운·등급업·판매보너스·더블·크리·크기 전부 제거**
+  · ★난이도까지 뺀다 — 그러면 고등급 미니게임이 사실상 불가해진다(캘리브레이션 기준 난이도 0
+    에서 B 68% · A 52% · S 10%). 그게 이 낚싯대의 대가다: 「재료는 쏟아지지만 대물은 못 잡는다」.
+    잃는 포획은 B·A·S 가 전체의 8% 뿐이라 재료 수급 자체에는 타격이 작다.
+  · 경험치·내구보존은 남긴다 — 둘 다 수입축이 아니고(진행축·유지비 절감) 「오래 낚아 재료를
+    모은다」는 이 낚싯대의 용도와 방향이 같다.
+⇒ 결과적으로 income 이 거의 0 이 되어 **«돈은 못 벌고 재료만 캐는 낚싯대»** 가 된다.
+  미끼 채집 라인(수입축 0 + 재확 ×1.5)과 완전히 같은 철학이다.
+
+## 부수 재확(<10)은 제거 — 축을 채집 라인에 독점시킨다
+유목민4 · 오아시스5 · 고고학자의6 · 사막탐사6 · 감별사의6 · 왕립서고6 · 감정왕의8 ·
+유적탐사자의8 은 재확이 **장식**이다(그 라인의 정체성이 아니다). 빼면 축이 깨끗해지고,
+게다가 **생성기 산출과 일치**한다(gen_rod_builds 는 재확을 만들지 않는다) — 드리프트가 줄고
+그 아이템들이 다시 생성기 관리로 돌아온다.
+★단 그 순간 `is_external()` 보호를 잃으므로, 이후 그 아이템의 수치는 생성기 표가 권위가 된다.
 
 사용:
     python3 rod_rebalance.py                # 현황 + 제안
@@ -78,6 +99,11 @@ MEAS = _load("measured")
 #      목표와 실제가 어긋났다 → 상인형이 과잉 너프(다목적 판매 5→2)됐다.
 #  ⇒ 라인마다 «그 라인의 정체성 스탯»만 조정하고, 목표는 정규화가 아니라
 #    **item_ledger 의 순성능(원/h)** 을 직접 쓴다(단일 출처).
+# 채집 라인에 남길 스탯 — 이 밖의 스탯은 전부 제거한다
+FORAGE_KEEP = {"재료확률", "경험치", "내구보존"}
+# 부수 재확 판정 — 이 값 미만이면 «장식»으로 보고 제거한다
+FORAGE_DECOR_MAX = 9
+
 LINE_ADJ = {
     "숙련형":     ["내구보존"],
     "행운형":     ["등급업", "행운"],
@@ -199,16 +225,31 @@ def primary_table(path=GEN_ROD):
     return out
 
 
+# ── 가드레일 (★2026-08-27 2차 — 초안이 극단값을 뱉었다) ────────────────────
+#  초안은 상한을 «다음 등급의 설계값»으로 뒀는데 A 등급 판매보너스가 S 값 24 까지 올라
+#  8→24(3배) 같은 해가 나왔다. 그리고 하한이 없어 «판매보너스 16→1»(왕도 상회) ·
+#  «경험치 35→6»(유적탐사자의) 처럼 스탯이 사실상 사라지는 해도 나왔다.
+#  ⇒ 상한 = 같은 등급 설계값 ×1.5 · 하한 = 현재값 ×0.5. 라인 정체성을 유지하는 폭 안에서만
+#    조정하고, 그 폭으로 목표에 못 닿으면 «그만큼만» 맞춘다(완벽한 균등보다 정체성 우선).
+CAP_MULT = 1.5
+FLOOR_MULT = 0.5
+#  ★현재값 대비 증감 상한 — 사다리 상한만으로는 «판매보너스 8→27»(감별사의) 같은 3.4배 급증이
+#    남는다. 한 번의 조정으로 스탯이 2배를 넘게 뛰면 그건 밸런싱이 아니라 재설계다.
+MAX_GROWTH = 2.0
+
+
 def stat_cap(PRI, stat, grade):
-    """그 등급에서 이 스탯이 넘지 못할 값 = 다음 등급의 설계값."""
+    """그 등급에서 이 스탯이 넘지 못할 값 = 같은 등급 설계값 × CAP_MULT."""
     tbl = PRI.get(stat)
     if not tbl:
         return None
+    if grade in tbl:
+        return max(1, int(round(tbl[grade] * CAP_MULT)))
     i = GRADE_SEQ.find(grade)
-    for g in GRADE_SEQ[i + 1:]:
+    for g in reversed(GRADE_SEQ[:i]):
         if g in tbl:
-            return tbl[g]
-    return max(tbl.values())
+            return max(1, int(round(tbl[g] * CAP_MULT)))
+    return max(1, int(round(max(tbl.values()) * CAP_MULT)))
 
 
 def main():
@@ -263,10 +304,18 @@ def main():
             # ★목표 = 회수시간을 등급 중위로 맞추는 순성능
             target_eff = r["total"] / med_pb
             new = dict(r["stats"])
-            if r["line"] == "채집(재확)":
-                for x in list(new):
-                    if x in STRIP_ON_FORAGE:
-                        new.pop(x)
+            mc = new.get("재료확률", 0)
+            if isinstance(mc, (int, float)) and mc >= FORAGE_MIN:
+                # ★채집 전문화 — 재확·경험치·내구보존만 남기고 전부 제거(난이도 포함)
+                new = {x: v for x, v in new.items() if x in FORAGE_KEEP}
+                plan[r["name"]] = (new, None, None)
+                if not a.plan:
+                    print(f"{r['lv']:>3} {r['name']:<20}{'채집전문':<11}{r['total']:>11,.0f}"
+                          f"{r['eff_net']:>10,.0f}{'—':>10}{'—':>13}"
+                          f"  {stat_str(r['stats'])}\n{'':>66}→ {stat_str(new)}")
+                continue
+            if isinstance(mc, (int, float)) and 0 < mc <= FORAGE_DECOR_MAX:
+                new.pop("재료확률")      # 장식 재확 제거 → 생성기 산출과 일치
             adj = [x for x in LINE_ADJ.get(r["line"], []) if x in new and x not in NEVER]
             stage = IL.STAGE_OF_LEVEL(r["lv"])
             uv = {x: unit_value(stage, statvals, x, grade) for x in adj}
@@ -279,10 +328,14 @@ def main():
                 for x in adj:
                     v = max(1, round(new[x] * scale))
                     cap = stat_cap(PRI, x, grade)
-                    new[x] = min(v, cap) if cap else v      # ★사다리 상한
+                    if cap:
+                        v = min(v, cap)                      # ★사다리 상한
+                    v = min(v, max(1, int(round(new[x] * MAX_GROWTH))))  # ★증감 상한
+                    v = max(v, max(1, int(round(new[x] * FLOOR_MULT))))   # ★정체성 하한
+                    new[x] = v
             elif adj_eff > 0:
                 for x in adj:
-                    new[x] = max(1, round(new[x] * 0.5))   # 고정분만으로 목표 초과 — 하한만 남긴다
+                    new[x] = max(1, int(round(new[x] * FLOOR_MULT)))  # 고정분만으로 목표 초과
             new_eff = fixed_eff + sum(uv[x] * new[x] for x in adj)
             plan[r["name"]] = (new, new_eff, target_eff)
             if not a.plan:
@@ -305,6 +358,8 @@ def main():
             continue
         before, after = [], []
         for r in arr:
+            if plan[r["name"]][1] is None:
+                continue          # 채집전문 — 축이 달라 같은 잣대로 비교하지 않는다
             before.append(r["eff_net"] / r["total"])
             after.append(plan[r["name"]][1] / r["total"])
         bd = max(before) / max(min(before), 1e-9)
