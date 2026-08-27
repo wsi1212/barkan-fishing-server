@@ -83,6 +83,15 @@ def main():
             f[1] = grade
             new = ",".join(f"{k}:{v}" for k, v in
                            SL.ordered(SL.build_stats(grade, ln)).items())
+        elif name in getattr(SL, "OVERRIDE", {}):
+            # 라인 교체 없이 수치만 머지 (심해 3종의 야간투시 등 고유 스탯 보존)
+            cur = dict(x.split(":") for x in old.split(","))
+            for kk, vv in SL.OVERRIDE[name].items():
+                cur[kk] = str(vv)
+            cur.pop("공격속도", None)
+            new = ",".join(f"{k}:{v}" for k, v in cur.items())
+            if new != old:
+                dead_only.append((name, old, new))
         else:
             # ASSIGN 밖 — 죽은 스탯만 제거하고 나머지는 손대지 않는다
             dk, tk, rate, floor = DEAD_SWAP
