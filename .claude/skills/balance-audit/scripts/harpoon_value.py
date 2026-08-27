@@ -131,7 +131,7 @@ SWIM_BACK_MULT = 3.0
 #    20 → 7.8%). 자투리는 주기적으로 오르내리므로 «예산이 커지면 더 위험»이라는 헛소리가 나온다.
 #    잠수 1회에 위험한 판단은 «마지막 한 마리» 하나뿐이므로, 포획당 확률은 잠수당 마리수에
 #    반비례해야 맞다 → p = MISJUDGE / n (n < 1 이면 아예 못 끝내므로 1.0).
-MISJUDGE_PER_DIVE = 0.5
+MISJUDGE_PER_DIVE = 0.10
 #: ★«물속에 있는 시간»에는 **수색**도 포함된다. 이게 초판에서 빠져 있었고, 그래서
 #  수중호흡 5 짜리 작살도 «잠수당 7.4마리»라는 태평한 수가 나왔다. 실제로는 물고기를
 #  찾아 헤엄치는 시간(_search, 실측 잔차 13.6초)이 사이클의 79% 이고 그것도 잠수 중이다.
@@ -139,6 +139,13 @@ MISJUDGE_PER_DIVE = 0.5
 #  실측 수면 시간이 **포획당 9.7초**라는 건 «거의 매 마리마다 숨 쉬러 올라온다»는 뜻이고,
 #  예산 25초 ÷ 필요 16.3초 ≈ 1.5마리/잠수 가 딱 그 그림이다.
 SEARCH_IS_SUBMERGED = True
+#: 바닐라 산소 게이지(초) — 300틱. 이게 다 닳으면 익사 데미지(방어 무시, 2/초)가 들어온다.
+VANILLA_AIR_S = 15.0
+#: 사망 비용 — InnManager.DEATH_COST. 강제TP(1,000원)와 **비교가 안 되는 손실**이다.
+DEATH_COST = 12000.0
+#: 익사 구간을 실제로 버티다 죽는 비율(설계 가정). 산소가 끊기면 2/초 × 20HP ≈ 10초 안에
+#  죽는다 — 대개는 살아 올라오지만 교전 중이면 못 올라온다.
+DROWN_DEATH_RATE = 0.35
 
 
 def load_measured():
@@ -278,11 +285,47 @@ class Model:
                               enabled=bool(c.get("enabled", True)))
         return self._wcfg
 
-    def dive_budget(self, st):
-        """한 번 잠수해서 물속에 머물 수 있는 초 = 기본 제한 + 수중호흡 + 호흡시간."""
+    def ceilings(self, st):
+        """(산소 천장, 세션 천장) — 초. ★두 스탯은 **더하지 않는다. 척도가 다르다.**
+
+        · **호흡시간 → «한 번 잠수»의 길이** (15초 바닐라 산소 + 버프 N초, 일회성)
+        · **수중호흡 → «바다에 머무는 전체 시간»** (강제TP 타이머 15초 + N초)
+
+        후자가 왜 «전체»인가: `WaterTeleportManager.waterBlock` 은 **발밑 블록이 물이면**
+        깊은 물로 본다. 수면에서 헤엄쳐도 발은 물속이므로 **숨 쉬러 올라와도 타이머는 계속
+        돈다.** 그래서 수중호흡은 «한 번 잠수»가 아니라 «바다 한 번 나가서 버티는 시간»이고,
+        값이 18~90 처럼 큰 이유가 이것이다(사이클 17.3초 × 몇 마리).
+
+        벌칙도 다르다:
+            산소 천장 초과   → 익사 데미지(방어 무시 2/초) → 사망 12,000원
+            세션 천장 초과   → 육지로 강제 TP + 1,000원 + 다시 헤엄쳐 나가야 함
+
+        HarpoonManager 주석이 명시적으로 갈라놓았다:
+            수중호흡 = WaterTeleportManager 깊은물 강제TP 타이머 연장
+                       (★«바닐라 산소는 그대로 닳게»)
+            호흡시간 = 잠수 시작 시 WATER_BREATHING 버프 N초 — «깊은물 로직과 무관한 별개 스탯»
+                       (일회성. 물 밖으로 나와야 발동권이 다시 찬다)
+
+        즉 천장이 **둘**이고, 넘었을 때의 벌칙도 다르다:
+            산소 천장 초과   → 익사 데미지(방어 무시 2/초) → 사망 12,000원
+            강제TP 천장 초과 → 육지로 강제 TP + 1,000원 + 교전 손실
+        안전 잠수 시간은 둘 중 **작은 쪽**이다. 그래서 두 스탯은 서로 균형이 맞아야 한다 —
+        한쪽만 크면 그만큼이 통째로 사장된다.
+        ★2026-08-27 정정. 초판은 둘을 **합**으로 써서 잠수 시간을 크게 부풀렸다
+          (해녀 작살 수중호흡32+호흡시간8 → 55초로 셌지만 실제 안전 시간은 산소 천장 23초다).
+        """
         w = self.water_cfg()
-        return (w["limit"] if w["enabled"] else 1e9) + \
-            st.get("수중호흡", 0) + st.get("호흡시간", 0)
+        air = VANILLA_AIR_S + st.get("호흡시간", 0)
+        sess = (w["limit"] if w["enabled"] else 1e9) + st.get("수중호흡", 0)
+        return air, sess
+
+    def dive_budget(self, st):
+        """«한 번 잠수»에 물속에 있을 수 있는 초 — 산소 천장이 정한다(호흡시간)."""
+        return self.ceilings(st)[0]
+
+    def session_budget(self, st):
+        """«바다 한 번»에 머물 수 있는 초 — 강제TP 천장이 정한다(수중호흡)."""
+        return self.ceilings(st)[1]
 
     def tp_risk(self, st, dist):
         """(시간당 강제TP 횟수 대비 «포획 1회당 기대손실 초·원»)를 낸다.
@@ -307,6 +350,10 @@ class Model:
         p_tp = min(1.0, MISJUDGE_PER_DIVE / n)   # n<1 이면 1.0 — 한 마리도 못 끝낸다
         lost_s = engage + approach * SWIM_BACK_MULT
         return p_tp, lost_s, n
+
+    def overrun_cost(self, st):
+        """산소 천장을 넘겼을 때 1회 기대손실(원) — 익사 데미지 → 일부는 사망."""
+        return DEATH_COST * DROWN_DEATH_RATE, "익사"
 
     def cycle(self, st, dist):
         """등급분포 가중 평균 사이클(초). t_search 는 캘리브레이션 잔차."""
@@ -351,10 +398,18 @@ class Model:
         return SV.grade_dist(pool, level)
 
     def income(self, st, dist, wage=None):
-        """원/h. ★강제TP 손실을 뺀다 — 그게 «깊은물 시간»의 진짜 가치다.
+        """원/h.
 
-        손실 = 포획당 TP확률 × (차감액 + 잃은 시간 × 시급).
-        시급은 순환참조를 피하려고 «TP 없다고 가정한 수입»을 쓴다(1회 반복).
+        ★2026-08-27 «강제TP·익사의 돈 손실»을 income 에서 **뺐다**. 두 번 세는 것이었다 —
+          `_search`(9.8초)는 실측 사이클 17.302초를 맞추려고 역산한 잔차이고, 강제TP 로 끌려가
+          다시 헤엄쳐 나오는 시간도 **이미 그 안에 들어 있다**(실측이니까). 여기에 손실을 또
+          더하니 D 급 작살 수입이 −148,494원/h 라는 말이 안 되는 수가 나왔다.
+        ★그래서 «깊은 물»의 값은 **측정된 경로 하나로만** 센다:
+              호흡시간 ↑ → 한 번 잠수에 잡는 마리수 ↑ → 포획당 수면 복귀 시간 ↓ → 사이클 ↓
+          (수면 복귀 9.703초/포획은 실측이다.)
+        ★남은 리스크(익사 사망 12,000원 · 강제TP 1,000원)는 `tp_risk`·`overrun_cost` 로 **따로**
+          조회할 수 있게 두되 income 에 넣지 않는다 — 빈도 텔레메트리가 없어 크기를 모른다.
+          특성 「잠영」의 수중호흡 기여도 모델 밖이다. 텔레메트리가 생기면 그때 편입할 것.
         """
         cyc = self.cycle(st, dist)[0]
         per_catch = 0.0
@@ -365,11 +420,7 @@ class Model:
         p_tp, lost_s, _ = self.tp_risk(st, dist)
         if p_tp <= 0:
             return gross
-        w = self.water_cfg()
-        catches_h = 3600.0 / cyc
-        wage = wage if wage is not None else gross
-        loss_per_tp = w["cost"] + lost_s * wage / 3600.0
-        return gross - catches_h * p_tp * loss_per_tp
+        return gross
 
     def stat_values(self, st, dist, deltas=None):
         """창 전용 스탯의 유한차분 원/h/단위."""
