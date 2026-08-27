@@ -53,10 +53,21 @@ def _load(name, d=SKILL):
 #    되돌리면 낡은갈고리 1 개 = 18 캐스트라 격자가 8 배 잘아진다. 요구 총량은 동일하다.
 #  ★단단한자루(강화실12+물고기비늘16)는 **일부러 뺐다**. 되돌리면 오차는 잡히지만
 #    「자루 없는 작살」이 되고 물고기비늘이 33 개까지 불어난다 — 정체성이 정확도보다 앞선다.
-UNWRAP = {"정제된갈고리": [("낡은갈고리", 8)]}
+UNWRAP = {
+    "정제된갈고리": [("낡은갈고리", 8)],
+    # ★강철심 → 녹슨부품 «강등»(되돌리기가 아니다 — 강화철괴2·강화석탄4 를 버린다).
+    #   D 작살 4종(갯벌·물때·벼린·여울)이 목표 117~165 인데 바닥이 277 이라 못 내려갔다.
+    #   바닥의 정체가 강철심 1 개다. 그런데 이 넷은 전부 **공격력 1** — harpoon 모델에서
+    #   공격력이 잡을 수 있는 어종 등급을 가르고, 1→2 에서 성능이 3.4배 뛴다(C 작살 = 공격력 2).
+    #   즉 「공격력 1짜리 원시 작살」이 강철심(C~B 급 중간재)을 요구하고 있던 것이고,
+    #   빼는 게 수치상으로도 테마상으로도 맞다. 강철심 레시피의 녹슨부품 8 만 남긴다.
+    "강철심": [("녹슨부품", 8)],
+}
 #: 되돌리기를 허용하는 등급. C 이상에서 «정제된» 부품을 «낡은» 원재료로 바꾸면 등급이
 #  내려간 느낌이 든다 — 저티어에서만 푼다(D 는 원래 조악한 장비가 컨셉이다).
 UNWRAP_GRADES = {"E", "D"}
+#: 강등은 더 좁게 — 되돌리기와 달리 재료 구성이 실제로 바뀐다. 근거가 있는 곳만.
+UNWRAP_ONLY = {"강철심": {"작살"}}
 #: 수량 상한 — 이보다 크면 GUI 에서 읽기 힘들고 «재료 요구»가 아니라 «노가다»가 된다.
 MAX_QTY = 48
 #: 허용 오차 — 이 안에 들면 탐색을 멈춘다.
@@ -169,7 +180,10 @@ def main():
         q, c, err = solve(D, cph, ings, v["target"], v["scale"])
         if math.exp(err) - 1 > UNWRAP_AT:
             for j, i in enumerate(ings):
-                if i.get("typeOrMatId") not in UNWRAP or v["grade"] not in UNWRAP_GRADES:
+                mid = i.get("typeOrMatId")
+                if mid not in UNWRAP or v["grade"] not in UNWRAP_GRADES:
+                    continue
+                if mid in UNWRAP_ONLY and v["cat"] not in UNWRAP_ONLY[mid]:
                     continue
                 alt = unwrap_at(R, ings, j)
                 q2, c2, e2 = solve(D, cph, alt, v["target"], v["scale"])

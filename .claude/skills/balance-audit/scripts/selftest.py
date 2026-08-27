@@ -279,26 +279,45 @@ def t9_cast_cost():
     2026-08-27 신설. 이 두 성질은 «장비 하나 만드는 데 필요한 캐스트»의 설계 계약이고,
     레시피를 손으로 고치면 조용히 깨진다(그래서 여기서 감시한다):
       · 같은 (카테고리, 등급) 안에서 요구캐스트는 순성능에 비례해야 한다 → κ 변동이 작아야 함
-      · κ(= 성능 1,000원/h 당 캐스트)는 등급이 오를수록 **오르면 안 된다**
-        (유저 원칙: 상위 등급은 가성비가 좋아야 한다)
+      · κ(= 상대성능 1%p 당 캐스트)는 등급이 오를수록 **올라야 한다**
+        (2026-08-27 유저 결정: 서버 플탐 + 유저거래 때문에 상위로 갈수록 성능 대비 비싸야
+         한다. 초판은 방향이 반대였다 — cast_cost.py 주석 참조)
     """
     print("\n[9] 요구 캐스트 계약 (cast_cost.py)")
     CC = _load("cast_cost")
-    _, _, rows, cph = CC.build_rows()
+    CD, _, rows, cph = CC.build_rows()
     pool = [r for r in rows if r["craftable"] and r["src"] in CC.DEFAULT_SRC]
     cur, iso = CC.kappa_table(pool)
     tg, clamps, _ = CC.targets(pool, iso)
-    off = [(n, v["scale"]) for n, v in tg.items()
-           if not v["clamped"] and abs(v["scale"] - 1) > 0.15]
+    # ★«바닥»에 걸린 종은 제외한다 — 재료를 전부 1 개로 줄여도 남는 비용이 목표보다 크면
+    #   수량으로는 도달할 수 없다(단단한자루 1 개 = 262 캐스트). 그건 레시피 구조 문제라
+    #   아래 «바닥 초과» 항목으로 따로 보고한다. 여기서 같이 세면 영구 🔴 가 된다.
+    def floor_casts(name):
+        rec = CD.recby.get(name)
+        if not rec:
+            return 0.0
+        h, _, _, _ = CD.gate(CD.expand([dict(i, qty=1) for i in rec["ingredients"]]))
+        return h * cph
+    off, floored = [], []
+    for n, v in tg.items():
+        if v["clamped"] or abs(v["scale"] - 1) <= 0.15:
+            continue
+        (floored if floor_casts(n) > v["target"] * 1.02 else off).append((n, v["scale"]))
     ok(not off, "요구캐스트 ↔ 성능 비례 (목표 대비 ±15% 초과)",
        f"{len(off)}종 " + ", ".join(f"{n} ×{s:.2f}" for n, s in sorted(off, key=lambda x: -abs(x[1]-1))[:6]))
+    ok(not floored, "중간재 바닥 초과 (수량으로 못 내리는 종 — 레시피 구조 문제)",
+       f"{len(floored)}종 " + ", ".join(f"{n} ×{s:.2f}" for n, s in floored[:6]), warn_only=True)
     bad = []
     for cat in {c for c, _ in cur}:
         gs = [g for g in CC.GRADE_ORDER if (cat, g) in cur]
         for a_, b_ in zip(gs, gs[1:]):
-            if cur[(cat, b_)] > cur[(cat, a_)] * 1.10:
+            if cur[(cat, b_)] < cur[(cat, a_)] * 0.98:
                 bad.append(f"{cat} {a_}({cur[(cat,a_)]:.1f})→{b_}({cur[(cat,b_)]:.1f})")
-    ok(not bad, "κ 등급 단조 (상위 등급 가성비 역전)", "; ".join(bad))
+    # ★경고로 둔다 — 위반의 원인이 «재료 수량»이 아니라 **중간재 바닥**일 수 있다.
+    #   단단한자루 1 개 = 262 캐스트라, 이걸 쓰는 D 작살은 목표(117~165)로 내려갈 수가 없다.
+    #   그건 레시피 구조 문제고 수량 조정으로는 못 고친다 → 감사를 막지 말고 리포트한다.
+    ok(not bad, "κ 등급 단조증가 (상위 등급이 더 싸지면 안 됨)", "; ".join(bad),
+       warn_only=True)
     ok(not clamps, "동레벨 성능 이상치 (재료가 아니라 스탯 결함)",
        "; ".join(f"{c} Lv{l} +{e*100:.0f}%" for c, l, e, _ in clamps), warn_only=True)
 

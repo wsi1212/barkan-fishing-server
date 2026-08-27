@@ -17,18 +17,25 @@ cast_cost.py — 「이 장비 하나를 만들려면 몇 캐스트를 던져야
   "지금 평균 장비를 만들기 위해 몇 캐스트가 필요한지 구하고 그거 재료 요구 개수를 수정.
    밸런스 망가지지 않게. 같은 등급이라도 성능차이에 따라 10~25%까지 차이나게 요구캐스트"
 
-      요구캐스트(item) = κ(카테고리, 등급) × 순성능(item)
+      요구캐스트(item) = κ(카테고리, 등급) × 상대성능(item)
+                       κ(cat, g) = κ0(cat) × SLOPE^(등급index)   ·   κ0 = 총량정규화 × LIFT
 
-  · **κ 는 «순성능 1,000원/h 당 캐스트»** = 캐스트로 잰 회수시간. 이게 상수면 같은 등급
-    안에서 요구캐스트가 성능에 정확히 비례한다 → 유저가 말한 «성능차이만큼 요구캐스트 차이».
+  · **성능은 «그 구간 시급 대비 %»로 잰다(상대성능)** — 절대 원/h 가 아니다.
+    ★이게 이 스크립트의 핵심 정정이다(2026-08-27). 구간 시급이 초반 84,279 → 중반 117,511
+    → 종결 327,043 원/h 로 **3.9배** 뛰기 때문에, 원/h 로 재면 «같은 값어치의 장비»라도
+    상위 등급이 자동으로 3.9배 싸 보인다. 초판이 그 착시를 그대로 사다리로 굳혔다
+    (낚싯대 κ 가 D 38 → A 10 으로 «급락»했는데, 상대로 재면 32.0 → 34.1 로 평평했다).
+  · **κ 는 «상대성능 1%p 당 캐스트»**. 같은 (카테고리, 등급) 안에서 상수라서 요구캐스트가
+    성능에 정확히 비례한다 → 유저가 말한 «성능차이만큼 요구캐스트 차이».
     실측 동레벨 성능 산포가 10~20% 이므로 요구캐스트 산포도 그 범위에 들어온다(검증 출력).
-  · **κ 는 등급이 오를수록 내려간다** — 유저 기존 원칙 「상위 등급은 가성비가 좋아야」
-    (feedback_tier_value_must_improve). 지금은 낚싯대가 D 38 → C 26 → B 37 로 B 에서
-    되오른다(= B 가 C 보다 가성비가 나쁘다). 그건 사다리 결함이다.
-  · κ 를 **손으로 정하지 않는다.** 현재 (카테고리, 등급) 중앙값에 대한
-    **단조감소 등위회귀(isotonic regression)** 로 낸다 — 「지금 값에서 최소한으로만 움직이되
-    단조성만 강제」. 그래서 «밸런스 망가지지 않게» 가 수식으로 보장된다:
-    카테고리별 총수요는 (가중 등위회귀라) 거의 그대로고, 바뀌는 건 분배뿐이다.
+  · **κ 는 등급이 오를수록 «올라간다»** — 등급을 올릴수록 성능 대비 더 많은 캐스트가 든다.
+    ★2026-08-27 유저 결정으로 **방향을 뒤집었다**: "서버 플탐을 고려하면 갈수록 효율이
+    구려지는게 맞지 않나. 한 등급 올라갈 때마다 성능 올라가는거 대비 더 많은 캐스트, 혹은
+    광질이 필요하게. 왜냐면 유저거래로 구매가 얼마든지 될 거기 때문에"
+    기존 메모 `feedback_tier_value_must_improve` 는 **여기 해당하지 않는다** — 그 메모는
+    「상위 등급이 주는 게 양뿐인가, 성능도 오르나?」로 갈라지고 「성능도 오름 → 단위당 상승
+    허용(말 대여, **장비 사다리**)」이라고 장비를 명시적 예외로 적어 뒀다. 초판이 그걸
+    거꾸로 적용해 단조**감소**를 걸었다.
 
 ## 카테고리를 왜 따로 정규화하나
   작살 성능은 «무료 나무작살 대비 시간당 증분»이라 낚싯대와 스케일이 다르다(C급 작살
@@ -82,6 +89,21 @@ MIN_EFF = 1.0
 #  그 잡음으로 κ 를 뽑으면 찌 E 가 568(=D 의 32배)이 되어 등위회귀 전체를 왜곡한다.
 #  ★E 를 «싸다»고 판정해 재료를 더 물리는 것도 방향이 반대다 — 튜토 장비는 싸야 한다.
 EXEMPT_GRADES = {"E"}
+#: 등급당 κ 상승률(슬로프). 등급을 한 칸 올릴 때마다 «상대성능 1%p 를 사는 데» 드는
+#  캐스트가 이만큼 늘어난다. 유저 의도: 상위 장비는 성능이 오르는 것 이상으로 비싸야 한다.
+#  ★1.00 이면 «성능에 정비례»(중립)이고, 1.15 는 등급마다 15% 씩 손해가 커진다는 뜻.
+#    D→A 3칸이면 누적 ×1.52 — 성능이 ×3.4 오르는 동안 비용은 ×5.1 오른다.
+GRADE_SLOPE = 1.15
+#: 전체 배수(리프트). 슬로프만 세우고 총량을 보존하면 **상위가 오르는 게 아니라 하위가
+#  내려간다**(×1.70 총량보존이면 D 낚싯대가 1.6h → 0.5h). 「위로 갈수록 빡세게」는 리프트가
+#  같이 있어야 성립한다. 1.3 = 스폰마을 전체 재료 수요 +30%.
+#  ★★리프트는 **일회성 이주(migration)** 다 — 목표 정의에 남겨 두면 안 된다.
+#    κ0 이 «현재 총수요 × LIFT» 로 정규화되므로, 반영한 뒤에도 1.30 이 남아 있으면 다음
+#    실행이 **또 30% 를 올린다**(selftest 가 「104종이 ×1.41 로 어긋남」으로 잡아냈다).
+#    지금 값이 목표와 같아야 «고정점»이고, 그래야 회귀 검사가 성립한다.
+#    2026-08-27 ×1.30 이주 완료 → 1.00 으로 되돌림. 전체 그라인드를 또 올리려면
+#    잠깐 값을 올려 patch 를 한 번 돌리고 **반드시 1.00 으로 되돌릴 것.**
+GRADE_LIFT = 1.00
 #: 동레벨 요구캐스트 산포 상한. 유저: "같은 등급이라도 성능차이에 따라 10~25%까지 차이나게".
 #  ★상한을 넘는 쌍은 «재료 문제»가 아니라 **성능 사다리 결함**이다(같은 레벨인데 성능이
 #  2~3배). 그래서 목표값을 비틀지 **않고** 그 종을 «손대지 않음(hold)»으로 표시만 한다.
@@ -114,6 +136,8 @@ def build_rows():
         r["casts"] = r["mat_h"] * cph
         # 미끼는 자기유지비 모델이 깨져 있다(위 docstring) → 총성능으로 순위
         r["perf"] = r["eff"] if r["cat"] == "미끼" else r["eff_net"]
+        # ★상대성능 — 그 구간 시급 대비 %. 등급 간 비교는 반드시 이걸로 한다.
+        r["rel"] = r["perf"] / incomes[r["stage"]] * 100.0
         # 낚시 외 활동(광질·바닐라) 비중 — 「캐스트」가 얼마나 비유인지 드러낸다
         r["mine_share"] = 0.0
     return D, k, rows, cph
@@ -173,8 +197,14 @@ def isotonic_decreasing(vals, wts):
 
 
 def kappa_table(rows):
-    """(카테고리, 등급) → κ = 캐스트 / (순성능/1000). 등급 순 단조감소로 보정."""
-    cur, iso = {}, {}
+    """(카테고리, 등급) → κ = 캐스트 / 상대성능(%p). 현재값과 설계 사다리를 함께 낸다.
+
+    설계 사다리:  κ(cat, g) = κ0(cat) × GRADE_SLOPE^(등급index)
+    κ0 은 «그 카테고리의 현재 총수요 × GRADE_LIFT» 가 나오도록 정규화해서 정한다 —
+    그래서 손으로 정하는 숫자는 SLOPE 와 LIFT **둘뿐**이고, 카테고리별 절대 수준은
+    현재 상태에서 이어받는다(설계자가 카테고리마다 값을 찍지 않는다).
+    """
+    cur, des = {}, {}
     by_cat = collections.defaultdict(dict)
     for r in rows:
         if r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES:
@@ -184,14 +214,16 @@ def kappa_table(rows):
         grades = [g for g in GRADE_ORDER if g in gs and len(gs[g]) >= MIN_N]
         if not grades:
             continue
-        k_cur = [st.median([x["casts"] / (x["perf"] / 1000.0) for x in gs[g]]) for g in grades]
-        w = [float(len(gs[g])) for g in grades]
-        k_iso = [math.exp(v) for v in
-                 isotonic_decreasing([math.log(x) for x in k_cur], w)]
-        for g, a, b in zip(grades, k_cur, k_iso):
-            cur[(cat, g)] = a
-            iso[(cat, g)] = b
-    return cur, iso
+        for g in grades:
+            cur[(cat, g)] = st.median([x["casts"] / x["rel"] for x in gs[g]])
+        # κ0 정규화 — Σ(설계 캐스트) == Σ(현재 캐스트) × LIFT
+        shape = {g: GRADE_SLOPE ** GRADE_ORDER.index(g) for g in grades}
+        tot_cur = sum(x["casts"] for g in grades for x in gs[g])
+        tot_raw = sum(shape[g] * x["rel"] for g in grades for x in gs[g])
+        k0 = (tot_cur * GRADE_LIFT / tot_raw) if tot_raw > 0 else 1.0
+        for g in grades:
+            des[(cat, g)] = k0 * shape[g]
+    return cur, des
 
 
 def targets(rows, iso):
@@ -207,9 +239,9 @@ def targets(rows, iso):
         k = iso.get((r["cat"], r["grade"]))
         if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES:
             continue
-        out[r["name"]] = dict(target=k * r["perf"] / 1000.0, cur=r["casts"], raw=None,
+        out[r["name"]] = dict(target=k * r["rel"], cur=r["casts"], raw=None,
                               cat=r["cat"], grade=r["grade"], lv=r["lv"], perf=r["perf"],
-                              clamped=False)
+                              rel=r["rel"], clamped=False)
     for v in out.values():
         v["raw"] = v["target"]
 
@@ -231,21 +263,9 @@ def targets(rows, iso):
         clamps.append((cat, lv, max(ts) / min(ts) - 1,
                        [(n, out[n]["perf"], n in bad) for n in names]))
 
-    # ③ 카테고리 총량 정규화
-    #    ★hold 종은 제외한다 — 손대지 않을 아이템을 분모에 넣으면 «건드리는 종들의 총량»이
-    #      보존되지 않는다(작살이 그래서 −5.7% 로 새어 나갔다).
-    norm = {}
-    by_cat = collections.defaultdict(list)
-    for n, v in out.items():
-        if not v["clamped"]:
-            by_cat[v["cat"]].append(n)
-    for cat, names in by_cat.items():
-        c = sum(out[n]["cur"] for n in names)
-        t = sum(out[n]["target"] for n in names)
-        f = (c / t) if t > 0 else 1.0
-        norm[cat] = f
-        for n in names:
-            out[n]["target"] *= f
+    # ③ 정규화는 kappa_table 의 κ0 이 이미 했다(총량 × LIFT). 여기서 다시 총량을 맞추면
+    #    LIFT 가 상쇄돼 사라진다 — 초판의 «카테고리 총량 보존» 단계를 일부러 뺐다.
+    norm = {cat: GRADE_LIFT for cat in {v["cat"] for v in out.values()}}
 
     for v in out.values():
         v["scale"] = v["target"] / v["cur"]
@@ -280,7 +300,7 @@ def main():
           f"제작가능 {len(pool)}종")
     print("  ★캐스트 = LP 재료게이트(h) × 캐스트/h. 광질·바닐라 구간은 «낚시 등가» 환산이다.")
 
-    print(f"\n{'='*104}\nκ 사다리 — 순성능 1,000원/h 당 캐스트 (= 캐스트로 잰 회수시간)\n{'='*104}")
+    print(f"\n{'='*104}\nκ 사다리 — 상대성능 1%p(구간 시급 대비) 당 캐스트   [현재 → 설계]\n{'='*104}")
     print(f"{'카테고리':<7}" + "".join(f"{g:>13}" for g in GRADE_ORDER))
     for cat in ["낚싯대", "작살", "릴", "줄", "바늘", "찌", "미끼"]:
         line = f"{cat:<7}"
@@ -295,7 +315,8 @@ def main():
                 line += f"{'-':>13}"
         if any_:
             print(line + ("   ×%.3f 정규화" % norm[cat] if cat in norm else ""))
-    print("  (a→b = 단조감소 위반을 등위회귀로 편 값. 마지막에 카테고리 총량 보존 배수를 곱한다.)")
+    print(f"  설계 = κ0 × {GRADE_SLOPE:.2f}^등급  ·  κ0 은 카테고리 총수요 ×{GRADE_LIFT:.2f} 가 "
+          f"되도록 정규화. 등급이 오를수록 «성능 대비» 비싸진다(유저 결정 2026-08-27).")
     print(f"  E 급은 사다리 밖(튜토) — 손대지 않는다.")
 
     for cat in ["낚싯대", "작살", "릴", "줄", "바늘", "찌", "미끼"]:
@@ -304,14 +325,14 @@ def main():
             continue
         print(f"\n{'='*104}\n{cat}  (n={len(arr)})\n{'='*104}")
         print(f"{'등급':<3}{'Lv':>3} {'이름':<22}{'현재캐스트':>10}{'목표':>9}{'배율':>8}"
-              f"{'순성능/h':>10}{'광질%':>7}  병목")
+              f"{'상대%':>7}{'광질%':>7}  병목")
         for r in sorted(arr, key=lambda r: (GRADE_ORDER.index(r["grade"]), r["lv"], r["name"])):
             t = tg[r["name"]]
             ms = mine_share(D, r["name"]) * 100
             bn = ",".join(m for m, _ in r["bottleneck"][:2]) or "-"
             flag = "  ⚠" if abs(t["scale"] - 1) > 0.5 else ""
             print(f"{r['grade']:<3}{r['lv']:>3} {r['name']:<22}{r['casts']:>10,.0f}"
-                  f"{t['target']:>9,.0f}{t['scale']:>8.2f}{r['perf']:>10,.0f}{ms:>7.0f}  {bn}{flag}")
+                  f"{t['target']:>9,.0f}{t['scale']:>8.2f}{r['rel']:>6.1f}%{ms:>7.0f}  {bn}{flag}")
 
     # ── 동레벨 산포 검증 (유저 목표: 성능차이만큼, 최대 25%) ────────────
     print(f"\n{'='*104}\n동레벨 요구캐스트 산포 — 목표 «성능차이만큼, 상한 "
