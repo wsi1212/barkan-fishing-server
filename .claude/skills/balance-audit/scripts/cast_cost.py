@@ -75,8 +75,13 @@ HV = _load("harpoon_value")
 IL = _load("item_ledger")
 MEAS = _load("measured")
 
-#: 기본 대상 — 「일단 스폰마을부터」(2026-08-27 유저). 히든/튜토도 같은 마을 진행이라 포함.
-DEFAULT_SRC = ("스폰마을", "히든-스폰마을", "튜토")
+#: 기본 대상 — **전 마을**. 초판은 「일단 스폰마을부터」라 스폰마을만 봤는데, 그러면
+#  ① 다른 마을 신규 아이템이 크기 조정에서 빠지고 ② κ 사다리가 마을 단위로 쪼개져
+#  «낚싯대 B 43.2 → A 32.0» 같은 등급 역전이 생긴다(스폰 B 와 사막/상단 A 를 따로 재니까).
+#  전 마을을 한 그룹으로 보면 설계 κ 가 구성상 단조증가라 역전이 자동으로 풀린다.
+#  ★제외는 «원이 아닌 통화»와 특수 출처뿐이다(item_ledger 가 통화를 따로 본다).
+EXCLUDE_SRC = ("캐시", "개발자", "잠수상점")
+DEFAULT_SRC = None      # None = 전 출처 (EXCLUDE_SRC 만 뺀다)
 #: 등급 순서 — κ 는 이 순서로 «단조감소»여야 한다.
 GRADE_ORDER = ["E", "D", "C", "B", "A", "S"]
 #: 카테고리별로 표본이 1~2종뿐인 등급은 등위회귀가 흔들린다 → 최소 표본
@@ -283,7 +288,8 @@ def main():
 
     D, K, rows, cph = build_rows()
     srcs = tuple(a.src) if a.src else DEFAULT_SRC
-    pool = [r for r in rows if r["craftable"] and (a.all or r["src"] in srcs)]
+    pool = [r for r in rows if r["craftable"] and r["src"] not in EXCLUDE_SRC
+            and (a.all or srcs is None or r["src"] in srcs)]
     if a.cat:
         pool = [r for r in pool if r["cat"] == a.cat]
 

@@ -152,7 +152,8 @@ def main():
 
     CC = _load("cast_cost")
     D, K, rows, cph = CC.build_rows()
-    pool = [r for r in rows if r["craftable"] and r["src"] in CC.DEFAULT_SRC]
+    pool = [r for r in rows if r["craftable"] and r["src"] not in CC.EXCLUDE_SRC
+            and (CC.DEFAULT_SRC is None or r["src"] in CC.DEFAULT_SRC)]
     cur, iso = CC.kappa_table(pool)
     tg, clamps, norm = CC.targets(pool, iso)
 

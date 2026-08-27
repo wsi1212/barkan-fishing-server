@@ -46,6 +46,11 @@ SEED_FROM = {"채집 작살": "벼린 작살", "수집 작살": "예봉 작살",
 THEME = {"안개수정": "거대비늘", "진주": "거대비늘"}
 #: 죽은 스탯 환산율 — 공격속도 N → 도망감소 round(N×0.6), 최소 5.
 DEAD_SWAP = ("공격속도", "도망감소", 0.6, 5)
+#: 돌진쿨감 **문턱 보정** — 0 < v < DASH_MIN 이면 아무 일도 하지 않는 값이다.
+#  돌진 2회 조건이 `10초/(1+쿨감/100) ≤ 교전창`이라 단독 60+ · 도망감소 20 과 함께면 40+
+#  부터 작동한다. 그 아래는 «표시만 되는 스탯»이므로 작동하는 값까지 올린다.
+#  ★내리지 않는다(그러면 순수 너프) — 올려서 «있는 스탯이 일을 하게» 만든다.
+DASH_MIN, DASH_TO = 45, 50
 
 
 def main():
@@ -89,6 +94,11 @@ def main():
             for kk, vv in SL.OVERRIDE[name].items():
                 cur[kk] = str(vv)
             cur.pop("공격속도", None)
+            # ★OVERRIDE 종도 돌진쿨감 문턱 보정을 받는다 — 초판은 이 분기를 빼먹어
+            #   심해 잠수(18)·심연의(28) 작살이 문턱 미달로 남았다.
+            dv2 = cur.get("돌진쿨감")
+            if dv2 is not None and 0 < float(dv2) < DASH_MIN:
+                cur["돌진쿨감"] = str(DASH_TO)
             new = ",".join(f"{k}:{v}" for k, v in cur.items())
             if new != old:
                 dead_only.append((name, old, new))
@@ -96,6 +106,9 @@ def main():
             # ASSIGN 밖 — 죽은 스탯만 제거하고 나머지는 손대지 않는다
             dk, tk, rate, floor = DEAD_SWAP
             cur = dict(x.split(":") for x in old.split(","))
+            dv = cur.get("돌진쿨감")
+            if dv is not None and 0 < float(dv) < DASH_MIN:
+                cur["돌진쿨감"] = str(DASH_TO)
             if dk in cur:
                 add = max(floor, int(round(int(cur[dk]) * rate)))
                 cur[tk] = str(int(cur.get(tk, 0)) + add)

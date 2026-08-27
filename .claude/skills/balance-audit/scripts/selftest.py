@@ -286,7 +286,8 @@ def t9_cast_cost():
     print("\n[9] 요구 캐스트 계약 (cast_cost.py)")
     CC = _load("cast_cost")
     CD, _, rows, cph = CC.build_rows()
-    pool = [r for r in rows if r["craftable"] and r["src"] in CC.DEFAULT_SRC]
+    pool = [r for r in rows if r["craftable"] and r["src"] not in CC.EXCLUDE_SRC
+            and (CC.DEFAULT_SRC is None or r["src"] in CC.DEFAULT_SRC)]
     cur, iso = CC.kappa_table(pool)
     tg, clamps, _ = CC.targets(pool, iso)
     # ★«바닥»에 걸린 종은 제외한다 — 재료를 전부 1 개로 줄여도 남는 비용이 목표보다 크면
