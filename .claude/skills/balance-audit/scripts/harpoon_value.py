@@ -109,6 +109,37 @@ SWIM_EFF = 0.5
 # approach + engage 로 본다(탐색은 수면에서도 된다).
 MIN_DIVES_PER_CATCH = 1.0
 
+# ══════════════════════════════════════════════════════════════════════════
+#  깊은 물 강제TP — «수중호흡이 왜 중요한가»의 본체 (2026-08-27 신설)
+# ══════════════════════════════════════════════════════════════════════════
+#  ★유저 지적: "너가 무시하는데 깊은물 시간 적은게 진짜 개 존나게 빡세거든?
+#              돈날리는 리스크가 있으니까"  — 맞았다. 모델이 두 군데 틀려 있었다.
+#
+#  ① **기본 제한 15초를 빼먹고 있었다.** WaterTeleportManager 는 연결된 물 200칸 초과를
+#     «바다»로 보고 `limitSeconds + 수중호흡 + 특성` 초가 지나면 육지로 **강제 TP + 돈 차감**
+#     한다. 즉 실제 잠수 예산은 `15 + 수중호흡 + 호흡시간` 인데 모델은 `수중호흡 + 호흡시간`
+#     만 썼다. 값은 `waterteleport.json` 이 권위다(코드 기본값 10 이 아니라 **15**).
+#  ② **강제TP 자체의 손실을 아예 안 셌다.** 수중호흡을 «수면 복귀 시간을 줄여 주는 스탯»
+#     으로만 취급하니 1점당 36원/h 라는 작은 수가 나왔다. 실제로는 타이머가 끊기면
+#     교전 중이던 물고기를 통째로 잃고 + 돈이 나가고 + 헤엄쳐 돌아와야 한다.
+#
+#  손실 = 차감액(waterteleport.json cost) + 놓친 교전 + 복귀 수영
+#  ★복귀 수영은 실측이 없다 — 접근 시간의 3배로 둔다(설계 가정, 아래 상수로 노출).
+SWIM_BACK_MULT = 3.0
+#: 한 번 잠수마다 «한 마리 더 되나?»를 잘못 판단할 확률(설계 가정 — 강제TP 텔레메트리 없음).
+#  ★초안은 `frac(예산/필요)` 를 실패확률로 썼는데 **비단조**였다(수중호흡 10 → 2.7%,
+#    20 → 7.8%). 자투리는 주기적으로 오르내리므로 «예산이 커지면 더 위험»이라는 헛소리가 나온다.
+#    잠수 1회에 위험한 판단은 «마지막 한 마리» 하나뿐이므로, 포획당 확률은 잠수당 마리수에
+#    반비례해야 맞다 → p = MISJUDGE / n (n < 1 이면 아예 못 끝내므로 1.0).
+MISJUDGE_PER_DIVE = 0.5
+#: ★«물속에 있는 시간»에는 **수색**도 포함된다. 이게 초판에서 빠져 있었고, 그래서
+#  수중호흡 5 짜리 작살도 «잠수당 7.4마리»라는 태평한 수가 나왔다. 실제로는 물고기를
+#  찾아 헤엄치는 시간(_search, 실측 잔차 13.6초)이 사이클의 79% 이고 그것도 잠수 중이다.
+#  수색까지 넣으면 잠수당 필요시간이 2.7초 → 16.3초가 되고, 그제야 실측과 맞는다:
+#  실측 수면 시간이 **포획당 9.7초**라는 건 «거의 매 마리마다 숨 쉬러 올라온다»는 뜻이고,
+#  예산 25초 ÷ 필요 16.3초 ≈ 1.5마리/잠수 가 딱 그 그림이다.
+SEARCH_IS_SUBMERGED = True
+
 
 def load_measured():
     """measured.py 의 harpoon 절 + 공통 출처 표기."""
@@ -232,6 +263,51 @@ class Model:
         return p >= self.P_THRESHOLD, n, en
 
     # ── 사이클 ─────────────────────────────────────────────────────────
+    def water_cfg(self):
+        """깊은물 강제TP 설정 — waterteleport.json 이 권위(코드 기본 10 이 아니다)."""
+        if getattr(self, "_wcfg", None) is None:
+            bs = os.environ.get("BLOCKSHIP_DATA",
+                                "/Users/user/Library/Application Support/feather/player-server/"
+                                "servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip")
+            try:
+                c = json.load(open(os.path.join(bs, "waterteleport.json"), encoding="utf-8"))
+            except Exception:
+                c = {}
+            self._wcfg = dict(limit=float(c.get("limitSeconds", 15)),
+                              cost=float(c.get("cost", 1000)),
+                              enabled=bool(c.get("enabled", True)))
+        return self._wcfg
+
+    def dive_budget(self, st):
+        """한 번 잠수해서 물속에 머물 수 있는 초 = 기본 제한 + 수중호흡 + 호흡시간."""
+        w = self.water_cfg()
+        return (w["limit"] if w["enabled"] else 1e9) + \
+            st.get("수중호흡", 0) + st.get("호흡시간", 0)
+
+    def tp_risk(self, st, dist):
+        """(시간당 강제TP 횟수 대비 «포획 1회당 기대손실 초·원»)를 낸다.
+
+        모델: 한 번 잠수에 `n = 예산 / 잠수당필요` 마리를 잡는다. 위험한 판단은 잠수마다
+        «마지막 한 마리를 더 잡을까» 하나뿐이므로 포획당 실패확률은 n 에 반비례한다.
+        예산이 한 마리도 못 채우면(n < 1) 모든 시도가 끊긴다 — 그게 저호흡 작살의 실체다.
+        ★MISJUDGE_PER_DIVE 는 **설계 가정**이다(강제TP 텔레메트리가 없다).
+        """
+        approach = self.m["approach_s"] / (1.0 + st.get("수영속도", 0) / 100.0 * SWIM_EFF)
+        gap = self.aim_gap(st.get("공격속도", 0))
+        engage = 0.0
+        for g, p in dist.items():
+            w = self.window_s(g, st.get("도망감소", 0))
+            jabs, _ = self.hits_needed(g, st.get("공격력", 0), 0.0, st.get("돌진쿨감", 0), w)
+            engage += p * jabs * gap
+        need = approach + engage + (getattr(self, "_search", 0.0) if SEARCH_IS_SUBMERGED else 0.0)
+        budget = self.dive_budget(st)
+        if budget >= 1e8 or need <= 0:
+            return 0.0, 0.0, float("inf")
+        n = budget / need
+        p_tp = min(1.0, MISJUDGE_PER_DIVE / n)   # n<1 이면 1.0 — 한 마리도 못 끝낸다
+        lost_s = engage + approach * SWIM_BACK_MULT
+        return p_tp, lost_s, n
+
     def cycle(self, st, dist):
         """등급분포 가중 평균 사이클(초). t_search 는 캘리브레이션 잔차."""
         approach = self.m["approach_s"] / (1.0 + st.get("수영속도", 0) / 100.0 * SWIM_EFF)
@@ -241,8 +317,9 @@ class Model:
             w = self.window_s(g, st.get("도망감소", 0))
             jabs, _ = self.hits_needed(g, st.get("공격력", 0), 0.0, st.get("돌진쿨감", 0), w)
             engage += p * jabs * gap
-        dive = max(1e-6, st.get("수중호흡", 0) + st.get("호흡시간", 0))
-        per_dive = max(MIN_DIVES_PER_CATCH, dive / max(1e-6, approach + engage))
+        dive = max(1e-6, self.dive_budget(st))
+        sub = approach + engage + (getattr(self, "_search", 0.0) if SEARCH_IS_SUBMERGED else 0.0)
+        per_dive = max(MIN_DIVES_PER_CATCH, dive / max(1e-6, sub))
         surface = self.m["surface_s"] / per_dive
         return self._search + approach + engage + surface, approach, engage, surface
 
@@ -254,9 +331,16 @@ class Model:
         g = self.spears.get(base, {}).get("grade", "D")
         st["수중호흡"] = max(st.get("수중호흡", 0), BREATH_FLOOR.get(g, 5))
         dist = self.dist_for(self.spears.get(base, {}).get("lvl", 1))
+        # ★수색이 잠수 시간에 포함되므로 _search 는 자기 자신에 의존한다 → 고정점 반복.
         self._search = 0.0
+        for _ in range(40):
+            total, ap, en, su = self.cycle(st, dist)
+            new = max(0.0, self._search + (self.m["cycle_s"] - total))
+            if abs(new - self._search) < 1e-9:
+                self._search = new
+                break
+            self._search = new
         total, ap, en, su = self.cycle(st, dist)
-        self._search = max(0.0, self.m["cycle_s"] - total)
         self._cal = dict(baseline=base, approach=ap, engage=en, surface=su,
                          search=self._search, target=self.m["cycle_s"])
 
@@ -266,13 +350,26 @@ class Model:
         pool, level = SV.STAGES[stage]
         return SV.grade_dist(pool, level)
 
-    def income(self, st, dist):
+    def income(self, st, dist, wage=None):
+        """원/h. ★강제TP 손실을 뺀다 — 그게 «깊은물 시간»의 진짜 가치다.
+
+        손실 = 포획당 TP확률 × (차감액 + 잃은 시간 × 시급).
+        시급은 순환참조를 피하려고 «TP 없다고 가정한 수입»을 쓴다(1회 반복).
+        """
         cyc = self.cycle(st, dist)[0]
         per_catch = 0.0
         for g, p in dist.items():
             pc, _, _ = self.p_catch(g, st)
             per_catch += p * pc * SV.PRICE[g] * self.qmult
-        return 3600.0 / cyc * per_catch
+        gross = 3600.0 / cyc * per_catch
+        p_tp, lost_s, _ = self.tp_risk(st, dist)
+        if p_tp <= 0:
+            return gross
+        w = self.water_cfg()
+        catches_h = 3600.0 / cyc
+        wage = wage if wage is not None else gross
+        loss_per_tp = w["cost"] + lost_s * wage / 3600.0
+        return gross - catches_h * p_tp * loss_per_tp
 
     def stat_values(self, st, dist, deltas=None):
         """창 전용 스탯의 유한차분 원/h/단위."""
