@@ -302,12 +302,23 @@ WEEKLY_NEW = [
     ("주간_채집III", "&d숲의 주인", "forage|아무|200", END,
      ["&7이번 주에 &f채집물&7을 200개 모으세요."], 8000, "채집", 10),
 
-    ("주간_요리", "&d주간 부엌", "cook|아무|8", NEWBIE,
-     ["&7이번 주에 &f요리&7를 8개 만드세요."], 2500, "요리", 6),
-    ("주간_요리II", "&d주간 부엌 II", "cook|아무|15", MID,
-     ["&7이번 주에 &f요리&7를 15개 만드세요."], 4500, "요리", 8),
-    ("주간_요리III", "&d왕실 주방장", "cook|아무|25", END,
-     ["&7이번 주에 &f요리&7를 25개 만드세요."], 8000, "요리", 10),
+    # ★요리는 «해금 레벨 ≤ 그 판본의 필요레벨» 이어야 한다 — main() 이 DishSpecs 에서
+    #   파생한 값으로 검산하고, 어기면 배포를 세운다(못 만드는 칸 원천 차단).
+    #   그래서 뉴비판(필요레벨 1)에는 무해금·T1 만, 중반은 T2, 종결은 T4 를 쓴다.
+    ("주간_요리", "&d주간 부엌", "cook|따뜻한 빵|12", NEWBIE,
+     ["&7이번 주에 &f따뜻한 빵&7을 12개 만드세요."], 2300, "요리", 6),
+    ("주간_요리_서리차", "&d서리차 끓이기", "cook|설산 서리차|8", NEWBIE,
+     ["&7이번 주에 &f설산 서리차&7를 8개 만드세요.",
+      "&8▸ 설화 1 + 서리열매 1 — 둘 다 정상에서 채집합니다."], 2600, "요리", 7),
+    ("주간_요리II", "&d주간 부엌 II", "cook|버섯밥|10", MID,
+     ["&7이번 주에 &f버섯밥&7을 10개 만드세요."], 4500, "요리", 8),
+    ("주간_요리II_커스터드", "&d야광베리 커스터드", "cook|야광베리 커스터드|6", MID,
+     ["&7이번 주에 &f야광베리 커스터드&7를 6개 만드세요.",
+      "&8▸ 야광버섯은 동굴에 노드가 3곳뿐입니다."], 5000, "요리", 10),
+    ("주간_요리III", "&d왕실 주방장", "cook|초밥 플래터|4", END,
+     ["&7이번 주에 &f초밥 플래터&7를 4개 만드세요."], 8000, "요리", 10),
+    ("주간_요리III_해독수프", "&d늪지 해독수프", "cook|늪지 해독수프|3", END,
+     ["&7이번 주에 &f늪지 해독수프&7를 3개 만드세요."], 8500, "요리", 12),
 
     ("주간_통발", "&d주간 통발", "trap|20", NEWBIE,
      ["&7이번 주에 &f통발&7을 20개 설치하세요.",
@@ -379,26 +390,6 @@ def main():
         Q[qid] = q
         added_w += 1
 
-    # ── 2.4 요리 해금 안내 자동 삽입 + 난이도 게이트 검산 ──
-    # ★손으로 「티어 N (해금 LvX)」을 적으면 틀린다 — 실제로 따뜻한 빵을 d.tier=2 만 보고
-    #   Lv10 이라 적었는데 FREE_DISHES 라 무해금이었다. DishSpecs 에서 파생해 덮어쓴다.
-    for diff, order in DAILY_ORDER.items():
-        gate = J["난이도레벨"][diff]
-        for qid in order:
-            q = Q.get(qid)
-            if not q or not q["목표"][0].startswith("cook|"):
-                continue
-            dish = q["목표"][0].split("|")[1]
-            if dish not in DISH_UNLOCK:
-                print(f"🔴 {qid}: DishSpecs 에 없는 요리 «{dish}»")
-                sys.exit(1)
-            ul = DISH_UNLOCK[dish]
-            if ul > gate:
-                print(f"🔴 {qid}: 요리 해금 Lv{ul} > 난이도 게이트 Lv{gate} — 못 만드는 칸")
-                sys.exit(1)
-            tag = "무해금" if ul == 0 else f"해금 Lv{ul}"
-            q["설명"] = [q["설명"][0], f"&8▸ §8({tag}) " + q["설명"][1].replace("&8▸ ", "")]
-
     # ── 2.5 기존 낚시·판매 수량 재조정 ──
     requantized = 0
     for qid, (goal, line0) in DAILY_QTY.items():
@@ -458,6 +449,30 @@ def main():
                 and k not in in_pool]:
         del Q[qid]
         dropped.append(qid)
+
+    # ── 4.6 요리 해금 안내 자동 삽입 + 게이트 검산 ──
+    # ★풀을 다시 짠 «뒤»에 돌아야 한다 — 앞에서 돌리면 J["주간"] 이 아직 옛 목록이라
+    #   이번에 새로 넣은 주간 요리를 통째로 건너뛴다(실제로 그렇게 샜다).
+    # ★손으로 「티어 N (해금 LvX)」을 적으면 틀린다 — 실제로 따뜻한 빵을 d.tier=2 만 보고
+    #   Lv10 이라 적었는데 FREE_DISHES 라 무해금이었다. DishSpecs 에서 파생해 덮어쓴다.
+    cook_scopes = [(J["난이도레벨"][d], order) for d, order in DAILY_ORDER.items()]
+    cook_scopes += [(Q[q].get("필요레벨", 1), [q]) for q in J["주간"]]
+    for gate, order in cook_scopes:
+        for qid in order:
+            q = Q.get(qid)
+            if not q or not q["목표"][0].startswith("cook|"):
+                continue
+            dish = q["목표"][0].split("|")[1]
+            if dish not in DISH_UNLOCK:
+                print(f"🔴 {qid}: DishSpecs 에 없는 요리 «{dish}»")
+                sys.exit(1)
+            ul = DISH_UNLOCK[dish]
+            if ul > gate:
+                print(f"🔴 {qid}: 요리 해금 Lv{ul} > 난이도 게이트 Lv{gate} — 못 만드는 칸")
+                sys.exit(1)
+            tag = "무해금" if ul == 0 else f"해금 Lv{ul}"
+            line = (q["설명"][1] if len(q["설명"]) > 1 else "").replace("&8▸ ", "").strip()
+            q["설명"] = [q["설명"][0], f"&8▸ §8({tag})" + (" " + line if line else "")]
 
     # ── 5. 검산 ──
     errs = []
