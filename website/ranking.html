@@ -106,6 +106,7 @@
         const value = Number(item?.[category.field] ?? 0);
         if (category.field === 'level') return `Lv. ${value.toLocaleString('ko-KR')}`;
         if (category.field === 'popularity') return `♥ ${value.toLocaleString('ko-KR')}`;
+        if (category.field === 'net' && value > 0) return `+${value.toLocaleString('ko-KR')} ${category.suffix}`;
         return `${value.toLocaleString('ko-KR')} ${category.suffix}`;
       };
       const podiumOrder = [1, 0, 2];

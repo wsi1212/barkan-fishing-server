@@ -137,6 +137,9 @@ def _number(value, default=0):
         return default
 
 
+_CASINO_NET_KEY = "카지노순익"  # BlockShip CasinoLedger/RankingManager와 같은 PlayerData.extraNums 키
+
+
 _KST = datetime.timezone(datetime.timedelta(hours=9))
 _ISO_DATE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})")
 # 구 DateFormat(SHORT,SHORT) 잔재 — "4/7/26," 처럼 공백에서 잘린 조각까지 받는다.
@@ -278,6 +281,10 @@ def _read_live_player_rows(playerdata_dir, world_playerdata_dir=""):
                     "dex_fish": len(dex_discovery.get("물고기", []))
                     if isinstance(dex_discovery, dict) else _number(player.get("dexFish"), 0),
                     "popularity": _number(player.get("popularity"), 0),
+                    "casino_net": _number(extra_nums.get(_CASINO_NET_KEY), 0),
+                    # 카지노 원장이 생기기 전의 playerdata는 값이 없는 정상적인 구 데이터다.
+                    # 이 표식으로만 이벤트 로그 fallback 여부를 결정하고 API에는 내보내지 않는다.
+                    "casino_net_recorded": _CASINO_NET_KEY in extra_nums,
                     "last_active": last_active,
                 })
             except (OSError, ValueError, TypeError):
@@ -498,9 +505,9 @@ def public_ranking():
         island_rows.sort(key=lambda row: (-row["visitors"], row["name"].casefold()))
 
         popularity_rows = []
-        for player in _drop_ops(live_player_rows, op_uuids):
+        for player in public_player_rows:
             popularity = _number(player.get("popularity"), 0)
-            if popularity > 0:
+            if popularity != 0:
                 popularity_rows.append({
                     "name": player["name"],
                     "uuid": player.get("uuid"),
@@ -509,15 +516,32 @@ def public_ranking():
         popularity_rows.sort(key=lambda row: (-row["popularity"], row["name"].casefold()))
 
         casino_rows = []
-        event_files = []
-        try:
-            event_files = sorted(
-                entry.path for entry in os.scandir(queries.DATA_DIR)
-                if entry.name.startswith("events-") and entry.name.endswith(".db")
-            )
-        except OSError:
-            pass
-        if conn is not None and event_files:
+        # 인게임 /랭킹과 같은 CasinoLedger 누적 원장을 우선 사용한다. 새 원장이 없는
+        # 옛 playerdata만 남아 있는 배치에서는 기존 telemetry를 fallback으로 읽는다.
+        has_live_casino_ledger = any(
+            player.get("casino_net_recorded") for player in public_player_rows
+        )
+        if has_live_casino_ledger:
+            for player in public_player_rows:
+                net = _number(player.get("casino_net"), 0)
+                if net != 0:
+                    casino_rows.append({
+                        "name": player["name"],
+                        "uuid": player.get("uuid"),
+                        "net": net,
+                    })
+            casino_rows.sort(key=lambda row: (-row["net"], row["name"].casefold()))
+            casino_rows = casino_rows[:100]
+        else:
+            event_files = []
+            try:
+                event_files = sorted(
+                    entry.path for entry in os.scandir(queries.DATA_DIR)
+                    if entry.name.startswith("events-") and entry.name.endswith(".db")
+                )
+            except OSError:
+                pass
+        if not has_live_casino_ledger and conn is not None and event_files:
             aliases = []
             try:
                 for index, path in enumerate(event_files):
@@ -525,14 +549,17 @@ def public_ranking():
                     conn.execute(f"ATTACH DATABASE ? AS {alias}", (path,))
                     aliases.append(alias)
                 union = " UNION ALL ".join(
-                    f"SELECT uuid, name, ctx FROM {alias}.ev WHERE type='casino.round'" for alias in aliases
+                    f"SELECT uuid, name, ctx FROM {alias}.ev "
+                    "WHERE type='casino.round' "
+                    "AND (json_extract(ctx, '$.ok') IS NULL OR json_extract(ctx, '$.ok') = 1)"
+                    for alias in aliases
                 )
                 casino_rows = [dict(row) for row in conn.execute(
                     f"""SELECT COALESCE(NULLIF(MAX(name), ''), uuid) AS name, uuid,
                                SUM(CAST(COALESCE(json_extract(ctx, '$.net'), 0) AS INTEGER)) AS net
                         FROM ({union})
                         GROUP BY uuid
-                        HAVING net > 0
+                        HAVING net <> 0
                         ORDER BY net DESC, name COLLATE NOCASE ASC
                         LIMIT 100"""
                 ).fetchall()]
