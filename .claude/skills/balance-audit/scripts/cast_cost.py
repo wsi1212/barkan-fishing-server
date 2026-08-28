@@ -128,6 +128,14 @@ LEVEL_SPREAD_CAP = 0.25
 #  ★레벨을 옮겨 그룹을 피하려 해 봤지만 D 작살은 Lv3~8 이 다 차 있어 어디로 보내도 새 짝이
 #    생긴다(Lv8 로 옮겼더니 장터 작살과 +127%). 그룹에서 빼는 게 맞다.
 HOLD_ITEMS = {"쇠날 작살"}
+
+#: 이 카테고리는 요구 캐스트 사다리 «밖» 이다 — 다른 원리로 값을 매긴다.
+#:
+#: 미끼는 유일한 **소모품**이다(내구가 아니라 개수라 다 쓰면 사라진다). 영구 장비의 κ
+#: 사다리에 얹으면 「재료 모으는 시간 > 그 미끼로 낚는 시간」이 나온다 — 실제로 그랬다:
+#: 반딧불이 미끼가 내구 220캐스트(0.88h)를 주는데 재료가 1.33h 였다(2026-08-28 실측).
+#: 미끼는 patch_bait_ore.py 가 «내구 × 유지비율» 에서 광물 수량을 역산한다.
+EXEMPT_CATS = {"미끼"}
 #: ★출처별 «종결 배수» — 상점 사다리 밖의 층은 훨씬 빡세도 된다(유저 결정 2026-08-27).
 #  측정 근거: S 급 7종의 **한계비용 절감이 0%** 였다. 병목이 전부 «바르칸조각»인데
 #  그건 레드_로드 전용이고 A 급 이하 어떤 장비도 안 쓴다 → A 풀세팅을 다 만들어도 재고 0.
@@ -254,7 +262,8 @@ def kappa_table(rows):
     cur, des = {}, {}
     by_cat = collections.defaultdict(dict)
     for r in rows:
-        if r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES:
+        if r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES \
+                or r["cat"] in EXEMPT_CATS:
             continue
         by_cat[r["cat"]].setdefault(r["grade"], []).append(r)
     for cat, gs in by_cat.items():
@@ -290,7 +299,8 @@ def targets(rows, iso):
     out = {}
     for r in rows:
         k = iso.get((r["cat"], r["grade"]))
-        if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES:
+        if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES \
+                or r["cat"] in EXEMPT_CATS:
             continue
         out[r["name"]] = dict(target=k * r["rel"] * SRC_MULT.get(r["src"], 1.0),
                               src_mult=SRC_MULT.get(r["src"], 1.0),

@@ -1005,7 +1005,7 @@
           "typeOrMatId": "강화석탄",
           "displayName": "강화 석탄",
           "mcItem": "coal",
-          "qty": 8
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -11669,38 +11669,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 14
+          "qty": 13
         }
       ],
       "village": "스폰",
@@ -11718,29 +11690,8 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
           "qty": 10
         }
@@ -11760,31 +11711,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "안개수정",
-          "displayName": "안개 수정",
-          "mcItem": "amethyst_shard",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 1
+          "qty": 18
         }
       ],
       "village": "스폰",
@@ -11802,31 +11732,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 24
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 2
+          "qty": 30
         }
       ],
       "village": "스폰",
@@ -11844,24 +11753,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 2
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 18
         }
       ],
       "village": "스폰",
@@ -11879,31 +11774,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 2
+          "qty": 25
         }
       ],
       "village": "스폰",
@@ -11921,45 +11795,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "안개수정",
-          "displayName": "안개 수정",
-          "mcItem": "amethyst_shard",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 2
+          "mcItem": "paper",
+          "qty": 30
         }
       ],
       "village": "스폰",
@@ -11977,45 +11816,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "행운의구슬",
-          "displayName": "행운의 구슬",
-          "mcItem": "prismarine_crystals",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
+          "mcItem": "paper",
+          "qty": 40
         }
       ],
       "village": "스폰",
@@ -12033,38 +11837,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 16
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 1
+          "mcItem": "paper",
+          "qty": 30
         }
       ],
       "village": "스폰",
@@ -12082,38 +11858,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 18
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 3
+          "mcItem": "paper",
+          "qty": 36
         }
       ],
       "village": "사막",
@@ -12131,45 +11879,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 6
+          "mcItem": "paper",
+          "qty": 52
         }
       ],
       "village": "사막",
@@ -12187,45 +11900,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 20
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "행운의매듭",
-          "displayName": "행운의 매듭",
-          "mcItem": "chorus_fruit",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 1
+          "mcItem": "paper",
+          "qty": 16
         },
         {
           "kind": "custom",
@@ -12250,45 +11928,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 17
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 2
+          "mcItem": "paper",
+          "qty": 16
         },
         {
           "kind": "custom",
@@ -12313,59 +11956,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 17
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "자수정",
-          "displayName": "자수정",
-          "mcItem": "amethyst_shard",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 23
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 5
         }
       ],
       "village": "상단",
@@ -12383,52 +11984,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 16
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 16
         },
         {
           "kind": "custom",
@@ -12453,59 +12012,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 19
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 13
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "emerald",
-          "qty": 13
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 16
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 28
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 7
         }
       ],
       "village": "상단",
@@ -12523,52 +12040,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 21
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 20
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 20
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 26
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 14
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 3
+          "mcItem": "paper",
+          "qty": 28
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 7
         }
       ],
       "village": "왕도",
@@ -13744,7 +13226,7 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 32
+          "qty": 31
         },
         {
           "kind": "custom",
@@ -14136,7 +13618,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 23
+          "qty": 22
         },
         {
           "kind": "custom",
@@ -14374,7 +13856,7 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 18
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -14703,7 +14185,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 31
+          "qty": 30
         },
         {
           "kind": "custom",
@@ -14822,7 +14304,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -14955,7 +14437,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -15375,7 +14857,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 22
+          "qty": 21
         },
         {
           "kind": "custom",
@@ -15865,7 +15347,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 29
+          "qty": 28
         },
         {
           "kind": "custom",
@@ -16005,7 +15487,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 47
+          "qty": 46
         },
         {
           "kind": "custom",
@@ -16082,7 +15564,7 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 31
+          "qty": 30
         },
         {
           "kind": "custom",
@@ -16421,17 +15903,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -17381,7 +16856,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -17448,24 +16923,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 37
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 13
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 14
+          "qty": 31
         }
       ],
       "village": "스폰",
@@ -17483,38 +16944,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 19
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 9
+          "mcItem": "paper",
+          "qty": 52
         }
       ],
       "village": "사막",
@@ -17532,59 +16965,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 19
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주코어",
-          "displayName": "진주 코어",
-          "mcItem": "heart_of_the_sea",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 28
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 7
         }
       ],
       "village": "상단",
@@ -17882,24 +17273,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 28
+          "qty": 12
         }
       ],
       "village": "스폰",
@@ -17962,7 +17339,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 24
         },
         {
           "kind": "custom",
@@ -18095,7 +17472,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 41
+          "qty": 40
         },
         {
           "kind": "custom",
@@ -18561,31 +17938,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 11
         }
       ],
       "village": "스폰",
@@ -18603,31 +17959,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 13
         }
       ],
       "village": "스폰",
@@ -19279,7 +18614,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 22
+          "qty": 21
         },
         {
           "kind": "custom",
@@ -19342,7 +18677,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 21
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -20186,45 +19521,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "emerald",
-          "qty": 4
+          "mcItem": "paper",
+          "qty": 45
         }
       ],
       "village": "사막",
@@ -20242,45 +19542,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "emerald",
-          "qty": 4
+          "mcItem": "paper",
+          "qty": 50
         }
       ],
       "village": "사막",
@@ -20298,45 +19563,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "emerald",
-          "qty": 3
+          "mcItem": "paper",
+          "qty": 32
         }
       ],
       "village": "사막",
@@ -21285,38 +20515,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 26
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 23
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 20
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 26
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 3
+          "qty": 17
         }
       ],
       "village": "스폰",
@@ -21334,38 +20536,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 17
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화실",
-          "displayName": "강화 실",
-          "mcItem": "string",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 18
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 14
         }
       ],
       "village": "스폰",
@@ -21383,38 +20557,10 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "낡은갈고리",
-          "displayName": "낡은 갈고리",
-          "mcItem": "tripwire hook",
-          "qty": 4
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 31
         }
       ],
       "village": "스폰",
@@ -21432,45 +20578,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 18
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화철괴",
-          "displayName": "강화 철괴",
-          "mcItem": "iron_ingot",
-          "qty": 18
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 22
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 28
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 7
         }
       ],
       "village": "왕도",
@@ -21488,45 +20606,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "iron_ingot",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "자수정",
-          "displayName": "자수정",
-          "mcItem": "amethyst_shard",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
-          "mcItem": "blackstone",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "heart_of_the_sea",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "저울추",
-          "displayName": "상단 저울추",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 4
         }
       ],
       "village": "상단",
@@ -21799,63 +20889,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -21876,63 +20966,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 53
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 14
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -21953,70 +21043,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 48
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -22037,63 +21127,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 29
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "사막",
@@ -22114,63 +21204,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 29
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "상단",
@@ -22191,70 +21281,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 59
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -22275,70 +21365,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 27
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "심해수정",
           "displayName": "심해 수정",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 18
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -22359,63 +21449,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 29
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 20
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -22436,63 +21526,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 35
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 31
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 30
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 27
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 24
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 52
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -22513,70 +21603,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 33
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 40
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 36
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 19
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -22597,7 +21687,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
@@ -22674,63 +21764,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 63
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 19
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -22751,63 +21841,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 37
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -22828,70 +21918,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 50
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -22912,7 +22002,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 42
         },
         {
           "kind": "custom",
@@ -22926,49 +22016,49 @@
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -22989,70 +22079,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 57
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "상단",
@@ -23073,63 +22163,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 53
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -23150,70 +22240,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 58
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "심해수정",
           "displayName": "심해 수정",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 24
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -23234,63 +22324,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -23311,70 +22401,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 31
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 45
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 38
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 38
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 38
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 43
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 33
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -23395,7 +22485,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 21
+          "qty": 34
         },
         {
           "kind": "custom",
@@ -23409,49 +22499,49 @@
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -23472,63 +22562,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 58
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -23549,63 +22639,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 52
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "사막",
@@ -23626,70 +22716,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 46
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -23710,63 +22800,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 47
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -23787,70 +22877,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 58
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -23871,63 +22961,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -23948,70 +23038,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "심해수정",
           "displayName": "심해 수정",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 30
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 18
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -24032,63 +23122,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 31
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 19
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 17
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 23
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -24109,70 +23199,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 33
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 43
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 36
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 49
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 27
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -24190,66 +23280,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 21
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 14
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -24267,66 +23315,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 26
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 25
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 4
         }
       ],
       "village": "스폰",
@@ -24344,66 +23350,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 23
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 2
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -24421,73 +23385,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 25
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "행운의매듭",
-          "displayName": "행운의 매듭",
-          "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 20
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "사막",
@@ -24505,66 +23420,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 23
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 2
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -24582,73 +23455,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 27
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 25
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 4
         }
       ],
       "village": "상단",
@@ -24666,73 +23490,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 26
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "심해수정",
-          "displayName": "심해 수정",
-          "mcItem": "paper",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -24750,66 +23525,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 28
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 3
+          "qty": 14
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -24827,66 +23560,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 34
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 10
+          "qty": 17
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -24904,73 +23595,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "녹슨부품",
-          "displayName": "녹슨 부품",
-          "mcItem": "paper",
-          "qty": 32
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강철심",
-          "displayName": "강철 심",
-          "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화에메랄드",
-          "displayName": "강화 에메랄드",
-          "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸조각",
-          "displayName": "바르칸 조각",
-          "mcItem": "paper",
-          "qty": 49
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "바르칸핵",
-          "displayName": "바르칸 핵",
-          "mcItem": "paper",
-          "qty": 8
+          "qty": 25
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 4
         }
       ],
       "village": "",
@@ -24991,7 +23633,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 38
         },
         {
           "kind": "custom",
@@ -25005,49 +23647,49 @@
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -25068,63 +23710,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 60
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -25145,63 +23787,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 27
+          "qty": 51
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -25222,70 +23864,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 50
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -25306,63 +23948,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 56
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -25383,70 +24025,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 57
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -25467,63 +24109,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 32
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -25544,70 +24186,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 29
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "심해수정",
           "displayName": "심해 수정",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 23
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "",
@@ -25628,63 +24270,63 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 34
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 19
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 17
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 26
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",
@@ -25705,70 +24347,70 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 32
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 41
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 39
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 39
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 39
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 64
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 26
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "",

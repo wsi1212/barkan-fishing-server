@@ -47,6 +47,11 @@ ORE_LADDER = {
 }
 
 CATS = ("낚싯대", "작살", "부품")
+#: ★미끼는 «부품» 이지만 계열 고유 재료를 물리지 않는다.
+#:  소모품이라 재료가 광물 전용이어야 하고(patch_bait_ore.py), 여기서 녹슨 부품을 얹으면
+#:  소모품 하나에 214초짜리 낚시 재료가 수십 개 박힌다 — 실제로 반딧불이 미끼가 녹슨 부품
+#:  16개를 요구해 «만드는 시간(1.33h) > 쓰는 시간(0.88h)» 이 됐다(2026-08-28).
+SKIP_TYPES = {"미끼"}
 
 
 def mat_ing(mats, mid, qty):
@@ -79,6 +84,12 @@ def main():
         for rid in cats.get(cat, []):
             r = recs[rid]
             name = r.get("rodPartName") or r.get("resultPartName") or r.get("displayName")
+            if recs[rid].get("resultPartType") in SKIP_TYPES:
+                # 남의 계열 재료만 걷어내고 고유 재료·광물 사다리는 건드리지 않는다.
+                recs[rid]["ingredients"] = [
+                    i for i in recs[rid].get("ingredients", [])
+                    if i.get("typeOrMatId") not in ALL_SIG]
+                continue
             g = grade_of.get(name)
             if g is None:
                 missing_grade.append((cat, rid, name))
@@ -145,8 +156,9 @@ def main():
         n = sum(1 for rid in ids
                 if any(i.get("typeOrMatId") == sig_id for i in recs[rid].get("ingredients", [])))
         elig = sum(1 for rid in ids
-                   if grade_of.get(recs[rid].get("rodPartName")
-                                   or recs[rid].get("resultPartName")) in sig_qty)
+                   if recs[rid].get("resultPartType") not in SKIP_TYPES
+                   and grade_of.get(recs[rid].get("rodPartName")
+                                    or recs[rid].get("resultPartName")) in sig_qty)
         print(f"  {cat}: 고유 재료 {n}/{elig}종 (전체 {len(ids)})")
     for ore in ORE_LADDER:
         n = sum(1 for r in recs.values()
