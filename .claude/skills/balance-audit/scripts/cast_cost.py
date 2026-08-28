@@ -128,6 +128,13 @@ LEVEL_SPREAD_CAP = 0.25
 #  ★레벨을 옮겨 그룹을 피하려 해 봤지만 D 작살은 Lv3~8 이 다 차 있어 어디로 보내도 새 짝이
 #    생긴다(Lv8 로 옮겼더니 장터 작살과 +127%). 그룹에서 빼는 게 맞다.
 HOLD_ITEMS = {"쇠날 작살"}
+#: ★출처별 «종결 배수» — 상점 사다리 밖의 층은 훨씬 빡세도 된다(유저 결정 2026-08-27).
+#  측정 근거: S 급 7종의 **한계비용 절감이 0%** 였다. 병목이 전부 «바르칸조각»인데
+#  그건 레드_로드 전용이고 A 급 이하 어떤 장비도 안 쓴다 → A 풀세팅을 다 만들어도 재고 0.
+#  («하위 만들다 보면 상위 재료가 쌓인다»는 우려를 LP 한계비용으로 검산한 결과다.
+#   실제로 쌓이는 건 네더라이트 작살뿐 — 광질 산출이라 절감 69%.)
+#  조정 전 실측: 심해 8.3~9.0h · 히든전설 10~16h vs A급 상점템 8.0~8.6h → 사실상 동급이었다.
+SRC_MULT = {"심해": 2.0, "히든-전설": 4.0}
 
 
 #: 데이터 루트에 **반드시** 있어야 하는 파일. 하나라도 없으면 모델이 **조용히 다른 값**을 낸다.
@@ -252,8 +259,13 @@ def kappa_table(rows):
             cur[(cat, g)] = st.median([x["casts"] / x["rel"] for x in gs[g]])
         # κ0 정규화 — Σ(설계 캐스트) == Σ(현재 캐스트) × LIFT
         shape = {g: GRADE_SLOPE ** GRADE_ORDER.index(g) for g in grades}
-        tot_cur = sum(x["casts"] for g in grades for x in gs[g])
-        tot_raw = sum(shape[g] * x["rel"] for g in grades for x in gs[g])
+        # ★SRC_MULT 대상은 정규화 분모에서 뺀다 — 안 그러면 배수가 다른 종을 깎아
+        #   상쇄돼 버린다(총량 보존이 배수를 잡아먹는다).
+        norm_pool = [x for g in grades for x in gs[g] if x["src"] not in SRC_MULT]
+        if not norm_pool:
+            norm_pool = [x for g in grades for x in gs[g]]
+        tot_cur = sum(x["casts"] for x in norm_pool)
+        tot_raw = sum(shape[x["grade"]] * x["rel"] for x in norm_pool)
         k0 = (tot_cur * GRADE_LIFT / tot_raw) if tot_raw > 0 else 1.0
         for g in grades:
             des[(cat, g)] = k0 * shape[g]
@@ -273,15 +285,23 @@ def targets(rows, iso):
         k = iso.get((r["cat"], r["grade"]))
         if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES:
             continue
-        out[r["name"]] = dict(target=k * r["rel"], cur=r["casts"], raw=None,
+        out[r["name"]] = dict(target=k * r["rel"] * SRC_MULT.get(r["src"], 1.0),
+                              src_mult=SRC_MULT.get(r["src"], 1.0),
+                              cur=r["casts"], raw=None,
                               cat=r["cat"], grade=r["grade"], lv=r["lv"], perf=r["perf"],
                               rel=r["rel"], clamped=r["name"] in HOLD_ITEMS)
     for v in out.values():
         v["raw"] = v["target"]
 
     # ② 동레벨 이상치 표시 (목표값은 건드리지 않는다 — 위 주석 참조)
+    #    ★SRC_MULT 대상(히든·심해)은 **hold 판정에서 뺀다.** 그 층은 «더 세라고 만든» 것이라
+    #      동레벨 상점템보다 성능이 높은 게 정상인데, hold 로 잡히면 배수가 적용되지 않는다.
+    #      실제로 그래서 히든-전설 4종 중 3종(천공 낚싯대·천공 작살·바르칸 작살)이 ×4 를
+    #      못 받고 예전 값 그대로 남았다.
     by_lv = collections.defaultdict(list)
     for n, v in out.items():
+        if v.get("src_mult", 1.0) != 1.0:
+            continue
         by_lv[(v["cat"], v["lv"])].append(n)
     clamps = []
     for (cat, lv), names in by_lv.items():
