@@ -8489,14 +8489,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 30
+          "qty": 31
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 26
+          "qty": 27
         }
       ],
       "village": "왕도",
@@ -9204,14 +9204,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 25
+          "qty": 26
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 24
+          "qty": 25
         }
       ],
       "village": "",
@@ -9252,14 +9252,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 25
+          "qty": 26
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 24
+          "qty": 25
         }
       ],
       "village": "",
@@ -9396,7 +9396,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -16156,7 +16156,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 15
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -16457,7 +16457,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 21
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -16891,7 +16891,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 47
+          "qty": 46
         },
         {
           "kind": "custom",
@@ -18743,7 +18743,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 48
+          "qty": 47
         },
         {
           "kind": "custom",

@@ -76,6 +76,9 @@ SOLO_SPREAD = {
 }
 #: 같은 (카테고리, 레벨) 안에서 허용하는 성능 산포. selftest [9] 와 같은 기준.
 SPREAD_CAP = 0.25
+#: 산포 검사에서 빼는 레벨 — Lv1 은 «무료 시작 세트»라 사다리가 아니다(밴드도 한 칸이라
+#  옮길 데가 없다). 여기 성능이 벌어지는 건 정상이다(나뭇가지 vs 초보 낚싯대).
+EXEMPT_LV = {1}
 #: 레벨을 옮기지 않는 출처 — 특수 층이라 «사다리»가 아니다.
 FREEZE_SRC = {"튜토", "잠수상점", "캐시", "개발자", "대장간"}
 
@@ -116,7 +119,13 @@ def main():
         for c in PARTS:
             ns = [n for n, v in items.items()
                   if v["cat"] == c and v["src"] == src_v and v["grade"] == gr]
-            tiers[c] = sorted(ns, key=lambda n: (perf.get(n, 0.0), n))
+            # ★정렬 키에 «현재 레벨»을 앞세운다 — 이 스크립트를 멱등으로 만들기 위해서다.
+            #   perf 는 구간 시급으로 정규화되고 구간은 레벨이 정하므로, 레벨을 옮기면
+            #   perf 가 바뀌고 다음 실행에서 티어 순서가 미세하게 뒤집힌다. 그러면 이미
+            #   잘 퍼진 배치가 다시 흔들려 없던 구멍이 생긴다(2026-08-28 실측: 빈 레벨 4→6).
+            #   최초 실행에서는 라인이 전부 같은 레벨이라 perf 가 순서를 정하고, 이후
+            #   재실행에서는 그 결과가 그대로 유지된다.
+            tiers[c] = sorted(ns, key=lambda n: (items[n]["lv"], perf.get(n, 0.0), n))
         T = max((len(v) for v in tiers.values()), default=0)
         if T == 0:
             continue
@@ -130,7 +139,7 @@ def main():
         cat, src_v, gr = g
         ns = sorted((n for n, v in items.items()
                      if v["cat"] == cat and v["src"] == src_v and v["grade"] == gr),
-                    key=lambda n: (perf.get(n, 0.0), n))
+                    key=lambda n: (items[n]["lv"], perf.get(n, 0.0), n))
         if not ns:
             continue
         lo, hi = bands[g]
@@ -139,7 +148,8 @@ def main():
 
     # ── ③ 동레벨 충돌 완화 ──────────────────────────────────────────────────
     moves = 0
-    for _ in range(12):
+    unfixable, fixed_skip = [], set()
+    for _ in range(200):
         bylv = collections.defaultdict(list)
         for n, v in items.items():
             bylv[(v["cat"], newlv[n])].append(n)
@@ -149,30 +159,69 @@ def main():
             if len(ps) < 2:
                 continue
             sp = max(ps) / min(ps) - 1
+            if lv in EXEMPT_LV or (cat, lv) in fixed_skip:
+                continue
             if sp > SPREAD_CAP and (worst is None or sp > worst[0]):
                 worst = (sp, cat, lv, ns)
         if not worst:
             break
         sp, cat, lv, ns = worst
-        top = max(ns, key=lambda n: perf.get(n, 0.0))
-        g = (items[top]["cat"], items[top]["src"], items[top]["grade"])
-        lo, hi = bands.get(g, [lv, lv])
-        if newlv[top] + 1 <= hi:
-            newlv[top] += 1
-            moves += 1
+        # ★밴드 안 «가장 덜 붐비는 레벨»로 옮긴다. ±1 만 보면 옆칸도 꽉 차 있을 때 막히고,
+        #   그 자리에서 loop 를 break 해 나머지 위반까지 통째로 포기하게 된다(2026-08-28:
+        #   그래서 «이동 0회» 로 끝나고 미끼 Lv4 +177% 가 그대로 남았다).
+        # ★부품은 여기서 옮기지 않는다 — 부품의 목적은 «사막 제거»이고 ① 이 이미 밴드를
+        #   빈틈없이 채워 놨다. 산포를 잡겠다고 한 종을 빼면 그 레벨이 비어 사막이 되살아난다
+        #   (2026-08-28 실측: 빈 레벨 4 → 6). 부품 5종은 서로 대체재라 같은 레벨에 성능이
+        #   좀 벌어져도 «그 레벨에 갈아끼울 게 있다» 가 먼저다. 낚싯대·작살은 각자가 유일한
+        #   슬롯이라 반대다 — 같은 레벨에 성능이 벌어지면 한쪽이 그냥 함정 선택지가 된다.
+        if cat in PARTS:
+            unfixable.append((cat, lv, sp))
+            fixed_skip.add((cat, lv))
             continue
-        bot = min(ns, key=lambda n: perf.get(n, 0.0))
-        g = (items[bot]["cat"], items[bot]["src"], items[bot]["grade"])
-        lo, hi = bands.get(g, [lv, lv])
-        if newlv[bot] - 1 >= lo:
-            newlv[bot] -= 1
-            moves += 1
+        done = False
+        for pick in sorted(ns, key=lambda n: -perf.get(n, 0.0)):
+            g = (items[pick]["cat"], items[pick]["src"], items[pick]["grade"])
+            lo, hi = bands.get(g, [lv, lv])
+            cand = []
+            for L in range(lo, hi + 1):
+                if L == newlv[pick]:
+                    continue
+                peers = [perf.get(m, 0.0) for m, v in items.items()
+                         if v["cat"] == cat and newlv[m] == L and m != pick
+                         and perf.get(m, 0.0) > 0]
+                mine = perf.get(pick, 0.0)
+                if mine <= 0:
+                    continue
+                sp2 = (max(peers + [mine]) / min(peers + [mine]) - 1) if peers else 0.0
+                # ★구멍을 만드는 이동에 벌점 — 산포를 잡으려다 사막을 되살리면 본말전도다
+                #   (2026-08-28: 초판이 빈 레벨을 4 → 6 으로 늘렸다). «슬롯 가족» 기준으로
+                #   센다 — 부품 5종은 서로 대체재라 합산이 끊기지 않으면 되고, 낚싯대·작살은
+                #   각자가 유일한 슬롯이라 자기 카테고리로 센다.
+                fam = PARTS if items[pick]["cat"] in PARTS else (items[pick]["cat"],)
+                src_occ = sum(1 for m, v in items.items()
+                              if v["cat"] in fam and newlv[m] == newlv[pick])
+                hole = 1 if src_occ <= 1 else 0
+                cand.append((hole, sp2, abs(L - newlv[pick]), L))
+            cand.sort()
+            if cand and cand[0][0] == 0 and cand[0][1] < sp - 1e-9:
+                newlv[pick] = cand[0][3]
+                moves += 1
+                done = True
+                break
+        if not done:
+            unfixable.append((cat, lv, sp))
+            fixed_skip.add((cat, lv))
             continue
-        break
 
     # ── 보고 ────────────────────────────────────────────────────────────────
     changed = [(n, items[n]["lv"], newlv[n]) for n in items if newlv[n] != items[n]["lv"]]
-    print(f"레벨 변경 {len(changed)}종 / 전체 {len(items)}종 · 충돌완화 이동 {moves}회\n")
+    print(f"레벨 변경 {len(changed)}종 / 전체 {len(items)}종 · 충돌완화 이동 {moves}회")
+    if unfixable:
+        print(f"★레벨로 못 푼 동레벨 산포 {len(unfixable)}건 "
+              "(부품=사막 우선이라 의도적 보류 / 그 외=스탯 결함):")
+        for cat, lv, sp in sorted(unfixable, key=lambda x: -x[2])[:12]:
+            print(f"   {cat} Lv{lv} +{sp*100:.0f}%")
+    print()
 
     def hist(getlv, cats, lo, hi, label):
         h = collections.Counter()
