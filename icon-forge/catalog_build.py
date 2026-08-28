@@ -5,15 +5,16 @@
   - plugins/BlockShip/parts.json: 낚싯대/릴/줄/바늘/미끼/찌/작살
   - BlockShip Java TrapSpecs.java: 지역 통발 12종 × 4변종
 
-254개 아이템을 공통 팔레트/광원/픽셀 문법으로 렌더링하고, 리소스팩의
+권위 카탈로그의 모든 아이템을 공통 팔레트/광원/픽셀 문법으로 렌더링하고, 리소스팩의
 textures + models + items를 함께 생성한다. Java의 ItemIconModel과 같은 SHA-1
 규칙을 사용하므로 별도 매핑 파일 없이 아이템 이름에서 모델 ID가 결정된다.
 
-★★ 이 스크립트를 돌리면 catalog_* 텍스처를 **전부 덮어쓴다.** 두 가지를 기억할 것:
-  ① 손으로 고친 아이콘이 있으면 그대로 날아간다(2026-08-05 실제 사고).
+★★ 기본 모드는 catalog_* 텍스처를 **전부 덮어쓴다.** 기존 수작업/ImageGen 보정본을
+보존하면서 누락만 채우려면 반드시 `--missing-only`를 사용한다. 두 가지를 기억할 것:
+ ① 손으로 고친 아이콘이 있으면 그대로 날아간다(2026-08-05 실제 사고).
      모델 JSON만 바꿀 일이면 이 생성기 말고 텍스처를 안 건드리는 스크립트를 쓸 것.
-  ② 돌린 뒤에는 **반드시 `python3 add_outline.py` 를 다시 실행**할 것 —
-     검은 외곽선이 여기서 생성되지 않으므로 재생성하면 사라진다.
+ ② 기본 모드로 돌린 뒤에는 **반드시 `python3 add_outline.py` 를 다시 실행**할 것 —
+검은 외곽선이 여기서 생성되지 않으므로 재생성하면 사라진다.
 """
 from __future__ import annotations
 
@@ -348,7 +349,7 @@ def load_catalog():
     return rows
 
 
-def save_models(rows):
+def save_models(rows, missing_only=False):
     tex = RP / "assets/minecraft/textures/item/barkan_icon"
     models = RP / "assets/barkan/models/barkan_icon"
     items = RP / "assets/barkan/items/barkan_icon"
@@ -357,10 +358,16 @@ def save_models(rows):
     paths = []
     for row in rows:
         iid = icon_id(row["kind"], row["region"] if row["kind"] == "통발" else row["name"], row.get("variant"))
+        target = tex / f"{iid}.png"
+        model_path = models / f"{iid}.json"
+        item_path = items / f"{iid}.json"
+        # 신규 부품만 채울 때는 기존 아이콘을 절대 덮어쓰지 않는다.
+        # 기존 수작업 보정본/이미지 생성 후처리본을 보존하기 위한 안전 모드다.
+        if missing_only and target.exists() and model_path.exists() and item_path.exists():
+            continue
         p = Painter(size_for(row["grade"]), row["name"], row["grade"], row["origin"])
         DRAWERS[row["kind"]](p)
         image = p.finish()
-        target = tex / f"{iid}.png"
         image.save(target)
         # ★낚싯대는 부모가 item/generated(평면 아이콘용, 손모양 없음)라서 마크 기본
         #   낚싯대처럼 앞으로 들지 않고 평평하게 들렸다. 진짜 낚싯대는 item/handheld_rod
@@ -369,9 +376,9 @@ def save_models(rows):
         #   텍스처만 우리 걸로 바꾸고 부모는 유지해 각도를 물려받는다.
         parent = "minecraft:item/handheld_rod" if row["kind"] == "낚싯대" else "minecraft:item/generated"
         model = {"parent": parent, "textures": {"layer0": f"minecraft:item/barkan_icon/{iid}"}}
-        (models / f"{iid}.json").write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
+        model_path.write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
         definition = {"model": {"type": "minecraft:model", "model": f"barkan:barkan_icon/{iid}"}}
-        (items / f"{iid}.json").write_text(json.dumps(definition, ensure_ascii=False), encoding="utf-8")
+        item_path.write_text(json.dumps(definition, ensure_ascii=False), encoding="utf-8")
         row = dict(row); row.update({"id": iid, "resolution": image.width, "path": str(target)})
         meta.append(row); paths.append(target)
     return meta, paths
@@ -428,9 +435,35 @@ def validate(meta, paths):
     print(f"검증 통과: {len(meta)}개 / 고유 ID {len(set(ids))}개")
 
 
+def existing_catalog():
+    """현재 RP에 설치된 전체 카탈로그를 읽어 리뷰 시트만 다시 만든다."""
+    meta, paths = [], []
+    tex = RP / "assets/minecraft/textures/item/barkan_icon"
+    for row in load_catalog():
+        iid = icon_id(row["kind"], row["region"] if row["kind"] == "통발" else row["name"], row.get("variant"))
+        path = tex / f"{iid}.png"
+        if not path.exists():
+            raise SystemExit(f"리뷰 대상 텍스처가 없습니다: {path}")
+        current = dict(row)
+        current.update({"id": iid, "resolution": Image.open(path).width, "path": str(path)})
+        meta.append(current)
+        paths.append(path)
+    return meta, paths
+
+
 def main():
-    rows = load_catalog()
-    meta, paths = save_models(rows)
+    import argparse
+    ap = argparse.ArgumentParser(description="장비/부품 카탈로그 아이콘 생성")
+    ap.add_argument("--missing-only", action="store_true",
+                    help="textures/models/items 3종이 모두 있는 기존 아이콘은 건너뜀")
+    ap.add_argument("--review-all", action="store_true",
+                    help="기존 RP 파일은 건드리지 않고 전체 카탈로그 리뷰 시트만 재생성")
+    args = ap.parse_args()
+    if args.review_all:
+        meta, paths = existing_catalog()
+    else:
+        rows = load_catalog()
+        meta, paths = save_models(rows, missing_only=args.missing_only)
     validate(meta, paths)
     make_review(meta, paths)
     print("리소스팩 생성:", RP)

@@ -11,6 +11,16 @@
   },
   {
     "kind": "낚싯대",
+    "name": "초보자 낚싯대",
+    "grade": "E",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_rod_dc39767558",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_dc39767558.png"
+  },
+  {
+    "kind": "낚싯대",
     "name": "초보 낚싯대",
     "grade": "E",
     "origin": "스폰마을",
@@ -640,6 +650,186 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_3b7617d47d.png"
   },
   {
+    "kind": "낚싯대",
+    "name": "잠수부의 낚싯대",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_rod_dd43fb5f3f",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_dd43fb5f3f.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "심해 잠수부의 낚싯대",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_rod_38fef019cd",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_38fef019cd.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "채집용 낚싯대",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_rod_baefaaabfd",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_baefaaabfd.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "수집가의 낚싯대",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_rod_f53bb2614d",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_f53bb2614d.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "탐사자의 낚싯대",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_rod_5aa74acfe0",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_5aa74acfe0.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "발굴자의 낚싯대",
+    "grade": "B",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_rod_bdc9eeee36",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_bdc9eeee36.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "유물사냥꾼의 낚싯대",
+    "grade": "A",
+    "origin": "사막마을",
+    "variant": null,
+    "id": "catalog_rod_e1eb50e939",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_e1eb50e939.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "수집상의 낚싯대",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_rod_bdffa09f0d",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_bdffa09f0d.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "탐구자의 낚싯대",
+    "grade": "A",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_rod_317a16ae4c",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_317a16ae4c.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "발굴왕의 낚싯대",
+    "grade": "A",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_rod_7d63f8bb83",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_7d63f8bb83.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "수집왕의 낚싯대",
+    "grade": "A",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_rod_7d6d815eb5",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_7d6d815eb5.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "방벽 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_7198be0eca",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_7198be0eca.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "사자 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_8bdba5d997",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_8bdba5d997.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "왕관 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_7de778e476",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_7de778e476.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "세관 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_507c492151",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_507c492151.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "문서고 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_7991399d9d",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_7991399d9d.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "조병창 낚싯대",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_rod_d5d7f293ec",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_d5d7f293ec.png"
+  },
+  {
+    "kind": "릴",
+    "name": "초보자 릴",
+    "grade": "E",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_3f1f0424c5",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_3f1f0424c5.png"
+  },
+  {
     "kind": "릴",
     "name": "녹슨 릴",
     "grade": "E",
@@ -821,43 +1011,273 @@
   },
   {
     "kind": "릴",
-    "name": "숙련 릴",
+    "name": "잠수부 릴",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_reel_20d4d45de7",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_20d4d45de7.png"
+  },
+  {
+    "kind": "릴",
+    "name": "심해 잠수부 릴",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_reel_67b375054d",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_67b375054d.png"
+  },
+  {
+    "kind": "릴",
+    "name": "수집 릴",
     "grade": "C",
     "origin": "스폰마을",
     "variant": null,
-    "id": "catalog_reel_6cfbf006c3",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_6cfbf006c3.png"
+    "id": "catalog_reel_8f32503831",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_8f32503831.png"
   },
   {
     "kind": "릴",
-    "name": "노련한 릴",
+    "name": "유적 릴",
     "grade": "B",
-    "origin": "스폰마을",
-    "variant": null,
-    "id": "catalog_reel_bf36b736fe",
-    "resolution": 128,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_bf36b736fe.png"
-  },
-  {
-    "kind": "릴",
-    "name": "사막 노장 릴",
-    "grade": "A",
     "origin": "사막마을",
     "variant": null,
-    "id": "catalog_reel_0fb1c7a79b",
+    "id": "catalog_reel_e99590fc66",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_0fb1c7a79b.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_e99590fc66.png"
   },
   {
     "kind": "릴",
-    "name": "정밀 감속 릴",
+    "name": "수집상 릴",
     "grade": "A",
     "origin": "상단마을",
     "variant": null,
-    "id": "catalog_reel_02b6854f1e",
+    "id": "catalog_reel_385116a32a",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_02b6854f1e.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_385116a32a.png"
+  },
+  {
+    "kind": "릴",
+    "name": "채집 릴",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_8fd78ade5b",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_8fd78ade5b.png"
+  },
+  {
+    "kind": "릴",
+    "name": "수습 릴",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_38d9ddae43",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_38d9ddae43.png"
+  },
+  {
+    "kind": "릴",
+    "name": "장터 릴",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_4c07834358",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_4c07834358.png"
+  },
+  {
+    "kind": "릴",
+    "name": "방벽 릴",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_reel_bf2ae5f8e9",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_bf2ae5f8e9.png"
+  },
+  {
+    "kind": "릴",
+    "name": "사자 릴",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_reel_054991979d",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_054991979d.png"
+  },
+  {
+    "kind": "릴",
+    "name": "왕관 릴",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_reel_e421190491",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_e421190491.png"
+  },
+  {
+    "kind": "릴",
+    "name": "억센 릴",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_40ba109c91",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_40ba109c91.png"
+  },
+  {
+    "kind": "릴",
+    "name": "예민한 릴",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_9996527236",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_9996527236.png"
+  },
+  {
+    "kind": "릴",
+    "name": "단련된 릴",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_f50864c5ad",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_f50864c5ad.png"
+  },
+  {
+    "kind": "릴",
+    "name": "선단 릴",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_reel_380689d1e3",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_380689d1e3.png"
+  },
+  {
+    "kind": "릴",
+    "name": "행운의 릴",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_reel_d5c3d34c08",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_d5c3d34c08.png"
+  },
+  {
+    "kind": "릴",
+    "name": "여명 릴",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_reel_4fbe80c86e",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_4fbe80c86e.png"
+  },
+  {
+    "kind": "릴",
+    "name": "등대 릴",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_reel_ef81b93a05",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_ef81b93a05.png"
+  },
+  {
+    "kind": "릴",
+    "name": "전갈왕 릴",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_reel_8abb9782ed",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_8abb9782ed.png"
+  },
+  {
+    "kind": "릴",
+    "name": "모래폭풍 릴",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_reel_5a365b3fb4",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_5a365b3fb4.png"
+  },
+  {
+    "kind": "릴",
+    "name": "감정왕 릴",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_reel_30456c4452",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_30456c4452.png"
+  },
+  {
+    "kind": "릴",
+    "name": "대상인 릴",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_reel_7c36c23121",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_7c36c23121.png"
+  },
+  {
+    "kind": "릴",
+    "name": "심해수정 릴",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_reel_27940ecbac",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_27940ecbac.png"
+  },
+  {
+    "kind": "릴",
+    "name": "심연 릴",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_reel_51349eea68",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_51349eea68.png"
+  },
+  {
+    "kind": "릴",
+    "name": "용린 릴",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_reel_60d18d2c8d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_60d18d2c8d.png"
+  },
+  {
+    "kind": "릴",
+    "name": "성좌 릴",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_reel_19ea006243",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_reel_19ea006243.png"
+  },
+  {
+    "kind": "줄",
+    "name": "초보자 줄",
+    "grade": "E",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_28d8ad386a",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_28d8ad386a.png"
   },
   {
     "kind": "줄",
@@ -1041,43 +1461,273 @@
   },
   {
     "kind": "줄",
-    "name": "숙련줄",
+    "name": "잠수부 줄",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_line_0cb5e3c1ac",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_0cb5e3c1ac.png"
+  },
+  {
+    "kind": "줄",
+    "name": "심해 잠수부 줄",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_line_a14e88511c",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_a14e88511c.png"
+  },
+  {
+    "kind": "줄",
+    "name": "수집 삼합줄",
     "grade": "C",
     "origin": "스폰마을",
     "variant": null,
-    "id": "catalog_line_ee0fefac7b",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_ee0fefac7b.png"
+    "id": "catalog_line_2bfe4ae6e8",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_2bfe4ae6e8.png"
   },
   {
     "kind": "줄",
-    "name": "노련한줄",
+    "name": "유적 밧줄",
     "grade": "B",
-    "origin": "스폰마을",
-    "variant": null,
-    "id": "catalog_line_15161a9246",
-    "resolution": 128,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_15161a9246.png"
-  },
-  {
-    "kind": "줄",
-    "name": "사막 노장줄",
-    "grade": "A",
     "origin": "사막마을",
     "variant": null,
-    "id": "catalog_line_52976834e4",
+    "id": "catalog_line_c48c2e05ff",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_52976834e4.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_c48c2e05ff.png"
   },
   {
     "kind": "줄",
-    "name": "정밀 감속줄",
+    "name": "수집상 합사줄",
     "grade": "A",
     "origin": "상단마을",
     "variant": null,
-    "id": "catalog_line_b18b64e21e",
+    "id": "catalog_line_1ea0043d48",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_b18b64e21e.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_1ea0043d48.png"
+  },
+  {
+    "kind": "줄",
+    "name": "채집실",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_0ccd31d7ea",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_0ccd31d7ea.png"
+  },
+  {
+    "kind": "줄",
+    "name": "수습 줄",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_da4188606e",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_da4188606e.png"
+  },
+  {
+    "kind": "줄",
+    "name": "장터 줄",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_8ff8ee1e6c",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_8ff8ee1e6c.png"
+  },
+  {
+    "kind": "줄",
+    "name": "문서고 줄",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_line_4e651addd2",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_4e651addd2.png"
+  },
+  {
+    "kind": "줄",
+    "name": "방벽 줄",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_line_4343346988",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_4343346988.png"
+  },
+  {
+    "kind": "줄",
+    "name": "사자 줄",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_line_c75f79be6b",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_c75f79be6b.png"
+  },
+  {
+    "kind": "줄",
+    "name": "예민한 줄",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_ffb3a043e4",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_ffb3a043e4.png"
+  },
+  {
+    "kind": "줄",
+    "name": "채집 줄",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_2a5fda6ef1",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_2a5fda6ef1.png"
+  },
+  {
+    "kind": "줄",
+    "name": "길조 줄",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_line_2fc9472d72",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_2fc9472d72.png"
+  },
+  {
+    "kind": "줄",
+    "name": "선단 줄",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_line_55fa19d9d4",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_55fa19d9d4.png"
+  },
+  {
+    "kind": "줄",
+    "name": "서기 줄",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_line_f37cd55a71",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_f37cd55a71.png"
+  },
+  {
+    "kind": "줄",
+    "name": "여명 줄",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_line_7be6d740fa",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_7be6d740fa.png"
+  },
+  {
+    "kind": "줄",
+    "name": "등대 줄",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_line_7b7237b716",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_7b7237b716.png"
+  },
+  {
+    "kind": "줄",
+    "name": "모래폭풍 줄",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_line_4863252c50",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_4863252c50.png"
+  },
+  {
+    "kind": "줄",
+    "name": "전갈왕 줄",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_line_76db8d8754",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_76db8d8754.png"
+  },
+  {
+    "kind": "줄",
+    "name": "감정왕 줄",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_line_232eee358f",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_232eee358f.png"
+  },
+  {
+    "kind": "줄",
+    "name": "대상인 줄",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_line_a3c7e2104b",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_a3c7e2104b.png"
+  },
+  {
+    "kind": "줄",
+    "name": "심연 줄",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_line_10cf3f5615",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_10cf3f5615.png"
+  },
+  {
+    "kind": "줄",
+    "name": "심해수정 줄",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_line_7fb82ce190",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_7fb82ce190.png"
+  },
+  {
+    "kind": "줄",
+    "name": "용린 줄",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_line_34606d611d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_34606d611d.png"
+  },
+  {
+    "kind": "줄",
+    "name": "성좌 줄",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_line_10bbd0b30d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_line_10bbd0b30d.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "초보자 바늘",
+    "grade": "E",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_144cdac409",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_144cdac409.png"
   },
   {
     "kind": "바늘",
@@ -1261,43 +1911,263 @@
   },
   {
     "kind": "바늘",
-    "name": "숙련 바늘",
+    "name": "잠수부 바늘",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_hook_6b5402eaad",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_6b5402eaad.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "심해 잠수부 바늘",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_hook_41ebd0c170",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_41ebd0c170.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "수집 바늘",
     "grade": "C",
     "origin": "스폰마을",
     "variant": null,
-    "id": "catalog_hook_d00ce42d07",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_d00ce42d07.png"
+    "id": "catalog_hook_2fdb2563ec",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_2fdb2563ec.png"
   },
   {
     "kind": "바늘",
-    "name": "노련한 바늘",
+    "name": "유적 바늘",
     "grade": "B",
-    "origin": "스폰마을",
-    "variant": null,
-    "id": "catalog_hook_8d2c7e3d43",
-    "resolution": 128,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_8d2c7e3d43.png"
-  },
-  {
-    "kind": "바늘",
-    "name": "사막 노장 바늘",
-    "grade": "A",
     "origin": "사막마을",
     "variant": null,
-    "id": "catalog_hook_1cd63eab85",
+    "id": "catalog_hook_0fa5ac4dc2",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_1cd63eab85.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_0fa5ac4dc2.png"
   },
   {
     "kind": "바늘",
-    "name": "정밀 감속 바늘",
+    "name": "수집상 바늘",
     "grade": "A",
     "origin": "상단마을",
     "variant": null,
-    "id": "catalog_hook_b14bd31c4a",
+    "id": "catalog_hook_2988361bec",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_b14bd31c4a.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_2988361bec.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "채집 바늘",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_fd4a4a8379",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_fd4a4a8379.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "수습 바늘",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_ded0be8cee",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_ded0be8cee.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "장터 바늘",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_8dea517dca",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_8dea517dca.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "방벽 바늘",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_hook_88b00518dc",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_88b00518dc.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "문서고 바늘",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_hook_a56454b3f5",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_a56454b3f5.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "왕관 바늘",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_hook_b18508be7f",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_b18508be7f.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "예민한 바늘",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_04fc86d7cc",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_04fc86d7cc.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "선단 바늘",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_hook_a38a3546dc",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_a38a3546dc.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "서기 바늘",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_hook_b568a1c565",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_b568a1c565.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "행운의 바늘",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_hook_a2b630c5df",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_a2b630c5df.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "성벽 바늘",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_hook_fe99c5c810",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_fe99c5c810.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "여명 바늘",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_hook_73e141fedf",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_73e141fedf.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "등대 바늘",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_hook_660bf4a992",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_660bf4a992.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "모래폭풍 바늘",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_hook_bab20e0e81",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_bab20e0e81.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "전갈왕 바늘",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_hook_017e4662ef",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_017e4662ef.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "감정왕 바늘",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_hook_4bf2aeddf9",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_4bf2aeddf9.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "대상인 바늘",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_hook_cea8d5a7a6",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_cea8d5a7a6.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "심연 바늘",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_hook_067fa8e1a5",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_067fa8e1a5.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "심해수정 바늘",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_hook_af6b75603d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_af6b75603d.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "용린 바늘",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_hook_c943f41b1d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_c943f41b1d.png"
+  },
+  {
+    "kind": "바늘",
+    "name": "성좌 바늘",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_hook_6a8634328a",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_hook_6a8634328a.png"
   },
   {
     "kind": "미끼",
@@ -1481,43 +2351,273 @@
   },
   {
     "kind": "미끼",
-    "name": "숙련 미끼",
+    "name": "잠수부 미끼",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_bait_c02fe2a05e",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_c02fe2a05e.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "심해 잠수부 미끼",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_bait_75947e85fb",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_75947e85fb.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "수집 미끼",
     "grade": "C",
     "origin": "스폰마을",
     "variant": null,
-    "id": "catalog_bait_838f5d0cd9",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_838f5d0cd9.png"
+    "id": "catalog_bait_ff2890ea9c",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_ff2890ea9c.png"
   },
   {
     "kind": "미끼",
-    "name": "노련한 미끼",
+    "name": "유적 미끼",
     "grade": "B",
-    "origin": "스폰마을",
-    "variant": null,
-    "id": "catalog_bait_ccb88c460d",
-    "resolution": 128,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_ccb88c460d.png"
-  },
-  {
-    "kind": "미끼",
-    "name": "사막 노장 미끼",
-    "grade": "A",
     "origin": "사막마을",
     "variant": null,
-    "id": "catalog_bait_44369c0a13",
+    "id": "catalog_bait_9833ef64ee",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_44369c0a13.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_9833ef64ee.png"
   },
   {
     "kind": "미끼",
-    "name": "정밀 감속 미끼",
+    "name": "수집상 미끼",
     "grade": "A",
     "origin": "상단마을",
     "variant": null,
-    "id": "catalog_bait_5da8d152e8",
+    "id": "catalog_bait_cdcb4daf12",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_5da8d152e8.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_cdcb4daf12.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "채집 미끼",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_7dab523903",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_7dab523903.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "수습 미끼",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_67c5a0da26",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_67c5a0da26.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "장터 미끼",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_4a4e564f4d",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_4a4e564f4d.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "방벽 미끼",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bait_208f8d82d8",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_208f8d82d8.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "문서고 미끼",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bait_2fc2c0e36a",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_2fc2c0e36a.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "사자 미끼",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bait_13fc5bdf4a",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_13fc5bdf4a.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "억센 미끼",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_dbd9baf3cc",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_dbd9baf3cc.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "예민한 미끼",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_bd06a615cd",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_bd06a615cd.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "단련된 미끼",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bait_afc4d7e43d",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_afc4d7e43d.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "선단 미끼",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bait_8dfe02594e",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_8dfe02594e.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "서기 미끼",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bait_60e93219c0",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_60e93219c0.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "여명 미끼",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_bait_90f9d95f4c",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_90f9d95f4c.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "등대 미끼",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_bait_0a08483272",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_0a08483272.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "모래폭풍 미끼",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_bait_577dabf342",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_577dabf342.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "전갈왕 미끼",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_bait_ab2ae31d36",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_ab2ae31d36.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "감정왕 미끼",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_bait_dfb15a625b",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_dfb15a625b.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "대상인 미끼",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_bait_e911249c5d",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_e911249c5d.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "심해수정 미끼",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_bait_8cdca82c17",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_8cdca82c17.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "심연 미끼",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_bait_1ec2a28047",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_1ec2a28047.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "용린 미끼",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_bait_13f22fe513",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_13f22fe513.png"
+  },
+  {
+    "kind": "미끼",
+    "name": "성좌 미끼",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_bait_74b8a0320a",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bait_74b8a0320a.png"
+  },
+  {
+    "kind": "찌",
+    "name": "초보자 찌",
+    "grade": "E",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_7d24e3b56e",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_7d24e3b56e.png"
   },
   {
     "kind": "찌",
@@ -1701,43 +2801,263 @@
   },
   {
     "kind": "찌",
-    "name": "숙련 찌",
+    "name": "잠수부 찌",
+    "grade": "B",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_bobber_cc5fa77150",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_cc5fa77150.png"
+  },
+  {
+    "kind": "찌",
+    "name": "심해 잠수부 찌",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_bobber_d2fd105c7d",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_d2fd105c7d.png"
+  },
+  {
+    "kind": "찌",
+    "name": "수집 찌",
     "grade": "C",
     "origin": "스폰마을",
     "variant": null,
-    "id": "catalog_bobber_4124c4ad5b",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_4124c4ad5b.png"
+    "id": "catalog_bobber_5fbc96e7d5",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_5fbc96e7d5.png"
   },
   {
     "kind": "찌",
-    "name": "노련한 찌",
+    "name": "유적 찌",
     "grade": "B",
-    "origin": "스폰마을",
-    "variant": null,
-    "id": "catalog_bobber_20e37e1165",
-    "resolution": 128,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_20e37e1165.png"
-  },
-  {
-    "kind": "찌",
-    "name": "사막 노장 찌",
-    "grade": "A",
     "origin": "사막마을",
     "variant": null,
-    "id": "catalog_bobber_2fa674a1b2",
+    "id": "catalog_bobber_f9f73b9954",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_2fa674a1b2.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_f9f73b9954.png"
   },
   {
     "kind": "찌",
-    "name": "정밀 감속 찌",
+    "name": "수집상 찌",
     "grade": "A",
     "origin": "상단마을",
     "variant": null,
-    "id": "catalog_bobber_fa29f1cc3d",
+    "id": "catalog_bobber_5a12d4fade",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_fa29f1cc3d.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_5a12d4fade.png"
+  },
+  {
+    "kind": "찌",
+    "name": "채집 찌",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_9f8a3e801e",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_9f8a3e801e.png"
+  },
+  {
+    "kind": "찌",
+    "name": "수습 찌",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_e9dcfb06db",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_e9dcfb06db.png"
+  },
+  {
+    "kind": "찌",
+    "name": "장터 찌",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_9891ee1fc2",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_9891ee1fc2.png"
+  },
+  {
+    "kind": "찌",
+    "name": "방벽 찌",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bobber_a9df6db492",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_a9df6db492.png"
+  },
+  {
+    "kind": "찌",
+    "name": "문서고 찌",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bobber_ef211dd63b",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_ef211dd63b.png"
+  },
+  {
+    "kind": "찌",
+    "name": "사자 찌",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_bobber_51b57248ed",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_51b57248ed.png"
+  },
+  {
+    "kind": "찌",
+    "name": "단련된 찌",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_d5d44fc661",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_d5d44fc661.png"
+  },
+  {
+    "kind": "찌",
+    "name": "선단 찌",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bobber_b109612d04",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_b109612d04.png"
+  },
+  {
+    "kind": "찌",
+    "name": "서기 찌",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_bobber_a3be43a295",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_a3be43a295.png"
+  },
+  {
+    "kind": "찌",
+    "name": "섬세한 찌",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_f62b2fc050",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_f62b2fc050.png"
+  },
+  {
+    "kind": "찌",
+    "name": "채취 찌",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_4cbf4aef30",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_4cbf4aef30.png"
+  },
+  {
+    "kind": "찌",
+    "name": "여명 찌",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_00049a3857",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_00049a3857.png"
+  },
+  {
+    "kind": "찌",
+    "name": "등대 찌",
+    "grade": "S",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_bobber_97803087db",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_97803087db.png"
+  },
+  {
+    "kind": "찌",
+    "name": "모래폭풍 찌",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_bobber_8b8f3c39eb",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_8b8f3c39eb.png"
+  },
+  {
+    "kind": "찌",
+    "name": "전갈왕 찌",
+    "grade": "S",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_bobber_ca3c074d38",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_ca3c074d38.png"
+  },
+  {
+    "kind": "찌",
+    "name": "감정왕 찌",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_bobber_0276d87068",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_0276d87068.png"
+  },
+  {
+    "kind": "찌",
+    "name": "대상인 찌",
+    "grade": "S",
+    "origin": "히든-상단마을",
+    "variant": null,
+    "id": "catalog_bobber_f881680719",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_f881680719.png"
+  },
+  {
+    "kind": "찌",
+    "name": "심연 찌",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_bobber_71a8b13e2e",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_71a8b13e2e.png"
+  },
+  {
+    "kind": "찌",
+    "name": "심해수정 찌",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_bobber_76d0597574",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_76d0597574.png"
+  },
+  {
+    "kind": "찌",
+    "name": "용린 찌",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_bobber_e8440db835",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_e8440db835.png"
+  },
+  {
+    "kind": "찌",
+    "name": "성좌 찌",
+    "grade": "S",
+    "origin": "히든-전설",
+    "variant": null,
+    "id": "catalog_bobber_a0081a21b3",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_bobber_a0081a21b3.png"
   },
   {
     "kind": "작살",
@@ -2260,48 +3580,198 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_aa69526008.png"
   },
   {
+    "kind": "작살",
+    "name": "심해 잠수 작살",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_harpoon_0cce692cfb",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_0cce692cfb.png"
+  },
+  {
+    "kind": "작살",
+    "name": "압력관통 작살",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_harpoon_a85b08fe07",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_a85b08fe07.png"
+  },
+  {
+    "kind": "작살",
+    "name": "심연의 작살",
+    "grade": "S",
+    "origin": "심해",
+    "variant": null,
+    "id": "catalog_harpoon_760d11ff6f",
+    "resolution": 512,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_760d11ff6f.png"
+  },
+  {
+    "kind": "작살",
+    "name": "채집 작살",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_harpoon_0a455758ae",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_0a455758ae.png"
+  },
+  {
+    "kind": "작살",
+    "name": "수집 작살",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_harpoon_6978acc9b3",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_6978acc9b3.png"
+  },
+  {
+    "kind": "작살",
+    "name": "탐사 작살",
+    "grade": "B",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_harpoon_15cda309c7",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_15cda309c7.png"
+  },
+  {
+    "kind": "작살",
+    "name": "전령 작살",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_harpoon_31fec9315f",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_31fec9315f.png"
+  },
+  {
+    "kind": "작살",
+    "name": "조병창 작살",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_harpoon_4caed7b51e",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_4caed7b51e.png"
+  },
+  {
+    "kind": "작살",
+    "name": "기사단 작살",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_harpoon_300247d677",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_300247d677.png"
+  },
+  {
+    "kind": "작살",
+    "name": "세관 작살",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_harpoon_350f9d0c61",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_350f9d0c61.png"
+  },
+  {
+    "kind": "작살",
+    "name": "창병 작살",
+    "grade": "B",
+    "origin": "왕도",
+    "variant": null,
+    "id": "catalog_harpoon_16612d0355",
+    "resolution": 128,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_16612d0355.png"
+  },
+  {
+    "kind": "작살",
+    "name": "장터 작살",
+    "grade": "D",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_harpoon_f3231c76c5",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_f3231c76c5.png"
+  },
+  {
+    "kind": "작살",
+    "name": "관통 작살",
+    "grade": "C",
+    "origin": "스폰마을",
+    "variant": null,
+    "id": "catalog_harpoon_a57b4542d8",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_a57b4542d8.png"
+  },
+  {
+    "kind": "작살",
+    "name": "적재상의 작살",
+    "grade": "A",
+    "origin": "상단마을",
+    "variant": null,
+    "id": "catalog_harpoon_df69657f48",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_df69657f48.png"
+  },
+  {
+    "kind": "작살",
+    "name": "심해 잠수부 작살",
+    "grade": "A",
+    "origin": "잠수상점",
+    "variant": null,
+    "id": "catalog_harpoon_49f29cf472",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_harpoon_49f29cf472.png"
+  },
+  {
     "kind": "통발",
     "name": "부둣가 통발",
     "grade": "E",
-    "origin": "스폰도시",
+    "origin": "부두",
     "variant": "표준",
-    "region": "스폰도시",
-    "id": "catalog_trap_223336b4b5",
+    "region": "부두",
+    "id": "catalog_trap_0c46cd51a1",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_223336b4b5.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_0c46cd51a1.png"
   },
   {
     "kind": "통발",
     "name": "튼튼한 부둣가 통발",
     "grade": "D",
-    "origin": "스폰도시",
+    "origin": "부두",
     "variant": "튼튼",
-    "region": "스폰도시",
-    "id": "catalog_trap_e065e65c88",
+    "region": "부두",
+    "id": "catalog_trap_44c1025f71",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_e065e65c88.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_44c1025f71.png"
   },
   {
     "kind": "통발",
     "name": "속성 부둣가 통발",
     "grade": "Q",
-    "origin": "스폰도시",
+    "origin": "부두",
     "variant": "속성",
-    "region": "스폰도시",
-    "id": "catalog_trap_4d9c4c527e",
+    "region": "부두",
+    "id": "catalog_trap_0e993b1b2d",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_4d9c4c527e.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_0e993b1b2d.png"
   },
   {
     "kind": "통발",
     "name": "행운의 부둣가 통발",
     "grade": "L",
-    "origin": "스폰도시",
+    "origin": "부두",
     "variant": "행운",
-    "region": "스폰도시",
-    "id": "catalog_trap_988a09c614",
+    "region": "부두",
+    "id": "catalog_trap_e6d7534634",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_988a09c614.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_e6d7534634.png"
   },
   {
     "kind": "통발",
@@ -2442,9 +3912,9 @@
     "origin": "협곡",
     "variant": "표준",
     "region": "협곡",
-    "id": "catalog_trap_2800d444bd",
+    "id": "catalog_trap_8f9b6b1080",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_2800d444bd.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_8f9b6b1080.png"
   },
   {
     "kind": "통발",
@@ -2453,9 +3923,9 @@
     "origin": "협곡",
     "variant": "튼튼",
     "region": "협곡",
-    "id": "catalog_trap_a4f51a53b2",
+    "id": "catalog_trap_7ea1ce5c4a",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_a4f51a53b2.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_7ea1ce5c4a.png"
   },
   {
     "kind": "통발",
@@ -2464,9 +3934,9 @@
     "origin": "협곡",
     "variant": "속성",
     "region": "협곡",
-    "id": "catalog_trap_9558cb114f",
+    "id": "catalog_trap_f69bd78103",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9558cb114f.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_f69bd78103.png"
   },
   {
     "kind": "통발",
@@ -2475,97 +3945,53 @@
     "origin": "협곡",
     "variant": "행운",
     "region": "협곡",
-    "id": "catalog_trap_9dfa7c89f9",
+    "id": "catalog_trap_f9e11b8322",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9dfa7c89f9.png"
-  },
-  {
-    "kind": "통발",
-    "name": "모래 통발",
-    "grade": "E",
-    "origin": "붉은사막",
-    "variant": "표준",
-    "region": "붉은사막",
-    "id": "catalog_trap_558beb3ee5",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_558beb3ee5.png"
-  },
-  {
-    "kind": "통발",
-    "name": "튼튼한 모래 통발",
-    "grade": "D",
-    "origin": "붉은사막",
-    "variant": "튼튼",
-    "region": "붉은사막",
-    "id": "catalog_trap_04dc96c822",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_04dc96c822.png"
-  },
-  {
-    "kind": "통발",
-    "name": "속성 모래 통발",
-    "grade": "Q",
-    "origin": "붉은사막",
-    "variant": "속성",
-    "region": "붉은사막",
-    "id": "catalog_trap_cf5b9c683e",
-    "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_cf5b9c683e.png"
-  },
-  {
-    "kind": "통발",
-    "name": "행운의 모래 통발",
-    "grade": "L",
-    "origin": "붉은사막",
-    "variant": "행운",
-    "region": "붉은사막",
-    "id": "catalog_trap_ca94d869d9",
-    "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_ca94d869d9.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_f9e11b8322.png"
   },
   {
     "kind": "통발",
     "name": "핏빛 통발",
     "grade": "E",
-    "origin": "붉은호수",
+    "origin": "레드 로드",
     "variant": "표준",
-    "region": "붉은호수",
-    "id": "catalog_trap_d89bf36d87",
+    "region": "레드_로드",
+    "id": "catalog_trap_a8a53a299e",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_d89bf36d87.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_a8a53a299e.png"
   },
   {
     "kind": "통발",
     "name": "튼튼한 핏빛 통발",
     "grade": "D",
-    "origin": "붉은호수",
+    "origin": "레드 로드",
     "variant": "튼튼",
-    "region": "붉은호수",
-    "id": "catalog_trap_fae62c01b5",
+    "region": "레드_로드",
+    "id": "catalog_trap_66b31d72ef",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_fae62c01b5.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_66b31d72ef.png"
   },
   {
     "kind": "통발",
     "name": "속성 핏빛 통발",
     "grade": "Q",
-    "origin": "붉은호수",
+    "origin": "레드 로드",
     "variant": "속성",
-    "region": "붉은호수",
-    "id": "catalog_trap_9e015cee43",
+    "region": "레드_로드",
+    "id": "catalog_trap_e7e25cdecb",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9e015cee43.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_e7e25cdecb.png"
   },
   {
     "kind": "통발",
     "name": "행운의 핏빛 통발",
     "grade": "L",
-    "origin": "붉은호수",
+    "origin": "레드 로드",
     "variant": "행운",
-    "region": "붉은호수",
-    "id": "catalog_trap_25cf3bb180",
+    "region": "레드_로드",
+    "id": "catalog_trap_c86485efba",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_25cf3bb180.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_c86485efba.png"
   },
   {
     "kind": "통발",
@@ -2659,132 +4085,220 @@
     "kind": "통발",
     "name": "종유석 통발",
     "grade": "E",
-    "origin": "물보라동굴",
+    "origin": "폭포 뒤 동굴 1층",
     "variant": "표준",
-    "region": "물보라동굴",
-    "id": "catalog_trap_60dfbc76f2",
+    "region": "폭포_뒤_동굴_1층",
+    "id": "catalog_trap_e64485e92d",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_60dfbc76f2.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_e64485e92d.png"
   },
   {
     "kind": "통발",
     "name": "튼튼한 종유석 통발",
     "grade": "D",
-    "origin": "물보라동굴",
+    "origin": "폭포 뒤 동굴 1층",
     "variant": "튼튼",
-    "region": "물보라동굴",
-    "id": "catalog_trap_997f0b962d",
+    "region": "폭포_뒤_동굴_1층",
+    "id": "catalog_trap_079b5b31c3",
     "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_997f0b962d.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_079b5b31c3.png"
   },
   {
     "kind": "통발",
     "name": "속성 종유석 통발",
     "grade": "Q",
-    "origin": "물보라동굴",
+    "origin": "폭포 뒤 동굴 1층",
     "variant": "속성",
-    "region": "물보라동굴",
-    "id": "catalog_trap_51a45d7645",
+    "region": "폭포_뒤_동굴_1층",
+    "id": "catalog_trap_3bd8ae4758",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_51a45d7645.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_3bd8ae4758.png"
   },
   {
     "kind": "통발",
     "name": "행운의 종유석 통발",
     "grade": "L",
-    "origin": "물보라동굴",
+    "origin": "폭포 뒤 동굴 1층",
     "variant": "행운",
-    "region": "물보라동굴",
-    "id": "catalog_trap_02b5bc4cb8",
+    "region": "폭포_뒤_동굴_1층",
+    "id": "catalog_trap_ef3d163cfe",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_02b5bc4cb8.png"
-  },
-  {
-    "kind": "통발",
-    "name": "심연 통발",
-    "grade": "E",
-    "origin": "깊은호수",
-    "variant": "표준",
-    "region": "깊은호수",
-    "id": "catalog_trap_0ce4dbfd28",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_0ce4dbfd28.png"
-  },
-  {
-    "kind": "통발",
-    "name": "튼튼한 심연 통발",
-    "grade": "D",
-    "origin": "깊은호수",
-    "variant": "튼튼",
-    "region": "깊은호수",
-    "id": "catalog_trap_586d9b1ec3",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_586d9b1ec3.png"
-  },
-  {
-    "kind": "통발",
-    "name": "속성 심연 통발",
-    "grade": "Q",
-    "origin": "깊은호수",
-    "variant": "속성",
-    "region": "깊은호수",
-    "id": "catalog_trap_25016ccc96",
-    "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_25016ccc96.png"
-  },
-  {
-    "kind": "통발",
-    "name": "행운의 심연 통발",
-    "grade": "L",
-    "origin": "깊은호수",
-    "variant": "행운",
-    "region": "깊은호수",
-    "id": "catalog_trap_2ae723e791",
-    "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_2ae723e791.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_ef3d163cfe.png"
   },
   {
     "kind": "통발",
     "name": "원양 게통발",
     "grade": "E",
-    "origin": "원양어선",
+    "origin": "원양",
     "variant": "표준",
-    "region": "원양어선",
-    "id": "catalog_trap_115d9959f5",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_115d9959f5.png"
+    "region": "원양",
+    "id": "catalog_trap_d9528c7256",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_d9528c7256.png"
   },
   {
     "kind": "통발",
     "name": "튼튼한 원양 게통발",
     "grade": "D",
-    "origin": "원양어선",
+    "origin": "원양",
     "variant": "튼튼",
-    "region": "원양어선",
-    "id": "catalog_trap_7e72c4f264",
-    "resolution": 64,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_7e72c4f264.png"
+    "region": "원양",
+    "id": "catalog_trap_9a35fe04ba",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9a35fe04ba.png"
   },
   {
     "kind": "통발",
     "name": "속성 원양 게통발",
     "grade": "Q",
-    "origin": "원양어선",
+    "origin": "원양",
     "variant": "속성",
-    "region": "원양어선",
-    "id": "catalog_trap_01175af9b6",
+    "region": "원양",
+    "id": "catalog_trap_4620a9e505",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_01175af9b6.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_4620a9e505.png"
   },
   {
     "kind": "통발",
     "name": "행운의 원양 게통발",
     "grade": "L",
-    "origin": "원양어선",
+    "origin": "원양",
     "variant": "행운",
-    "region": "원양어선",
-    "id": "catalog_trap_f650f69310",
+    "region": "원양",
+    "id": "catalog_trap_cfc5369756",
     "resolution": 256,
-    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_f650f69310.png"
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_cfc5369756.png"
+  },
+  {
+    "kind": "통발",
+    "name": "연못 통발",
+    "grade": "E",
+    "origin": "기억의 연못",
+    "variant": "표준",
+    "region": "기억의_연못",
+    "id": "catalog_trap_7e47727010",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_7e47727010.png"
+  },
+  {
+    "kind": "통발",
+    "name": "튼튼한 연못 통발",
+    "grade": "D",
+    "origin": "기억의 연못",
+    "variant": "튼튼",
+    "region": "기억의_연못",
+    "id": "catalog_trap_4324fb5a54",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_4324fb5a54.png"
+  },
+  {
+    "kind": "통발",
+    "name": "속성 연못 통발",
+    "grade": "Q",
+    "origin": "기억의 연못",
+    "variant": "속성",
+    "region": "기억의_연못",
+    "id": "catalog_trap_346ddd158b",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_346ddd158b.png"
+  },
+  {
+    "kind": "통발",
+    "name": "행운의 연못 통발",
+    "grade": "L",
+    "origin": "기억의 연못",
+    "variant": "행운",
+    "region": "기억의_연못",
+    "id": "catalog_trap_6210d37556",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_6210d37556.png"
+  },
+  {
+    "kind": "통발",
+    "name": "상단 통발",
+    "grade": "E",
+    "origin": "상단마을",
+    "variant": "표준",
+    "region": "상단마을",
+    "id": "catalog_trap_3c74592a19",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_3c74592a19.png"
+  },
+  {
+    "kind": "통발",
+    "name": "튼튼한 상단 통발",
+    "grade": "D",
+    "origin": "상단마을",
+    "variant": "튼튼",
+    "region": "상단마을",
+    "id": "catalog_trap_493d1074e3",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_493d1074e3.png"
+  },
+  {
+    "kind": "통발",
+    "name": "속성 상단 통발",
+    "grade": "Q",
+    "origin": "상단마을",
+    "variant": "속성",
+    "region": "상단마을",
+    "id": "catalog_trap_82948a3a21",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_82948a3a21.png"
+  },
+  {
+    "kind": "통발",
+    "name": "행운의 상단 통발",
+    "grade": "L",
+    "origin": "상단마을",
+    "variant": "행운",
+    "region": "상단마을",
+    "id": "catalog_trap_7428a6ee26",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_7428a6ee26.png"
+  },
+  {
+    "kind": "통발",
+    "name": "골짜기 통발",
+    "grade": "E",
+    "origin": "붉은 골짜기",
+    "variant": "표준",
+    "region": "붉은_골짜기",
+    "id": "catalog_trap_9a818a3e60",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_9a818a3e60.png"
+  },
+  {
+    "kind": "통발",
+    "name": "튼튼한 골짜기 통발",
+    "grade": "D",
+    "origin": "붉은 골짜기",
+    "variant": "튼튼",
+    "region": "붉은_골짜기",
+    "id": "catalog_trap_ba360e05d3",
+    "resolution": 64,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_ba360e05d3.png"
+  },
+  {
+    "kind": "통발",
+    "name": "속성 골짜기 통발",
+    "grade": "Q",
+    "origin": "붉은 골짜기",
+    "variant": "속성",
+    "region": "붉은_골짜기",
+    "id": "catalog_trap_be6423c562",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_be6423c562.png"
+  },
+  {
+    "kind": "통발",
+    "name": "행운의 골짜기 통발",
+    "grade": "L",
+    "origin": "붉은 골짜기",
+    "variant": "행운",
+    "region": "붉은_골짜기",
+    "id": "catalog_trap_7f9b28f1f2",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_trap_7f9b28f1f2.png"
   }
 ]
