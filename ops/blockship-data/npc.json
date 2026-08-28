@@ -4319,6 +4319,7 @@
       "market": false,
       "quest": false,
       "casino": false,
+      "casinoRanking": true,
       "appraisal": false,
       "villageQuest": false,
       "ranking": false,
