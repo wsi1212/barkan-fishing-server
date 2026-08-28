@@ -401,8 +401,20 @@ def main():
         Q[qid] = q
         added_w += 1
 
-    # ── 2.5 기존 낚시·판매 수량 재조정 ──
     requantized = 0
+
+    # ── 2.3 일일 필요레벨을 난이도 게이트에 맞춘다 ──
+    # acceptDaily 는 «풀의 난이도 게이트» 만 보고 개별 필요레벨은 안 본다. 그래서 기능은
+    # 멀쩡하지만 값이 어긋난 채 남아 있었고(예: 전문 풀에 필요레벨 20 짜리 기부), 배포
+    # 게이트(tools/quest_audit.py)가 그걸 정확히 잡는다. 표시·감사 일관성을 위해 맞춘다.
+    for _diff, _order in DAILY_ORDER.items():
+        _gate = J["난이도레벨"][_diff]
+        for _qid in _order:
+            if _qid in Q and Q[_qid].get("필요레벨") != _gate:
+                Q[_qid]["필요레벨"] = _gate
+                requantized += 1
+
+    # ── 2.5 기존 낚시·판매 수량 재조정 ──
     for qid, (goal, line0) in DAILY_QTY.items():
         q = Q.get(qid)
         if q is None:
