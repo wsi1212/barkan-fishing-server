@@ -73,6 +73,15 @@ BANDS = {
 SOLO_SPREAD = {
     ("낚싯대", "스폰마을", "C"),   # Lv15~17 사막
     ("작살", "사막마을", "B"),     # Lv31~33 사막
+    ("낚싯대", "스폰마을", "D"),   # Lv8~9 사막 — D 가 Lv7 에서 끝나고 C 가 Lv10 부터였다
+}
+#: 낚싯대·작살 밴드 덮어쓰기 (SOLO_SPREAD 대상에만 적용).
+SOLO_BANDS = {
+    # D 낚싯대 6 종이 Lv3~7 에 몰려 있고 C 는 Lv10 부터라 Lv8~9 가 빈다 → 3~9 로 늘린다.
+    ("낚싯대", "스폰마을", "D"): (3, 9),
+    # ★C 는 밴드를 못 박아야 한다 — 현재 [min,max] 로 잡으면, 한 번 Lv10 을 잃은 뒤로는
+    #   min 이 11 이 되어 영영 되찾지 못한다(밴드가 데이터에서 파생되는 구조의 함정).
+    ("낚싯대", "스폰마을", "C"): (10, 18),
 }
 #: 같은 (카테고리, 레벨) 안에서 허용하는 성능 산포. selftest [9] 와 같은 기준.
 SPREAD_CAP = 0.25
@@ -81,6 +90,11 @@ SPREAD_CAP = 0.25
 EXEMPT_LV = {1}
 #: 레벨을 옮기지 않는 출처 — 특수 층이라 «사다리»가 아니다.
 FREEZE_SRC = {"튜토", "잠수상점", "캐시", "개발자", "대장간"}
+
+
+def ladder(src):
+    """«정상 진행으로 얻는 사다리» 인가. 히든은 사다리지만 잠수상점·캐시는 아니다."""
+    return src not in FREEZE_SRC
 
 
 def band_key(cat, src, grade):
@@ -142,7 +156,8 @@ def main():
                     key=lambda n: (items[n]["lv"], perf.get(n, 0.0), n))
         if not ns:
             continue
-        lo, hi = bands[g]
+        lo, hi = SOLO_BANDS.get(g, tuple(bands[g]))
+        bands[g] = [lo, hi]
         for i, n in enumerate(ns):
             newlv[n] = lo if len(ns) == 1 else lo + round(i * (hi - lo) / (len(ns) - 1))
 
@@ -198,8 +213,13 @@ def main():
                 #   센다 — 부품 5종은 서로 대체재라 합산이 끊기지 않으면 되고, 낚싯대·작살은
                 #   각자가 유일한 슬롯이라 자기 카테고리로 센다.
                 fam = PARTS if items[pick]["cat"] in PARTS else (items[pick]["cat"],)
+                # ★«사다리 아닌 출처»는 점유로 세지 않는다 — 사막 판정에서 빼 놓고 여기서만
+                #   세면 «그 레벨엔 아직 있다» 는 거짓 판정이 나온다(2026-08-28: 잠수상점
+                #   Lv10 낚싯대 때문에 마지막 C 급 낚싯대가 Lv10 을 떠나 Lv8~10 사막이 생겼다.
+                #   잠수부의 낚싯대는 포인트로 사는 별도 층이라 사다리를 잇지 않는다).
                 src_occ = sum(1 for m, v in items.items()
-                              if v["cat"] in fam and newlv[m] == newlv[pick])
+                              if v["cat"] in fam and newlv[m] == newlv[pick]
+                              and ladder(v["src"]))
                 hole = 1 if src_occ <= 1 else 0
                 cand.append((hole, sp2, abs(L - newlv[pick]), L))
             cand.sort()
