@@ -357,6 +357,56 @@ def _sort_player_rows(rows, field, secondary):
     )[:100]
 
 
+def _read_casino_history():
+    """모든 월별 telemetry에서 성공한 카지노 라운드의 누적 순익을 읽는다.
+
+    인게임 RankingManager와 같은 권위 순서다. 이벤트가 하나라도 있는 UUID는 그 전체
+    이벤트 합계를 쓰고, 이벤트가 전혀 없는 현재 PlayerData만 카지노 원장을 fallback으로
+    쓴다. 이렇게 해야 카지노 원장 도입 전 기록을 살리면서, 원장 도입 후 이벤트와 중복
+    합산하지 않는다.
+    """
+    import sqlite3
+
+    history = {}
+    event_files = []
+    try:
+        event_files = sorted(
+            entry.path for entry in os.scandir(queries.DATA_DIR)
+            if entry.name.startswith("events-") and entry.name.endswith(".db")
+        )
+    except OSError:
+        return history
+
+    query = """
+        SELECT uuid, COALESCE(NULLIF(MAX(name), ''), uuid) AS name,
+               SUM(CAST(COALESCE(json_extract(ctx, '$.net'), 0) AS INTEGER)) AS net
+        FROM ev
+        WHERE type='casino.round' AND uuid IS NOT NULL
+          AND (json_extract(ctx, '$.ok') IS NULL OR json_extract(ctx, '$.ok') = 1)
+        GROUP BY uuid
+    """
+    for path in event_files:
+        try:
+            with sqlite3.connect(path) as event_conn:
+                rows = event_conn.execute(query).fetchall()
+        except sqlite3.DatabaseError as error:
+            print(f"[ranking] 카지노 과거 기록 읽기 실패 ({path}): {error}", flush=True)
+            continue
+        for raw_uuid, name, net in rows:
+            uuid = str(raw_uuid or "").strip().lower()
+            if not uuid:
+                continue
+            current = history.get(uuid)
+            if current is None:
+                history[uuid] = {"name": str(name or uuid), "net": _number(net, 0)}
+            else:
+                current["net"] += _number(net, 0)
+                current_name = str(name or "")
+                if current_name and current_name > current["name"]:
+                    current["name"] = current_name
+    return history
+
+
 @app.get("/api/ranking")
 def public_ranking():
     """공식 홈페이지 전용 공개 랭킹.
@@ -515,63 +565,51 @@ def public_ranking():
                 })
         popularity_rows.sort(key=lambda row: (-row["popularity"], row["name"].casefold()))
 
+        casino_history = _read_casino_history()
+        current_by_uuid = {
+            str(player.get("uuid") or "").strip().lower(): player
+            for player in player_rows if player.get("uuid")
+        }
+        public_by_uuid = {
+            str(player.get("uuid") or "").strip().lower(): player
+            for player in public_player_rows if player.get("uuid")
+        }
         casino_rows = []
-        # 인게임 /랭킹과 같은 CasinoLedger 누적 원장을 우선 사용한다. 새 원장이 없는
-        # 옛 playerdata만 남아 있는 배치에서는 기존 telemetry를 fallback으로 읽는다.
-        has_live_casino_ledger = any(
-            player.get("casino_net_recorded") for player in public_player_rows
-        )
-        if has_live_casino_ledger:
-            for player in public_player_rows:
-                net = _number(player.get("casino_net"), 0)
-                if net != 0:
-                    casino_rows.append({
-                        "name": player["name"],
-                        "uuid": player.get("uuid"),
-                        "net": net,
-                    })
-            casino_rows.sort(key=lambda row: (-row["net"], row["name"].casefold()))
-            casino_rows = casino_rows[:100]
-        else:
-            event_files = []
-            try:
-                event_files = sorted(
-                    entry.path for entry in os.scandir(queries.DATA_DIR)
-                    if entry.name.startswith("events-") and entry.name.endswith(".db")
-                )
-            except OSError:
-                pass
-        if not has_live_casino_ledger and conn is not None and event_files:
-            aliases = []
-            try:
-                for index, path in enumerate(event_files):
-                    alias = f"casino_events_{index}"
-                    conn.execute(f"ATTACH DATABASE ? AS {alias}", (path,))
-                    aliases.append(alias)
-                union = " UNION ALL ".join(
-                    f"SELECT uuid, name, ctx FROM {alias}.ev "
-                    "WHERE type='casino.round' "
-                    "AND (json_extract(ctx, '$.ok') IS NULL OR json_extract(ctx, '$.ok') = 1)"
-                    for alias in aliases
-                )
-                casino_rows = [dict(row) for row in conn.execute(
-                    f"""SELECT COALESCE(NULLIF(MAX(name), ''), uuid) AS name, uuid,
-                               SUM(CAST(COALESCE(json_extract(ctx, '$.net'), 0) AS INTEGER)) AS net
-                        FROM ({union})
-                        GROUP BY uuid
-                        HAVING net <> 0
-                        ORDER BY net DESC, name COLLATE NOCASE ASC
-                        LIMIT 100"""
-                ).fetchall()]
-                casino_rows = _drop_ops(casino_rows, op_uuids)
-            except sqlite3.DatabaseError:
-                casino_rows = []
-            finally:
-                for alias in aliases:
-                    try:
-                        conn.execute(f"DETACH DATABASE {alias}")
-                    except sqlite3.DatabaseError:
-                        pass
+        seen_casino_uuids = set()
+
+        # 이벤트가 있는 유저는 월별 과거 기록 전체를 쓴다. 현재 playerdata가 있으면
+        # 그 이름과 OP·휴면 판정을 사용하고, playerdata가 없는 과거 유저도 기록은 보존한다.
+        for uuid, history in casino_history.items():
+            if uuid in op_uuids:
+                continue
+            current = current_by_uuid.get(uuid)
+            if current is not None and uuid not in public_by_uuid:
+                continue
+            net = _number(history.get("net"), 0)
+            if net == 0:
+                seen_casino_uuids.add(uuid)
+                continue
+            casino_rows.append({
+                "name": current["name"] if current is not None else history["name"],
+                "uuid": current.get("uuid") if current is not None else uuid,
+                "net": net,
+            })
+            seen_casino_uuids.add(uuid)
+
+        # 이벤트가 전혀 없는 유저만 현재 누적 원장을 사용한다(텔레메트리 지연·구성 누락 대비).
+        for player in public_player_rows:
+            uuid = str(player.get("uuid") or "").strip().lower()
+            if uuid in seen_casino_uuids:
+                continue
+            net = _number(player.get("casino_net"), 0)
+            if net != 0:
+                casino_rows.append({
+                    "name": player["name"],
+                    "uuid": player.get("uuid"),
+                    "net": net,
+                })
+        casino_rows.sort(key=lambda row: (-row["net"], row["name"].casefold()))
+        casino_rows = casino_rows[:100]
 
         if not player_rows and not guild_rows and not island_rows and not popularity_rows and not casino_rows:
             return JSONResponse({"updatedAt": None, "categories": {}}, status_code=503)
