@@ -123,6 +123,20 @@ def t3_constants(k):
     end_mv = D.wage(None, "종결")
     ok(abs(end_model - end_mv) < 1.0, "종결 시급 일치 (material_value ↔ stat_value)",
        f"stat_value {end_model:,.0f} · material_value {end_mv:,.0f}")
+    # ★2026-08-28 신설 — 레벨 필요경험치 표 단일화. price_ladder 가 이 표를 **복제**해
+    #   들고 있었고, 2026-08-17 「Lv70 곡선 재설계」를 반영하지 못해 Lv20 부터 81개 레벨이
+    #   어긋나 있었다(Lv70 누적 225,040 vs 라이브 681,717 = 3.03배). 이 표는 «티어 체류시간»
+    #   → «구간 수입» → «풀세팅 가격» 으로 이어지므로, 틀리면 고티어 장비가 그만큼 싸게
+    #   산출된다. 값을 복제하는 모든 표는 이렇게 조용히 늙는다.
+    import re as _re
+    _j = open(os.path.join(os.path.expanduser(
+        "~/development/blockship-plugin/src/main/java/com/blockship"),
+        "fishing", "FishingLevelManager.java"), encoding="utf-8").read()
+    _m = _re.search(r"NEED_TABLE = new int\[\] \{(.*?)\};", _j, _re.S)
+    _live = [int(x) for x in _re.findall(r"\d+", _m.group(1))] if _m else []
+    ok(_live and list(PL.NEED) == _live, "레벨 필요경험치 표 = 라이브 NEED_TABLE",
+       f"price_ladder Lv70 누적 {sum(PL.NEED[:70]):,} · 라이브 {sum(_live[:70]):,}")
+
     # stat_value 의 게이트가 LP 에서 오는지 (구 하드코딩 표가 되살아나면 잡는다)
     G = SV._gates()
     MVD = MV.Data()
