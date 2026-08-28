@@ -79,6 +79,12 @@ UNWRAP_AT = 0.08
 #    망가진다(재료 정체성·GUI 가독성). 0.02 면 오차 1%p 를 줄이려고 어떤 재료를 2배
 #    비틀지는 않는 정도다. 정확도가 우선이되 동률이면 원본 비율을 지킨다.
 SHAPE_W = 0.05
+#: 바닥에 걸린 종(relax)에서만 쓰는 모양 벌점 — 훨씬 낮다.
+#  ★왜 낮추나: relax 는 «생김새보다 정확도를 택하는 마지막 수단»인데, 원래 수량이 1 인
+#    재료를 20 으로 올려야 목표에 닿는 경우 벌점이 log(20/1)=3.0 까지 붙어 정확도 이득
+#    (오차 18%→1%)을 이긴다. 그러면 탐색을 아무리 넓혀도 부정확한 해가 남는다
+#    (2026-08-28 벼린 작살). 여기서는 목표 적중이 우선이다.
+SHAPE_W_RELAX = 0.01
 
 
 def unwrap_display(R, mid):
@@ -105,42 +111,86 @@ def unwrap_at(R, ings, j):
     return out
 
 
-def solve(D, cph, ings, target, s):
-    """정수 수량 벡터를 찾는다. 반환 (수량리스트, 캐스트, 로그오차)."""
+def solve(D, cph, ings, target, s, relax=False):
+    """정수 수량 벡터를 찾는다. 반환 (수량리스트, 캐스트, 로그오차).
+
+    ★relax — 재료별 상한을 «균등배율의 2배»가 아니라 MAX_QTY 까지 푼다.
+      기본 상한은 레시피 «생김새»를 지키려고 좁게 잡혀 있는데, 비싼 중간재가
+      1 개 줄면서 생기는 큰 계단을 싼 재료로 메워야 할 때는 그 상한이 해답을
+      범위 밖으로 밀어낸다(2026-08-28: 물때·벼린 작살이 이 상태였다 — 단단한자루
+      2→1 로 218 캐스트가 빠지는데 물고기비늘 상한이 4 라 못 메웠다).
+      바닥에 걸린 종에만 쓴다. SHAPE_W 는 그대로라 여전히 원본 비율을 선호한다."""
     def casts(q):
         h, _, _, _ = D.gate(D.expand([dict(i, qty=x) for i, x in zip(ings, q)]))
         return h * cph
 
     ideal = [max(1.0, i["qty"] * s) for i in ings]
 
+    w = SHAPE_W_RELAX if relax else SHAPE_W
+
     def cost(q, c):
         err = abs(math.log(c / target)) if c > 0 else 9e9
         shape = sum(abs(math.log(x / y)) for x, y in zip(q, ideal))
-        return err + SHAPE_W * shape, err
+        return err + w * shape, err
 
     lo = [1] * len(ings)
-    hi = [max(3, min(MAX_QTY, int(math.ceil(i["qty"] * s * 2)) + 1)) for i in ings]
-    q = [max(lo[j], min(hi[j], int(round(i["qty"] * s)))) for j, i in enumerate(ings)]
-    best, bc = q[:], casts(q)
-    bobj, berr = cost(best, bc)
-    # 좌표하강 — 개선이 없을 때까지 각 좌표에 ±1
-    for _ in range(60):
-        if berr <= math.log(1 + TOL) and bobj <= berr + 1e-9:
-            break
-        moved = False
-        for j in range(len(ings)):
-            for d in (-1, 1):
-                v = best[j] + d
-                if v < lo[j] or v > hi[j]:
+    hi = [MAX_QTY if relax else max(3, min(MAX_QTY, int(math.ceil(i["qty"] * s * 2)) + 1))
+          for i in ings]
+
+    def descend(q0, line=False, sweeps=60, freeze=None):
+        """한 출발점에서의 좌표하강.
+
+        line=False → 각 좌표에 ±1 (기본, 빠르다).
+        line=True  → 각 좌표를 [lo, hi] 전구간 탐색.
+          ★왜 필요한가: 재료는 **결합생산**이라 게이트에 «평지»가 생긴다. 물고기비늘은
+            단단한자루를 만드는 동안 부산물로 쌓이므로, 2→3→…→12 까지 올려도 캐스트가
+            전혀 늘지 않다가 13 에서야 부산물을 넘겨 오른다. ±1 하강은 그 평지에서
+            «개선 없음 + 모양 벌점 증가»로 읽고 멈춘다(2026-08-28 물때·벼린 작살).
+            전구간 탐색은 평지를 한 번에 건넌다."""
+        b = [max(lo[j], min(hi[j], q0[j])) for j in range(len(ings))]
+        bc_ = casts(b)
+        bo, be = cost(b, bc_)
+        for _ in range(sweeps):
+            if be <= math.log(1 + TOL) and bo <= be + 1e-9:
+                break
+            moved = False
+            for j in range(len(ings)):
+                if freeze is not None and j == freeze:
                     continue
-                t = best[:]
-                t[j] = v
-                c = casts(t)
-                o, e = cost(t, c)
+                vals = range(lo[j], hi[j] + 1) if line else (b[j] - 1, b[j] + 1)
+                for v in vals:
+                    if v < lo[j] or v > hi[j] or v == b[j]:
+                        continue
+                    t = b[:]
+                    t[j] = v
+                    c = casts(t)
+                    o, e = cost(t, c)
+                    if o < bo - 1e-9:
+                        b, bc_, bo, be, moved = t, c, o, e, True
+            if not moved:
+                break
+        return b, bc_, bo, be
+
+    q = [int(round(i["qty"] * s)) for i in ings]
+    best, bc, bobj, berr = descend(q)
+
+    # ★다중 출발점 — 좌표하강은 탐욕적이라 «비싼 중간재를 한 칸 내리고 싼 재료를 여러 칸
+    #   올리는» 해를 못 찾는다. 첫 걸음만 보면 중간재를 올리는 쪽이 개선이라 그 분지에
+    #   갇힌다(2026-08-28: 물때 작살이 「자루 1 + 물고기비늘 13」 대신 「자루 2」로 끝났다).
+    #   그래서 재료를 하나씩 «고정»해 두고(freeze) 나머지만 전구간 탐색한다. 고정을 안 하면
+    #   첫 스윕에서 그 비싼 재료가 도로 올라가 같은 분지로 돌아온다 — 출발점만 바꾸는
+    #   것으로는 부족했다(2026-08-28 실측).
+    #   바닥에 걸린 종에만 하므로(relax) 이미 맞는 285종의 결과는 바뀌지 않는다.
+    if relax:
+        for j in range(len(ings)):
+            for v in (1, 2):
+                if v > hi[j]:
+                    continue
+                q0 = q[:]
+                q0[j] = v
+                b, c, o, e = descend(q0, line=True, sweeps=6, freeze=j)
                 if o < bobj - 1e-9:
-                    best, bc, bobj, berr, moved = t, c, o, e, True
-        if not moved:
-            break
+                    best, bc, bobj, berr = b, c, o, e
     return best, bc, berr
 
 
@@ -165,7 +215,7 @@ def main():
         if n:
             byname[n] = k
 
-    out, floored, unwrapped, held = [], [], [], []
+    out, floored, unwrapped, held, relaxed = [], [], [], [], []
     for name, v in sorted(tg.items(), key=lambda kv: (kv[1]["cat"], kv[1]["lv"], kv[0])):
         rid = byname.get(name)
         if not rid:
@@ -193,6 +243,12 @@ def main():
                     unwrapped.append((name, i["typeOrMatId"],
                                       "+".join(b for b, _ in UNWRAP[i["typeOrMatId"]])))
                     break
+        # ── 그래도 바닥이면 상한을 풀고 한 번 더 (생김새보다 정확도를 택하는 마지막 수단)
+        if math.exp(err) - 1 > UNWRAP_AT:
+            q2, c2, e2 = solve(D, cph, ings, v["target"], v["scale"], relax=True)
+            if e2 < err - 1e-9:
+                q, c, err = q2, c2, e2
+                relaxed.append((name, math.exp(e2) - 1))
         if math.exp(err) - 1 > UNWRAP_AT:
             floored.append((name, v["target"], c))
         for i, x in zip(ings, q):
@@ -237,6 +293,11 @@ def main():
         print(f"\n중간재 되돌림 {len(unwrapped)}건 (바닥이 목표보다 높아서):")
         for n, a, b in unwrapped:
             print(f"   {n}: {a} → {b}")
+    if relaxed:
+        print(f"\n상한 해제 재탐색 {len(relaxed)}건 (비싼 중간재의 계단을 싼 재료로 메움):")
+        for n, e in relaxed:
+            print(f"   {n:16s} 오차 {e*100:+.1f}%")
+
     if floored:
         print(f"\n★정수 격자로 목표에 못 닿은 {len(floored)}종 — 되돌릴 수 없는 중간재"
               "(강철심·압축흑정석)가 큰 덩어리라 그 배수 사이에 목표가 떨어진다:")
