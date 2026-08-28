@@ -123,7 +123,29 @@ GRADE_LIFT = 1.00
 LEVEL_SPREAD_CAP = 0.25
 
 
+#: 데이터 루트에 **반드시** 있어야 하는 파일. 하나라도 없으면 모델이 **조용히 다른 값**을 낸다.
+#  ★2026-08-27 사고: `ops/blockship-data/` 는 git 이 추적하는 9 개 JSON 만 있는 **부분 미러**다.
+#    거기를 BLOCKSHIP_DATA 로 주고 패치를 돌렸더니 `fish.json` 이 없어 stat_value 의 크기·난이도
+#    분포가 폴백으로 떨어졌고, 면줄의 상대성능이 2.53% → 0.94% 로 바뀌어 요구 캐스트 목표가
+#    73 → 26 이 됐다. 예외도 경고도 없이 «그럴듯한 다른 숫자»가 나왔다.
+#    → 이제 부분 미러를 데이터 루트로 주면 **즉시 죽는다.**
+REQUIRED_DATA = ("fish.json", "parts.json", "recipes.json", "materials.json", "regions.json")
+
+
+def require_complete_data(bs=None):
+    bs = bs or MV.BS
+    miss = [f for f in REQUIRED_DATA if not os.path.exists(os.path.join(bs, f))]
+    if miss:
+        raise SystemExit(
+            f"★데이터 루트가 불완전하다: {bs}\n"
+            f"  없는 파일: {', '.join(miss)}\n"
+            f"  이건 «부분 미러»(ops/blockship-data 등)다. 모델이 조용히 다른 값을 내므로\n"
+            f"  패치를 여기에 대고 돌리면 안 된다. 라이브 plugins/BlockShip 을 쓰고,\n"
+            f"  끝난 뒤 결과만 레포로 동기화할 것.")
+
+
 def build_rows():
+    require_complete_data()
     D = MV.Data()
     k = D.k
     MEAS.apply(SV, k)

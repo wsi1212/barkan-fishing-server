@@ -929,7 +929,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -943,14 +943,14 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -977,7 +977,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 15
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -1025,7 +1025,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 13
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -1039,7 +1039,7 @@
           "typeOrMatId": "강화석탄",
           "displayName": "강화 석탄",
           "mcItem": "coal",
-          "qty": 9
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -1073,7 +1073,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 8
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -1087,14 +1087,14 @@
           "typeOrMatId": "강화석탄",
           "displayName": "강화 석탄",
           "mcItem": "coal",
-          "qty": 6
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 3
+          "qty": 4
         }
       ],
       "village": "스폰",
@@ -1114,14 +1114,14 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -1162,7 +1162,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -1183,14 +1183,14 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -1217,35 +1217,35 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 8
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 9
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 9
+          "qty": 8
         }
       ],
       "village": "상단",
@@ -1375,42 +1375,42 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "자수정",
           "displayName": "자수정",
           "mcItem": "amethyst_shard",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 15
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "heart_of_the_sea",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 36
+          "qty": 26
         },
         {
           "kind": "custom",
@@ -1424,21 +1424,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 12
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "용비늘",
           "displayName": "용 비늘",
           "mcItem": "phantom_membrane",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "고대비늘",
           "displayName": "고대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 4
+          "qty": 3
         }
       ],
       "village": "",
@@ -1458,7 +1458,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -1513,28 +1513,28 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 8
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 9
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 10
+          "qty": 9
         }
       ],
       "village": "",
@@ -1609,28 +1609,28 @@
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 17
+          "qty": 18
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 14
+          "qty": 15
         }
       ],
       "village": "",
@@ -1650,7 +1650,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -1712,7 +1712,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 17
+          "qty": 18
         },
         {
           "kind": "custom",
@@ -1726,7 +1726,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 18
+          "qty": 17
         }
       ],
       "village": "",
@@ -1767,14 +1767,14 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -1801,7 +1801,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 8
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -1857,7 +1857,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -1871,7 +1871,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -1899,7 +1899,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -2081,7 +2081,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 23
+          "qty": 26
         },
         {
           "kind": "custom",
@@ -2123,21 +2123,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "자수정",
           "displayName": "자수정",
           "mcItem": "amethyst_shard",
-          "qty": 6
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -2172,14 +2172,14 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 9
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 9
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -2221,28 +2221,28 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -2270,7 +2270,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -2312,7 +2312,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 6
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -2452,7 +2452,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -2501,14 +2501,14 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -2578,21 +2578,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -2676,28 +2676,28 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -2725,7 +2725,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 7
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -2767,7 +2767,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 10
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -2956,7 +2956,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -3124,28 +3124,28 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -3173,7 +3173,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 8
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -3215,7 +3215,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 16
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -7258,7 +7258,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -7272,14 +7272,14 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -7327,7 +7327,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 11
         }
       ],
       "village": "스폰",
@@ -7354,14 +7354,14 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 4
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -7375,7 +7375,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -7409,7 +7409,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -7423,7 +7423,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 4
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -7450,7 +7450,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -7505,7 +7505,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -7560,7 +7560,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -7615,7 +7615,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 12
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -7725,7 +7725,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -7780,14 +7780,14 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -7835,7 +7835,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 13
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -7883,7 +7883,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -7897,21 +7897,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 12
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 10
+          "qty": 9
         }
       ],
       "village": "사막",
@@ -8034,28 +8034,28 @@
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 12
+          "qty": 13
         }
       ],
       "village": "사막",
@@ -8075,7 +8075,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -8137,7 +8137,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 9
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -8178,7 +8178,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -8192,14 +8192,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 9
+          "qty": 10
         }
       ],
       "village": "상단",
@@ -8219,7 +8219,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -8274,28 +8274,28 @@
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "heart_of_the_sea",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 15
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 20
+          "qty": 21
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 17
+          "qty": 18
         }
       ],
       "village": "상단",
@@ -8336,14 +8336,14 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 13
+          "qty": 14
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -8432,14 +8432,14 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 6
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 6
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -8494,7 +8494,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -8556,7 +8556,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -8577,7 +8577,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -8625,21 +8625,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 13
+          "qty": 14
         }
       ],
       "village": "사막",
@@ -8721,7 +8721,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -8831,21 +8831,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 11
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 11
+          "qty": 10
         }
       ],
       "village": "",
@@ -8886,7 +8886,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -8934,7 +8934,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -9153,7 +9153,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -9263,14 +9263,14 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 8
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 10
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -9332,7 +9332,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -9449,7 +9449,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -9566,7 +9566,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -9734,7 +9734,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -9783,7 +9783,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 20
+          "qty": 21
         },
         {
           "kind": "custom",
@@ -9930,7 +9930,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -10070,7 +10070,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -10119,7 +10119,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 13
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -10168,7 +10168,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 9
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -10364,7 +10364,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -10413,7 +10413,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
@@ -10560,7 +10560,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -10700,14 +10700,14 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 14
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 8
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -10833,7 +10833,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 18
+          "qty": 19
         },
         {
           "kind": "custom",
@@ -10882,7 +10882,7 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -10917,7 +10917,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -10959,7 +10959,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 15
+          "qty": 16
         },
         {
           "kind": "custom",
@@ -11008,7 +11008,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 12
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -11057,7 +11057,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -11106,7 +11106,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -11155,7 +11155,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -11246,28 +11246,28 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 8
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -11344,21 +11344,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -11393,21 +11393,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 12
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -11491,7 +11491,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -14336,28 +14336,28 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron nugget",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -14434,7 +14434,7 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 17
+          "qty": 19
         },
         {
           "kind": "custom",
@@ -14476,14 +14476,14 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 23
+          "qty": 25
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 35
+          "qty": 37
         },
         {
           "kind": "custom",
@@ -14532,7 +14532,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 34
+          "qty": 36
         },
         {
           "kind": "custom",
@@ -14581,7 +14581,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 32
+          "qty": 34
         },
         {
           "kind": "custom",
@@ -14623,7 +14623,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 24
+          "qty": 26
         },
         {
           "kind": "custom",
@@ -14672,7 +14672,7 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 25
+          "qty": 27
         },
         {
           "kind": "custom",
@@ -14686,7 +14686,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 34
+          "qty": 36
         },
         {
           "kind": "custom",
@@ -14735,7 +14735,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 37
+          "qty": 39
         },
         {
           "kind": "custom",
@@ -14770,14 +14770,14 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 26
+          "qty": 30
         },
         {
           "kind": "custom",
@@ -14819,21 +14819,21 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 25
+          "qty": 29
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14875,7 +14875,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 33
+          "qty": 36
         },
         {
           "kind": "custom",
@@ -14973,7 +14973,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 32
+          "qty": 35
         },
         {
           "kind": "custom",
@@ -15022,14 +15022,14 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 16
+          "qty": 20
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 15
+          "qty": 18
         },
         {
           "kind": "custom",
@@ -15078,7 +15078,7 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 27
+          "qty": 30
         },
         {
           "kind": "custom",
@@ -15127,14 +15127,14 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 22
+          "qty": 23
         },
         {
           "kind": "custom",
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -15169,7 +15169,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -15183,7 +15183,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 21
+          "qty": 22
         },
         {
           "kind": "custom",
@@ -15232,7 +15232,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 23
+          "qty": 25
         },
         {
           "kind": "custom",
@@ -15337,7 +15337,7 @@
           "typeOrMatId": "산호조각",
           "displayName": "산호 조각",
           "mcItem": "brain_coral",
-          "qty": 23
+          "qty": 25
         },
         {
           "kind": "custom",
@@ -15386,7 +15386,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 30
+          "qty": 33
         },
         {
           "kind": "custom",
@@ -15435,7 +15435,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 19
+          "qty": 21
         },
         {
           "kind": "custom",
@@ -15540,7 +15540,7 @@
           "typeOrMatId": "행운의매듭",
           "displayName": "행운의 매듭",
           "mcItem": "chorus_fruit",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -15638,7 +15638,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 38
+          "qty": 42
         },
         {
           "kind": "custom",
@@ -15680,7 +15680,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -15946,7 +15946,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 29
+          "qty": 32
         },
         {
           "kind": "custom",
@@ -16037,7 +16037,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -16093,7 +16093,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 29
+          "qty": 33
         },
         {
           "kind": "custom",
@@ -16149,7 +16149,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 23
+          "qty": 27
         },
         {
           "kind": "custom",
@@ -16212,7 +16212,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 39
+          "qty": 43
         },
         {
           "kind": "custom",
@@ -16303,14 +16303,14 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -16366,7 +16366,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -16471,7 +16471,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -16639,7 +16639,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 24
+          "qty": 26
         },
         {
           "kind": "custom",
@@ -16695,7 +16695,7 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 31
+          "qty": 39
         },
         {
           "kind": "custom",
@@ -16730,7 +16730,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -17071,7 +17071,7 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -17105,7 +17105,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 12
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -17119,7 +17119,7 @@
           "typeOrMatId": "강화석탄",
           "displayName": "강화 석탄",
           "mcItem": "coal",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -17153,7 +17153,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 16
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -17208,7 +17208,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 19
+          "qty": 24
         },
         {
           "kind": "custom",
@@ -17311,7 +17311,7 @@
           "typeOrMatId": "진주코어",
           "displayName": "진주 코어",
           "mcItem": "heart_of_the_sea",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -17325,7 +17325,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -17455,7 +17455,7 @@
           "typeOrMatId": "진주코어",
           "displayName": "진주 코어",
           "mcItem": "heart_of_the_sea",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -17504,7 +17504,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -17546,7 +17546,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 15
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -17686,7 +17686,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 45
+          "qty": 48
         },
         {
           "kind": "custom",
@@ -17826,7 +17826,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 27
+          "qty": 28
         },
         {
           "kind": "custom",
@@ -17924,7 +17924,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 21
+          "qty": 23
         },
         {
           "kind": "custom",
@@ -17966,7 +17966,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 34
+          "qty": 38
         },
         {
           "kind": "custom",
@@ -18008,7 +18008,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -18281,7 +18281,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -18330,7 +18330,7 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -18344,7 +18344,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 8
         }
       ],
       "village": "스폰",
@@ -18428,7 +18428,7 @@
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
-          "qty": 20
+          "qty": 22
         },
         {
           "kind": "custom",
@@ -18442,7 +18442,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 27
+          "qty": 28
         },
         {
           "kind": "custom",
@@ -18512,7 +18512,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 38
+          "qty": 39
         },
         {
           "kind": "custom",
@@ -18575,7 +18575,7 @@
           "typeOrMatId": "바르칸조각",
           "displayName": "바르칸 조각",
           "mcItem": "amethyst_cluster",
-          "qty": 39
+          "qty": 40
         },
         {
           "kind": "custom",
@@ -18820,7 +18820,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -18953,7 +18953,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -19053,7 +19053,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 13
         }
       ]
     },
@@ -19088,14 +19088,14 @@
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 27
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 24
+          "qty": 25
         },
         {
           "kind": "custom",
@@ -19123,14 +19123,14 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -19151,7 +19151,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus shell",
-          "qty": 22
+          "qty": 23
         }
       ]
     },
@@ -19178,14 +19178,14 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 11
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -19247,14 +19247,14 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 13
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -19392,7 +19392,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 11
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -19454,7 +19454,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -19523,7 +19523,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -19600,7 +19600,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 16
+          "qty": 17
         },
         {
           "kind": "custom",
@@ -19663,7 +19663,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 20
+          "qty": 22
         },
         {
           "kind": "custom",
@@ -19726,7 +19726,7 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 18
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -19789,14 +19789,14 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 12
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 13
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -19852,14 +19852,14 @@
           "typeOrMatId": "행운의구슬",
           "displayName": "행운의 구슬",
           "mcItem": "prismarine_crystals",
-          "qty": 20
+          "qty": 21
         },
         {
           "kind": "custom",
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 14
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -19908,7 +19908,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 8
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -19922,7 +19922,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -20076,7 +20076,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -20125,42 +20125,42 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 3
+          "qty": 2
         }
       ]
     },
@@ -20244,7 +20244,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 9
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -20258,7 +20258,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -20412,7 +20412,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -20426,7 +20426,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -20573,7 +20573,7 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -20587,14 +20587,14 @@
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -20636,7 +20636,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -20692,7 +20692,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -20804,7 +20804,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 31
+          "qty": 32
         },
         {
           "kind": "custom",
@@ -20846,14 +20846,14 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 8
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "거대비늘",
           "displayName": "거대 비늘",
           "mcItem": "turtle_scute",
-          "qty": 48
+          "qty": 42
         },
         {
           "kind": "custom",
@@ -20902,21 +20902,21 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 10
         }
       ]
     },
@@ -20944,7 +20944,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 3
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -20986,7 +20986,7 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -21007,7 +21007,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 2
+          "qty": 1
         }
       ]
     },
@@ -21084,7 +21084,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -21133,7 +21133,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -21224,28 +21224,28 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -21371,28 +21371,28 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -21469,7 +21469,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -21490,7 +21490,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -21532,7 +21532,7 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 16
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -21616,35 +21616,35 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 28
+          "qty": 22
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 17
+          "qty": 13
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 15
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 21
+          "qty": 16
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 4
+          "qty": 3
         }
       ]
     },
@@ -21665,7 +21665,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 13
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -21686,7 +21686,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -21714,14 +21714,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -21742,7 +21742,7 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 4
+          "qty": 3
         }
       ]
     },
@@ -21763,28 +21763,28 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 12
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 12
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 15
+          "qty": 14
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 9
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -21819,14 +21819,14 @@
           "typeOrMatId": "자수정",
           "displayName": "자수정",
           "mcItem": "amethyst_shard",
-          "qty": 6
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -21917,7 +21917,7 @@
           "typeOrMatId": "깃털찌조각",
           "displayName": "깃털 찌 조각",
           "mcItem": "feather",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -21966,7 +21966,7 @@
           "typeOrMatId": "보석",
           "displayName": "보석",
           "mcItem": "emerald",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
