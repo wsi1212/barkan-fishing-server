@@ -129,6 +129,183 @@ def crescent():
     return [cw(circle(CX, CY, 400)), ccw(circle(CX + 215, CY + 40, 330))]
 
 
+
+# ===== 날씨/시간 전용 글리프 17종 (U+EA00~EA10) =====
+# ★왜 유니코드 기호가 아니라 전용 코드포인트인가:
+#   ☀ 하나를 낮·열대야·땡볕이, ⚡ 를 뇌우·태풍이 나눠 쓰고 있었다(색만 달랐다).
+#   8px 에서 색만으로 가르는 건 약하다. 전용 코드포인트를 쓰면 17종이 각자 모양을 갖는다.
+# ★같은 코드포인트를 메인 리소스팩이 컬러 비트맵으로도 갖고 있다
+#   (barkan-resourcepack/tools/gen_weather_glyphs.py, U+EA00~EA10).
+#   그래서 채팅(minecraft:default)은 컬러, HUD(이 폰트)는 단색 — 코드포인트 하나로 양쪽이 산다.
+# ★한 글리프 안에서 색을 나눌 수는 없다(MC 폰트 렌더러는 컬러 테이블을 안 읽는다).
+#   아이콘별 색은 호출부의 § 코드가 그대로 준다.
+
+def _drop(cx, cy, w, h):
+    """물방울 — 위가 뾰족하고 아래가 둥근 쐐기."""
+    return [(round(cx), round(cy + h / 2)),
+            (round(cx + w / 2), round(cy - h / 6)),
+            (round(cx + w / 4), round(cy - h / 2)),
+            (round(cx - w / 4), round(cy - h / 2)),
+            (round(cx - w / 2), round(cy - h / 6))]
+
+
+def _hbar(y, thick, x0, x1):
+    return [(round(x0), round(y + thick / 2)), (round(x1), round(y + thick / 2)),
+            (round(x1), round(y - thick / 2)), (round(x0), round(y - thick / 2))]
+
+
+def _cloud_at(cy, scale=1.0):
+    """cloud() 를 위아래로 옮기고 줄인 것 — 아래에 비/번개를 놓을 자리를 만든다."""
+    def s(v, base):
+        return base + (v - base) * scale
+    return [circle(s(340, 470), cy, 165 * scale), circle(s(480, 470), cy + 70 * scale, 200 * scale),
+            circle(s(640, 470), cy + 5 * scale, 150 * scale),
+            [(round(s(300, 470)), round(cy - 155 * scale)), (round(s(690, 470)), round(cy - 155 * scale)),
+             (round(s(690, 470)), round(cy + 20 * scale)), (round(s(300, 470)), round(cy + 20 * scale))]]
+
+
+def w_day():        # 낮 — 원반 + 광선 8
+    return sun()
+
+
+def w_clear():      # 맑음 — 광선 없는 맨 원반 (낮보다 광학적으로 가볍다)
+    return [cw(circle(CX, CY, 330))]
+
+
+def w_scorch():     # 땡볕 — 해 + 달아오른 아지랑이
+    # ★굵은 광선 4갈래는 «십자가»로 읽힌다. 광선은 낮처럼 8갈래로 두고,
+    #   구분은 «아래의 아지랑이»로 낸다(열대야가 달+아지랑이인 것과 짝).
+    c = [circle(CX, 420, 215)]
+    for k in range(8):
+        a = k * 45
+        c.append(ring_sector(CX, 420, 232, 350, a - 13, a + 13))
+    return [cw(x) for x in c] + [cw(wave_band(-40, 100, 110, 830, amp=50))]
+
+
+def w_dusk():       # 저녁 — 지평선에 반쯤 잠긴 해 (반원 + 지평선)
+    # ★온전한 원반을 막대에 얹으면 «아령»으로 읽힌다. 반원으로 잘라 지평선에 걸친다.
+    c = [ring_sector(CX, 150, 0, 330, 0, 180, n=20)]
+    for a in (150, 90, 30):
+        c.append(ring_sector(CX, 150, 355, 460, a - 13, a + 13))
+    c.append(_hbar(110, 105, 70, 870))
+    return [cw(x) for x in c]
+
+
+def w_night():      # 밤 — 초승달
+    return crescent()
+
+
+def w_dawn():       # 새벽 — 지는 달 + 뜨는 해
+    # ★«초승달 + 가로막대»는 열대야(초승달 + 아지랑이)와 실루엣이 겹친다.
+    #   아래를 반원(뜨는 해)으로 바꿔 «달이 지고 해가 뜬다»로 읽히게 한다.
+    return [cw(circle(285, 500, 265)), ccw(circle(420, 528, 222)),
+            cw(ring_sector(655, 15, 0, 250, 0, 180, n=18)),
+            cw(_hbar(-25, 90, 370, 870))]
+
+
+def w_tropical():   # 열대야 — 초승달 + 피어오르는 열기 한 줄
+    return [cw(circle(CX, 400, 300)), ccw(circle(CX + 165, 432, 248)),
+            cw(wave_band(-30, 95, 110, 830, amp=55))]
+
+
+def w_rain():       # 비 — 구름 + 물방울 3
+    c = [cw(x) for x in _cloud_at(360, 0.82)]
+    for x in (250, 470, 690):
+        c.append(cw(_drop(x, 40, 130, 210)))
+    return c
+
+
+def w_thunder():    # 뇌우 — 구름 + 번개
+    c = [cw(x) for x in _cloud_at(400, 0.80)]
+    c.append(cw([(560, 260), (300, -60), (440, -60), (360, -290), (640, 30), (490, 30)]))
+    return c
+
+
+def w_typhoon():    # 태풍 — 구름 + 비스듬히 몰아치는 빗줄기 3
+    c = [cw(x) for x in _cloud_at(400, 0.80)]
+    for x in (230, 440, 650):
+        c.append(cw(bar(x, 30, 300, 95, 62)))
+    return c
+
+
+def w_coaldust():   # 탄광먼지 — 각진 탄가루 덩이 + 떨어지는 알갱이 2 (구름 계열과 실루엣을 가른다)
+    lump = [(150, 300), (300, 480), (560, 500), (760, 340), (700, 170), (400, 130), (190, 190)]
+    return [cw(lump), cw(_hbar(20, 110, 240, 400)), cw(_hbar(-60, 110, 520, 680))]
+
+
+def w_fog():        # 안개 — 흐르는 가로 층 3
+    # ★두께가 같고 길이도 비슷하면 «≡ 햄버거 메뉴»가 된다. 길이·두께·좌우를 전부 어긋낸다.
+    # 계단처럼 좌우로 크게 밀어 «가운데를 관통하는 막대»가 없게 만든다 — 그게 ≡ 로 읽히는 조건이다.
+    return [cw(_hbar(470, 100, 390, 870)), cw(_hbar(260, 92, 70, 560)),
+            cw(_hbar(50, 108, 300, 810))]
+
+
+def w_meteor():     # 유성우 — 평행 유성 2 (머리는 진행방향인 좌하단, 꼬리는 삼각형)
+    # ★막대 꼬리는 굵기가 일정해 «사탕지팡이»가 된다. 뒤로 갈수록 좁아져야 유성이다.
+    out = []
+    for (hx, hy, ln, r) in ((215, 20, 430, 105), (615, 300, 300, 80)):
+        out.append(cw(circle(hx, hy, r)))
+        ex, ey = hx + ln * 0.72, hy + ln * 0.72       # 45도 우상향 꼬리 끝
+        out.append(cw([(round(hx - r * 0.7), round(hy + r * 0.7)),
+                       (round(ex), round(ey)),
+                       (round(hx + r * 0.7), round(hy - r * 0.7))]))
+    return out
+
+
+def w_aurora():     # 오로라 — 위아래로 흐르는 커튼 3
+    out = []
+    for x in (200, 470, 740):
+        pts = []
+        n = 14
+        for i in range(n + 1):
+            t = i / n
+            y = -100 + 800 * t
+            xx = x + 85 * math.sin(t * 1.6 * math.pi)
+            pts.append((round(xx + 55), round(y)))
+        for i in range(n, -1, -1):
+            t = i / n
+            y = -100 + 800 * t
+            xx = x + 85 * math.sin(t * 1.6 * math.pi)
+            pts.append((round(xx - 55), round(y)))
+        out.append(cw(pts))
+    return out
+
+
+def w_tide():       # 만조 — 보름달 + 밀려오는 물결 2
+    # ★달이 물결에 닿으면 물결의 «점»처럼 붙어 보인다. 위로 확실히 떼어 놓는다.
+    return [cw(circle(690, 560, 160)),
+            cw(wave_band(150, 105, 70, 870, amp=62)),
+            cw(wave_band(-30, 105, 70, 870, amp=62))]
+
+
+def w_sand():       # 모래바람 — 물결 띠 3 (≋ 와 같은 형태)
+    return waves()
+
+
+def w_blizzard():   # 눈보라 — 눈결정
+    return snowflake()
+
+
+WEATHER = [
+    (0xEA00, "barkanDay",      w_day),
+    (0xEA01, "barkanDusk",     w_dusk),
+    (0xEA02, "barkanNight",    w_night),
+    (0xEA03, "barkanDawn",     w_dawn),
+    (0xEA04, "barkanClear",    w_clear),
+    (0xEA05, "barkanRain",     w_rain),
+    (0xEA06, "barkanThunder",  w_thunder),
+    (0xEA07, "barkanFog",      w_fog),
+    (0xEA08, "barkanMeteor",   w_meteor),
+    (0xEA09, "barkanAurora",   w_aurora),
+    (0xEA0A, "barkanTide",     w_tide),
+    (0xEA0B, "barkanTropical", w_tropical),
+    (0xEA0C, "barkanScorch",   w_scorch),
+    (0xEA0D, "barkanSand",     w_sand),
+    (0xEA0E, "barkanTyphoon",  w_typhoon),
+    (0xEA0F, "barkanBlizzard", w_blizzard),
+    (0xEA10, "barkanCoalDust", w_coaldust),
+]
+
 SYMBOLS = [
     (0x2600, "uni2600", sun),        # ☀ 낮
     (0x2601, "uni2601", cloud),      # ☁ 맑음/흐림
@@ -137,7 +314,7 @@ SYMBOLS = [
     (0x2744, "uni2744", snowflake),  # ❄ 눈보라
     (0x224B, "uni224B", waves),      # ≋ 모래바람
     (0x263D, "uni263D", crescent),   # ☽ 밤
-]
+] + WEATHER
 
 
 def main(dst=DEFAULT_DST, src=DEFAULT_SRC):
