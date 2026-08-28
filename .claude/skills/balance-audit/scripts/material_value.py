@@ -43,7 +43,7 @@ pull_players.py 스냅샷의 income_by_band 에서 온다(가정 상수 금지).
     python3 material_value.py --demand-set A   # A 등급 풀세팅 BOM 의 LP 해 + 병목
     python3 material_value.py --json           # 다른 스크립트(item_ledger)용 출력
 """
-import argparse, collections, importlib.util, json, os, sys, time
+import argparse, collections, importlib.util, json, os, re, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SKILL = os.path.dirname(HERE)
@@ -121,6 +121,25 @@ def simplex_max(c, A, b, eps=1e-11, max_iter=20000):
 # ══════════════════════════════════════════════════════════════════════════
 #  데이터
 # ══════════════════════════════════════════════════════════════════════════
+#: 통발 재료 굴림 — TrapManager.giveTrapMaterials 와 짝이다. 한쪽만 바꾸면 모델이 틀린다.
+#  굴림수 = round(대기초/120)(분당 0.5), 회수/h = 3600/대기초 → 곱하면 대기가 약분돼 30/h.
+TRAP_ROLLS_PER_HOUR = 30.0
+#: 통발 굴림의 확률 배수 (TrapManager.TRAP_MAT_CHANCE_PCT = 200 → ×3).
+TRAP_CHANCE_MULT = 3.0
+#: 통발이 설치 가능한 지역 — 권위는 TrapSpecs.java 다(하드코딩하면 드리프트한다).
+_TRAP_SRC = os.path.expanduser(
+    "~/development/blockship-plugin/src/main/java/com/blockship/trap/TrapSpecs.java")
+
+
+def trap_regions():
+    """TrapSpecs.java 에서 통발 지역 집합을 읽는다. 파일이 없으면 빈 집합(통발 없음)."""
+    try:
+        src = open(_TRAP_SRC, encoding="utf-8").read()
+    except OSError:
+        return set()
+    return set(re.findall(r'put\(new Spec\("([^"]+)"', src))
+
+
 def load_snapshot(path=None):
     return MEAS.load(path)
 
@@ -168,8 +187,15 @@ class Data:
         ch = self.k["catches_per_active_h"]
         self.act = {}       # 활동명 → {재료: 개/h}
         self.act_note = {}
+        trap = trap_regions()
         for area, tbl in self.mat["dropTables"].items():
-            self.act["낚시:" + area] = {d["matId"]: ch * d["chance"] / 100.0 for d in tbl}
+            # ★통발이 있는 지역은 낚시와 «동시에» 재료가 나온다(2026-08-28). 통발은 낚시하는
+            #   자리 바로 옆에 설치하고 그 옆에서 낚시하므로 회수 비용이 사실상 0 이고,
+            #   따라서 별도 활동이 아니라 **그 지역 낚시의 산출 증가**로 모델링한다.
+            #   시간당 굴림수 = (대기초/120) × (3600/대기초) = 30 — 대기가 약분돼 티어 무관 상수다.
+            #   확률은 ×3 이므로 기여 = 30×3 / 190.1 ≈ 47%.
+            rate = ch + (TRAP_ROLLS_PER_HOUR * TRAP_CHANCE_MULT if area in trap else 0.0)
+            self.act["낚시:" + area] = {d["matId"]: rate * d["chance"] / 100.0 for d in tbl}
         for w, tbl in self.mat["weatherDrops"].items():
             # 날씨는 «선택 가능한 활동»이 아니다(발생 빈도에 종속) — 별도 표시하고 LP 에는
             # 넣지 않는다. 넣으면 「유성우 때 잡으면 된다」는 비현실적 해가 나온다.
