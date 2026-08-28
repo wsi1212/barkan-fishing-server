@@ -360,6 +360,17 @@ WEEKLY_NEW = [
 ]
 
 
+def _keep_notes(desc):
+    """수량을 갈아끼울 때 «남겨도 되는» 설명 줄만 고른다.
+
+    ★첫 줄만 바꾸고 나머지를 그대로 두면 «줄바꿈된 옛 문장»이 남는다. 실제로
+    주간_성실모험가가 그랬다 — 원문이 두 줄로 접혀 있어서 첫 줄을 「8개 완료하세요」로
+    바꾼 뒤에도 둘째 줄 「10개 완료하세요.」가 화면에 그대로 붙어 나왔다(2026-08-28 dev 확인).
+    부연 주석(&8▸ …)만 남기고 본문 연장선은 버린다.
+    """
+    return [l for l in list(desc)[1:] if l.strip().startswith("&8")]
+
+
 def main():
     J = json.load(open(SRC, encoding="utf-8"))
     Q = J["퀘스트"]
@@ -398,7 +409,7 @@ def main():
             print(f"🔴 DAILY_QTY 대상이 없다: {qid}")
             sys.exit(1)
         q["목표"] = [goal]
-        q["설명"] = [line0] + list(q.get("설명", [])[1:])
+        q["설명"] = [line0] + _keep_notes(q.get("설명", []))
         requantized += 1
 
     for qid, (goal, line0) in WEEKLY_QTY.items():
@@ -407,7 +418,7 @@ def main():
             print(f"🔴 WEEKLY_QTY 대상이 없다: {qid}")
             sys.exit(1)
         q["목표"] = [goal]
-        q["설명"] = [line0] + list(q.get("설명", [])[1:])
+        q["설명"] = [line0] + _keep_notes(q.get("설명", []))
         requantized += 1
 
     # ── 2.6 길드 기부 ──
