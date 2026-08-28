@@ -685,7 +685,9 @@ def main():
             items = [ing(m, q) for m, q in COMMON[c["grade"]]]
             items.insert(1, ing(mat, MAT_QTY[c["grade"]]))
         recs[rid] = {"id": rid, "category": "부품", "displayName": c["name"],
-                     "locked": c["village"] not in ("상단마을", "왕도"),
+                     # ★출처가 히든-*/심해면 상점에 안 오르므로 locked 를 켜면 해금 경로가 없다.
+                     "locked": not (c["village"] in ("상단마을", "왕도")
+                                    or str(c.get("village", "")).startswith(("히든", "심해"))),
                      "resultMode": "part", "drillTier": 0, "village": {
                          "스폰마을": "스폰", "사막마을": "사막", "상단마을": "상단", "왕도": "왕도",
                          # 히든은 본 마을 조합대에서 만든다(레시피 해금이 히든 진입 보상).

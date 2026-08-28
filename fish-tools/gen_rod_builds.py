@@ -581,7 +581,10 @@ def main():
         #   그런데 상점 NPC가 있는 마을은 스폰(클라우스)·사막(파리드)뿐이고 /부품상점은 NPC 안내로
         #   바뀌었다 → 상점이 없는 상단·왕도 레시피를 locked로 두면 해금 경로가 아예 없어 영구
         #   미획득이 된다. 그 두 마을만 locked=false(그 마을 대장간에서 바로 제작, 작살과 동일 모델).
-        locked = c["village"] not in ("상단", "왕도")
+        # ★출처가 히든-*/심해면 «어느 마을 상점에도 안 오른다» — 마을만 보고 locked 를 켜면
+        #   해금 경로가 없어 영구 미획득이 된다(2026-08-28 실측 75종). 마을 판정보다 앞선다.
+        _hidden = c["village"] in ("상단", "왕도") or str(c.get("src", "")).startswith(("히든", "심해"))
+        locked = not _hidden
         recs[rid] = {"id": rid, "category": "낚싯대", "displayName": c["name"],
                      "locked": locked, "resultMode": "rod", "drillTier": 0,
                      "village": c["village"], "rodPartName": c["name"],
