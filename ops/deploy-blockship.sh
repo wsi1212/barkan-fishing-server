@@ -77,6 +77,10 @@ DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json"
 #   섬·길드·플레이어 상태가 sync 목록에 끼면 상대 서버의 유저 데이터를 지운다(사고 3건).
 python3 "$SCRIPTS_REPO/ops/hooks/guard-instance-data.py" --check-list "${DATA_FILES[@]}"
 
+# ★퀘스트 목표의 id 인자가 실제로 발행되는 값인지 대조 — 오타·개명은 «에러 없이» 영구
+#   진행불가를 만든다(2026-08-28 메인 3-7 이 mine|iron_ore 로 통째 막혀 있었다).
+python3 "$SCRIPTS_REPO/ops/audit-quest-goal-ids.py"
+
 echo "▶ BlockShip 빌드"
 cd "$BLOCKSHIP_DIR"
 ./gradlew build
