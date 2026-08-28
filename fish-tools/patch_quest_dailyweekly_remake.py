@@ -118,7 +118,30 @@ DAILY_NEW = {
     ],
 }
 
-# 난이도별 최종 배치 순서 (7칸)
+# ── 기존 일일 퀘스트의 수량 재조정 ──────────────────────────────────────
+# ★하루 4개 무작위(QuestManager.DAILY_PICK)로 바뀌면서 한 칸의 무게가 커졌다.
+#   낚시·판매가 특히 헐거워서(쉬움 5마리) 유저 지적대로 최저 10부터 다시 깐다.
+DAILY_QTY = {
+    "일일_쉬움_물고기3":   ("fish|아무|아무|10|0", "&f물고기&7를 10마리 잡으세요."),
+    "일일_쉬움_판매3":     ("sell|10",             "&f물고기&7를 10마리 판매하세요."),
+    "일일_보통_물고기5":   ("fish|아무|아무|20|0", "&f물고기&7를 20마리 잡으세요."),
+    "일일_보통_판매5":     ("sell|20",             "&f물고기&7를 20마리 판매하세요."),
+    "일일_어려움_물고기10": ("fish|아무|아무|35|0", "&f물고기&7를 35마리 잡으세요."),
+    "일일_어려움_판매10":  ("sell|35",             "&f물고기&7를 35마리 판매하세요."),
+    "일일_전문_판매15":    ("sell|55",             "&f물고기&7를 55마리 판매하세요."),
+}
+
+# ★일퀘 완주 계열은 «한 주 상한»이 바뀌면 같이 움직여야 한다.
+#   상한 = DAILY_PICK(4) × 7 = 28. 예전 상한은 풀 5칸 × 7 = 35 였고 10/14/21 은 각각
+#   29% / 40% / 60% 였다. 같은 비율을 28 에 다시 깔면 8 / 11 / 17 이다.
+#   ★이걸 안 옮기면 일퀘마스터가 21/28 = 75% 로 조용히 어려워진다.
+WEEKLY_QTY = {
+    "주간_성실모험가": ("quest_daily|8",  "&7이번 주에 &f일일 퀘스트&7를 8개 완료하세요."),
+    "주간_헌신":      ("quest_daily|11", "&7이번 주에 &f일일 퀘스트&7를 11개 완료하세요."),
+    "주간_일퀘마스터":  ("quest_daily|17", "&7이번 주에 &f일일 퀘스트&7를 17개 완료하세요."),
+}
+
+# 난이도별 최종 배치 순서 (풀 — 여기서 매일 4개를 무작위로 뽑는다)
 DAILY_ORDER = {
     "쉬움":   ["일일_쉬움_물고기3", "일일_쉬움_대물", "일일_쉬움_판매3",
                "일일_쉬움_농사", "일일_쉬움_광질", "일일_쉬움_물길방문",
@@ -259,6 +282,26 @@ def main():
         Q[qid] = q
         added_w += 1
 
+    # ── 2.5 기존 낚시·판매 수량 재조정 ──
+    requantized = 0
+    for qid, (goal, line0) in DAILY_QTY.items():
+        q = Q.get(qid)
+        if q is None:
+            print(f"🔴 DAILY_QTY 대상이 없다: {qid}")
+            sys.exit(1)
+        q["목표"] = [goal]
+        q["설명"] = [line0] + list(q.get("설명", [])[1:])
+        requantized += 1
+
+    for qid, (goal, line0) in WEEKLY_QTY.items():
+        q = Q.get(qid)
+        if q is None:
+            print(f"🔴 WEEKLY_QTY 대상이 없다: {qid}")
+            sys.exit(1)
+        q["목표"] = [goal]
+        q["설명"] = [line0] + list(q.get("설명", [])[1:])
+        requantized += 1
+
     # ── 3. 접는 퀘스트 (정의까지 삭제 — prune 이 플레이어 데이터를 자동 치유) ──
     dropped = []
     for qid in DAILY_DROP + WEEKLY_DROP:
@@ -304,13 +347,13 @@ def main():
     json.dump(J, open(SRC, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
     # ── 6. 리포트 ──
-    print(f"일일 신설 {added_d} · 주간 신설 {added_w} · 접음 {len(dropped)}")
+    print(f"일일 신설 {added_d} · 주간 신설 {added_w} · 수량조정 {requantized} · 접음 {len(dropped)}")
     print("접음:", " ".join(dropped))
     print()
     print("=== 일일 풀 ===")
     for diff, pool in J["일일"].items():
         n_old = len(before_daily.get(diff, []))
-        print(f"[{diff}] Lv{J['난이도레벨'][diff]}  {n_old}칸 → {len(pool)}칸")
+        print(f"[{diff}] Lv{J['난이도레벨'][diff]}  풀 {n_old} → {len(pool)}칸 (매일 무작위 4개 배정)")
         for qid in pool:
             v = Q[qid]
             print(f"   {v['목표'][0]:24} 돈{v.get('보상돈',0):>7} xp{v.get('보상경험치',0):>5}  {qid}")
