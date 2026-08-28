@@ -66,6 +66,13 @@ BANDS = {
     ("PARTS", "사막마을", "B"): (28, 34),
     # 왕도 B 는 35~38 인데 Lv39 가 비어 있고 사막마을 A 가 Lv40 부터라 39 만 구멍이다 → 39 까지.
     ("PARTS", "왕도", "B"): (35, 39),
+    # ★2026-08-28 종결층 신설분(gen_part_builds --add-only 로 50종). 마을 순서대로 Lv57~70 을
+    #   틈 없이 덮는다. 생성기는 그룹마다 3~4 레벨 폭에 10 종을 넣으므로 계단식 흩기가 필요하다.
+    ("PARTS", "히든-스폰마을", "S"): (57, 59),
+    ("PARTS", "히든-사막마을", "S"): (59, 61),
+    ("PARTS", "히든-상단마을", "S"): (61, 63),
+    ("PARTS", "심해", "S"): (64, 66),
+    ("PARTS", "히든-전설", "S"): (67, 70),
 }
 #: 낚싯대·작살도 같은 방식으로 편다. 이쪽은 카테고리가 하나뿐이라 «라인» 개념이 없고,
 #  그룹 안에서 성능 순으로 현재 밴드에 등간격 배치하면 된다. 밴드는 현재 [min, max].
@@ -189,10 +196,10 @@ def main():
         #   (2026-08-28 실측: 빈 레벨 4 → 6). 부품 5종은 서로 대체재라 같은 레벨에 성능이
         #   좀 벌어져도 «그 레벨에 갈아끼울 게 있다» 가 먼저다. 낚싯대·작살은 각자가 유일한
         #   슬롯이라 반대다 — 같은 레벨에 성능이 벌어지면 한쪽이 그냥 함정 선택지가 된다.
-        if cat in PARTS:
-            unfixable.append((cat, lv, sp))
-            fixed_skip.add((cat, lv))
-            continue
+        # ★부품도 이제 옮긴다 — 다만 구멍 벌점(아래 hole)에 전적으로 맡긴다. 통째로 빼면
+        #   S 종결층처럼 «밴드 3~4 레벨에 10 종» 이라 밀도가 충분한 구간까지 못 고친다
+        #   (2026-08-28: 신규 부품 50종이 들어오자 산포가 2 → 10 건이 됐다).
+        #   저티어처럼 그 레벨에 그 종밖에 없으면 hole=1 로 이동이 거부되므로 사막은 안 생긴다.
         done = False
         for pick in sorted(ns, key=lambda n: -perf.get(n, 0.0)):
             g = (items[pick]["cat"], items[pick]["src"], items[pick]["grade"])
@@ -246,7 +253,9 @@ def main():
     def hist(getlv, cats, lo, hi, label):
         h = collections.Counter()
         for n, v in items.items():
-            if v["cat"] in cats and v["src"] not in FREEZE_SRC and not v["src"].startswith("히든"):
+            # ★히든을 빼면 안 된다 — 종결층 부품이 전부 히든이라 Lv57~70 이 통째로 «빈» 것처럼
+            #   보인다(2026-08-28). 표시 기준은 판정 기준(ladder)과 같아야 한다.
+            if v["cat"] in cats and ladder(v["src"]):
                 h[getlv(n)] += 1
         print(f"  {label}")
         line = ""

@@ -135,6 +135,12 @@ HOLD_ITEMS = {"쇠날 작살"}
 #   실제로 쌓이는 건 네더라이트 작살뿐 — 광질 산출이라 절감 69%.)
 #  조정 전 실측: 심해 8.3~9.0h · 히든전설 10~16h vs A급 상점템 8.0~8.6h → 사실상 동급이었다.
 SRC_MULT = {"심해": 2.0, "히든-전설": 4.0}
+#: κ0 정규화 «분모»에서 빼는 등급. 그 등급의 목표는 SLOPE 외삽으로만 정해진다.
+#  ★왜: κ0 는 «Σ설계 = Σ현재 × LIFT» 로 잡히므로, 아직 적합되지 않은 신설 종이 풀에 들어오면
+#    그 종의 임시 재료량이 기준선을 통째로 밀어 올린다(2026-08-28: 부품 S 50종을 신설하자
+#    기존 B 부품 «대상 밧줄» 이 1,011 → 2,528 로 +150% 뛰었다). 신설 층은 기존 사다리에
+#    **맞춰져야지 사다리를 다시 정의하면 안 된다.**
+NORM_EXCLUDE_GRADES = {"S"}
 
 
 #: 데이터 루트에 **반드시** 있어야 하는 파일. 하나라도 없으면 모델이 **조용히 다른 값**을 낸다.
@@ -261,7 +267,8 @@ def kappa_table(rows):
         shape = {g: GRADE_SLOPE ** GRADE_ORDER.index(g) for g in grades}
         # ★SRC_MULT 대상은 정규화 분모에서 뺀다 — 안 그러면 배수가 다른 종을 깎아
         #   상쇄돼 버린다(총량 보존이 배수를 잡아먹는다).
-        norm_pool = [x for g in grades for x in gs[g] if x["src"] not in SRC_MULT]
+        norm_pool = [x for g in grades for x in gs[g]
+                     if x["src"] not in SRC_MULT and g not in NORM_EXCLUDE_GRADES]
         if not norm_pool:
             norm_pool = [x for g in grades for x in gs[g]]
         tot_cur = sum(x["casts"] for x in norm_pool)

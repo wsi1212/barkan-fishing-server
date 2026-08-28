@@ -8489,14 +8489,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 32
+          "qty": 34
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 28
+          "qty": 30
         }
       ],
       "village": "왕도",
@@ -9204,14 +9204,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 27
+          "qty": 29
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 26
+          "qty": 28
         }
       ],
       "village": "",
@@ -9252,14 +9252,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 27
+          "qty": 29
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 26
+          "qty": 28
         }
       ],
       "village": "",
@@ -22466,6 +22466,2896 @@
           "qty": 1
         }
       ]
+    },
+    "P184": {
+      "id": "P184",
+      "category": "부품",
+      "displayName": "여명 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "릴",
+      "resultPartName": "여명 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P185": {
+      "id": "P185",
+      "category": "부품",
+      "displayName": "등대 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "릴",
+      "resultPartName": "등대 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P186": {
+      "id": "P186",
+      "category": "부품",
+      "displayName": "전갈왕 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "릴",
+      "resultPartName": "전갈왕 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의매듭",
+          "displayName": "행운의 매듭",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P187": {
+      "id": "P187",
+      "category": "부품",
+      "displayName": "모래폭풍 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "릴",
+      "resultPartName": "모래폭풍 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P188": {
+      "id": "P188",
+      "category": "부품",
+      "displayName": "감정왕 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "릴",
+      "resultPartName": "감정왕 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P189": {
+      "id": "P189",
+      "category": "부품",
+      "displayName": "대상인 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "릴",
+      "resultPartName": "대상인 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P190": {
+      "id": "P190",
+      "category": "부품",
+      "displayName": "심해수정 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "릴",
+      "resultPartName": "심해수정 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "심해수정",
+          "displayName": "심해 수정",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P191": {
+      "id": "P191",
+      "category": "부품",
+      "displayName": "심연 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "릴",
+      "resultPartName": "심연 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 4
+        }
+      ]
+    },
+    "P192": {
+      "id": "P192",
+      "category": "부품",
+      "displayName": "용린 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "릴",
+      "resultPartName": "용린 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 21
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 23
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 23
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 18
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 8
+        }
+      ]
+    },
+    "P193": {
+      "id": "P193",
+      "category": "부품",
+      "displayName": "성좌 릴",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "릴",
+      "resultPartName": "성좌 릴",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 45
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 41
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 39
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 8
+        }
+      ]
+    },
+    "P194": {
+      "id": "P194",
+      "category": "부품",
+      "displayName": "여명 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "줄",
+      "resultPartName": "여명 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 22
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P195": {
+      "id": "P195",
+      "category": "부품",
+      "displayName": "등대 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "줄",
+      "resultPartName": "등대 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 17
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "P196": {
+      "id": "P196",
+      "category": "부품",
+      "displayName": "모래폭풍 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "줄",
+      "resultPartName": "모래폭풍 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P197": {
+      "id": "P197",
+      "category": "부품",
+      "displayName": "전갈왕 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "줄",
+      "resultPartName": "전갈왕 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의매듭",
+          "displayName": "행운의 매듭",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P198": {
+      "id": "P198",
+      "category": "부품",
+      "displayName": "감정왕 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "줄",
+      "resultPartName": "감정왕 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P199": {
+      "id": "P199",
+      "category": "부품",
+      "displayName": "대상인 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "줄",
+      "resultPartName": "대상인 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P200": {
+      "id": "P200",
+      "category": "부품",
+      "displayName": "심연 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "줄",
+      "resultPartName": "심연 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P201": {
+      "id": "P201",
+      "category": "부품",
+      "displayName": "심해수정 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "줄",
+      "resultPartName": "심해수정 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "심해수정",
+          "displayName": "심해 수정",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P202": {
+      "id": "P202",
+      "category": "부품",
+      "displayName": "용린 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "줄",
+      "resultPartName": "용린 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "P203": {
+      "id": "P203",
+      "category": "부품",
+      "displayName": "성좌 줄",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "줄",
+      "resultPartName": "성좌 줄",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 47
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 30
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 17
+        }
+      ]
+    },
+    "P204": {
+      "id": "P204",
+      "category": "부품",
+      "displayName": "여명 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "바늘",
+      "resultPartName": "여명 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P205": {
+      "id": "P205",
+      "category": "부품",
+      "displayName": "등대 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "바늘",
+      "resultPartName": "등대 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P206": {
+      "id": "P206",
+      "category": "부품",
+      "displayName": "모래폭풍 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "바늘",
+      "resultPartName": "모래폭풍 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P207": {
+      "id": "P207",
+      "category": "부품",
+      "displayName": "전갈왕 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "바늘",
+      "resultPartName": "전갈왕 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의매듭",
+          "displayName": "행운의 매듭",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P208": {
+      "id": "P208",
+      "category": "부품",
+      "displayName": "감정왕 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "바늘",
+      "resultPartName": "감정왕 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P209": {
+      "id": "P209",
+      "category": "부품",
+      "displayName": "대상인 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "바늘",
+      "resultPartName": "대상인 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P210": {
+      "id": "P210",
+      "category": "부품",
+      "displayName": "심연 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "바늘",
+      "resultPartName": "심연 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P211": {
+      "id": "P211",
+      "category": "부품",
+      "displayName": "심해수정 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "바늘",
+      "resultPartName": "심해수정 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "심해수정",
+          "displayName": "심해 수정",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "P212": {
+      "id": "P212",
+      "category": "부품",
+      "displayName": "용린 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "바늘",
+      "resultPartName": "용린 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        }
+      ]
+    },
+    "P213": {
+      "id": "P213",
+      "category": "부품",
+      "displayName": "성좌 바늘",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "바늘",
+      "resultPartName": "성좌 바늘",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 26
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 12
+        }
+      ]
+    },
+    "P214": {
+      "id": "P214",
+      "category": "부품",
+      "displayName": "여명 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "미끼",
+      "resultPartName": "여명 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P215": {
+      "id": "P215",
+      "category": "부품",
+      "displayName": "등대 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "미끼",
+      "resultPartName": "등대 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "P216": {
+      "id": "P216",
+      "category": "부품",
+      "displayName": "모래폭풍 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "미끼",
+      "resultPartName": "모래폭풍 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P217": {
+      "id": "P217",
+      "category": "부품",
+      "displayName": "전갈왕 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "미끼",
+      "resultPartName": "전갈왕 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의매듭",
+          "displayName": "행운의 매듭",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P218": {
+      "id": "P218",
+      "category": "부품",
+      "displayName": "감정왕 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "미끼",
+      "resultPartName": "감정왕 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P219": {
+      "id": "P219",
+      "category": "부품",
+      "displayName": "대상인 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "미끼",
+      "resultPartName": "대상인 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P220": {
+      "id": "P220",
+      "category": "부품",
+      "displayName": "심해수정 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "미끼",
+      "resultPartName": "심해수정 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "심해수정",
+          "displayName": "심해 수정",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P221": {
+      "id": "P221",
+      "category": "부품",
+      "displayName": "심연 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "미끼",
+      "resultPartName": "심연 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P222": {
+      "id": "P222",
+      "category": "부품",
+      "displayName": "용린 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "미끼",
+      "resultPartName": "용린 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 6
+        }
+      ]
+    },
+    "P223": {
+      "id": "P223",
+      "category": "부품",
+      "displayName": "성좌 미끼",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "미끼",
+      "resultPartName": "성좌 미끼",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 26
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 16
+        }
+      ]
+    },
+    "P224": {
+      "id": "P224",
+      "category": "부품",
+      "displayName": "여명 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "찌",
+      "resultPartName": "여명 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P225": {
+      "id": "P225",
+      "category": "부품",
+      "displayName": "등대 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "스폰",
+      "resultPartType": "찌",
+      "resultPartName": "등대 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P226": {
+      "id": "P226",
+      "category": "부품",
+      "displayName": "모래폭풍 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "찌",
+      "resultPartName": "모래폭풍 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P227": {
+      "id": "P227",
+      "category": "부품",
+      "displayName": "전갈왕 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "사막",
+      "resultPartType": "찌",
+      "resultPartName": "전갈왕 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의매듭",
+          "displayName": "행운의 매듭",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P228": {
+      "id": "P228",
+      "category": "부품",
+      "displayName": "감정왕 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "찌",
+      "resultPartName": "감정왕 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ]
+    },
+    "P229": {
+      "id": "P229",
+      "category": "부품",
+      "displayName": "대상인 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "상단",
+      "resultPartType": "찌",
+      "resultPartName": "대상인 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P230": {
+      "id": "P230",
+      "category": "부품",
+      "displayName": "심연 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "찌",
+      "resultPartName": "심연 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P231": {
+      "id": "P231",
+      "category": "부품",
+      "displayName": "심해수정 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "찌",
+      "resultPartName": "심해수정 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "심해수정",
+          "displayName": "심해 수정",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 14
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "P232": {
+      "id": "P232",
+      "category": "부품",
+      "displayName": "용린 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "찌",
+      "resultPartName": "용린 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 15
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 11
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 5
+        }
+      ]
+    },
+    "P233": {
+      "id": "P233",
+      "category": "부품",
+      "displayName": "성좌 찌",
+      "locked": true,
+      "resultMode": "part",
+      "drillTier": 0,
+      "village": "",
+      "resultPartType": "찌",
+      "resultPartName": "성좌 찌",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화에메랄드",
+          "displayName": "강화 에메랄드",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "paper",
+          "qty": 48
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "paper",
+          "qty": 44
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸조각",
+          "displayName": "바르칸 조각",
+          "mcItem": "paper",
+          "qty": 18
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "바르칸핵",
+          "displayName": "바르칸 핵",
+          "mcItem": "paper",
+          "qty": 11
+        }
+      ]
     }
   },
   "categories": {
@@ -22658,7 +25548,57 @@
       "R00b",
       "R00c",
       "R00d",
-      "R00e"
+      "R00e",
+      "P184",
+      "P185",
+      "P186",
+      "P187",
+      "P188",
+      "P189",
+      "P190",
+      "P191",
+      "P192",
+      "P193",
+      "P194",
+      "P195",
+      "P196",
+      "P197",
+      "P198",
+      "P199",
+      "P200",
+      "P201",
+      "P202",
+      "P203",
+      "P204",
+      "P205",
+      "P206",
+      "P207",
+      "P208",
+      "P209",
+      "P210",
+      "P211",
+      "P212",
+      "P213",
+      "P214",
+      "P215",
+      "P216",
+      "P217",
+      "P218",
+      "P219",
+      "P220",
+      "P221",
+      "P222",
+      "P223",
+      "P224",
+      "P225",
+      "P226",
+      "P227",
+      "P228",
+      "P229",
+      "P230",
+      "P231",
+      "P232",
+      "P233"
     ],
     "재료": [
       "M04",
