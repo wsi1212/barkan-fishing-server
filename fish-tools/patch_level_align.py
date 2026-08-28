@@ -45,7 +45,9 @@ GATE_KEEP = {"공격력", "난이도", "야간투시", "돌진쿨감"}
 #: 정렬 자체를 면제하는 출처 — «사다리»가 아닌 특수 층이다.
 #  ★심해 3종은 유저가 수중호흡·호흡시간 2000 을 명시 지정했고, 히든-전설은 사다리 밖이다.
 #    초판이 이걸 안 빼서 심해 작살을 1175/1156 으로 깎고 야간투시 2→1 로 죽였다.
-EXEMPT_SRC = {"심해", "히든-전설"}
+#  ★히든 계열 전체가 면제다 — 상점 사다리가 아니라 «더 세라고 만든 보상»이다.
+#    초판은 히든-전설·심해만 뺐는데, 히든-스폰/사막/상단도 같은 성격이라 정렬 대상이 아니다.
+EXEMPT_SRC = {"심해", "히든-전설", "히든-스폰마을", "히든-사막마을", "히든-상단마을"}
 #: ★«가치 가중 합 ÷ 순성능» 을 비중으로 쓰면 안 된다 — 단위가 다르다(가중표는 «판매보너스
 #  1% = 1.00» 정규화 단위, 순성능은 원/h). 초판이 그렇게 해서 share 가 0.001 로 나오고
 #  50종이 전부 «못 고침» 으로 막혔다. 대신 **반복 수렴**으로 푼다:
@@ -67,7 +69,7 @@ def main():
         cap = float(sys.argv[sys.argv.index("--cap") + 1])
     os.environ["BLOCKSHIP_DATA"] = src
     VS = _load("village_scan")
-    CC = VS.CC
+    CC = VS.CC   # 의도된 이상치 목록(CC.HOLD_ITEMS)도 여기서 온다
     ppath = os.path.join(src, "parts.json")
     # ★백업은 **항상** 뜬다 — 반복 수렴이 파일을 읽고 쓰므로 dry-run 도 파일을 건드린다.
     #   dry-run 이면 마지막에 백업에서 되돌린다.
@@ -128,7 +130,8 @@ def _pass(src, ppath, VS, CC, cap, apply_, allchanged, over):
 
     groups = {}
     for r in rows:
-        if r["src"] in SKIPSRC or r["src"] in EXEMPT_SRC or r["grade"] == "E":
+        if (r["src"] in SKIPSRC or r["src"] in EXEMPT_SRC or r["grade"] == "E"
+                or r["name"] in CC.HOLD_ITEMS):
             continue
         groups.setdefault((r["cat"], r["lv"]), []).append(r)
 

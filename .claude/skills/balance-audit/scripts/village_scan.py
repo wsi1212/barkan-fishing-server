@@ -68,6 +68,13 @@ LINE_OF = {
 #  ★안 빼면 릴이 전부 «성장», 바늘이 전부 «크리»로 나와 라인 구멍이 안 보인다(초판 결함).
 SLOT_MAIN = {}
 DEAD = {"공격속도": "항상 0원/h", "돌진쿨감": "45 미만은 문턱 미달"}
+#: ★동레벨 산포 검사에서 빼는 출처 — «상점 사다리»가 아닌 것들.
+#  히든·전설·심해는 **더 세라고 만든 보상**이다. 같은 레벨 상점템과 나란히 놓고
+#  «격차 25% 초과»라고 하는 건 검사가 틀린 것이다. 2026-08-27 실측: 19건 중
+#  낚싯대 Lv57~62 그룹은 구성원이 사실상 전부 히든이었다(천공의 낚싯대 = 히든-전설).
+LADDER_EXEMPT = ("히든", "심해")
+#: 의도된 이상치는 cast_cost 가 권위(HOLD_ITEMS) — 복제하지 않고 가져다 쓴다.
+HOLD_ITEMS = CC.HOLD_ITEMS
 #: 라벨 가중치 — 초과분을 **가치로** 비교한다. 스탯 단위가 달라서 «크기»로 비교하면 틀린다:
 #  사막칼날 작살(공격력 5, 도망감소 17)이 17 > 3 이라 «숙련»으로 잡혔지만 실제로는 관통형이다.
 #  값의 출처는 이 스킬의 측정 결과다 — 작살은 harpoon_value(원/h/점, C급 기준), 나머지는
@@ -190,8 +197,10 @@ def main():
     # ── 2·3. 산포와 κ ──────────────────────────────────────────────────
     print(f"\n[2] 동레벨 성능 산포 (>25% = 스탯 사다리 결함)")
     bad = 0
+    shop = [r for r in pool if r["name"] not in HOLD_ITEMS
+            and not any(r["src"].startswith(x) or r["src"] == x for x in LADDER_EXEMPT)]
     for (cat, lv), arr in sorted(collections.defaultdict(list, {
-            k: v for k, v in _by(pool, lambda r: (r["cat"], r["lv"])).items()
+            k: v for k, v in _by(shop, lambda r: (r["cat"], r["lv"])).items()
             if len(v) > 1}).items()):
         p = [r["eff_net"] for r in arr if r["eff_net"] > 0]
         if len(p) < 2:

@@ -121,6 +121,13 @@ GRADE_LIFT = 1.00
 #  모든 C 급 작살(382)보다 비싸진다. D 급 κ 가 C 급의 3배라 성능이 조금만 튀어도 등급
 #  간 역전이 난다. **결론: 이상치는 스탯을 먼저 고쳐야 한다. 재료로 덮지 않는다.**
 LEVEL_SPREAD_CAP = 0.25
+#: ★«의도된 이상치» — 유저가 알고 만든 종. 사다리 검사·정렬·재료조정 전부에서 뺀다.
+#  쇠날 작살: D 급인데 공격력 2(전 등급 해금). 유저 결정 —
+#    "D중에서도 공격력 계열을 공격력 2가 있을 수 있어. 그대신 깊은물 시간이 +5초 정도밖에
+#     안되게 하면 되잖아." 대가는 수중호흡 3(세션 18초, 강제TP 40회/h)이다.
+#  ★레벨을 옮겨 그룹을 피하려 해 봤지만 D 작살은 Lv3~8 이 다 차 있어 어디로 보내도 새 짝이
+#    생긴다(Lv8 로 옮겼더니 장터 작살과 +127%). 그룹에서 빼는 게 맞다.
+HOLD_ITEMS = {"쇠날 작살"}
 
 
 #: 데이터 루트에 **반드시** 있어야 하는 파일. 하나라도 없으면 모델이 **조용히 다른 값**을 낸다.
@@ -268,7 +275,7 @@ def targets(rows, iso):
             continue
         out[r["name"]] = dict(target=k * r["rel"], cur=r["casts"], raw=None,
                               cat=r["cat"], grade=r["grade"], lv=r["lv"], perf=r["perf"],
-                              rel=r["rel"], clamped=False)
+                              rel=r["rel"], clamped=r["name"] in HOLD_ITEMS)
     for v in out.values():
         v["raw"] = v["target"]
 
@@ -278,6 +285,7 @@ def targets(rows, iso):
         by_lv[(v["cat"], v["lv"])].append(n)
     clamps = []
     for (cat, lv), names in by_lv.items():
+        names = [n for n in names if n not in HOLD_ITEMS]
         if len(names) < 2:
             continue
         ts = sorted(out[n]["target"] for n in names)
