@@ -419,36 +419,6 @@
         "chance": 10
       }
     ],
-    "붉은사막": [
-      {
-        "matId": "물고기비늘",
-        "chance": 10
-      },
-      {
-        "matId": "강화실",
-        "chance": 6
-      },
-      {
-        "matId": "행운의구슬",
-        "chance": 5
-      },
-      {
-        "matId": "용암수지",
-        "chance": 2
-      },
-      {
-        "matId": "진주",
-        "chance": 6
-      },
-      {
-        "matId": "별빛진주",
-        "chance": 3
-      },
-      {
-        "matId": "미감정 유물",
-        "chance": 8
-      }
-    ],
     "대양": [
       {
         "matId": "물고기비늘",
@@ -631,6 +601,36 @@
       {
         "matId": "나뭇가지",
         "chance": 5
+      }
+    ],
+    "붉은_골짜기": [
+      {
+        "matId": "물고기비늘",
+        "chance": 10
+      },
+      {
+        "matId": "강화실",
+        "chance": 6
+      },
+      {
+        "matId": "행운의구슬",
+        "chance": 5
+      },
+      {
+        "matId": "용암수지",
+        "chance": 2
+      },
+      {
+        "matId": "진주",
+        "chance": 6
+      },
+      {
+        "matId": "별빛진주",
+        "chance": 3
+      },
+      {
+        "matId": "미감정 유물",
+        "chance": 8
       }
     ]
   },

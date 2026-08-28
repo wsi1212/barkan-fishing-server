@@ -1,0 +1,4034 @@
+{
+  "fish": {
+    "바위게": {
+      "minSize": 5,
+      "maxSize": 15,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피라미": {
+      "minSize": 13,
+      "maxSize": 22.5,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블루길": {
+      "minSize": 19.1,
+      "maxSize": 41,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "모래무지": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "붕어": {
+      "minSize": 10,
+      "maxSize": 48,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "참붕어": {
+      "minSize": 8,
+      "maxSize": 12.5,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "미꾸라지": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "누치": {
+      "minSize": 33,
+      "maxSize": 67,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "잉어": {
+      "minSize": 31,
+      "maxSize": 120,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "메기": {
+      "minSize": 25,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "꺽지": {
+      "minSize": 15,
+      "maxSize": 20,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "동자개": {
+      "minSize": 10,
+      "maxSize": 28,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "숭어": {
+      "minSize": 50,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "가물치": {
+      "minSize": 40,
+      "maxSize": 110,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "쏘가리": {
+      "minSize": 20,
+      "maxSize": 60,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "뱀장어": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "농어": {
+      "minSize": 30,
+      "maxSize": 90,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "산천어": {
+      "minSize": 20,
+      "maxSize": 79,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "연어": {
+      "minSize": 60,
+      "maxSize": 100,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "열목어": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "왕연어": {
+      "minSize": 90,
+      "maxSize": 170,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "타이멘": {
+      "minSize": 100,
+      "maxSize": 190,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "아프리카대형메기": {
+      "minSize": 46,
+      "maxSize": 88,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "메콩대형메기": {
+      "minSize": 60,
+      "maxSize": 112,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자이언트스네이크헤드": {
+      "minSize": 66,
+      "maxSize": 124,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "나일퍼치": {
+      "minSize": 96,
+      "maxSize": 182,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "골리앗타이거피시": {
+      "minSize": 104,
+      "maxSize": 200,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피라이바": {
+      "minSize": 130,
+      "maxSize": 250,
+      "grade": "L",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "여명잉어": {
+      "minSize": 30,
+      "maxSize": 55,
+      "grade": "A",
+      "time": "새벽",
+      "weather": "전체"
+    },
+    "아침이슬복어": {
+      "minSize": 15,
+      "maxSize": 30,
+      "grade": "B",
+      "time": "새벽",
+      "weather": "전체"
+    },
+    "새벽동굴장어": {
+      "minSize": 45,
+      "maxSize": 80,
+      "grade": "A",
+      "time": "새벽",
+      "weather": "전체"
+    },
+    "달빛쏘가리": {
+      "minSize": 35,
+      "maxSize": 65,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "야광붕어": {
+      "minSize": 10,
+      "maxSize": 25,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "반딧불송사리": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "B",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "어둠동굴메기": {
+      "minSize": 20,
+      "maxSize": 45,
+      "grade": "B",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "심야박쥐고기": {
+      "minSize": 25,
+      "maxSize": 50,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "맹인비늘고기": {
+      "minSize": 12,
+      "maxSize": 28,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "빗방울잉어": {
+      "minSize": 15,
+      "maxSize": 35,
+      "grade": "B",
+      "time": "비",
+      "weather": "비"
+    },
+    "우천미꾸라지": {
+      "minSize": 8,
+      "maxSize": 22,
+      "grade": "C",
+      "time": "비",
+      "weather": "비"
+    },
+    "수몰전갱이": {
+      "minSize": 10,
+      "maxSize": 25,
+      "grade": "C",
+      "time": "비",
+      "weather": "비"
+    },
+    "침수가재": {
+      "minSize": 12,
+      "maxSize": 30,
+      "grade": "B",
+      "time": "비",
+      "weather": "비"
+    },
+    "번개물고기": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "S",
+      "time": "전체",
+      "weather": "뇌우"
+    },
+    "뇌전가오리": {
+      "minSize": 60,
+      "maxSize": 120,
+      "grade": "M",
+      "time": "전체",
+      "weather": "뇌우"
+    },
+    "향유고래": {
+      "minSize": 1123,
+      "maxSize": 1985,
+      "grade": "L",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "일각고래": {
+      "minSize": 305,
+      "maxSize": 492,
+      "grade": "L",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "고래상어": {
+      "minSize": 712,
+      "maxSize": 1793,
+      "grade": "L",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "범고래": {
+      "minSize": 321,
+      "maxSize": 712,
+      "grade": "L",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "백상아리": {
+      "minSize": 150,
+      "maxSize": 450,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "참고래": {
+      "minSize": 1324,
+      "maxSize": 1765,
+      "grade": "M",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "밍크고래": {
+      "minSize": 703,
+      "maxSize": 1024,
+      "grade": "M",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "개복치": {
+      "minSize": 148,
+      "maxSize": 354,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "해룡": {
+      "minSize": 22,
+      "maxSize": 43,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "톱가오리": {
+      "minSize": 327,
+      "maxSize": 698,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "나폴레옹피쉬": {
+      "minSize": 84,
+      "maxSize": 228,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "청새치": {
+      "minSize": 120,
+      "maxSize": 350,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "돗새치": {
+      "minSize": 189,
+      "maxSize": 463,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "톱상어": {
+      "minSize": 315,
+      "maxSize": 704,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "귀상어": {
+      "minSize": 236,
+      "maxSize": 608,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "청상아리": {
+      "minSize": 213,
+      "maxSize": 401,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "황소상어": {
+      "minSize": 207,
+      "maxSize": 346,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "뱀상어": {
+      "minSize": 312,
+      "maxSize": 498,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "환도상어": {
+      "minSize": 203,
+      "maxSize": 329,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "악상어": {
+      "minSize": 209,
+      "maxSize": 352,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "벨루가": {
+      "minSize": 314,
+      "maxSize": 548,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "일각돌고래": {
+      "minSize": 305,
+      "maxSize": 492,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "바라쿠다": {
+      "minSize": 49,
+      "maxSize": 124,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "돌돔": {
+      "minSize": 30,
+      "maxSize": 94,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "무명갈전갱이": {
+      "minSize": 100,
+      "maxSize": 182,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "민어": {
+      "minSize": 38,
+      "maxSize": 134,
+      "grade": "A",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "감성돔": {
+      "minSize": 20,
+      "maxSize": 55,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "참돔": {
+      "minSize": 25,
+      "maxSize": 70,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블랙팁샤크": {
+      "minSize": 158,
+      "maxSize": 247,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "레본상어": {
+      "minSize": 163,
+      "maxSize": 294,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "산호상어": {
+      "minSize": 154,
+      "maxSize": 198,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "무태상어": {
+      "minSize": 214,
+      "maxSize": 297,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "흉상어": {
+      "minSize": 159,
+      "maxSize": 248,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "흑기흉상어": {
+      "minSize": 162,
+      "maxSize": 249,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "레오파드상어": {
+      "minSize": 151,
+      "maxSize": 223,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "투쿠시": {
+      "minSize": 154,
+      "maxSize": 243,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "낫돌고래": {
+      "minSize": 208,
+      "maxSize": 296,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "가래상어": {
+      "minSize": 214,
+      "maxSize": 348,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "흰동가리": {
+      "minSize": 9,
+      "maxSize": 17,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "블루탱": {
+      "minSize": 14,
+      "maxSize": 29,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "가다랑어": {
+      "minSize": 75,
+      "maxSize": 92,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "방어": {
+      "minSize": 50,
+      "maxSize": 130,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "매가오리": {
+      "minSize": 112,
+      "maxSize": 287,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "벵에돔": {
+      "minSize": 20,
+      "maxSize": 64,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "망치 고등어": {
+      "minSize": 23,
+      "maxSize": 48,
+      "grade": "B",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "만새기": {
+      "minSize": 50,
+      "maxSize": 140,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "미흑점상어": {
+      "minSize": 126,
+      "maxSize": 198,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "별상어": {
+      "minSize": 84,
+      "maxSize": 118,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "펜두상어": {
+      "minSize": 126,
+      "maxSize": 176,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "신락상어": {
+      "minSize": 103,
+      "maxSize": 149,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "괭이상어": {
+      "minSize": 109,
+      "maxSize": 194,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "날치": {
+      "minSize": 18,
+      "maxSize": 35,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "잿방어": {
+      "minSize": 40,
+      "maxSize": 178,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "부시리": {
+      "minSize": 40,
+      "maxSize": 178,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "곰치": {
+      "minSize": 94,
+      "maxSize": 398,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "바다농어": {
+      "minSize": 28,
+      "maxSize": 104,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "삼치": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "줄삼치": {
+      "minSize": 80,
+      "maxSize": 140,
+      "grade": "C",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "점농어": {
+      "minSize": 32,
+      "maxSize": 98,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "홍어": {
+      "minSize": 30,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "노랑가오리": {
+      "minSize": 40,
+      "maxSize": 120,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "청대치": {
+      "minSize": 56,
+      "maxSize": 118,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "홍서대": {
+      "minSize": 27,
+      "maxSize": 53,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "바다숭어": {
+      "minSize": 30,
+      "maxSize": 102,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "가숭어": {
+      "minSize": 30,
+      "maxSize": 94,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "청어": {
+      "minSize": 13,
+      "maxSize": 43,
+      "grade": "D",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "쥐치": {
+      "minSize": 12,
+      "maxSize": 30,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "말쥐치": {
+      "minSize": 18,
+      "maxSize": 50,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "황놀래기": {
+      "minSize": 15,
+      "maxSize": 40,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "용치놀래기": {
+      "minSize": 20,
+      "maxSize": 50,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "참놀래기": {
+      "minSize": 21,
+      "maxSize": 62,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "꼬치고기": {
+      "minSize": 51,
+      "maxSize": 183,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "달고기": {
+      "minSize": 34,
+      "maxSize": 92,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "민달고기": {
+      "minSize": 31,
+      "maxSize": 68,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "자리돔": {
+      "minSize": 10,
+      "maxSize": 21,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "독가시치": {
+      "minSize": 20,
+      "maxSize": 45,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "바다황어": {
+      "minSize": 33,
+      "maxSize": 74,
+      "grade": "E",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "흰긴수염고래": {
+      "minSize": 2145,
+      "maxSize": 3298,
+      "grade": "G",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "장수거북": {
+      "minSize": 128,
+      "maxSize": 201,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "만타가오리": {
+      "minSize": 318,
+      "maxSize": 694,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "바다거북": {
+      "minSize": 120,
+      "maxSize": 184,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "남방큰돌고래": {
+      "minSize": 212,
+      "maxSize": 394,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "참돌고래": {
+      "minSize": 207,
+      "maxSize": 346,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "흰부리돌고래": {
+      "minSize": 204,
+      "maxSize": 318,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "큰돌고래": {
+      "minSize": 218,
+      "maxSize": 398,
+      "grade": "S",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "해마": {
+      "minSize": 9,
+      "maxSize": 34,
+      "grade": "A",
+      "time": "낮",
+      "weather": "맑음"
+    },
+    "귀신고래": {
+      "minSize": 1112,
+      "maxSize": 1487,
+      "grade": "L",
+      "time": "낮",
+      "weather": "비"
+    },
+    "혹등고래": {
+      "minSize": 1237,
+      "maxSize": 1688,
+      "grade": "L",
+      "time": "낮",
+      "weather": "비"
+    },
+    "혼마구로": {
+      "minSize": 249,
+      "maxSize": 514,
+      "grade": "S",
+      "time": "낮",
+      "weather": "비"
+    },
+    "돔발상어": {
+      "minSize": 211,
+      "maxSize": 347,
+      "grade": "S",
+      "time": "낮",
+      "weather": "비"
+    },
+    "돗돔": {
+      "minSize": 108,
+      "maxSize": 193,
+      "grade": "S",
+      "time": "낮",
+      "weather": "비"
+    },
+    "참다랑어": {
+      "minSize": 80,
+      "maxSize": 250,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "사자갈기해파리": {
+      "minSize": 382,
+      "maxSize": 3951,
+      "grade": "G",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "클리오네": {
+      "minSize": 1,
+      "maxSize": 8,
+      "grade": "L",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "빗해파리": {
+      "minSize": 34,
+      "maxSize": 52,
+      "grade": "L",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "돌묵상어": {
+      "minSize": 432,
+      "maxSize": 689,
+      "grade": "L",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "마귀상어": {
+      "minSize": 321,
+      "maxSize": 392,
+      "grade": "L",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "메가마우스상어": {
+      "minSize": 250,
+      "maxSize": 1104,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "유령상어": {
+      "minSize": 54,
+      "maxSize": 129,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "산갈치": {
+      "minSize": 428,
+      "maxSize": 874,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "반딧불이오징어": {
+      "minSize": 2,
+      "maxSize": 8,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "리본이악어": {
+      "minSize": 182,
+      "maxSize": 724,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "흡혈오징어": {
+      "minSize": 12,
+      "maxSize": 28,
+      "grade": "M",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "척탄병": {
+      "minSize": 25,
+      "maxSize": 43,
+      "grade": "S",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "배럴아이": {
+      "minSize": 11,
+      "maxSize": 19,
+      "grade": "S",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "다금바리": {
+      "minSize": 42,
+      "maxSize": 147,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "대포한치": {
+      "minSize": 52,
+      "maxSize": 82,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "갯장어": {
+      "minSize": 40,
+      "maxSize": 212,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "돌가자미": {
+      "minSize": 40,
+      "maxSize": 62,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "붕장어": {
+      "minSize": 44,
+      "maxSize": 221,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "먹장어": {
+      "minSize": 40,
+      "maxSize": 93,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "흑점복": {
+      "minSize": 24,
+      "maxSize": 72,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "참복": {
+      "minSize": 16,
+      "maxSize": 78,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "갈치": {
+      "minSize": 40,
+      "maxSize": 110,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "전기가오리": {
+      "minSize": 44,
+      "maxSize": 176,
+      "grade": "B",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "광어": {
+      "minSize": 30,
+      "maxSize": 80,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "강도다리": {
+      "minSize": 20,
+      "maxSize": 68,
+      "grade": "B",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "초롱아귀": {
+      "minSize": 21,
+      "maxSize": 39,
+      "grade": "B",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "곱상어": {
+      "minSize": 108,
+      "maxSize": 158,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "문절망둑": {
+      "minSize": 9,
+      "maxSize": 28,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "쥐치복": {
+      "minSize": 22,
+      "maxSize": 63,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "한치": {
+      "minSize": 34,
+      "maxSize": 62,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "명태": {
+      "minSize": 25,
+      "maxSize": 60,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "도다리": {
+      "minSize": 25,
+      "maxSize": 40,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "줄도다리": {
+      "minSize": 29,
+      "maxSize": 42,
+      "grade": "D",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "가자미": {
+      "minSize": 20,
+      "maxSize": 41,
+      "grade": "C",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "아귀": {
+      "minSize": 48,
+      "maxSize": 118,
+      "grade": "D",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "빨판상어": {
+      "minSize": 44,
+      "maxSize": 88,
+      "grade": "D",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "오징어": {
+      "minSize": 15,
+      "maxSize": 45,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "망둑어": {
+      "minSize": 11,
+      "maxSize": 32,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "쏠배감펭": {
+      "minSize": 32,
+      "maxSize": 48,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "빡대": {
+      "minSize": 24,
+      "maxSize": 43,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "쏨뱅이": {
+      "minSize": 16,
+      "maxSize": 53,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "쑤기미": {
+      "minSize": 26,
+      "maxSize": 61,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "성대": {
+      "minSize": 27,
+      "maxSize": 40,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "양태": {
+      "minSize": 30,
+      "maxSize": 45,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "쥐노래미": {
+      "minSize": 25,
+      "maxSize": 83,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "노래미": {
+      "minSize": 25,
+      "maxSize": 72,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "티부로니아": {
+      "minSize": 70,
+      "maxSize": 153,
+      "grade": "G",
+      "time": "밤",
+      "weather": "맑음"
+    },
+    "그린란드상어": {
+      "minSize": 422,
+      "maxSize": 751,
+      "grade": "L",
+      "time": "밤",
+      "weather": "맑음"
+    },
+    "거대 태평양 문어": {
+      "minSize": 232,
+      "maxSize": 589,
+      "grade": "L",
+      "time": "밤",
+      "weather": "맑음"
+    },
+    "라브카": {
+      "minSize": 128,
+      "maxSize": 203,
+      "grade": "G",
+      "time": "밤",
+      "weather": "비"
+    },
+    "풍선장어": {
+      "minSize": 124,
+      "maxSize": 243,
+      "grade": "L",
+      "time": "밤",
+      "weather": "비"
+    },
+    "넙치농어": {
+      "minSize": 42,
+      "maxSize": 87,
+      "grade": "S",
+      "time": "밤",
+      "weather": "비"
+    },
+    "글라우쿠스": {
+      "minSize": 2,
+      "maxSize": 4,
+      "grade": "L",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "머리없는닭해파리": {
+      "minSize": 10,
+      "maxSize": 24,
+      "grade": "L",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "덤보문어": {
+      "minSize": 20,
+      "maxSize": 183,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "콜로살오징어": {
+      "minSize": 101,
+      "maxSize": 1402,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "노틸러스": {
+      "minSize": 16,
+      "maxSize": 27,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "붉바리": {
+      "minSize": 36,
+      "maxSize": 101,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자바리": {
+      "minSize": 44,
+      "maxSize": 152,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "능성어": {
+      "minSize": 37,
+      "maxSize": 127,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "말레이원양해파리": {
+      "minSize": 14,
+      "maxSize": 39,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "문어": {
+      "minSize": 30,
+      "maxSize": 90,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "혹돔": {
+      "minSize": 40,
+      "maxSize": 102,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "옥돔": {
+      "minSize": 32,
+      "maxSize": 55,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "갑오징어": {
+      "minSize": 24,
+      "maxSize": 48,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "카와이": {
+      "minSize": 38,
+      "maxSize": 68,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "우럭": {
+      "minSize": 20,
+      "maxSize": 50,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "볼락": {
+      "minSize": 15,
+      "maxSize": 44,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "쭈꾸미": {
+      "minSize": 6,
+      "maxSize": 24,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "대구": {
+      "minSize": 40,
+      "maxSize": 110,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "고등어": {
+      "minSize": 20,
+      "maxSize": 45,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "멸치": {
+      "minSize": 3,
+      "maxSize": 12,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "노무라입깃해파리": {
+      "minSize": 80,
+      "maxSize": 240,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "보름달물해파리": {
+      "minSize": 4,
+      "maxSize": 28,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "두빛보름달해파리": {
+      "minSize": 32,
+      "maxSize": 84,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "상자해파리": {
+      "minSize": 5,
+      "maxSize": 19,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "쫄복": {
+      "minSize": 5,
+      "maxSize": 15,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "바다나리": {
+      "minSize": 2,
+      "maxSize": 16,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "불가사리": {
+      "minSize": 5,
+      "maxSize": 12,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "거미불가사리": {
+      "minSize": 10,
+      "maxSize": 23,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "리게일러커스 글렌": {
+      "minSize": 1037,
+      "maxSize": 1188,
+      "grade": "G",
+      "time": "이벤트",
+      "weather": "전체"
+    },
+    "라티메리아 메나도엔시스": {
+      "minSize": 152,
+      "maxSize": 183,
+      "grade": "G",
+      "time": "이벤트",
+      "weather": "전체"
+    },
+    "이디아칸더스 앳랜티커스": {
+      "minSize": 64,
+      "maxSize": 82,
+      "grade": "G",
+      "time": "이벤트",
+      "weather": "전체"
+    },
+    "스티지아머두서 지간티어": {
+      "minSize": 1154,
+      "maxSize": 1348,
+      "grade": "G",
+      "time": "이벤트",
+      "weather": "전체"
+    },
+    "마블폐어": {
+      "minSize": 60,
+      "maxSize": 120,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "황금아로와나": {
+      "minSize": 150,
+      "maxSize": 300,
+      "grade": "G",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자이언트구라미": {
+      "minSize": 200,
+      "maxSize": 400,
+      "grade": "S",
+      "time": "전체",
+      "weather": "모래바람"
+    },
+    "머스키": {
+      "minSize": 120,
+      "maxSize": 250,
+      "grade": "L",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "골리앗그루퍼": {
+      "minSize": 180,
+      "maxSize": 350,
+      "grade": "G",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "롱노즈가아": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "항구청어": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "항구고등어": {
+      "minSize": 15,
+      "maxSize": 35,
+      "grade": "E~D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "화물선농어": {
+      "minSize": 30,
+      "maxSize": 60,
+      "grade": "D~C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "상선단잉어": {
+      "minSize": 35,
+      "maxSize": 75,
+      "grade": "C~B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "상단화물꼬리표": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "본상단05"
+    },
+    "교단의인장": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사막10"
+    },
+    "돛새치": {
+      "minSize": 200,
+      "maxSize": 330,
+      "grade": "S",
+      "time": "낮",
+      "weather": "전체"
+    },
+    "사막송사리": {
+      "minSize": 3,
+      "maxSize": 8,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "치리": {
+      "minSize": 10,
+      "maxSize": 25,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "드렁허리": {
+      "minSize": 20,
+      "maxSize": 50,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "웅어": {
+      "minSize": 25,
+      "maxSize": 40,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "배스": {
+      "minSize": 30,
+      "maxSize": 60,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "납자루": {
+      "minSize": 5,
+      "maxSize": 8,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "떡납줄갱이": {
+      "minSize": 4,
+      "maxSize": 7,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "칼납자루": {
+      "minSize": 6,
+      "maxSize": 10,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "금강모치": {
+      "minSize": 5,
+      "maxSize": 12,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "버들치": {
+      "minSize": 8,
+      "maxSize": 15,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "미유기": {
+      "minSize": 15,
+      "maxSize": 25,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "무태장어": {
+      "minSize": 80,
+      "maxSize": 200,
+      "grade": "S",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "초어": {
+      "minSize": 60,
+      "maxSize": 120,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "퉁가리": {
+      "minSize": 8,
+      "maxSize": 15,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "차가운 농어": {
+      "minSize": 25,
+      "maxSize": 65,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "백색 동굴어": {
+      "minSize": 10,
+      "maxSize": 25,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "정어리": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "비취 여울치": {
+      "minSize": 10,
+      "maxSize": 24,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "대왕오징어": {
+      "minSize": 250,
+      "maxSize": 700,
+      "grade": "G",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "이슬방울 모치": {
+      "minSize": 5,
+      "maxSize": 11,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "참종개": {
+      "minSize": 7,
+      "maxSize": 13,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "돌상어": {
+      "minSize": 10,
+      "maxSize": 22,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "유령 백어": {
+      "minSize": 15,
+      "maxSize": 38,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "야광 장어": {
+      "minSize": 30,
+      "maxSize": 75,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "감돌고기": {
+      "minSize": 6,
+      "maxSize": 11,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "흑새치": {
+      "minSize": 200,
+      "maxSize": 600,
+      "grade": "L",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "붉은모래 가오리": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "진창 메기왕": {
+      "minSize": 80,
+      "maxSize": 200,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "눈먼 메기": {
+      "minSize": 20,
+      "maxSize": 55,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "안개 빙어": {
+      "minSize": 7,
+      "maxSize": 16,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "물안개 미꾸리": {
+      "minSize": 8,
+      "maxSize": 18,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "물보라 송사리": {
+      "minSize": 4,
+      "maxSize": 9,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "골든마시어": {
+      "minSize": 90,
+      "maxSize": 230,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "심층 빙어": {
+      "minSize": 8,
+      "maxSize": 20,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "심연 잉어": {
+      "minSize": 35,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "석순장어": {
+      "minSize": 25,
+      "maxSize": 65,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "수렴 무지개송어": {
+      "minSize": 25,
+      "maxSize": 60,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "발광 송사리": {
+      "minSize": 4,
+      "maxSize": 10,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "흑진주 참치": {
+      "minSize": 90,
+      "maxSize": 280,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "이끼치": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "혈빛 잉어": {
+      "minSize": 30,
+      "maxSize": 80,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "심호의 백린어": {
+      "minSize": 50,
+      "maxSize": 130,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "멕시코장님동굴어": {
+      "minSize": 90,
+      "maxSize": 240,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "흰철갑상어": {
+      "minSize": 130,
+      "maxSize": 360,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "전갱이": {
+      "minSize": 15,
+      "maxSize": 35,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "젖은이끼 붕어": {
+      "minSize": 12,
+      "maxSize": 30,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "보구치": {
+      "minSize": 15,
+      "maxSize": 40,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "어름치": {
+      "minSize": 18,
+      "maxSize": 45,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "웰스메기": {
+      "minSize": 100,
+      "maxSize": 260,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "황금 방어": {
+      "minSize": 60,
+      "maxSize": 160,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "수심어": {
+      "minSize": 15,
+      "maxSize": 40,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "머레이대구": {
+      "minSize": 120,
+      "maxSize": 320,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "동굴 송사리": {
+      "minSize": 3,
+      "maxSize": 8,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "암염 송어": {
+      "minSize": 20,
+      "maxSize": 50,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "참갈겨니": {
+      "minSize": 7,
+      "maxSize": 17,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "한둑중개": {
+      "minSize": 7,
+      "maxSize": 14,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "종유석 메기": {
+      "minSize": 25,
+      "maxSize": 60,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "붉은 비늘치": {
+      "minSize": 12,
+      "maxSize": 30,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "녹빛 동굴장어": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "압력 둑중개": {
+      "minSize": 8,
+      "maxSize": 18,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "심홍의 아귀": {
+      "minSize": 50,
+      "maxSize": 130,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "독안개 가물치": {
+      "minSize": 70,
+      "maxSize": 180,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "버들붕어": {
+      "minSize": 5,
+      "maxSize": 9,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "폭포 산천어": {
+      "minSize": 16,
+      "maxSize": 42,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "동굴 빙어": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "맹안 둑중개": {
+      "minSize": 7,
+      "maxSize": 15,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "새코미꾸리": {
+      "minSize": 8,
+      "maxSize": 16,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "레이크스터전": {
+      "minSize": 140,
+      "maxSize": 380,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "투명 미꾸리": {
+      "minSize": 8,
+      "maxSize": 18,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "암흑 메기": {
+      "minSize": 30,
+      "maxSize": 80,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "갈겨니": {
+      "minSize": 6,
+      "maxSize": 16,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "비와송어": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "돌고기": {
+      "minSize": 5,
+      "maxSize": 13,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "밀어": {
+      "minSize": 3,
+      "maxSize": 9,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "버들개": {
+      "minSize": 4,
+      "maxSize": 11,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "돌마자": {
+      "minSize": 4,
+      "maxSize": 10,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "새미": {
+      "minSize": 5,
+      "maxSize": 13,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "쉬리": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "모래주사": {
+      "minSize": 5,
+      "maxSize": 12,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "꾸구리": {
+      "minSize": 6,
+      "maxSize": 13,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피라루쿠": {
+      "minSize": 80,
+      "maxSize": 250,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "폴립테루스": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "북극곤들매기": {
+      "minSize": 10,
+      "maxSize": 24,
+      "grade": "A",
+      "time": "전체",
+      "weather": "안개"
+    },
+    "갤럭시 라스보라": {
+      "minSize": 2,
+      "maxSize": 6,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체"
+    },
+    "실버 아로와나": {
+      "minSize": 50,
+      "maxSize": 90,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블랙 아로와나": {
+      "minSize": 60,
+      "maxSize": 110,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "파야라": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피콕 배스": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "모토로 가오리": {
+      "minSize": 40,
+      "maxSize": 80,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "레드테일 캣피시": {
+      "minSize": 60,
+      "maxSize": 120,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "타이거 쇼벨노즈 캣피시": {
+      "minSize": 50,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "길디드 캣피시": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "도라도": {
+      "minSize": 50,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "늑대고기": {
+      "minSize": 40,
+      "maxSize": 80,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "트라이라오": {
+      "minSize": 45,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "코리도라스": {
+      "minSize": 4,
+      "maxSize": 8,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "탐바키": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "실버 달러": {
+      "minSize": 10,
+      "maxSize": 18,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "와일드 디스커스": {
+      "minSize": 12,
+      "maxSize": 20,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "알텀 엔젤": {
+      "minSize": 15,
+      "maxSize": 25,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "로얄 플레코": {
+      "minSize": 25,
+      "maxSize": 45,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "제브라 플레코": {
+      "minSize": 8,
+      "maxSize": 12,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "선샤인 플레코": {
+      "minSize": 20,
+      "maxSize": 40,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블랙 고스트": {
+      "minSize": 30,
+      "maxSize": 50,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "전기뱀장어": {
+      "minSize": 80,
+      "maxSize": 200,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "엔들리케리 비키르": {
+      "minSize": 30,
+      "maxSize": 60,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피라냐": {
+      "minSize": 15,
+      "maxSize": 30,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블랙 피라냐": {
+      "minSize": 25,
+      "maxSize": 45,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자이언트 캣피시": {
+      "minSize": 100,
+      "maxSize": 280,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블랙 드럼피시": {
+      "minSize": 30,
+      "maxSize": 60,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "앨리게이터 가아": {
+      "minSize": 90,
+      "maxSize": 250,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "나뭇잎해룡": {
+      "minSize": 15,
+      "maxSize": 35,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "만다린피시": {
+      "minSize": 6,
+      "maxSize": 12,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "학꽁치": {
+      "minSize": 15,
+      "maxSize": 30,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "무늬오징어": {
+      "minSize": 20,
+      "maxSize": 40,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "모래뱀상어": {
+      "minSize": 120,
+      "maxSize": 280,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "붉평치": {
+      "minSize": 80,
+      "maxSize": 180,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "대왕쥐가오리": {
+      "minSize": 200,
+      "maxSize": 500,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "민물참게": {
+      "minSize": 8,
+      "maxSize": 18,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "퉁사리": {
+      "minSize": 10,
+      "maxSize": 22,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "협곡징거미새우": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "설산가재": {
+      "minSize": 7,
+      "maxSize": 15,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "운무도롱뇽": {
+      "minSize": 10,
+      "maxSize": 20,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "대왕대게": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "심해홍게": {
+      "minSize": 25,
+      "maxSize": 55,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "오아시스징거미": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "사막진주조개": {
+      "minSize": 8,
+      "maxSize": 16,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "대왕문어": {
+      "minSize": 40,
+      "maxSize": 120,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "가시닭새우": {
+      "minSize": 18,
+      "maxSize": 35,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "수렁거머리장어": {
+      "minSize": 25,
+      "maxSize": 50,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "진흙말미잘게": {
+      "minSize": 7,
+      "maxSize": 15,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "핏빛가재": {
+      "minSize": 8,
+      "maxSize": 17,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "주홍뱀장어": {
+      "minSize": 22,
+      "maxSize": 48,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "눈먼동굴장어": {
+      "minSize": 18,
+      "maxSize": 40,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "종유석달팽이": {
+      "minSize": 4,
+      "maxSize": 10,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "흑요석메기": {
+      "minSize": 30,
+      "maxSize": 80,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "백년쏘가리": {
+      "minSize": 40,
+      "maxSize": 95,
+      "grade": "M",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "부두돌게": {
+      "minSize": 5,
+      "maxSize": 12,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "항구쏙": {
+      "minSize": 6,
+      "maxSize": 14,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "바브": {
+      "minSize": 4,
+      "maxSize": 11,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "롱핀데이스": {
+      "minSize": 4,
+      "maxSize": 9,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "점박이 데이스": {
+      "minSize": 4,
+      "maxSize": 10,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "레드 샤이너": {
+      "minSize": 3,
+      "maxSize": 9,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "아로요 처브": {
+      "minSize": 6,
+      "maxSize": 16,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "시날로아 시클리드": {
+      "minSize": 10,
+      "maxSize": 26,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "질리틸라피아": {
+      "minSize": 12,
+      "maxSize": 34,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "갈릴리틸라피아": {
+      "minSize": 12,
+      "maxSize": 30,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "클라리아스메기": {
+      "minSize": 25,
+      "maxSize": 65,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "사막빨판고기": {
+      "minSize": 12,
+      "maxSize": 33,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "소노라빨판고기": {
+      "minSize": 18,
+      "maxSize": 46,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "길라 톱미노우": {
+      "minSize": 3,
+      "maxSize": 6,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "야키 톱미노우": {
+      "minSize": 3,
+      "maxSize": 6,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "솔트 크리크 펍피시": {
+      "minSize": 2,
+      "maxSize": 6,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "아마고사 펍피시": {
+      "minSize": 2,
+      "maxSize": 6,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "화이트 리버 스프링피시": {
+      "minSize": 4,
+      "maxSize": 8,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "웜스프링스 펍피시": {
+      "minSize": 2,
+      "maxSize": 5,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "데저트 데이스": {
+      "minSize": 4,
+      "maxSize": 9,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "스파이크데이스": {
+      "minSize": 5,
+      "maxSize": 10,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "로치 미노우": {
+      "minSize": 3,
+      "maxSize": 8,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "화이트 리버 스파인데이스": {
+      "minSize": 6,
+      "maxSize": 13,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "버진 리버 처브": {
+      "minSize": 15,
+      "maxSize": 40,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "애쉬 미도우스 펍피시": {
+      "minSize": 2,
+      "maxSize": 6,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "레일로드 밸리 스프링피시": {
+      "minSize": 4,
+      "maxSize": 9,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "모아파 데이스": {
+      "minSize": 5,
+      "maxSize": 12,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "피시 레이크 밸리 투이 처브": {
+      "minSize": 10,
+      "maxSize": 28,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "데빌스홀 펍피시": {
+      "minSize": 2,
+      "maxSize": 4,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "별똥별 조각": {
+      "minSize": 5,
+      "maxSize": 40,
+      "grade": "A",
+      "time": "밤",
+      "weather": "유성우"
+    },
+    "바르칸의심연": {
+      "minSize": 80,
+      "maxSize": 150,
+      "grade": "A",
+      "time": "밤",
+      "weather": "전체",
+      "quest": "본섬09"
+    },
+    "녹슨열쇠": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "배상단05"
+    },
+    "밀랍봉인문서": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "배상단06"
+    },
+    "사막참붕어": {
+      "minSize": 10,
+      "maxSize": 35,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "사막황어": {
+      "minSize": 20,
+      "maxSize": 45,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_나디아01"
+    },
+    "오아시스잉어": {
+      "minSize": 30,
+      "maxSize": 70,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_사피르01"
+    },
+    "불꽃지느러미": {
+      "minSize": 20,
+      "maxSize": 50,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_카림01"
+    },
+    "모래뱀장어": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "C~B",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_카림02"
+    },
+    "모래폭풍어": {
+      "minSize": 35,
+      "maxSize": 80,
+      "grade": "B",
+      "time": "전체",
+      "weather": "모래바람",
+      "quest": "사사이드_노파01"
+    },
+    "신기루어": {
+      "minSize": 40,
+      "maxSize": 95,
+      "grade": "B~A",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_노파02"
+    },
+    "밀수꾼의전리품": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체",
+      "quest": "상사이드_레일라01"
+    },
+    "송사리": {
+      "minSize": 3,
+      "maxSize": 7,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "크라운로치": {
+      "minSize": 15,
+      "maxSize": 35,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "블라인드케이프피시": {
+      "minSize": 6,
+      "maxSize": 12,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "나이프피시": {
+      "minSize": 30,
+      "maxSize": 55,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "전기메기": {
+      "minSize": 40,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "가아": {
+      "minSize": 60,
+      "maxSize": 180,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "아로와나": {
+      "minSize": 40,
+      "maxSize": 70,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "폐어": {
+      "minSize": 60,
+      "maxSize": 150,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "실러캔스": {
+      "minSize": 100,
+      "maxSize": 200,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자하린": {
+      "minSize": 12,
+      "maxSize": 150,
+      "grade": "E~S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "리프피쉬": {
+      "minSize": 8,
+      "maxSize": 15,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "실버 헤체트": {
+      "minSize": 4,
+      "maxSize": 7,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "마블 헤체트": {
+      "minSize": 4,
+      "maxSize": 7,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "밀리에링가 베리타스": {
+      "minSize": 3,
+      "maxSize": 6,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "동굴 천사": {
+      "minSize": 2,
+      "maxSize": 4,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "황금 동굴 메기": {
+      "minSize": 12,
+      "maxSize": 20,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "글라스 나이프 피쉬": {
+      "minSize": 20,
+      "maxSize": 40,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "크라운 나이프 피쉬": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "파이어 일": {
+      "minSize": 40,
+      "maxSize": 100,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "지그재그 일": {
+      "minSize": 30,
+      "maxSize": 75,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "오르네이트 비처": {
+      "minSize": 30,
+      "maxSize": 60,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "리드 피쉬": {
+      "minSize": 25,
+      "maxSize": 40,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "보우핀": {
+      "minSize": 45,
+      "maxSize": 90,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자이언트 스네이크헤드": {
+      "minSize": 50,
+      "maxSize": 130,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "자이언트 울프피쉬": {
+      "minSize": 60,
+      "maxSize": 130,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "은빛목걸이": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "본사이드_세르간07"
+    },
+    "낡은가족사진": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "본사이드_노인04"
+    },
+    "이끼낀유리병": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "밤",
+      "weather": "전체",
+      "quest": "본사이드_리나04"
+    },
+    "빛바랜자수실패": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "사사이드_파티마02"
+    },
+    "은가락지": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "상사이드_테레사02"
+    },
+    "성광어": {
+      "minSize": 90,
+      "maxSize": 170,
+      "grade": "S",
+      "time": "밤",
+      "weather": "오로라",
+      "quest": "알비스02"
+    },
+    "부두정어리": {
+      "minSize": 10,
+      "maxSize": 22,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "밧줄고등어": {
+      "minSize": 16,
+      "maxSize": 32,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "등불전갱이": {
+      "minSize": 12,
+      "maxSize": 28,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "항로보구치": {
+      "minSize": 14,
+      "maxSize": 30,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "은빛멸치": {
+      "minSize": 6,
+      "maxSize": 16,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "청동도다리": {
+      "minSize": 18,
+      "maxSize": 38,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "세관농어": {
+      "minSize": 24,
+      "maxSize": 48,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "돛그림자숭어": {
+      "minSize": 20,
+      "maxSize": 44,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "창고갑오징어": {
+      "minSize": 15,
+      "maxSize": 34,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "교역갈치": {
+      "minSize": 42,
+      "maxSize": 82,
+      "grade": "D",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "화약상자복어": {
+      "minSize": 18,
+      "maxSize": 36,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "부표가오리": {
+      "minSize": 35,
+      "maxSize": 72,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "군영감성돔": {
+      "minSize": 28,
+      "maxSize": 58,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "은화문어": {
+      "minSize": 20,
+      "maxSize": 46,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "항해바다장어": {
+      "minSize": 45,
+      "maxSize": 92,
+      "grade": "C",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "왕실참돔": {
+      "minSize": 35,
+      "maxSize": 70,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "검문돌돔": {
+      "minSize": 32,
+      "maxSize": 66,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "무역방어": {
+      "minSize": 48,
+      "maxSize": 96,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "폭풍삼치": {
+      "minSize": 44,
+      "maxSize": 90,
+      "grade": "B",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "청동돛새치": {
+      "minSize": 95,
+      "maxSize": 165,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "상단황새치": {
+      "minSize": 110,
+      "maxSize": 185,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "밀수흑참치": {
+      "minSize": 78,
+      "maxSize": 142,
+      "grade": "A",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "달빛마린": {
+      "minSize": 125,
+      "maxSize": 205,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "은갈매기청새치": {
+      "minSize": 150,
+      "maxSize": 230,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "안개고래상어": {
+      "minSize": 190,
+      "maxSize": 310,
+      "grade": "S",
+      "time": "전체",
+      "weather": "전체"
+    },
+    "교단의제기": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "본섬07"
+    },
+    "교단의해도": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "심해09"
+    },
+    "교단의표식": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "심해15"
+    },
+    "잊혀진이름": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "quest": "왕도13"
+    }
+  },
+  "regions": {
+    "강": {
+      "기본": [
+        "잉어",
+        "붕어",
+        "참붕어",
+        "피라미",
+        "치리",
+        "누치",
+        "모래무지",
+        "메기",
+        "미꾸라지",
+        "동자개",
+        "드렁허리",
+        "숭어",
+        "뱀장어",
+        "웅어",
+        "블루길",
+        "배스",
+        "납자루",
+        "떡납줄갱이",
+        "칼납자루",
+        "갈겨니",
+        "쏘가리",
+        "피라루쿠",
+        "폴립테루스",
+        "버들치",
+        "돌고기",
+        "밀어",
+        "롱노즈가아",
+        "은빛목걸이",
+        "교단의제기"
+      ],
+      "통발": [
+        "민물참게",
+        "퉁사리"
+      ],
+      "밤비": [
+        "바르칸의심연",
+        "이끼낀유리병"
+      ],
+      "밤맑음": [
+        "이끼낀유리병",
+        "바르칸의심연"
+      ]
+    },
+    "협곡": {
+      "기본": [
+        "바위게",
+        "산천어",
+        "열목어",
+        "금강모치",
+        "연어",
+        "왕연어",
+        "미유기",
+        "무태장어",
+        "침수가재",
+        "메기",
+        "초어",
+        "퉁가리",
+        "타이멘",
+        "가물치",
+        "참종개",
+        "참갈겨니",
+        "버들붕어",
+        "새코미꾸리",
+        "돌상어",
+        "감돌고기",
+        "어름치",
+        "한둑중개",
+        "피라루쿠",
+        "폴립테루스",
+        "버들개",
+        "돌마자",
+        "새미",
+        "쉬리",
+        "모래주사",
+        "꾸구리",
+        "꺽지",
+        "폭포 산천어",
+        "비취 여울치",
+        "수렴 무지개송어"
+      ],
+      "통발": [
+        "협곡징거미새우"
+      ],
+      "밤비": [
+        "바르칸의심연"
+      ],
+      "밤맑음": [
+        "바르칸의심연"
+      ]
+    },
+    "정상": {
+      "기본": [
+        "바위게",
+        "산천어",
+        "열목어",
+        "금강모치",
+        "연어",
+        "왕연어",
+        "미유기",
+        "무태장어",
+        "침수가재",
+        "메기",
+        "초어",
+        "퉁가리",
+        "타이멘",
+        "가물치",
+        "참종개",
+        "참갈겨니",
+        "버들붕어",
+        "새코미꾸리",
+        "돌상어",
+        "감돌고기",
+        "어름치",
+        "한둑중개",
+        "피라루쿠",
+        "폴립테루스",
+        "버들개",
+        "돌마자",
+        "새미",
+        "쉬리",
+        "모래주사",
+        "꾸구리",
+        "비와송어",
+        "골든마시어",
+        "흰철갑상어",
+        "북극곤들매기",
+        "갤럭시 라스보라",
+        "실버 아로와나",
+        "블랙 아로와나"
+      ],
+      "통발": [
+        "설산가재",
+        "운무도롱뇽"
+      ]
+    },
+    "원양": {
+      "낮": [
+        "향유고래",
+        "일각고래",
+        "고래상어",
+        "범고래",
+        "백상아리",
+        "참고래",
+        "밍크고래",
+        "개복치",
+        "해룡",
+        "톱가오리",
+        "나폴레옹피쉬",
+        "청새치",
+        "돗새치",
+        "톱상어",
+        "귀상어",
+        "청상아리",
+        "황소상어",
+        "뱀상어",
+        "환도상어",
+        "악상어",
+        "벨루가",
+        "일각돌고래",
+        "바라쿠다",
+        "돌돔",
+        "무명갈전갱이",
+        "민어",
+        "감성돔",
+        "참돔",
+        "블랙팁샤크",
+        "레본상어",
+        "산호상어",
+        "무태상어",
+        "흉상어",
+        "흑기흉상어",
+        "레오파드상어",
+        "투쿠시",
+        "낫돌고래",
+        "가래상어",
+        "흰동가리",
+        "블루탱",
+        "가다랑어",
+        "방어",
+        "매가오리",
+        "벵에돔",
+        "망치 고등어",
+        "만새기",
+        "미흑점상어",
+        "별상어",
+        "펜두상어",
+        "신락상어",
+        "괭이상어",
+        "날치",
+        "잿방어",
+        "부시리",
+        "곰치",
+        "바다농어",
+        "삼치",
+        "줄삼치",
+        "점농어",
+        "홍어",
+        "노랑가오리",
+        "청대치",
+        "홍서대",
+        "바다숭어",
+        "가숭어",
+        "청어",
+        "쥐치",
+        "말쥐치",
+        "황놀래기",
+        "용치놀래기",
+        "참놀래기",
+        "꼬치고기",
+        "달고기",
+        "민달고기",
+        "자리돔",
+        "독가시치",
+        "바다황어"
+      ],
+      "낮맑음": [
+        "흰긴수염고래",
+        "장수거북",
+        "만타가오리",
+        "바다거북",
+        "남방큰돌고래",
+        "참돌고래",
+        "흰부리돌고래",
+        "큰돌고래",
+        "해마"
+      ],
+      "낮비": [
+        "귀신고래",
+        "혹등고래",
+        "혼마구로",
+        "돔발상어",
+        "돗돔",
+        "참다랑어"
+      ],
+      "밤": [
+        "사자갈기해파리",
+        "클리오네",
+        "빗해파리",
+        "돌묵상어",
+        "마귀상어",
+        "메가마우스상어",
+        "유령상어",
+        "산갈치",
+        "반딧불이오징어",
+        "리본이악어",
+        "흡혈오징어",
+        "척탄병",
+        "배럴아이",
+        "다금바리",
+        "대포한치",
+        "갯장어",
+        "돌가자미",
+        "붕장어",
+        "먹장어",
+        "흑점복",
+        "참복",
+        "갈치",
+        "전기가오리",
+        "광어",
+        "강도다리",
+        "초롱아귀",
+        "곱상어",
+        "문절망둑",
+        "쥐치복",
+        "한치",
+        "명태",
+        "도다리",
+        "줄도다리",
+        "가자미",
+        "아귀",
+        "빨판상어",
+        "오징어",
+        "망둑어",
+        "쏠배감펭",
+        "빡대",
+        "쏨뱅이",
+        "쑤기미",
+        "성대",
+        "양태",
+        "쥐노래미",
+        "노래미"
+      ],
+      "밤맑음": [
+        "티부로니아",
+        "그린란드상어",
+        "거대 태평양 문어"
+      ],
+      "밤비": [
+        "라브카",
+        "풍선장어",
+        "넙치농어"
+      ],
+      "기본": [
+        "글라우쿠스",
+        "머리없는닭해파리",
+        "덤보문어",
+        "콜로살오징어",
+        "노틸러스",
+        "붉바리",
+        "자바리",
+        "능성어",
+        "말레이원양해파리",
+        "문어",
+        "혹돔",
+        "옥돔",
+        "갑오징어",
+        "카와이",
+        "우럭",
+        "볼락",
+        "쭈꾸미",
+        "대구",
+        "고등어",
+        "멸치",
+        "노무라입깃해파리",
+        "보름달물해파리",
+        "두빛보름달해파리",
+        "상자해파리",
+        "쫄복",
+        "바다나리",
+        "불가사리",
+        "거미불가사리",
+        "산갈치",
+        "돛새치",
+        "개복치",
+        "붉평치",
+        "대왕쥐가오리"
+      ],
+      "이벤트": [
+        "리게일러커스 글렌",
+        "라티메리아 메나도엔시스",
+        "이디아칸더스 앳랜티커스",
+        "스티지아머두서 지간티어"
+      ],
+      "통발": [
+        "대왕대게",
+        "심해홍게"
+      ]
+    },
+    "오아시스": {
+      "기본": [
+        "바브",
+        "롱핀데이스",
+        "점박이 데이스",
+        "레드 샤이너",
+        "아로요 처브",
+        "시날로아 시클리드",
+        "사막송사리",
+        "질리틸라피아",
+        "갈릴리틸라피아",
+        "클라리아스메기",
+        "사막빨판고기",
+        "소노라빨판고기",
+        "길라 톱미노우",
+        "야키 톱미노우",
+        "솔트 크리크 펍피시",
+        "아마고사 펍피시",
+        "화이트 리버 스프링피시",
+        "웜스프링스 펍피시",
+        "데저트 데이스",
+        "스파이크데이스",
+        "로치 미노우",
+        "화이트 리버 스파인데이스",
+        "버진 리버 처브",
+        "애쉬 미도우스 펍피시",
+        "레일로드 밸리 스프링피시",
+        "모아파 데이스",
+        "피시 레이크 밸리 투이 처브",
+        "데빌스홀 펍피시",
+        "사막참붕어",
+        "교단의인장",
+        "사막황어",
+        "오아시스잉어",
+        "불꽃지느러미",
+        "모래뱀장어",
+        "신기루어",
+        "빛바랜자수실패"
+      ],
+      "모래바람": [],
+      "통발": [
+        "오아시스징거미",
+        "사막진주조개"
+      ]
+    },
+    "대양": {
+      "기본": [
+        "고등어",
+        "갈치",
+        "삼치",
+        "참돔",
+        "감성돔",
+        "광어",
+        "우럭",
+        "농어",
+        "방어",
+        "전갱이",
+        "멸치",
+        "정어리",
+        "오징어",
+        "문어",
+        "만새기",
+        "대구",
+        "명태",
+        "노랑가오리",
+        "홍어",
+        "참다랑어",
+        "청새치",
+        "백상아리",
+        "흑새치",
+        "대왕오징어",
+        "황금 방어",
+        "흑진주 참치",
+        "쥐치",
+        "보구치",
+        "나뭇잎해룡",
+        "해룡",
+        "쏠배감펭",
+        "만다린피시",
+        "골리앗그루퍼",
+        "교단의해도",
+        "교단의표식"
+      ],
+      "낮": [
+        "감성돔",
+        "벵에돔",
+        "돌돔",
+        "학꽁치",
+        "숭어",
+        "도다리"
+      ],
+      "밤": [
+        "볼락",
+        "붕장어",
+        "문어",
+        "갑오징어",
+        "한치",
+        "무늬오징어",
+        "흑기흉상어",
+        "황소상어",
+        "모래뱀상어",
+        "뱀상어"
+      ],
+      "통발": [
+        "대왕문어",
+        "가시닭새우"
+      ]
+    },
+    "늪지대": {
+      "기본": [
+        "피라루쿠",
+        "파야라",
+        "피콕 배스",
+        "모토로 가오리",
+        "레드테일 캣피시",
+        "타이거 쇼벨노즈 캣피시",
+        "길디드 캣피시",
+        "도라도",
+        "늑대고기",
+        "트라이라오",
+        "코리도라스",
+        "탐바키",
+        "실버 달러",
+        "와일드 디스커스",
+        "알텀 엔젤",
+        "로얄 플레코",
+        "제브라 플레코",
+        "선샤인 플레코",
+        "블랙 고스트",
+        "전기뱀장어",
+        "실버 헤체트",
+        "마블 헤체트",
+        "엔들리케리 비키르",
+        "피라냐",
+        "블랙 피라냐",
+        "자이언트 캣피시",
+        "블랙 드럼피시",
+        "리프피쉬",
+        "앨리게이터 가아",
+        "실버 아로와나",
+        "블랙 아로와나",
+        "진창 메기왕",
+        "웰스메기",
+        "독안개 가물치",
+        "황금아로와나",
+        "마블폐어",
+        "자이언트구라미",
+        "피라이바",
+        "나일퍼치",
+        "골리앗타이거피시",
+        "메콩대형메기",
+        "자이언트스네이크헤드",
+        "아프리카대형메기",
+        "낡은가족사진"
+      ],
+      "통발": [
+        "수렁거머리장어",
+        "진흙말미잘게"
+      ]
+    },
+    "레드_로드": {
+      "기본": [
+        "눈먼 메기",
+        "동굴 송사리",
+        "석순장어",
+        "백색 동굴어",
+        "붉은 비늘치",
+        "투명 미꾸리",
+        "동굴 빙어",
+        "혈빛 잉어",
+        "맹안 둑중개",
+        "종유석 메기",
+        "암염 송어",
+        "붉은모래 가오리",
+        "심홍의 아귀",
+        "유령 백어",
+        "녹빛 동굴장어"
+      ],
+      "통발": [
+        "핏빛가재",
+        "주홍뱀장어"
+      ]
+    },
+    "상단마을": {
+      "기본": [
+        "항구청어",
+        "항구고등어",
+        "화물선농어",
+        "상선단잉어",
+        "상단화물꼬리표",
+        "녹슨열쇠",
+        "밀랍봉인문서",
+        "은가락지",
+        "부두정어리",
+        "밧줄고등어",
+        "등불전갱이",
+        "항로보구치",
+        "은빛멸치",
+        "청동도다리",
+        "세관농어",
+        "돛그림자숭어",
+        "창고갑오징어",
+        "교역갈치",
+        "화약상자복어",
+        "부표가오리",
+        "군영감성돔",
+        "은화문어",
+        "항해바다장어",
+        "왕실참돔",
+        "검문돌돔",
+        "무역방어",
+        "폭풍삼치",
+        "청동돛새치",
+        "상단황새치",
+        "밀수흑참치",
+        "달빛마린",
+        "은갈매기청새치",
+        "안개고래상어"
+      ],
+      "밤맑음": [
+        "밀수꾼의전리품"
+      ],
+      "밤비": [
+        "밀수꾼의전리품"
+      ]
+    },
+    "폭포_뒤_동굴_1층": {
+      "기본": [
+        "피라미",
+        "미꾸라지",
+        "납자루",
+        "피라냐",
+        "리프피쉬",
+        "실버 헤체트",
+        "마블 헤체트",
+        "블랙 고스트",
+        "전기메기",
+        "레드테일 캣피시",
+        "타이거 쇼벨노즈 캣피시",
+        "밀리에링가 베리타스",
+        "글라스 나이프 피쉬",
+        "크라운 나이프 피쉬",
+        "파이어 일",
+        "지그재그 일",
+        "전기뱀장어",
+        "앨리게이터 가아",
+        "동굴 천사",
+        "황금 동굴 메기",
+        "오르네이트 비처",
+        "리드 피쉬",
+        "보우핀",
+        "자이언트 스네이크헤드",
+        "웰스메기",
+        "자이언트 울프피쉬",
+        "멕시코장님동굴어"
+      ],
+      "통발": [
+        "눈먼동굴장어",
+        "종유석달팽이"
+      ]
+    },
+    "기억의_연못": {
+      "기본": [
+        "붕어",
+        "잉어",
+        "메기",
+        "누치",
+        "잊혀진이름",
+        "이끼치",
+        "물보라 송사리",
+        "이슬방울 모치",
+        "안개 빙어",
+        "물안개 미꾸리",
+        "젖은이끼 붕어"
+      ]
+    },
+    "부두": {
+      "기본": [
+        "정어리",
+        "멸치",
+        "우럭",
+        "전갱이",
+        "고등어",
+        "보구치",
+        "쥐치",
+        "오징어",
+        "도다리",
+        "볼락",
+        "학꽁치",
+        "광어",
+        "농어",
+        "숭어",
+        "벵에돔",
+        "갑오징어",
+        "나뭇잎해룡",
+        "붕어",
+        "피라미",
+        "미꾸라지"
+      ],
+      "통발": [
+        "부두돌게",
+        "항구쏙"
+      ]
+    },
+    "붉은_골짜기": {
+      "기본": [
+        "피라미",
+        "미꾸라지",
+        "송사리",
+        "납자루",
+        "버들치",
+        "붕어",
+        "쉬리",
+        "크라운로치",
+        "블라인드케이프피시",
+        "나이프피시",
+        "메기",
+        "전기메기",
+        "가아",
+        "아로와나",
+        "전기뱀장어",
+        "실버 아로와나",
+        "폐어",
+        "피라루쿠",
+        "블랙 아로와나",
+        "웰스메기",
+        "실러캔스",
+        "자하린"
+      ],
+      "밤맑음": [
+        "망둑어"
+      ],
+      "밤비": [
+        "망둑어"
+      ],
+      "통발": [
+        "크라운로치"
+      ]
+    }
+  },
+  "environment": {
+    "새벽": [
+      "여명잉어",
+      "아침이슬복어",
+      "새벽동굴장어"
+    ],
+    "밤": [
+      "달빛쏘가리",
+      "야광붕어",
+      "반딧불송사리",
+      "어둠동굴메기",
+      "심야박쥐고기",
+      "맹인비늘고기"
+    ],
+    "비": [
+      "빗방울잉어",
+      "우천미꾸라지",
+      "수몰전갱이",
+      "침수가재"
+    ],
+    "뇌우": [
+      "번개물고기",
+      "뇌전가오리"
+    ],
+    "땡볕": [
+      "신기루어"
+    ],
+    "모래바람": [
+      "모래폭풍어"
+    ],
+    "유성우": [
+      "별똥별 조각"
+    ],
+    "오로라": [
+      "성광어"
+    ]
+  }
+}
