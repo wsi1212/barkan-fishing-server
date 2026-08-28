@@ -15,6 +15,7 @@
   material → materials.json 키 + name
   submitmat→ 같음
   deliver  → parts.json 부품명 + recipes.json 결과명
+  cook     → recipes.json 결과 표시명
 
 `아무` 는 어디서나 허용(bumpIdCounter/onForage 가 와일드카드로 처리).
 """
@@ -84,6 +85,8 @@ CHECK = {
     "material": ("재료", mat_ids),
     "submitmat": ("재료", mat_ids),
     "deliver": ("부품", part_names),
+    # cook 은 onCook(p, rec.displayName) 이 «공백 그대로» 넘긴다(craft 와 달리 밑줄 정규화가 없다).
+    "cook": ("요리 레시피", part_names),
 }
 
 # ── 대조 ────────────────────────────────────────────────────────────────
