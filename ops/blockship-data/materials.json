@@ -319,6 +319,11 @@
       "name": "강화 코코아",
       "mcItem": "paper",
       "desc": "코코아 콩 16개를 압축한 강화 농산물"
+    },
+    "저울추": {
+      "name": "상단 저울추",
+      "mcItem": "paper",
+      "desc": "상단이 물길로 나르다 빠뜨린 놋쇠 저울추"
     }
   },
   "dropTables": {
@@ -333,7 +338,7 @@
       },
       {
         "matId": "녹슨부품",
-        "chance": 9
+        "chance": 6
       },
       {
         "matId": "진주",
@@ -355,7 +360,7 @@
       },
       {
         "matId": "거대비늘",
-        "chance": 13
+        "chance": 5
       },
       {
         "matId": "진주",
@@ -377,7 +382,7 @@
       },
       {
         "matId": "안개수정",
-        "chance": 10
+        "chance": 5
       },
       {
         "matId": "진주",
@@ -399,39 +404,19 @@
       },
       {
         "matId": "보석",
-        "chance": 6
+        "chance": 4
       },
       {
         "matId": "진주",
-        "chance": 12
+        "chance": 10
       },
       {
         "matId": "별빛진주",
         "chance": 2
       },
       {
-        "matId": "미끼",
-        "chance": 6
-      },
-      {
-        "matId": "나뭇가지",
-        "chance": 5
-      },
-      {
-        "matId": "깨진 토기 조각",
-        "chance": 5
-      },
-      {
         "matId": "미감정 유물",
-        "chance": 4
-      },
-      {
-        "matId": "진주조개",
-        "chance": 3
-      },
-      {
-        "matId": "고대 유물",
-        "chance": 1
+        "chance": 10
       }
     ],
     "붉은사막": [
@@ -445,7 +430,7 @@
       },
       {
         "matId": "행운의구슬",
-        "chance": 8
+        "chance": 5
       },
       {
         "matId": "용암수지",
@@ -458,6 +443,10 @@
       {
         "matId": "별빛진주",
         "chance": 3
+      },
+      {
+        "matId": "미감정 유물",
+        "chance": 8
       }
     ],
     "대양": [
@@ -471,7 +460,7 @@
       },
       {
         "matId": "산호조각",
-        "chance": 9
+        "chance": 5
       },
       {
         "matId": "진주",
@@ -537,7 +526,7 @@
       },
       {
         "matId": "바르칸조각",
-        "chance": 4
+        "chance": 6
       },
       {
         "matId": "진주",
@@ -546,6 +535,10 @@
       {
         "matId": "별빛진주",
         "chance": 2
+      },
+      {
+        "matId": "미감정 유물",
+        "chance": 8
       }
     ],
     "상단마을": [
@@ -564,6 +557,10 @@
       {
         "matId": "별빛진주",
         "chance": 1
+      },
+      {
+        "matId": "저울추",
+        "chance": 6
       }
     ],
     "폭포_뒤_동굴_1층": [
@@ -599,7 +596,7 @@
       },
       {
         "matId": "깃털찌조각",
-        "chance": 9
+        "chance": 6
       },
       {
         "matId": "진주",
@@ -621,7 +618,7 @@
       },
       {
         "matId": "낡은갈고리",
-        "chance": 8
+        "chance": 6
       },
       {
         "matId": "진주",
@@ -630,6 +627,10 @@
       {
         "matId": "별빛진주",
         "chance": 1
+      },
+      {
+        "matId": "나뭇가지",
+        "chance": 5
       }
     ]
   },
