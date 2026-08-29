@@ -338,6 +338,13 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 데이터: `plugins/BarkanChess/`(config.yml=테이블·엔진, skins/preferences/achievements/decks/player-stats/variant-stats.yml). 말 모델은 **메인 리소스팩**에 포함(PAPER `custom_model_data` 21001~22301, `assets/minecraft/items/paper.json`).
 - `/체스`(cp) — 참가/솔로/AI/퇴장/스킨/규칙/덱/증강/도전과제/전적, op: 생성·제거·테이블·소환·평가·엔진탐지·변형통계·리로드. Stockfish는 dev `/opt/homebrew/bin/stockfish`, prod `/usr/games/stockfish`.
 
+## GUI 배경판 (gui-forge/)
+상자 창 배경 그림의 발주·검수·굽기 파이프라인. **[gui-forge/README.md](gui-forge/README.md) 가 진입점이다** — 작업 순서, 화면별 현황표, 보정 스크립트 고르는 법, 코드포인트 장부가 거기 있다.
+- 새 세션에 발주 맡길 땐 **`gui-forge/src/<화면>/_order.png` 한 장만** 넘긴다(뼈대판+지시문이 한 장에 구워져 있다).
+- 그림을 받으면 **받자마자** `python3 check_align.py <화면> <납품파일>` — 눈으로는 멀쩡해도 아이콘이 액자 밖으로 나간다.
+- ★**리소스팩을 먼저 배포하고 플러그인을 나중에.** 순서가 뒤집히면 배경이 안 그려지고 제목 자리에 네모만 뜬다.
+- ★목록형 화면은 전용판을 굽지 않는다 — 공용판(`Plates.COMMON6`)을 쓴다. **슬롯이 고정된 화면만** 전용판 후보다.
+
 ## 리소스팩
 - **소스 위치(★2026-06-06 이후, Downloads 경로는 낡음): `~/development/barkan-resourcepack`** — `~/Downloads/barkan-resourcepack/`은 더 이상 존재하지 않음(TCC가 Downloads/Desktop 재귀읽기 차단해서 이동함).
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)
