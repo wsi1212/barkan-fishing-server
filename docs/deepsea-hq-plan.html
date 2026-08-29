@@ -216,6 +216,26 @@ td.q{font-family:"IBM Plex Mono",monospace; font-size:12.5px; color:var(--cyan);
 }
 .order i{font-style:normal; color:var(--ink-3)}
 
+.steps{list-style:none; padding:0; margin:18px 0 0; display:grid; gap:2px; counter-reset:st}
+.steps li{
+  display:grid; grid-template-columns:30px 1fr; gap:14px; align-items:start;
+  padding:14px 4px; border-bottom:1px solid var(--rule-soft)
+}
+.steps li:last-child{border-bottom:0}
+.steps .k{
+  font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; color:var(--cyan);
+  border:1px solid var(--cyan); border-radius:2px; text-align:center; padding:1px 0; margin-top:2px
+}
+.steps p{margin:0 0 7px; font-size:14.5px; color:var(--ink-2)}
+.steps p b{color:var(--ink); font-weight:600}
+.steps code{
+  display:inline-block; padding:5px 11px; border:1px solid var(--rule); border-radius:2px;
+  background:var(--panel-2); color:var(--ink);
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px
+}
+h3{font-size:17px; letter-spacing:-.01em}
+.warn + .warn{margin-top:12px}
+
 footer{margin-top:70px; padding-top:22px; border-top:1px solid var(--rule);
   font-size:13px; color:var(--ink-3)}
 </style>
@@ -692,22 +712,57 @@ footer{margin-top:70px; padding-top:22px; border-top:1px solid var(--rule);
 <!-- ══════════ 3. REGION ══════════ -->
 <section>
   <div class="sec-head"><span class="sec-num">C</span><h2>지역 등록</h2></div>
-  <p class="sec-note"><span class="mono">/지역 생성</span> — 심해20·27·28이 <span class="mono">area|</span> 목표라 여기가 비면 메인 사슬이 멈춘다.</p>
+  <p class="sec-note">
+    심해20·27·28이 <span class="mono">area|</span> 목표라 여기가 비면 메인 사슬이 멈춘다.
+    <span class="mono">/지역 생성</span>은 <b>좌표를 인자로 못 받는다</b> — 두 꼭짓점에 직접 서서 같은 명령을 두 번 친다.
+  </p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>지역</th><th>월드</th><th>범위</th><th>계층</th></tr></thead>
+      <thead><tr><th>지역</th><th>월드</th><th>pos1 (바닥)</th><th>pos2 (천장)</th><th>부모</th></tr></thead>
       <tbody>
-        <tr><td class="q">심해협곡</td><td class="m">world</td><td>협곡 입구 + 하강 구간만. <b>본부는 포함하지 않음</b></td><td class="m">단독</td></tr>
-        <tr><td class="q">심해교단본부</td><td class="m">deep_sea</td><td>전체 — L1 검문실 문턱 ~ L6 바닥</td><td class="m">상위</td></tr>
-        <tr><td class="q">무명의성소</td><td class="m">deep_sea</td><td>L5만 · XZ ±24 · <b>Y18–30</b></td><td class="m">하위</td></tr>
-        <tr><td class="q">이름있는자리</td><td class="m">deep_sea</td><td>서터널 끝 공동 · XZ ±24 · <b>Y36–50</b></td><td class="m">하위</td></tr>
+        <tr><td class="q">심해협곡</td><td class="m">world</td><td colspan="2">협곡 입구 + 하강 구간만. <b>본부는 포함하지 않는다</b></td><td class="m">—</td></tr>
+        <tr><td class="q">심해교단본부</td><td class="m">deep_sea</td><td class="m">−140,&nbsp;0,&nbsp;−80</td><td class="m">+70,&nbsp;64,&nbsp;+50</td><td class="m">—</td></tr>
+        <tr><td class="q">무명의성소</td><td class="m">deep_sea</td><td class="m">−24,&nbsp;18,&nbsp;−84</td><td class="m">+24,&nbsp;30,&nbsp;−36</td><td class="q">심해교단본부</td></tr>
+        <tr><td class="q">이름있는자리</td><td class="m">deep_sea</td><td class="m">−136,&nbsp;36,&nbsp;−24</td><td class="m">−88,&nbsp;50,&nbsp;+24</td><td class="q">심해교단본부</td></tr>
       </tbody>
     </table>
   </div>
+
+  <h3 style="margin-top:34px; font-size:17px">등록 절차</h3>
+  <ol class="steps">
+    <li><span class="k">1</span><div>
+      <p><b>pos1 자리에 서서</b> 생성 명령을 친다. 첫 실행은 pos1만 저장하고 끝난다.</p>
+      <code>/지역 생성 무명의성소</code>
+    </div></li>
+    <li><span class="k">2</span><div>
+      <p><b>pos2 자리로 이동해</b> 같은 명령을 다시 친다. 이때 지역이 만들어진다.</p>
+      <code>/지역 생성 무명의성소</code>
+    </div></li>
+    <li><span class="k">3</span><div>
+      <p>부모를 걸어 계층을 만든다. 순환 참조는 플러그인이 막아 준다.</p>
+      <code>/지역 설정 무명의성소 섬 심해교단본부</code>
+    </div></li>
+    <li><span class="k">4</span><div>
+      <p>표시 이름을 준다. <span class="mono">area|</span> 판정은 <b>지역 id</b>로 하니 표시 이름은 자유롭게.</p>
+      <code>/지역 설정 무명의성소 표시이름 무명의 성소</code>
+    </div></li>
+  </ol>
+
   <p class="warn">
-    <b>⚠ 하위 두 지역은 Y를 반드시 자른다.</b>
-    성소는 L2 회랑 바로 아래고, 이름있는자리는 서쪽으로 빠져 있지만 터널이 L2와 같은 Y대다.
-    Y를 안 지정하면 상위 <span class="mono">심해교단본부</span>와 XZ가 겹쳐 판정이 튄다.
+    <b>⚠ Y는 pos1·pos2를 찍는 높이가 곧 상하한이다.</b>
+    사각형(box) 지역에서 <span class="mono">최소높이 / 최대높이</span> 설정은 <b>무시된다</b> —
+    그 두 항목은 다각형·3D 지역 전용이다. 그러니 pos1은 <b>그 층 바닥에 서서</b>, pos2는 <b>천장 높이에서</b> 찍어야 한다.
+    오목한 동굴이라 사각형이 아깝다면 <span class="mono">/지역 설정 &lt;id&gt; 형태 3d</span> 뒤
+    <span class="mono">3d포인트추가</span> · <span class="mono">3d다음단면</span>으로 단면을 쌓으면 된다 — 이 굴착 구조에 정확히 맞는 기능이다.
+  </p>
+
+  <p class="warn">
+    <b>⚠ 하위 지역은 부모를 «가린다».</b>
+    <span class="mono">getRegionAt</span>은 XZ 면적이 가장 작은 지역 하나만 고르고,
+    <span class="mono">onRegionEnter</span>는 그 하나만 퀘스트에 넘긴다.
+    그래서 성소 안에 서 있으면 <span class="mono">area|심해교단본부</span>는 <b>영원히 안 뜬다</b>.
+    지금 설계가 성립하는 건 <b>심해27을 하위 지역이 없는 L1 검문실에서 깨기 때문</b>이다 —
+    심해27의 판정 위치를 성소나 이름있는자리 쪽으로 옮기는 순간 사슬이 끊긴다.
   </p>
 </section>
 
