@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Build the 43 material catalog assets and model JSONs for the resource pack."""
+"""Build material catalog assets and model JSONs for the resource pack."""
 from __future__ import annotations
 
 import hashlib
 import json
 import shutil
 from pathlib import Path
+
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parent
 MANIFEST = ROOT / "material_manifest.json"
@@ -18,6 +20,18 @@ ITEMS = PACK / "assets/barkan/items/barkan_icon"
 
 def sha10(*parts: str) -> str:
     return hashlib.sha1("\0".join(parts).encode("utf-8")).hexdigest()[:10]
+
+
+def validate_texture(path: Path) -> None:
+    try:
+        with Image.open(path) as image:
+            image = image.convert("RGBA")
+            if image.size not in ((128, 128), (256, 256)):
+                raise ValueError(f"expected 128x128 or 256x256, got {image.size}")
+            if image.getchannel("A").getbbox() is None:
+                raise ValueError("empty alpha")
+    except Exception as exc:
+        raise ValueError(f"invalid material texture {path}: {exc}") from exc
 
 
 def main() -> None:
@@ -34,9 +48,15 @@ def main() -> None:
         texture = TEXTURES / f"{stem}.png"
         model = MODELS / f"{stem}.json"
         item = ITEMS / f"{stem}.json"
-        if not source.is_file():
+        if source.is_file():
+            shutil.copy2(source, texture)
+        elif texture.is_file():
+            # Some catalog icons predate the ImageGen source archive. Preserve
+            # the already-installed artwork while still rebuilding its wiring.
+            print(f"reuse existing texture: {mat_id} ({texture.name})")
+        else:
             raise FileNotFoundError(source)
-        shutil.copy2(source, texture)
+        validate_texture(texture)
         model.write_text(json.dumps({
             "parent": "minecraft:item/generated",
             "textures": {"layer0": f"minecraft:item/barkan_icon/{stem}"},

@@ -79,6 +79,12 @@ def normalize(source: Path, target: Path, size: int) -> None:
     if not has_real_alpha(src):
         # 가짜 체크무늬가 아닌 불투명 결과를 실수로 설치하지 않도록 강제한다.
         src = strip_checkerboard(src)
+    # ImageGen can encode the solid interior of a cutout as alpha 250~254.
+    # Treat that as opaque so the 16px inventory icon does not become a faint,
+    # mostly-semi-transparent silhouette; keep only the actual edge antialiasing.
+    r, g, b, alpha = src.split()
+    alpha = alpha.point(lambda value: 255 if value >= 248 else value)
+    src = Image.merge("RGBA", (r, g, b, alpha))
     bbox = src.getchannel("A").getbbox()
     if bbox is None:
         raise SystemExit(f"배경 제거 후 내용이 없습니다: {source}")
