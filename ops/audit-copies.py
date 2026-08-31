@@ -151,6 +151,27 @@ for name in ("deploy-blockship.sh", "deploy-dev.sh", "deploy-rp.sh", "stage-bloc
         fail(f"~/{name} 와 ops/{name} 가 갈라짐 ({n}줄) — 어느 쪽이 prod 에 도는지 불명")
 
 # ─────────────────────────────────────────────────────────────────────
+# 5. 게이트 스크립트가 «한 벌만» 있는가.
+#    폰/웹(GitHub Actions) 승격 경로도 같은 검사를 받게 하려고, 플러그인 소스만 보는
+#    게이트는 blockship-plugin/tools/ 로 «옮겼다»(복사가 아니다 — 복사하면 CI 와 맥이
+#    서로 다른 규칙을 돌게 되고, 그게 이 파일이 존재하는 이유인 그 병이다).
+# ─────────────────────────────────────────────────────────────────────
+print("\n5) 게이트 스크립트가 한 벌만 있는가 (CI·맥 공용)")
+SHARED_GATES = ("verify-no-bold-format.py", "verify-no-naive-time.py", "quest_audit.py")
+for name in SHARED_GATES:
+    canonical = PLUGIN / "tools" / name
+    stray = REPO / "ops" / name
+    if not canonical.exists():
+        fail(f"게이트 원본이 없다: blockship-plugin/tools/{name} "
+             f"(CI 워크플로가 이 경로를 부른다)")
+        continue
+    if stray.exists():
+        fail(f"게이트가 두 벌이다: ops/{name} 와 blockship-plugin/tools/{name} — "
+             f"CI 와 맥이 서로 다른 규칙을 돌게 된다. ops/ 쪽을 지울 것")
+    else:
+        print(f"  · {name}: blockship-plugin/tools/ 한 벌")
+
+# ─────────────────────────────────────────────────────────────────────
 print()
 if fixed:
     print(f"맞춘 사본 {len(fixed)}개")

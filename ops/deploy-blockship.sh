@@ -99,9 +99,9 @@ fi
 echo "  ✓ 통과"
 
 echo "▶ 런타임 굵은 포맷 전수 검사"
-python3 "$SCRIPTS_REPO/ops/verify-no-bold-format.py" "$BLOCKSHIP_DIR/src/main"
+python3 "$BLOCKSHIP_DIR/tools/verify-no-bold-format.py" "$BLOCKSHIP_DIR/src/main"
 echo "▶ 타임존 미지정 시간 API 전수 검사"
-python3 "$SCRIPTS_REPO/ops/verify-no-naive-time.py" "$BLOCKSHIP_DIR/src/main"
+python3 "$BLOCKSHIP_DIR/tools/verify-no-naive-time.py" "$BLOCKSHIP_DIR/src/main"
 
 # ★NPC·대사 정합성 — 역할·퀘스트가 붙어 있는데 대사가 없으면 클릭 시 '...' 만 뜨고
 #   에러도 로그도 없이 죽는다. 봇이 NPC 우클릭을 못 찍어 사람 검증으로 안 걸린다.

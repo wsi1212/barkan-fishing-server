@@ -47,9 +47,9 @@ gate "④ 퀘스트·콘텐츠 진행 가능성" \
   python3 "$BLOCKSHIP_DIR/tools/quest_audit.py" --root "$BLOCKSHIP_DIR" \
     --runtime-dir "$MIRROR" --regions-dir "$DEV_DATA"
 gate "⑤ 런타임 굵은 포맷" \
-  python3 "$REPO/ops/verify-no-bold-format.py" "$BLOCKSHIP_DIR/src/main"
+  python3 "$BLOCKSHIP_DIR/tools/verify-no-bold-format.py" "$BLOCKSHIP_DIR/src/main"
 gate "⑥ 타임존 미지정 시간 API" \
-  python3 "$REPO/ops/verify-no-naive-time.py" "$BLOCKSHIP_DIR/src/main"
+  python3 "$BLOCKSHIP_DIR/tools/verify-no-naive-time.py" "$BLOCKSHIP_DIR/src/main"
 gate "⑦ NPC·대사 정합성" \
   python3 "$REPO/ops/audit-dialogue.py" --dir "$MIRROR" --quiet
 
