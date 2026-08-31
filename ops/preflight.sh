@@ -13,7 +13,13 @@
 #        ops/preflight.sh --local    (prod 접속 없이 로컬 게이트만)
 set -uo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# ★심볼릭링크 해석 — ~/<이름>.sh 로 실행되면 $0·BASH_SOURCE 가 홈을 가리켜
+#   같은 폴더의 스크립트를 못 찾는다(2026-08-31: 모든 배포가 staging 동기화를 조용히
+#   건너뛰고 있었다). 원본 로직은 ops/lib-self.sh.
+_self_real() { local s="$1" l; while [ -L "$s" ]; do l="$(readlink "$s")"; case "$l" in /*) s="$l";; *) s="$(dirname "$s")/$l";; esac; done; printf '%s\n' "$s"; }
+SELF_DIR="$(cd "$(dirname "$(_self_real "${BASH_SOURCE[0]:-$0}")")" && pwd)"
+
+REPO="$(cd "$SELF_DIR/.." && pwd)"
 BLOCKSHIP_DIR="${BLOCKSHIP_DIR:-$HOME/development/blockship-plugin}"
 MIRROR="$REPO/ops/blockship-data"
 DEV_DATA="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
@@ -93,6 +99,9 @@ else
   if [ "$BAD" = 0 ]; then echo "  ✓ 통과"; PASS=$((PASS+1)); else echo "  ✗ 실패 $BAD 건"; FAIL=$((FAIL+1)); fi
 
   # ⑩ prod 가 지금 어느 커밋을 돌고 있나 — 로컬 HEAD 와 대조
+  #    ★재시작 «직후»라면 latest.log 가 아직 이전 세션일 수 있다(그때는 옛 커밋이 보인다).
+  #      평시 조회라 대개 문제없지만, 배포 직후에 이걸 믿지 말 것 — 배포 스크립트 쪽은
+  #      「For help, type」을 먼저 기다린 뒤에 읽는다.
   printf '\n▶ ⑩ prod 빌드 스탬프 대조\n'
   WANT="$(git -C "$BLOCKSHIP_DIR" rev-parse HEAD | cut -c1-12)"
   GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=10 -i "$KEY" "$REMOTE" \

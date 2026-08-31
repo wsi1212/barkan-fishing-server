@@ -172,6 +172,34 @@ for name in SHARED_GATES:
         print(f"  · {name}: blockship-plugin/tools/ 한 벌")
 
 # ─────────────────────────────────────────────────────────────────────
+# 6. 심볼릭링크로 실행되는 스크립트가 `dirname "$0"` 을 쓰고 있지 않은가.
+#    홈 진입점을 링크로 만든 뒤 $0·BASH_SOURCE 가 홈을 가리켜, 같은 폴더의 스크립트를
+#    못 찾는다. 2026-08-31: deploy-blockship.sh 가 sync-prod-staging.sh 를 못 찾아
+#    **모든 배포가 staging 동기화를 조용히 건너뛰었다**(06:00 되돌림 위험). 경고 한 줄만
+#    찍고 배포는 계속되니 눈에 안 띄었다.
+# ─────────────────────────────────────────────────────────────────────
+print("\n6) 링크로 실행되는 스크립트가 $0 상대경로를 쓰지 않는가")
+LINKED = set()
+for name in ("deploy-blockship.sh", "deploy-dev.sh", "deploy-rp.sh", "stage-blockship.sh"):
+    home = HOME / name
+    if home.is_symlink():
+        LINKED.add(pathlib.Path(os.path.realpath(home)).name)
+# 링크 대상 + 그것이 부르는 래퍼들
+CHECK = LINKED | {"deploy-all-prod.sh", "preflight.sh"}
+BAD_PAT = re.compile(r'dirname\s+"\$0"|dirname\s+"\$\{BASH_SOURCE\[0\]\}"')
+for name in sorted(CHECK):
+    f = REPO / "ops" / name
+    if not f.exists():
+        continue
+    hits = [i + 1 for i, ln in enumerate(f.read_text(encoding="utf-8").splitlines())
+            if BAD_PAT.search(ln) and "_self_real" not in ln and "lib-self" not in ln]
+    if hits:
+        fail(f"ops/{name}:{hits} 가 링크에 취약한 $0/BASH_SOURCE 상대경로를 쓴다 — "
+             f"_self_real 로 링크를 풀 것 (원본: ops/lib-self.sh)")
+    else:
+        print(f"  · {name}: 안전")
+
+# ─────────────────────────────────────────────────────────────────────
 print()
 if fixed:
     print(f"맞춘 사본 {len(fixed)}개")

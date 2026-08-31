@@ -8,6 +8,12 @@
 
 set -e
 
+# ★심볼릭링크 해석 — ~/<이름>.sh 로 실행되면 $0·BASH_SOURCE 가 홈을 가리켜
+#   같은 폴더의 스크립트를 못 찾는다(2026-08-31: 모든 배포가 staging 동기화를 조용히
+#   건너뛰고 있었다). 원본 로직은 ops/lib-self.sh.
+_self_real() { local s="$1" l; while [ -L "$s" ]; do l="$(readlink "$s")"; case "$l" in /*) s="$l";; *) s="$(dirname "$s")/$l";; esac; done; printf '%s\n' "$s"; }
+SELF_DIR="$(cd "$(dirname "$(_self_real "${BASH_SOURCE[0]:-$0}")")" && pwd)"
+
 RESTART_PROD=1
 for arg in "$@"; do
   case "$arg" in
@@ -258,7 +264,7 @@ fi
 # 그날 밤 06:00 nightly 에 라이브를 덮어써 조용히 되돌리는 것을 막는다.
 # --no-restart 는 아직 JAR 을 승격하지 않았으므로 래퍼(deploy-all-prod.sh)가 맡는다.
 if [ "$RESTART_PROD" = 1 ]; then
-  "$(dirname "$0")/sync-prod-staging.sh" --jar-name "$JAR_NAME" --with-config \
+  "$SELF_DIR/sync-prod-staging.sh" --jar-name "$JAR_NAME" --with-config \
     || echo "⚠ staging 동기화 실패 — 06:00 되돌림 위험. ops/sync-prod-staging.sh 를 직접 돌릴 것" >&2
 fi
 
@@ -271,10 +277,16 @@ if [ "$RESTART_PROD" = 1 ] && [ -n "${BUILD_COMMIT:-}" ] && [ "$BUILD_COMMIT" !=
   echo "▶ prod 빌드 스탬프 대조 (부팅 대기)"
   WANT="${BUILD_COMMIT:0:12}"
   GOT=""
+  # ★«부팅 완료»를 먼저 기다린다. 재시작 직후에는 latest.log 가 아직 이전 세션의 것이라
+  #   [Build] 줄이 «옛 커밋»으로 잡힌다 — 그걸 결과로 쓰면 정상 배포를 실패로 오탐한다
+  #   (2026-08-31 실측: b5f71a3 를 올렸는데 9e3bc4d 를 읽고 ❌ 를 냈다).
   for _ in $(seq 1 40); do
-    GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
-      "grep -o '\[Build\] commit=[0-9a-f]*' ~/mcserver/logs/latest.log | tail -1 | cut -d= -f2" 2>/dev/null || true)"
-    [ -n "$GOT" ] && break
+    if ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
+         "grep -q 'For help, type' ~/mcserver/logs/latest.log" 2>/dev/null; then
+      GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
+        "grep -o '\[Build\] commit=[0-9a-f]*' ~/mcserver/logs/latest.log | tail -1 | cut -d= -f2" 2>/dev/null || true)"
+      break
+    fi
     sleep 5
   done
   if [ -z "$GOT" ]; then

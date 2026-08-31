@@ -15,7 +15,13 @@
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")" && pwd)"
+# ★심볼릭링크 해석 — ~/<이름>.sh 로 실행되면 $0·BASH_SOURCE 가 홈을 가리켜
+#   같은 폴더의 스크립트를 못 찾는다(2026-08-31: 모든 배포가 staging 동기화를 조용히
+#   건너뛰고 있었다). 원본 로직은 ops/lib-self.sh.
+_self_real() { local s="$1" l; while [ -L "$s" ]; do l="$(readlink "$s")"; case "$l" in /*) s="$l";; *) s="$(dirname "$s")/$l";; esac; done; printf '%s\n' "$s"; }
+SELF_DIR="$(cd "$(dirname "$(_self_real "${BASH_SOURCE[0]:-$0}")")" && pwd)"
+
+ROOT="$SELF_DIR"
 BLOCKSHIP_DIR="${BLOCKSHIP_DIR:-$HOME/development/blockship-plugin}"
 JAR="$BLOCKSHIP_DIR/build/libs/BlockShip-1.0.0-SNAPSHOT.jar"
 # Java 소유 JSON의 작업 원본은 dev 런타임 사본이 아니라 git 미러다.
