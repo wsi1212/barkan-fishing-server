@@ -116,6 +116,20 @@ if [ -f "$AUDIT" ]; then
   echo "  ✓ ERROR 0건"
 fi
 
+# ★prod 로 나갈 jar 은 «커밋된 트리»에서 빌드한다 — 규칙이 문서에만 있어서 두 방향으로
+#   사고가 났다: 미커밋이 실려 나가거나(2026-08-11), 낡은 체크아웃에서 빌드돼 커밋된
+#   기능이 빠지거나(2026-08-31, jar mtime 은 최신인데 내용은 며칠 전).
+#   더러우면 이 게이트가 HEAD 워크트리를 «자동으로» 떠서 그걸 빌드한다.
+echo "▶ 빌드 출처 검증 (커밋된 트리인가)"
+SOURCE_REPO="$BLOCKSHIP_DIR"   # 워크트리를 떠도 «원본 저장소»는 여기다(정리에 필요)
+eval "$("$SCRIPTS_REPO/ops/guard-build-source.sh" "$BLOCKSHIP_DIR")" || exit 1
+BLOCKSHIP_DIR="$BUILD_DIR"
+LOCAL_JAR="$BLOCKSHIP_DIR/build/libs/$JAR_NAME"
+if [ -n "${BUILD_WORKTREE:-}" ]; then
+  # shellcheck disable=SC2064
+  trap "git -C '$SOURCE_REPO' worktree remove --force '$BUILD_WORKTREE' >/dev/null 2>&1; git -C '$SOURCE_REPO' worktree prune >/dev/null 2>&1" EXIT
+fi
+
 echo "▶ BlockShip 빌드"
 cd "$BLOCKSHIP_DIR"
 ./gradlew build
@@ -246,6 +260,33 @@ fi
 if [ "$RESTART_PROD" = 1 ]; then
   "$(dirname "$0")/sync-prod-staging.sh" --jar-name "$JAR_NAME" --with-config \
     || echo "⚠ staging 동기화 실패 — 06:00 되돌림 위험. ops/sync-prod-staging.sh 를 직접 돌릴 것" >&2
+fi
+
+# ★루프 닫기 — prod 가 «진짜 그 커밋»을 실었는지 부팅 로그의 빌드 스탬프로 확인한다.
+#   jar sha1 대조만으로는 「내가 올린 파일이 그대로 있다」까지만 알 수 있고, 그게 어느
+#   커밋인지는 모른다. 2026-08-31 에 prod jar 은 mtime 최신·sha1 일치였는데 내용이
+#   며칠 전이었다(다른 세션이 낡은 체크아웃에서 빌드). 스탬프가 그 구멍을 막는다.
+if [ "$RESTART_PROD" = 1 ] && [ -n "${BUILD_COMMIT:-}" ] && [ "$BUILD_COMMIT" != "unknown" ]; then
+  echo ""
+  echo "▶ prod 빌드 스탬프 대조 (부팅 대기)"
+  WANT="${BUILD_COMMIT:0:12}"
+  GOT=""
+  for _ in $(seq 1 40); do
+    GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
+      "grep -o '\[Build\] commit=[0-9a-f]*' ~/mcserver/logs/latest.log | tail -1 | cut -d= -f2" 2>/dev/null || true)"
+    [ -n "$GOT" ] && break
+    sleep 5
+  done
+  if [ -z "$GOT" ]; then
+    echo "  ⚠ 스탬프를 못 읽었다 — 아직 부팅 중이거나 스탬프 없는 구 jar 이다"
+  elif [ "$GOT" = "$WANT" ]; then
+    echo "  ✓ prod 가 commit $WANT 을 돌고 있다 (배포한 것과 일치)"
+  else
+    echo "  ❌ prod 가 commit $GOT 을 돌고 있다 — 배포한 것은 $WANT 다!"
+    echo "     jar 이 승격되지 않았거나(staging 잔존) 다른 세션이 덮었다."
+    echo "     확인: ops/rollback-jar.sh 목록 / ssh ... 'ls -la ~/mcserver/staging'"
+    exit 1
+  fi
 fi
 
 echo ""
