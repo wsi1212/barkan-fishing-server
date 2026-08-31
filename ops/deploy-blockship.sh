@@ -277,16 +277,15 @@ if [ "$RESTART_PROD" = 1 ] && [ -n "${BUILD_COMMIT:-}" ] && [ "$BUILD_COMMIT" !=
   echo "▶ prod 빌드 스탬프 대조 (부팅 대기)"
   WANT="${BUILD_COMMIT:0:12}"
   GOT=""
-  # ★«부팅 완료»를 먼저 기다린다. 재시작 직후에는 latest.log 가 아직 이전 세션의 것이라
-  #   [Build] 줄이 «옛 커밋»으로 잡힌다 — 그걸 결과로 쓰면 정상 배포를 실패로 오탐한다
-  #   (2026-08-31 실측: b5f71a3 를 올렸는데 9e3bc4d 를 읽고 ❌ 를 냈다).
-  for _ in $(seq 1 40); do
-    if ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
-         "grep -q 'For help, type' ~/mcserver/logs/latest.log" 2>/dev/null; then
-      GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
-        "grep -o '\[Build\] commit=[0-9a-f]*' ~/mcserver/logs/latest.log | tail -1 | cut -d= -f2" 2>/dev/null || true)"
-      break
-    fi
+  # ★재시작 직후에는 latest.log 가 아직 «이전 세션»의 것이다. 그 로그에도 [Build] 줄과
+  #   「For help, type」이 둘 다 들어 있으므로, 무엇을 «기다림 조건»으로 삼아도 옛 로그가
+  #   즉시 만족시켜 버린다 — 정상 배포를 실패로 오탐한다(2026-08-31 두 번 겪었다).
+  #   ⇒ 조건을 바꾸지 말고 **원하는 값이 나올 때까지 폴링**한다. 타임아웃까지 안 나오면
+  #     그게 진짜 실패다(승격 안 됨 / staging 잔존 / 다른 세션이 덮음).
+  for _ in $(seq 1 60); do
+    GOT="$(ssh -o BatchMode=yes -o ConnectTimeout=8 -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST" \
+      "grep -o '\[Build\] commit=[0-9a-f]*' ~/mcserver/logs/latest.log | tail -1 | cut -d= -f2" 2>/dev/null || true)"
+    [ "$GOT" = "$WANT" ] && break
     sleep 5
   done
   if [ -z "$GOT" ]; then
