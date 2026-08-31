@@ -18,13 +18,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 BLOCKSHIP_DIR="${BLOCKSHIP_DIR:-$HOME/development/blockship-plugin}"
 JAR="$BLOCKSHIP_DIR/build/libs/BlockShip-1.0.0-SNAPSHOT.jar"
-DATA_DIR="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
+# Java 소유 JSON의 작업 원본은 dev 런타임 사본이 아니라 git 미러다.
+# dev plugins/BlockShip/은 기동 중 Java 정규화로 내용이 달라질 수 있다.
+DATA_DIR="$ROOT/blockship-data"
 PROD_HOST="ubuntu@168.107.8.107"
 KEY="$HOME/.ssh/oracle-mc.key"
 LOCK="/tmp/barkan-deploy-all-prod.lock"
 DEPLOY_ID="codex-$$-$(date +%Y%m%d%H%M%S)"
 REMOTE_STAGE="/home/ubuntu/mcserver/.deploy-staged/$DEPLOY_ID"
 REMOTE_STAGE_JAR="$REMOTE_STAGE/BlockShip-1.0.0-SNAPSHOT.jar"
+REMOTE_STAGE_DATA="$REMOTE_STAGE/BlockShip"
 REMOTE_STAGE_MOTD="$REMOTE_STAGE/motd.properties"
 REMOTE_LIVE_JAR="/home/ubuntu/mcserver/plugins/BlockShip-1.0.0-SNAPSHOT.jar"
 SERVER_MAY_BE_DOWN=0
@@ -66,10 +69,11 @@ cleanup_all() {
 trap cleanup_all EXIT
 
 ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
-  "install -d -m 0755 '$REMOTE_STAGE'"
+  "install -d -m 0755 '$REMOTE_STAGE' '$REMOTE_STAGE_DATA'"
 
 say "1) BlockShip 빌드 + JSON/JAR 업로드 (재시작은 마지막에 한 번)"
-PROD_JAR_DEST="$REMOTE_STAGE/" "$ROOT/deploy-blockship.sh" --no-restart
+PROD_JAR_DEST="$REMOTE_STAGE/" PROD_DATA_DEST="$REMOTE_STAGE_DATA/" \
+  "$ROOT/deploy-blockship.sh" --no-restart
 [ -s "$JAR" ] || { echo "❌ JAR 빌드 산출물 없음: $JAR" >&2; exit 1; }
 EXPECTED_JAR=$(shasum "$JAR" | awk '{print $1}')
 echo "  JAR SHA1: $EXPECTED_JAR"
@@ -106,8 +110,8 @@ print('MOTD staged')
 PY"
 
 say "3) BetterHud + CraftEngine 리소스팩 + 마지막 재시작"
-# JSON은 1단계에서 prod에 올라갔지만 JAR은 아직 임시 경로에 있다. 서버를
-# 멈춘 뒤에만 라이브 plugins/로 승격하고 BetterHud 체인의 기동을 통과시킨다.
+# JSON과 JAR은 1단계에서 모두 임시 경로에 있다. 서버를 멈춘 뒤에만
+# 라이브 plugins/로 승격하고 BetterHud 체인의 기동을 통과시킨다.
 say "3-a) 서버 정지 후 JAR 라이브 승격"
 SERVER_MAY_BE_DOWN=1
 ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" "set -e
@@ -118,9 +122,15 @@ ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" "set -e
   done
   [ \"\$(systemctl is-active mcserver || true)\" = active ] && { echo '❌ 서버 정지 실패'; exit 1; }
   test -s '$REMOTE_STAGE_JAR'
+  for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json item-flavor.json; do
+    test -s '$REMOTE_STAGE_DATA'/\$f
+  done
   if [ -f '$REMOTE_LIVE_JAR' ]; then
     cp '$REMOTE_LIVE_JAR' \"/home/ubuntu/mcserver/backups/BlockShip-prev-\$(date +%Y%m%d%H%M%S).jar\"
   fi
+  for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json item-flavor.json; do
+    mv '$REMOTE_STAGE_DATA'/\$f \"/home/ubuntu/mcserver/plugins/BlockShip/\$f\"
+  done
   mv '$REMOTE_STAGE_JAR' '$REMOTE_LIVE_JAR'
   sha1sum '$REMOTE_LIVE_JAR'"
 
@@ -166,16 +176,16 @@ for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json
       continue
     fi
   fi
-  # recipes.json의 TR01 계열 통발은 부팅 시 TrapSpecs(Java 단일 진실원)가
-  # 폐기된 스폰도시 표기를 현행 항구 표기로 정규화한다. 해당 엔트리만 제외하고
-  # 비교해 나머지 레시피의 실제 누락·변경은 계속 검출한다.
+  # 통발 레시피의 result.lore는 부팅 시 TrapSpecs(Java 단일 진실원)가
+  # 현행 지역명으로 정규화한다. lore만 비교에서 제외하고 재료·결과·잠금 등
+  # 나머지 레시피 필드는 그대로 검증해 실제 누락·변경을 계속 검출한다.
   if [ "$actual" != "$expected" ] && [ "$f" = "recipes.json" ]; then
-    expected_normalized=$(jq -S 'del(.recipes.TR01, .recipes.TR01D, .recipes.TR01Q, .recipes.TR01L)' \
+    expected_normalized=$(jq -S 'with_entries(if .key == "recipes" then .value |= with_entries(if (.key | test("^TR(01|03|04|05|06|08|09|10|11|13)(D|L|Q)?$")) then .value.result |= del(.lore) else . end) else . end)' \
       "$local_file" | shasum | awk '{print $1}')
     actual_normalized=$(ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$KEY" "$PROD_HOST" \
-      "jq -S 'del(.recipes.TR01, .recipes.TR01D, .recipes.TR01Q, .recipes.TR01L)' ~/mcserver/plugins/BlockShip/$f | sha1sum | awk '{print \$1}'")
+      "jq -S 'with_entries(if .key == \"recipes\" then .value |= with_entries(if (.key | test(\"^TR(01|03|04|05|06|08|09|10|11|13)(D|L|Q)?$\")) then .value.result |= del(.lore) else . end) else . end)' ~/mcserver/plugins/BlockShip/$f | sha1sum | awk '{print \$1}'")
     if [ "$actual_normalized" = "$expected_normalized" ]; then
-      echo "  $f 일치 (TR01 계열 통발은 Java 정규화)"
+      echo "  $f 일치 (통발 result.lore는 Java 정규화)"
       continue
     fi
   fi

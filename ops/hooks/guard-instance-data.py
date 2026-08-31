@@ -75,8 +75,14 @@ TAR_C = re.compile(r"-C\s+(\"[^\"]+\"|'[^']+'|[^\s;|&]+)")
 OVERRIDE = "ALLOW_INSTANCE_DATA_WRITE=1"
 
 # 정식 경로 — 스크립트 내부 복사는 훅에 안 보이고, 스크립트가 제외 목록을 지킨다.
+# 정식 경로 — 스크립트 내부 복사는 훅에 보이지 않고, 스크립트가 제외 목록·인터록을 지킨다.
+# ★mc-sync.sh 는 **의도된 데이터 클론** 도구다. 이 훅이 막으려는 «손으로 한 조각 복사»와
+#   달리 목적지를 정지시키고, 목적지 게임데이터를 백업하고, 방향 게이트(dev_to_prod 는
+#   CONFIRM_OVERWRITE_PROD=yes 요구)를 통과해야 돈다. prod→dev 전체 미러가 정상 운영
+#   작업이 된 뒤(2026-08-27 유저 결정: prod 가 권위, dev 는 미러)라 SAFE 에 둔다.
 SAFE = re.compile(
-    r"deploy-blockship\.sh|deploy-dev\.sh|stage-blockship\.sh|ops/deploy-jar\.sh|rp-deploy\.sh",
+    r"deploy-blockship\.sh|deploy-dev\.sh|stage-blockship\.sh|ops/deploy-jar\.sh|rp-deploy\.sh"
+    r"|mc-sync/mc-sync\.sh|mc-sync\.sh\b",
     re.IGNORECASE,
 )
 

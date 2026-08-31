@@ -12,10 +12,10 @@
 import io, os, zipfile
 from PIL import Image
 
-RP = os.path.expanduser("~/development/barkan-resourcepack")
+RP = os.path.expanduser(os.environ.get("RP_ROOT", "~/development/barkan-resourcepack"))
 # 서버에만 있고 소스에 없던 파일들(누군가 박스에서 직접 넣은 것). 통째 교체 때 안 잃으려면
 # 여기에 받아 두고 같이 굽는다. 지금은 소리 3개 + 보스바 스프라이트 3개.
-EXTRA = os.path.expanduser("~/development/barkan-rp-extra")
+EXTRA = os.path.expanduser(os.environ.get("RP_EXTRA", "~/development/barkan-rp-extra"))
 OUT = "/tmp/barkan-resourcepack-slim.zip"
 # ★".bak-" 만 있으면 `gui.json.bak` / `cod.json.bak` 처럼 접미어가 붙지 않은 백업이 통과한다
 #   (2026-08-11 실측: 그 둘이 배포본에 실려 나갔다). ".bak" 이 ".bak-*" 도 함께 잡는다.

@@ -130,23 +130,35 @@ mc = json.loads(z.read('pack.mcmeta'))['pack']
 assert 'min_format' in mc and 'max_format' in mc, \
     "pack.mcmeta 에 min_format/max_format 이 없다 — 26.1+ 클라가 overlays 를 무시한다"
 
-gui = json.loads(z.read('assets/barkan/font/gui.json')).get('providers', [])
-assert len(gui) > 200, f"font/gui.json provider 가 {len(gui)}개뿐 — 글리프 정의가 빠졌다"
-
-# 글리프가 가리키는 텍스처가 실제로 들어있는지 (정의는 있는데 그림이 없으면 []네모가 뜬다)
+# 모든 폰트 정의의 bitmap/ttf provider가 실제 파일을 가리키는지 검사한다.
+# bitmap은 textures/, ttf는 font/ 아래로 해석된다. 이전에는 gui.json만 검사해서
+# minecraft:default의 bitmap 누락을 놓칠 수 있었다.
 have = set(names)
+font_defs = [n for n in names if n.startswith('assets/') and '/font/' in n and n.endswith('.json')]
 missing = []
-for e in gui:
-    f = e.get('file')
-    if not f:
-        continue
-    ns, _, path = f.partition(':')
-    if not path:
-        ns, path = 'minecraft', ns
-    p = f"assets/{ns}/textures/{path}"
-    if p not in have:
-        missing.append(p)
-assert not missing, f"글리프 텍스처 {len(missing)}개 누락: {missing[:5]}"
+provider_count = 0
+gui = []
+for font_name in font_defs:
+    font = json.loads(z.read(font_name))
+    providers = font.get('providers', [])
+    if font_name == 'assets/barkan/font/gui.json':
+        gui = providers
+    for i, e in enumerate(providers):
+        kind = e.get('type')
+        if kind not in ('bitmap', 'ttf'):
+            continue
+        provider_count += 1
+        f = e.get('file')
+        assert f, f"{font_name} provider #{i}에 file이 없다"
+        ns, _, path = f.partition(':')
+        if not path:
+            ns, path = 'minecraft', ns
+        root = 'textures' if kind == 'bitmap' else 'font'
+        p = f"assets/{ns}/{root}/{path}"
+        if p not in have:
+            missing.append(f"{font_name} provider #{i} -> {p}")
+assert len(gui) > 200, f"font/gui.json provider 가 {len(gui)}개뿐 — 글리프 정의가 빠졌다"
+assert not missing, f"폰트 provider 파일 {len(missing)}개 누락: {missing[:5]}"
 
 junk = [n for n in names if any(j in n for j in ('.bak', '_prepad', 'backup', 'pf_reference', 'tools/'))]
 assert not junk, f"잡동사니가 실렸다: {junk[:5]}"
@@ -169,7 +181,7 @@ for k, v in snd.items():
 assert not bad, ("sounds.json 이 없는 .ogg 를 가리킨다 (그 소리는 조용히 안 울린다): "
                  + str(sorted(set(bad))))
 
-print(f"   ✅ 항목 {len(names)} · glyph provider {len(gui)} · sounds {len(snd)}키 "
+print(f"   ✅ 항목 {len(names)} · glyph provider {len(gui)} + font file provider {provider_count} · sounds {len(snd)}키 "
       f"(참조 전부 실존) · 잡동사니 0")
 PY
 
@@ -182,7 +194,11 @@ if curl --fail --location --silent --show-error --retry 2 --retry-delay 2 \
   unzip -Z1 "$CUR_ZIP" | grep -v '/$' | sort > "$CUR_LIST"
   unzip -Z1 "$ZIP"     | grep -v '/$' | sort > "$NEW_LIST"
   CUR_N=$(wc -l < "$CUR_LIST"); NEW_N=$(wc -l < "$NEW_LIST")
-  LOST=$(comm -23 "$CUR_LIST" "$NEW_LIST" | grep -vE '\.bak|_prepad|backup|pf_reference|^tools/' || true)
+  # 이전 서빙본에만 남아 있어도 정상인 파일들. 소스에서 이미 제거한 고아 음원과
+  # 8px 전용 폰트로 교체한 구 12px 폰트는 신규 팩에서 빠지는 것이 의도된 상태다.
+  INTENTIONAL_REMOVALS_RE='^(assets/barkan/font/fusion_pixel_12px_zh_hans\.ttf|assets/barkan/sounds/weather/rain\.ogg)$'
+  LOST=$(comm -23 "$CUR_LIST" "$NEW_LIST" \
+    | grep -vE "\.bak|_prepad|backup|pf_reference|^tools/|${INTENTIONAL_REMOVALS_RE}" || true)
   LOST_N=$(printf '%s' "$LOST" | grep -c . || true)
   echo "   현재 ${CUR_N}개 → 신규 ${NEW_N}개 · 잡동사니 제외 순손실 ${LOST_N}개"
   if [ "$LOST_N" -gt 0 ]; then
