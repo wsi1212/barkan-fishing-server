@@ -186,6 +186,10 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 
 ### 자동 sync (옵션 C)
 **BlockShip Java plugin** — 빌드 후 배포 스크립트
+- **게이트 10종을 순서대로 돈다** — 인스턴스데이터 제외목록 · 목표id대조 · **사본드리프트(`audit-copies.py`)** · 퀘스트감사(ERROR 0 기준) · 굵은포맷 · 타임존 · NPC대사 · **빌드출처(`guard-build-source.sh`)** · staged JSON 검증 · **배포후 커밋 대조**. 통과 못 하면 배포가 멈춘다. `SKIP_QUEST_AUDIT` 우회구는 폐지됐다.
+  - ★**미커밋이 있으면 게이트가 HEAD 워크트리를 자동으로 떠서 빌드한다** — 손으로 `git worktree add` 할 필요 없다. 제외된 파일은 화면에 찍힌다. 나가야 하는 파일이면 커밋하고 다시 돌릴 것.
+  - ★**HEAD 가 upstream 보다 뒤처지면 거부한다** — 남이 푸시한 커밋이 prod 에서 되돌아가기 때문. `git pull` 후 다시.
+  - ★**prod 가 어느 커밋을 돌고 있나는 로그로 확인한다**: `grep '\[Build\]' ~/mcserver/logs/latest.log` → `[Build] commit=<sha12> clean`. jar mtime·sha1 로는 판별 불가(낡은 체크아웃 빌드는 mtime 이 최신이다). `dirty` 가 보이면 미커밋이 실린 jar 이다.
 - 위치: `ops/deploy-blockship.sh` (`~/deploy-blockship.sh` 는 여기로 가는 심볼릭링크 — **홈 사본을 따로 만들지 말 것**, 2026-08-31 에 두 벌이 240줄 갈라진 채 서로 다른 게이트를 돌고 있었다)
 - 한 줄 실행: `~/deploy-blockship.sh`
 - 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장. = **즉시 배포**.
