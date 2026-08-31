@@ -13,6 +13,21 @@
     {"id": "wet_treasure_money_medium", "name": "적당한 돈", "category": "prop",  "source": "imagegen-cash/medium_source.png"},
     {"id": "wet_treasure_money_large",  "name": "큰 돈",     "category": "prop",  "source": "imagegen-cash/large_source.png"},
     {"id": "wet_treasure_chest", "name": "젖은 보물상자", "category": "prop",  "source": "imagegen-chest/wet_treasure_chest_source.png", "pipeline": "imagegen_256", "size": 256, "oversized_in_gui": true},
-    {"id": "skill_manseon", "name": "만선(낚시특성)",  "category": "badge", "painter": "skill-manseon", "seed": 1}
+    {"id": "skill_manseon", "name": "만선(낚시특성)",  "category": "badge", "painter": "skill-manseon", "seed": 1},
+    {"id": "ui_menu_backpack", "name": "가상창고", "category": "prop", "source": "imagegen-backpack/ui_menu_backpack_native.png", "pipeline": "copy_native"},
+    {"id": "portable_bundle", "name": "휴대용 꾸러미", "category": "prop", "source": "imagegen-backpack/portable_bundle_native.png", "pipeline": "copy_native"},
+    {"id": "ui_scroll_warp_spawn", "name": "스폰 도시 이동 스크롤", "category": "prop", "source": "imagegen-warp/ui_scroll_warp_spawn_native.png", "pipeline": "copy_native"},
+    {"id": "ui_scroll_warp_desert", "name": "사막마을 이동 스크롤", "category": "prop", "source": "imagegen-warp/ui_scroll_warp_desert_native.png", "pipeline": "copy_native"},
+    {"id": "ui_scroll_warp_merchant", "name": "상단마을 이동 스크롤", "category": "prop", "source": "imagegen-warp/ui_scroll_warp_merchant_native.png", "pipeline": "copy_native"},
+    {"id": "ui_scroll_warp_royal", "name": "왕도 이동 스크롤", "category": "prop", "source": "imagegen-warp/ui_scroll_warp_royal_native.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_create", "name": "길드 생성", "category": "prop", "source": "imagegen-guild/ui_guild_create.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_role", "name": "길드 등급 관리", "category": "prop", "source": "imagegen-guild/ui_guild_role.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_settings", "name": "길드 설정", "category": "prop", "source": "imagegen-guild/ui_guild_settings.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_applications", "name": "길드 가입 신청", "category": "prop", "source": "imagegen-guild/ui_guild_applications.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_chat", "name": "길드 채팅 설정", "category": "prop", "source": "imagegen-guild/ui_guild_chat.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_buff", "name": "길드 버프", "category": "prop", "source": "imagegen-guild/ui_guild_buff.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_island_upgrade", "name": "섬 업그레이드", "category": "prop", "source": "imagegen-guild/ui_guild_island_upgrade.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_browse", "name": "길드 둘러보기", "category": "prop", "source": "imagegen-guild/ui_guild_browse.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_quest", "name": "길드 임무", "category": "prop", "source": "imagegen-guild/ui_guild_quest.png", "pipeline": "copy_native"}
   ]
 }

@@ -218,6 +218,84 @@ def skill_manseon(seed=0):
     return im
 
 
+def virtual_storage(seed=0):
+    """가상창고: 정면 수납장 + 세 칸의 보관 슬롯이 보이는 단단한 창고 아이콘."""
+    im = canvas()
+    wood = ramp("8b5a32")
+    dark = ramp("3b2618")
+    brass = ramp("c18a35")
+
+    # 정면 수납장 실루엣 — 휴대용 꾸러미와 겹치지 않는 넓은 직사각형.
+    for y, left, right in ((4, 2, 13), (5, 2, 13), (6, 3, 12),
+                           (7, 3, 12), (8, 3, 12), (9, 3, 12),
+                           (10, 3, 12), (11, 3, 12), (12, 3, 12),
+                           (13, 3, 12), (14, 4, 11)):
+        for x in range(left, right + 1):
+            put(im, x, y, wood[2] if y < 11 else wood[1])
+    selout(im, dark[0], wood[3])
+
+    # 상단 덮개와 안쪽 수납칸.
+    for x in range(3, 13):
+        put(im, x, 5, brass[1])
+    for y in range(7, 12):
+        for x in range(4, 12):
+            put(im, x, y, dark[1])
+    # 세 칸 안의 보관물 — 창고에 실제 아이템이 쌓여 있다는 신호.
+    put(im, 4, 8, "2f6f9a"); put(im, 5, 8, "67c0d0")
+    put(im, 7, 8, "55b45b"); put(im, 8, 8, "9bc65b")
+    put(im, 10, 8, "a93c3b"); put(im, 11, 8, "de6951")
+    for x in (6, 9):
+        for y in range(7, 12):
+            put(im, x, y, dark[2])
+    for x in range(4, 12):
+        put(im, x, 11, brass[1])
+    # 중앙 잠금쇠와 네 모서리 금속점.
+    put(im, 7, 12, brass[2]); put(im, 8, 12, brass[2])
+    put(im, 7, 13, brass[1]); put(im, 8, 13, brass[1])
+    for x, y in ((3, 6), (12, 6), (3, 13), (12, 13)):
+        put(im, x, y, brass[2])
+    return im
+
+
+def portable_bundle(seed=0):
+    """휴대용 꾸러미: 묶음 입구와 밖으로 나온 세 가지 아이템."""
+    im = canvas()
+    cloth = ramp("a65337")
+    rope = ramp("d09a43")
+    dark = ramp("55251d")
+
+    # 주머니 본체 — 가죽 배낭과 달리 입구가 크게 벌어진 묶음.
+    for y, left, right in ((7, 3, 12), (8, 3, 12), (9, 3, 12), (10, 3, 12),
+                           (11, 3, 12), (12, 4, 11), (13, 4, 11), (14, 5, 10)):
+        for x in range(left, right + 1):
+            put(im, x, y, cloth[2] if y < 11 else cloth[1])
+
+    selout(im, dark[0], cloth[3])
+
+    # 벌어진 입구 뒤로 보이는 내용물 — 세 색이 16px에서도 분리되어야 한다.
+    # 파란 두루마리
+    put(im, 5, 2, "2f6f9a"); put(im, 5, 3, "67c0d0"); put(im, 6, 3, "67c0d0")
+    put(im, 6, 4, "2f6f9a"); put(im, 7, 4, "67c0d0")
+    # 초록 잎
+    put(im, 9, 2, "2f874f"); put(im, 9, 3, "55b45b"); put(im, 10, 4, "55b45b")
+    # 붉은 천 조각
+    put(im, 11, 3, "a93c3b"); put(im, 12, 4, "de6951"); put(im, 11, 5, "a93c3b")
+
+    # 벌어진 입구, 접힌 천 날개, 중앙 묶음끈.
+    for x in range(4, 13):
+        put(im, x, 6, dark[1])
+    for x in range(5, 12):
+        put(im, x, 7, cloth[3] if x in (5, 10) else cloth[2])
+    put(im, 4, 7, cloth[2]); put(im, 12, 7, cloth[2])
+    for x in range(4, 12):
+        put(im, x, 8, rope[1])
+    put(im, 7, 8, rope[2]); put(im, 8, 8, rope[2])
+    put(im, 7, 9, rope[1]); put(im, 8, 9, rope[2])
+
+    put(im, 5, 12, rope[1]); put(im, 10, 12, rope[1])
+    return im
+
+
 REGISTRY = {
     "rod-twig":      (rod_twig, {}),
     "rod-bamboo":    (rod_bamboo, {}),
@@ -229,4 +307,6 @@ REGISTRY = {
     "money-medium":  (money_medium, {}),
     "money-large":   (money_large, {}),
     "skill-manseon": (skill_manseon, {}),
+    "virtual-storage": (virtual_storage, {}),
+    "portable-bundle": (portable_bundle, {}),
 }

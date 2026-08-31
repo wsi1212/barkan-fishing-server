@@ -6,6 +6,7 @@ pixel-forge/build.py의 동생. 멱등(재실행 안전). 배포는 별도(deplo
 사용: python3 build.py [--install]
 """
 import json, os, subprocess, sys
+from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ICON_SKILL = os.path.join(HERE, "..", ".claude", "skills", "item-icons", "scripts")
@@ -57,7 +58,9 @@ def main(install=False):
         iid, cat = it["id"], it.get("category", "prop")
         if "source" in it:
             source = os.path.join(HERE, it["source"])
-            if it.get("pipeline") == "imagegen_256":
+            if it.get("pipeline") == "copy_native":
+                base = Image.open(source).convert("RGBA")
+            elif it.get("pipeline") == "imagegen_256":
                 base = imagegen_256_pipeline.prepare(source, size=it.get("size", 256))
             else:
                 base = imagegen_cash.prepare(source)
@@ -92,7 +95,7 @@ def main(install=False):
         else:
             installs.append((iid, f0, False))
 
-        warns = lint(f0, cat, allow_semi)
+        warns = [] if it.get("pipeline") == "copy_native" else lint(f0, cat, allow_semi)
         total_warn += len(warns)
         print(f"{'✓' if not warns else '✗'} {iid} ({it['name']})")
         for w in warns:
