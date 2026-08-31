@@ -129,7 +129,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - **⚠️ 배포 후 서버 풀 재시작 필수** — `/plugman reload`나 실행 중 jar 덮어쓰기는 lazy-load CNFE로 부분 고장 유발(금지). jar 변경은 모아서 한 번에 재시작.
   - **★jar만 올리고 재시작을 미루는 것도 금지** — 중간 상태 자체가 고장이다. 2026-08-03 prod 사고: jar 교체 후 재시작 없이 방치 → `NoClassDefFoundError: WeatherManager$WeatherChoice`로 `/칭호`·계단앉기 등 전방위 고장(3시간 뒤 인지).
   - 3중 방어가 걸려 있다: ① 에이전트 훅 `ops/hooks/guard-live-jar.py` (Claude Code+Codex 양쪽, plugins/ **루트**에 jar 쓰기 차단 — `plugins/<플러그인폴더>/` 데이터는 허용) ② `deploy-blockship.sh`가 JSON 검증 통과 **후**에만 jar 업로드 + dev도 자동 재시작 ③ prod `~/mcserver/scripts/jar-guard.sh` (cron 2분, jar mtime > 서버 시작시각이면 Discord 알림 + 자동 재시작, 30분 쿨다운).
-  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것. **클라우드 세션(폰·웹)은 이 둘을 못 쓴다**(22번 포트 차단) → Actions 승격 경로, 아래 「자동 sync」 참조.
+  - 우회하지 말고 `~/deploy-blockship.sh`(즉시) / `~/stage-blockship.sh`(지연, staging/)를 쓸 것. **넷 다 `ops/` 의 실체를 가리키는 심볼릭링크**이고, 어긋나면 `ops/audit-copies.py` 가 배포를 멈춘다. **클라우드 세션(폰·웹)은 이 둘을 못 쓴다**(22번 포트 차단) → Actions 승격 경로, 아래 「자동 sync」 참조.
 - 빌드+배포 한줄: `cd /Users/user/development/blockship-plugin && ./gradlew build && cp build/libs/BlockShip-1.0.0-SNAPSHOT.jar "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"`
 - 이후 **서버 풀 재시작** (dev=`~/dev-mc.sh restart` — RCON 25575, **feather 미사용** / prod=`sudo systemctl restart mcserver`)
 
@@ -186,7 +186,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 
 ### 자동 sync (옵션 C)
 **BlockShip Java plugin** — 빌드 후 배포 스크립트
-- 위치: `~/deploy-blockship.sh`
+- 위치: `ops/deploy-blockship.sh` (`~/deploy-blockship.sh` 는 여기로 가는 심볼릭링크 — **홈 사본을 따로 만들지 말 것**, 2026-08-31 에 두 벌이 240줄 갈라진 채 서로 다른 게이트를 돌고 있었다)
 - 한 줄 실행: `~/deploy-blockship.sh`
 - 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장. = **즉시 배포**.
 - **지연 배포(스테이징)**: `~/stage-blockship.sh` — 빌드 후 오라클 `~/mcserver/staging/`에 jar만 올리고 재시작 안 함 → **매일 06:00 KST 데일리 유지보수 때 자동 적용**(Mac 꺼져있어도 미리 올려두면 됨). 설정 JSON은 `staging/BlockShip/`에 두면 같이 반영. 무인기간 배포에 적합. 적용 시 구 jar는 `backups/deployed-jars/`에 자동 백업(롤백용). ★자동배포=미검증 jar도 그대로 적용되니 dev 테스트 후 스테이징할 것.
@@ -299,7 +299,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - **소스 위치(★2026-06-06 이후, Downloads 경로는 낡음): `~/development/barkan-resourcepack`** — `~/Downloads/barkan-resourcepack/`은 더 이상 존재하지 않음(TCC가 Downloads/Desktop 재귀읽기 차단해서 이동함).
 - GitHub: `https://github.com/wsi1212/minecraft-fish-resource-pack` (release `latest`에 메인팩 `barkan-resourcepack.zip`+CraftEngine 가구팩 `barkan-furniture.zip` 2개 자산 공존 — `gh release delete` 절대 금지, `--clobber` 업로드만)
 - 서버 자동 적용: `server.properties`에 GitHub Releases URL+SHA1 설정됨 (`require-resource-pack=true`)
-- **맥 즉시 배포: `~/deploy-rp.sh`** (zip 생성 → GitHub Release 업로드 → SHA1 갱신 → server.properties 업데이트) → 서버 재시작하면 접속자에게 자동 적용. zip 파일명은 반드시 `barkan-resourcepack.zip`.
+- **맥 즉시 배포: `ops/rp-deploy.sh <dev|prod> [--restart] [--dry-run]`** — ★진입점은 이 파일 하나다(회귀 가드 20종: 글리프 provider 수·텍스처 존재·pack.mcmeta min/max_format·공개 URL sha1 재확인). `~/deploy-rp.sh` 는 **폐지**됐다 — 검증 없는 생 zip 이라 2026-08-11 에 낡은 스냅샷을 구워 gui 텍스처 761개가 빠진 팩을 prod 에 올렸다. 실행하면 안내만 내고 거부한다.
 - **모바일 배포: 기본은 `develop` → `main` 머지**. `main` push가 자동으로 prod Release를 만들고 `APPLY_NOW`로 적용한다. 수동 실행도 가능하지만 `main`에서만 `promote=true`가 실제 승격으로 동작한다.
 - **커스텀 사운드**: `assets/barkan/sounds.json`에 등록, `assets/barkan/sounds/weather/*.ogg`에 파일 배치
   - ogg (Vorbis) 형식만 지원, wav→ogg 변환: `ffmpeg -i input.wav -c:a libvorbis -q:a 5 output.ogg`
