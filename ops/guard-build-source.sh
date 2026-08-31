@@ -68,8 +68,20 @@ if [ -n "${ALLOW_DIRTY_BUILD:-}" ]; then
   exit 0
 fi
 
-WT="$(mktemp -d "${TMPDIR:-/tmp}/bs-head-XXXXXX")"
-rmdir "$WT"
+# ★경로를 커밋으로 결정한다(mktemp 아님) — 부를 때마다 새 워크트리가 생기면
+#   호출자가 정리를 한 번 빠뜨릴 때마다 쓰레기가 쌓인다(실측: 테스트 2회에 1개 누출).
+#   같은 커밋이면 있는 걸 재사용하므로 몇 번 불러도 하나다.
+WT="${TMPDIR:-/tmp}/bs-head-${HEAD_SHA:0:12}"
+if [ -d "$WT/.git" ] || [ -f "$WT/.git" ]; then
+  if [ "$(git -C "$WT" rev-parse HEAD 2>/dev/null)" = "$HEAD_SHA" ]; then
+    say "  ✓ 기존 HEAD 워크트리 재사용 (${HEAD_SHA:0:12})"
+    printf 'BUILD_DIR=%q\nBUILD_COMMIT=%q\nBUILD_WORKTREE=%q\n' "$WT" "$HEAD_SHA" "$WT"
+    exit 0
+  fi
+  git -C "$SRC" worktree remove --force "$WT" >/dev/null 2>&1
+fi
+git -C "$SRC" worktree prune >/dev/null 2>&1
+rm -rf "$WT"
 if ! git -C "$SRC" worktree add --detach --quiet "$WT" HEAD 2>/dev/null; then
   say "❌ HEAD 워크트리 생성 실패: $WT"
   exit 1
