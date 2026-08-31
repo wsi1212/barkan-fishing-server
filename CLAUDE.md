@@ -196,7 +196,9 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - 동작: 로컬 빌드 → SCP로 오라클 plugins/ 업로드 → SSH로 **`systemctl restart mcserver` (전체 재시작)**. ★plugman reload 아님(위 라인 100 규칙대로 금지 — 클래스로더 손상). 접속자 없을 때 실행 권장. = **즉시 배포**.
 - **지연 배포(스테이징)**: `~/stage-blockship.sh` — 빌드 후 오라클 `~/mcserver/staging/`에 jar만 올리고 재시작 안 함 → **매일 06:00 KST 데일리 유지보수 때 자동 적용**(Mac 꺼져있어도 미리 올려두면 됨). 설정 JSON은 `staging/BlockShip/`에 두면 같이 반영. 무인기간 배포에 적합. 적용 시 구 jar는 `backups/deployed-jars/`에 자동 백업(롤백용). ★자동배포=미검증 jar도 그대로 적용되니 dev 테스트 후 스테이징할 것.
 - **클라우드 세션(폰·웹 Claude Code)에서 배포** — 위 두 스크립트는 **맥 전용**이다(SSH 키가 맥에만 있고, 클라우드 컨테이너는 **22번 포트 egress가 원천 차단**이라 키를 넣어도 SSH가 안 된다. 하네스가 git SSH URL도 HTTPS로 재작성한다). 대신 **당겨오는 경로**를 쓴다 — GitHub Actions `blockship-smoke.yml`을 수동 실행:
-  - `promote=true` → 빌드+부팅스모크 통과 시 Release 발행 → prod가 당겨 `staging/` → **06:00 적용**
+  - `promote=true` → **콘텐츠 게이트 3종**(퀘스트감사·굵은포맷·타임존) + 빌드 + 부팅스모크 통과 시 Release 발행 → prod가 당겨 `staging/` → **06:00 적용**. 게이트는 빌드보다 «먼저» 돈다.
+    - 이 3종은 플러그인 소스·데이터만 보므로 CI 에서 돌 수 있다. 스크립트는 `blockship-plugin/tools/` 에 **한 벌만** 둔다(scripts 레포에 사본을 만들면 CI 와 맥이 다른 규칙을 돈다 — `ops/audit-copies.py` 검사 ⑤ 가 잡는다).
+    - 라이브 인스턴스 데이터가 필요한 게이트(사본드리프트·목표id대조·NPC대사·staged JSON)는 맥 경로가 맡는다.
   - `apply_now=true` → Release 본문에 `APPLY_NOW` 마커 → prod가 당겨오는 **즉시 적용+재시작**(최대 지연 = cron `*/5`). promote도 켜진 것으로 본다.
   - GitHub은 **MCP 도구로만** 다룬다(셸에서 `api.github.com` 직접 호출은 403). 절차·함정은 스킬 `deploy-prod` 참조.
 
