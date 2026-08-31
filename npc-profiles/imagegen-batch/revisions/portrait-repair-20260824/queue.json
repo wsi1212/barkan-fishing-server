@@ -1,0 +1,435 @@
+{
+  "version": 1,
+  "queue": [
+    {
+      "citizensId": 45,
+      "npc": "대사서",
+      "skin": "archivist",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/archivist.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/archivist.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 45 (대사서, display label &a[Q] 왕립 대사서). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: elderly male archivist; short white-gray hair and white-gray beard; absolutely no hat, cap, veil, hood, or head covering; dark navy high-collared scholarly robe.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 58,
+      "npc": "궁정상인",
+      "skin": "valentin",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/valentin.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/valentin.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 58 (궁정상인, display label &a[Q] 궁정 상인 발렌틴). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male court merchant; preserve the actual simple connected green cap/head covering from the skin; no broad straw brim, no dangling fringe, no separated strips; green and cream merchant uniform.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 64,
+      "npc": "시민1",
+      "skin": "cm_pilgrim",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_064_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/cm_pilgrim.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/cm_pilgrim.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 64 (시민1, display label &f순례자). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male pilgrim; brown hair and the actual face from the skin; no long veil or hood framing the face; cream pilgrim clothing with brown trim.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 71,
+      "npc": "세르간",
+      "skin": "tf_sergan",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tf_sergan.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tf_sergan.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 71 (세르간, display label &a[Q] 세르간). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: elderly male; gray hair and the actual cream-brown outfit from the skin; no tall brown hat and no dangling hat tassels.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 73,
+      "npc": "도란",
+      "skin": "tf_doran",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tf_doran.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tf_doran.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 73 (도란, display label &a[Q] 도란). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male; preserve the actual connected simple green cap/head covering; no broad brim and no hanging fringe or piano-key strips; teal-green jacket with gold trim.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 74,
+      "npc": "노인",
+      "skin": "elder_fisher",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/elder_fisher.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/elder_fisher.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 74 (노인, display label &a[Q] 어부 노인). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: elderly male fisher; preserve the actual olive-green connected hood/cap; no white-and-brown cube hat and no detached brim pieces; brown field coat.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 78,
+      "npc": "사피르",
+      "skin": "df_safir",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/df_safir.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/df_safir.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 78 (사피르, display label &a[Q] 사피르). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male desert traveler; preserve the actual simple brown/orange connected cap; no white tassel fringe or broad decorative brim; orange-brown and cream clothing.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 80,
+      "npc": "카림",
+      "skin": "df_karim",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/df_karim.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/df_karim.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 80 (카림, display label &a[Q] 대장장이 카림). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male desert traveler; dark hair and the actual simple brown head covering; no white hanging fringe, no long veil; brown scarf and gray-beige clothing.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 81,
+      "npc": "할릴",
+      "skin": "df_halil",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/df_halil.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/df_halil.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 81 (할릴, display label &a[Q] 할릴). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male desert traveler; preserve the actual simple tan connected cap; no white tassel fringe; olive robe and cream scarf.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 91,
+      "npc": "마시모",
+      "skin": "tt_massimo",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_091_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tt_massimo.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tt_massimo.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 91 (마시모, display label 마시모). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male with gray hair; absolutely no straw hat; preserve the actual beige shirt and brown apron/work clothing from the skin.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 93,
+      "npc": "베아트리체",
+      "skin": "beatrice",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_093_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/beatrice.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/beatrice.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 93 (베아트리체, display label 베아트리체). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult woman matching the beatrice skin: warm brown hair with the small pink-red accent visible on the skin, green eyes, and the actual green-and-cream dress/waistcoat with brown sleeves; absolutely not an elderly white-haired bearded man.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 113,
+      "npc": "유누스",
+      "skin": "df_yunus",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/df_yunus.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/df_yunus.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 113 (유누스, display label &a[Q] 유누스). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male desert traveler; preserve the actual simple connected green cap/head covering; no wide straw brim and no hanging fringe; cream robe with green band.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 119,
+      "npc": "로테",
+      "skin": "lotte",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_119_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/lotte.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/lotte.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 119 (로테, display label &b[유저마켓] 로테). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male with long brown hair; no brown flat cap; preserve the actual purple coat and light shirt.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 121,
+      "npc": "알브레히트",
+      "skin": "albrecht",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_121_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/albrecht.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/albrecht.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 121 (알브레히트, display label &b[말 대여] 알브레히트). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: middle-aged male with brown hair and mustache; no black beret; preserve the actual brown military uniform and high collar.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 134,
+      "npc": "랄프",
+      "skin": "tf_ralf",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_134_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tf_ralf.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tf_ralf.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 134 (랄프, display label 랄프). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male with brown hair; no baseball cap or other cap; preserve the actual brown-olive worker jacket and collar.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 136,
+      "npc": "미아",
+      "skin": "tf_mia",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_136_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tf_mia.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tf_mia.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 136 (미아, display label 미아). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult female with long vivid orange hair; no large orange wide-brim hat; preserve the actual dark green work dress/apron and face.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 142,
+      "npc": "라시드",
+      "skin": "df_rashid_inn",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_142_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/df_rashid_inn.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/df_rashid_inn.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 142 (라시드, display label &b[여관] 라시드). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male with brown hair; preserve the actual simple light cloth cap/head covering; no dangling tassel ornament; red and cream uniform.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 146,
+      "npc": "촌장",
+      "skin": "tf_chief",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_146_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/tf_chief.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/tf_chief.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 146 (촌장, display label &b[바르칸 항구 퀘스트] 종지기). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: elderly male with gray hair and beard; absolutely no dark cylindrical hat; preserve the actual navy uniform with gold trim.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 151,
+      "npc": "로자",
+      "skin": "cm_rosa_garden",
+      "states": [
+        "base"
+      ],
+      "layout": "single",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_151_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/cm_rosa_garden.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/cm_rosa_garden.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 151 (로자, display label &a[Q] 정원사 로자). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult or elderly female with long white-gray hair and braids; no giant rectangular headpiece; preserve the actual green and red gardener clothing.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: single. Create exactly 1 portrait panel(s), in this order: base. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 154,
+      "npc": "도박꾼자히르",
+      "skin": "gm_whale",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/gm_whale.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/gm_whale.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 154 (도박꾼자히르, display label &a[Q] 큰손 자히르). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male gambler with brown hair; no brown cap; preserve the actual burgundy and cream gambler jacket.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 155,
+      "npc": "도박꾼엘리아스",
+      "skin": "gm_sharp",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/gm_sharp.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/gm_sharp.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 155 (도박꾼엘리아스, display label &a[Q] 노름꾼 엘리아스). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male gambler with dark hair; no wide-brim black hat; preserve the actual burgundy and cream gambler clothing.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 156,
+      "npc": "도박꾼달리아",
+      "skin": "gm_addict",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/gm_addict.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/gm_addict.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 156 (도박꾼달리아, display label &a[Q] 달리아). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: young adult male with brown hair; no straw hat; preserve the actual burgundy coat and light shirt.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 157,
+      "npc": "도박꾼테오",
+      "skin": "gm_ruined",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/gm_ruined.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/gm_ruined.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 157 (도박꾼테오, display label &a[Q] 빈털터리 테오). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male with gray-brown hair; no bucket hat; preserve the actual light jacket, pale shirt, and dark trousers.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 158,
+      "npc": "알비스",
+      "skin": "albis",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/albis.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/albis.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 158 (알비스, display label &a[Q] 알비스). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: elderly or mature character matching the skin exactly; preserve the actual connected dark navy head covering/hood and navy uniform; no giant white cylindrical hat, no detached rear ornament.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    },
+    {
+      "citizensId": 172,
+      "npc": "근위병",
+      "skin": "rainer",
+      "states": [
+        "base",
+        "progress",
+        "complete"
+      ],
+      "layout": "grid2x2",
+      "references": [
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_base.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/identity/rainer.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/skin-forge/out/rainer.png",
+        "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/references/otto-imagegen-style-reference.png"
+      ],
+      "prompt": "Use case: precise-object-edit. Asset type: Minecraft server BetterHUD dialogue portrait.\n\nImage 1 is the current portrait edit target for NPC CID 172 (근위병, display label &a[Q] 근위병 라이너). Preserve its rich hand-crafted pixel-art style, expressive face, detailed clustered pixels, three-quarter bust composition, outline quality, and readable clothing construction. Image 2 is the authoritative identity board when present, Image 3 is the authoritative 64x64 Minecraft skin, and Image 4 is the approved pixel-art style reference. The skin and identity board are factual authority for identity and headwear; Image 1 is the authority for the finished portrait language.\n\nCharacter identity and correction: adult male guard with short brown hair; absolutely no hat or head covering; preserve the actual gray shoulder armor, green tabard, and small gold cross.\nPerform a targeted correction, not a generic Minecraft redraw. Preserve the detailed face and clothing style from Image 1 while correcting the wrong person/headwear using Images 2 and 3. Headwear, when present, must be one physically connected continuous object following the head silhouette: no floating strips, no broken brim, no piano-key teeth, no disconnected tassels, no accidental extra hat. If the skin has no headwear, reveal the actual hair and do not add any.\n\nOutput: grid2x2. Create exactly 3 portrait panel(s), in this order: base, progress, complete. For a grid2x2 sheet, place panels in reading order with the unused fourth tile completely empty. No labels, borders, text, UI, props, watermark, or extra characters. Each panel is a consistent three-quarter waist-up bust with shoulders visible, no feet, transparent-looking flat chroma background, and the same head size and framing across states. State directions: base: natural neutral greeting expression; progress: attentive, explaining or concerned expression; complete: warm satisfied expression acknowledging the player's success.\n\nStyle: premium hand-crafted pixel-art game portrait, crisp clustered pixels, restrained medieval palette, clean dark outline, controlled material shading, readable at small HUD size. Do not simplify the face into a flat blocky Minecraft caricature. Backdrop: perfectly flat solid #00ff00 chroma-key only; no gradient, floor, shadow, reflection, or texture. Do not use #00ff00 in the character."
+    }
+  ]
+}

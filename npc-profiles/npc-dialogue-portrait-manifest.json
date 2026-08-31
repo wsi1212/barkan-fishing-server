@@ -579,17 +579,17 @@
         "base": {
           "key": "045_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch04-skin-confirmed/framed/045_대사서.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/045_base.png"
         },
         "progress": {
           "key": "045_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/045_대사서/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/045_progress.png"
         },
         "complete": {
           "key": "045_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_045_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase01/045_대사서/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/045_complete.png"
         }
       }
     },
@@ -865,17 +865,17 @@
         "base": {
           "key": "058_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/058_궁정상인.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/058_base.png"
         },
         "progress": {
           "key": "058_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/058_궁정상인/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/058_progress.png"
         },
         "complete": {
           "key": "058_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_058_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase02/058_궁정상인/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/058_complete.png"
         }
       }
     },
@@ -977,7 +977,7 @@
         "base": {
           "key": "064_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_064_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch06-skin-confirmed/framed/064_시민1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/064_base.png"
         }
       }
     },
@@ -1071,17 +1071,17 @@
         "base": {
           "key": "071_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/071_세르간.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/071_base.png"
         },
         "progress": {
           "key": "071_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/071_세르간/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/071_progress.png"
         },
         "complete": {
           "key": "071_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_071_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/071_세르간/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/071_complete.png"
         }
       }
     },
@@ -1115,17 +1115,17 @@
         "base": {
           "key": "073_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/073_도란.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/073_base.png"
         },
         "progress": {
           "key": "073_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/073_도란/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/073_progress.png"
         },
         "complete": {
           "key": "073_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_073_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/073_도란/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/073_complete.png"
         }
       }
     },
@@ -1137,17 +1137,17 @@
         "base": {
           "key": "074_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch07-skin-confirmed/framed/074_노인.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/074_base.png"
         },
         "progress": {
           "key": "074_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/074_노인/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/074_progress.png"
         },
         "complete": {
           "key": "074_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_074_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase03/074_노인/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/074_complete.png"
         }
       }
     },
@@ -1225,17 +1225,17 @@
         "base": {
           "key": "078_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/078_사피르.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/078_base.png"
         },
         "progress": {
           "key": "078_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/078_사피르_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/078_progress.png"
         },
         "complete": {
           "key": "078_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_078_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/078_사피르_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/078_complete.png"
         }
       }
     },
@@ -1269,17 +1269,17 @@
         "base": {
           "key": "080_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/080_카림.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/080_base.png"
         },
         "progress": {
           "key": "080_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/080_카림/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/080_progress.png"
         },
         "complete": {
           "key": "080_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_080_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/080_카림/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/080_complete.png"
         }
       }
     },
@@ -1291,17 +1291,17 @@
         "base": {
           "key": "081_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch08-skin-confirmed/framed/081_할릴.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/081_base.png"
         },
         "progress": {
           "key": "081_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/081_할릴/framed/progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/081_progress.png"
         },
         "complete": {
           "key": "081_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_081_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase04/081_할릴/framed/complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/081_complete.png"
         }
       }
     },
@@ -1441,7 +1441,7 @@
         "base": {
           "key": "091_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_091_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/091_마시모.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/091_base.png"
         }
       }
     },
@@ -1465,7 +1465,7 @@
         "base": {
           "key": "093_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_093_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch09-skin-confirmed/framed/093_베아트리체.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/093_base.png"
         }
       }
     },
@@ -1795,17 +1795,17 @@
         "base": {
           "key": "113_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/113_base_monoheadwear_v1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/113_base.png"
         },
         "progress": {
           "key": "113_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/113_유누스_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/113_progress.png"
         },
         "complete": {
           "key": "113_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_113_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase05/transparent/113_유누스_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/113_complete.png"
         }
       }
     },
@@ -1907,7 +1907,7 @@
         "base": {
           "key": "119_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_119_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/119_base_monoheadwear_v1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/119_base.png"
         }
       }
     },
@@ -1931,7 +1931,7 @@
         "base": {
           "key": "121_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_121_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/121_base_monoheadwear_v1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/121_base.png"
         }
       }
     },
@@ -1979,7 +1979,7 @@
         "base": {
           "key": "134_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_134_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/134_base_monoheadwear_v1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/134_base.png"
         }
       }
     },
@@ -2013,7 +2013,7 @@
         "base": {
           "key": "136_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_136_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/regeneration-20260812/transparent/136_base_monoheadwear_v1.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/136_base.png"
         }
       }
     },
@@ -2095,7 +2095,7 @@
         "base": {
           "key": "142_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_142_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/142_라시드.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/142_base.png"
         }
       }
     },
@@ -2119,7 +2119,7 @@
         "base": {
           "key": "146_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_146_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch13-skin-confirmed/framed/146_촌장.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/146_base.png"
         }
       }
     },
@@ -2167,7 +2167,7 @@
         "base": {
           "key": "151_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_151_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/151_로자.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/151_base.png"
         }
       }
     },
@@ -2201,17 +2201,17 @@
         "base": {
           "key": "154_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/154_도박꾼자히르.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/154_base.png"
         },
         "progress": {
           "key": "154_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/154_도박꾼자히르_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/154_progress.png"
         },
         "complete": {
           "key": "154_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_154_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/154_도박꾼자히르_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/154_complete.png"
         }
       }
     },
@@ -2223,17 +2223,17 @@
         "base": {
           "key": "155_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/155_도박꾼엘리아스.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/155_base.png"
         },
         "progress": {
           "key": "155_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/155_도박꾼엘리아스_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/155_progress.png"
         },
         "complete": {
           "key": "155_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_155_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/155_도박꾼엘리아스_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/155_complete.png"
         }
       }
     },
@@ -2245,17 +2245,17 @@
         "base": {
           "key": "156_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/156_도박꾼달리아.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/156_base.png"
         },
         "progress": {
           "key": "156_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/156_도박꾼달리아_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/156_progress.png"
         },
         "complete": {
           "key": "156_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_156_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/156_도박꾼달리아_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/156_complete.png"
         }
       }
     },
@@ -2267,17 +2267,17 @@
         "base": {
           "key": "157_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/157_도박꾼테오.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/157_base.png"
         },
         "progress": {
           "key": "157_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/157_도박꾼테오_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/157_progress.png"
         },
         "complete": {
           "key": "157_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_157_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/157_도박꾼테오_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/157_complete.png"
         }
       }
     },
@@ -2289,17 +2289,17 @@
         "base": {
           "key": "158_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch14-skin-confirmed/framed/158_알비스.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/158_base.png"
         },
         "progress": {
           "key": "158_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/158_알비스_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/158_progress.png"
         },
         "complete": {
           "key": "158_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_158_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase06/transparent/158_알비스_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/158_complete.png"
         }
       }
     },
@@ -2485,17 +2485,17 @@
         "base": {
           "key": "172_base",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_base.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/style-test/batch16-skin-confirmed/framed/172_근위병.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/172_base.png"
         },
         "progress": {
           "key": "172_progress",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_progress.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase07/transparent/172_근위병_progress.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/172_progress.png"
         },
         "complete": {
           "key": "172_complete",
           "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_172_complete.png",
-          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/emotions/phase07/transparent/172_근위병_complete.png"
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/revisions/portrait-repair-20260824/transparent/172_complete.png"
         }
       }
     },
