@@ -182,9 +182,12 @@ RP `assets/minecraft/textures/item/card/{s,h,d,c}_{6,9}.png` (8장).
 
 ## 작업 8 — 화투 텍스처 리얼리티 개선
 
-**대상**: 14장 — `hw_1`~`hw_10`(각 월 일반패), `hw_1g`/`hw_3g`/`hw_8g`(광),
-`hw_back`. 생성기 `casino-tools/gen_cards.py` 화투 섹션.
-(모델 id 규약: CardDisplayService.modelOf → `hw_<월>` / `hw_<월>g`.)
+**대상**: 실제 섯다 20장 앞면 + `hw_back` 뒷면 — 20장 섯다는 피를 제외하고
+광·열끗·띠를 사용한다. `hw_1g`/`hw_3g`/`hw_8g`는 광, 4월·9월의 A 패와
+8월의 B 패는 띠 없는 열끗(멍텅구리 구사에 쓰이는 4·9 포함), 나머지 B 패는 띠다.
+생성기에는 월별 원화 비교용 A/B 패널도 함께 남긴다.
+생성기 `casino-tools/gen_cards.py` 화투 섹션.
+(모델 id 규약: CardDisplayService.modelOf → `hw_<월>` / `hw_<월>b` / `hw_<월>g`.)
 
 **실제 화투 도상(이대로 그릴 것)** — 배경 흰색(약간 아이보리), 테두리 검정 두껍게,
 모서리 라운드, 뒷면은 무광 빨강 단색+가는 검정 테:
