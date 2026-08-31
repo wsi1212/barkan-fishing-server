@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071829">
+  <meta name="description" content="바르칸 열도 공식 법전 — 모두가 안전하게 항해하기 위한 서버 이용규칙">
+  <title>법전 — 바르칸 열도</title>
+  <style>
+    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:swap}
+    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-medium.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+    @font-face{font-family:"Barkan Aggro";src:url("/assets/barkan-aggro-bold.ttf") format("truetype");font-weight:700 900;font-style:normal;font-display:swap}
+    :root{--ink:#071829;--deep:#0b2438;--panel:#102f45;--panel-2:#123a4d;--foam:#edf7f6;--mist:#abc4cd;--faint:#7895a1;--tide:#8ce2e0;--gold:#ffd170;--red:#f29b8b;--line:rgba(210,238,238,.15);--soft-line:rgba(210,238,238,.09)}
+    *{box-sizing:border-box}
+    html{background:var(--ink);scroll-behavior:smooth}
+    body{min-width:320px;margin:0;background:radial-gradient(1000px 560px at 78% -170px,#1d5d73 0%,rgba(22,69,91,.28) 42%,transparent 74%),var(--ink);color:var(--foam);font:15px/1.7 "Barkan Aggro","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+    a{color:inherit}
+    button,input{font:inherit}
+    .shell{width:min(1180px,calc(100% - 48px));margin:auto}
+    .masthead{padding:73px 0 48px;border-bottom:1px solid var(--line)}
+    .kicker{margin:0 0 13px;color:var(--tide);font-size:11px;font-weight:900;letter-spacing:.2em}
+    .masthead h1{max-width:800px;margin:0;font-size:clamp(3.1rem,7vw,6.4rem);font-weight:500;letter-spacing:-.07em;line-height:.96;word-break:keep-all;text-wrap:balance}
+    .masthead h1 em{color:var(--gold);font-style:normal}
+    .masthead-lead{max-width:560px;margin:22px 0 0;color:var(--mist);font-size:16px}
+    .masthead-meta{display:flex;flex-wrap:wrap;gap:0;margin:31px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .masthead-meta div{min-width:170px;padding:14px 22px 14px 0;border-right:1px solid var(--soft-line)}
+    .masthead-meta div+div{padding-left:22px}
+    .masthead-meta div:last-child{border-right:0}
+    .masthead-meta b{display:block;color:var(--gold);font-size:16px;font-weight:500}
+    .masthead-meta span{display:block;margin-top:2px;color:var(--faint);font-size:11px}
+    .law-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:42px;padding:45px 0 104px}
+    .toc{position:sticky;top:24px;height:max-content;padding:5px 0;border-left:1px solid var(--line)}
+    .toc strong{display:block;padding:0 17px 11px;color:#8eabb5;font-size:10px;letter-spacing:.17em}
+    .toc a{display:block;padding:8px 17px;border-left:2px solid transparent;color:#c4d7dc;font-size:13px;text-decoration:none;transition:background .18s ease,color .18s ease,border-color .18s ease}
+    .toc a:hover,.toc a:focus-visible{border-left-color:var(--gold);background:rgba(255,209,112,.07);color:#fff}
+    .toc .toc-note{margin:16px 17px 0;padding-top:14px;border-top:1px solid var(--soft-line);color:var(--faint);font-size:11px;line-height:1.55}
+    .content-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:0 0 19px}
+    .content-head h2{margin:0;font-size:29px;font-weight:500;letter-spacing:-.06em}
+    .content-head p{margin:0;color:var(--faint);font-size:12px}
+    .quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:38px}
+    .quick{display:block;padding:17px 16px;border:1px solid var(--line);border-radius:9px;background:linear-gradient(145deg,rgba(21,58,78,.72),rgba(8,26,42,.72));text-decoration:none;transition:border-color .18s ease,transform .18s ease}
+    .quick:hover{border-color:rgba(140,226,224,.62);transform:translateY(-2px)}
+    .quick b{display:block;color:var(--gold);font-size:11px;letter-spacing:.12em}
+    .quick span{display:block;margin-top:5px;color:#d9e9ea;font-size:13px}
+    .notice{margin:0 0 35px;padding:17px 19px;border-left:3px solid var(--gold);background:rgba(255,209,112,.08);color:#d7e5e8;font-size:13px}
+    .notice b{color:#ffe1a1}
+    .field-guide{margin:-8px 0 35px;padding:18px;border:1px solid rgba(140,226,224,.2);border-radius:10px;background:linear-gradient(145deg,rgba(16,55,71,.58),rgba(6,22,36,.5))}
+    .field-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;margin-bottom:13px}
+    .field-head b{color:var(--tide);font-size:14px;font-weight:500}
+    .field-head span{color:var(--faint);font-size:11px}
+    .field-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .field-card{padding:12px;border:1px solid rgba(213,240,242,.11);border-radius:7px;background:rgba(3,15,27,.35)}
+    .field-card b{display:block;margin-bottom:6px;color:#e5f5f4;font-size:13px;font-weight:500}
+    .field-card p{margin:3px 0 0;color:#b9cdd2;font-size:12px;line-height:1.5}
+    .allowed,.forbidden{display:inline-block;margin-right:4px;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.02em}
+    .allowed{background:rgba(140,226,224,.13);color:var(--tide)}
+    .forbidden{background:rgba(242,155,139,.13);color:var(--red)}
+    .chapter{padding:31px 0 35px;border-top:1px solid var(--line);scroll-margin-top:24px}
+    .chapter:first-of-type{padding-top:8px;border-top:0}
+    .chapter-head{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+    .chapter-no{color:var(--gold);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:700;letter-spacing:.12em}
+    .chapter h2{margin:0;color:var(--foam);font-size:26px;font-weight:500;letter-spacing:-.06em}
+    .article{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:11px}
+    .article-card{padding:18px;border:1px solid rgba(213,240,242,.13);border-radius:9px;background:rgba(6,19,32,.43)}
+    .article-card.wide{grid-column:1/-1}
+    .article-card h3{margin:0 0 8px;color:var(--tide);font-size:15px;font-weight:500;letter-spacing:-.025em}
+    .article-card p{margin:0;color:#bed0d5;font-size:13px}
+    .article-card p+p{margin-top:10px}
+    .article-card ul,.article-card ol{margin:8px 0 0;padding-left:19px;color:#bed0d5;font-size:13px}
+    .article-card li+li{margin-top:6px}
+    .article-card li::marker{color:var(--gold)}
+    .article-card .subtle{color:#8faab3;font-size:12px}
+    .code{display:inline-block;margin:0 2px;padding:1px 6px;border:1px solid rgba(255,209,112,.26);border-radius:4px;background:rgba(255,209,112,.08);color:#ffe1a1;font-size:12px}
+    .law-table{width:100%;margin:7px 0 0;border-collapse:collapse;font-size:13px}
+    .law-table th,.law-table td{padding:11px 12px;border:1px solid rgba(213,240,242,.15);text-align:left;vertical-align:top}
+    .law-table th{background:rgba(140,226,224,.1);color:#dffafa;font-size:12px;font-weight:500}
+    .law-table td{color:#bfd2d7}
+    .law-table tr:nth-child(even) td{background:rgba(5,18,31,.3)}
+    .severity{display:inline-block;min-width:43px;margin-right:4px;padding:2px 6px;border-radius:4px;text-align:center;font-size:11px;font-weight:700}
+    .severity.s1{background:rgba(140,226,224,.12);color:var(--tide)}
+    .severity.s2{background:rgba(255,209,112,.12);color:var(--gold)}
+    .severity.s3{background:rgba(242,155,139,.12);color:var(--red)}
+    .report-box{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:12px}
+    .report-link{display:flex;min-height:100%;align-items:center;justify-content:space-between;gap:12px;padding:18px;border:1px solid rgba(140,226,224,.26);border-radius:9px;background:rgba(140,226,224,.06);color:#c9e9ec;text-decoration:none;font-size:13px}
+    .report-link:hover{border-color:var(--gold);color:#ffe1a1}
+    .report-link span{color:var(--gold);font-size:18px}
+    .report-template{margin:12px 0 0;padding:13px 15px;border:1px solid rgba(213,240,242,.12);border-radius:7px;background:rgba(3,15,27,.5);color:#b9cdd2;font:12px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}
+    .footer{padding:38px 0 53px;border-top:1px solid var(--line);background:#050f1d}
+    .footer-inner{display:flex;align-items:end;justify-content:space-between;gap:24px}
+    .brand{color:var(--foam);line-height:1;text-decoration:none}.brand strong{display:block;font-size:20px;font-weight:800;letter-spacing:.15em}.brand small{display:block;margin-top:7px;color:var(--gold);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:8px;font-weight:700;letter-spacing:.22em}
+    .footer p{margin:7px 0 0;color:#7896a5;font-size:12px}
+    .footer-links{display:flex;gap:18px}.footer-links a{color:#bcd5dd;font-size:13px;text-decoration:none}.footer-links a:hover{color:var(--gold)}
+    @media(max-width:800px){.shell{width:min(100% - 28px,620px)}.masthead{padding:52px 0 36px}.masthead h1{font-size:clamp(3rem,15vw,4.8rem)}.masthead-lead{font-size:14px}.masthead-meta{display:grid;grid-template-columns:repeat(2,1fr)}.masthead-meta div{min-width:0;padding:13px 12px 13px 0}.masthead-meta div+div{padding-left:12px}.masthead-meta div:nth-child(2){border-right:0}.masthead-meta div:nth-child(3){padding-left:0;border-top:1px solid var(--soft-line)}.masthead-meta div:nth-child(4){border-top:1px solid var(--soft-line)}.law-layout{display:block;padding-top:29px}.toc{position:static;display:flex;gap:6px;margin:0 0 30px;padding:0;overflow:auto;border:0}.toc strong,.toc .toc-note{display:none}.toc a{width:auto;flex:none;padding:8px 12px;border:1px solid var(--line);border-radius:999px;white-space:nowrap}.toc a:hover,.toc a:focus-visible{border-color:var(--gold)}.content-head{display:block}.content-head p{margin-top:5px}.quick-grid{grid-template-columns:1fr;margin-bottom:30px}.field-head{display:block}.field-head span{display:block;margin-top:4px}.field-grid{grid-template-columns:repeat(2,1fr)}.article,.report-box{grid-template-columns:1fr}.article-card.wide{grid-column:auto}.chapter{padding:26px 0 29px}.chapter h2{font-size:23px}.law-table{font-size:12px}.law-table th,.law-table td{padding:8px}.footer-inner{display:block}.footer-links{margin-top:18px}}
+    @media(max-width:480px){.field-grid{grid-template-columns:1fr}}
+  </style>
+  <script src="assets/site-nav.js?v=8" defer></script>
+</head>
+<body>
+  <div class="shell"><div data-site-nav></div></div>
+  <header class="shell masthead">
+    <p class="kicker">BARKAN ISLANDS · COMMUNITY CODE</p>
+    <h1>함께 항해하기 위한<br><em>바르칸 법전.</em></h1>
+    <p class="masthead-lead">모두가 안심하고 낚시하고, 거래하고, 섬을 꾸릴 수 있도록 바르칸 열도의 약속을 한곳에 모았습니다. 서버·웹사이트·공식 커뮤니티에 참여할 때 이 법전을 따라 주세요.</p>
+    <div class="masthead-meta" aria-label="법전 정보">
+      <div><b>제1판</b><span>현행 법전</span></div>
+      <div><b>2026.08.26</b><span>시행일</span></div>
+      <div><b>게임 · 웹 · 커뮤니티</b><span>적용 범위</span></div>
+      <div><b>운영진</b><span>해석·집행 주체</span></div>
+    </div>
+  </header>
+
+  <main class="shell law-layout">
+    <aside class="toc" aria-label="법전 목차">
+      <strong>CODE INDEX</strong>
+      <a href="#ch1">제1장 기본 원칙</a>
+      <a href="#ch2">제2장 항해자의 권리</a>
+      <a href="#ch3">제3장 소통과 매너</a>
+      <a href="#ch4">제4장 공정 플레이</a>
+      <a href="#ch5">제5장 경제와 거래</a>
+      <a href="#ch6">제6장 세계와 재산</a>
+      <a href="#ch7">제7장 운영과 제재</a>
+      <a href="#ch8">제8장 신고와 이의제기</a>
+      <p class="toc-note">마지막 확인<br>2026년 8월 26일</p>
+    </aside>
+
+    <section>
+      <div class="content-head"><h2>바르칸의 약속</h2><p>읽기 전에 제1장과 제7장을 확인해 주세요.</p></div>
+      <div class="quick-grid" aria-label="빠른 이동">
+        <a class="quick" href="#ch3"><b>01 · 함께하기</b><span>채팅과 커뮤니티 매너</span></a>
+        <a class="quick" href="#ch4"><b>02 · 공정함</b><span>핵·버그·자동화 금지</span></a>
+        <a class="quick" href="#ch8"><b>03 · 문제 해결</b><span>신고와 이의제기 방법</span></a>
+      </div>
+      <div class="notice"><b>접속과 이용은 법전 동의를 전제로 합니다.</b> 처음 접속한 순간부터 아래 규칙이 적용됩니다. 상황에 따라 조항이 여러 개 적용될 수 있으며, 운영진은 피해 규모·반복 여부·고의성·협조 여부를 함께 고려해 조치합니다.</div>
+      <div class="field-guide" id="field-guide" aria-label="10초 판정표">
+        <div class="field-head"><b>10초 판정표 · 애매하면 행동을 멈추고 문의하세요</b><span>서버 팁과 실제 운영 기준을 짧게 정리했습니다.</span></div>
+        <div class="field-grid">
+          <div class="field-card"><b>홍보</b><p><span class="allowed">가능</span> 판매글·확성기</p><p><span class="forbidden">금지</span> 일반·지역·길드·귓속말·서버 팁으로 홍보</p></div>
+          <div class="field-card"><b>위치·스포일러</b><p><span class="allowed">가능</span> 직접 탐험하고 기록하기</p><p><span class="forbidden">금지</span> 좌표·경로·지도 표시·지형 단서 공유</p></div>
+          <div class="field-card"><b>거래</b><p><span class="allowed">가능</span> 거래·마켓·송금·수표 확인</p><p><span class="forbidden">금지</span> 먼저 보내기, 허위 약속, 외부 현금 거래</p></div>
+          <div class="field-card"><b>버그</b><p><span class="allowed">가능</span> 즉시 중단하고 신고</p><p><span class="forbidden">금지</span> 분해·판매·복제·타인에게 배포</p></div>
+          <div class="field-card"><b>계정·추천인</b><p><span class="allowed">가능</span> 본인 계정으로 정상 이용</p><p><span class="forbidden">금지</span> 계정 공유·대리·추천인 구매·자기추천</p></div>
+          <div class="field-card"><b>신고</b><p><span class="allowed">가능</span> 닉네임·시간·지역·증거 제출</p><p><span class="forbidden">금지</span> 공개 저격·보복·허위 신고</p></div>
+        </div>
+      </div>
+
+      <section class="chapter" id="ch1">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 01</span><h2>기본 원칙</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제1조 · 목적</h3><p>바르칸 열도는 낚시·탐험·생활 콘텐츠를 함께 즐기는 서버입니다. 이 법전은 플레이어의 권리를 지키고, 공정하고 안전한 플레이 환경을 유지하기 위한 최소 기준입니다.</p></div>
+          <div class="article-card"><h3>제2조 · 적용 범위</h3><p>게임 서버, 개인 섬·길드 섬, 웹사이트, 공식 디스코드와 이벤트 등 바르칸과 연결된 모든 공간에 적용됩니다. 외부에서 시작된 행위라도 바르칸 이용자·재산·운영에 피해를 주면 심사 대상이 될 수 있습니다.</p></div>
+          <div class="article-card wide"><h3>제3조 · 해석의 기준</h3><p>규칙에 적힌 단어만 피해 가는 우회 행위도 금지됩니다. 명시되지 않은 행위라도 버그 악용, 타인 피해, 경제 교란, 서버 성능 저하처럼 법전의 목적을 훼손하면 같은 원칙으로 판단합니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch2">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 02</span><h2>항해자의 권리와 의무</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제4조 · 항해자의 권리</h3><ul><li>핵·사기·괴롭힘 없이 게임을 즐길 권리</li><li>운영 조치에 대한 사유를 확인하고 이의를 제기할 권리</li><li>신고자의 신원을 보호받고 안전하게 문제를 전달할 권리</li><li>서버 변경·점검·경제 조정 등 주요 공지를 확인할 권리</li></ul></div>
+          <div class="article-card"><h3>제5조 · 항해자의 의무</h3><ul><li>자신의 계정과 재산을 안전하게 관리할 의무</li><li>다른 플레이어의 플레이를 방해하지 않을 의무</li><li>오류·버그·비정상 보상을 발견하면 사용을 멈추고 알릴 의무</li><li>운영진의 조사 요청에 사실대로 협조할 의무</li></ul></div>
+          <div class="article-card wide"><h3>제6조 · 계정 책임</h3><p>계정에서 발생한 행위는 원칙적으로 계정 소유자에게 귀속됩니다. 계정 공유·대리 플레이·인증 정보 양도는 금지하며, 제재 회피를 위한 부계정 사용도 금지됩니다. 추천인 보상은 실제로 서버를 소개한 관계에서만 사용하고, 추천인을 게임 재화로 사고팔거나 신규 플레이어에게 강요하거나 부계정으로 자기추천하지 않습니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch3">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 03</span><h2>소통과 매너</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제7조 · 존중</h3><p>욕설·모욕·혐오 표현·성적 괴롭힘·협박·스토킹·개인정보 공개를 금지합니다. 장난이나 친분 관계를 주장하더라도 상대가 원하지 않는 반복적인 놀림과 공격은 괴롭힘으로 판단할 수 있습니다.</p></div>
+          <div class="article-card"><h3>제8조 · 채팅 질서</h3><ul><li>도배는 같은 메시지를 반복하거나, 여러 채널에 같은 홍보를 연달아 올리는 행위를 포함합니다.</li><li>서버 안 판매·모집·이벤트 홍보는 판매글 또는 확성기만 사용하며, 일반·지역·길드·귓속말·서버 팁 메시지로 홍보하지 않습니다. 판매글·확성기를 사용하더라도 반복 도배는 금지됩니다.</li><li>타 서버·상품·커뮤니티 홍보는 운영진이 허용한 범위에서만 합니다.</li><li>운영진·NPC·다른 플레이어를 사칭하지 않습니다.</li><li>공식 채널에 불법·악성 링크나 개인정보를 올리지 않습니다.</li></ul></div>
+          <div class="article-card wide"><h3>제9조 · 분쟁의 공개 확산</h3><p>분쟁이 생겼을 때 공개 채팅에서 신상 공개, 좌표 공유, 집단 공격, 보복 모집을 하지 않습니다. 사실관계와 증거를 정리해 운영 채널로 전달해야 하며, 신고를 빌미로 한 마녀사냥도 같은 기준으로 다뤄집니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch4">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 04</span><h2>공정 플레이</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제10조 · 금지 도구</h3><p>핵 클라이언트, 치트, 비정상 패킷 조작, 매크로, 봇, 자동 입력·자동 사냥 프로그램, 서버가 의도하지 않은 기능을 제공하는 모드를 사용하지 않습니다. 단순 편의 모드라도 결과적으로 자동화하면 금지 대상입니다.</p></div>
+          <div class="article-card"><h3>제11조 · 버그와 복제</h3><p>아이템·돈·경험치·강화·퀘스트·거래의 오류를 알고도 반복 사용하거나 다른 사람에게 공유·판매하지 않습니다. 이미 얻은 비정상 보상은 이동·분해·판매하지 말고 즉시 운영진에게 알립니다.</p><ol><li>오류가 난 화면과 상태를 그대로 둡니다.</li><li>아이템·돈을 옮기거나 다시 실행해 재현하지 않습니다.</li><li>발생 시각·명령어·행동 순서·스크린샷을 신고합니다.</li></ol></div>
+          <div class="article-card"><h3>제12조 · 자리비움과 자동화</h3><p>자리비움 자체를 문제 삼지는 않지만, 매크로·스크립트·자동 입력으로 낚시·채집·광질·이동·거래를 반복하는 행위는 금지됩니다. 서버 부하를 유발하는 무한 루프와 비정상 엔티티 생성도 포함됩니다.</p></div>
+          <div class="article-card"><h3>제13조 · 조사 방해</h3><p>부계정으로 기록을 숨기거나, 로그·증거를 조작하거나, 다른 사람에게 책임을 떠넘기거나, 운영 조치를 피하기 위해 계정을 바꾸는 행위를 하지 않습니다. 제재 회피는 원래 위반보다 무겁게 판단할 수 있습니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch5">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 05</span><h2>경제와 거래</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제14조 · 거래의 확인</h3><p>마켓 등록, 수표, 송금, 아이템 교환은 상대·수량·가격·거래 대상을 확인한 뒤 진행합니다. 가능하면 <span class="code">/거래</span>·<span class="code">/마켓</span>·<span class="code">/송금</span>·<span class="code">/수표</span> 등 서버 내 거래수단을 사용하고, 채팅 약속만으로 급하게 먼저 보내지 않습니다. 운영진은 단순 착오 거래까지 항상 되돌릴 수 없으므로 거래 전 확인 책임을 중요하게 봅니다.</p></div>
+          <div class="article-card"><h3>제15조 · 사기와 기망</h3><p>허위 매물, 거짓 보상 약속, 버그 아이템을 정상 아이템처럼 판매, 거래 후 고의 미지급, 타인 명의 도용을 금지합니다. 예를 들어 “먼저 아이템을 보내면 돈을 주겠다”는 방식으로 받은 뒤 잠적하거나, 실제 거래와 다른 아이템·가격을 보여 주는 행위가 포함됩니다. 피해가 발생하면 거래 화면·채팅·시간·상대 닉네임을 함께 제출해 주세요.</p></div>
+          <div class="article-card wide"><h3>제16조 · 현금 거래와 경제 교란</h3><ul><li>공식 상점이 아닌 외부 현금 거래, 계정·아이템·돈의 현금 대행을 하지 않습니다.</li><li>복제·버그·다계정 파밍으로 서버 경제를 교란하거나 비정상 자산을 유통하지 않습니다.</li><li>공식 캐시·멤버십 상품은 웹사이트의 안내와 결제 절차를 따릅니다.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch6">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 06</span><h2>세계와 재산</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제17조 · 건축물과 아이템</h3><p>다른 플레이어의 건축물·상자·섬·길드 자산을 훼손하거나 훔치거나 무단으로 이동하지 않습니다. 보호 기능이 없다고 해서 소유권이 사라지는 것은 아니며, 허가 없는 점유는 재산 침해로 판단할 수 있습니다.</p></div>
+          <div class="article-card"><h3>제18조 · 잠긴 공간</h3><p>잠긴 문·전용 구역·보호된 섬을 버그, 탈것, 물 텔레포트, 지형 우회 등으로 통과하지 않습니다. 열쇠나 권한을 정상적으로 가진 사람만 이용할 수 있으며, 우회 성공 여부와 관계없이 위반입니다. 잠긴 공간의 열쇠·권한을 복제하거나 다른 사람에게 넘겨 우회하는 행위도 같은 기준으로 봅니다.</p></div>
+          <div class="article-card"><h3>제19조 · 서버 성능</h3><p>과도한 레드스톤, 엔티티, 아이템 바닥, 반복 소리·파티클, 무한 회로 등으로 다른 사람의 접속과 플레이를 방해하지 않습니다. 운영진은 성능 보호를 위해 해당 구조물과 엔티티를 정리할 수 있습니다.</p></div>
+          <div class="article-card"><h3>제20조 · 개인 섬과 길드</h3><p>섬장·길드장 권한을 존중하고, 초대받은 공간에서 허가 범위를 넘는 변경을 하지 않습니다. 수집품·채집품의 위치·좌표·발견 경로를 채팅, 게시판, 길드, 외부 커뮤니티에 공유하지 않습니다. 여기에는 정확한 좌표, F3·지도·스크린샷, 이동 경로, 주변 지형 단서처럼 다른 사람이 위치를 추정할 수 있게 하는 정보도 포함됩니다. 길드 내부 분쟁도 서버 전체 괴롭힘·사기·재산 침해로 이어지면 법전의 적용을 받습니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch7">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 07</span><h2>운영과 제재</h2></div>
+        <div class="article">
+          <div class="article-card wide"><h3>제21조 · 판단 기준</h3><p>제재 수위는 위반 행위의 종류만으로 자동 결정되지 않습니다. 고의성, 피해 규모, 반복 여부, 얻은 이익, 자진 신고 여부, 조사 협조 여부, 이전 기록을 종합합니다. 운영진은 서버 안전을 위해 조사 중 임시 제한을 먼저 적용할 수 있습니다.</p></div>
+          <div class="article-card wide"><h3>제22조 · 조치 단계</h3><table class="law-table"><thead><tr><th>조치</th><th>적용 예시</th><th>비고</th></tr></thead><tbody><tr><td><span class="severity s1">1단계</span>주의·경고</td><td>경미한 매너 위반, 초범의 단순 실수</td><td>재발 시 상위 조치</td></tr><tr><td><span class="severity s1">2단계</span>채팅 제한</td><td>도배, 공격적 언행, 반복 홍보</td><td>전체·길드·귓속말 등 범위별 적용</td></tr><tr><td><span class="severity s2">3단계</span>임시 제한</td><td>반복 위반, 경제 피해, 조사 불응</td><td>기간은 사안별 결정</td></tr><tr><td><span class="severity s3">4단계</span>영구 제한</td><td>치트, 복제, 개인정보 위협, 중대한 사기·괴롭힘, 제재 회피</td><td>필요 시 관련 계정 함께 제한</td></tr><tr><td><span class="severity s2">병행</span>회수·롤백</td><td>비정상 아이템·돈·경험치, 훼손된 재산</td><td>제재와 별개로 피해 복구 목적</td></tr></tbody></table></div>
+          <div class="article-card"><h3>제23조 · 운영진의 권한</h3><p>운영진은 로그·거래 기록·채팅·접속 기록 등 서버 운영에 필요한 자료를 확인할 수 있습니다. 서버 보호를 위해 비정상 아이템의 회수, 거래 취소, 경제 롤백, 접근 제한을 할 수 있습니다.</p></div>
+          <div class="article-card"><h3>제24조 · 업데이트와 공지</h3><p>버그 수정, 경제 밸런스, 콘텐츠 변경으로 세부 기준이 바뀔 수 있습니다. 중요한 변경은 공지하며, 최신 공지와 이 페이지의 현행판을 기준으로 판단합니다.</p></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="ch8">
+        <div class="chapter-head"><span class="chapter-no">CHAPTER 08</span><h2>신고와 이의제기</h2></div>
+        <div class="article">
+          <div class="article-card"><h3>제25조 · 신고 방법</h3><ol><li>디스코드 신고 채널 또는 운영진에게 전달합니다.</li><li>닉네임, 발생 시각, 월드·지역, 상황을 적습니다.</li><li>채팅·거래 화면·영상 등 원본 증거를 첨부합니다.</li><li>상대방을 공개적으로 지목하거나 보복하지 않습니다.</li></ol><pre class="report-template">[유형] 홍보 / 사기 / 버그 / 괴롭힘&#10;[닉네임] 상대방 닉네임&#10;[시각·장소] 2026-00-00 · 월드/지역&#10;[내용] 실제로 일어난 일을 순서대로&#10;[증거] 스크린샷·영상·거래 기록</pre></div>
+          <div class="article-card"><h3>제26조 · 신고의 원칙</h3><p>신고는 처벌을 요구하는 글보다 사실을 확인할 수 있는 기록이어야 합니다. 허위 신고, 증거 조작, 신고를 이용한 협박과 집단 공격은 신고자 본인의 위반으로 처리될 수 있습니다.</p></div>
+          <div class="article-card wide"><h3>제27조 · 이의제기</h3><p>제재를 받은 본인은 제재 사유, 본인 닉네임, 발생 시기, 설명하고 싶은 사실과 증거를 정리해 운영진에게 이의제기할 수 있습니다. 검토 중에는 동일한 행위를 반복하거나 다른 계정으로 우회하지 말아야 하며, 공개 채팅에서 처리 결과를 강요하지 않습니다.</p><div class="report-box"><a class="report-link" href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer"><span>신고·이의제기 채널 열기</span><span aria-hidden="true">→</span></a><div class="report-link"><span>긴급한 개인정보·보안 문제는 즉시 운영진에게 알려 주세요.</span></div></div></div>
+          <div class="article-card wide"><h3>제28조 · 시행</h3><p>이 법전은 2026년 8월 26일부터 시행합니다. 서버에 접속하거나 공식 커뮤니티를 이용하는 것은 현행 법전과 운영 공지에 동의한 것으로 봅니다. 문서에 대한 질문은 디스코드에서 문의해 주세요.</p></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java &amp; Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/law">법전</a><a href="/wiki">위키</a><a href="/ranking">랭킹</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a></div></div></footer>
+</body>
+</html>

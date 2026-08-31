@@ -57,6 +57,12 @@ barkan.kr, www.barkan.kr, barkan.kro.kr {
         file_server
     }
 
+    handle /law* {
+        root * /var/www/barkan/site
+        rewrite * /law.html
+        file_server
+    }
+
     handle /gear* {
         root * /var/www/barkan/site
         rewrite * /gear.html
