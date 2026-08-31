@@ -15,6 +15,7 @@
 #   1) 작업 트리가 더러우면 → **HEAD 워크트리를 자동으로 떠서** 그걸 빌드하게 한다
 #      (지금까지는 세션마다 손으로 `git worktree add` 했다. 그 수고가 규칙을 안 지키는 이유였다.)
 #   2) HEAD 가 upstream 보다 뒤처졌으면 → 거부. 남이 푸시한 커밋이 prod 에서 되돌아간다.
+#   3) 미푸시 커밋이 있으면 → 거부. 폰/CI 승격이 그 작업을 되돌린다(아래 상세).
 #   3) 빌드 스탬프(jar 안 build-stamp.properties)의 commit 이 HEAD 와 같은지 → 배포 후 대조용.
 #
 # 사용:  eval "$(ops/guard-build-source.sh <소스트리>)"
@@ -22,6 +23,7 @@
 #        호출자는 끝나고 BUILD_WORKTREE 가 비어있지 않으면 정리해야 한다.
 # 탈출구: ALLOW_DIRTY_BUILD=1 (더러운 트리를 그대로 빌드 — 긴급용, prod 에 쓰지 말 것)
 #         ALLOW_BEHIND_UPSTREAM=1 (뒤처진 HEAD 를 그대로 빌드)
+#         ALLOW_UNPUSHED=1 (미푸시 커밋을 실어서 빌드 — 폰/CI 가 되돌릴 수 있다)
 set -uo pipefail
 
 SRC="${1:?사용: guard-build-source.sh <소스트리>}"
@@ -49,6 +51,32 @@ if [ -n "$UPSTREAM" ]; then
       say "   이대로 배포하면 남이 푸시한 커밋이 **prod 에서 되돌아갑니다.**"
       say "   먼저:  git -C \"$SRC\" pull --no-rebase   (충돌 나면 해소 후 빌드 확인)"
       say "   정말 의도한 것이면 ALLOW_BEHIND_UPSTREAM=1"
+      exit 1
+    fi
+  fi
+fi
+
+# ── 3) 미푸시 커밋이 있는가 ────────────────────────────────────────────
+#  ★이게 «폰이 맥 배포를 되돌리는» 구멍이었다(2026-08-31 발견):
+#      ① 맥: 커밋 → 배포 (push 안 함) → prod = 커밋 X
+#      ② 폰: promote → Actions 가 origin/main(X 없음)을 빌드 → Release → prod 적용
+#      ③ X 가 조용히 되돌아간다. prod 의 fetch-staging 은 «태그»만 비교하므로
+#        그 Release 가 더 «오래된 커밋»인지 알 방법이 없다(박스에 git 이 없다).
+#  ⇒ 불변식: **prod 에 나가는 커밋은 반드시 origin/main 에 있어야 한다.**
+#    그러면 main 은 앞으로만 가므로 폰 경로가 빌드하는 tip 은 항상 맥이 배포한 커밋 이상이고,
+#    어느 경로로 배포해도 뒤로 가지 않는다.
+if [ -n "$UPSTREAM" ]; then
+  AHEAD="$(git -C "$SRC" rev-list --count "$UPSTREAM..HEAD" 2>/dev/null || echo 0)"
+  if [ "${AHEAD:-0}" -gt 0 ]; then
+    if [ -n "${ALLOW_UNPUSHED:-}" ]; then
+      say "  ⚠️  미푸시 $AHEAD 커밋 — ALLOW_UNPUSHED=1 로 통과. 폰/CI 배포가 이걸 되돌릴 수 있다."
+    else
+      say ""
+      say "❌ 미푸시 커밋이 $AHEAD 개 있습니다 ($UPSTREAM 에 없는 커밋)."
+      say "   이대로 prod 에 올리면 **폰/웹 승격이 이 작업을 조용히 되돌립니다** —"
+      say "   Actions 는 origin/main 을 빌드하고, prod 는 «더 오래된 커밋»인지 알 수 없습니다."
+      say "   먼저:  git -C \"$SRC\" push"
+      say "   정말 임시 검증용이면 ALLOW_UNPUSHED=1"
       exit 1
     fi
   fi
