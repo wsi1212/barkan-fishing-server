@@ -81,6 +81,41 @@ python3 "$SCRIPTS_REPO/ops/hooks/guard-instance-data.py" --check-list "${DATA_FI
 #   진행불가를 만든다(2026-08-28 메인 3-7 이 mine|iron_ore 로 통째 막혀 있었다).
 python3 "$SCRIPTS_REPO/ops/audit-quest-goal-ids.py"
 
+# ★사본 드리프트 — 「같아야 하는 두 벌」이 갈라진 채 배포되면, 게이트가 검사한 파일과
+#   실제 올라가는 파일이 다른 물건이 된다(2026-08-31: 레포 fish.json 이 개명 전에 멈춰
+#   유령 ERROR 21건 + 진짜 버그 1건을 가렸다).
+python3 "$SCRIPTS_REPO/ops/audit-copies.py"
+
+# ★퀘스트·콘텐츠 진행 가능성 전수 검사.
+#   2026-08-31 에 ERROR 158 → 0 이 됐다(157건이 낡은 사본을 본 유령이었다). 0 이 기준선이니
+#   SKIP_QUEST_AUDIT 같은 우회구를 다시 만들지 말 것 — 우회구가 있으면 부채가 다시 쌓이고
+#   그 안에 진짜 버그가 숨는다(튜토09 통발 무지급이 그렇게 숨어 있었다).
+echo "▶ 퀘스트·콘텐츠 진행 가능성 전수 검사"
+if ! python3 "$BLOCKSHIP_DIR/tools/quest_audit.py" --root "$BLOCKSHIP_DIR" --runtime-dir "$LOCAL_DATA" --regions-dir "$DEV_DATA" > /tmp/quest_audit.log 2>&1; then
+  tail -1 /tmp/quest_audit.log
+  echo "❌ 퀘스트 감사 실패. 전체 리포트: /tmp/quest_audit.log"
+  exit 1
+fi
+echo "  ✓ 통과"
+
+echo "▶ 런타임 굵은 포맷 전수 검사"
+python3 "$SCRIPTS_REPO/ops/verify-no-bold-format.py" "$BLOCKSHIP_DIR/src/main"
+echo "▶ 타임존 미지정 시간 API 전수 검사"
+python3 "$SCRIPTS_REPO/ops/verify-no-naive-time.py" "$BLOCKSHIP_DIR/src/main"
+
+# ★NPC·대사 정합성 — 역할·퀘스트가 붙어 있는데 대사가 없으면 클릭 시 '...' 만 뜨고
+#   에러도 로그도 없이 죽는다. 봇이 NPC 우클릭을 못 찍어 사람 검증으로 안 걸린다.
+echo "▶ NPC·대사 정합성 감사"
+AUDIT="$SCRIPTS_REPO/ops/audit-dialogue.py"
+if [ -f "$AUDIT" ]; then
+  if ! python3 "$AUDIT" --dir "$LOCAL_DATA" --quiet; then
+    echo "❌ NPC·대사 감사에서 ERROR가 나왔습니다. prod 배포를 중단합니다."
+    echo "   전체 리포트: python3 \"$AUDIT\" --full"
+    exit 1
+  fi
+  echo "  ✓ ERROR 0건"
+fi
+
 echo "▶ BlockShip 빌드"
 cd "$BLOCKSHIP_DIR"
 ./gradlew build
@@ -151,6 +186,12 @@ fi
 #   먼저 scp하고 그 뒤 JSON 게이트에서 exit 1 → 라이브 jar만 갈린 채 재시작이 안 돼서
 #   lazy-load NoClassDefFoundError가 터진다(/칭호·계단앉기 등 전방위 고장). 순서를 바꿔 원천 차단한다.
 echo ""
+if [ -x "$SCRIPTS_REPO/ops/sync-blockship-data.sh" ]; then
+  echo ""
+  echo "▶ 레포 미러 갱신 (ops/blockship-data/)"
+  "$SCRIPTS_REPO/ops/sync-blockship-data.sh" || true
+fi
+
 echo "▶ 오라클 서버에 jar SCP 업로드 (JSON 검증 통과 후)"
 echo "  목적지: $PROD_JAR_DEST"
 

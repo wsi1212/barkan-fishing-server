@@ -15,7 +15,7 @@ LIVE="/Users/user/Library/Application Support/feather/player-server/servers/07de
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MIRROR="$REPO/ops/blockship-data"
 # deploy-blockship.sh 의 DATA_FILES 와 같은 목록이어야 한다(prod 로 올라가는 파일 = 히스토리가 필요한 파일).
-FILES=(npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json item-flavor.json)
+FILES=(npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json fish.json item-flavor.json)
 
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
 mkdir -p "$MIRROR"
