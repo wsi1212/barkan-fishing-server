@@ -28,6 +28,11 @@
     {"id": "ui_guild_buff", "name": "길드 버프", "category": "prop", "source": "imagegen-guild/ui_guild_buff.png", "pipeline": "copy_native"},
     {"id": "ui_guild_island_upgrade", "name": "섬 업그레이드", "category": "prop", "source": "imagegen-guild/ui_guild_island_upgrade.png", "pipeline": "copy_native"},
     {"id": "ui_guild_browse", "name": "길드 둘러보기", "category": "prop", "source": "imagegen-guild/ui_guild_browse.png", "pipeline": "copy_native"},
-    {"id": "ui_guild_quest", "name": "길드 임무", "category": "prop", "source": "imagegen-guild/ui_guild_quest.png", "pipeline": "copy_native"}
+    {"id": "ui_guild_quest", "name": "길드 임무", "category": "prop", "source": "imagegen-guild/ui_guild_quest.png", "pipeline": "copy_native"},
+    {"id": "recommend_coin", "name": "추천 코인", "category": "prop", "source": "imagegen-utility/recommend_coin_native.png", "pipeline": "copy_native"},
+    {"id": "ui_ticket_village_warp", "name": "마을 이동권", "category": "prop", "source": "imagegen-utility/ui_ticket_village_warp_native.png", "pipeline": "copy_native"},
+    {"id": "ui_check", "name": "수표", "category": "prop", "source": "imagegen-utility/ui_check_native.png", "pipeline": "copy_native"},
+    {"id": "ui_ticket_exp_double", "name": "경험치 2배권", "category": "prop", "source": "imagegen-utility/ui_ticket_exp_double_native.png", "pipeline": "copy_native"},
+    {"id": "ui_ticket_guild_boost", "name": "길드 부스트", "category": "prop", "source": "imagegen-utility/ui_ticket_guild_boost_native.png", "pipeline": "copy_native"}
   ]
 }
