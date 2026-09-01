@@ -24598,6 +24598,344 @@
           "qty": 9
         }
       ]
+    },
+    "R120": {
+      "id": "R120",
+      "category": "낚싯대",
+      "displayName": "밀물의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "밀물의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의구슬",
+          "displayName": "행운의 구슬",
+          "mcItem": "prismarine_crystals",
+          "qty": 26
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 34
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "R121": {
+      "id": "R121",
+      "category": "낚싯대",
+      "displayName": "갯바위의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "갯바위의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "안개수정",
+          "displayName": "안개 수정",
+          "mcItem": "amethyst_shard",
+          "qty": 21
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "R122": {
+      "id": "R122",
+      "category": "낚싯대",
+      "displayName": "뱃사공의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "뱃사공의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "보석",
+          "displayName": "보석",
+          "mcItem": "emerald",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 2
+        }
+      ]
+    },
+    "R123": {
+      "id": "R123",
+      "category": "낚싯대",
+      "displayName": "모래시계의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "모래시계의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "안개수정",
+          "displayName": "안개 수정",
+          "mcItem": "amethyst_shard",
+          "qty": 22
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "iron_ingot",
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "blackstone",
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "R124": {
+      "id": "R124",
+      "category": "낚싯대",
+      "displayName": "카라반의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "카라반의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "깃털찌조각",
+          "displayName": "깃털 찌 조각",
+          "mcItem": "feather",
+          "qty": 16
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "iron_ingot",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "blackstone",
+          "qty": 5
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
+    },
+    "R125": {
+      "id": "R125",
+      "category": "낚싯대",
+      "displayName": "사막여우의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "village": "",
+      "rodPartName": "사막여우의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강철심",
+          "displayName": "강철 심",
+          "mcItem": "iron_ingot",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 12
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축흑정석",
+          "displayName": "압축 흑정석",
+          "mcItem": "blackstone",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 3
+        }
+      ]
     }
   },
   "categories": {
@@ -24674,7 +25012,13 @@
       "R110",
       "R111",
       "R112",
-      "R113"
+      "R113",
+      "R120",
+      "R121",
+      "R122",
+      "R123",
+      "R124",
+      "R125"
     ],
     "부품": [
       "P01",
@@ -25090,6 +25434,12 @@
     "수집상의 낚싯대": "R110",
     "탐구자의 낚싯대": "R111",
     "발굴왕의 낚싯대": "R112",
-    "수집왕의 낚싯대": "R113"
+    "수집왕의 낚싯대": "R113",
+    "밀물의 낚싯대": "R120",
+    "갯바위의 낚싯대": "R121",
+    "뱃사공의 낚싯대": "R122",
+    "모래시계의 낚싯대": "R123",
+    "카라반의 낚싯대": "R124",
+    "사막여우의 낚싯대": "R125"
   }
 }
