@@ -49,6 +49,8 @@ gate "② 퀘스트 목표 id 대조" \
   python3 "$REPO/ops/audit-quest-goal-ids.py"
 gate "③ 사본 드리프트" \
   python3 "$REPO/ops/audit-copies.py"
+gate "③-b 어종 도달성" \
+  python3 "$REPO/ops/audit-fish-reachability.py"
 gate "④ 퀘스트·콘텐츠 진행 가능성" \
   python3 "$BLOCKSHIP_DIR/tools/quest_audit.py" --root "$BLOCKSHIP_DIR" \
     --runtime-dir "$MIRROR" --regions-dir "$DEV_DATA"

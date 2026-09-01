@@ -92,6 +92,12 @@ python3 "$SCRIPTS_REPO/ops/audit-quest-goal-ids.py"
 #   유령 ERROR 21건 + 진짜 버그 1건을 가렸다).
 python3 "$SCRIPTS_REPO/ops/audit-copies.py"
 
+# ★어종 도달성 — fish.json 서브리스트 이름은 자유롭게 적히지만 코드는 정해진 키만 읽는다.
+#   2026-09-02: 원양·대양의 «낮»/«밤» 서브리스트를 아무도 안 읽어 104종이 전 서버 어디서도
+#   안 잡히는 채로 도감에만 떠 있었다. 오타 하나면 조용히 재발하는 유형이라 차단 게이트다.
+python3 "$SCRIPTS_REPO/ops/audit-fish-reachability.py" > /tmp/fish_reach.log 2>&1 || {
+    tail -20 /tmp/fish_reach.log; echo "✖ 잡을 수 없는 어종이 있다 — 배포 중단"; exit 1; }
+
 # ★퀘스트·콘텐츠 진행 가능성 전수 검사.
 #   2026-08-31 에 ERROR 158 → 0 이 됐다(157건이 낡은 사본을 본 유령이었다). 0 이 기준선이니
 #   SKIP_QUEST_AUDIT 같은 우회구를 다시 만들지 말 것 — 우회구가 있으면 부채가 다시 쌓이고
