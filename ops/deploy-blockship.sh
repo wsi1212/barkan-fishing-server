@@ -128,7 +128,24 @@ fi
 #   더러우면 이 게이트가 HEAD 워크트리를 «자동으로» 떠서 그걸 빌드한다.
 echo "▶ 빌드 출처 검증 (커밋된 트리인가)"
 SOURCE_REPO="$BLOCKSHIP_DIR"   # 워크트리를 떠도 «원본 저장소»는 여기다(정리에 필요)
-eval "$("$SCRIPTS_REPO/ops/guard-build-source.sh" "$BLOCKSHIP_DIR")" || exit 1
+# ★명령치환을 eval 에 «직접» 먹이지 말 것 — guard 는 실패 메시지를 stderr 로 내므로
+#   실패 시 stdout 이 비고, `eval ""` 은 0 을 반환한다. 그러면 `|| exit 1` 이 영원히
+#   발동하지 않아 게이트가 «아무 소리 없이» 우회된다(2026-09-01 실측: 미푸시 7커밋에
+#   ❌ 를 찍고도 빌드까지 진행했다. 거기서 멈춘 것도 BLOCKSHIP_DIR="" → cd "" 가 no-op 라
+#   ./gradlew 를 못 찾은 «우연»이었을 뿐 — 플러그인 폴더 안에서 실행했다면 그대로 업로드됐다).
+#   ⇒ 출력을 변수에 받아 종료코드를 별도로 확인한 뒤에 eval 한다.
+GUARD_ENV="$("$SCRIPTS_REPO/ops/guard-build-source.sh" "$BLOCKSHIP_DIR")" || {
+  echo "❌ 빌드 출처 게이트에서 막혔습니다. prod 배포를 중단합니다."
+  exit 1
+}
+BUILD_DIR=""
+eval "$GUARD_ENV"
+# guard 가 0 을 냈는데도 BUILD_DIR 이 비면(출력 형식 변경·잘림) 빈 cd 로 «현재 디렉터리»를
+#   빌드하게 된다 — 게이트가 통째로 무의미해지므로 여기서 죽인다.
+if [ -z "${BUILD_DIR:-}" ]; then
+  echo "❌ 빌드 출처 게이트가 BUILD_DIR 을 내놓지 않았습니다(출력: ${GUARD_ENV:-<비어있음>})."
+  exit 1
+fi
 BLOCKSHIP_DIR="$BUILD_DIR"
 LOCAL_JAR="$BLOCKSHIP_DIR/build/libs/$JAR_NAME"
 if [ -n "${BUILD_WORKTREE:-}" ]; then

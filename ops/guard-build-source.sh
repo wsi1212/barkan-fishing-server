@@ -18,9 +18,15 @@
 #   3) 미푸시 커밋이 있으면 → 거부. 폰/CI 승격이 그 작업을 되돌린다(아래 상세).
 #   3) 빌드 스탬프(jar 안 build-stamp.properties)의 commit 이 HEAD 와 같은지 → 배포 후 대조용.
 #
-# 사용:  eval "$(ops/guard-build-source.sh <소스트리>)"
+# 사용:  env="$(ops/guard-build-source.sh <소스트리>)" || exit 1   # ★종료코드를 «먼저» 본다
+#        eval "$env"
 #        → BUILD_DIR / BUILD_COMMIT / BUILD_WORKTREE(임시면 경로) 를 내보낸다.
 #        호출자는 끝나고 BUILD_WORKTREE 가 비어있지 않으면 정리해야 한다.
+#        ★★`eval "$(guard ...)" || exit 1` 로 쓰지 말 것 — 실패 메시지는 stderr 로 나가므로
+#          stdout 이 비고 `eval ""` 이 0 을 반환한다. 그러면 게이트가 «조용히» 통과한다
+#          (2026-09-01 실측: deploy-blockship.sh 가 ❌ 를 찍고도 빌드까지 진행했다).
+#          BUILD_DIR 이 비었는지도 호출자가 확인할 것 — 빈 값으로 cd 하면 현재 디렉터리를
+#          빌드하게 되어 게이트가 통째로 무의미해진다.
 # 탈출구: ALLOW_DIRTY_BUILD=1 (더러운 트리를 그대로 빌드 — 긴급용, prod 에 쓰지 말 것)
 #         ALLOW_BEHIND_UPSTREAM=1 (뒤처진 HEAD 를 그대로 빌드)
 #         ALLOW_UNPUSHED=1 (미푸시 커밋을 실어서 빌드 — 폰/CI 가 되돌릴 수 있다)
