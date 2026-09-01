@@ -59,6 +59,12 @@ gate "⑥ 타임존 미지정 시간 API" \
 gate "⑦ NPC·대사 정합성" \
   python3 "$REPO/ops/audit-dialogue.py" --dir "$MIRROR" --quiet
 
+# ⑪ 재료 도달성 — «정보용». 아직 48건 남아 있어 차단으로 걸면 모든 배포가 멈춘다.
+#    ★차단 게이트에 상시 부채를 넣으면 안 된다 — 오늘 없앤 「quest_audit 158건」이 그거였다.
+#      48건을 0 으로 만든 뒤 gate() 로 옮기고 deploy-blockship.sh 에도 넣을 것.
+printf '\n▶ ⑪ 재료 도달성 (정보용 — 차단 안 함)\n'
+python3 "$REPO/ops/audit-material-reachability.py" 2>&1 | head -4 | sed 's/^/  /'
+
 # ⑧ 빌드 출처 — 워크트리를 뜨면 정리까지 한다(부작용 남기지 않는다)
 printf '\n▶ ⑧ 빌드 출처 (커밋된 트리인가)\n'
 if GUARD="$("$REPO/ops/guard-build-source.sh" "$BLOCKSHIP_DIR" 2>&1 >/tmp/preflight-guard.env)"; then

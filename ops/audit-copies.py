@@ -47,6 +47,36 @@ def sha(p: pathlib.Path) -> str | None:
         return None
 
 
+def _mirror_only(live: pathlib.Path, mirror: pathlib.Path) -> list[str]:
+    """미러에만 있고 라이브에는 없는 «항목 키». JSON 이 아니거나 구조가 다르면 빈 목록."""
+    import json as _j
+    try:
+        a = _j.loads(live.read_text(encoding="utf-8"))
+        b = _j.loads(mirror.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    # ★재귀로 내려가야 한다 — parts.json 은 {"parts":{"낚싯대":{이름:…}}} 로 2단이고,
+    #   1단만 보면 슬롯 키(낚싯대·릴…)가 같아서 «안쪽 이름 6개 소실»을 놓친다
+    #   (2026-09-01 실측: 그렇게 parts.json 이 실제로 덮여 6종이 지워졌다).
+    out: list[str] = []
+
+    def walk(av, bv, depth=0):
+        if depth > 4:
+            return
+        if isinstance(bv, dict) and isinstance(av, dict):
+            out.extend(sorted(set(bv) - set(av)))
+            for k in set(bv) & set(av):
+                walk(av[k], bv[k], depth + 1)
+        elif isinstance(bv, list) and isinstance(av, list):
+            out.extend(sorted({x for x in bv if isinstance(x, str)}
+                              - {x for x in av if isinstance(x, str)}))
+
+    if not (isinstance(a, dict) and isinstance(b, dict)):
+        return []
+    walk(a, b)
+    return out
+
+
 def fail(msg: str) -> None:
     problems.append(msg)
     print(f"  ✗ {msg}")
@@ -111,6 +141,15 @@ for f in data_files:
             continue
         rel = mirror.relative_to(mirror.parents[len(mirror.parts) - 4]) if False else mirror
         if FIX:
+            # ★--fix 는 «항목을 지워도 되는» 도구가 아니다. 2026-09-01 실측: 라이브를 권위로
+            #   덮었더니 git 미러에만 있던 저티어 히든 낚싯대 6종(parts·enhance·recipes
+            #   R120~R125)을 지우려 했다 — 미러가 그 6종의 «유일한 사본»이었다.
+            #   미러에만 있는 항목이 있으면 덮지 않고 실패로 알린다.
+            lost = _mirror_only(live, mirror)
+            if lost:
+                fail(f"덮으면 미러에만 있는 항목 {len(lost)}개가 사라진다: {lost[:8]} "
+                     f"— 라이브에 되살릴지 사람이 결정할 것 ({rel})")
+                continue
             mirror.write_bytes(live.read_bytes())
             fixed.append(str(rel))
             print(f"  ✔ 맞춤: {rel}")

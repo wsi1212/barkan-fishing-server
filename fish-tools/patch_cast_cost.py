@@ -53,7 +53,36 @@ def _load(name, d=SKILL):
 #    되돌리면 낡은갈고리 1 개 = 18 캐스트라 격자가 8 배 잘아진다. 요구 총량은 동일하다.
 #  ★단단한자루(강화실12+물고기비늘16)는 **일부러 뺐다**. 되돌리면 오차는 잡히지만
 #    「자루 없는 작살」이 되고 물고기비늘이 33 개까지 불어난다 — 정체성이 정확도보다 앞선다.
-UNWRAP = {
+def _unwrap_from_recipes():
+    """되돌리기 비율을 recipes.json «권위»에서 읽는다.
+
+    ★2026-09-01: 예전엔 아래 표에 비율을 손으로 적어 뒀고 주석에 「중간재 레시피를 고치면
+      여기도 고칠 것」이라 써 뒀는데 — 실제로 갈라져 있었다(표 낡은갈고리 8 vs 라이브 4).
+      사본을 갱신하는 대신 권위를 직접 읽는다.
+    """
+    import json as _j, pathlib as _p
+    live = _p.Path("/Users/user/Library/Application Support/feather/player-server/servers/"
+                   "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/recipes.json")
+    want = {"정제된갈고리": "C01", "강철심": "C03"}
+    out = {}
+    try:
+        recs = _j.loads(live.read_text(encoding="utf-8"))["recipes"]
+    except Exception:
+        return None
+    for mat, rid in want.items():
+        r = recs.get(rid)
+        if not r:
+            continue
+        ings = [(i.get("typeOrMatId"), i.get("qty", 1)) for i in r.get("ingredients") or []]
+        if mat == "정제된갈고리":
+            out[mat] = ings                      # 단일 원재료 — 그대로 되돌린다
+        else:
+            # 강철심은 «강등»이다 — 녹슨부품만 남긴다(아래 주석 참조)
+            out[mat] = [(k, q) for k, q in ings if k == "녹슨부품"] or ings
+    return out or None
+
+
+UNWRAP = _unwrap_from_recipes() or {
     "정제된갈고리": [("낡은갈고리", 8)],
     # ★강철심 → 녹슨부품 «강등»(되돌리기가 아니다 — 강화철괴2·강화석탄4 를 버린다).
     #   D 작살 4종(갯벌·물때·벼린·여울)이 목표 117~165 인데 바닥이 277 이라 못 내려갔다.

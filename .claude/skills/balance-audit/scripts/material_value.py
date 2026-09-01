@@ -237,7 +237,28 @@ class Data:
                 out[("vanilla", i["typeOrMatId"])] += i["qty"] * q
 
     # ── LP ─────────────────────────────────────────────────────────────
-    def gate(self, base):
+    def reachable_acts(self, level=None):
+        """그 레벨에서 «실제로 갈 수 있는» 활동만 남긴다.
+
+        ★2026-09-01 신설. 이걸 안 하면 LP 가 재료 단가를 전 지역 최적 출처로 매긴다 —
+          Lv7 아이템의 진주를 오아시스(10%, Lv12 해금) 가격으로 계산해서 초반 장비 원가를
+          2~3배 과소평가했다. 그 위에서 요구 수량을 정한 cast_cost 가 「정상」이라고
+          판정했고, 실측으로는 D급 낚싯대 하나가 1.8~3.4h 였다(유저 제보).
+          지역 해금 레벨의 권위는 region_unlock.py (메인 체인에서 도출).
+        ★level=None 이면 구 동작(전 활동) — 전역 가격표·상위 아이템 분석용.
+        """
+        if level is None:
+            return self.act
+        RU = _load_mod("region_unlock")
+        out = {}
+        for name, r in self.act.items():
+            if name.startswith("낚시:"):
+                if not RU.reachable(name.split(":", 1)[1], level):
+                    continue
+            out[name] = r
+        return out
+
+    def gate(self, base, level=None):
         """base(expand 결과) → (총시간h, {재료: 시간가 h/개}, {활동: 시간h}, 미해결목록)"""
         demand = collections.Counter()
         unresolved = []
@@ -249,8 +270,26 @@ class Data:
             else:
                 unresolved.append((kind, mid, q))
         # 어느 활동에서도 안 나오는 요구는 LP 에서 제외하되 반드시 보고한다
+        acts_pool = self.reachable_acts(level)
+        # ★레벨 필터로 «공급원이 통째로 사라진» 재료는 LP 에서 빠지고 — 그러면 그 재료가
+        #   «공짜»가 된다(2026-09-01 실측: 깃털찌조각 등 때문에 25종이 목표 대비 ±15% 초과).
+        #   도달 불가는 「싸다」가 아니라 「나중에 가야 한다」다. 그래서 그 재료를 공급하는
+        #   활동을 «가장 싼 것 하나만» 되돌려 넣는다 — 원가는 정직해지고, 「그 레벨에 못 간다」
+        #   는 사실은 ops/audit-material-reachability.py 가 따로 보고한다.
+        want = {m for (kind, m), q in base.items() if kind in ("fish", "ore", "vanilla")}
+        have = set()
+        for a in acts_pool.values():
+            have |= {m for m, r in a.items() if r > 0}
+        for m in want - have:
+            best, bname = 0.0, None
+            for aname, r in self.act.items():
+                if r.get(m, 0) > best:
+                    best, bname = r[m], aname
+            if bname:
+                acts_pool = dict(acts_pool)
+                acts_pool[bname] = self.act[bname]
         supplied = set()
-        for a in self.act.values():
+        for a in acts_pool.values():
             supplied |= set(a)
         for mid in list(demand):
             if mid not in supplied:
@@ -258,10 +297,10 @@ class Data:
         if not demand:
             return 0.0, {}, {}, unresolved
         mats = sorted(demand)
-        acts = [a for a in self.act if any(self.act[a].get(m, 0) > 0 for m in mats)]
+        acts = [a for a in acts_pool if any(acts_pool[a].get(m, 0) > 0 for m in mats)]
         # 쌍대: max Σ q λ  s.t.  Σ_m r[A][m] λ_m ≤ 1 ∀A ; λ ≥ 0
         c = [demand[m] for m in mats]
-        A = [[self.act[a].get(m, 0.0) for m in mats] for a in acts]
+        A = [[acts_pool[a].get(m, 0.0) for m in mats] for a in acts]
         b = [1.0] * len(acts)
         opt, lam, h = simplex_max(c, A, b)
         return (opt,

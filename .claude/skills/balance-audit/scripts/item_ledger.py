@@ -242,7 +242,10 @@ def build(D, statvals, incomes, harp_ratio, HM=None):
         mat_h, lam, hact, unres = (0.0, {}, {}, [])
         if rec:
             bom = D.expand(rec["ingredients"])
-            mat_h, lam, hact, unres = D.gate(bom)
+            # ★그 장비의 «레벨제한» 으로 접근 가능한 지역만 써서 원가를 매긴다(2026-09-01).
+            #   전 지역 최적 출처로 매기면 초반 장비가 2~3배 싸 보인다 — Lv7 아이템의 진주를
+            #   오아시스(Lv12 해금) 가격으로 계산하던 것이 그 예다.
+            mat_h, lam, hact, unres = D.gate(bom, level=lv)
         wage_band = BAND_OF_LEVEL(lv)
         wage = (D.k["income_by_band"].get(wage_band) if wage_band
                 else incomes[stage])          # Lv30+ 은 실측 없음 → 모델 외삽
