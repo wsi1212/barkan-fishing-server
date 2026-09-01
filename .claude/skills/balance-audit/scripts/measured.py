@@ -57,6 +57,11 @@ FALLBACK = {
 _cache = None
 
 
+#: 구간 시급을 «환율»로 쓰기 위한 최소 표본(포획 건수).
+#  이보다 얇으면 관측은 남기되 income_by_band 에서 빼 환율·앵커가 흔들리지 않게 한다.
+MIN_BAND_N = 200
+
+
 def snapshot_path():
     d = os.path.join(SKILL, "audits", "snapshots")
     if not os.path.isdir(d):
@@ -87,10 +92,21 @@ def load(path=None, refresh=False):
             if f.get(src) is not None:
                 k[dst] = f[src]
         if s.get("income_by_band"):
-            k["income_by_band"] = {b: v["gross_per_active_h"]
-                                   for b, v in s["income_by_band"].items() if b != "미상"}
-            k["per_catch_by_band"] = {b: v["price_mean"]
-                                      for b, v in s["income_by_band"].items() if b != "미상"}
+            # ★표본이 얇은 구간은 «환율»로 쓰지 않는다 (2026-09-01 신설).
+            #   그날 스냅샷에 Lv30-49 가 **n=44** 로 처음 등장했는데, wage() 는 «관측 최고
+            #   구간»을 쓰므로 전 경제의 원 환산이 113,167 → 80,504 (−29%) 로 한 번에 내려
+            #   앉았다. selftest 3 종(구간 시급 단조 · 요구캐스트 비례 25종 · 작살 예측)이
+            #   동시에 🔴 로 뒤집힌 게 그 여파다 — 콘텐츠가 바뀐 게 아니라 44 마리가 바꾼 것이다.
+            #   버리지는 않는다(관측은 관측이다) — `income_by_band_thin` 에 남겨 보고한다.
+            keep, thin = {}, {}
+            for b, v in s["income_by_band"].items():
+                if b == "미상":
+                    continue
+                (thin if v.get("n", 0) < MIN_BAND_N else keep)[b] = v
+            k["income_by_band"] = {b: v["gross_per_active_h"] for b, v in keep.items()}
+            k["per_catch_by_band"] = {b: v["price_mean"] for b, v in keep.items()}
+            k["income_by_band_thin"] = {b: (v["gross_per_active_h"], v.get("n", 0))
+                                        for b, v in thin.items()}
         if s.get("harpoon"):
             k["harpoon"] = {**k["harpoon"], **{kk: vv for kk, vv in s["harpoon"].items()
                                                if vv is not None and kk != "counts"}}

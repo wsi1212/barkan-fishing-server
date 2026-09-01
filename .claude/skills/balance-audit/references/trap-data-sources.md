@@ -4,14 +4,23 @@
 - `JAVA/trap/TrapManager.java` — 설치/회수/틱(30초 주기)/내구도/물고기 생성(`generateFish`,
   `gradeWeight`). `TRAP_LIMIT=1`(플레이어당 동시 1개).
 - `JAVA/trap/TrapSpecs.java` — 지역별 스펙(`region`,`regionLabel`,`maxDur`,`waitSec`,`recipeId`,
-  레시피 재료). 12개 지역 정의(스폰도시~원양어선).
+  레시피 재료). **13개 지역**(2026-08-28 기준). ★**변종(표준/튼튼/속성/행운)은 2026-08-28 폐지** —
+  수리가 생기며 「내구 = 자원」 전제가 깨졌고, 남은 축이 대기시간 하나뿐이라 4종이 선택이 아니라
+  세금이었다. `V_DUR/V_FAST/V_LUCK` 상수와 `byKey` 폴백은 **남겨 둔다**(기존 변종 아이템 태그 호환).
+- **통발은 «재료 공급원»이다**(2026-08-28) — `TrapManager.giveTrapMaterials` 가 담근 시간에 비례해
+  (`round(waitSec/120)` 굴림, 확률 ×3) 그 지역 드롭테이블을 굴린다. 낚시 재료 산출의 ≈48%.
+  `material_value._build_activities` 가 이걸 «그 지역 낚시의 산출 증가»로 모델링한다 — 한쪽만
+  바꾸면 모델이 틀린다.
+- **재료비/산출 판정은 `scripts/trap_cost.py` 가 단일 권위** (2026-09-01 신설). 수량을 손으로
+  고치지 말 것 — 설계는 `trap_cost.py --design`, 적용은 `fish-tools/patch_trap_materials.py`.
 - 통발전용 어종 풀: `JSON/fish.json` → `regions.<지역>.통발` (배열). **일반 낚시 "기본" 풀과는
   별도** — 다른 지역은 전부 전용 어종(중복 없음), 붉은사막만 예외였다가 2026-07-25 수정.
 
 ## ★필수 확인 — 지역 실존 여부
 통발 지역이 TrapSpecs.java/fish.json에 정의돼 있다고 실제로 존재하는 게 아니다. 반드시
 `JSON/regions.json`에서 `pos1`/`pos2`가 `[0,0,0]`이 아닌지, region 자체가 키에 있는지 확인할 것
-(2026-07-25 기준: 12개 중 6개만 실존 — [audits/2026-07-25-trap.md](../audits/2026-07-25-trap.md) 참조).
+(2026-07-25 기준 12개 중 6개 실존 → **2026-09-01 재실측: 13개 중 12개 실존, 늪지대만 스텁**
+— [audits/2026-07-25-trap.md](../audits/2026-07-25-trap.md) · [audits/2026-09-01-trap-materials.md](../audits/2026-09-01-trap-materials.md)).
 이 원칙은 통발뿐 아니라 **다른 모든 시스템의 "지역" 참조에 동일 적용** — 페리 노선, 마을 등도
 regions.json 좌표 대조 없이 "존재한다"고 가정하지 말 것.
 
@@ -28,3 +37,15 @@ gradeWeight = {E:100,D:80,C:55,B:32,A:16,S:8,M:4,L:2,G:1} (`TrapManager.gradeWei
 - 지역 실존 확인: `JSON/regions.json`
 - 통발전용 어종/등급: `JSON/fish.json` regions.*.통발
 - 등급 기본가: `JAVA/economy/FishItem.java` fishPrice() (낚시 데이터소스와 공유)
+
+## ★재료는 «그 지역에서 나는 것»으로만 (2026-09-01)
+드롭테이블 13지역이 통발 13지역과 1:1 이고 지역마다 전용 재료가 하나씩 있다. 레시피는
+**전용 재료(정체성) + 강화 실(엮기) + 물고기 비늘(유인) + 진주(등급)** 네 축이고 전부 커스텀이다.
+
+- **바닐라 재료 금지.** 일반 월드는 `MapProtectionListener` 가 블록 파괴를 취소하고 드롭도 주지
+  않는다(제외 = guild_world·island_world·mine). 섬상점 「자재」 탭도 라이브 `shop-items.json` 에
+  없다 → 끈·슬라임볼·점토는 **아무 데서도 못 구한다**. 2026-09-01 이전 통발 17종 재료가 전부
+  이 상태였고 prod 에 통발이 1개 놓여 있었다.
+- **별빛진주·용암수지·미감정 유물은 넣지 않는다** (A/S 종결 전용 · S 전용 · 사용처 0).
+- **정체성 재료 ≤ 평생 산출 × 0.60** — 통발이 제 재료를 순소비하면 「통발로 그걸 모은다」가 깨진다.
+- 회귀 방어: `selftest.py [10]` (바닐라 잔존 · τ ≥ 100% · 자기소비 · 빈 어종 풀).

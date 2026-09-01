@@ -111,7 +111,7 @@ prod 텔레메트리(`telemetry/events-*.db`, `stats.db`)에 알파 테스터 �
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물) | ✅ 완료(2026-07-25) — 🟡 1건(수박 이상치) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) |
 | 🌿 채집(forage) | ✅ 골드가치만 완료(2026-07-25, 밀도추정 floor값) | (별도 data-sources 없음 — 소규모) | [cross-economy-values.md](references/cross-economy-values.md) §4 | — |
-| 🪤 통발(trap) | ✅ 완료(2026-07-25) — 🟢 1건 발견·즉시수정(붉은사막 가격역전) | [trap-data-sources.md](references/trap-data-sources.md) | (audits 문서에 통합) | [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
+| 🪤 통발(trap) | ✅ **재감사(2026-09-01)** — 🔴 재료 17종이 조달 불가라 시스템이 죽어 있었다(prod 설치 1개). 전 재료를 그 지역 커스텀 드롭으로 교체 · τ(재료비÷평생산출) 사다리 신설 · selftest §10 추가. ★2026-07-25 조치는 미배포로 소실됐다 | [trap-data-sources.md](references/trap-data-sources.md) | `scripts/trap_cost.py` (τ 단일 권위) | [audits/2026-09-01-trap-materials.md](audits/2026-09-01-trap-materials.md), [audits/2026-07-25-trap.md](audits/2026-07-25-trap.md) |
 | 🐉 이무기 보스(boss/ImugiBattle) | 🟡 절반만(재료 신설, 전투밸런스 미감사) | — | — | [audits/2026-07-25-imugi-yeouiju.md](audits/2026-07-25-imugi-yeouiju.md) |
 | 🏘️ 마켓/랭킹/여관/송금/길드/스킬트리/카지노/아이스박스 | ✅ 완료(2026-07-25) — 🟢 대부분 정상, 송금 이중과금 1건 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목6 |
 | 🎁 부품/낚싯대 레시피비용 곡선 + 히든장비 | ✅ 완료(2026-07-25) — 🔴 히든 낚싯대 8종 획득불가 버그 발견·즉시수정 | — | — | [audits/2026-07-25-full-system-review.md](audits/2026-07-25-full-system-review.md) §항목1·2 |
@@ -283,7 +283,8 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 
 | 스크립트 | 역할 | 상태 |
 |---|---|---|
-| `measured.py` | **실측 상수 단일 출처.** 다른 스크립트는 여기서만 가져간다 | ✅ 권위 |
+| `measured.py` | **실측 상수 단일 출처.** 다른 스크립트는 여기서만 가져간다. ★`MIN_BAND_N`(2026-09-01) — 표본 200 미만 구간은 환율에서 제외하고 `income_by_band_thin` 으로 남긴다 | ✅ 권위 |
+| `trap_cost.py` | 통발 «재료비 ↔ 평생 산출» = τ. 산출도 **비용과 같은 LP 게이트**로 잰다(단가 합산 금지). 적용은 `fish-tools/patch_trap_materials.py` | ✅ 권위 |
 | `pull_players.py` | prod 텔레메트리 → 실측 스냅샷 (감사 0-b 단계) | ✅ 권위 |
 | `selftest.py` | 스킬 회귀 테스트 8종 (감사 0-a 단계) | ✅ 권위 |
 | `pull.py` / `diff.py` | 라이브 Java·JSON 스냅샷 + 델타 | ✅ 권위 |

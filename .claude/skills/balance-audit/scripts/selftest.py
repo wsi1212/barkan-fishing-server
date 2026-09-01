@@ -270,6 +270,51 @@ def t7_drift(rows):
            "cross-economy 별빛진주 확률", "문서에 8% 잔존 여부", warn_only=True)
 
 
+def t10_traps():
+    """통발 — 재료 조달 가능성 · 순손실 · 자기소비 (2026-09-01 신설).
+
+    통발 재료는 오래 **아무 데서도 안 나오는 바닐라**였다(끈·프리즈머린·마그마 크림 …).
+    일반 월드는 MapProtectionListener 가 블록 파괴를 취소하고 드롭도 주지 않고, 섬상점
+    자재 탭도 라이브 설정에서 빠져 있었다. 아무도 눈치채지 못한 채 prod 에 통발이 1 개만
+    놓여 있었다 — 이 검사가 그 재발을 막는다.
+    """
+    print("\n[10] 통발 (trap_cost.py)")
+    try:
+        TC = _load("trap_cost")
+        MV2 = _load("material_value")
+        rows = TC.main.__globals__  # noqa - 모듈 상수 접근용
+        D = MV2.Data()
+        specs = TC.load_specs()
+    except Exception as e:                                  # 도구가 없으면 건너뛴다
+        ok(True, "통발 검사", f"건너뜀 ({e.__class__.__name__})", warn_only=True)
+        return
+    vanilla = sorted({i["typeOrMatId"] for s in specs for i in s["ingredients"]
+                      if i["kind"] != "custom"})
+    ok(not vanilla, "바닐라 재료 잔존 (조달 경로 없음)", f"{vanilla or '없음'}")
+    loss, eat, nofish = [], [], []
+    for s in specs:
+        lv = TC.RU.unlock_level(s["region"])
+        fv, npool, _ = TC.fish_value(D, s["region"])
+        won, _e = TC.MEAS.wage()
+        yields = TC.output_bundle(D, s["region"], s["waitSec"], s["maxDur"])
+        out_h = fv * s["maxDur"] / won + TC.bundle_hours(D, yields, lv)
+        cost_h, _dead = TC.recipe_cost(D, s["ingredients"], lv)
+        if out_h and cost_h / out_h >= 1.0:
+            loss.append(f"{s['label']} {cost_h / out_h:.0%}")
+        if npool == 0:
+            nofish.append(s["label"])
+        for i in s["ingredients"]:
+            mid = i["typeOrMatId"]
+            if mid in TC.UNIVERSAL:
+                continue
+            if yields.get(mid, 0) - i["qty"] <= 0:
+                eat.append(f"{s['label']}:{i['displayName']}")
+    ok(not loss, "τ ≥ 100% (재료비 > 평생 산출)", f"{loss or '없음'}")
+    ok(not eat, "정체성 재료 순소비", f"{eat or '없음'}")
+    ok(not nofish, "통발 어종 풀 비어 있음", f"{nofish or '없음'}  (fish.json regions.*.통발)",
+       warn_only=True)
+
+
 def t8_unobtainable(rows):
     print("\n[8] 획득 불가 콘텐츠")
     # ★이건 «도구 결함»이 아니라 «콘텐츠 발견»이다 — 감사를 막지 말고 리포트로 올려야 한다.
@@ -355,6 +400,7 @@ def main():
     t8_unobtainable(rows)
     if not a.quick:
         t9_cast_cost()
+    t10_traps()
     print("\n" + "=" * 78)
     if FAILS:
         print(f"🔴 실패 {len(FAILS)}건 — 감사를 진행하지 말 것")
