@@ -68,9 +68,11 @@ import pathlib
 import sys
 import zlib
 
-# ★스킬이 ~/.claude/skills 에서 «레포 안 .claude/skills» 로 옮겨졌다(2026-09-02 실측:
-#   기존 모듈 49/56 이 ModuleNotFoundError 로 죽어 있었다). 두 자리를 다 본다 —
-#   홈 경로만 박아 두면 다른 머신·다른 체크아웃에서 조용히 죽는다.
+# ★스킬 본체는 ~/.codex/skills/npc-skin-style-mirror 에 있고, 레포의
+#   .claude/skills/npc-skin-forge 가 거기로 가는 «git 추적되는» 심볼릭이다.
+#   기존 모듈 전부가 ~/.claude/skills/... 를 하드코딩하는데 그 링크가 사라져
+#   2026-09-02 에 49/56 이 ModuleNotFoundError 로 죽어 있었다. 그래서 추적되는
+#   레포 경로를 먼저 보고, 없으면 홈을 본다.
 for _cand in (pathlib.Path(__file__).resolve().parents[1]
               / '.claude/skills/npc-skin-forge/scripts',
               pathlib.Path.home() / '.claude/skills/npc-skin-forge/scripts'):
