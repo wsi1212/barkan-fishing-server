@@ -82,7 +82,10 @@
     "프리미엄불꽃",
     "서포터",
     "건축가",
-    "알파테스터"
+    "알파테스터",
+    "바르칸항구의전설",
+    "사막의탐험왕",
+    "전설의탐험왕"
   ],
   "titles": {
     "뉴비": {
@@ -154,7 +157,7 @@
       "ach": "낚시_대물100"
     },
     "바다를비운자": {
-      "name": "&6바다를 비운 자",
+      "name": "&6空海者",
       "color": "&6",
       "desc": "&7물고기 1만 마리를 낚아올린 자",
       "icon": "trident",
@@ -164,7 +167,7 @@
       "ach": "낚시_10000"
     },
     "은비늘의목격자": {
-      "name": "&b은비늘의 목격자",
+      "name": "&b銀鱗者",
       "color": "&b",
       "desc": "&7S등급 물고기를 끌어올린 자",
       "icon": "glow_ink_sac",
@@ -174,7 +177,7 @@
       "ach": "낚시_S"
     },
     "신화를낚은자": {
-      "name": "&d신화를 낚은 자",
+      "name": "&d釣神者",
       "color": "&d",
       "desc": "&7M등급 물고기를 끌어올린 자",
       "icon": "echo_shard",
@@ -377,7 +380,7 @@
       "ach": "유산_폭풍"
     },
     "대양을가른자": {
-      "name": "&6대양을 가른 자",
+      "name": "&6破洋者",
       "color": "&6",
       "desc": "&7대양을 가로지른 항해사",
       "icon": "heart_of_the_sea",
@@ -457,7 +460,7 @@
       "palette": "radiant"
     },
     "모든것의발견자": {
-      "name": "&c모든 것의 발견자",
+      "name": "&c만물박사",
       "color": "&c",
       "desc": "&7모든 수집품을 발견한 유일한 사람",
       "icon": "light",
@@ -668,7 +671,7 @@
       "ach": "생활_채굴5000"
     },
     "숲을읽는자": {
-      "name": "&2숲을 읽는 자",
+      "name": "&2숲의 손",
       "color": "&2",
       "desc": "&7숲의 결을 읽어내는 채집가",
       "icon": "flowering_azalea",
@@ -688,7 +691,7 @@
       "ach": "생활_요리500"
     },
     "풍년의증인": {
-      "name": "&6풍년의 증인",
+      "name": "&6풍요의 손",
       "color": "&6",
       "desc": "&7밭에서 풍년을 만들어낸 사람",
       "icon": "hay_block",
@@ -708,7 +711,7 @@
       "ach": "생활_작살10000"
     },
     "한계를넘은자": {
-      "name": "&d한계를 넘은 자",
+      "name": "&d초월자",
       "color": "&d",
       "desc": "&7+15 — 부러질 자리를 넘어선 자",
       "icon": "enchanting_table",
@@ -774,7 +777,7 @@
       "source": "quest"
     },
     "심연의증인": {
-      "name": "&5심연의 증인",
+      "name": "&5破封者",
       "color": "&5",
       "desc": "&7봉인된 진실을 밝혀낸 자",
       "icon": "ender_eye",
@@ -869,7 +872,7 @@
       "palette": "alpha"
     },
     "물길을외운자": {
-      "name": "&b물길을 외운 자",
+      "name": "&b물길의 달인",
       "color": "&b",
       "desc": "&7한 지역의 도감을 완성한 어부",
       "icon": "map",
@@ -889,7 +892,7 @@
       "ach": "수집_지역3"
     },
     "도감의완성자": {
-      "name": "&c도감의 완성자",
+      "name": "&c도감의 신",
       "color": "&c",
       "desc": "&7물고기 도감을 전부 채운 유일한 사람",
       "icon": "enchanted_book",
@@ -919,6 +922,39 @@
       "source": "quest",
       "animation": true,
       "palette": "gold"
+    },
+    "바르칸항구의전설": {
+      "name": "&6바르칸 항구의 &e傳說",
+      "color": "&6",
+      "desc": "&7스폰도시의 해바라기를 하나도 빠짐없이 찾아낸 자",
+      "icon": "sunflower",
+      "tier": "유일",
+      "category": "수집",
+      "source": "quest",
+      "animation": true,
+      "palette": "gold"
+    },
+    "사막의탐험왕": {
+      "name": "&c사막의 &6탐험왕",
+      "color": "&6",
+      "desc": "&7사막마을의 사막 호박을 하나도 빠짐없이 찾아낸 자",
+      "icon": "resin_clump",
+      "tier": "유일",
+      "category": "수집",
+      "source": "quest",
+      "animation": true,
+      "palette": "flame"
+    },
+    "전설의탐험왕": {
+      "name": "&b전설의 &e탐험왕",
+      "color": "&6",
+      "desc": "&7상단마을의 양초를 하나도 빠짐없이 찾아낸 자",
+      "icon": "candle",
+      "tier": "유일",
+      "category": "수집",
+      "source": "quest",
+      "animation": true,
+      "palette": "radiant"
     }
   }
 }
