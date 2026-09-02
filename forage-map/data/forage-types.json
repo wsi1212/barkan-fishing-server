@@ -127,13 +127,13 @@
  },
  "barkan:forage_z_snowflower": {
   "name": "설화",
-  "region": "정상",
+  "region": "설산",
   "rarity": "흔함",
   "cooldownSec": 5400
  },
  "barkan:forage_z_frostberry": {
   "name": "서리열매",
-  "region": "정상",
+  "region": "설산",
   "rarity": "흔함",
   "cooldownSec": 5400
  },
@@ -181,7 +181,7 @@
  },
  "barkan:forage_z_frostlotus": {
   "name": "서리연꽃",
-  "region": "정상",
+  "region": "설산",
   "rarity": "희귀",
   "cooldownSec": 72000
  }
