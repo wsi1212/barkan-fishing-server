@@ -895,8 +895,8 @@
       "source": "admin"
     },
     "가이드": {
-      "name": "&e가이&a드",
-      "color": "&e",
+      "name": "&a가이드",
+      "color": "&a",
       "desc": "&7신규 유저를 돕는 안내자에게 부여되는 칭호",
       "icon": "compass",
       "tier": "유일",
