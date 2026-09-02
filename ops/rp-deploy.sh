@@ -109,7 +109,7 @@ EOF
 esac
 
 # ── 1. 매번 새로 굽는다 ───────────────────────────────────────────────────
-say "팩 빌드 (build-prod-rp.py — 백업 제외 + 아이템 128px 상한 + PNG 재압축)"
+say "팩 빌드 (build-prod-rp.py — 백업 제외 + 일반 아이템 128px 상한·메뉴 아트 256px 보존 + PNG 재압축)"
 python3 "$BUILD"
 [ -s "$ZIP" ] || { echo "❌ 빌드 산출물이 없다: $ZIP" >&2; exit 1; }
 NEW_SHA=$(shasum "$ZIP" | awk '{print $1}')

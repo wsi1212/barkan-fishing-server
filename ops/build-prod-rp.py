@@ -2,9 +2,10 @@
 
 ① betterhud 제외(이제 CraftEngine 팩이 제공한다)  -17.7MB
 ② 백업/잡동사니 제외(.bak/_prepad/backup/pf_reference)
-③ 아이템 텍스처 한 변 128px 상한  -약 23MB
+③ 일반 아이템 텍스처 한 변 128px 상한  -약 23MB
    ★아이템은 칸에서 16 GUI px(스케일3에서 48화면px)로 그려진다. 도감 물고기처럼
-     칸 밖으로 커지는 것도 100화면px 안쪽이라 128이면 충분하고 256은 낭비다.
+     칸 밖으로 커지는 것도 100화면px 안쪽이라 일반 아이템은 128이면 충분하고 256은 낭비다.
+     단, 메뉴 아트(barkan_icon/ui_menu_*)는 GUI 전용 256px 원본을 보존한다.
      원본(256/512)은 소스에 그대로 둔다 — 여기서만 줄인다(배포 단계 최적화).
 ④ PNG 무손실 재압축 + deflate 최대
 
@@ -61,7 +62,12 @@ with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
             png_before += len(data)
             try:
                 im = Image.open(io.BytesIO(data))
-                cap = 128 if name.startswith("assets/minecraft/textures/item/") else None
+                if name.startswith("assets/minecraft/textures/item/barkan_icon/ui_menu_"):
+                    # 메뉴 아트는 GUI에서 크게 렌더링되는 256px 원본을 보존한다.
+                    # 일반 아이템은 팩 용량을 위해 기존 128px 상한을 유지한다.
+                    cap = 256
+                else:
+                    cap = 128 if name.startswith("assets/minecraft/textures/item/") else None
                 # 프레임 애니(.mcmeta 동반)는 세로로 이어 붙인 띠라 비율을 건드리면 깨진다
                 if cap and f"{name}.mcmeta" not in files and max(im.size) > cap:
                     r = cap / max(im.size)
