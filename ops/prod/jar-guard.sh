@@ -21,6 +21,10 @@
 # =====================================================================
 set -uo pipefail
 
+# Permanent safety interlock: automatic prod recovery restarts are disabled.
+echo "jar-guard: BLOCKED — prod restart is disabled" >&2
+exit 2
+
 DIR=~/mcserver/scripts
 PLUGINS="${PLUGINS:-$HOME/mcserver/plugins}"   # 테스트 주입 가능
 LAST_FILE="$DIR/.jar_guard_last_restart"

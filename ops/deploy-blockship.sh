@@ -22,6 +22,11 @@ for arg in "$@"; do
   esac
 done
 
+if [ "$RESTART_PROD" = 1 ]; then
+  echo "❌ prod 재시작 금지 정책: ~/stage-blockship.sh 로 staging에만 올리세요." >&2
+  exit 2
+fi
+
 BLOCKSHIP_DIR="${BLOCKSHIP_DIR:-$HOME/development/blockship-plugin}"
 JAR_NAME="BlockShip-1.0.0-SNAPSHOT.jar"
 LOCAL_JAR="$BLOCKSHIP_DIR/build/libs/$JAR_NAME"

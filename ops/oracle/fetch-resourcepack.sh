@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # GitHub mobile-promoted resource pack -> prod server.properties.
 # The phone never needs SSH access: prod pulls an explicitly promoted Release.
+# This script never restarts prod. APPLY_NOW is intentionally ignored.
 set -uo pipefail
 
 REPO="${RESOURCEPACK_REPO:-wsi1212/minecraft-fish-resource-pack}"
@@ -10,7 +11,6 @@ STATE_FILE="$MC_ROOT/.fetch-resourcepack-state"
 TOKEN_FILE="${GITHUB_TOKEN_FILE:-$MC_ROOT/.github-token}"
 WEBHOOK_FILE="$MC_ROOT/scripts/discord-webhook.url"
 LOG_FILE="${FETCH_LOG:-$MC_ROOT/backups/ops.log}"
-RESTART_SCRIPT="$MC_ROOT/scripts/resourcepack-restart.sh"
 PROMOTE_MARKER="${RESOURCEPACK_PROMOTE_MARKER:-MOBILE_RP_PROMOTE}"
 
 DRY=0; FORCE=0
@@ -37,8 +37,6 @@ notify() {
 die() { log "✗ $*"; notify "🔴 **모바일 리소스팩 pull 실패** — $*"; exit 1; }
 
 [[ -f "$PROPS" ]] || die "server.properties 없음: $PROPS"
-[[ -x "$RESTART_SCRIPT" ]] || die "재시작 스크립트 없음: $RESTART_SCRIPT"
-
 HDR=(-H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28')
 if [[ -s "$TOKEN_FILE" ]]; then
   HDR+=(-H "Authorization: Bearer $(<"$TOKEN_FILE")")
@@ -128,9 +126,8 @@ printf '%s\n' "$TAG" > "$STATE_FILE"
 log "server.properties 갱신 완료: $SHA"
 
 if [[ "$APPLY" = 1 ]]; then
-  log "APPLY_NOW — 즉시 재시작 위임"
-  RESOURCEPACK_RELEASE="$TAG" "$RESTART_SCRIPT" || die "즉시 재시작 실패"
+  log "APPLY_NOW 무시 — prod 재시작 금지 정책으로 설정만 갱신"
 else
-  notify "📦 **모바일 리소스팩 승격 완료** — \`$TAG\`\n다음 정기 재시작부터 적용됩니다."
-  log "설정만 갱신 — 다음 정기 재시작에서 적용"
+  log "설정만 갱신 — prod 재시작 안 함"
 fi
+notify "📦 **모바일 리소스팩 승격 완료** — \`$TAG\`\n설정만 갱신했습니다. prod 재시작은 정책상 하지 않습니다."

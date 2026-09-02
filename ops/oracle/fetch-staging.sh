@@ -175,6 +175,11 @@ echo "$TAG" > "$STATE_FILE"
 log "staging 배치 완료: $STAGING/$ASSET_NAME"
 
 if [[ "$APPLY" == "1" ]]; then
+  log "APPLY_NOW 무시 — prod 재시작 금지 정책으로 staging에만 보관"
+  notify "📦 **staging 배치 완료** — \`$ASSET_NAME\` (\`$TAG\`)\nprod 재시작은 정책상 하지 않습니다."
+  exit 0
+
+  # 아래 즉시 적용 로직은 영구 비활성화 상태다.
   NIGHTLY="$MC_ROOT/scripts/nightly-restart.sh"
   if [[ -x "$NIGHTLY" ]]; then
     log "APPLY_NOW 마커 — 06:00 을 기다리지 않고 즉시 적용한다"

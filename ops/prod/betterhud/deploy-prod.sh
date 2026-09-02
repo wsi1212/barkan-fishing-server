@@ -10,6 +10,9 @@
 #          ./deploy-prod.sh <jar경로>   # BlockShip jar 도 같이
 set -euo pipefail
 
+echo "❌ prod 재시작 금지 정책: BetterHud prod 배포는 영구 비활성화되었습니다." >&2
+exit 2
+
 SRC="$(cd "$(dirname "$0")" && pwd)"
 SSH="ssh -i $HOME/.ssh/oracle-mc.key ubuntu@168.107.8.107"
 REPO="wsi1212/minecraft-fish-resource-pack"

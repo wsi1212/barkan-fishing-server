@@ -25,6 +25,11 @@
 #      RESTART_CMD / STATUS_FILE / WEBHOOK_FILE / STAGING
 # =====================================================================
 set -uo pipefail
+
+# Permanent safety interlock: prod restarts are disabled by policy.
+echo "nightly-restart: BLOCKED — prod restart is disabled" >&2
+exit 2
+
 DIR=~/mcserver/scripts
 STATUS_FILE=${STATUS_FILE:-$HOME/mcserver/backups/.backup-status}
 WEBHOOK_FILE=${WEBHOOK_FILE:-$DIR/discord-webhook.url}

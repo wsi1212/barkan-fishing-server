@@ -44,6 +44,11 @@ if [ "$NAME_SET" = 0 ]; then
     NAME="$(basename "$JAR")"
 fi
 
+if [ "$TARGET" = prod ]; then
+    echo "❌ prod 재시작 금지 정책: prod jar 배포는 영구 비활성화되었습니다." >&2
+    exit 2
+fi
+
 KEY="$HOME/.ssh/oracle-mc.key"
 HOST="ubuntu@168.107.8.107"
 REMOTE="~/mcserver/plugins/$NAME"

@@ -9,6 +9,10 @@
 # =====================================================================
 set -uo pipefail
 
+# Permanent safety interlock: automatic prod recovery restarts are disabled.
+echo "watchdog: BLOCKED — prod restart is disabled" >&2
+exit 2
+
 DIR=~/mcserver/scripts
 FAILS_FILE="$DIR/.watchdog_fails"
 RESTARTS_FILE="$DIR/.watchdog_restarts"

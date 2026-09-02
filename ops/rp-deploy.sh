@@ -58,6 +58,11 @@ case "$TARGET" in
   *) echo "사용: $0 <dev|prod> [--restart] [--dry-run]" >&2; exit 2 ;;
 esac
 
+if [ "$RESTART" = 1 ]; then
+  echo "❌ prod 재시작 금지 정책: --restart 는 영구 비활성화되었습니다." >&2
+  exit 2
+fi
+
 # 동시 실행 금지 — 병렬 세션이 서로의 URL 을 덮어쓰는 사고가 실제로 있었다.
 # macOS 에 flock 이 없어서 mkdir(원자적)로 잠근다. 죽은 락은 PID 로 판별해 걷어낸다.
 LOCK="/tmp/rp-deploy-$TARGET.lock"
