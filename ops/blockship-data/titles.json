@@ -83,6 +83,9 @@
     "서포터",
     "건축가",
     "알파테스터",
+    "베타테스터",
+    "GM",
+    "가이드",
     "바르칸항구의전설",
     "사막의탐험왕",
     "전설의탐험왕"
@@ -870,6 +873,35 @@
       "source": "limited",
       "animation": true,
       "palette": "alpha"
+    },
+    "베타테스터": {
+      "name": "&bβ 베타 테스터",
+      "color": "&b",
+      "desc": "&7정식 출시 전 바다를 함께 다듬어준 이들",
+      "icon": "prismarine_crystals",
+      "tier": "유일",
+      "category": "특수",
+      "source": "limited",
+      "animation": true,
+      "palette": "alpha"
+    },
+    "GM": {
+      "name": "&4GM",
+      "color": "&4",
+      "desc": "&7서버 운영진에게 부여되는 칭호",
+      "icon": "command_block",
+      "tier": "유일",
+      "category": "특수",
+      "source": "admin"
+    },
+    "가이드": {
+      "name": "&e가이&a드",
+      "color": "&e",
+      "desc": "&7신규 유저를 돕는 안내자에게 부여되는 칭호",
+      "icon": "compass",
+      "tier": "유일",
+      "category": "특수",
+      "source": "admin"
     },
     "물길을외운자": {
       "name": "&b물길의 달인",
