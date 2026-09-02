@@ -8,7 +8,8 @@
 
 - Codex·Claude를 포함한 **모든 에이전트는 prod 서버를 재시작하지 않는다.** `sudo systemctl restart mcserver`, `systemctl restart mcserver`, `ops/rp-deploy.sh prod --restart`, `~/deploy-blockship.sh`, `ops/deploy-all-prod.sh`, `nightly-restart.sh --now` 및 이와 동등한 재시작 경로를 실행 금지한다.
 - 리소스팩 prod 배포는 `ops/rp-deploy.sh prod`를 **`--restart` 없이** 실행해 새 Release와 URL/SHA1만 반영한다. 접속자 확인·공지·승인 없는 운영 중단을 에이전트가 만들지 않는다.
-- 매일 06:00 KST 재시작 없는 정기 점검과 30/10/5/1분 사전 공지는 유지한다. 점검은 저장·상태 보고만 하며 staging/JAR를 prod에 적용하거나 서버를 재시작하지 않는다.
+- **매일 06:00 KST 정기 재시작은 켜져 있다 (2026-09-02 유저가 명시적으로 복구).** cron `0 21 * * * nightly-restart.sh` 가 staging 적용 + 재시작을 하고, 30/10/5/1분 전 `restart-warning.sh` 가 예고한다. 이건 «예약된» 재시작이라 위 금지의 예외다 — 에이전트가 임의 시각에 때리는 것만 금지다. 오늘 밤만 건너뛰려면 `touch ~/mcserver/scripts/.skip-nightly-once` (1회 자동 소모). 재시작 없는 점검용 `nightly-maintenance.sh` 는 파일만 남아 있고 cron 에서 빠져 있다.
+- **이 금지는 훅으로 강제된다** — `ops/hooks/guard-prod-restart.py` (Claude `settings.json` + Codex `hooks.json` 양쪽 PreToolUse). 문서만으로 막던 2026-09-02 에 에이전트가 하루 6번 prod 를 재시작했다. 검산 `ops/hooks/guard-prod-restart-selftest.py`. 통과시키는 것: 조회·grep·히어독 본문·`crontab` 편집·`PREVIEW=1`·`systemctl start`(inactive 복구)·dev.
 - Java/JSON 코드는 반드시 `~/stage-blockship.sh`로 `~/mcserver/staging/`에만 올린다. 운영 `plugins/` 승격은 하지 않는다.
 - prod 상태가 `inactive`로 확인된 경우에만 복구 목적으로 `systemctl start mcserver`를 검토할 수 있다. `active`, `activating`, `deactivating` 상태에서는 start/restart를 추가로 호출하지 않는다.
 - 이 항목은 아래의 기존 배포 설명보다 우선한다. 사용자가 이 안전 규칙을 명시적으로 변경하기 전까지 계속 적용한다.
@@ -269,6 +270,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - `~/mcserver/scripts/heartbeat.sh` (cron 5분): MC 포트 살아있으면 healthchecks.io로 핑 → 박스 자체가 죽거나 cron이 멈추면 **박스 밖에서** 침묵 감지, 25분 무응답 시 디스코드 알림(데드맨 스위치, 온박스 워치독의 사각 커버).
 - **`~/mcserver/scripts/fetch-staging.sh` (cron `*/5`, 2026-08-14 가동)**: GitHub Release → `staging/` **당겨오기**. 방향이 핵심이다 — 폰/맥이 prod에 밀어넣는 게 아니라 prod가 당겨오므로 **폰에 SSH 키가 없어도, 맥이 꺼져 있어도 배포가 돈다.** 전제: Actions가 **수동 promote(`workflow_dispatch` + `promote=true`)일 때만** Release를 만든다 → "최신 Release 존재" = "사람이 승격을 눌렀다". ★push마다 Release가 생기게 바꾸면 이 전제가 깨지니 금지. 토큰 `~/mcserver/.github-token`(fine-grained PAT, contents:read, 600).
   - 무변화면 **로그도 안 남긴다**(주기마다 한 줄씩 쌓이면 진짜 사건이 묻힌다 — 그래서 `*/5`로 조여도 노이즈가 안 늘었다). 404=아직 Release 없음(정상, 조용히 exit 0) / 401·403=진짜 실패만 🔴 알림.
+  - **★2026-09-02 이후 APPLY_NOW 즉시적용은 꺼져 있다** — `fetch-staging.sh` 178행에서 `APPLY_NOW 무시` 로 조기 exit 하고 staging 에만 둔다. `fetch-resourcepack.sh` 도 같다. 승격은 그대로 되고 **적용은 06:00 정기 재시작이 한다**(최대 지연 하루). 아래 설명은 그 exit 를 지웠을 때의 동작이다.
   - **즉시 적용**: Release 본문에 `APPLY_NOW`가 있으면 staging 배치 직후 `nightly-restart.sh --now`를 부른다. 마커는 워크플로의 `apply_now` 입력이 박아 준다. ★**문자열 매칭**이라 release notes 문구를 다듬다 그 낱말을 지우면 즉시 배포가 **에러 없이** 06:00 배포로 되돌아간다. 즉시 적용의 실제 지연 = 이 cron 주기.
   - ★**PAT 만료가 조용한 사고 지점** — 만료되면 배포가 그냥 안 온다(서버는 멀쩡). 만료일 관리 필요.
 - **`~/mcserver/scripts/rollback-jar.sh` (2026-08-14 신설, 수동 전용)**: 깨진 jar 롤백을 한 줄로. `list`(후보+라이브 sha256+staging 대기, 무해) / `dry` / `yes` / `yes to <파일>`. **하이픈 없이 쓴다** — 모바일 키보드가 `--`를 대시로 바꿔 안 먹은 실측 사례가 있어 en/em dash도 정규화한다. 보존→교체→**staging 비움**→`.fetch-staging-state` 초기화→재시작→부팅확인→알림. ★staging을 안 비우면 다음날 06:00에 깨진 jar이 재적용된다(그래서 스크립트로 묶었다).

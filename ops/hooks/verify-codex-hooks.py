@@ -28,8 +28,10 @@ CASES = [
      "ssh %s 'rcon.py \"plugman rl BlockShip\"'" % PROD, True),
     ("정상: prod -> /tmp 로 받아오기",
      "scp %s:%s/regions.json /tmp/r.json" % (PROD, LIVE), False),
-    ("정상: 정식 배포 스크립트",
-     "~/deploy-blockship.sh", False),
+    # ★2026-09-02 정책 변경: 즉시 배포(=prod 재시작)는 에이전트에게 금지됐다.
+    #   허용 경로는 stage-blockship.sh → 06:00 KST 정기 재시작이 적용한다.
+    ("즉시 배포(prod 재시작 포함)",
+     "~/deploy-blockship.sh", True),
     ("정상: staging 에 jar",
      "scp BlockShip.jar %s:~/mcserver/staging/" % PROD, False),
 ]

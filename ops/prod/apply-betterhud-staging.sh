@@ -236,10 +236,7 @@ $warn"
 
 case "${1:---status}" in
   --pre) pre ;;
-  --post)
-    echo "❌ prod 재시작 금지 정책: BetterHud post 적용(재시작 포함)은 영구 비활성화되었습니다." >&2
-    exit 2
-    ;;
+  --post) post ;;
   --status) [ -d "$STAGE" ] && [ -n "$(ls -A "$STAGE" 2>/dev/null)" ] || [ -f "$MARKER" ] ;;
   *) echo "usage: $0 --pre|--post|--status" >&2; exit 2 ;;
 esac

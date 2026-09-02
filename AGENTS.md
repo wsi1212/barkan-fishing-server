@@ -8,7 +8,8 @@
 
 - Codex·Claude를 포함한 **모든 에이전트는 prod 서버를 재시작하지 않는다.** `sudo systemctl restart mcserver`, `systemctl restart mcserver`, `ops/rp-deploy.sh prod --restart`, `~/deploy-blockship.sh`, `ops/deploy-all-prod.sh`, `nightly-restart.sh --now` 및 이와 동등한 재시작 경로를 실행 금지한다.
 - 리소스팩 prod 배포는 `ops/rp-deploy.sh prod`를 **`--restart` 없이** 실행해 새 Release와 URL/SHA1만 반영한다. 접속자 확인·공지·승인 없는 운영 중단을 에이전트가 만들지 않는다.
-- 매일 06:00 KST 재시작 없는 정기 점검과 30/10/5/1분 사전 공지는 유지한다. 점검은 저장·상태 보고만 하며 staging/JAR를 prod에 적용하거나 서버를 재시작하지 않는다.
+- **매일 06:00 KST 정기 재시작은 켜져 있다 (2026-09-02 유저가 명시적으로 복구).** cron `0 21 * * * nightly-restart.sh` 가 staging 적용 + 재시작을 하고, 30/10/5/1분 전 `restart-warning.sh` 가 예고한다. 이건 «예약된» 재시작이라 위 금지의 예외다 — 에이전트가 임의 시각에 때리는 것만 금지다. 오늘 밤만 건너뛰려면 `touch ~/mcserver/scripts/.skip-nightly-once` (1회 자동 소모). 재시작 없는 점검용 `nightly-maintenance.sh` 는 파일만 남아 있고 cron 에서 빠져 있다.
+- **이 금지는 훅으로 강제된다** — `ops/hooks/guard-prod-restart.py` (Claude `settings.json` + Codex `hooks.json` 양쪽 PreToolUse). 문서만으로 막던 2026-09-02 에 에이전트가 하루 6번 prod 를 재시작했다. 검산 `ops/hooks/guard-prod-restart-selftest.py`. 통과시키는 것: 조회·grep·히어독 본문·`crontab` 편집·`PREVIEW=1`·`systemctl start`(inactive 복구)·dev.
 - Java/JSON 코드는 반드시 `~/stage-blockship.sh`로 `~/mcserver/staging/`에만 올린다. 운영 `plugins/` 승격은 하지 않는다.
 - prod 상태가 `inactive`로 확인된 경우에만 복구 목적으로 `systemctl start mcserver`를 검토할 수 있다. `active`, `activating`, `deactivating` 상태에서는 start/restart를 추가로 호출하지 않는다.
 - 이 항목은 아래의 기존 배포 설명보다 우선한다. 사용자가 이 안전 규칙을 명시적으로 변경하기 전까지 계속 적용한다.
