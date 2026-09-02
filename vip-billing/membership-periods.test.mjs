@@ -15,7 +15,7 @@ import {
 test("every purchasable period round-trips between months, days, and labels", () => {
   assert.deepEqual(
     PURCHASE_PERIODS.map(({ months, days }) => [months, days]),
-    [[1, 30], [3, 90], [5, 150], [12, 365]]
+    [[1, 30], [12, 365]]
   );
 
   for (const period of PURCHASE_PERIODS) {
@@ -23,8 +23,8 @@ test("every purchasable period round-trips between months, days, and labels", ()
     assert.deepEqual(periodForDays(period.days), period);
     assert.equal(periodDays(period.months), period.days);
     assert.equal(monthsForDays(period.days), period.months);
-    assert.equal(periodLabel(period.months), `${period.days}일`);
-    assert.equal(periodLabelFromDays(period.days), `${period.days}일`);
+    assert.equal(periodLabel(period.months), period.months === 12 ? "1년" : "1개월");
+    assert.equal(periodLabelFromDays(period.days), period.months === 12 ? "1년" : "1개월");
   }
 });
 
@@ -32,8 +32,11 @@ test("invalid selections use the expected defaults without changing valid period
   assert.equal(validMonths(undefined), RECOMMENDED_MONTHS);
   assert.equal(validMonths("not-a-period"), RECOMMENDED_MONTHS);
   assert.equal(validMonths("not-a-period", 1), 1);
+  assert.equal(validMonths("3"), RECOMMENDED_MONTHS);
+  assert.equal(validMonths("5"), RECOMMENDED_MONTHS);
+  assert.equal(validMonths("1"), 1);
   assert.equal(validMonths("12"), 12);
-  assert.equal(validMonths("5extra"), 5);
+  assert.equal(validMonths("5extra"), RECOMMENDED_MONTHS);
 });
 
 test("unknown stored day values are displayed as their exact day count", () => {

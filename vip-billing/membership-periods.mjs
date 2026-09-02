@@ -1,13 +1,11 @@
 const PERIODS = [
   { months: 1, days: 30 },
-  { months: 3, days: 90 },
-  { months: 5, days: 150 },
   { months: 12, days: 365 }
 ];
 
 export const PURCHASE_PERIODS = Object.freeze(PERIODS.map((period) => Object.freeze(period)));
 export const PURCHASE_MONTHS = Object.freeze(PURCHASE_PERIODS.map(({ months }) => months));
-export const RECOMMENDED_MONTHS = 5;
+export const RECOMMENDED_MONTHS = 12;
 
 export function validMonths(value, fallback = RECOMMENDED_MONTHS) {
   const months = Number.parseInt(value, 10);
@@ -32,11 +30,11 @@ export function monthsForDays(days) {
 }
 
 export function periodLabel(months) {
-  const days = periodDays(months);
-  return days === null ? "기간 확인 필요" : `${days}일`;
+  const period = periodForMonths(months);
+  return period === null ? "기간 확인 필요" : period.months === 12 ? "1년" : "1개월";
 }
 
 export function periodLabelFromDays(days) {
   const period = periodForDays(days);
-  return period ? `${period.days}일` : `${Number(days)}일`;
+  return period ? periodLabel(period.months) : `${Number(days)}일`;
 }
