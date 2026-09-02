@@ -241,7 +241,7 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "정상",
+      "region": "설산",
       "rarity": "흔함"
     },
     {
@@ -252,7 +252,7 @@
       "scale": 1.0,
       "sound": "sweet_berry_bush",
       "plant": true,
-      "region": "정상",
+      "region": "설산",
       "rarity": "흔함"
     },
     {
@@ -340,7 +340,7 @@
       "scale": 1.0,
       "sound": "grass",
       "plant": true,
-      "region": "정상",
+      "region": "설산",
       "rarity": "희귀"
     }
   ]
