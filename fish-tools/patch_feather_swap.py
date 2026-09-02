@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""patch_feather_swap.py — E·D 등급에서 «깃털찌조각»을 뺀다.
+"""patch_feather_swap.py — 초반 등급에서 «단독 출처 후반 재료»를 뺀다.
 
 ## 왜 (유저 결정 2026-09-02: 「깃털 찌 조각 빼줘 D까지는, 그거 찾기 쉽지 않음」)
 깃털찌조각은 **기억의_연못 6% 단독 출처**다(materials.json 실측 — 다른 지역·날씨 드롭 전무).
@@ -19,6 +19,15 @@ Lv1 접근 재료는 부두(물고기비늘10·강화실6·낡은갈고리6·진
 원래 «도달 불가»였으므로 측정 원가는 오히려 올라간다(그게 정상화다).
 ★비율을 상수로 적지 않는다. materials.json 을 읽어 계산한다.
 
+## ②거대비늘 (유저 결정 2026-09-02: 「채취는 냅두고 나머지는 빼줘」)
+협곡 6% 단독 출처, 협곡은 통발가 티어로 Lv10. 이걸 D Lv6~9 세 종이 요구했다.
+  · 쇠날 작살(Lv6) · 여울 작살(Lv7) → 뺀다
+  · 채취 찌(Lv9) → **남긴다**(1개뿐이고 Lv9 면 협곡이 눈앞이다 — 유저 판단)
+대체는 **물고기비늘**(전 지역 10%) — 같은 「비늘」계열이라 테마가 이어진다.
+
+★교체 목록은 이 파일의 SWAPS 가 유일한 기록이다. 새 사례가 생기면 여기 한 줄 추가.
+  이미 교체된 것은 OLD 가 없으니 다시 돌려도 안전하다(멱등).
+
 사용:  python3 patch_feather_swap.py [--apply]
 """
 import argparse
@@ -31,8 +40,11 @@ LIVE = pathlib.Path(
     "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip")
 REPO = pathlib.Path(__file__).resolve().parent.parent
 PLUGIN = pathlib.Path.home() / "development" / "blockship-plugin"
-OLD, NEW = "깃털찌조각", "나뭇가지"
-GRADES = {"E", "D"}
+#: (뺄 재료, 대체 재료, 대상 등급, 예외로 남길 장비명)
+SWAPS = [
+    ("깃털찌조각", "나뭇가지",   {"E", "D"}, set()),
+    ("거대비늘",   "물고기비늘", {"E", "D"}, {"채취 찌"}),
+]
 
 
 def main() -> int:
@@ -40,6 +52,13 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
 
+    total = 0
+    for old, new, grades, keep in SWAPS:
+        total += run(old, new, grades, keep, a.apply)
+    return 0 if total >= 0 else 1
+
+
+def run(OLD, NEW, GRADES, KEEP, do_apply) -> int:
     rec_p = LIVE / "recipes.json"
     root = json.loads(rec_p.read_text(encoding="utf-8"))
     recs = root["recipes"]
@@ -82,7 +101,7 @@ def main() -> int:
             continue
         nm = v.get("rodPartName") or v.get("resultPartName") or v.get("displayName")
         g, lv = grade.get(nm, ("?", 99))
-        if g not in GRADES:
+        if g not in GRADES or nm in KEEP:
             continue
         want = max(1, math.ceil(hit.get("qty", 1) * ratio))
         cur = next((i for i in ings if (i.get("typeOrMatId") or "") == NEW), None)
@@ -95,7 +114,8 @@ def main() -> int:
         changed.append((g, lv, nm, hit.get("qty", 1), want, rid))
 
     changed.sort(key=lambda t: (t[0], t[1]))
-    print(f"\nE·D {len(changed)}종에서 {OLD} 제거")
+    print(f"\n{''.join(sorted(GRADES))} {len(changed)}종에서 {OLD} 제거"
+          + (f"  (예외 유지: {', '.join(sorted(KEEP))})" if KEEP else ""))
     for g, lv, nm, q0, q1, rid in changed:
         print(f"  {g} Lv{lv:<3}{nm:<16} {OLD}×{q0} → {NEW}×{q1}   ({rid})")
     left = sorted({(grade.get(v.get('rodPartName') or v.get('resultPartName')
@@ -103,10 +123,10 @@ def main() -> int:
                    for v in recs.values()
                    if any((i.get("typeOrMatId") or "") == OLD
                           for i in v.get("ingredients") or [])})
-    print(f"남은 {OLD} 사용 등급: {left}  (C 이상은 유지 — 기억의_연못 Lv7 이라 도달 가능)")
+    print(f"남은 {OLD} 사용 등급: {left}")
     if not changed:
         return 0
-    if not a.apply:
+    if not do_apply:
         print("(--apply 를 붙이면 실제로 씀)")
         return 0
     blob = json.dumps(root, ensure_ascii=False, indent=2) + "\n"

@@ -12733,13 +12733,6 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 2
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
@@ -12757,7 +12750,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -12773,13 +12766,6 @@
       "resultPartType": "작살",
       "resultPartName": "여울 작살",
       "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 2
-        },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
@@ -12799,7 +12785,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 14
         }
       ],
       "village": "스폰",
