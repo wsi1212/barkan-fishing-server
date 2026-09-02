@@ -14,13 +14,11 @@
 #        → ~/mcserver/staging/ 배치 → Discord 알림
 #        → 06:00 nightly-restart.sh 가 적용 + 구 jar 백업
 #
-# 즉시 적용: Release 본문에 **APPLY_NOW** 가 있으면 06:00 을 기다리지 않고
-#   `nightly-restart.sh --now` 를 바로 부른다. 클라우드 세션(폰·웹)에서 SSH 없이
-#   "지금 배포" 를 하려고 낸 길이다 — 22번 포트가 막혀 밀어넣기가 원천 불가능하고,
-#   당겨오는 이 구조에는 마커 한 줄만 얹으면 되기 때문이다.
-#   ★적용 로직은 여기 두지 않는다. nightly-restart.sh 한 곳에만 있다 — validate-staged
-#     게이트·리소스팩 교차검증·구 jar 백업이 거기 있고, 사본을 만들면 한쪽만 고쳐진다.
-#   마커는 Actions 워크플로의 apply_now 입력이 Release 본문에 박아 준다.
+# ★즉시 적용(APPLY_NOW)은 prod 에서 폐지됐다 (2026-09-02 유저 결정).
+#   폰·웹에서 승격을 눌러도 prod 는 **staging 까지만** 받는다. 적용·재시작은 06:00 정기
+#   경로(nightly-restart.sh)가 유일하게 한다. 즉시 배포는 dev 전용 — `~/deploy-dev.sh`.
+#   왜: 예고 없는 임의 시각 재시작이 접속자를 끊는다. 예약된 06:00 만 남긴다.
+#   본문에 마커가 있어도 아래에서 무시하고 알림만 보낸다. 되살리려면 그 결정을 먼저 뒤집을 것.
 #
 # ★plugins/ 루트에는 절대 쓰지 않는다. staging 까지, 그리고 nightly 를 부르는 것까지가
 #   이 스크립트의 권한이다.
@@ -175,30 +173,14 @@ echo "$TAG" > "$STATE_FILE"
 log "staging 배치 완료: $STAGING/$ASSET_NAME"
 
 if [[ "$APPLY" == "1" ]]; then
-  log "APPLY_NOW 무시 — prod 재시작 금지 정책으로 staging에만 보관"
-  notify "📦 **staging 배치 완료** — \`$ASSET_NAME\` (\`$TAG\`)\nprod 재시작은 정책상 하지 않습니다."
-  exit 0
-
-  # 아래 즉시 적용 로직은 영구 비활성화 상태다.
-  NIGHTLY="$MC_ROOT/scripts/nightly-restart.sh"
-  if [[ -x "$NIGHTLY" ]]; then
-    log "APPLY_NOW 마커 — 06:00 을 기다리지 않고 즉시 적용한다"
-    notify "🚀 **즉시 배포 시작** — \`$ASSET_NAME\` (\`$TAG\`)
-접속자가 있으면 예고 후 재시작합니다."
-    # ★exec 하면 EXIT trap 이 안 돈다 — TMP 를 먼저 치운다(빈 디렉터리가 /tmp 에 쌓인다).
-    #   exec 로 넘기는 이유: cron 의 flock 이 재시작·부팅확인이 끝날 때까지 유지돼
-    #   다음 주기가 겹쳐 들어오지 않는다.
-    rm -rf "$TMP"; trap - EXIT
-    # ★nightly 의 출력을 ops.log 로 넘긴다. 이 스크립트의 cron 줄은 stdout 을 /dev/null 로
-    #   보내므로(자기 log() 가 이미 파일에 쓰니 중복 방지) 그냥 exec 하면 **즉시 적용의
-    #   적용·재시작 기록이 로컬에 하나도 안 남는다** — 정기 06:00 경로는 자기 cron 줄이
-    #   ops.log 에 붙여서 남는데 즉시 경로만 사라져 사후 추적이 갈린다.
-    #   2026-08-14 첫 실전 즉시배포에서 실측(디스코드 알림은 갔지만 ops.log 는 비어 있었다).
-    exec "$NIGHTLY" --now >>"$LOG_FILE" 2>&1
-  fi
-  log "⚠ APPLY_NOW 인데 $NIGHTLY 가 없거나 실행권한이 없다 — staging 에 두고 끝낸다"
-  notify "⚠️ **즉시 적용 불가** — \`$ASSET_NAME\` 은 staging 에 있고 06:00 에 적용된다.
-\`$NIGHTLY\` 설치·실행권한을 확인할 것."
+  # ★즉시 적용은 prod 에서 영구 비활성이다 (2026-09-02 유저 결정).
+  #   폰·웹에서 승격을 눌러도 prod 는 staging 까지만 받고, 적용·재시작은 06:00 정기 경로가 한다.
+  #   즉시 배포가 필요하면 dev 에서 한다 — `~/deploy-dev.sh` (빌드+복사+dev 재시작).
+  #   ※ 여기서 nightly-restart.sh --now 를 부르지 않는다. 되살리려면 그 결정을 먼저 뒤집을 것.
+  log "APPLY_NOW 무시 — 즉시 적용은 dev 전용. staging 에 두고 06:00 에 적용한다"
+  notify "📦 **staging 배치 완료** — \`$ASSET_NAME\` (\`$TAG\`)
+즉시 적용은 prod 에서 꺼져 있습니다. **06:00 KST 정기 재시작**이 적용합니다.
+지금 확인이 필요하면 dev 에서 \`~/deploy-dev.sh\` 를 쓰세요."
   exit 0
 fi
 
