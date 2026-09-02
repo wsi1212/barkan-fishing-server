@@ -36,6 +36,7 @@
   왕도 = 복합형(두 계통 80%씩) / 히든 = 전설형(주력↑ + 행운 상단)
 """
 import json, shutil, sys, os
+from hidden_recipe_audit import assert_hidden_recipe_integrity
 
 SRC = sys.argv[1]
 WRITE_SHOPS = "--shops" in sys.argv
@@ -607,7 +608,10 @@ def main():
         #   히든의 해금 경로는 상자·수집품·히든 퀘스트이지 상점이 아니므로 「영구 미획득」이 아니다.
         #   (2026-08-28 에 c.get("src") 라는 없는 키로 히든까지 풀려던 코드가 있었는데, 오타 덕에
         #    동작하지 않고 있었다 — 의도를 명시해 되살아나지 않게 한다.)
-        locked = c["village"] not in ("상단", "왕도")
+        # 잠금은 마을명이 아니라 콘텐츠 출처가 최우선이다. 히든 낚싯대는 상점에
+        # 올라가지 않으므로, 마을/지역만 보고 locked=false가 되면 조합대에 먼저
+        # 노출되고 젖은 보물상자 후보에서도 빠져 영구 미획득이 된다.
+        locked = c["origin"].startswith("히든") or c["village"] not in ("상단", "왕도")
         recs[rid] = {"id": rid, "category": "낚싯대", "displayName": c["name"],
                      "locked": locked, "resultMode": "rod", "drillTier": 0,
                      "village": c["village"], "rodPartName": c["name"],
@@ -615,8 +619,9 @@ def main():
         n2i[c["name"]] = rid
         if rid not in cats["낚싯대"]:
             cats["낚싯대"].append(rid)
+    hidden_count = assert_hidden_recipe_integrity(P, R)
     json.dump(R, open(rec_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"recipes.json: 낚싯대 레시피 {len(cats['낚싯대'])}개")
+    print(f"recipes.json: 낚싯대 레시피 {len(cats['낚싯대'])}개 (히든 감사 {hidden_count}종)")
 
     # ── enhance.json (없는 낚싯대만 추가 — 기존 표는 손대지 않는다) ──
     #   기존 표를 바꾸면 이미 강화해 둔 플레이어의 누적 스탯이 소급 변경된다(getCumulativeStats).

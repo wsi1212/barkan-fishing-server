@@ -39,6 +39,7 @@
   강제하지만 데이터도 하한 이상으로 적어 로어·표를 일치시킨다.
 """
 import json, shutil, sys, os
+from hidden_recipe_audit import assert_hidden_recipe_integrity
 
 SRC = sys.argv[1]
 # --shops = npc.json 상점 NPC의 shopItems에 그 마을 작살 레시피를 배분(마을 상점에서 레시피 구매).
@@ -450,11 +451,13 @@ def main():
         del recs[rid]                                   # 옛 세대 레시피 제거 후 재생성
     cats["작살"] = ["HP01"]
 
-    def put(rid, name, village, ingredients):
+    def put(rid, name, village, ingredients, hidden=False):
         if rid in recs:
             raise SystemExit(f"레시피 id 충돌: {rid} ({name}) — 이미 {recs[rid]['resultPartName']}가 쓰고 있다")
         recs[rid] = {"id": rid, "category": "작살", "displayName": name,
-                     "locked": village in SHOP_VILLAGES, "resultMode": "part", "drillTier": 0,
+                     # 히든은 상점이 아니라 발견 콘텐츠가 해금한다. 마을명만
+                     # 보면 왕도에 배치된 히든 전설 작살이 locked=false로 풀린다.
+                     "locked": hidden or village in SHOP_VILLAGES, "resultMode": "part", "drillTier": 0,
                      "village": village, "resultPartType": "작살", "resultPartName": name,
                      "ingredients": ingredients}
         cats["작살"].append(rid)
@@ -465,14 +468,15 @@ def main():
         per = qty if len(matlist) == 1 else max(1, round(qty * 0.6))
         for j, m in enumerate(matlist):                 # 빌드 재료를 앞쪽에 — 무슨 창인지 재료로 읽히게
             items.insert(min(2 + j, len(items)), ing(m, per))
-        put(f"HP{i + 2:02d}", name, village, merge(items))
+        put(f"HP{i + 2:02d}", name, village, merge(items), origin.startswith("히든"))
 
     for rid, name, village, ings in LEGACY_RECIPES:
         put(rid, name, village, [ing(m, q) for m, q in ings])
 
+    hidden_count = assert_hidden_recipe_integrity(P, R)
     json.dump(R, open(rec_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     locked_n = sum(1 for v in recs.values() if v.get("resultPartType") == "작살" and v["locked"])
-    print(f"recipes.json: 작살 레시피 {len(cats['작살'])}개 (해금필요 {locked_n}개 = 상점 판매분)")
+    print(f"recipes.json: 작살 레시피 {len(cats['작살'])}개 (해금필요 {locked_n}개 = 상점 판매분, 히든 감사 {hidden_count}종)")
 
     # ── NPC 상점 목록 (--shops) ──
     #   상점 NPC가 어느 마을 것인지는 <b>기존 shopItems의 출처</b>로 판정한다 — 작살이 아직

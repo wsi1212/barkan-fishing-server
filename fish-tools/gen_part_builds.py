@@ -50,6 +50,7 @@
   (개발자 부품 8종은 삭제 — 유저 요청.)
 """
 import json, shutil, sys, os
+from hidden_recipe_audit import assert_hidden_recipe_integrity
 
 SRC = sys.argv[1]
 WRITE_SHOPS = "--shops" in sys.argv
@@ -751,9 +752,11 @@ def main():
             items = [ing(m, q) for m, q in COMMON[c["grade"]]]
             items.insert(1, ing(mat, MAT_QTY[c["grade"]]))
         recs[rid] = {"id": rid, "category": "부품", "displayName": c["name"],
-                     # ★출처가 히든-*/심해면 상점에 안 오르므로 locked 를 켜면 해금 경로가 없다.
-                     "locked": not (c["village"] in ("상단마을", "왕도")
-                                    or str(c.get("village", "")).startswith(("히든", "심해"))),
+                     # ★히든 출처는 상점에 오르지 않는다. 출처를 마을 예외로
+                     # 처리하면 locked=false가 되어 발견 전에도 조합대에 보이고,
+                     # 보물상자 후보에서도 빠져 영구 미획득이 된다.
+                     "locked": (str(c.get("village", "")).startswith("히든")
+                                or c["village"] not in ("상단마을", "왕도")),
                      "resultMode": "part", "drillTier": 0, "village": {
                          "스폰마을": "스폰", "사막마을": "사막", "상단마을": "상단", "왕도": "왕도",
                          # 히든은 본 마을 조합대에서 만든다(레시피 해금이 히든 진입 보상).
@@ -763,8 +766,9 @@ def main():
                      "ingredients": merge(items)}
         if rid not in cats["부품"]:
             cats["부품"].append(rid)
+    hidden_count = assert_hidden_recipe_integrity(P, R)
     json.dump(R, open(rec_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"recipes.json: 부품 레시피 {len(cats['부품'])}개")
+    print(f"recipes.json: 부품 레시피 {len(cats['부품'])}개 (히든 감사 {hidden_count}종)")
 
     if WRITE_SHOPS:
         npc_path = os.path.join(SRC, "npc.json")
