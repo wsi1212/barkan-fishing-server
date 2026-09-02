@@ -1,5 +1,7 @@
 const PERIODS = [
   { months: 1, days: 30 },
+  { months: 3, days: 90 },
+  { months: 5, days: 150 },
   { months: 12, days: 365 }
 ];
 
@@ -31,7 +33,7 @@ export function monthsForDays(days) {
 
 export function periodLabel(months) {
   const period = periodForMonths(months);
-  return period === null ? "기간 확인 필요" : period.months === 12 ? "1년" : "1개월";
+  return period === null ? "기간 확인 필요" : period.months === 12 ? "1년" : `${period.months}개월`;
 }
 
 export function periodLabelFromDays(days) {

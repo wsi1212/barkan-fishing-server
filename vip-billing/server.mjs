@@ -66,7 +66,7 @@ const TIERS = Object.freeze({
 const ANNUAL_MONTHS = Math.max(...PURCHASE_MONTHS);
 const bankTransferConfigured = () => Boolean(BANK_TRANSFER_BANK && BANK_TRANSFER_ACCOUNT_NUMBER && BANK_TRANSFER_ACCOUNT_HOLDER);
 function periodPrice(tier, months) {
-  return months === ANNUAL_MONTHS ? tier.annualPrice : tier.price;
+  return months === ANNUAL_MONTHS ? tier.annualPrice : tier.price * months;
 }
 const monthlyPrice = (tier, months) => Math.round(periodPrice(tier, months) / months);
 
@@ -555,7 +555,7 @@ function home(requestedTier, requestedMonths) {
     .config .choice-grid{grid-template-columns:repeat(2,1fr)}
     @media(max-width:800px){.hero{padding:42px 26px;border-radius:23px}}
     @media(max-width:800px){.store-grid{grid-template-columns:1fr}.store-card{min-height:0}}@media(max-width:620px){.config .choice-grid{grid-template-columns:repeat(2,1fr)}}
-  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">채팅 태그, 전용 외형, 프로필 꾸미기. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>월간 이용권과 1년 이용권 중 하나를 선택하세요.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
+  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">채팅 태그, 전용 외형, 프로필 꾸미기. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>1개월·3개월·5개월 이용권과 1년 이용권 중 하나를 선택하세요.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
 }
 function accountPage(current, sub, refunds, pendingOrders, notice = "") {
   const tier = sub ? TIERS[sub.tier] : null;
