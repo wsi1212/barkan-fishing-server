@@ -103,6 +103,31 @@ def bedrock_motd(host: str, port: int = BEDROCK_PORT, timeout: float = 6.0):
     return line1, line2, version
 
 
+def explain(exc: Exception, host: str, port: int, proto: str) -> str:
+    """소켓 예외를 «다음에 뭘 확인해야 하는지»로 번역한다.
+
+    gaierror 원문("nodename nor servname provided")은 실전에서 아무 것도 알려주지 않는다.
+    우리 도메인은 무료 서브도메인이라 갱신을 놓치면 서버는 멀쩡한데 이름만 안 풀린다 —
+    그게 이 에러의 1순위 원인이다.
+    """
+    if isinstance(exc, socket.gaierror):
+        return (f"도메인이 안 풀립니다 ({host}) — DNS 문제입니다. 서버는 살아 있을 수 있습니다.\n"
+                f"    · 무료 서브도메인 갱신이 지났는지 확인 (barkan.kr / barkan.kro.kr)\n"
+                f"    · IP 로 직접 확인: python3 ping_motd.py 168.107.8.107")
+    if isinstance(exc, socket.timeout):
+        if proto == "UDP":
+            return (f"무응답 — {port}/UDP 가 막혔거나 Geyser 가 안 떴습니다.\n"
+                    f"    · iptables/OCI 보안목록에 udp {port} 가 있는지\n"
+                    f"    · 플러그인 목록에 Geyser-Spigot 이 로드됐는지")
+        return (f"무응답 — {port}/TCP 가 막혔거나 서버가 부팅 중입니다.\n"
+                f"    · 재시작 직후면 --wait 로 다시 (부팅 20~40초)")
+    if isinstance(exc, ConnectionRefusedError):
+        return f"연결 거부 — {port} 에서 아무도 듣고 있지 않습니다. 서버가 꺼졌는지 확인하세요."
+    if isinstance(exc, EOFError):
+        return f"응답이 끊겼습니다 — {port} 는 열렸지만 마크 서버가 아닐 수 있습니다."
+    return f"{type(exc).__name__}: {exc}"
+
+
 def main() -> int:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     wait = "--wait" in sys.argv
@@ -129,7 +154,7 @@ def main() -> int:
             print(f"  line{i} = {line!r}")
         print(f"  버전 = {version} / 접속자 {online}")
     except Exception as exc:
-        print(f"  ❌ 실패: {type(exc).__name__}: {exc}")
+        print(f"  ❌ {explain(exc, host, JAVA_PORT, 'TCP')}")
         failed = True
 
     print(f"=== 베드락 {host}:{BEDROCK_PORT} (UDP) ===")
@@ -142,11 +167,8 @@ def main() -> int:
             print("  ⚠ § 색코드 없는 MOTD 로 보입니다 — Paper 가 컴포넌트로 파싱하지 못해")
             print("    Geyser 가 JSON 문자열째로 내보내는 상태입니다. 각 줄에 §b/§e 를 붙이세요.")
             failed = True
-    except socket.timeout:
-        print(f"  ❌ 무응답 — 19132/UDP 가 막혔거나 Geyser 가 안 떴습니다")
-        failed = True
     except Exception as exc:
-        print(f"  ❌ 실패: {type(exc).__name__}: {exc}")
+        print(f"  ❌ {explain(exc, host, BEDROCK_PORT, 'UDP')}")
         failed = True
 
     return 1 if failed else 0
