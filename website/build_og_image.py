@@ -27,7 +27,10 @@ else:
     ch = round(sw / target)
     box = (0, (sh - ch) // 2, sw, (sh - ch) // 2 + ch)
 
+# progressive=False 가 중요하다 — 프로그레시브 JPEG 는 일부 링크 프리뷰
+# 파이프라인(디스코드 미디어 프록시·카카오 스크랩)이 디코드에 실패해
+# 「제목·설명만 뜨고 이미지는 빈칸」이 된다. 베이스라인만 쓴다.
 im.crop(box).resize((W, H), Image.LANCZOS).save(
-    OUT, "JPEG", quality=88, optimize=True, progressive=True
+    OUT, "JPEG", quality=88, optimize=True, progressive=False, subsampling=0
 )
 print(f"{OUT.name}: {W}x{H}  {OUT.stat().st_size // 1024} KB  (crop {box} of {sw}x{sh})")

@@ -1,0 +1,9 @@
+# barkan.kr — 링크 미리보기 크롤러와 검색엔진 모두 허용.
+# ★이 파일이 없으면 Caddy 의 try_files 폴백이 /robots.txt 요청에
+#   index.html 을 200 text/html 로 돌려준다(크롤러가 HTML 을 robots 로 파싱).
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://barkan.kr/sitemap.xml
