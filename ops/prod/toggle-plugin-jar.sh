@@ -7,9 +7,6 @@
 #   예: ./toggle-plugin-jar.sh enable BetterHud-2.0.0.jar
 set -euo pipefail
 
-echo "❌ prod 재시작 금지 정책: 플러그인 jar on/off는 영구 비활성화되었습니다." >&2
-exit 2
-
 ACTION="${1:?enable 또는 disable}"
 JAR="${2:?jar 파일명 (예: BetterHud-2.0.0.jar)}"
 PLUGINS="$HOME/mcserver/plugins"

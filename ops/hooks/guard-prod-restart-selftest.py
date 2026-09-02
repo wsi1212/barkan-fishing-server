@@ -28,6 +28,9 @@ BLOCK = [
     SSH + "'~/mcserver/scripts/rcon.py stop'",
     SSH + "\"tmux send-keys -t mc 'stop' Enter\"",
     "ops/deploy-all-prod.sh",
+    "bash ~/deploy-blockship.sh",          # 인터프리터 우회
+    "cd ~ && sudo systemctl restart mcserver",
+    "for i in 1; do sudo systemctl restart mcserver; done",  # 루프 본문은 실행이다
 ]
 ALLOW = [
     # 조회·읽기
@@ -54,6 +57,13 @@ ALLOW = [
     "cat > /tmp/doc.md <<'EOF'\nsudo systemctl restart mcserver 는 금지다\nEOF",
     "python3 - <<'PY'\nprint('~/deploy-blockship.sh 는 차단된다')\nPY",
     "git add -A && git commit -F - <<'MSG'\n운영: nightly-restart.sh 재개\nsudo systemctl restart mcserver 는 여전히 금지\nMSG",
+    # 스크립트 «이름»을 목록·인자로 입에 올리는 것은 실행이 아니다 (2026-09-02 실측 오차단)
+    "for f in ops/rp-deploy.sh ops/deploy-blockship.sh; do grep -n BLOCKED $f; done",
+    "sed -n '20,30p' ops/oracle/rollback-jar.sh",
+    "scp -q ops/prod/jar-guard.sh ubuntu@168.107.8.107:~/mcserver/scripts/",
+    # 부분 실행 형태는 통과 (전체 스크립트가 아니라 옵션이 위험한 것들)
+    "ops/oracle/rollback-jar.sh list",
+    "ops/prod/apply-betterhud-staging.sh --status",
 ]
 # 반대로 셸에 먹이는 히어독은 «실행»이므로 본문도 검사한다.
 BLOCK_HEREDOC = [

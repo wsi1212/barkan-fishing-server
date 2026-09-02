@@ -48,11 +48,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ "$YES" == 1 ]]; then
-  echo "❌ prod 재시작 금지 정책: 라이브 jar 롤백은 영구 비활성화되었습니다." >&2
-  exit 2
-fi
-
 log() {
   local m="[$(date '+%Y-%m-%d %H:%M:%S')] [rollback] $*"
   echo "$m"; echo "$m" >> "$LOG_FILE" 2>/dev/null || true

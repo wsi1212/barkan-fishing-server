@@ -32,18 +32,26 @@ READONLY = {
 # systemctl 은 조회 서브커맨드면 읽기다.
 SYSTEMCTL_READONLY = re.compile(r"^\s*systemctl\s+(is-active|is-enabled|is-failed|show|status|cat|list-\S+)\b")
 
+# ① 스크립트 이름은 «명령 위치»(세그먼트의 선두 실행파일)에서만 본다.
+#    ★그냥 낱말로 찾으면 이름을 입에 올리는 것 자체가 막힌다:
+#      for f in ops/deploy-blockship.sh …; do grep …   ← 목록에 있을 뿐인데 차단됐다(실측)
+#    실제 실행은 항상 선두 토큰이므로 정밀도만 오르고 보호는 그대로다.
+DENY_HEAD = {
+    "nightly-restart.sh": "nightly-restart.sh 수동 실행 — 즉시 적용+재시작",
+    "deploy-blockship.sh": "deploy-blockship.sh — 업로드 후 prod 를 바로 재시작한다",
+    "deploy-all-prod.sh": "deploy-all-prod.sh — prod 재시작 포함",
+    "deploy-jar.sh": "deploy-jar.sh — prod 재시작 포함",
+    "resourcepack-restart.sh": "resourcepack-restart.sh — prod 재시작",
+    "toggle-plugin-jar.sh": "toggle-plugin-jar.sh — prod 재시작 포함",
+    "oneshot-guild-rename-gm.sh": "oneshot 스크립트 — prod 재시작 포함",
+}
+# 셸 인터프리터로 우회하는 형태(`bash ~/deploy-blockship.sh`)도 선두 다음 토큰까지 본다.
+INTERPRETERS = {"bash", "sh", "zsh", "source", "."}
+
+# ② 여러 토큰이 모여야 위험해지는 형태는 정규식으로. (rp-deploy 는 --restart 만, rollback 은 yes 만)
 DENY = [
     (re.compile(r"(?<![\w-])systemctl\s+(?:--\S+\s+)*(restart|stop|kill)\s+mcserver(?![\w-])"),
      "systemctl restart/stop mcserver — prod 운영 중단"),
-    (re.compile(r"(?<![\w-])nightly-restart\.sh(?![\w-])"),
-     "nightly-restart.sh 수동 실행 — 즉시 적용+재시작"),
-    (re.compile(r"(?<![\w-])deploy-blockship\.sh(?![\w-])"),
-     "deploy-blockship.sh — 업로드 후 prod 를 바로 재시작한다"),
-    (re.compile(r"(?<![\w-])deploy-all-prod\.sh(?![\w-])"), "deploy-all-prod.sh — prod 재시작 포함"),
-    (re.compile(r"(?<![\w-])deploy-jar\.sh(?![\w-])"), "deploy-jar.sh — prod 재시작 포함"),
-    (re.compile(r"(?<![\w-])resourcepack-restart\.sh(?![\w-])"), "resourcepack-restart.sh — prod 재시작"),
-    (re.compile(r"(?<![\w-])toggle-plugin-jar\.sh(?![\w-])"), "toggle-plugin-jar.sh — prod 재시작 포함"),
-    (re.compile(r"(?<![\w-])oneshot-guild-rename-gm\.sh(?![\w-])"), "oneshot 스크립트 — prod 재시작 포함"),
     (re.compile(r"(?<![\w-])rollback-jar\.sh\s+(?:yes|예)(?![\w-])"), "rollback-jar.sh yes — prod 재시작"),
     (re.compile(r"(?<![\w-])apply-betterhud-staging\.sh\s+--post(?![\w-])"), "BetterHud --post — prod 재시작"),
     (re.compile(r"(?<![\w-])rp-deploy\.sh\b[^|;&]*--restart(?![\w-])"), "rp-deploy.sh --restart — prod 재시작"),
@@ -118,6 +126,12 @@ def scan(command, depth=0):
             continue
         if PREVIEW.search(seg):
             continue
+
+        # 명령 위치의 스크립트 이름 (bash <script> 형태면 그 다음 토큰까지)
+        toks = bare.split()
+        for cand in (os.path.basename(t) for t in toks[:2] if t):
+            if cand in DENY_HEAD and (cand == head or head in INTERPRETERS):
+                return DENY_HEAD[cand]
 
         # ssh 'payload' / bash -c "payload" 안쪽도 같은 규칙으로 본다.
         # ★따온 payload 가 «읽기 명령»이면 그 구간을 직접검사에서 비운다 —
