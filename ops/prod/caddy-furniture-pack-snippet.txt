@@ -1,0 +1,30 @@
+# Caddy 설정 추가 스니펫 — CraftEngine 가구팩 자체 서빙 (2026-09-02 적용됨)
+#
+# ★박스가 죽어 재구축할 때 이 라우트가 없으면 «가구팩 다운로드 실패»가 전원에게 난다.
+#   CE config.yml 의 hosting.url 이 이 경로를 가리키고 있다.
+#
+# 적용: barkan.kr 블록 안, 기존 `handle /barkan-resourcepack*.zip` 바로 뒤에 추가 후
+#       sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
+#       (무중단 — 기존 연결 안 끊김. 마인크래프트 서버와는 무관하다)
+#
+# 왜 GitHub Release 에서 옮겼나 —
+#   BetterHud 자산(대화창 초상화 등)은 CE 생성 팩에 병합돼 클라로 간다. 그래서 자산을
+#   바꾸면 팩을 다시 굽고 공개 파일을 교체해야 하는데, 공개본이 GitHub Release 자산이면
+#   업로드에 contents:write 가 필요하다. prod 토큰은 read 전용이고 gh CLI 도 없어서
+#   **prod 가 혼자서 팩을 갱신할 수 없었다** → jar 처럼 「staging 에 올려두고 06:00 에
+#   자동 적용」하는 경로를 만들 수 없었다. 여기서 직접 서빙하면 prod 는 파일 복사 +
+#   config sha1 갱신만 하면 되고 외부 권한이 필요 없다.
+#   (메인 리소스팩은 이미 같은 방식으로 /var/www/barkan 에서 서빙 중이었다.)
+#
+# ★URL 은 canonical host(barkan.kr)를 써야 한다. barkan.kro.kr 은 블록 맨 위에서
+#   308 리다이렉트되므로 굳이 리다이렉트를 한 번 더 타게 만들 이유가 없다.
+#
+# 관련 스크립트:
+#   ops/prod/apply-betterhud-staging.sh   (06:00 자동 적용 — 팩을 여기로 복사)
+#   ops/prod/betterhud/deploy-prod.sh     (즉시 배포 — 6단계에서 여기로 복사)
+#   ops/prod/betterhud/stage-prod.sh      (맥에서 스테이징 올리기)
+
+    handle /barkan-furniture*.zip {
+        root * /var/www/barkan
+        file_server
+    }

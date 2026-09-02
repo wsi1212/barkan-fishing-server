@@ -13,7 +13,15 @@ set -euo pipefail
 SRC="$(cd "$(dirname "$0")" && pwd)"
 SSH="ssh -i $HOME/.ssh/oracle-mc.key ubuntu@168.107.8.107"
 REPO="wsi1212/minecraft-fish-resource-pack"
-URL="https://github.com/$REPO/releases/download/latest/barkan-furniture.zip"
+# ★2026-09-02 CE 가구팩을 GitHub Release → prod Caddy 자체 서빙으로 옮겼다.
+#   이유: prod 가 스스로 팩을 갱신하려면 업로드에 contents:write 가 필요한데 박스
+#   토큰은 read 전용이고 gh CLI 도 없다. 그래서 「스테이징에 올려두고 06:00 에 자동
+#   적용」하는 경로를 만들 수 없었다(apply-betterhud-staging.sh 참고). Caddy 서빙이면
+#   prod 는 /var/www/barkan 에 복사 + config sha1 갱신만 하면 되고 외부 권한이 없다.
+#   Caddyfile 에 `handle /barkan-furniture*.zip` 라우트가 있어야 한다.
+URL="https://barkan.kr/barkan-furniture.zip"
+WEBROOT="/var/www/barkan"
+PUBFILE="barkan-furniture.zip"
 JAR=""
 WITH_DIALOGUE=0
 for a in "$@"; do
@@ -131,18 +139,21 @@ $SSH 'old=$(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|c
       [ "$changed" = 1 ] && echo "  팩 내용 변경 감지" || echo "  팩 내용 동일 — 안정화 확인 후 기존 팩 재사용"
       echo "$last"'
 
-say "6) GitHub 업로드"
-rm -f /tmp/barkan-furniture.zip
-scp -q -i "$HOME/.ssh/oracle-mc.key" \
-  ubuntu@168.107.8.107:'~/mcserver/plugins/CraftEngine/generated/resource_pack.zip' /tmp/barkan-furniture.zip
-# ★파일명이 곧 릴리스 자산 이름이다. 다르면 덮어쓰지 않고 새 자산이 생긴다.
-gh release upload latest /tmp/barkan-furniture.zip --clobber -R "$REPO"
+say "6) 공개 배치 (prod Caddy)"
+# ★맥으로 내려받아 GitHub 에 올리던 단계였다. 지금은 prod 안에서 웹루트로 복사한다 —
+#   34MB 왕복이 사라지고, 무엇보다 prod 가 «혼자서» 팩을 갱신할 수 있게 된다.
+#   원자적으로: 임시 이름에 쓰고 mv (반쯤 쓰인 zip 을 클라가 받아가지 않게).
+$SSH "set -e
+sudo cp -f ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip $WEBROOT/.$PUBFILE.tmp
+sudo chmod 644 $WEBROOT/.$PUBFILE.tmp
+sudo mv -f $WEBROOT/.$PUBFILE.tmp $WEBROOT/$PUBFILE
+echo \"  배치 완료: \$(sudo sha1sum $WEBROOT/$PUBFILE | cut -c1-40)\""
 
 say "7) 공개 URL 대조 → CE sha1 갱신"
 $SSH "set -e
 LOC=\$(sha1sum ~/mcserver/plugins/CraftEngine/generated/resource_pack.zip|cut -c1-40)
-# ★GitHub CDN 이 새 자산을 바로 안 준다. 업로드 직후 한 번만 재보면 옛 파일이 잡혀서
-#   멀쩡한 배포가 여기서 죽는다(2026-08-10 34MB 올릴 때 실제로 그랬다). 몇 번 기다렸다 다시 본다.
+# Caddy 자체 서빙이라 CDN 지연은 없다(보통 1회에 일치). 재시도는 reload 직후의
+# 순간적인 파일 교체 타이밍만 흡수한다 — GitHub 시절엔 6회를 다 쓰는 일이 흔했다.
 for try in 1 2 3 4 5 6; do
   curl -sL '$URL' -o /tmp/pc.zip
   PUB=\$(sha1sum /tmp/pc.zip|cut -c1-40); rm -f /tmp/pc.zip

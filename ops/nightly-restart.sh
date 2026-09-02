@@ -44,7 +44,10 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 SKIP_MARK="$DIR/.skip-nightly-once"
 
-today=$(date -u +%Y-%m-%d)
+# ★KST 기준(2026-08-17). 이 스팜립트는 21:00 UTC 에 돌고 그건 KST 다음 날 06:00 이다.
+#   date -u 를 쓰는 동안 리포트 헤더가 «UTC 날짜에 KST 라밨»을 붙이는 자기모순이었다
+#   (「데일리 리포트 (2026-08-16 · 06:00 KST)」이라 찍힌 시간이 실제로는 08-17 06:00 KST).
+today=$(TZ=Asia/Seoul date +%Y-%m-%d)
 
 # --- 오늘 밤만 스킵 요청 있으면: 배포/재시작/방송 전부 건너뜀(1회성, 자동 소모) ---
 if [ "$IMMEDIATE" = "0" ] && [ -f "$SKIP_MARK" ]; then
@@ -68,7 +71,7 @@ for j in "$STAGING"/*.jar; do
   deploy_lines+="🚀 ${bn}"$'\n'
   if [ "$DRYRUN" = "0" ]; then
     mkdir -p "$JARBAK"
-    [ -f "$PLUGINS/$bn" ] && cp -f "$PLUGINS/$bn" "$JARBAK/${bn}.bak-$(date -u +%Y%m%d-%H%M%S)"
+    [ -f "$PLUGINS/$bn" ] && cp -f "$PLUGINS/$bn" "$JARBAK/${bn}.bak-$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)"
     mv -f "$j" "$PLUGINS/$bn"; log "배포 jar 적용: $bn"
   else log "DRY: would deploy jar $bn"; fi
 done
@@ -78,7 +81,7 @@ if [ -d "$STAGING/BlockShip" ] && [ -n "$(ls -A "$STAGING/BlockShip" 2>/dev/null
   #   validate-staged.py 가 파싱·항목수감소·스키마파손을 검사해 거부한다.
   #   거부된 파일은 staging-rejected/ 로 격리(다음날 조용히 재적용되지 않게) + 리포트에 표기.
   ok=0; rej=0; rejlist=""
-  REJDIR="$STAGING-rejected/$(date -u +%Y%m%d-%H%M%S)"
+  REJDIR="$STAGING-rejected/$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)"
   while IFS= read -r src; do
     rel="${src#$STAGING/BlockShip/}"
     case "$rel" in *.allow-shrink) continue;; esac
@@ -101,6 +104,20 @@ $rejlist"
   if [ "$DRYRUN" = "0" ]; then rm -rf "$STAGING/BlockShip"; log "배포 설정 적용 ${ok}개 / 거부 ${rej}개"
   else log "DRY: would deploy $ok, reject $rej"; fi
 fi
+# --- ①-2 BetterHud 정의·자산 스테이징 (재시작 «전» 적용) ---
+# jar/설정과 달리 BetterHud 자산은 재시작 후에 팩 재생성·공개배치·sha1 갱신이 더 필요하다.
+# 그 후반부는 아래 재시작 뒤 --post 가 맡는다(2차 재시작까지 그 안에서).
+BHSTAGE="$DIR/apply-betterhud-staging.sh"
+if [ -x "$BHSTAGE" ]; then
+  if bhline=$(DRY=$DRYRUN "$BHSTAGE" --pre 2>&1); then
+    [ -n "$bhline" ] && deploy_lines+="$bhline"$'\n'
+  else
+    bhrc=$?
+    # 3 = 스테이징 없음(정상). 그 외는 이미 스크립트가 Discord 로 알렸다.
+    [ "$bhrc" = "3" ] || deploy_lines+="🔴 BetterHud 스테이징 실패(rc=$bhrc): $bhline"$'\n'
+  fi
+fi
+
 [ -z "$deploy_lines" ] && deploy_summary="배포 없음" || deploy_summary=$(printf '%s' "$deploy_lines")
 
 # ★즉시 모드는 "적용할 게 있어서" 불린 것이다. 비어 있으면 재시작할 이유가 없다 —
@@ -139,6 +156,18 @@ fi
 if [ -s "$STATUS_FILE" ]; then bcount=$(grep -c . "$STATUS_FILE"); backups=$(cat "$STATUS_FILE")
 else bcount=0; backups="⚠️ 성공 기록 없음 (전부 실패했거나 안 돎 — 실패 시 개별 🔴 확인)"; fi
 
+# --- 지역 정합성 감사 (2026-08-27 신설) ---
+#  지역 ID·참조가 어긋나면 로그도 경고도 없이 게임만 안 돈다 — BGM 무음, 잡을 수 없는 어종,
+#  «이미 존재» 로 막히는 지역 생성. 라이브 데이터(권위)를 매일 한 번 훑어 리포트에 싣는다.
+if ra=$("$DIR/region-audit.py" --data "$HOME/mcserver/plugins/BlockShip" 2>&1); then
+  region_line="🗺️ 지역 감사 정상"
+else
+  region_line="🗺️ 지역 감사 🔴 $(printf '%s' "$ra" | grep -c 'ERROR ')건 — scripts/region-audit.py 로 확인"
+fi
+rw=$(printf '%s' "$ra" | grep 'WARN  ' | sed 's/^ *WARN  /   ⚠️ /')
+[ -n "$rw" ] && region_line="$region_line
+$rw"
+
 # --- 헬스 스냅샷 ---
 disk=$(df / | awk 'NR==2{print $5}')
 np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재시작)')" || echo "무응답")
@@ -161,7 +190,8 @@ $deploy_summary
 📦 백업 ${bcount}건 성공
 $backups
 
-💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np"
+💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np
+$region_line"
 fi
 
 # --- PREVIEW: 출력만 ---
@@ -177,6 +207,14 @@ log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 
 if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; exit 0; fi
 eval "$RESTART_CMD"
 log "restarted"
+
+# --- BetterHud 후반부: 팩 재생성 → 공개배치 → CE sha1 → 마무리 재시작 ---
+# 대기 중인 게 없으면 즉시 exit 3 으로 빠진다(평상시 비용 0). 안에서 부팅을 기다리므로
+# 여기서 미리 기다릴 필요가 없다.
+if [ -x "$BHSTAGE" ]; then
+  "$BHSTAGE" --post || { bhrc=$?
+    [ "$bhrc" = "3" ] || log "BetterHud post 실패(rc=$bhrc) — Discord 알림 확인"; }
+fi
 
 # 즉시 배포는 아무도 안 보고 있을 시간에 돌 수 있다 — 부팅까지 확인하고 실패면 알린다.
 # (정기 06:00 은 이 확인을 하지 않는다. 프리즈 워치독이 8분 안에 잡는 경로가 이미 있고,
