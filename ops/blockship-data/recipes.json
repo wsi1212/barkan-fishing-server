@@ -655,10 +655,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 1
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -1918,17 +1918,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
+          "typeOrMatId": "낡은갈고리",
           "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 3
+          "mcItem": "tripwire hook",
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -1942,7 +1942,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 15
         }
       ],
       "village": "스폰",
@@ -2438,28 +2438,28 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -2949,28 +2949,28 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -3243,35 +3243,35 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 6
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 4
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 4
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -3439,28 +3439,35 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron_nugget",
-          "qty": 1
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 3
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 6
+        },
+        {
+          "type": "custom",
+          "typeOrMatId": "나뭇가지",
+          "mcItem": "paper",
+          "displayName": "나뭇가지",
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -7562,24 +7569,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
+          "typeOrMatId": "낡은갈고리",
           "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 2
+          "mcItem": "tripwire hook",
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 10
         }
       ],
       "village": "스폰",
@@ -7644,31 +7651,31 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
+          "typeOrMatId": "낡은갈고리",
           "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 3
+          "mcItem": "tripwire hook",
+          "qty": 6
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 5
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 12
         }
       ],
       "village": "스폰",
@@ -10328,28 +10335,28 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 6
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -12628,17 +12635,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 3
+          "typeOrMatId": "강화실",
+          "displayName": "단단한 자루",
+          "mcItem": "string",
+          "qty": 5
         },
         {
           "kind": "custom",
-          "typeOrMatId": "단단한자루",
+          "typeOrMatId": "물고기비늘",
           "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 1
+          "mcItem": "paper",
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -12646,13 +12653,6 @@
           "displayName": "진주",
           "mcItem": "nautilus_shell",
           "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 10
         }
       ],
       "village": "스폰",
@@ -12670,31 +12670,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 5
+          "typeOrMatId": "강화실",
+          "displayName": "단단한 자루",
+          "mcItem": "string",
+          "qty": 6
         },
         {
           "kind": "custom",
-          "typeOrMatId": "단단한자루",
+          "typeOrMatId": "물고기비늘",
           "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 3
+          "mcItem": "paper",
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 8
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 11
+          "qty": 6
         }
       ],
       "village": "스폰",
@@ -12712,24 +12705,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 13
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
+          "typeOrMatId": "강화실",
           "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 3
+          "mcItem": "string",
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
+          "displayName": "단단한 자루",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 10
         }
       ],
       "village": "스폰",
@@ -15903,10 +15889,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 1
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -17115,28 +17101,28 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -17570,28 +17556,35 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 1
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 3
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 6
+        },
+        {
+          "type": "custom",
+          "typeOrMatId": "녹슨부품",
+          "mcItem": "iron nugget",
+          "displayName": "녹슨부품",
+          "qty": 8
         }
       ],
       "village": "스폰",
@@ -17654,28 +17647,28 @@
           "typeOrMatId": "낡은갈고리",
           "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 1
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 2
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 6
         }
       ],
       "village": "스폰",
@@ -17700,24 +17693,17 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 3
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -17735,31 +17721,31 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
+          "typeOrMatId": "낡은갈고리",
           "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 2
+          "mcItem": "tripwire hook",
+          "qty": 8
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 5
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 9
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 6
         }
       ],
       "village": "스폰",
@@ -17819,17 +17805,17 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
+          "typeOrMatId": "낡은갈고리",
           "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 1
+          "mcItem": "tripwire hook",
+          "qty": 7
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 5
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -17843,7 +17829,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -17945,31 +17931,24 @@
       "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "단단한자루",
+          "typeOrMatId": "강화실",
           "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 1
+          "mcItem": "string",
+          "qty": 7
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "물고기비늘",
+          "displayName": "단단한 자루",
+          "mcItem": "paper",
+          "qty": 15
         },
         {
           "kind": "custom",
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "iron nugget",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "거대비늘",
-          "displayName": "거대 비늘",
-          "mcItem": "paper",
-          "qty": 1
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "물고기비늘",
-          "displayName": "물고기 비늘",
-          "mcItem": "paper",
-          "qty": 23
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -19906,10 +19885,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "깃털찌조각",
-          "displayName": "깃털 찌 조각",
-          "mcItem": "feather",
-          "qty": 3
+          "typeOrMatId": "나뭇가지",
+          "displayName": "나뭇가지",
+          "mcItem": "paper",
+          "qty": 4
         },
         {
           "kind": "custom",

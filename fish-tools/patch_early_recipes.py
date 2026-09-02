@@ -40,7 +40,34 @@ SKIP_PART_TYPES = {"미끼"}
 #    깃털찌조각(기억의_연못 Lv48)을, Lv4 수습 줄이 보석(오아시스 Lv12)을 요구했다 —
 #    그 원칙과 정면으로 어긋난다. 거대비늘(협곡 Lv4)은 경계선이라 남긴다(작살은 원래
 #    대물용이라 테마도 맞다). 판정은 region_unlock.py 가 메인 체인에서 도출한 값이다.
-REACH_MARGIN = 2
+REACH_MARGIN = 0
+
+#: 종당 개수의 기준 레벨 — 이 레벨에서 --max 개, 레벨이 1 오를 때마다 +1.
+#  ★완전 고정(전부 5개)으로 하면 «갯벌 작살(Lv3) == 물때 작살(Lv4)» 처럼 레시피가
+#    글자 하나까지 같아진다. 2026-09-02 에 C급을 전부 2개로 통일해 유저가 지적한
+#    그 평탄화와 같은 실패다 — 초반이라도 레벨 서열은 남겨야 한다.
+ANCHOR = 3
+
+#: 부품 종류별 «대표 재료» — 이 재료만 SIG_BONUS 개 더 넣는다.
+#  ★없으면 새로 추가한다. 종당 개수를 평탄하게 맞추면 같은 레벨의 릴·줄·바늘·찌가
+#    글자 하나까지 같은 레시피가 된다(2026-09-02 실측: Lv4 4종이 동일). 종류마다
+#    무엇으로 만드는 물건인지가 드러나야 해서 테마에 맞는 재료를 하나씩 세웠다.
+SIGNATURE = {
+    "릴": "녹슨부품",        # 금속 기어
+    "줄": "강화실",          # 실
+    "바늘": "낡은갈고리",     # 갈고리
+    "찌": "나뭇가지",        # 물에 뜨는 나무
+}
+#: 장비 본체(낚싯대·작살)는 부품 타입이 없다 — 물고기비늘로 가른다.
+SIGNATURE_GEAR = "물고기비늘"
+
+#: 대표 재료를 얼마나 더 넣나 — «개수»가 아니라 «포획수» 배율이다.
+#  ★개수로 +3 을 주면 드롭률이 낮은 재료가 그대로 병목이 된다(실측: 나뭇가지 5% 라
+#    찌 계열만 200포획, 같은 레벨 바늘 150 · 낚싯대 120). 재료마다 희귀도가 다르니
+#    「기준 개수의 포획수 × 이 배율」을 그 재료의 드롭률로 되환산해서 개수를 정한다.
+SIG_CAPTURE_MULT = 1.25
+#: 배율 환산의 기준 드롭률 — 6% 재료(강화실·낡은갈고리·녹슨부품)가 초반 표준이다.
+BASE_RATE = 0.06
 
 
 def _unlock_table():
@@ -56,7 +83,8 @@ def _unlock_table():
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--level", type=int, default=5, help="이 레벨 이하를 대상으로")
-    ap.add_argument("--max", type=int, default=5, help="원재료 종당 최대 개수")
+    ap.add_argument("--max", type=int, default=5,
+                    help=f"원재료 종당 개수 (Lv{ANCHOR} 기준, 레벨마다 ±1)")
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
 
@@ -103,6 +131,12 @@ def main() -> int:
 
     RU = _unlock_table()
     drops = json.loads((LIVE / "materials.json").read_text(encoding="utf-8"))["dropTables"]
+    best_rate = {}
+    for _rg, _ds in drops.items():
+        for _d in _ds:
+            _m, _c = _d["matId"], _d["chance"] / 100
+            if _c > best_rate.get(_m, 0):
+                best_rate[_m] = _c
     mat_open = {}
     for rg, ds in drops.items():
         lu = RU.unlock_level(rg)
@@ -130,16 +164,27 @@ def main() -> int:
                 if mat_open.get(i.get("typeOrMatId"), 0) <= lv + REACH_MARGIN]
         if len(keep) >= 2:
             new = keep
+        want = max(1, a.max + (lv - ANCHOR))
         for i in new:
-            i["qty"] = min(i.get("qty", 1) or 1, a.max) or 1
-            i["qty"] = a.max          # 종당 «소량 고정» — 체감 기준이라 편차를 두지 않는다
+            i["qty"] = want           # 종당 «소량» — 절대량이 아니라 레벨 서열만 남긴다
+        sig = SIGNATURE.get(v.get("resultPartType") or "", SIGNATURE_GEAR)
+        cur = next((i for i in new if (i.get("typeOrMatId") or i.get("mcItem")) == sig), None)
+        if cur is None and mat_open.get(sig, 99) <= lv:
+            cur = {"type": "custom", "typeOrMatId": sig, "mcItem": _mc(recs, sig, new[0]),
+                   "displayName": sig, "qty": want}
+            new.append(cur)
+        if cur is not None:
+            rate = best_rate.get(sig, BASE_RATE)
+            target = want / BASE_RATE * SIG_CAPTURE_MULT      # 목표 포획수
+            cur["qty"] = max(want + 1, round(target * rate))
         after = [(i.get("typeOrMatId") or i.get("mcItem"), i["qty"]) for i in new]
         if before != after:
             v["ingredients"] = new
             changed.append((lv, g, cat, nm, before, after))
 
     changed.sort()
-    print(f"초반(Lv≤{a.level}) 장비 {len(changed)}종 — 중간재 제거 + 원재료 {a.max}개 고정")
+    print(f"초반(Lv≤{a.level}) 장비 {len(changed)}종 — 중간재 제거 + "
+          f"원재료 종당 {a.max}개(Lv{ANCHOR} 기준, 레벨마다 +1)")
     for lv, g, cat, nm, b, af in changed:
         print(f"  {g} Lv{lv:<3}{nm:<18} {b}")
         print(f"  {'':<7}{'':<18} → {af}")
