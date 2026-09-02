@@ -94,6 +94,12 @@ MIN_EFF = 1.0
 #  그 잡음으로 κ 를 뽑으면 찌 E 가 568(=D 의 32배)이 되어 등위회귀 전체를 왜곡한다.
 #  ★E 를 «싸다»고 판정해 재료를 더 물리는 것도 방향이 반대다 — 튜토 장비는 싸야 한다.
 EXEMPT_GRADES = {"E"}
+#: 이 레벨 이하 장비는 요구캐스트 사다리 «밖»이다 — 목표도 정규화 분모도 안 잡는다.
+#  ★유저 결정(2026-09-02): 「Lv5 까지는 완전 초반이라 낮아도 된다. 중간재는 빼고
+#    원재료 5개 정도만.」 사다리 안에 두면 κ×상대성능이 큰 숫자를 강제하고, 중간재를
+#    막으면 그만큼이 원재료로 새어나간다(실측: 튼튼한 막대기가 낡은갈고리 14개).
+#    초반 구간은 «체감»이 기준이지 캐스트 등가가 기준이 아니다.
+EARLY_EXEMPT_LEVEL = 5
 #: 등급당 κ 상승률(슬로프). 등급을 한 칸 올릴 때마다 «상대성능 1%p 를 사는 데» 드는
 #  캐스트가 이만큼 늘어난다. 유저 의도: 상위 장비는 성능이 오르는 것 이상으로 비싸야 한다.
 #  ★1.00 이면 «성능에 정비례»(중립)이고, 1.15 는 등급마다 15% 씩 손해가 커진다는 뜻.
@@ -266,7 +272,7 @@ def kappa_table(rows):
     cur, des = {}, {}
     by_cat = collections.defaultdict(dict)
     for r in rows:
-        if r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES \
+        if r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES or (r.get("lv") or 99) <= EARLY_EXEMPT_LEVEL \
                 or r["cat"] in EXEMPT_CATS:
             continue
         by_cat[r["cat"]].setdefault(r["grade"], []).append(r)
@@ -303,7 +309,7 @@ def targets(rows, iso):
     out = {}
     for r in rows:
         k = iso.get((r["cat"], r["grade"]))
-        if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES \
+        if k is None or r["perf"] < MIN_EFF or r["casts"] <= 0 or r["grade"] in EXEMPT_GRADES or (r.get("lv") or 99) <= EARLY_EXEMPT_LEVEL \
                 or r["cat"] in EXEMPT_CATS:
             continue
         out[r["name"]] = dict(target=k * r["rel"] * SRC_MULT.get(r["src"], 1.0),

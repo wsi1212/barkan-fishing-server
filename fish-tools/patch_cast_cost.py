@@ -103,6 +103,110 @@ UNWRAP_ONLY = {"강철심": {"작살"}}
 #   상한은 «닿을 수 있는 천장»이어야 한다 — 목표는 그대로이므로 다른 종은 영향이 없다
 #   (필요할 때만 올라간다).
 MAX_QTY = 64
+#: 중간재(조합해서 만드는 부품) 1종당 요구 개수 상한.
+#  ★왜 필요한가 (2026-09-02 유저 지적): 중간재 «1개» 원가를 내리면(단단한 자루 0.88h→0.18h)
+#    이 탐색기가 목표 캐스트를 맞추려고 **개수를 늘려 상쇄한다.** 실측으로 24종이 늘었고
+#    대나무 막대기가 정제된갈고리 2→5, 참나무 낚싯대가 9→17(갈고리9+자루8),
+#    천공의 낚싯대가 자루 54·갈고리 32·강철심 32 = **조합 118번**이 됐다.
+#    조합 횟수는 플레이어에게 실제 비용인데 이 모델은 그걸 0 으로 센다(캐스트만 센다).
+#  ⇒ 상한을 걸고, 남는 요구량은 원재료 쪽에서 채우게 한다(원재료는 개수가 커도
+#    「낚다 보면 쌓이는」 것이라 마찰이 다르다).
+#  등급별 «조합 횟수» 상한. 하드 캡이다 — 기존 값이 넘으면 내린다(래칫 예외 없음).
+#  ★첫 시도에서 상한 6 + 「기존 초과는 유지」 래칫을 넣었더니 아무것도 안 내려갔다:
+#    대나무 막대기의 갈고리 5 는 6 이하라 통과, 참나무의 9 는 래칫으로 면제됐다.
+#    상한은 «지금 값과 무관하게» 걸려야 의미가 있다.
+#  ★2026-09-02 유저 결정: 「중간재는 하나가 무겁고, 요구는 1~2개」.
+#    중간재 1개 = 100포획(0.53h)로 올리고(patch_intermediate_cost --target 0.53) 개수를 묶는다.
+#    그 전엔 반대였다 — 1개를 33포획으로 싸게 만들었더니 생성기가 개수를 5·9·17 로 늘렸고
+#    캡을 걸면 원재료(진주 38·강화석탄 38)로 새어나갔다. 「싸고 많이」가 아니라
+#    「비싸고 조금」이 조합 마찰을 실제로 줄인다.
+#: ★중간재는 «조정 대상이 아니다» — 값을 그대로 둔다(2026-09-02 유저 지적).
+#    상한을 걸면 상한이 목표값이 된다: C=2 캡을 걸었더니 C 낚싯대 전부가 2/2 로 눌려
+#    설계된 차이(갈고리 1·4·5·6·9·12·13)가 통째로 사라졌다. 「누가 그러래」가 맞다.
+#    중간재가 싸면 탐색기가 개수를 늘리고, 막으면 캡까지 밀어붙인다 — 어느 쪽이든
+#    설계자가 정한 계열 성격을 생성기가 덮어쓴다.
+#  ⇒ 요구캐스트는 «원재료»로만 맞춘다. 중간재 개수는 사람이 정하고 여기서 안 건드린다.
+FREEZE_INTERMEDIATES = True
+#: 레벨 하한 예외 — 이 레벨 이하는 중간재를 «1개씩»만 요구한다.
+#  ★유저 결정(2026-09-02): 「Lv5 까지는 완전 초반이라 낮아도 된다. 정제된갈고리·자루
+#    둘 다 중간재니까 1로.」 등급(D)은 Lv3~9 를 함께 묶으므로 등급만으론 못 가른다 —
+#    레벨로 따로 본다.
+EARLY_LEVEL = 5
+EARLY_INT_CAP = 1
+#: 중간재 id — recipes.json 의 C0* 결과 matId 가 권위다(하드코딩 금지).
+def _intermediate_ids():
+    import json as _j, pathlib as _p
+    live = _p.Path("/Users/user/Library/Application Support/feather/player-server/servers/"
+                   "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/recipes.json")
+    out = set()
+    try:
+        recs = _j.loads(live.read_text(encoding="utf-8"))["recipes"]
+    except Exception:
+        return {"정제된갈고리", "단단한자루", "강철심", "행운의매듭", "진주코어", "저울추"}
+    for rid, r in recs.items():
+        if not rid.startswith("C0"):
+            continue
+        for ln in (r.get("result") or {}).get("lore") or []:
+            if ln.startswith("&8mat:"):
+                out.add(ln.split(":", 1)[1].strip())
+    return out or {"정제된갈고리", "단단한자루", "강철심"}
+
+
+INTERMEDIATE_IDS = _intermediate_ids()
+
+#: 한 재료가 그 아이템 재료 «총 개수»에서 차지할 수 있는 최대 비중.
+#  ★relax 모드가 상한을 MAX_QTY(64)까지 풀어서 LP 가 부산물로 «공짜»로 보는 재료 하나가
+#    43·45·64 까지 치솟았다(수집가 진주 43 · 다목적 강화석탄 45 · 여명 진주 64).
+#    요구캐스트는 맞지만 플레이어에겐 「진주 64개 모으기」라는 단일 노가다다.
+CONC_MAX = 0.50
+
+#: 중간재(C0*)를 만드는 데 쓰이는 원재료 — recipes.json 이 권위.
+def _feeder_mats():
+    import json as _j, pathlib as _p
+    live = _p.Path("/Users/user/Library/Application Support/feather/player-server/servers/"
+                   "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/recipes.json")
+    out = set()
+    try:
+        recs = _j.loads(live.read_text(encoding="utf-8"))["recipes"]
+    except Exception:
+        return set()
+    for rid, r in recs.items():
+        if rid.startswith("C0"):
+            for i in r.get("ingredients") or []:
+                if i.get("typeOrMatId"):
+                    out.add(i["typeOrMatId"])
+    return out
+
+
+#: 그 중 «직접 요구가 드문» 것 = 사실상 중간재용으로 인식되는 재료.
+#  ★유저 결정(2026-09-02): 「중간재 전용일 필요는 없다 — 강철심이 없는 곳에선 써도 된다.
+#    근데 핵심 재료는 아니었으면 좋겠다.」 ⇒ 금지가 아니라 «수량 상한»이다.
+#  ★범용은 제외한다 — 진주 275종·녹슨부품 143종·별빛진주 101종·강화철괴 100종이 쓰는
+#    재료까지 묶으면 낚시 재료 체계가 성립하지 않는다. 판정은 직접요구 종수로 한다.
+def _niche_feeders(threshold=20):
+    import json as _j, pathlib as _p, collections as _c
+    live = _p.Path("/Users/user/Library/Application Support/feather/player-server/servers/"
+                   "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/recipes.json")
+    feeders = _feeder_mats()
+    if not feeders:
+        return set()
+    try:
+        recs = _j.loads(live.read_text(encoding="utf-8"))["recipes"]
+    except Exception:
+        return set()
+    direct = _c.Counter()
+    for r in recs.values():
+        if r.get("category") not in ("낚싯대", "작살", "부품"):
+            continue
+        for i in r.get("ingredients") or []:
+            if i.get("typeOrMatId") in feeders:
+                direct[i["typeOrMatId"]] += 1
+    return {m for m in feeders if direct[m] <= threshold}
+
+
+NICHE_FEEDER_QTY = 8
+NICHE_FEEDERS = _niche_feeders()
+
 #: 허용 오차 — 이 안에 들면 탐색을 멈춘다.
 TOL = 0.02
 #: 이 이상 틀어지면 중간재 되돌리기를 시도한다(격자를 잘게 만드는 최후수단).
@@ -144,7 +248,7 @@ def unwrap_at(R, ings, j):
     return out
 
 
-def solve(D, cph, ings, target, s, relax=False):
+def solve(D, cph, ings, target, s, relax=False, int_cap=None):
     """정수 수량 벡터를 찾는다. 반환 (수량리스트, 캐스트, 로그오차).
 
     ★relax — 재료별 상한을 «균등배율의 2배»가 아니라 MAX_QTY 까지 푼다.
@@ -167,8 +271,26 @@ def solve(D, cph, ings, target, s, relax=False):
         return err + w * shape, err
 
     lo = [1] * len(ings)
-    hi = [MAX_QTY if relax else max(3, min(MAX_QTY, int(math.ceil(i["qty"] * s * 2)) + 1))
+    # ★relax 라도 «비례 상한»은 유지한다. 예전엔 MAX_QTY(64)까지 풀어서, LP 가 공짜로 보는
+    #   재료(진주 등 부산물) 하나가 43·45 까지 치솟았다 — 요구캐스트는 맞지만 플레이어에겐
+    #   「진주 43개 모으기」라는 단일 노가다가 된다. 이상치의 4배까지만 허용한다.
+    hi = [max(3, min(MAX_QTY, int(math.ceil(i["qty"] * s * (4 if relax else 2))) + 1))
           for i in ings]
+    # ★중간재는 조합 횟수가 곧 마찰이다 — 하드 캡을 걸고 나머지는 원재료로 채우게 한다.
+    for j, i in enumerate(ings):
+        mid = i.get("typeOrMatId")
+        if mid in INTERMEDIATE_IDS and FREEZE_INTERMEDIATES:
+            # 고정 — 하한도 상한도 원본값. 탐색이 이 좌표를 못 움직인다.
+            lo[j] = hi[j] = max(1, i["qty"])
+        elif mid in NICHE_FEEDERS:
+            # 중간재용으로 인식되는 희소 재료 — 핵심(최다) 재료가 되지 않게 낮게 묶는다.
+            hi[j] = max(1, min(hi[j], NICHE_FEEDER_QTY))
+    # 쏠림 상한 — 한 재료가 총 개수의 CONC_MAX 를 넘지 않게.
+    if len(ings) >= 3:
+        for j in range(len(ings)):
+            others = sum(hi[k] for k in range(len(ings)) if k != j)
+            room = int(others * CONC_MAX / max(1e-9, 1.0 - CONC_MAX))
+            hi[j] = max(1, min(hi[j], max(3, room)))
 
     def descend(q0, line=False, sweeps=60, freeze=None):
         """한 출발점에서의 좌표하강.
@@ -261,7 +383,8 @@ def main():
         orig = [i["qty"] for i in ings]
 
         # ── 원본으로 풀어 보고, 못 맞추면 중간재를 되돌려 격자를 잘게 만든다 ──
-        q, c, err = solve(D, cph, ings, v["target"], v["scale"])
+        icap = None      # 중간재 고정 — solve 가 lo=hi=원본값으로 묶는다
+        q, c, err = solve(D, cph, ings, v["target"], v["scale"], int_cap=icap)
         if math.exp(err) - 1 > UNWRAP_AT:
             for j, i in enumerate(ings):
                 mid = i.get("typeOrMatId")
@@ -270,7 +393,7 @@ def main():
                 if mid in UNWRAP_ONLY and v["cat"] not in UNWRAP_ONLY[mid]:
                     continue
                 alt = unwrap_at(R, ings, j)
-                q2, c2, e2 = solve(D, cph, alt, v["target"], v["scale"])
+                q2, c2, e2 = solve(D, cph, alt, v["target"], v["scale"], int_cap=icap)
                 if e2 < err - 1e-9:
                     ings, q, c, err = alt, q2, c2, e2
                     unwrapped.append((name, i["typeOrMatId"],
@@ -278,7 +401,7 @@ def main():
                     break
         # ── 그래도 바닥이면 상한을 풀고 한 번 더 (생김새보다 정확도를 택하는 마지막 수단)
         if math.exp(err) - 1 > UNWRAP_AT:
-            q2, c2, e2 = solve(D, cph, ings, v["target"], v["scale"], relax=True)
+            q2, c2, e2 = solve(D, cph, ings, v["target"], v["scale"], relax=True, int_cap=icap)
             if e2 < err - 1e-9:
                 q, c, err = q2, c2, e2
                 relaxed.append((name, math.exp(e2) - 1))

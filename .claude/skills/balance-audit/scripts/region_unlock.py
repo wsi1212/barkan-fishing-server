@@ -11,7 +11,20 @@
 정하는 `cast_cost` 가 「정상」이라고 판정했다. 실측으로는 D급 낚싯대 하나가 1.8~3.4h,
 C급이 최대 5.8h 였다(2026-09-01 유저 제보 → BOM 완전전개로 확인).
 
-## 왜 이 방식인가 (다른 후보가 전부 데이터로 안 서는 것을 확인함)
+## ★2026-09-02 정정 — 스토리 체인은 «게이트»가 아니었다
+메인 체인의 지역 언급으로 판정했더니 두 방향으로 크게 틀렸다:
+ · `기억의_연못` → Lv48 로 판정. 그런데 통발가 7,000원(13지역 중 3번째로 쌈),
+   어종이 E4·D4·C1·B2 로 **초반 어장**이다. 왕도13 이 그 이름을 언급한 건 스토리
+   회수일 뿐 접근 조건이 아니었다.
+ · `폭포_뒤_동굴_1층` → Lv4 로 판정. 통발가 24,000원(2번째로 비쌈), 어종 B10·A10·S2 로
+   **완전한 후반 지역**이다. 본섬03 이 초반에 이름을 언급했을 뿐이다.
+⇒ 지역 접근에 레벨 게이트가 없다는 것(regions.json requiredLevel 이 원양만 50)이
+  이미 확인됐으므로, 실제로 «가느냐»는 이동이 아니라 **콘텐츠 티어**가 정한다.
+  그 티어를 명시적으로 인코딩한 설계 데이터가 **통발 가격**(TrapSpecs)이다 —
+  부두2k → 강5k → 오아시스6k → 기억의연못7k → … → 원양45k 로 단조롭다.
+  ⇒ 통발가를 레벨로 선형 환산하고, regions.json 의 requiredLevel 을 하한으로 존중한다.
+
+## 왜 스토리 체인을 안 쓰는가 (다른 후보도 전부 확인함)
  · `regions.json` 의 `requiredLevel` — **원양(50) 말고 전부 0**. 게이트가 아니다.
  · `regions.json` 의 parent/island — 전 지역 None. 계층이 없다.
  · 퀘스트 `필요레벨` 전체 — 사이드 퀘가 거의 다 1 이라 순서를 못 만든다.
@@ -46,24 +59,38 @@ def _main_chain(quests: dict) -> list[str]:
     return chain
 
 
+def _trap_prices() -> dict[str, int]:
+    """지역 → 통발 가격. TrapSpecs.java 가 단일 권위다(사본 금지)."""
+    import re
+    src = (pathlib.Path.home() / "development/blockship-plugin/src/main/java/com/blockship"
+           / "trap/TrapSpecs.java")
+    try:
+        text = src.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    return {m.group(1): int(m.group(2))
+            for m in re.finditer(r'new Spec\("([^"]+)",[^)]*?"TR\d+", (\d+)', text, re.S)}
+
+
 def build(live: pathlib.Path = LIVE) -> dict[str, int]:
     quests = json.loads((live / "quests.json").read_text(encoding="utf-8"))["퀘스트"]
     regions = sorted(json.loads((live / "fish.json").read_text(encoding="utf-8"))["regions"])
     rg_json = json.loads((live / "regions.json").read_text(encoding="utf-8"))
 
-    chain = _main_chain(quests)
     out: dict[str, int] = {}
-    for qid in chain:                       # 체인 순서 = 진행 순서
-        e = quests[qid]
-        lv = e.get("필요레벨")
-        if not isinstance(lv, int):
-            continue
-        blob = json.dumps(e, ensure_ascii=False)
+    # ── 통발 가격 = 지역 콘텐츠 티어 (TrapSpecs 가 권위) ──
+    prices = _trap_prices()
+    if prices:
+        lo_p = min(prices.values())
+        hi_p = max(prices.values())
+        # 앵커: 가장 싼 지역 = Lv1, 가장 비싼 지역 = regions.json 이 명시한 최고 하한(원양 50)
+        hi_lv = max([(rg_json.get(r) or {}).get("requiredLevel") or 0 for r in regions] + [50])
         for rg in regions:
-            if rg in out:
+            pr = prices.get(rg)
+            if pr is None:
                 continue
-            if rg in blob or rg.replace("_", " ") in blob:
-                out[rg] = lv
+            span = max(1, hi_p - lo_p)
+            out[rg] = max(1, round(1 + (pr - lo_p) / span * (hi_lv - 1)))
     for rg in _TUTORIAL_REGIONS:
         out[rg] = 1
     # regions.json 의 명시적 requiredLevel 이 더 크면 그걸 존중한다(원양 50).
@@ -121,6 +148,6 @@ def reachable(region: str, level: int) -> bool:
 
 if __name__ == "__main__":
     tbl = build()
-    print("낚시 지역 접근 레벨 — 메인 체인에서 도출 (사이드·히든 제외)")
+    print("낚시 지역 접근 레벨 — 통발 가격(TrapSpecs) 티어에서 환산")
     for rg, lv in sorted(tbl.items(), key=lambda t: (t[1], t[0])):
         print(f"  Lv{lv:<4}{rg}")

@@ -943,14 +943,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 5
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -1128,14 +1128,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -1176,14 +1176,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -1224,14 +1224,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -1293,14 +1293,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 32
+          "qty": 52
         },
         {
           "kind": "custom",
@@ -1431,14 +1431,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 32
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 54
+          "qty": 76
         },
         {
           "kind": "custom",
@@ -1535,14 +1535,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -1597,14 +1597,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 8
+          "qty": 20
         },
         {
           "kind": "custom",
@@ -1659,14 +1659,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -1721,14 +1721,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -1783,14 +1783,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -1852,14 +1852,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 8
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -1925,31 +1925,24 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 5
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 11
         }
       ],
       "village": "스폰",
@@ -7572,28 +7565,21 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 1
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 7
         }
       ],
       "village": "스폰",
@@ -7661,13 +7647,6 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
           "qty": 3
         },
         {
@@ -7682,14 +7661,14 @@
           "typeOrMatId": "강화실",
           "displayName": "강화 실",
           "mcItem": "string",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 9
         }
       ],
       "village": "스폰",
@@ -7709,14 +7688,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 9
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -7757,14 +7736,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -7812,14 +7791,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 11
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 11
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -7860,14 +7839,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -7915,14 +7894,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -8025,14 +8004,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -8190,14 +8169,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -8252,14 +8231,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -8314,14 +8293,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -8376,14 +8355,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -8438,14 +8417,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 8
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -8500,14 +8479,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -8569,14 +8548,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 18
         },
         {
           "kind": "custom",
@@ -8638,14 +8617,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -8707,14 +8686,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -8776,14 +8755,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -8845,14 +8824,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -8914,14 +8893,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -8983,7 +8962,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -9031,14 +9010,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -9100,14 +9079,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 9
         },
         {
           "kind": "custom",
@@ -9169,14 +9148,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -9245,14 +9224,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -9321,14 +9300,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -9383,14 +9362,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -9445,14 +9424,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 18
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 15
         },
         {
           "kind": "custom",
@@ -9514,14 +9493,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -9576,14 +9555,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 19
         },
         {
           "kind": "custom",
@@ -9645,14 +9624,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 18
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -9714,14 +9693,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -9776,14 +9755,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -9838,14 +9817,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -9900,14 +9879,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 15
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -9948,14 +9927,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -10003,14 +9982,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -10065,14 +10044,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 10
         },
         {
           "kind": "custom",
@@ -10141,14 +10120,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -10210,14 +10189,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -10279,14 +10258,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -12666,14 +12645,14 @@
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 6
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 10
         }
       ],
       "village": "스폰",
@@ -12743,14 +12722,14 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 11
         }
       ],
       "village": "스폰",
@@ -12820,21 +12799,21 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화철괴",
           "displayName": "강화 철괴",
           "mcItem": "iron_ingot",
-          "qty": 40
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 1
+          "qty": 13
         }
       ],
       "village": "스폰",
@@ -13030,7 +13009,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
@@ -13051,7 +13030,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -13310,7 +13289,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -13366,7 +13345,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -13709,7 +13688,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -13765,7 +13744,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -13933,7 +13912,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -13989,7 +13968,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14052,7 +14031,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14115,7 +14094,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14178,7 +14157,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14234,7 +14213,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14297,7 +14276,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14367,7 +14346,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14430,7 +14409,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14507,7 +14486,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14577,7 +14556,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14640,7 +14619,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14710,7 +14689,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14780,7 +14759,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14920,7 +14899,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -14990,7 +14969,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15060,7 +15039,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15130,7 +15109,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15200,7 +15179,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15270,7 +15249,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15536,7 +15515,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -15585,7 +15564,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -15988,14 +15967,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 13
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -16029,14 +16008,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -16077,14 +16056,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 5
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -16125,14 +16104,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 18
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 6
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -16187,14 +16166,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 11
         },
         {
           "kind": "custom",
@@ -16256,14 +16235,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 12
         },
         {
           "kind": "custom",
@@ -16318,14 +16297,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -16380,14 +16359,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 13
         },
         {
           "kind": "custom",
@@ -17332,7 +17311,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -17430,7 +17409,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -17514,7 +17493,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 14
         },
         {
           "kind": "custom",
@@ -18011,7 +17990,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -18032,7 +18011,7 @@
           "typeOrMatId": "물고기비늘",
           "displayName": "물고기 비늘",
           "mcItem": "paper",
-          "qty": 27
+          "qty": 21
         },
         {
           "kind": "custom",
@@ -18108,7 +18087,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -18129,7 +18108,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -18177,7 +18156,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -18198,7 +18177,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 5
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -18246,7 +18225,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 4
+          "qty": 7
         },
         {
           "kind": "custom",
@@ -18267,7 +18246,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 4
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -18315,7 +18294,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -18336,7 +18315,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -18384,7 +18363,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -18405,7 +18384,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -18453,7 +18432,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 7
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -18474,7 +18453,7 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 7
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -18586,7 +18565,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -18649,7 +18628,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -18712,7 +18691,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -18775,7 +18754,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 3
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -19671,7 +19650,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 5
+          "qty": 8
         },
         {
           "kind": "custom",
@@ -24592,8 +24571,172 @@
       "locked": true,
       "resultMode": "rod",
       "drillTier": 0,
-      "village": "",
       "rodPartName": "밀물의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "행운의구슬",
+          "displayName": "행운의 구슬",
+          "mcItem": "prismarine_crystals",
+          "qty": 13
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 6
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
+    },
+    "R121": {
+      "id": "R121",
+      "category": "낚싯대",
+      "displayName": "갯바위의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "rodPartName": "갯바위의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "안개수정",
+          "displayName": "안개 수정",
+          "mcItem": "amethyst_shard",
+          "qty": 22
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
+    },
+    "R122": {
+      "id": "R122",
+      "category": "낚싯대",
+      "displayName": "뱃사공의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "rodPartName": "뱃사공의 낚싯대",
+      "ingredients": [
+        {
+          "kind": "custom",
+          "typeOrMatId": "정제된갈고리",
+          "displayName": "정제된 갈고리",
+          "mcItem": "tripwire_hook",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "단단한자루",
+          "displayName": "단단한 자루",
+          "mcItem": "stick",
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "보석",
+          "displayName": "보석",
+          "mcItem": "emerald",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화석탄",
+          "displayName": "강화 석탄",
+          "mcItem": "coal",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "진주",
+          "displayName": "진주",
+          "mcItem": "nautilus_shell",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "별빛진주",
+          "displayName": "별빛 진주",
+          "mcItem": "paper",
+          "qty": 1
+        }
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
+    },
+    "R123": {
+      "id": "R123",
+      "category": "낚싯대",
+      "displayName": "모래시계의 낚싯대",
+      "locked": true,
+      "resultMode": "rod",
+      "drillTier": 0,
+      "rodPartName": "모래시계의 낚싯대",
       "ingredients": [
         {
           "kind": "custom",
@@ -24611,168 +24754,6 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "행운의구슬",
-          "displayName": "행운의 구슬",
-          "mcItem": "prismarine_crystals",
-          "qty": 13
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화석탄",
-          "displayName": "강화 석탄",
-          "mcItem": "coal",
-          "qty": 27
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 12
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 2
-        }
-      ]
-    },
-    "R121": {
-      "id": "R121",
-      "category": "낚싯대",
-      "displayName": "갯바위의 낚싯대",
-      "locked": true,
-      "resultMode": "rod",
-      "drillTier": 0,
-      "village": "",
-      "rodPartName": "갯바위의 낚싯대",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "안개수정",
-          "displayName": "안개 수정",
-          "mcItem": "amethyst_shard",
-          "qty": 22
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화석탄",
-          "displayName": "강화 석탄",
-          "mcItem": "coal",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 3
-        }
-      ]
-    },
-    "R122": {
-      "id": "R122",
-      "category": "낚싯대",
-      "displayName": "뱃사공의 낚싯대",
-      "locked": true,
-      "resultMode": "rod",
-      "drillTier": 0,
-      "village": "",
-      "rodPartName": "뱃사공의 낚싯대",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 4
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "보석",
-          "displayName": "보석",
-          "mcItem": "emerald",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "강화석탄",
-          "displayName": "강화 석탄",
-          "mcItem": "coal",
-          "qty": 18
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "진주",
-          "displayName": "진주",
-          "mcItem": "nautilus_shell",
-          "qty": 17
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "별빛진주",
-          "displayName": "별빛 진주",
-          "mcItem": "paper",
-          "qty": 3
-        }
-      ]
-    },
-    "R123": {
-      "id": "R123",
-      "category": "낚싯대",
-      "displayName": "모래시계의 낚싯대",
-      "locked": true,
-      "resultMode": "rod",
-      "drillTier": 0,
-      "village": "",
-      "rodPartName": "모래시계의 낚싯대",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "정제된갈고리",
-          "displayName": "정제된 갈고리",
-          "mcItem": "tripwire_hook",
-          "qty": 6
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "단단한자루",
-          "displayName": "단단한 자루",
-          "mcItem": "stick",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
           "typeOrMatId": "안개수정",
           "displayName": "안개 수정",
           "mcItem": "amethyst_shard",
@@ -24783,30 +24764,32 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 5
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 9
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         }
-      ]
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
     },
     "R124": {
       "id": "R124",
@@ -24815,7 +24798,6 @@
       "locked": true,
       "resultMode": "rod",
       "drillTier": 0,
-      "village": "",
       "rodPartName": "카라반의 낚싯대",
       "ingredients": [
         {
@@ -24823,14 +24805,14 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 10
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 14
+          "qty": 5
         },
         {
           "kind": "custom",
@@ -24844,30 +24826,32 @@
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 17
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         }
-      ]
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
     },
     "R125": {
       "id": "R125",
@@ -24876,7 +24860,6 @@
       "locked": true,
       "resultMode": "rod",
       "drillTier": 0,
-      "village": "",
       "rodPartName": "사막여우의 낚싯대",
       "ingredients": [
         {
@@ -24884,44 +24867,46 @@
           "typeOrMatId": "정제된갈고리",
           "displayName": "정제된 갈고리",
           "mcItem": "tripwire_hook",
-          "qty": 15
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 16
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주",
           "displayName": "진주",
           "mcItem": "nautilus_shell",
-          "qty": 18
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 10
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         }
-      ]
+      ],
+      "village": "",
+      "materialDiscountVersion": 1
     }
   },
   "categories": {
