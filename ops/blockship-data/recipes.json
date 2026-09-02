@@ -11798,7 +11798,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 12
         }
       ],
       "village": "스폰",
@@ -11819,7 +11819,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 9
         }
       ],
       "village": "스폰",
@@ -11840,7 +11840,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 18
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11861,7 +11868,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11882,7 +11896,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 18
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11903,7 +11924,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11924,7 +11952,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11945,7 +11980,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 40
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11966,7 +12008,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 30
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -11987,7 +12036,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 36
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -12008,7 +12064,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 52
+          "qty": 8
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -12029,14 +12092,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -12057,14 +12127,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -12085,14 +12162,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -12113,14 +12197,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -12141,14 +12232,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 28
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -12169,14 +12267,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 28
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "왕도",
@@ -17115,7 +17220,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 31
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -17136,7 +17248,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 52
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -17157,14 +17276,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 28
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -17479,7 +17605,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 11
         }
       ],
       "village": "스폰",
@@ -18144,7 +18270,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 10
         }
       ],
       "village": "스폰",
@@ -18165,7 +18291,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 12
         }
       ],
       "village": "스폰",
@@ -19881,7 +20007,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 45
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -19902,7 +20035,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 50
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -19923,7 +20063,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 32
+          "qty": 9
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -20931,7 +21078,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 17
+          "qty": 15
         }
       ],
       "village": "스폰",
@@ -20952,7 +21099,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 13
         }
       ],
       "village": "스폰",
@@ -20973,7 +21120,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 31
+          "qty": 10
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축철광석",
+          "displayName": "압축 적철석",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -20994,14 +21148,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 28
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "왕도",
@@ -21022,14 +21183,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "압축자수정",
+          "displayName": "압축 자수정",
+          "mcItem": "paper",
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -23703,21 +23871,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -23738,21 +23906,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         }
       ],
       "village": "스폰",
@@ -23773,21 +23941,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -23808,21 +23976,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 20
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -23843,21 +24011,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -23878,21 +24046,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         }
       ],
       "village": "상단",
@@ -23913,21 +24081,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 1
         }
       ],
       "village": "",
@@ -23948,21 +24116,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 2
+          "qty": 1
         }
       ],
       "village": "",
@@ -23983,21 +24151,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 17
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 3
+          "qty": 1
         }
       ],
       "village": "",
@@ -24018,21 +24186,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 25
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         }
       ],
       "village": "",
