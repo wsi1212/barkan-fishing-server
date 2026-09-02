@@ -76,19 +76,45 @@ PRICE_BAND = {
 
 #: 같은 등급 안에서 «성능 좋은 미끼가 더 비싸야» 한다. 성능/등급평균 비를 이 범위로 조인다.
 #: (영구 장비의 κ 사다리와 같은 취지 — 다만 여기선 채굴 시간 예산에 곱한다.)
-SPREAD = (0.75, 1.30)
+#: ★0.75~1.30 이던 것을 좁혔다. 편차가 등급 띠 폭보다 넓으면 **등급 경계가 뒤집힌다** —
+#:   실측으로 C 살아있는 미끼(perf 상위, ×1.30)가 흑정석 11 개, B 반딧불이(perf 하위,
+#:   ×0.75)가 7 개였다. 등급이 성능보다 상위 서열이므로 등급 단조가 먼저다.
+#:   TIME_LADDER 의 등급 간 간격도 이 폭을 견디게 잡아야 한다(다음 등급 하한 > 이전
+#:   등급 상한 × 1.15/0.90 ≈ ×1.28).
+SPREAD = (0.90, 1.15)
+#: 1회 제작으로 나오는 미끼 개수. ★유저 지시 2026-09-02: 「하나 만드는데 하나씩 필요한 거
+#: 아니지? 재료로 만들면 한 10개씩 주게 해줘. 대신 재료도 더 비싸게 하고.」
+#: jar 쪽 `Recipe.resultAmount` + `EquipmentManager.grantPart(.., count)` 와 짝이다 —
+#: **둘이 같이 나가야 한다.** 데이터만 먼저 나가면 10배 재료로 1개가 나온다.
+RESULT_AMOUNT = 10
+
+#: 등급별 «1회 제작(=RESULT_AMOUNT개) 채굴 예산» — 분. 등급 안은 레벨로 보간.
+#: ★예전엔 예산을 «상점가 상한에서 역산»했다. 그래서 Lv50 에서 구간 시급이 2.6배로
+#:   뛰는 순간 같은 돈이 사는 채굴시간이 줄어 **재료 요구량이 거꾸로 떨어졌다**
+#:   (A Lv49 흑정석5·적철석4·자수정2 → Lv50 2·1·1). 시급은 설계가 아니라 관측값이라
+#:   그걸 재료량의 분모로 쓰면 이런 역전이 구조적으로 생긴다.
+#:   ⇒ 재료는 «시간 사다리»가 직접 정하고, 가격은 PRICE_BAND 가 따로 정한다.
+TIME_LADDER = {
+    "E": (0.5, 0.5),
+    "D": (0.7, 1.4),
+    "C": (1.8, 2.4),
+    "B": (3.1, 3.8),
+    "A": (4.9, 6.2),
+    "S": (8.0, 10.0),
+}
+
 #: 등급별 광물 구성 — (matId, 시간 배분 비중). 비중 합은 1.
-#: ★유저 지시 2026-09-02: 「미끼도 티어링 좀 하자」. 종전엔 E~B 가 전부 흑정석 하나였고
-#:   (그래서 같은 등급 미끼끼리 레시피가 글자까지 겹쳤다) 철광석이 A, 자수정이 S 에서야
-#:   등장했다. 장비 쪽 사다리(patch_ore_ladder: 철광석 B상위·자수정 A중상위)와 같은
-#:   방향으로 한 등급씩 앞당긴다. 비중은 «채굴 시간 배분»이라 총 부담은 안 바뀐다.
+#: ★유저 지시: 「A부터 압축흑정석도 늘고 적철석도 늘고 압축자수정도 늘어야지. S도 그래.
+#:   압축자수정 한 7개는 필요할 거 같아.」 → 세 종이 **모두** 단조 증가해야 한다.
+#:   비중을 급하게 옮기면(예 B 흑정석 0.60 → A 0.40) 예산이 늘어도 흑정석 개수가 줄어
+#:   그 자체로 역전이 된다. 그래서 비중은 완만하게 옮기고 예산으로 끌어올린다.
 MIX = {
     "E": [("압축흑정석", 1.00)],
     "D": [("압축흑정석", 1.00)],
-    "C": [("압축흑정석", 0.80), ("압축철광석", 0.20)],
-    "B": [("압축흑정석", 0.60), ("압축철광석", 0.40)],
-    "A": [("압축흑정석", 0.40), ("압축철광석", 0.40), ("압축자수정", 0.20)],
-    "S": [("압축흑정석", 0.30), ("압축철광석", 0.40), ("압축자수정", 0.30)],
+    "C": [("압축흑정석", 0.85), ("압축철광석", 0.15)],
+    "B": [("압축흑정석", 0.70), ("압축철광석", 0.30)],
+    "A": [("압축흑정석", 0.55), ("압축철광석", 0.27), ("압축자수정", 0.18)],
+    "S": [("압축흑정석", 0.45), ("압축철광석", 0.30), ("압축자수정", 0.25)],
 }
 #: 캐스트/h 는 «복제하지 않고» cast_cost.build_rows() 에서 받아 쓴다.
 #  ★예전엔 CATCH_PER_HOUR = 249.1 을 여기 적고 실제값과 다르면 죽는 가드를 뒀다.
@@ -182,26 +208,19 @@ def main():
         if mix is None:
             print(f"🔴 {n}: 등급 {grade} 의 광물 구성이 없다")
             sys.exit(1)
-        budget_h = dur / cph * UPKEEP_SHARE          # 채굴에 쓸 시간
+        lv = int(f[5]) if f[5].isdigit() else 0
+        lo_lv, hi_lv = grade_lv.get(grade, (lv, lv))
+        t = (lv - lo_lv) / max(1, hi_lv - lo_lv)
+        band_t = TIME_LADDER.get(grade)
+        if band_t is None:
+            print(f"🔴 {n}: 등급 {grade} 의 시간 사다리가 없다")
+            sys.exit(1)
+        budget_h = (band_t[0] + (band_t[1] - band_t[0]) * t) / 60.0
         # 같은 등급 안 성능 편차 반영 — 좋은 미끼일수록 더 캐야 한다.
         if n in perf and gmean.get(grade):
             k = perf[n] / gmean[grade]
             budget_h *= min(SPREAD[1], max(SPREAD[0], k))
-        # ── 상점가 띠 → 채굴 예산 되깎기 ──
-        #   가격이 채굴원가에서 파생되므로, 목표 가격을 정하면 예산이 정해진다.
         w = wage.get(n)
-        if w:
-            band = PRICE_BAND.get(grade)
-            if band:
-                lv = int(f[5]) if f[5].isdigit() else 0
-                lo_lv, hi_lv = grade_lv.get(grade, (lv, lv))
-                t = (lv - lo_lv) / max(1, hi_lv - lo_lv)
-                want_price = band[0] + (band[1] - band[0]) * t
-            else:
-                want_price = MAX_PRICE
-            cap_h = min(want_price, MAX_PRICE) / (w * BUY_PREMIUM)
-            if budget_h > cap_h:
-                budget_h = cap_h
         # ── 개수 배분: 내림 + 큰 소수부 우선 보충 ──
         #   ★올림(round)으로 하면 종마다 최대 반 개씩 넘쳐 «가격이 목표 띠를 초과»한다
         #     (실측: B급 목표 2,000원 → 2,536원, 27% 초과). 가격이 채굴원가에서
@@ -216,12 +235,18 @@ def main():
                 used += unit_h[mid]
         items = [ing(mid, qty[mid]) for mid, _ in mix]
         r["ingredients"] = items
+        r["resultAmount"] = RESULT_AMOUNT
         changed += 1
         got = sum(i["qty"] * unit_h[i["typeOrMatId"]] for i in items)
-        # ── 상점가 재산출 ── 채굴 원가 × BUY_PREMIUM. parts.json 3번째 필드(가격)를 덮어쓴다.
-        #   되깎기 후에도 반올림으로 상한을 살짝 넘을 수 있어 여기서 한 번 더 조인다.
-        if w:
-            f[2] = str(max(1, min(MAX_PRICE, round(got * w * BUY_PREMIUM))))
+        # ── 상점가는 «띠»가 정한다(개당) ──
+        #   ★예전엔 채굴원가 × BUY_PREMIUM 이었다. 그 결합을 끊은 이유는 위 TIME_LADDER
+        #     주석 참조 — 결합을 유지하면 「가격 상한 ↔ 후반 재료 증가」가 동시에 성립할 수
+        #     없다. 이제 BUY_PREMIUM 은 «검산용»이다: 10개 사는 값 vs 1회 제작 채굴원가를
+        #     아래 리포트가 비율로 보여준다(만드는 쪽이 싸야 한다).
+        band = PRICE_BAND.get(grade)
+        if band:
+            f[2] = str(max(1, min(MAX_PRICE, int(round(
+                band[0] + (band[1] - band[0]) * t)))))
             P["미끼"][n] = "|".join(f)
         report.append((grade, int(f[5]), n, dur, budget_h, got,
                        " · ".join(f"{i['displayName']}×{i['qty']}" for i in items)))
@@ -271,13 +296,18 @@ def main():
     print(f"미끼 {changed}종을 광물 전용으로 재작성  (유지비율 {UPKEEP_SHARE:.0%})")
     print(f"압축 광물 1개당 채굴: " + " · ".join(f"{k} {v*3600:.0f}초" for k, v in unit_h.items()))
     print()
-    print(f"{'급':<2}{'렙':>4} {'미끼':<14}{'채굴분':>7}{'상점가':>10}{'유지비중':>8}  재료")
+    print(f"{'급':<2}{'렙':>4} {'미끼':<14}{'채굴분':>7}{'개당가':>8}{'유지비중':>7}{'제작/구매':>9}  재료")
     for g, lv, n, dur, want, got, txt in sorted(report, key=lambda x: (x[1])):
         w = wage.get(n, 0)
-        price = min(MAX_PRICE, round(got * w * BUY_PREMIUM))
+        price = int(P["미끼"][n].split("|")[2])
         share = price / (dur / cph) / w * 100 if w else 0
-        print(f"{g:<2}{lv:>4} {n:<14}{got*60:>7.1f}{price:>10,}{share:>7.0f}%  {txt}")
-    print("\n※ 유지비중 = 상점에서 사 쓸 때 미끼값이 낚시 수입에서 차지하는 비율")
+        # 제작/구매 = (1회 제작 채굴원가) / (RESULT_AMOUNT 개 사는 값). 1 보다 작아야 한다.
+        ratio = (got * w) / (price * RESULT_AMOUNT) if w and price else 0
+        print(f"{g:<2}{lv:>4} {n:<14}{got*60:>7.1f}{price:>8,}{share:>6.0f}%"
+              f"{ratio:>9.2f}  {txt}")
+    print(f"\n※ 개당가 = 상점 진열가(1개) · 유지비중 = 사 쓸 때 미끼값이 낚시 수입에서 차지하는 비율")
+    print(f"※ 제작/구매 = 1회 제작({RESULT_AMOUNT}개) 채굴원가 ÷ {RESULT_AMOUNT}개 구매가 "
+          f"— 1 보다 작아야 «만드는 쪽이 싸다»")
     if dry:
         print("★ --dry: 아무것도 쓰지 않았다. 빼면 실제로 쓴다.")
 
