@@ -4,6 +4,14 @@
 마크 서버용 종합 낚시 게임. **Paper 1.21 + Java 21.** 모든 게임 로직은 BlockShip 자바 플러그인(`/Users/user/development/blockship-plugin/src/main/java/com/blockship/`)에 기능별 패키지(`fishing/` `enhance/` `parts/` `quest/` `npc/` `ferry/` `region/` `market/` `economy/` `profile/` `ranking/` `mining/` `guild/` `inn/` `portal/` `island/` 등)로 구현돼 있다.
 상세 설계: [design.md](design.md) | 수치 밸런스: [balance.md](balance.md) | 스토리: [story.md](story.md)
 
+## 🚫 절대 운영 안전 규칙 — 모든 에이전트 세션 공통 (2026-09-02)
+
+- Codex·Claude를 포함한 **모든 에이전트는 prod 서버를 재시작하지 않는다.** `sudo systemctl restart mcserver`, `systemctl restart mcserver`, `ops/rp-deploy.sh prod --restart`, `~/deploy-blockship.sh`, `ops/deploy-all-prod.sh`, `nightly-restart.sh --now` 및 이와 동등한 재시작 경로를 실행 금지한다.
+- 리소스팩 prod 배포는 `ops/rp-deploy.sh prod`를 **`--restart` 없이** 실행해 새 Release와 URL/SHA1만 반영한다. 접속자 확인·공지·승인 없는 운영 중단을 에이전트가 만들지 않는다.
+- Java/JSON 코드는 반드시 `~/stage-blockship.sh`로 `~/mcserver/staging/`에만 올린다. 운영 `plugins/` 승격은 하지 않는다.
+- prod 상태가 `inactive`로 확인된 경우에만 복구 목적으로 `systemctl start mcserver`를 검토할 수 있다. `active`, `activating`, `deactivating` 상태에서는 start/restart를 추가로 호출하지 않는다.
+- 이 항목은 아래의 기존 배포 설명보다 우선한다. 사용자가 이 안전 규칙을 명시적으로 변경하기 전까지 계속 적용한다.
+
 ## 기술 스택
 - **Paper 1.21 + Java 21 — BlockShip 자바 플러그인이 모든 게임 시스템** (빌드: `cd /Users/user/development/blockship-plugin && ./gradlew build`, 상세는 아래 「BlockShip Java 플러그인」 섹션)
 
