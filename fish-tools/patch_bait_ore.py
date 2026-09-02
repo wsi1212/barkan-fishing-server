@@ -47,15 +47,31 @@ BUY_PREMIUM = 1.30
 #: BUY_PREMIUM 의 전제가 깨진다.
 MAX_PRICE = 10000
 
-#: 등급별 «상점가 띠» — MAX_PRICE 대비 (하한, 상한). 등급 안에서는 레벨로 보간한다.
-#: ★상한 하나만 걸면 후반이 전부 상한에 붙어 **레시피가 글자까지 같아진다**
-#:   (2026-09-02 실측: S 10종이 전부 흑정석2·적철석1·자수정1). 그래서 띠로 깐다.
-#: E·D 는 자연값이 이미 띠보다 낮아 손대지 않는다(min 을 취하므로).
+#: 압축 광물 «세 종 사이의 가치비» — 압축흑정석을 1 로 둔 설계값.
+#: ★유저 결정 2026-09-02: 「흑정석·적철석·자수정 사이 가치 차이가 크게 없음.
+#:   1 : 1.1 : 1.2 정도로 생각해. 압축적철석·압축자수정 기준.」
+#: 왜 LP 값을 안 쓰나 — LP 는 드릴 산출량에서 단가를 뽑는데 그 입력이
+#:   drill_per_hour = {흑정석 2715, 철광석 340} (measured.py, is_fallback=True) 이고
+#:   **자수정 340 은 표본 0 의 대리값**이다(DRILL_UNOBSERVED, 「반드시 «추정» 표기」).
+#:   그래서 LP 는 1 : 7.9 : 7.9 를 내놓는다 — 압축자수정 1개가 압축흑정석 8개 값이 된다.
+#:   실측이 아닌 추정 위에 세운 8배 격차보다, 광산을 만든 사람의 설계 의도가 권위다.
+#: ★실제 드릴 산출이 측정되면 이 비율과 대조할 것 — 어긋나면 광산 쪽을 고치는 게 맞다.
+ORE_VALUE_RATIO = {"압축흑정석": 1.00, "압축철광석": 1.10, "압축자수정": 1.20}
+
+#: 등급별 «상점가 띠» — 절대 금액(원). 등급 안에서는 레벨로 보간한다.
+#: ★유저 결정 2026-09-02: 「상한 유지하는 선에서 앞의 것 가격을 낮춰. B 38렙인데
+#:   하나에 7,000원은 너무 과도함. B등급은 하나 2,000원 수준.」
+#: MAX_PRICE 대비 «비율»로 깔았더니 C·B 가 7,000~8,400원까지 올라갔다 — 상한에서
+#: 거꾸로 내려오는 방식이라 앞 등급이 비싸졌다. 그래서 앞부터 쌓는 절대 금액으로 바꿨다.
+#: ★이 띠가 «재료 요구량»도 정한다 — 가격 = 채굴원가 × BUY_PREMIUM 이므로.
+#:   앞 등급을 낮춘 덕에 후반이 상대적으로 올라가 요구량 역전도 같이 줄어든다.
 PRICE_BAND = {
-    "C": (0.45, 0.60),
-    "B": (0.60, 0.75),
-    "A": (0.75, 0.90),
-    "S": (0.90, 1.00),
+    "E": (400, 600),
+    "D": (700, 1400),
+    "C": (1500, 1900),
+    "B": (2000, 2800),
+    "A": (3500, 7000),
+    "S": (8000, MAX_PRICE),
 }
 
 #: 같은 등급 안에서 «성능 좋은 미끼가 더 비싸야» 한다. 성능/등급평균 비를 이 범위로 조인다.
@@ -107,6 +123,18 @@ def main():
             print(f"🔴 {mid} 의 채굴 시간을 못 구했다 — LP 에 공급원이 없다")
             sys.exit(1)
         unit_h[mid] = h
+    # ── 세 종 사이 비율은 설계값으로 덮는다(위 ORE_VALUE_RATIO 주석 참조) ──
+    #   절대 수준은 LP 가 정한다 — 압축흑정석의 실측 단가를 앵커로 쓰고 비율만 적용한다.
+    anchor = unit_h.get("압축흑정석")
+    if anchor:
+        lp = {k: v / anchor for k, v in unit_h.items()}
+        print("압축광물 단가비  LP(추정 포함) "
+              + " : ".join(f"{lp[k]:.1f}" for k in ORE_VALUE_RATIO)
+              + "  →  설계 "
+              + " : ".join(f"{ORE_VALUE_RATIO[k]:.1f}" for k in ORE_VALUE_RATIO))
+        for mid, ratio in ORE_VALUE_RATIO.items():
+            if mid in unit_h:
+                unit_h[mid] = anchor * ratio
 
     # 구간 시급 — 채굴 시간을 «원» 으로 바꾸는 환산율. cast_cost 의 rows 가 이미 들고 있다.
     wage = {r["name"]: r["wage"] for r in rows if r["cat"] == "미끼"}
@@ -168,16 +196,25 @@ def main():
                 lv = int(f[5]) if f[5].isdigit() else 0
                 lo_lv, hi_lv = grade_lv.get(grade, (lv, lv))
                 t = (lv - lo_lv) / max(1, hi_lv - lo_lv)
-                want_price = MAX_PRICE * (band[0] + (band[1] - band[0]) * t)
+                want_price = band[0] + (band[1] - band[0]) * t
             else:
                 want_price = MAX_PRICE
             cap_h = min(want_price, MAX_PRICE) / (w * BUY_PREMIUM)
             if budget_h > cap_h:
                 budget_h = cap_h
-        items = []
-        for mid, share in mix:
-            q = max(1, round(budget_h * share / unit_h[mid]))
-            items.append(ing(mid, q))
+        # ── 개수 배분: 내림 + 큰 소수부 우선 보충 ──
+        #   ★올림(round)으로 하면 종마다 최대 반 개씩 넘쳐 «가격이 목표 띠를 초과»한다
+        #     (실측: B급 목표 2,000원 → 2,536원, 27% 초과). 가격이 채굴원가에서
+        #     나오므로 개수 반올림이 곧 가격 오차다. 그래서 예산을 넘지 않는 쪽으로
+        #     내림한 뒤, 남은 예산이 허용하는 만큼만 소수부가 큰 순서로 +1 한다.
+        raw = {mid: budget_h * share / unit_h[mid] for mid, share in mix}
+        qty = {mid: max(1, int(v)) for mid, v in raw.items()}
+        used = sum(qty[m] * unit_h[m] for m in qty)
+        for mid in sorted(raw, key=lambda m: -(raw[m] - int(raw[m]))):
+            if used + unit_h[mid] <= budget_h:
+                qty[mid] += 1
+                used += unit_h[mid]
+        items = [ing(mid, qty[mid]) for mid, _ in mix]
         r["ingredients"] = items
         changed += 1
         got = sum(i["qty"] * unit_h[i["typeOrMatId"]] for i in items)
@@ -194,18 +231,34 @@ def main():
     #   레시피가 없어 가격이 손대지 않은 채 남는다 — 실측으로 심해 잠수부 미끼가
     #   12,000원으로 상한을 넘고 있었다. 상한은 상점 진열가의 «불변식»이므로 여기서
     #   한 번 더 훑는다(레시피 유무와 무관).
-    over = []
+    #   레시피가 있는 미끼는 위에서 이미 띠에 맞춰졌다. 여기서는 «레시피 없는» 것들을
+    #   같은 띠에 올린다 — 채굴 원가가 없으니 띠 값을 그대로 진열가로 쓴다.
+    fixed = []
+    priced = {r2.get("resultPartName") for r2 in recs.values()
+              if r2.get("resultPartType") == "미끼"}
     for n2, v2 in P["미끼"].items():
         f2 = v2.split("|")
-        if len(f2) < 3 or not f2[2].lstrip("-").isdigit():
+        if len(f2) < 6 or not f2[2].lstrip("-").isdigit():
             continue
-        if int(f2[2]) > MAX_PRICE:
-            over.append((n2, int(f2[2])))
-            f2[2] = str(MAX_PRICE)
+        cur = int(f2[2])
+        g2 = f2[1]
+        band = PRICE_BAND.get(g2)
+        if n2 in priced:
+            want = min(cur, MAX_PRICE)          # 이미 원가에서 나온 값 — 상한만 확인
+        elif band:
+            lv2 = int(f2[5]) if f2[5].isdigit() else 0
+            lo_lv, hi_lv = grade_lv.get(g2, (lv2, lv2))
+            t2 = (lv2 - lo_lv) / max(1, hi_lv - lo_lv)
+            want = int(min(MAX_PRICE, round(band[0] + (band[1] - band[0]) * t2)))
+        else:
+            want = min(cur, MAX_PRICE)
+        if want != cur:
+            fixed.append((n2, cur, want, n2 not in priced))
+            f2[2] = str(want)
             P["미끼"][n2] = "|".join(f2)
-    if over:
-        print("상한 초과 미끼 되깎기(레시피 없는 상점 전용 포함): "
-              + " · ".join(f"{n2} {c:,}→{MAX_PRICE:,}원" for n2, c in over))
+    if fixed:
+        print("가격 보정: " + " · ".join(
+            f"{n2} {c:,}→{w:,}원{'(레시피 없음)' if noc else ''}" for n2, c, w, noc in fixed))
 
     if not dry:
         json.dump(R, open(os.path.join(BASE, "recipes.json"), "w", encoding="utf-8"),
