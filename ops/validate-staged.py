@@ -107,6 +107,26 @@ def main():
         uniq = sorted(set(dups))
         reject(f'중복 키 {len(uniq)}건 — 서버 gson 이 파일 전체를 거부한다: '
                f'{uniq[:8]}{" …" if len(uniq) > 8 else ""}')
+    # ★recipes.json 재료 항목의 필수 키 — 서버 gson 은 «모르는 키를 조용히 버린다».
+    #   그래서 kind 를 type 이라고 써도 파싱은 통과하고, 런타임에 ing.kind == null 이 되어
+    #   RecipeLoader 의 `"custom".equals(ing.kind)` 판정이 전부 false 가 된다 →
+    #   그 재료 칸이 «있지만 인식 안 되는» 상태가 된다. 에러도, 로그도 없다.
+    #   2026-09-02 실사고: 생성 스크립트 두 개가 "type" 으로 써서 74개 항목이 그 상태로
+    #   prod 에 나갔다(압축자수정·대표재료). 항목수·크기·타입 검사 전부 통과했다.
+    #   판정은 «내용»으로 한다 — 파일명으로 하면 이름만 다른 사본이 검사를 빠져나간다.
+    if isinstance(snew.get('recipes'), dict):
+        need = {'kind', 'typeOrMatId', 'qty'}
+        broken = []
+        for rid, rec in (snew.get('recipes') or {}).items():
+            for i in (rec or {}).get('ingredients') or []:
+                miss = need - set(i)
+                if miss:
+                    broken.append(f"{rid}:{i.get('typeOrMatId') or i.get('displayName')}"
+                                  f"(없음 {sorted(miss)})")
+        if broken:
+            reject(f'재료 항목 필수 키 누락 {len(broken)}건 — 서버가 조용히 무시한다: '
+                   f'{broken[:6]}{" …" if len(broken) > 6 else ""}')
+
     if not os.path.exists(live):
         sys.exit(0)                                    # 신규 파일은 통과
     try:

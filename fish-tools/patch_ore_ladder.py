@@ -153,7 +153,7 @@ def main() -> int:
             src = base.get(m)
             if src is None:
                 mm = mats.get(m) or {}
-                src = {"type": "custom", "typeOrMatId": m,
+                src = {"kind": "custom", "typeOrMatId": m,
                        "displayName": mm.get("name", m), "mcItem": mm.get("mcItem", "paper")}
             out.append(dict(src, qty=n))
         d["v"]["ingredients"] = out

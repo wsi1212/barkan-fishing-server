@@ -170,7 +170,7 @@ def main() -> int:
         sig = SIGNATURE.get(v.get("resultPartType") or "", SIGNATURE_GEAR)
         cur = next((i for i in new if (i.get("typeOrMatId") or i.get("mcItem")) == sig), None)
         if cur is None and mat_open.get(sig, 99) <= lv:
-            cur = {"type": "custom", "typeOrMatId": sig, "mcItem": _mc(recs, sig, new[0]),
+            cur = {"kind": "custom", "typeOrMatId": sig, "mcItem": _mc(recs, sig, new[0]),
                    "displayName": sig, "qty": want}
             new.append(cur)
         if cur is not None:
