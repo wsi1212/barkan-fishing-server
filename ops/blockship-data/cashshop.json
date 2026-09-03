@@ -23,7 +23,7 @@
       "label": "§d인챈트북",
       "icon": "ENCHANTED_BOOK",
       "iconId": "ui_gui_cash",
-      "cashShop": false,
+      "cashShop": true,
       "coinShop": true,
       "locked": false
     },
@@ -260,7 +260,7 @@
       {
         "id": "자철석",
         "name": "자철석",
-        "coin": 10,
+        "coin": 0,
         "cash": 0,
         "icon": "LODESTONE",
         "lore": "§7나침반 고정 블록",
@@ -290,7 +290,7 @@
         "id": "인챈트_효율1",
         "name": "효율 I",
         "coin": 2,
-        "cash": 0,
+        "cash": 1000,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7도구 채굴 속도 증가 §8(효율 1)",
         "tag": "enchbook:efficiency:1"
@@ -299,7 +299,7 @@
         "id": "인챈트_효율2",
         "name": "효율 II",
         "coin": 4,
-        "cash": 0,
+        "cash": 2000,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7도구 채굴 속도 증가 §8(효율 2)",
         "tag": "enchbook:efficiency:2"
@@ -308,7 +308,7 @@
         "id": "인챈트_효율3",
         "name": "효율 III",
         "coin": 7,
-        "cash": 0,
+        "cash": 3500,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7도구 채굴 속도 증가 §8(효율 3)",
         "tag": "enchbook:efficiency:3"
@@ -317,7 +317,7 @@
         "id": "인챈트_효율4",
         "name": "효율 IV",
         "coin": 10,
-        "cash": 0,
+        "cash": 5000,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7도구 채굴 속도 증가 §8(효율 4)",
         "tag": "enchbook:efficiency:4"
@@ -326,7 +326,7 @@
         "id": "인챈트_내구성1",
         "name": "내구성 I",
         "coin": 1,
-        "cash": 0,
+        "cash": 500,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7내구도 소모 감소 §8(내구성 1)",
         "tag": "enchbook:unbreaking:1"
@@ -335,7 +335,7 @@
         "id": "인챈트_내구성2",
         "name": "내구성 II",
         "coin": 2,
-        "cash": 0,
+        "cash": 1000,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7내구도 소모 감소 §8(내구성 2)",
         "tag": "enchbook:unbreaking:2"
@@ -344,7 +344,7 @@
         "id": "인챈트_내구성3",
         "name": "내구성 III",
         "coin": 3,
-        "cash": 0,
+        "cash": 1500,
         "icon": "ENCHANTED_BOOK",
         "lore": "§7내구도 소모 감소 §8(내구성 3)",
         "tag": "enchbook:unbreaking:3"
