@@ -286,18 +286,64 @@ def build(dry: bool, max_px: int = 64) -> int:
     #   ★uuid 는 «고정», version 은 «내용이 바뀌면 반드시 올라가야» 한다.
     #     베드락 클라는 (uuid, version) 으로 캐시한다. 둘 다 그대로면 팩을 다시 받지 않고
     #     캐시본을 쓴다 — 2026-09-04 실측: 아이콘 548종을 넣었는데 폰에서 «다운로드 안내도
-    #     안 뜨고 아이템이 투명» 했다. 옛 팩(물고기만)이 그대로 쓰이고 있었던 것.
-    #     그래서 버전을 «내용 해시»에서 뽑는다 — 내용이 같으면 그대로, 바뀌면 자동으로 바뀐다.
+
+    texture_data = {}
+    for e in resolved:
+        _emit_texture(e["texture"], stage / "textures/items" / f"{e['icon']}.png", max_px)
+        texture_data[e["icon"]] = {"textures": f"textures/items/{e['icon']}"}
+
+    # ── 기존(물고기) 텍스처 승계 ─────────────────────────────────────────────
+    #   ★파일명이 아니라 «옛 item_texture.json 의 키→경로» 를 그대로 가져온다.
+    #     물고기는 키가 fish_<이름> 인데 파일은 textures/items/fish/<이름>.png 에 있다.
+    #     파일명으로 키를 다시 만들면 접두어가 사라져 매핑이 끊기고 — 2026-09-04 실측 —
+    #     물고기 486종이 통째로 투명해진다. 남의 규칙을 추측하지 말고 있는 그대로 옮긴다.
+    #   ★씨앗은 seed/fish_pack_original.mcpack — 물고기 팩은 «생성기가 없는» 원본 입력이라
+    #     레포에 그대로 둔다(libs/*.jar 과 같은 취급). 배포된 팩을 씨앗으로 삼으면 한 번
+    #     잘못 만든 팩이 다음 판의 입력이 되어 오류가 눌러앉는다 — 실제로 그렇게 됐었다.
+    prev = HERE / "seed/fish_pack_original.mcpack"
+    if not prev.is_file():
+        prev = SERVER / "plugins/Geyser-Spigot/packs/barkan_bedrock.mcpack"
+    carried = 0
+    if prev and prev.is_file():
+        with zipfile.ZipFile(prev) as z:
+            try:
+                old_td = json.loads(z.read("textures/item_texture.json"))["texture_data"]
+            except Exception:
+                old_td = {}
+            names = set(z.namelist())
+            for key, val in old_td.items():
+                if key in texture_data:
+                    continue
+                rel = val.get("textures") if isinstance(val, dict) else None
+                if not rel:
+                    continue
+                src = f"{rel}.png"
+                if src not in names:
+                    continue
+                dst = stage / src
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(z.read(src))
+                _emit_texture(dst, dst, max_px)
+                texture_data[key] = {"textures": rel}
+                carried += 1
+    print(f"▶ 텍스처 {len(texture_data)}장 (신규 {len(resolved)} + 기존 승계 {carried})")
+
+    # ── manifest ────────────────────────────────────────────────────────────
+    #   ★uuid 는 «고정», version 은 «내용이 바뀌면 반드시 올라가야» 한다.
+    #     베드락 클라는 (uuid, version) 으로 캐시한다. 둘 다 그대로면 팩을 다시 받지 않고
+    #     캐시본을 쓴다 — 2026-09-04 실측: 아이콘을 548종 넣었는데 폰에서 «다운로드 안내도
+    #     안 뜨고 아이템이 투명» 했다. 옛 팩이 그대로 쓰이고 있었던 것.
+    #   ★해시는 «스테이징이 다 끝난 뒤» 실제 산출물에서 뽑는다. 원본 텍스처만 해싱했다가
+    #     축소 크기·승계 방식을 바꿔도 버전이 그대로여서 같은 사고를 두 번 더 냈다.
     stamp = hashlib.sha1()
-    # ★출력에 영향을 주는 «설정»도 해시에 넣는다 — 원본만 해싱하면 축소 크기를 바꿔도
-    #   버전이 그대로라 클라가 옛 팩을 계속 쓴다(2026-09-04 실측).
     stamp.update(f"max_px={max_px}".encode())
-    for e in sorted(resolved, key=lambda x: x["icon"]):
-        stamp.update(e["icon"].encode())
-        stamp.update(Path(e["texture"]).read_bytes())
     stamp.update(json.dumps(mappings, sort_keys=True, ensure_ascii=False).encode())
+    stamp.update(json.dumps(texture_data, sort_keys=True, ensure_ascii=False).encode())
+    for f in sorted((stage / "textures").rglob("*.png")):
+        stamp.update(str(f.relative_to(stage)).encode())
+        stamp.update(f.read_bytes())
     rev = int(stamp.hexdigest()[:6], 16) % 100000
-    print(f"▶ 팩 버전 1.0.{rev} (내용 해시 — 바뀌면 클라가 다시 받는다)")
+    print(f"▶ 팩 버전 1.0.{rev} (산출물 해시 — 바뀌면 클라가 다시 받는다)")
 
     manifest = {
         "format_version": 2,
@@ -310,35 +356,12 @@ def build(dry: bool, max_px: int = 64) -> int:
         },
         "modules": [{
             "type": "resources",
-            "uuid": "654e8f2a-a98a-5429-9f2a-6660d8e60ed7",   # 옛 팩과 동일 — 바꿀 이유가 없다
+            "uuid": "654e8f2a-a98a-5429-9f2a-6660d8e60ed7",
             "version": [1, 0, rev],
         }],
     }
     (stage / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2),
                                          encoding="utf-8")
-
-    texture_data = {}
-    for e in resolved:
-        _emit_texture(e["texture"], stage / "textures/items" / f"{e['icon']}.png", max_px)
-        texture_data[e["icon"]] = {"textures": f"textures/items/{e['icon']}"}
-
-    # 기존 물고기 텍스처도 팩에 남아 있어야 한다 — 이전 팩에서 그대로 가져온다.
-    prev = SERVER / "plugins/Geyser-Spigot/packs/barkan_bedrock.mcpack"
-    carried = 0
-    if prev.is_file():
-        with zipfile.ZipFile(prev) as z:
-            for n in z.namelist():
-                if not n.startswith("textures/items/") or not n.endswith(".png"):
-                    continue
-                icon = Path(n).stem
-                if icon in texture_data:
-                    continue
-                tmp = stage / "textures/items" / f"{icon}.png"
-                tmp.write_bytes(z.read(n))
-                _emit_texture(tmp, tmp, max_px)
-                texture_data[icon] = {"textures": f"textures/items/{icon}"}
-                carried += 1
-    print(f"▶ 텍스처 {len(texture_data)}장 (신규 {len(resolved)} + 기존 승계 {carried})")
 
     # ★item_texture.json 이 없으면 아이콘 이름이 해석되지 않아 전부 «보라/검정» 이 된다.
     (stage / "textures").mkdir(exist_ok=True)
@@ -347,6 +370,25 @@ def build(dry: bool, max_px: int = 64) -> int:
         "texture_name": "atlas.items",
         "texture_data": texture_data,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # ── 자기검증 ────────────────────────────────────────────────────────────
+    #   ★매핑의 icon 이 item_texture 키로 풀리고, 그 키가 실제 PNG 를 가리키는가.
+    #     이 사슬이 한 칸만 끊겨도 «아이템은 있는데 투명» 이 된다 — 서버 로그엔 아무것도
+    #     안 남아서 폰을 켜 보기 전엔 모른다. 2026-09-04 에 물고기 486종이 이렇게 날아갔다
+    #     (키는 fish_<이름> 인데 파일은 fish/<이름>.png 라 파일명으로 키를 만들면 끊긴다).
+    broken = []
+    for base, defs in items.items():
+        for d in defs:
+            icon = d.get("bedrock_options", {}).get("icon")
+            rel = texture_data.get(icon, {}).get("textures") if icon else None
+            if not rel or not (stage / f"{rel}.png").is_file():
+                broken.append(f"{base} / {icon}")
+    if broken:
+        print(f"❌ 매핑↔텍스처 사슬이 끊긴 항목 {len(broken)}개 — 팩을 만들지 않습니다")
+        for b in broken[:10]:
+            print(f"     · {b}")
+        return 1
+    print(f"✓ 자기검증 통과 — 정의 {sum(len(v) for v in items.values())}종 전부 텍스처까지 연결됨")
 
     mcpack = OUT / "barkan_bedrock.mcpack"
     if mcpack.exists():
