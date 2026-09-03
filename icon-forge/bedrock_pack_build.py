@@ -231,18 +231,38 @@ def build(dry: bool, max_px: int = 128) -> int:
     if not legacy:
         print("  ⚠ 기존 매핑(물고기)을 못 찾았습니다 — --fish 로 경로를 주면 승계합니다")
 
-    items: dict[str, list] = {k: list(v) for k, v in legacy.items()}
+    # ★bedrock_identifier 로 «중복 제거» 한다 — 이게 없으면 실행할 때마다 누적된다.
+    #   legacy 를 자기 출력에서 읽기 때문이다(2026-09-04 사고: 3번 돌려 2130개가 됐다).
+    #   Geyser 는 중복을 조용히 무시해 겉으로는 멀쩡해 보이지만 파일만 계속 커진다.
+    items: dict[str, list] = {}
+    seen_ids: set[str] = set()
+
+    def put(base: str, entry: dict) -> bool:
+        bid = entry.get("bedrock_identifier")
+        if not bid or bid in seen_ids:
+            return False
+        seen_ids.add(bid)
+        items.setdefault(base, []).append(entry)
+        return True
+
+    # 새로 만든 것이 «우선» — 규칙이 바뀌면 옛 정의가 아니라 이번 정의가 남아야 한다.
     for e in resolved:
-        items.setdefault(e["base"], []).append({
+        put(e["base"], {
             "type": "definition",
             "model": e["model"],
             "bedrock_identifier": f"{NS}:{e['icon']}",
             "bedrock_options": {"icon": e["icon"], "creative_category": "items"},
         })
+    carried_defs = 0
+    for base, defs in legacy.items():
+        for entry in defs:
+            if put(base, entry):
+                carried_defs += 1
 
     mappings = {"format_version": "2", "items": items}
     total = sum(len(v) for v in items.values())
-    print(f"▶ 매핑 총 {total}종 (기존 승계 {sum(len(v) for v in legacy.values())} + 신규 {len(resolved)})")
+    print(f"▶ 매핑 총 {total}종 (신규 {len(resolved)} + 기존 승계 {carried_defs}"
+          f", 중복 제거 {sum(len(v) for v in legacy.values()) - carried_defs})")
     for k, v in sorted(items.items(), key=lambda kv: -len(kv[1])):
         print(f"     {k}: {len(v)}")
 
