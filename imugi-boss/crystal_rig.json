@@ -1,0 +1,166 @@
+{
+ "world_origin_hint": "flatroom straight rest pose [9, -55, -151, 20, -45, -112]",
+ "left_rotation_fix": [
+  0,
+  1,
+  0,
+  0
+ ],
+ "render_scale_multiplier": 1.0,
+ "segments": [
+  {
+   "seg": 0,
+   "item_model": "barkan:crystal/seg_00",
+   "pivot": [
+    14.5,
+    -51.5,
+    -147.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 16,
+   "elements": 23
+  },
+  {
+   "seg": 1,
+   "item_model": "barkan:crystal/seg_01",
+   "pivot": [
+    14.5,
+    -51.5,
+    -142.0
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 32,
+   "elements": 39
+  },
+  {
+   "seg": 2,
+   "item_model": "barkan:crystal/seg_02",
+   "pivot": [
+    14.5,
+    -51.5,
+    -138.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 41,
+   "elements": 48
+  },
+  {
+   "seg": 3,
+   "item_model": "barkan:crystal/seg_03",
+   "pivot": [
+    14.5,
+    -51.5,
+    -135.5
+   ],
+   "scale": 4.645161290322581,
+   "blocks": 42,
+   "elements": 61
+  },
+  {
+   "seg": 4,
+   "item_model": "barkan:crystal/seg_04",
+   "pivot": [
+    14.5,
+    -51.5,
+    -132.5
+   ],
+   "scale": 5.67741935483871,
+   "blocks": 55,
+   "elements": 79
+  },
+  {
+   "seg": 5,
+   "item_model": "barkan:crystal/seg_05",
+   "pivot": [
+    14.5,
+    -51.5,
+    -129.5
+   ],
+   "scale": 5.67741935483871,
+   "blocks": 57,
+   "elements": 73
+  },
+  {
+   "seg": 6,
+   "item_model": "barkan:crystal/seg_06",
+   "pivot": [
+    14.5,
+    -51.5,
+    -126.5
+   ],
+   "scale": 3.6129032258064515,
+   "blocks": 53,
+   "elements": 62
+  },
+  {
+   "seg": 7,
+   "item_model": "barkan:crystal/seg_07",
+   "pivot": [
+    14.5,
+    -51.5,
+    -123.5
+   ],
+   "scale": 4.645161290322581,
+   "blocks": 50,
+   "elements": 76
+  },
+  {
+   "seg": 8,
+   "item_model": "barkan:crystal/seg_08",
+   "pivot": [
+    14.5,
+    -51.5,
+    -120.5
+   ],
+   "scale": 4.645161290322581,
+   "blocks": 53,
+   "elements": 66
+  },
+  {
+   "seg": 9,
+   "item_model": "barkan:crystal/seg_09",
+   "pivot": [
+    14.5,
+    -51.5,
+    -119.0
+   ],
+   "scale": 4.129032258064516,
+   "blocks": 40,
+   "elements": 50
+  }
+ ],
+ "extra_displays": [
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 9,
+   "pos": [
+    13.5,
+    -50.5,
+    -116.5
+   ],
+   "left_rotation": [
+    0,
+    -0.70711,
+    0,
+    0.70711
+   ],
+   "scale": 1.15
+  },
+  {
+   "kind": "ender_chest_eye",
+   "attach_seg": 9,
+   "pos": [
+    15.5,
+    -50.5,
+    -116.5
+   ],
+   "left_rotation": [
+    0,
+    0.70711,
+    0,
+    0.70711
+   ],
+   "scale": 1.15
+  }
+ ]
+}

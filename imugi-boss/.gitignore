@@ -1,0 +1,7 @@
+# 오프라인 프리뷰 렌더는 preview_boss.py 로 매번 다시 뽑는다 — 사본 고정 금지
+*_south_mat.png
+*_south_seg.png
+*_west_mat.png
+*_west_seg.png
+*_top_mat.png
+*_top_seg.png
