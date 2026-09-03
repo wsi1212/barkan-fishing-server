@@ -53,8 +53,12 @@ NS = "barkan"
 #     릴=CLOCK 줄=STRING 바늘=TRIPWIRE_HOOK 미끼=WHEAT_SEEDS 찌=PUFFERFISH 그 외=PAPER
 #   작살은 HarpoonManager 가 COD, 통발은 TrapSpecs.ITEM_MAT=BARREL,
 #   재료는 MaterialLoader 가 mcItem 을 무조건 "paper" 로 강제한다.
+#   ★낚싯대는 «완성품» 이 minecraft:fishing_rod 다(EquipmentManager.buildRodResult).
+#     partIcon 기본값(PAPER)만 보고 paper 로 잡았다가 낚싯대만 베드락에서 바닐라
+#     텍스처로 나왔다(2026-09-04 유저 제보). 조합대 미리보기 등 paper 로 뜨는 경로도
+#     있어 «둘 다» 등록한다 — 리스트를 주면 각각 다른 bedrock_identifier 로 나간다.
 BASE_ITEM = {
-    "rod": "minecraft:paper",
+    "rod": ["minecraft:fishing_rod", "minecraft:paper"],
     "reel": "minecraft:clock",
     "line": "minecraft:string",
     "hook": "minecraft:tripwire_hook",
@@ -164,11 +168,13 @@ def collect() -> tuple[list[dict], list[str]]:
         if fam not in BASE_ITEM:
             warns.append(f"모르는 계열 건너뜀: {icon}")
             continue
-        base = harpoon_base.get(icon, BASE_ITEM[fam]) if fam == "harpoon" else BASE_ITEM[fam]
+        base = harpoon_base.get(icon, BASE_ITEM[fam][0] if isinstance(BASE_ITEM[fam], list)
+                                else BASE_ITEM[fam]) if fam == "harpoon" else BASE_ITEM[fam]
+        bases = base if isinstance(base, list) else [base]
         entries.append({
             "icon": icon,
             "model": f"{NS}:barkan_icon/{icon}",
-            "base": base,
+            "bases": bases,
             "label": labels.get(icon, f"{families.get(fam, fam)} ?({icon})"),
         })
     return entries, warns
@@ -250,12 +256,15 @@ def build(dry: bool, max_px: int = 64) -> int:
 
     # 새로 만든 것이 «우선» — 규칙이 바뀌면 옛 정의가 아니라 이번 정의가 남아야 한다.
     for e in resolved:
-        put(e["base"], {
-            "type": "definition",
-            "model": e["model"],
-            "bedrock_identifier": f"{NS}:{e['icon']}",
-            "bedrock_options": {"icon": e["icon"], "creative_category": "items"},
-        })
+        for i, base in enumerate(e["bases"]):
+            # 같은 아이콘을 여러 베이스에 달 때 식별자가 겹치면 안 된다 — 두 번째부터 접두어.
+            bid = f"{NS}:{e['icon']}" if i == 0 else f"{NS}:b{i}_{e['icon']}"
+            put(base, {
+                "type": "definition",
+                "model": e["model"],
+                "bedrock_identifier": bid,
+                "bedrock_options": {"icon": e["icon"], "creative_category": "items"},
+            })
     carried_defs = 0
     for base, defs in legacy.items():
         for entry in defs:
