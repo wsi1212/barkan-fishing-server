@@ -42,7 +42,9 @@ BUILD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build-prod-rp.py"
 ZIP="/tmp/barkan-resourcepack-slim.zip"
 ASSET="barkan-resourcepack.zip"          # ★자산 이름은 고정 (URL 이 이 이름을 찾는다)
 # 파일 수가 이 비율보다 줄면 중단. 정상적인 정리(백업 제외 등)는 몇십 개 수준이다.
-MIN_KEEP_RATIO="0.97"
+# ★의도한 대량 삭제일 때만 호출부에서 낮춰 준다 — 기본값을 낮추면 가드가 무의미해진다.
+#   예) 2026-09-03 오로라 애니 제거로 타일 704개가 사라졌다: MIN_KEEP_RATIO=0.96 ops/rp-deploy.sh prod
+MIN_KEEP_RATIO="${MIN_KEEP_RATIO:-0.97}"
 
 TARGET="${1:-}"; shift || true
 DRY=0; RESTART=0
