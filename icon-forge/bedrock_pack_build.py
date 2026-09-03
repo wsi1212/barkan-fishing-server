@@ -279,20 +279,33 @@ def build(dry: bool, max_px: int = 128) -> int:
         shutil.rmtree(stage)
     (stage / "textures/items").mkdir(parents=True)
 
-    # manifest — ★uuid 를 고정한다. 바뀌면 클라가 «다른 팩» 으로 보고 전부 다시 받는다.
+    # ── manifest ────────────────────────────────────────────────────────────
+    #   ★uuid 는 «고정», version 은 «내용이 바뀌면 반드시 올라가야» 한다.
+    #     베드락 클라는 (uuid, version) 으로 캐시한다. 둘 다 그대로면 팩을 다시 받지 않고
+    #     캐시본을 쓴다 — 2026-09-04 실측: 아이콘 548종을 넣었는데 폰에서 «다운로드 안내도
+    #     안 뜨고 아이템이 투명» 했다. 옛 팩(물고기만)이 그대로 쓰이고 있었던 것.
+    #     그래서 버전을 «내용 해시»에서 뽑는다 — 내용이 같으면 그대로, 바뀌면 자동으로 바뀐다.
+    stamp = hashlib.sha1()
+    for e in sorted(resolved, key=lambda x: x["icon"]):
+        stamp.update(e["icon"].encode())
+        stamp.update(Path(e["texture"]).read_bytes())
+    stamp.update(json.dumps(mappings, sort_keys=True, ensure_ascii=False).encode())
+    rev = int(stamp.hexdigest()[:6], 16) % 100000
+    print(f"▶ 팩 버전 1.0.{rev} (내용 해시 — 바뀌면 클라가 다시 받는다)")
+
     manifest = {
         "format_version": 2,
         "header": {
             "name": "바르칸 열도 (베드락)",
             "description": "Geyser 커스텀 아이템 — 물고기·낚싯대·부품·재료 아이콘",
             "uuid": "2af7a31c-f3b7-5fd3-b260-d608317953ab",
-            "version": [1, 0, 0],
+            "version": [1, 0, rev],
             "min_engine_version": [1, 21, 0],
         },
         "modules": [{
             "type": "resources",
-            "uuid": "6f1d5b7c-1c9a-5a55-9a2c-2f0a9c4e77b1",
-            "version": [1, 0, 0],
+            "uuid": "654e8f2a-a98a-5429-9f2a-6660d8e60ed7",   # 옛 팩과 동일 — 바꿀 이유가 없다
+            "version": [1, 0, rev],
         }],
     }
     (stage / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2),
