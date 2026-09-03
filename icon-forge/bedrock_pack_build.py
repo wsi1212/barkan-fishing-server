@@ -179,7 +179,10 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
 
     ★카탈로그 아이콘은 512/256px 로 그려져 있는데(물고기는 128) 베드락은 이걸 인벤토리
       한 칸에 그린다. 원본 그대로 넣으면 팩이 28MB 가 되어 모바일 첫 접속이 그만큼 길어진다.
-      이미 128px 로 잘 돌고 있는 물고기에 맞춰 정규화한다 — 화질 손해 없이 팩이 1/3 이 된다.
+      ★★크기가 «접속 가능 여부»를 가른다(2026-09-04 실측). 128px(15MB) 팩은 베드락
+      클라가 받다가 연결을 끊어 «오류가 발생했습니다» 로 접속 자체가 실패했다. 64px(5.9MB)
+      로 내리자 정상 접속 + 아이콘 표시. 여태 잘 돌던 물고기 전용 팩이 5.5MB 였다.
+      정확한 임계값은 모르지만 6MB 대는 안전하고 15MB 는 안 된다 — 기본값을 올리지 말 것.
     ★리샘플러는 LANCZOS. 이 그림들은 «업스케일된 픽셀아트가 아니라» 안티에일리어싱된
       회화체다(4x/2x 블록 균일도 0.6~0.84 실측) — NEAREST 로 줄이면 가장자리가 부서진다.
     """
@@ -199,7 +202,7 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
             shutil.copyfile(src, dst)   # 이미지 처리 실패해도 아이콘은 나가야 한다
 
 
-def build(dry: bool, max_px: int = 128) -> int:
+def build(dry: bool, max_px: int = 64) -> int:
     entries, warns = collect()
     for w in warns:
         print(f"  ⚠ {w}")
@@ -286,6 +289,9 @@ def build(dry: bool, max_px: int = 128) -> int:
     #     안 뜨고 아이템이 투명» 했다. 옛 팩(물고기만)이 그대로 쓰이고 있었던 것.
     #     그래서 버전을 «내용 해시»에서 뽑는다 — 내용이 같으면 그대로, 바뀌면 자동으로 바뀐다.
     stamp = hashlib.sha1()
+    # ★출력에 영향을 주는 «설정»도 해시에 넣는다 — 원본만 해싱하면 축소 크기를 바꿔도
+    #   버전이 그대로라 클라가 옛 팩을 계속 쓴다(2026-09-04 실측).
+    stamp.update(f"max_px={max_px}".encode())
     for e in sorted(resolved, key=lambda x: x["icon"]):
         stamp.update(e["icon"].encode())
         stamp.update(Path(e["texture"]).read_bytes())
@@ -358,7 +364,7 @@ def build(dry: bool, max_px: int = 128) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--max-px", type=int, default=128,
-                    help="텍스처 최대 변 길이(기본 128 — 물고기와 같은 규격)")
+    ap.add_argument("--max-px", type=int, default=64,
+                    help="텍스처 최대 변 길이(기본 64). ★올리지 말 것 — 아래 주석 참조")
     a = ap.parse_args()
     sys.exit(build(a.dry_run, a.max_px))
