@@ -26,11 +26,6 @@
 # =====================================================================
 set -uo pipefail
 
-# 영구 운영 정책: prod는 어떤 자동/수동 경로에서도 재시작하지 않는다.
-# 06:00 점검은 ops/oracle/nightly-maintenance.sh가 저장·상태 보고만 담당한다.
-echo "❌ prod 재시작 금지 정책: nightly-restart.sh는 비활성화되어 있습니다." >&2
-exit 2
-
 DIR=~/mcserver/scripts
 STATUS_FILE=${STATUS_FILE:-$HOME/mcserver/backups/.backup-status}
 WEBHOOK_FILE=${WEBHOOK_FILE:-$DIR/discord-webhook.url}
