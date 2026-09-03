@@ -39,6 +39,10 @@ KEY="$HOME/.ssh/oracle-mc.key"
 PROD_HOST="ubuntu@168.107.8.107"
 DEV_PROPS="$HOME/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/server.properties"
 BUILD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build-prod-rp.py"
+# ★빌더는 리소스팩 레포의 tools/build-prod-rp.py 를 가리키는 심볼릭링크다(맥·CI 한 벌).
+#   그 파일은 RP_ROOT 가 없으면 cwd 를 소스로 보므로(CI 는 레포 루트에서 돈다) 여기서 명시한다.
+#   안 넘기면 스크립트 폴더를 팩으로 굽어 «2개짜리 팩»이 나온다 — 2026-09-03 실측.
+RP_ROOT="${RP_ROOT:-$HOME/development/barkan-resourcepack}"; export RP_ROOT
 ZIP="/tmp/barkan-resourcepack-slim.zip"
 ASSET="barkan-resourcepack.zip"          # ★자산 이름은 고정 (URL 이 이 이름을 찾는다)
 # 파일 수가 이 비율보다 줄면 중단. 정상적인 정리(백업 제외 등)는 몇십 개 수준이다.
