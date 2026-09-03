@@ -43,6 +43,8 @@ BUILD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/build-prod-rp.py"
 #   그 파일은 RP_ROOT 가 없으면 cwd 를 소스로 보므로(CI 는 레포 루트에서 돈다) 여기서 명시한다.
 #   안 넘기면 스크립트 폴더를 팩으로 굽어 «2개짜리 팩»이 나온다 — 2026-09-03 실측.
 RP_ROOT="${RP_ROOT:-$HOME/development/barkan-resourcepack}"; export RP_ROOT
+DEV_RP_HOST="$HOME/dev-rp-host"          # dev 로컬 서빙 디렉터리 (~/dev-rp-serve.sh 가 이걸 서빙)
+DEV_RP_ADDR="${DEV_RP_ADDR:-127.0.0.1}"  # 폰(Tailscale)에서 붙을 땐 그 IP 로 덮어쓴다
 ZIP="/tmp/barkan-resourcepack-slim.zip"
 ASSET="barkan-resourcepack.zip"          # ★자산 이름은 고정 (URL 이 이 이름을 찾는다)
 # 파일 수가 이 비율보다 줄면 중단. 정상적인 정리(백업 제외 등)는 몇십 개 수준이다.
@@ -104,6 +106,7 @@ echo "   URL : ${CUR_URL:-(없음)}"
 echo "   sha1: ${CUR_SHA:-(없음)}"
 
 case "$CUR_URL" in
+  http://127.0.0.1:8801/*|http://*:8801/*) MODE=local8801 ;;   # dev 로컬 서빙
   https://github.com/*) MODE=github ;;
   https://barkan.kr/*|https://www.barkan.kr/*|https://barkan.kro.kr/*)
     cat >&2 <<EOF
@@ -233,7 +236,35 @@ if [ "$DRY" = 1 ]; then
   exit 0
 fi
 
-# ── 4. 새 태그로 업로드 (clobber 안 씀 → CDN 옛 바이트 문제 없음) ──────────
+# ── 4. 배포 대상별 서빙 ────────────────────────────────────────────────────
+if [ "$TARGET" = dev ]; then
+  # ★dev 는 GitHub 릴리스로 올리지 않는다 — 로컬 8801 로 서빙한다.
+  #
+  #  2026-09-03 실측: 91MB 팩을 GitHub 에서 받는 데 60초가 넘어가면 **GrimAC
+  #  disconnect.timeout 이 먼저 터진다** → 클라는 「리소스팩 다운로드에 실패」 뒤
+  #  「세계 참여중…」에서 굳고 1분 뒤 튕긴다(로그: `Disconnecting <p> for
+  #  disconnect.timeout`, 접속 시각 +60초 정확히). 팩을 줄여도 회선이 느리면 재발한다.
+  #  루프백은 같은 팩을 ~2GB/s 로 주므로 원인 자체가 사라진다.
+  #  ※ 서버는 URL·sha1 을 기동 때만 읽으므로 여기서도 재시작이 필요하다.
+  say "dev 로컬 서빙 — $DEV_RP_HOST (GitHub 릴리스 없음)"
+  mkdir -p "$DEV_RP_HOST"
+  cp "$ZIP" "$DEV_RP_HOST/$ASSET"
+  NEW_URL="http://$DEV_RP_ADDR:8801/$ASSET"
+  if ! curl -sf -o /dev/null --max-time 5 -r 0-0 "$NEW_URL"; then
+    echo "   8801 이 안 떠 있다 → ~/dev-rp-serve.sh 로 기동"
+    "$HOME/dev-rp-serve.sh"
+    sleep 1
+  fi
+  TAG="local-8801"
+  say "로컬 URL 검증"
+  V=$(mktemp /tmp/rp-verify.XXXXXX.zip)
+  curl --fail --silent --show-error --max-time 120 "$NEW_URL" --output "$V" \
+    || { rm -f "$V"; echo "❌ $NEW_URL 을 못 받는다 — 설정 안 건드리고 중단." >&2; exit 1; }
+  LIVE=$(shasum "$V" | awk '{print $1}'); rm -f "$V"
+  [ "$LIVE" = "$NEW_SHA" ] \
+    || { echo "❌ 8801 이 다른 바이트를 준다 ($LIVE ≠ $NEW_SHA) — 중단." >&2; exit 1; }
+  echo "   ✅ 일치 $NEW_SHA · $NEW_URL"
+else
 TAG="pack-$(date +%Y%m%d-%H%M%S)"
 say "업로드 — 새 태그 $TAG (★latest 태그는 건드리지 않는다)"
 UP=$(mktemp -d)/"$ASSET"; cp "$ZIP" "$UP"     # 자산 이름을 고정하기 위해 사본 경로로
@@ -260,6 +291,7 @@ done
 [ "$ok" = 1 ] || { echo "❌ 공개 URL 이 새 팩 바이트를 안 준다 — 설정을 건드리지 않고 중단." >&2
                    echo "   현재 서빙 URL 은 그대로라 접속은 안 깨진 상태다." >&2; exit 1; }
 echo "   ✅ 일치 $NEW_SHA"
+fi
 
 # ── 6. server.properties 갱신 (URL + sha1 을 원자적으로) ──────────────────
 say "$TARGET server.properties 갱신"
@@ -312,4 +344,8 @@ else
            (또는 06:00 데일리 유지보수에 태운다 — jar 배포와 묶으면 재시작 한 번)
      dev : ~/dev-mc.sh restart
 EOF
+  if [ "$TARGET" = dev ]; then
+    echo "  ※ dev 는 로컬 8801 서빙이다 — 그 프로세스가 죽으면(재부팅 등) 접속 시"
+    echo "    「리소스팩 다운로드에 실패」가 뜬다. 되살리기: ~/dev-rp-serve.sh"
+  fi
 fi
