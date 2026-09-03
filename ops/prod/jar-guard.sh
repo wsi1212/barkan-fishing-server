@@ -21,6 +21,10 @@
 # =====================================================================
 set -uo pipefail
 
+# 영구 운영 정책: jar 가드는 감지만 허용하고 prod를 재시작하지 않는다.
+echo "❌ prod 재시작 금지 정책: jar-guard.sh는 비활성화되어 있습니다." >&2
+exit 2
+
 DIR=~/mcserver/scripts
 PLUGINS="${PLUGINS:-$HOME/mcserver/plugins}"   # 테스트 주입 가능
 LAST_FILE="$DIR/.jar_guard_last_restart"

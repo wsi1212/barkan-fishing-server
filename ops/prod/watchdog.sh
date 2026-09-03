@@ -9,6 +9,10 @@
 # =====================================================================
 set -uo pipefail
 
+# 영구 운영 정책: 워치독도 prod를 재시작하지 않는다.
+echo "❌ prod 재시작 금지 정책: watchdog.sh는 비활성화되어 있습니다." >&2
+exit 2
+
 DIR=~/mcserver/scripts
 FAILS_FILE="$DIR/.watchdog_fails"
 RESTARTS_FILE="$DIR/.watchdog_restarts"
