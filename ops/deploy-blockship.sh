@@ -73,7 +73,7 @@ DEV_DATA="/Users/user/Library/Application Support/feather/player-server/servers/
 # Skript→Java 이관으로 Java가 소유하는 JSON 데이터 (dev→prod 단방향 sync).
 #  주의: 이 파일들은 prod에서 직접 편집(/npc등록·/칭호 생성 등)하면 다음 배포에서 덮어쓰여짐.
 #        편집은 dev에서 하고 배포할 것.
-DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json" "recipes.json" "materials.json" "quests.json" "fish.json" "item-flavor.json")
+DATA_FILES=("npc.json" "dialogue.json" "titles.json" "parts.json" "enhance.json" "recipes.json" "materials.json" "quests.json" "fish.json" "item-flavor.json" "cashshop.json")
 # 주의: collectibles.json/regions.json/env-bonuses.json 은 인스턴스 전용이라 sync 제외.
 #  ★2026-08-28 정정 — quests.json/fish.json 을 **넣었다**. 여태 빠져 있었는데,
 #    ① guard-instance-data.py 의 INSTANCE_FILES(제외 목록의 권위) 에 둘 다 없다 = 콘텐츠다
@@ -265,13 +265,13 @@ else
     "set -e
      sudo systemctl stop mcserver
      test -s '$REMOTE_JAR_SOURCE'
-     for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json item-flavor.json; do
+     for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json fish.json item-flavor.json cashshop.json; do
        test -s '$PROD_DATA_DEST'\$f
      done
      if [ -f '$REMOTE_LIVE_JAR' ]; then
        cp '$REMOTE_LIVE_JAR' \"/home/ubuntu/mcserver/backups/BlockShip-prev-\$(date +%Y%m%d%H%M%S).jar\"
      fi
-     for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json item-flavor.json; do
+     for f in npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json fish.json item-flavor.json cashshop.json; do
        mv '$PROD_DATA_DEST'\$f \"/home/ubuntu/mcserver/plugins/BlockShip/\$f\"
      done
      mv '$REMOTE_JAR_SOURCE' '$REMOTE_LIVE_JAR'

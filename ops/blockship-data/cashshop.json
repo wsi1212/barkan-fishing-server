@@ -1,0 +1,546 @@
+{
+  "tabs": [
+    {
+      "key": "게임",
+      "label": "§b강화/버프",
+      "icon": "ANVIL",
+      "iconId": "ui_gui_cash",
+      "cashShop": true,
+      "coinShop": true,
+      "locked": false
+    },
+    {
+      "key": "특수블록",
+      "label": "§9특수 블록",
+      "icon": "BEACON",
+      "iconId": "ui_gui_cash",
+      "cashShop": false,
+      "coinShop": true,
+      "locked": false
+    },
+    {
+      "key": "인챈트북",
+      "label": "§d인챈트북",
+      "icon": "ENCHANTED_BOOK",
+      "iconId": "ui_gui_cash",
+      "cashShop": false,
+      "coinShop": true,
+      "locked": false
+    },
+    {
+      "key": "배스킨",
+      "label": "§6배 스킨",
+      "icon": "OAK_BOAT",
+      "iconId": "ui_gui_ferry",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    },
+    {
+      "key": "낚시이펙트",
+      "label": "§e낚시 이펙트",
+      "icon": "FISHING_ROD",
+      "iconId": "ui_gui_effects",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    },
+    {
+      "key": "자랑이펙트",
+      "label": "§d자랑 이펙트",
+      "icon": "GOLDEN_APPLE",
+      "iconId": "ui_gui_effects",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    },
+    {
+      "key": "오라",
+      "label": "§c오라",
+      "icon": "BLAZE_POWDER",
+      "iconId": "ui_gui_effects",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    },
+    {
+      "key": "날개",
+      "label": "§f날개",
+      "icon": "ELYTRA",
+      "iconId": "ui_gui_effects",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    },
+    {
+      "key": "칭호",
+      "label": "§5칭호",
+      "icon": "NAME_TAG",
+      "iconId": "ui_gui_profile",
+      "cashShop": true,
+      "coinShop": false,
+      "locked": true
+    }
+  ],
+  "items": {
+    "게임": [
+      {
+        "id": "하락방지1",
+        "name": "하락방지권 (Lv.6~10)",
+        "coin": 2,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7+6~10 강화 하락 §a완전 방지§7 1회",
+        "tag": "scroll:하락방지:1"
+      },
+      {
+        "id": "하락방지2",
+        "name": "하락방지권 (Lv.11~15)",
+        "coin": 4,
+        "cash": 2500,
+        "icon": "PAPER",
+        "lore": "§7+11~15 강화 하락 §a완전 방지§7 1회",
+        "tag": "scroll:하락방지:2"
+      },
+      {
+        "id": "하락방지3",
+        "name": "하락방지권 (Lv.16~18)",
+        "coin": 7,
+        "cash": 5000,
+        "icon": "PAPER",
+        "lore": "§7+16~18 강화 하락 §a완전 방지§7 1회",
+        "tag": "scroll:하락방지:3"
+      },
+      {
+        "id": "하락방지4",
+        "name": "하락방지권 (Lv.19~20)",
+        "coin": 10,
+        "cash": 8000,
+        "icon": "PAPER",
+        "lore": "§7+19~20 강화 하락 §a완전 방지§7 1회",
+        "tag": "scroll:하락방지:4"
+      },
+      {
+        "id": "강화확률상승10",
+        "name": "강화확률 상승 +10%",
+        "coin": 2,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 성공률 §a현재 대비 +10%§7 (비례)",
+        "tag": "scroll:강화확률상승:10"
+      },
+      {
+        "id": "강화확률상승20",
+        "name": "강화확률 상승 +20%",
+        "coin": 4,
+        "cash": 2000,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 성공률 §a현재 대비 +20%§7 (비례)",
+        "tag": "scroll:강화확률상승:20"
+      },
+      {
+        "id": "강화확률상승30",
+        "name": "강화확률 상승 +30%",
+        "coin": 6,
+        "cash": 3000,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 성공률 §a현재 대비 +30%§7 (비례)",
+        "tag": "scroll:강화확률상승:30"
+      },
+      {
+        "id": "하락확률감소10",
+        "name": "하락확률 감소 -10%",
+        "coin": 1,
+        "cash": 300,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 하락확률 §a현재 대비 -10%§7 (비례)",
+        "tag": "scroll:하락확률감소:10"
+      },
+      {
+        "id": "하락확률감소20",
+        "name": "하락확률 감소 -20%",
+        "coin": 2,
+        "cash": 600,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 하락확률 §a현재 대비 -20%§7 (비례)",
+        "tag": "scroll:하락확률감소:20"
+      },
+      {
+        "id": "하락확률감소30",
+        "name": "하락확률 감소 -30%",
+        "coin": 3,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7다음 1회 강화 하락확률 §a현재 대비 -30%§7 (비례)",
+        "tag": "scroll:하락확률감소:30"
+      },
+      {
+        "id": "경험치2배",
+        "name": "낚시 경험치 2배 (1시간)",
+        "coin": 2,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7구매 시 1시간 동안 낚시 경험치 2배",
+        "tag": "buff:경험치2배"
+      },
+      {
+        "id": "길드부스터",
+        "name": "길드 부스터",
+        "coin": 3,
+        "cash": 2000,
+        "icon": "PAPER",
+        "lore": "§7길드원 전원 경험치 1.5배 30분",
+        "tag": "buff:길드부스터"
+      },
+      {
+        "id": "스폰스크롤",
+        "name": "스폰 도시 스크롤",
+        "coin": 1,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7사용 시 스폰 마을로 이동 §8(구매 1회 = 5장)",
+        "tag": "warpscroll:spawn"
+      },
+      {
+        "id": "사막마을스크롤",
+        "name": "사막마을 스크롤",
+        "coin": 1,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7사용 시 사막마을로 이동 §8(구매 1회 = 5장)",
+        "tag": "warpscroll:desert"
+      },
+      {
+        "id": "상단마을스크롤",
+        "name": "상단마을 스크롤",
+        "coin": 1,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7사용 시 상단마을로 이동 §8(구매 1회 = 5장)",
+        "tag": "warpscroll:merchant"
+      },
+      {
+        "id": "왕도스크롤",
+        "name": "왕도 이동 스크롤",
+        "coin": 1,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7사용 시 왕도로 이동 §8(구매 1회 = 5장)",
+        "tag": "warpscroll:royal"
+      }
+    ],
+    "특수블록": [
+      {
+        "id": "신호기",
+        "name": "신호기",
+        "coin": 25,
+        "cash": 0,
+        "icon": "BEACON",
+        "lore": "§7범위 효과를 주는 신호기 블록",
+        "tag": "item:BEACON"
+      },
+      {
+        "id": "전달체",
+        "name": "전달체",
+        "coin": 15,
+        "cash": 0,
+        "icon": "CONDUIT",
+        "lore": "§7수중 시야·호흡 효과 블록",
+        "tag": "item:CONDUIT"
+      },
+      {
+        "id": "마법부여대",
+        "name": "마법부여대",
+        "coin": 12,
+        "cash": 0,
+        "icon": "ENCHANTING_TABLE",
+        "lore": "§7아이템 마법부여 블록",
+        "tag": "item:ENCHANTING_TABLE"
+      },
+      {
+        "id": "자철석",
+        "name": "자철석",
+        "coin": 10,
+        "cash": 0,
+        "icon": "LODESTONE",
+        "lore": "§7나침반 고정 블록",
+        "tag": "item:LODESTONE"
+      },
+      {
+        "id": "엔더상자",
+        "name": "엔더 상자",
+        "coin": 8,
+        "cash": 0,
+        "icon": "ENDER_CHEST",
+        "lore": "§7어디서나 공유되는 보관함",
+        "tag": "item:ENDER_CHEST"
+      },
+      {
+        "id": "길드조리대",
+        "name": "길드 요리 조리대",
+        "coin": 20,
+        "cash": 5000,
+        "icon": "CAMPFIRE",
+        "lore": "§7길드섬에 설치하는 요리 조리대",
+        "tag": "item:guild_cooking_station"
+      }
+    ],
+    "인챈트북": [
+      {
+        "id": "인챈트_효율1",
+        "name": "효율 I",
+        "coin": 2,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7도구 채굴 속도 증가 §8(효율 1)",
+        "tag": "enchbook:efficiency:1"
+      },
+      {
+        "id": "인챈트_효율2",
+        "name": "효율 II",
+        "coin": 4,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7도구 채굴 속도 증가 §8(효율 2)",
+        "tag": "enchbook:efficiency:2"
+      },
+      {
+        "id": "인챈트_효율3",
+        "name": "효율 III",
+        "coin": 7,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7도구 채굴 속도 증가 §8(효율 3)",
+        "tag": "enchbook:efficiency:3"
+      },
+      {
+        "id": "인챈트_효율4",
+        "name": "효율 IV",
+        "coin": 10,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7도구 채굴 속도 증가 §8(효율 4)",
+        "tag": "enchbook:efficiency:4"
+      },
+      {
+        "id": "인챈트_내구성1",
+        "name": "내구성 I",
+        "coin": 1,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7내구도 소모 감소 §8(내구성 1)",
+        "tag": "enchbook:unbreaking:1"
+      },
+      {
+        "id": "인챈트_내구성2",
+        "name": "내구성 II",
+        "coin": 2,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7내구도 소모 감소 §8(내구성 2)",
+        "tag": "enchbook:unbreaking:2"
+      },
+      {
+        "id": "인챈트_내구성3",
+        "name": "내구성 III",
+        "coin": 3,
+        "cash": 0,
+        "icon": "ENCHANTED_BOOK",
+        "lore": "§7내구도 소모 감소 §8(내구성 3)",
+        "tag": "enchbook:unbreaking:3"
+      }
+    ],
+    "배스킨": [
+      {
+        "id": "배스킨_황금호",
+        "name": "황금호",
+        "coin": 0,
+        "cash": 10000,
+        "icon": "GOLD_INGOT",
+        "lore": "§6황금빛 장식의 호화 선박",
+        "tag": "skin:배:황금호"
+      },
+      {
+        "id": "배스킨_유령선",
+        "name": "유령선",
+        "coin": 0,
+        "cash": 10000,
+        "icon": "GHAST_TEAR",
+        "lore": "§b반투명 유령 이펙트의 신비한 배",
+        "tag": "skin:배:유령선"
+      },
+      {
+        "id": "배스킨_용선",
+        "name": "용선",
+        "coin": 0,
+        "cash": 10000,
+        "icon": "BLAZE_POWDER",
+        "lore": "§c용머리 장식의 위엄 있는 배",
+        "tag": "skin:배:용선"
+      }
+    ],
+    "낚시이펙트": [
+      {
+        "id": "fx_황금빛",
+        "name": "황금빛 폭발",
+        "coin": 0,
+        "cash": 1500,
+        "icon": "FIREWORK_STAR",
+        "lore": "§eS등급 이상 금색 파티클",
+        "tag": "cosmetic:황금빛"
+      },
+      {
+        "id": "fx_불꽃놀이",
+        "name": "불꽃놀이",
+        "coin": 0,
+        "cash": 1500,
+        "icon": "FIREWORK_STAR",
+        "lore": "§c불꽃 파티클",
+        "tag": "cosmetic:불꽃놀이"
+      },
+      {
+        "id": "fx_벚꽃",
+        "name": "벚꽃 바람",
+        "coin": 0,
+        "cash": 1500,
+        "icon": "FIREWORK_STAR",
+        "lore": "§d분홍 꽃잎",
+        "tag": "cosmetic:벚꽃"
+      },
+      {
+        "id": "fx_번개",
+        "name": "번개 강타",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "FIREWORK_STAR",
+        "lore": "§bA등급 이상 번개 이펙트",
+        "tag": "cosmetic:번개"
+      },
+      {
+        "id": "fx_눈꽃",
+        "name": "눈꽃 결정",
+        "coin": 0,
+        "cash": 1500,
+        "icon": "FIREWORK_STAR",
+        "lore": "§f눈 결정 파티클",
+        "tag": "cosmetic:눈꽃"
+      }
+    ],
+    "자랑이펙트": [
+      {
+        "id": "fx_팡파레",
+        "name": "팡파레",
+        "coin": 0,
+        "cash": 1000,
+        "icon": "FIREWORK_STAR",
+        "lore": "§e금색 파티클 + 사운드",
+        "tag": "cosmetic:팡파레"
+      },
+      {
+        "id": "fx_무지개",
+        "name": "무지개 오라",
+        "coin": 0,
+        "cash": 1500,
+        "icon": "FIREWORK_STAR",
+        "lore": "§d무지개 원형 파티클",
+        "tag": "cosmetic:무지개"
+      },
+      {
+        "id": "fx_용오름",
+        "name": "용오름",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "FIREWORK_STAR",
+        "lore": "§c불기둥 상승",
+        "tag": "cosmetic:용오름"
+      }
+    ],
+    "오라": [
+      {
+        "id": "fx_불꽃오라",
+        "name": "불꽃 오라",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "BLAZE_POWDER",
+        "lore": "§c발 아래 불꽃",
+        "tag": "cosmetic:불꽃오라"
+      },
+      {
+        "id": "fx_물방울오라",
+        "name": "물방울 오라",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "PRISMARINE_CRYSTALS",
+        "lore": "§b주변 물방울",
+        "tag": "cosmetic:물방울오라"
+      },
+      {
+        "id": "fx_별빛오라",
+        "name": "별빛 오라",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "GLOWSTONE_DUST",
+        "lore": "§e머리 위 별빛",
+        "tag": "cosmetic:별빛오라"
+      }
+    ],
+    "날개": [
+      {
+        "id": "fx_천사날개",
+        "name": "천사 날개",
+        "coin": 0,
+        "cash": 5000,
+        "icon": "FEATHER",
+        "lore": "§f하얀 깃털 파티클",
+        "tag": "cosmetic:천사날개"
+      },
+      {
+        "id": "fx_악마날개",
+        "name": "악마 날개",
+        "coin": 0,
+        "cash": 5000,
+        "icon": "COAL",
+        "lore": "§4붉은 불꽃",
+        "tag": "cosmetic:악마날개"
+      },
+      {
+        "id": "fx_나비날개",
+        "name": "나비 날개",
+        "coin": 0,
+        "cash": 5000,
+        "icon": "AMETHYST_SHARD",
+        "lore": "§d보라+분홍",
+        "tag": "cosmetic:나비날개"
+      },
+      {
+        "id": "fx_용날개",
+        "name": "용 날개",
+        "coin": 0,
+        "cash": 8000,
+        "icon": "BLAZE_ROD",
+        "lore": "§6주황+금색",
+        "tag": "cosmetic:용날개"
+      }
+    ],
+    "칭호": [
+      {
+        "id": "특수칭호",
+        "name": "프리미엄 칭호 팩",
+        "coin": 0,
+        "cash": 5000,
+        "icon": "NAME_TAG",
+        "lore": "§d금색/무지개/불꽃 3종",
+        "tag": "cosmetic:칭호"
+      },
+      {
+        "id": "프리미엄자랑",
+        "name": "프리미엄 자랑",
+        "coin": 0,
+        "cash": 2000,
+        "icon": "FIREWORK_STAR",
+        "lore": "§e큰 물고기 자랑 특수 연출",
+        "tag": "cosmetic:프리미엄자랑"
+      }
+    ]
+  }
+}

@@ -127,6 +127,13 @@ if len(lists) > 1:
 #    ★둘이 갈라지면 «게이트가 검사한 파일»과 «배포되는 파일»이 다른 물건이 된다.
 #    권위는 라이브(plugins/BlockShip) — 그래서 --fix 는 라이브에서 양쪽으로 덮는다.
 # ─────────────────────────────────────────────────────────────────────
+# ★jar 번들 «씨앗» 리소스도 같은 사실의 한 벌이다.
+#   cashshop.json 은 파일이 없는 신규 설치에서만 리소스로 만들어지는데, 씨앗이 낡으면
+#   새로 깐 서버만 옛 가격표로 도는 «조용한 두 물건»이 된다. 라이브를 권위로 같이 묶는다.
+SEED_RESOURCE = {
+    "cashshop.json": (PLUGIN / "src/main/resources/cashshop.json",),
+}
+
 print("\n2) git 미러 두 벌(ops/blockship-data · blockship-plugin)이 라이브와 같은가")
 data_files = sorted(set().union(*lists.values())) if lists else []
 for f in data_files:
@@ -134,7 +141,7 @@ for f in data_files:
     if not live.exists():
         continue
     want = sha(live)
-    for mirror in (REPO / "ops/blockship-data" / f, PLUGIN / f):
+    for mirror in (REPO / "ops/blockship-data" / f, PLUGIN / f, *SEED_RESOURCE.get(f, ())):
         if not mirror.exists():
             continue  # 그 사본을 안 두는 건 선택이다 — 있는데 다른 게 문제
         if sha(mirror) == want:

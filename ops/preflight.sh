@@ -25,7 +25,7 @@ MIRROR="$REPO/ops/blockship-data"
 DEV_DATA="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
 REMOTE="ubuntu@168.107.8.107"
 KEY="$HOME/.ssh/oracle-mc.key"
-DATA_FILES=(npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json fish.json item-flavor.json)
+DATA_FILES=(npc.json dialogue.json titles.json parts.json enhance.json recipes.json materials.json quests.json fish.json item-flavor.json cashshop.json)
 LOCAL_ONLY=0; [ "${1:-}" = "--local" ] && LOCAL_ONLY=1
 
 PASS=0; FAIL=0
