@@ -67,7 +67,7 @@
  },
  "barkan:forage_z_tuftgold": {
   "name": "황금 이삭",
-  "region": "평원",
+  "region": "밀밭",
   "rarity": "흔함",
   "cooldownSec": 5400
  },
