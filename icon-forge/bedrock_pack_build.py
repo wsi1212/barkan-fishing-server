@@ -130,6 +130,130 @@ def find_texture(icon: str) -> Path | None:
     return None
 
 
+PLUGIN_SRC = Path(os.path.expanduser("~/development/blockship-plugin/src/main/java/com/blockship"))
+
+# 코드에서 규칙이 명확한 계열 — 스캔이 놓쳐도 여기서 확정한다.
+EXPLICIT_PREFIX = {
+    "recipe_": "minecraft:paper",   # PartShopGui.withRecipeModel — 레시피 두루마리는 종이
+    "crop_": "minecraft:paper",     # CropSpecs.ITEM_BASE
+}
+
+
+def scan_source_bases() -> dict[str, str]:
+    """플러그인 소스에서 «아이콘 → 베이스 아이템» 쌍을 긁어낸다.
+
+    ★GUI 아이콘(skill_*·ui_* 등 500여 종)은 화면마다 다른 바닐라 아이템 위에 얹힌다.
+      표를 손으로 관리하면 새 아이콘이 추가될 때마다 조용히 빠지므로 «코드를 읽어»
+      맞춘다. 못 찾은 것은 등록하지 않는다 — 틀린 베이스로 등록하면 어차피 매칭되지
+      않고 매핑만 부풀기 때문이다.
+    """
+    import re
+    out: dict[str, str] = {}
+    if not PLUGIN_SRC.is_dir():
+        return out
+    # GuiIcons.custom("모델", Material.XXX  /  icon("모델", Material.XXX
+    pat = re.compile(r'(?:GuiIcons\.)?custom\(\s*"([A-Za-z0-9_/]+)"\s*,\s*Material\.([A-Z_]+)')
+    # applyRaw(meta, "barkan_icon/모델") 앞쪽 6줄 안의 new ItemStack(Material.XXX)
+    raw = re.compile(r'applyRaw\([^,]+,\s*"barkan_icon/([A-Za-z0-9_/]+)"')
+    mat = re.compile(r'new ItemStack\(\s*(?:org\.bukkit\.)?Material\.([A-Z_]+)')
+    for f in PLUGIN_SRC.rglob("*.java"):
+        try:
+            lines = f.read_text(encoding="utf-8").split("\n")
+        except Exception:
+            continue
+        for i, line in enumerate(lines):
+            for m in pat.finditer(line):
+                out.setdefault(m.group(1).split("/")[-1], f"minecraft:{m.group(2).lower()}")
+            for m in raw.finditer(line):
+                icon = m.group(1).split("/")[-1]
+                for j in range(max(0, i - 6), i + 1):
+                    mm = mat.search(lines[j])
+                    if mm:
+                        out.setdefault(icon, f"minecraft:{mm.group(1).lower()}")
+                        break
+    return out
+
+
+CE_ROOT = SERVER / "plugins/CraftEngine/resources/barkan_furniture"
+# 플레이어가 «들고 다니는» CE 아이템만 — 가구 라이브러리까지 넣으면 팩이 15MB 를 넘어
+# 베드락 접속 자체가 실패한다(_emit_texture 주석 참조).
+CE_CONFIGS = ["dishes.yml", "food_library.yml", "forage_custom.yml"]
+
+
+def collect_craftengine() -> tuple[list[dict], list[str]]:
+    """CraftEngine 아이템(요리 등) — CE 는 Geyser 연동이 없어 베드락에서 바닐라로 보인다.
+
+    <p>CE 아이템도 자바에선 {@code item_model} 로 그려진다(생성 팩의
+    {@code assets/barkan/items/<id>.json} 이 그 증거). 그래서 우리 매핑에 그대로 넣을 수 있다.
+    · 베이스   = configuration/*.yml 의 {@code material}
+    · item_model = barkan:<id>
+    · 텍스처   = {@code model:} 이 가리키는 모델의 layer0
+    """
+    import re
+    out: list[dict] = []
+    warns: list[str] = []
+    if not CE_ROOT.is_dir():
+        return out, ["CraftEngine 리소스 폴더 없음 — 요리 아이콘을 건너뜁니다"]
+    rp = CE_ROOT / "resourcepack/assets"
+
+    def texture_of(model_id: str) -> Path | None:
+        # barkan:item/food/pasta → assets/barkan/models/item/food/pasta.json → layer0
+        if ":" not in model_id:
+            return None
+        ns, path = model_id.split(":", 1)
+        mj = rp / ns / "models" / f"{path}.json"
+        if not mj.is_file():
+            return None
+        try:
+            j = json.loads(mj.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        tex = j.get("textures") or {}
+        tid = tex.get("layer0") or next(iter(tex.values()), None)
+        if not tid or ":" not in str(tid):
+            return None
+        tns, tpath = str(tid).split(":", 1)
+        png = rp / tns / "textures" / f"{tpath}.png"
+        return png if png.is_file() else None
+
+    block = re.compile(r'^  ([a-z0-9_]+:[a-z0-9_]+):\s*$')
+    kv = re.compile(r'^\s+(material|model):\s*(\S+)')
+    for name in CE_CONFIGS:
+        f = CE_ROOT / "configuration" / name
+        if not f.is_file():
+            continue
+        cur, mat, mod = None, None, None
+
+        def flush():
+            nonlocal cur, mat, mod
+            if cur and mat and mod:
+                png = texture_of(mod)
+                if png:
+                    ident = cur.split(":", 1)[1]
+                    out.append({
+                        "icon": f"ce_{ident}",
+                        "model": f"{NS}:{ident}",
+                        "bases": [f"minecraft:{mat}"],
+                        "label": f"CE {ident}",
+                        "texture": png,
+                    })
+            cur, mat, mod = None, None, None
+
+        for line in f.read_text(encoding="utf-8").split("\n"):
+            m = block.match(line)
+            if m:
+                flush()
+                cur = m.group(1)
+                continue
+            k = kv.match(line)
+            if k and cur:
+                if k.group(1) == "material": mat = k.group(2)
+                else: mod = k.group(2)
+        flush()
+    warns.append(f"CraftEngine 아이템 {len(out)}종 등록 ({', '.join(CE_CONFIGS)})")
+    return out, warns
+
+
 def collect() -> tuple[list[dict], list[str]]:
     """(항목, 경고) — 항목 = {icon, model, base, label}.
 
@@ -161,7 +285,34 @@ def collect() -> tuple[list[dict], list[str]]:
         for name in names:
             labels[icon_id("재료", name)] = f"재료 {name}"
 
+    scanned = scan_source_bases()
     families = {v: k for k, v in TYPE_KEY.items()}   # rod -> 낚싯대 …
+
+    # ① 카탈로그 외 아이콘(레시피 두루마리·특수작물·GUI 아이콘 등)
+    extra = 0
+    for f in sorted(defs_dir.glob("*.json")):
+        icon = f.stem
+        if icon.startswith("catalog_"):
+            continue
+        base = None
+        for pre, b in EXPLICIT_PREFIX.items():
+            if icon.startswith(pre):
+                base = b
+                break
+        if base is None:
+            base = scanned.get(icon)
+        if base is None:
+            continue                      # 베이스를 모르면 등록하지 않는다(틀린 등록은 무용지물)
+        extra += 1
+        entries.append({
+            "icon": icon,
+            "model": f"{NS}:barkan_icon/{icon}",
+            "bases": [base],
+            "label": icon,
+        })
+    warns.append(f"카탈로그 외 아이콘 {extra}종 등록 (정의 {len(list(defs_dir.glob('*.json'))) - len(list(defs_dir.glob('catalog_*.json')))}종 중)")
+
+    # ② 카탈로그
     for f in sorted(defs_dir.glob("catalog_*.json")):
         icon = f.stem
         fam = icon.split("_")[1] if icon.count("_") >= 2 else None
@@ -177,6 +328,9 @@ def collect() -> tuple[list[dict], list[str]]:
             "bases": bases,
             "label": labels.get(icon, f"{families.get(fam, fam)} ?({icon})"),
         })
+    ce, cw = collect_craftengine()
+    entries.extend(ce)
+    warns.extend(cw)
     return entries, warns
 
 
@@ -215,6 +369,9 @@ def build(dry: bool, max_px: int = 64) -> int:
 
     resolved, missing = [], []
     for e in entries:
+        if e.get("texture"):          # CE 항목은 수집 때 이미 실물 경로를 안다
+            resolved.append(e)
+            continue
         tex = find_texture(e["icon"])
         if tex is None:
             missing.append(e)
