@@ -4369,7 +4369,7 @@
       "shopItems": []
     },
     "로자": {
-      "citizensId": "151",
+      "citizensId": "208",
       "name": "&a[Q] 정원사 로자",
       "ferry": false,
       "shop": false,
@@ -5185,8 +5185,8 @@
       "shopItems": []
     },
     "오스발트": {
-      "citizensId": "",
-      "name": "&a[Q] 오스발트",
+      "citizensId": "207",
+      "name": "&a[Q] 농부 오스발트",
       "ferry": false,
       "shop": false,
       "inn": false,
