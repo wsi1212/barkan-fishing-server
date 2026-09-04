@@ -1,0 +1,28 @@
+[
+ {
+  "id": "07",
+  "ko": "아틀란티스 로비",
+  "src": "Mini Atlantis Lobby / Spirit_Blossom",
+  "ax": 6688,
+  "ay": 100,
+  "az": 4992,
+  "x": 6700,
+  "z": 5000,
+  "w": 151,
+  "h": 76,
+  "l": 151
+ },
+ {
+  "id": "13",
+  "ko": "오션 하트랜드",
+  "src": "InsaneCraft Ocean Heartlands (FREE)",
+  "ax": 6688,
+  "ay": 100,
+  "az": 5296,
+  "x": 6700,
+  "z": 5300,
+  "w": 209,
+  "h": 168,
+  "l": 209
+ }
+]
