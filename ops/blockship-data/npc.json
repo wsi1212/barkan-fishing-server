@@ -5973,6 +5973,33 @@
       "ranking": false,
       "quests": [],
       "shopItems": []
+    },
+    "조선소": {
+      "citizensId": "206",
+      "name": "&b[조선소] 조선공 볼커",
+      "ferry": false,
+      "shop": false,
+      "inn": false,
+      "smithy": false,
+      "islandShop": false,
+      "scrollShop": false,
+      "guild": false,
+      "submit": false,
+      "cooking": false,
+      "drillShop": false,
+      "heal": false,
+      "horseRental": false,
+      "boatRental": false,
+      "market": false,
+      "quest": false,
+      "casino": false,
+      "casinoRanking": false,
+      "appraisal": false,
+      "villageQuest": false,
+      "ranking": false,
+      "quests": [],
+      "shopItems": [],
+      "shipShop": true
     }
   }
 }
