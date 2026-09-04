@@ -30,6 +30,8 @@ DIR=~/mcserver/scripts
 STATUS_FILE=${STATUS_FILE:-$HOME/mcserver/backups/.backup-status}
 WEBHOOK_FILE=${WEBHOOK_FILE:-$DIR/discord-webhook.url}
 RESTART_CMD=${RESTART_CMD:-sudo systemctl restart mcserver}
+STOP_CMD=${STOP_CMD:-sudo systemctl stop mcserver}
+START_CMD=${START_CMD:-sudo systemctl start mcserver}
 STAGING=${STAGING:-$HOME/mcserver/staging}
 PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
 JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
@@ -45,6 +47,34 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 SKIP_MARK="$DIR/.skip-nightly-once"
 
+# --- 로컬 백업(정지 중 실행) ---------------------------------------------
+#   2026-09-05: 05:00/05:10 KST 별도 cron 이던 local-backup.sh main/islands 를
+#   여기로 흡수했다. 서버가 내려간 사이에 tar 를 뜨므로 save-all flush 로 달래던
+#   «읽는 중 파일 변경»(tar rc=1)이 원천적으로 사라진다. 대가는 다운타임 —
+#   실측 본월드 1.47GB 84초 + 섬 64MB 21초 ≈ 105초가 재시작 위에 얹힌다.
+#   ★오프사이트 3종(offsite-backup / offsite-worlds)은 여기 넣지 않는다.
+#     OCI 업로드가 네트워크에 묶여 있어 다운타임이 예측 불가능해진다
+#     (격주 본월드는 1.4GB 업로드). 그건 각자 cron 그대로 둔다.
+#   ★백업이 어떻게 끝나든 서버는 반드시 다시 올린다(아래 trap).
+BACKUP_GROUPS=${BACKUP_GROUPS:-"main islands"}
+BACKUP_TIMEOUT=${BACKUP_TIMEOUT:-600}
+bsec=""; boot_line=""
+run_local_backups(){   # $1 = down(정지 중) | live(서버 켜진 채 폴백)
+  local where="$1" g rc
+  for g in $BACKUP_GROUPS; do
+    if [ "$DRYRUN" = "1" ]; then log "DRY: would back up $g ($where)"; continue; fi
+    timeout "$BACKUP_TIMEOUT" "$DIR/local-backup.sh" "$g" >>"$HOME/mcserver/backups/local.log" 2>&1
+    rc=$?
+    if [ "$rc" = "0" ]; then log "로컬 백업 $g 완료 ($where)"
+    else
+      log "로컬 백업 $g 실패 (rc=$rc, $where)"
+      # rc!=0 은 local-backup.sh 가 이미 개별 🔴 를 보냈다. 단 timeout(124)은
+      # 스크립트가 알릴 새도 없이 죽으므로 여기서만 알린다.
+      [ "$rc" = "124" ] && notify "$LABEL 🔴 로컬 백업 $g 이 ${BACKUP_TIMEOUT}초를 넘겨 중단됐습니다(서버 기동은 그대로 진행)."
+    fi
+  done
+}
+
 # ★KST 기준(2026-08-17). 이 스팜립트는 21:00 UTC 에 돌고 그건 KST 다음 날 06:00 이다.
 #   date -u 를 쓰는 동안 리포트 헤더가 «UTC 날짜에 KST 라밨»을 붙이는 자기모순이었다
 #   (「데일리 리포트 (2026-08-16 · 06:00 KST)」이라 찍힌 시간이 실제로는 08-17 06:00 KST).
@@ -54,8 +84,10 @@ today=$(TZ=Asia/Seoul date +%Y-%m-%d)
 if [ "$IMMEDIATE" = "0" ] && [ -f "$SKIP_MARK" ]; then
   rm -f "$SKIP_MARK"
   if [ "${PREVIEW:-0}" = "1" ]; then echo "(스킵 마커 있음 — 오늘밤 재시작 생략됨)"; exit 0; fi
-  notify "$LABEL ⏭️ 오늘 06:00 정기 재시작 — 요청에 의해 1회 스킵됨(내일부터 정상 진행)."
-  log "skip-once 마커로 오늘 재시작 생략"
+  # 재시작만 건너뛴다 — 백업까지 빠지면 그날 로컬 사본이 통째로 없어진다.
+  log "skip-once 마커로 오늘 재시작 생략 — 백업은 라이브로 수행"
+  run_local_backups live
+  notify "$LABEL ⏭️ 오늘 06:00 정기 재시작 — 요청에 의해 1회 스킵됨(내일부터 정상 진행). 로컬 백업은 서버를 켠 채 수행했습니다."
   exit 0
 fi
 
@@ -165,8 +197,9 @@ fi
 # `latest` asset을 교체하면 URL은 같고 파일만 바뀐다. 이 검증 없이 재시작하면
 # require-resource-pack=true 환경에서 모든 접속자가 리소스팩 다운로드에 실패한다.
 if [ "$DRYRUN" = "0" ] && ! "$DIR/resourcepack-guard.sh" --repair; then
-  notify "$LABEL 🔴 리소스팩 공개파일 검증 실패로 정기 재시작을 취소했습니다. 서버는 기존 상태를 유지합니다."
-  log "resource pack guard failed — restart cancelled"
+  log "resource pack guard failed — restart cancelled (백업은 라이브로 수행)"
+  run_local_backups live
+  notify "$LABEL 🔴 리소스팩 공개파일 검증 실패로 정기 재시작을 취소했습니다. 서버는 기존 상태를 유지하고, 로컬 백업은 켠 채 수행했습니다."
   exit 1
 fi
 
@@ -187,8 +220,12 @@ fi
 [ "$n" -ge 0 ] && [ "$DRYRUN" = "0" ] && { rcon "save-all flush"; sleep 3; }
 
 # --- 백업 성공 목록 ---
-if [ -s "$STATUS_FILE" ]; then bcount=$(grep -c . "$STATUS_FILE"); backups=$(cat "$STATUS_FILE")
-else bcount=0; backups="⚠️ 성공 기록 없음 (전부 실패했거나 안 돎 — 실패 시 개별 🔴 확인)"; fi
+#   ★호출 시점이 중요하다. 로컬 백업이 재시작 창 안으로 들어갔으므로 STATUS_FILE 은
+#     «기동 후»에 읽어야 오늘치가 들어온다. 미리 읽으면 매일 어제 것만 보고된다.
+read_backups(){
+  if [ -s "$STATUS_FILE" ]; then bcount=$(grep -c . "$STATUS_FILE"); backups=$(cat "$STATUS_FILE")
+  else bcount=0; backups="⚠️ 성공 기록 없음 (전부 실패했거나 안 돎 — 실패 시 개별 🔴 확인)"; fi
+}
 
 # --- 지역 정합성 감사 (2026-08-27 신설) ---
 #  지역 ID·참조가 어긋나면 로그도 경고도 없이 게임만 안 돈다 — BGM 무음, 잡을 수 없는 어종,
@@ -208,6 +245,7 @@ np=$([ "$n" -ge 0 ] && echo "${n}명$([ "$n" -gt 0 ] && echo ' (예고 후 재�
 started=$(date -d "$(systemctl show mcserver -p ActiveEnterTimestamp --value 2>/dev/null)" +%s 2>/dev/null || echo 0)
 [ "$started" -gt 0 ] && upl="$(( ( $(date +%s) - started ) / 3600 ))h" || upl="?"
 
+build_msg(){
 if [ "$IMMEDIATE" = "1" ]; then
   msg="$LABEL 🚀 즉시 배포 ($(date -u -d '+9 hours' '+%Y-%m-%d %H:%M') KST)
 
@@ -218,24 +256,26 @@ $deploy_summary
 else
   msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
-🔄 정기 재시작 실행
+🔄 정기 재시작 실행${bsec:+ · 정지 중 로컬 백업 ${bsec}초}
 $deploy_summary
 
 📦 백업 ${bcount}건 성공
 $backups
 
 💾 디스크 $disk · 🕐 MC업타임 $upl · 👥 접속 $np
-$region_line"
+$region_line${boot_line:+
+$boot_line}"
 fi
+}
 
 # --- PREVIEW: 출력만 ---
-if [ "${PREVIEW:-0}" = "1" ]; then printf '%s\n' "$msg"; exit 0; fi
+if [ "${PREVIEW:-0}" = "1" ]; then read_backups; build_msg; printf '%s\n' "$msg"; exit 0; fi
 
-notify "$msg"
+# 즉시 모드는 예전처럼 먼저 알리고 재시작한다(백업이 끼지 않아 기다릴 이유가 없다).
 # ★즉시 배포는 .backup-status 를 비우지 않는다. 비우면 그날 06:00 데일리 리포트가
 #   "백업 성공 기록 없음" 으로 나가고, 그게 진짜 백업 실패와 구분되지 않는다.
-if [ "$IMMEDIATE" = "0" ]; then > "$STATUS_FILE"; fi
-log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 없음 || echo 있음), 백업 ${bcount}건, 접속 ${np})"
+# 정기 리포트는 백업이 끝나야 내용이 채워지므로 기동 후로 내려갔다(아래).
+if [ "$IMMEDIATE" = "1" ]; then read_backups; build_msg; notify "$msg"; log "즉시 배포 알림 발송"; fi
 
 # --- 종료 직전 안내 kick ---
 #   ★bukkit.yml 의 shutdown-message 는 «서버가 시작할 때 읽은» 값이라, 파일을 지금 고쳐도
@@ -243,13 +283,37 @@ log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 
 #     고친 날 아침에는 여전히 옛 문구로 튕긴다 — 그래서 여기서 직접 kick 한다.
 #   ★/kick 의 사유는 평문이다. § 색코드를 넣으면 색이 아니라 글자로 찍힌다.
 #   접속자가 없으면 "No entity was found" 가 나지만 rcon() 이 삼킨다(무해).
-KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약 1~2분 뒤 다시 접속해 주세요!}"
+KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약 3~4분 뒤 다시 접속해 주세요!}"
 if [ "$DRYRUN" = "0" ]; then rcon "kick @a $KICK_MSG"; sleep 1; fi
 
 # --- ③ 재시작 (무조건) ---
-if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; exit 0; fi
-eval "$RESTART_CMD"
-log "restarted"
+#   정기: 정지 → 로컬 백업 → 기동. restart 한 방이 아니라 창을 벌리는 이유는
+#   백업 tar 를 «아무도 쓰지 않는 월드 파일»에 대고 뜨기 위해서다.
+#   즉시 모드는 백업과 무관하므로 예전 그대로 restart 한 방.
+if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; run_local_backups down; exit 0; fi
+if [ "$IMMEDIATE" = "1" ]; then
+  eval "$RESTART_CMD"
+  log "restarted"
+else
+  # ★백업이 실패하든 timeout 이든 스크립트가 죽든, 서버는 반드시 다시 올라와야 한다.
+  #   유닛에 Restart=no 가 걸려 있어 systemd 가 대신 올려주지 않는다.
+  #   ★bash 의 시그널 트랩은 «핸들러를 돌고 하던 일을 계속»한다 — 그래서 핸들러가
+  #     직접 exit 하지 않으면 SIGTERM 을 맞고도 백업을 계속 돌린다(그것도 이미
+  #     기동시킨 라이브 월드 위에서). 반드시 올린 뒤 빠져나온다.
+  _started=0
+  _ensure_start(){ [ "$_started" = "1" ] && return 0; _started=1
+    eval "$START_CMD"; log "기동(트랩 — 백업 도중 중단)"; }
+  trap '_ensure_start; exit 1' INT TERM
+  trap '_ensure_start' EXIT
+  eval "$STOP_CMD"; log "stopped — 백업 창 시작"
+  _b0=$(date +%s)
+  run_local_backups down
+  bsec=$(( $(date +%s) - _b0 ))
+  log "백업 창 종료 (${bsec}초)"
+  _started=1; trap - EXIT INT TERM
+  eval "$START_CMD"
+  log "started"
+fi
 
 # --- BetterHud 후반부: 팩 재생성 → 공개배치 → CE sha1 → 마무리 재시작 ---
 # 대기 중인 게 없으면 즉시 exit 3 으로 빠진다(평상시 비용 0). 안에서 부팅을 기다리므로
@@ -257,6 +321,26 @@ log "restarted"
 if [ -x "$BHSTAGE" ]; then
   "$BHSTAGE" --post || { bhrc=$?
     [ "$bhrc" = "3" ] || log "BetterHud post 실패(rc=$bhrc) — Discord 알림 확인"; }
+fi
+
+# --- 정기: 부팅 확인 → 데일리 리포트 ---
+#   리포트가 여기로 내려온 이유는 백업 결과를 담아야 하기 때문이고, 이왕 기다리는 김에
+#   부팅까지 확인한다. (프리즈 워치독 cron 이 꺼져 있는 동안엔 이게 유일한 기동 실패
+#   감지 경로다. 예전 주석의 "워치독이 8분 안에 잡는다"는 지금 성립하지 않는다.)
+if [ "$IMMEDIATE" = "0" ]; then
+  boot_line="🔴 부팅 확인 실패 — RCON 무응답 (\`tail -50 ~/mcserver/logs/latest.log\`)"
+  for i in $(seq 1 36); do
+    if systemctl is-active --quiet mcserver && "$DIR/rcon.py" list >/dev/null 2>&1; then
+      boot_line="✅ 부팅 확인 (${i}회 체크)"; break
+    fi
+    sleep 5
+  done
+  read_backups
+  build_msg
+  notify "$msg"
+  > "$STATUS_FILE"
+  log "리포트 발송 (배포:$([ "$deploy_summary" = "배포 없음" ] && echo 없음 || echo 있음), 백업 ${bcount}건, 접속 ${np}, ${boot_line})"
+  exit 0
 fi
 
 # 즉시 배포는 아무도 안 보고 있을 시간에 돌 수 있다 — 부팅까지 확인하고 실패면 알린다.
