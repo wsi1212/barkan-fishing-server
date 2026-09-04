@@ -6,6 +6,7 @@
       "displayName": "강화 석탄",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -33,6 +34,7 @@
       "displayName": "강화 철괴",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -60,6 +62,7 @@
       "displayName": "강화 금괴",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -87,6 +90,7 @@
       "displayName": "강화 구리괴",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -114,6 +118,7 @@
       "displayName": "강화 다이아몬드",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -141,6 +146,7 @@
       "displayName": "강화 청금석",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -168,6 +174,7 @@
       "displayName": "강화 에메랄드",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -195,6 +202,7 @@
       "displayName": "강화 밀",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -222,6 +230,7 @@
       "displayName": "강화 당근",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -249,6 +258,7 @@
       "displayName": "강화 감자",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -276,6 +286,7 @@
       "displayName": "강화 비트루트",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -303,6 +314,7 @@
       "displayName": "강화 호박",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -330,6 +342,7 @@
       "displayName": "강화 멜론",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -357,6 +370,7 @@
       "displayName": "강화 사탕수수",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -384,6 +398,7 @@
       "displayName": "강화 코코아",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -411,6 +426,7 @@
       "displayName": "강화 스위트베리",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -438,6 +454,7 @@
       "displayName": "강화 사과",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -465,6 +482,7 @@
       "displayName": "황금 건초 더미",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -493,6 +511,7 @@
       "displayName": "황금 당근",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -521,6 +540,7 @@
       "displayName": "초보자 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "초보자 낚싯대",
       "ingredients": [
@@ -554,6 +574,7 @@
       "displayName": "초보자 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "초보자 릴",
@@ -581,6 +602,7 @@
       "displayName": "초보자 줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "초보자 줄",
@@ -615,6 +637,7 @@
       "displayName": "초보자 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "초보자 바늘",
@@ -642,6 +665,7 @@
       "displayName": "초보자 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "초보자 찌",
@@ -676,6 +700,7 @@
       "displayName": "정제된 갈고리",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -703,6 +728,7 @@
       "displayName": "단단한 자루",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -737,6 +763,7 @@
       "displayName": "강철 심",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -778,6 +805,7 @@
       "displayName": "행운의 매듭",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -826,6 +854,7 @@
       "displayName": "진주 코어",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -867,6 +896,7 @@
       "displayName": "바르칸 핵",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -908,6 +938,7 @@
       "displayName": "개봉된 진주",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -935,6 +966,7 @@
       "displayName": "대나무 막대기",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "대나무 막대기",
       "ingredients": [
@@ -983,6 +1015,7 @@
       "displayName": "참나무 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "참나무 낚싯대",
       "ingredients": [
@@ -1024,6 +1057,7 @@
       "displayName": "잉어꾼의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "잉어꾼의 낚싯대",
       "ingredients": [
@@ -1072,6 +1106,7 @@
       "displayName": "경험의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "경험의 낚싯대",
       "ingredients": [
@@ -1120,6 +1155,7 @@
       "displayName": "낚시꾼의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "낚시꾼의 낚싯대",
       "ingredients": [
@@ -1168,6 +1204,7 @@
       "displayName": "전문가 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "전문가 낚싯대",
       "ingredients": [
@@ -1216,6 +1253,7 @@
       "displayName": "흑단목 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "흑단목 낚싯대",
       "ingredients": [
@@ -1285,6 +1323,7 @@
       "displayName": "바르칸 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "바르칸 낚싯대",
       "ingredients": [
@@ -1382,6 +1421,7 @@
       "displayName": "초보 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "초보 낚싯대",
       "ingredients": [
@@ -1423,6 +1463,7 @@
       "displayName": "천공의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "천공의 낚싯대",
       "ingredients": [
@@ -1527,6 +1568,7 @@
       "displayName": "여명의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "여명의 낚싯대",
       "ingredients": [
@@ -1596,6 +1638,7 @@
       "displayName": "수호자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "수호자의 낚싯대",
       "ingredients": [
@@ -1665,6 +1708,7 @@
       "displayName": "신기루 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "신기루 낚싯대",
       "ingredients": [
@@ -1734,6 +1778,7 @@
       "displayName": "사막군주의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사막군주의 낚싯대",
       "ingredients": [
@@ -1803,6 +1848,7 @@
       "displayName": "행상인의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "행상인의 낚싯대",
       "ingredients": [
@@ -1879,6 +1925,7 @@
       "displayName": "대상인의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "대상인의 낚싯대",
       "ingredients": [
@@ -1955,6 +2002,7 @@
       "displayName": "낚시견습생의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "낚시견습생의 낚싯대",
       "ingredients": [
@@ -1996,6 +2044,7 @@
       "displayName": "숙련자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "숙련자의 낚싯대",
       "ingredients": [
@@ -2051,6 +2100,7 @@
       "displayName": "나무 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "나무 릴",
@@ -2086,6 +2136,7 @@
       "displayName": "철제 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "철제 릴",
@@ -2121,6 +2172,7 @@
       "displayName": "정밀 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "정밀 릴",
@@ -2191,6 +2243,7 @@
       "displayName": "고속 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "고속 릴",
@@ -2233,6 +2286,7 @@
       "displayName": "전기 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "전기 릴",
@@ -2289,6 +2343,7 @@
       "displayName": "전술 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "전술 릴",
@@ -2338,6 +2393,7 @@
       "displayName": "만능 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "만능 릴",
@@ -2408,6 +2464,7 @@
       "displayName": "바르칸 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "바르칸 릴",
@@ -2478,6 +2535,7 @@
       "displayName": "면줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "면줄",
@@ -2520,6 +2578,7 @@
       "displayName": "나일론줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "나일론줄",
@@ -2555,6 +2614,7 @@
       "displayName": "카본줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "카본줄",
@@ -2604,6 +2664,7 @@
       "displayName": "PE합사줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "PE합사줄",
@@ -2674,6 +2735,7 @@
       "displayName": "강철 와이어",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "강철 와이어",
@@ -2716,6 +2778,7 @@
       "displayName": "티타늄줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "티타늄줄",
@@ -2772,6 +2835,7 @@
       "displayName": "거미줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "거미줄",
@@ -2814,6 +2878,7 @@
       "displayName": "쌍줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "쌍줄",
@@ -2856,6 +2921,7 @@
       "displayName": "바르칸 줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "바르칸 줄",
@@ -2926,6 +2992,7 @@
       "displayName": "천공 와이어",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "천공 와이어",
@@ -2996,6 +3063,7 @@
       "displayName": "철 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "철 바늘",
@@ -3038,6 +3106,7 @@
       "displayName": "날카로운 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "날카로운 바늘",
@@ -3073,6 +3142,7 @@
       "displayName": "미늘 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "미늘 바늘",
@@ -3122,6 +3192,7 @@
       "displayName": "용뼈 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "용뼈 바늘",
@@ -3192,6 +3263,7 @@
       "displayName": "예리한 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "예리한 바늘",
@@ -3234,6 +3306,7 @@
       "displayName": "정교한 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "정교한 바늘",
@@ -3290,6 +3363,7 @@
       "displayName": "대형 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "대형 바늘",
@@ -3339,6 +3413,7 @@
       "displayName": "독침 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "독침 바늘",
@@ -3381,6 +3456,7 @@
       "displayName": "갈고리 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "갈고리 바늘",
@@ -3423,6 +3499,7 @@
       "displayName": "바르칸 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "바르칸 바늘",
@@ -3493,6 +3570,7 @@
       "displayName": "코르크 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "코르크 찌",
@@ -3542,6 +3620,7 @@
       "displayName": "가벼운 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "가벼운 찌",
@@ -3577,6 +3656,7 @@
       "displayName": "전자 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "전자 찌",
@@ -3626,6 +3706,7 @@
       "displayName": "수정 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "수정 찌",
@@ -3696,6 +3777,7 @@
       "displayName": "예민한 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "예민한 찌",
@@ -3738,6 +3820,7 @@
       "displayName": "초정밀 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "초정밀 찌",
@@ -3794,6 +3877,7 @@
       "displayName": "행운 전자찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "행운 전자찌",
@@ -3850,6 +3934,7 @@
       "displayName": "바르칸 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "바르칸 찌",
@@ -3920,6 +4005,7 @@
       "displayName": "부둣가 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -3979,6 +4065,7 @@
       "displayName": "버들 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4034,6 +4121,7 @@
       "displayName": "야자 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4089,6 +4177,7 @@
       "displayName": "수렁 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4144,6 +4233,7 @@
       "displayName": "협곡 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4199,6 +4289,7 @@
       "displayName": "핏빛 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4254,6 +4345,7 @@
       "displayName": "운무 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4309,6 +4401,7 @@
       "displayName": "심해 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4364,6 +4457,7 @@
       "displayName": "종유석 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4416,6 +4510,7 @@
       "displayName": "원양 게통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -4471,6 +4566,7 @@
       "displayName": "압축 흑정석",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -4497,6 +4593,7 @@
       "displayName": "압축 적철석",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -4523,6 +4620,7 @@
       "displayName": "채굴 드릴 [Tier 2]",
       "locked": true,
       "resultMode": "drill",
+      "resultAmount": 0,
       "drillTier": 2,
       "ingredients": [
         {
@@ -4540,6 +4638,7 @@
       "displayName": "채굴 드릴 [Tier 3]",
       "locked": true,
       "resultMode": "drill",
+      "resultAmount": 0,
       "drillTier": 3,
       "ingredients": [
         {
@@ -4564,6 +4663,7 @@
       "displayName": "들꽃 꿀차",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -4573,7 +4673,7 @@
           "&7잔씩 마신다.",
           "",
           "&7[간단] 버프 요리",
-          "&7낚시 경험치 &a+9%",
+          "&7낚시 경험치 &a+5%",
           "&7이동 속도 &bI",
           "&8지속 10분  &7· &8먹기 전용",
           "&8조리시간 3초",
@@ -4604,6 +4704,7 @@
       "displayName": "도토리 두부",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "PUMPKIN_PIE",
@@ -4644,6 +4745,7 @@
       "displayName": "가시배 화채",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -4684,6 +4786,7 @@
       "displayName": "설산 서리차",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -4725,6 +4828,7 @@
       "displayName": "풋사과 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "APPLE",
@@ -4766,6 +4870,7 @@
       "displayName": "모닥불 누가바",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKIE",
@@ -4807,6 +4912,7 @@
       "displayName": "따뜻한 빵",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BREAD",
@@ -4816,7 +4922,7 @@
           "&7건 다들 안다.",
           "",
           "&7[보통] 버프 요리",
-          "&7낚시 경험치 &a+5%",
+          "&7낚시 경험치 &a+9%",
           "&7이동 속도 &bI",
           "&8지속 20분  &7· &8먹기 전용",
           "&8조리시간 6초",
@@ -4847,6 +4953,7 @@
       "displayName": "버섯밥",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "MUSHROOM_STEW",
@@ -4894,6 +5001,7 @@
       "displayName": "구운 감자",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BAKED_POTATO",
@@ -4942,6 +5050,7 @@
       "displayName": "수박 주스",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -4990,6 +5099,7 @@
       "displayName": "바위솔 무침",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BEETROOT_SOUP",
@@ -5038,6 +5148,7 @@
       "displayName": "야광베리 커스터드",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "MUSHROOM_STEW",
@@ -5086,6 +5197,7 @@
       "displayName": "양배추 샐러드",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BEETROOT_SOUP",
@@ -5141,6 +5253,7 @@
       "displayName": "토마토 파스타",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_CHICKEN",
@@ -5196,6 +5309,7 @@
       "displayName": "세이지 생선구이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_SALMON",
@@ -5252,6 +5366,7 @@
       "displayName": "꿀 발림 햄구이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_PORKCHOP",
@@ -5307,6 +5422,7 @@
       "displayName": "사과 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "APPLE",
@@ -5363,6 +5479,7 @@
       "displayName": "바삭 다리살",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_MUTTON",
@@ -5417,6 +5534,7 @@
       "displayName": "피시 앤 칩스",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_COD",
@@ -5480,6 +5598,7 @@
       "displayName": "잿불 매운탕",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "RABBIT_STEW",
@@ -5543,6 +5662,7 @@
       "displayName": "초밥 플래터",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_SALMON",
@@ -5592,6 +5712,7 @@
       "displayName": "훈제 통닭구이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_CHICKEN",
@@ -5647,6 +5768,7 @@
       "displayName": "늪지 해독수프",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "RABBIT_STEW",
@@ -5725,6 +5847,7 @@
       "displayName": "해물탕",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "RABBIT_STEW",
@@ -5777,6 +5900,7 @@
       "displayName": "트러플 크림스튜",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "MUSHROOM_STEW",
@@ -5822,6 +5946,7 @@
       "displayName": "빛나는 샐러드",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BEETROOT_SOUP",
@@ -5860,6 +5985,7 @@
       "displayName": "목동의 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_RABBIT",
@@ -5898,6 +6024,7 @@
       "displayName": "속을 채운 호박찜",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BAKED_POTATO",
@@ -5936,6 +6063,7 @@
       "displayName": "초콜릿 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKIE",
@@ -5974,6 +6102,7 @@
       "displayName": "단호박 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "PUMPKIN_PIE",
@@ -6012,6 +6141,7 @@
       "displayName": "보글보글 스튜",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "RABBIT_STEW",
@@ -6050,6 +6180,7 @@
       "displayName": "호글린 통다리구이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_MUTTON",
@@ -6088,6 +6219,7 @@
       "displayName": "체리 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "SWEET_BERRIES",
@@ -6126,6 +6258,7 @@
       "displayName": "피칸 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "SWEET_BERRIES",
@@ -6164,6 +6297,7 @@
       "displayName": "양고기 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_MUTTON",
@@ -6202,6 +6336,7 @@
       "displayName": "패션 타르트",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "SWEET_BERRIES",
@@ -6240,6 +6375,7 @@
       "displayName": "연어베리 파이",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_SALMON",
@@ -6278,6 +6414,7 @@
       "displayName": "레드벨벳 케이크",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKIE",
@@ -6316,6 +6453,7 @@
       "displayName": "키위 셔벗",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -6354,6 +6492,7 @@
       "displayName": "마르게리타 피자",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BREAD",
@@ -6392,6 +6531,7 @@
       "displayName": "바르칸 채집 성찬",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_BEEF",
@@ -6458,6 +6598,7 @@
       "displayName": "캔털루프 멜론",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "MELON_SLICE",
@@ -6510,6 +6651,7 @@
       "displayName": "코러스 케이크",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "PUMPKIN_PIE",
@@ -6569,6 +6711,7 @@
       "displayName": "글룸고드 푸딩",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "PUMPKIN_PIE",
@@ -6628,6 +6771,7 @@
       "displayName": "근원열매 오믈렛",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "SWEET_BERRIES",
@@ -6687,6 +6831,7 @@
       "displayName": "바르칸 대연회",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_BEEF",
@@ -6830,6 +6975,7 @@
       "displayName": "하락확률 감소권 -10%",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -6873,6 +7019,7 @@
       "displayName": "강화확률 상승권 +10%",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -6916,6 +7063,7 @@
       "displayName": "하락 방지권 (Lv.6~10)",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -6952,6 +7100,7 @@
       "displayName": "스폰 도시 주문서",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -6986,6 +7135,7 @@
       "displayName": "사막마을 주문서",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -7020,6 +7170,7 @@
       "displayName": "상단마을 주문서",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -7061,6 +7212,7 @@
       "displayName": "체력포션 (소)",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -7099,6 +7251,7 @@
       "displayName": "체력포션 (대)",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -7151,6 +7304,7 @@
       "displayName": "명란 젓갈",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_COD",
@@ -7183,6 +7337,7 @@
       "displayName": "은빛 정어리 젓갈",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_SALMON",
@@ -7215,6 +7370,7 @@
       "displayName": "꿀 월병",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -7254,6 +7410,7 @@
       "displayName": "과일 발효 케이크",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BREAD",
@@ -7307,6 +7464,7 @@
       "displayName": "청어 양배추 절임",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_COD",
@@ -7360,6 +7518,7 @@
       "displayName": "바나나 견과빵",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKIE",
@@ -7420,6 +7579,7 @@
       "displayName": "숙성 비프 웰링턴",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_BEEF",
@@ -7480,6 +7640,7 @@
       "displayName": "전설의 발효액",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "HONEY_BOTTLE",
@@ -7540,6 +7701,7 @@
       "displayName": "왕실 케이크",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "BREAD",
@@ -7600,6 +7762,7 @@
       "displayName": "나무 작살",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "나무 작살",
@@ -7634,6 +7797,7 @@
       "displayName": "튼튼한 막대기",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "튼튼한 막대기",
       "ingredients": [
@@ -7668,6 +7832,7 @@
       "displayName": "장터 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "장터 낚싯대",
       "ingredients": [
@@ -7716,6 +7881,7 @@
       "displayName": "수련생 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "수련생 낚싯대",
       "ingredients": [
@@ -7757,6 +7923,7 @@
       "displayName": "장사꾼의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "장사꾼의 낚싯대",
       "ingredients": [
@@ -7805,6 +7972,7 @@
       "displayName": "예리한 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "예리한 낚싯대",
       "ingredients": [
@@ -7860,6 +8028,7 @@
       "displayName": "모래 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "모래 낚싯대",
       "ingredients": [
@@ -7908,6 +8077,7 @@
       "displayName": "거래상의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "거래상의 낚싯대",
       "ingredients": [
@@ -7963,6 +8133,7 @@
       "displayName": "학도의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "학도의 낚싯대",
       "ingredients": [
@@ -8018,6 +8189,7 @@
       "displayName": "사구의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사구의 낚싯대",
       "ingredients": [
@@ -8073,6 +8245,7 @@
       "displayName": "전갈 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "전갈 낚싯대",
       "ingredients": [
@@ -8128,6 +8301,7 @@
       "displayName": "행렬의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "행렬의 낚싯대",
       "ingredients": [
@@ -8183,6 +8357,7 @@
       "displayName": "유목민 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "유목민 낚싯대",
       "ingredients": [
@@ -8238,6 +8413,7 @@
       "displayName": "열사의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "열사의 낚싯대",
       "ingredients": [
@@ -8300,6 +8476,7 @@
       "displayName": "사막 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사막 낚싯대",
       "ingredients": [
@@ -8362,6 +8539,7 @@
       "displayName": "오아시스 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "오아시스 낚싯대",
       "ingredients": [
@@ -8424,6 +8602,7 @@
       "displayName": "교역로 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "교역로 낚싯대",
       "ingredients": [
@@ -8486,6 +8665,7 @@
       "displayName": "고고학자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "고고학자의 낚싯대",
       "ingredients": [
@@ -8548,6 +8728,7 @@
       "displayName": "정밀 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "정밀 낚싯대",
       "ingredients": [
@@ -8617,6 +8798,7 @@
       "displayName": "감별사의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "감별사의 낚싯대",
       "ingredients": [
@@ -8686,6 +8868,7 @@
       "displayName": "무역상의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "무역상의 낚싯대",
       "ingredients": [
@@ -8755,6 +8938,7 @@
       "displayName": "회계사의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "회계사의 낚싯대",
       "ingredients": [
@@ -8824,6 +9008,7 @@
       "displayName": "왕립 서고 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "왕립 서고 낚싯대",
       "ingredients": [
@@ -8900,6 +9085,7 @@
       "displayName": "왕도 상회 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "왕도 상회 낚싯대",
       "ingredients": [
@@ -8976,6 +9162,7 @@
       "displayName": "겸업 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "겸업 낚싯대",
       "ingredients": [
@@ -9038,6 +9225,7 @@
       "displayName": "만능 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "만능 낚싯대",
       "ingredients": [
@@ -9093,6 +9281,7 @@
       "displayName": "대상단 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "대상단 낚싯대",
       "ingredients": [
@@ -9162,6 +9351,7 @@
       "displayName": "사막탐사 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사막탐사 낚싯대",
       "ingredients": [
@@ -9231,6 +9421,7 @@
       "displayName": "정산가의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "정산가의 낚싯대",
       "ingredients": [
@@ -9307,6 +9498,7 @@
       "displayName": "항해사의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "항해사의 낚싯대",
       "ingredients": [
@@ -9383,6 +9575,7 @@
       "displayName": "등대지기의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "등대지기의 낚싯대",
       "ingredients": [
@@ -9452,6 +9645,7 @@
       "displayName": "모래폭풍의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "모래폭풍의 낚싯대",
       "ingredients": [
@@ -9521,6 +9715,7 @@
       "displayName": "선단장의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "선단장의 낚싯대",
       "ingredients": [
@@ -9597,6 +9792,7 @@
       "displayName": "전갈왕의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "전갈왕의 낚싯대",
       "ingredients": [
@@ -9666,6 +9862,7 @@
       "displayName": "감정왕의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "감정왕의 낚싯대",
       "ingredients": [
@@ -9742,6 +9939,7 @@
       "displayName": "세공장의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "세공장의 낚싯대",
       "ingredients": [
@@ -9818,6 +10016,7 @@
       "displayName": "전승자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "전승자의 낚싯대",
       "ingredients": [
@@ -9887,6 +10086,7 @@
       "displayName": "파수꾼의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "파수꾼의 낚싯대",
       "ingredients": [
@@ -9956,6 +10156,7 @@
       "displayName": "유적탐사자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "유적탐사자의 낚싯대",
       "ingredients": [
@@ -10025,6 +10226,7 @@
       "displayName": "다목적 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "다목적 낚싯대",
       "ingredients": [
@@ -10073,6 +10275,7 @@
       "displayName": "사막개척 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사막개척 낚싯대",
       "ingredients": [
@@ -10128,6 +10331,7 @@
       "displayName": "유목상단 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "유목상단 낚싯대",
       "ingredients": [
@@ -10190,6 +10394,7 @@
       "displayName": "중개인의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "중개인의 낚싯대",
       "ingredients": [
@@ -10266,6 +10471,7 @@
       "displayName": "왕실 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "왕실 낚싯대",
       "ingredients": [
@@ -10335,6 +10541,7 @@
       "displayName": "근위 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "근위 낚싯대",
       "ingredients": [
@@ -10404,6 +10611,7 @@
       "displayName": "왕립 순찰 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "왕립 순찰 낚싯대",
       "ingredients": [
@@ -10480,6 +10688,7 @@
       "displayName": "행운 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "행운 릴",
@@ -10522,6 +10731,7 @@
       "displayName": "수련용 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "수련용 릴",
@@ -10564,6 +10774,7 @@
       "displayName": "황동 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "황동 릴",
@@ -10606,6 +10817,7 @@
       "displayName": "길조 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "길조 릴",
@@ -10662,6 +10874,7 @@
       "displayName": "사막 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "사막 릴",
@@ -10711,6 +10924,7 @@
       "displayName": "행렬 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "행렬 릴",
@@ -10767,6 +10981,7 @@
       "displayName": "열사 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "열사 릴",
@@ -10830,6 +11045,7 @@
       "displayName": "신기루 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "신기루 릴",
@@ -10893,6 +11109,7 @@
       "displayName": "교역 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "교역 릴",
@@ -10963,6 +11180,7 @@
       "displayName": "행운실",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "행운실",
@@ -11005,6 +11223,7 @@
       "displayName": "합사 카본줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "합사 카본줄",
@@ -11061,6 +11280,7 @@
       "displayName": "사막 강선",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "사막 강선",
@@ -11110,6 +11330,7 @@
       "displayName": "대상 밧줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "대상 밧줄",
@@ -11166,6 +11387,7 @@
       "displayName": "모래바람 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "모래바람 줄",
@@ -11229,6 +11451,7 @@
       "displayName": "신기루 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "신기루 줄",
@@ -11292,6 +11515,7 @@
       "displayName": "교역 합사줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "교역 합사줄",
@@ -11362,6 +11586,7 @@
       "displayName": "길조 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "길조 바늘",
@@ -11418,6 +11643,7 @@
       "displayName": "전갈 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "전갈 바늘",
@@ -11467,6 +11693,7 @@
       "displayName": "행렬 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "행렬 바늘",
@@ -11523,6 +11750,7 @@
       "displayName": "신기루 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "신기루 바늘",
@@ -11586,6 +11814,7 @@
       "displayName": "사구 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "사구 바늘",
@@ -11649,6 +11878,7 @@
       "displayName": "세공 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "세공 바늘",
@@ -11719,6 +11949,7 @@
       "displayName": "교역 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "교역 바늘",
@@ -11789,6 +12020,7 @@
       "displayName": "향기나는 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "향기나는 미끼",
@@ -11802,8 +12034,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P84": {
       "id": "P84",
@@ -11811,6 +12042,7 @@
       "displayName": "떡밥",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "떡밥",
@@ -11824,8 +12056,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P85": {
       "id": "P85",
@@ -11833,6 +12064,7 @@
       "displayName": "거대 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "거대 미끼",
@@ -11853,8 +12085,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P86": {
       "id": "P86",
@@ -11862,6 +12093,7 @@
       "displayName": "살아있는 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "살아있는 미끼",
@@ -11882,8 +12114,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P87": {
       "id": "P87",
@@ -11891,6 +12122,7 @@
       "displayName": "새우",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "새우",
@@ -11911,8 +12143,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P88": {
       "id": "P88",
@@ -11920,6 +12151,7 @@
       "displayName": "빛나는 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "빛나는 미끼",
@@ -11940,8 +12172,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P89": {
       "id": "P89",
@@ -11949,6 +12180,7 @@
       "displayName": "번개 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "번개 미끼",
@@ -11969,8 +12201,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P90": {
       "id": "P90",
@@ -11978,6 +12209,7 @@
       "displayName": "길조 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "길조 미끼",
@@ -11998,8 +12230,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P91": {
       "id": "P91",
@@ -12007,6 +12238,7 @@
       "displayName": "반딧불이 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "반딧불이 미끼",
@@ -12027,8 +12259,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P92": {
       "id": "P92",
@@ -12036,6 +12267,7 @@
       "displayName": "오아시스 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "오아시스 미끼",
@@ -12056,8 +12288,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P93": {
       "id": "P93",
@@ -12065,6 +12296,7 @@
       "displayName": "행렬 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "행렬 미끼",
@@ -12085,8 +12317,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P94": {
       "id": "P94",
@@ -12094,6 +12325,7 @@
       "displayName": "신기루 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "신기루 미끼",
@@ -12121,8 +12353,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P95": {
       "id": "P95",
@@ -12130,6 +12361,7 @@
       "displayName": "오아시스 정수 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "오아시스 정수 미끼",
@@ -12157,8 +12389,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P96": {
       "id": "P96",
@@ -12166,6 +12397,7 @@
       "displayName": "프리미엄 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "프리미엄 미끼",
@@ -12193,8 +12425,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P97": {
       "id": "P97",
@@ -12202,6 +12433,7 @@
       "displayName": "천공 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "천공 미끼",
@@ -12229,8 +12461,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P98": {
       "id": "P98",
@@ -12238,6 +12469,7 @@
       "displayName": "교역 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "교역 미끼",
@@ -12265,8 +12497,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P99": {
       "id": "P99",
@@ -12274,6 +12505,7 @@
       "displayName": "바르칸 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "바르칸 미끼",
@@ -12301,8 +12533,7 @@
         }
       ],
       "village": "왕도",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P100": {
       "id": "P100",
@@ -12310,6 +12541,7 @@
       "displayName": "행운 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "행운 찌",
@@ -12359,6 +12591,7 @@
       "displayName": "수련용 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "수련용 찌",
@@ -12401,6 +12634,7 @@
       "displayName": "황동 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "황동 찌",
@@ -12443,6 +12677,7 @@
       "displayName": "모래 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "모래 찌",
@@ -12492,6 +12727,7 @@
       "displayName": "행렬 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "행렬 찌",
@@ -12548,6 +12784,7 @@
       "displayName": "사구 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "사구 찌",
@@ -12611,6 +12848,7 @@
       "displayName": "신기루 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "신기루 찌",
@@ -12674,6 +12912,7 @@
       "displayName": "세공 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "세공 찌",
@@ -12744,6 +12983,7 @@
       "displayName": "교역 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "교역 찌",
@@ -12814,6 +13054,7 @@
       "displayName": "황금 연어롤",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "COOKED_SALMON",
@@ -12870,6 +13111,7 @@
       "displayName": "기본 모닥불",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "campfire",
@@ -12905,6 +13147,7 @@
       "displayName": "갯벌 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "갯벌 작살",
@@ -12940,6 +13183,7 @@
       "displayName": "물때 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "물때 작살",
@@ -12975,6 +13219,7 @@
       "displayName": "벼린 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "벼린 작살",
@@ -13003,6 +13248,7 @@
       "displayName": "쇠날 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "쇠날 작살",
@@ -13038,6 +13284,7 @@
       "displayName": "여울 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "여울 작살",
@@ -13073,6 +13320,7 @@
       "displayName": "해녀 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "해녀 작살",
@@ -13129,6 +13377,7 @@
       "displayName": "만조 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "만조 작살",
@@ -13185,6 +13434,7 @@
       "displayName": "강철날 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "강철날 작살",
@@ -13241,6 +13491,7 @@
       "displayName": "예봉 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "예봉 작살",
@@ -13297,6 +13548,7 @@
       "displayName": "다목적 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "다목적 작살",
@@ -13360,6 +13612,7 @@
       "displayName": "급류 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "급류 작살",
@@ -13409,6 +13662,7 @@
       "displayName": "잠수부 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "잠수부 작살",
@@ -13465,6 +13719,7 @@
       "displayName": "조수의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "조수의 작살",
@@ -13521,6 +13776,7 @@
       "displayName": "섬광 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "섬광 작살",
@@ -13577,6 +13833,7 @@
       "displayName": "파도날 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "파도날 작살",
@@ -13633,6 +13890,7 @@
       "displayName": "해류 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "해류 작살",
@@ -13682,6 +13940,7 @@
       "displayName": "만능 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "만능 작살",
@@ -13745,6 +14004,7 @@
       "displayName": "우물 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "우물 작살",
@@ -13801,6 +14061,7 @@
       "displayName": "겸업 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "겸업 작살",
@@ -13864,6 +14125,7 @@
       "displayName": "사구 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "사구 작살",
@@ -13920,6 +14182,7 @@
       "displayName": "전갈 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "전갈 작살",
@@ -13976,6 +14239,7 @@
       "displayName": "사막칼날 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "사막칼날 작살",
@@ -14032,6 +14296,7 @@
       "displayName": "사막개척 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "사막개척 작살",
@@ -14095,6 +14360,7 @@
       "displayName": "열풍 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "열풍 작살",
@@ -14144,6 +14410,7 @@
       "displayName": "유목상단 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "유목상단 작살",
@@ -14200,6 +14467,7 @@
       "displayName": "오아시스 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "오아시스 작살",
@@ -14263,6 +14531,7 @@
       "displayName": "신기루 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "신기루 작살",
@@ -14326,6 +14595,7 @@
       "displayName": "사막군주의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "사막군주의 작살",
@@ -14389,6 +14659,7 @@
       "displayName": "모래바람 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "모래바람 작살",
@@ -14445,6 +14716,7 @@
       "displayName": "독전갈 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "독전갈 작살",
@@ -14508,6 +14780,7 @@
       "displayName": "대상단 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "대상단 작살",
@@ -14578,6 +14851,7 @@
       "displayName": "사막탐사 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "사막탐사 작살",
@@ -14641,6 +14915,7 @@
       "displayName": "심해교역 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "심해교역 작살",
@@ -14718,6 +14993,7 @@
       "displayName": "호위대 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "호위대 작살",
@@ -14788,6 +15064,7 @@
       "displayName": "행상인의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "행상인의 작살",
@@ -14851,6 +15128,7 @@
       "displayName": "쾌속선 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "쾌속선 작살",
@@ -14921,6 +15199,7 @@
       "displayName": "세공사의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "세공사의 작살",
@@ -14991,6 +15270,7 @@
       "displayName": "항해사의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "항해사의 작살",
@@ -15068,6 +15348,7 @@
       "displayName": "정산가의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "정산가의 작살",
@@ -15145,6 +15426,7 @@
       "displayName": "중개인의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "중개인의 작살",
@@ -15215,6 +15497,7 @@
       "displayName": "왕도 상회 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "왕도 상회 작살",
@@ -15292,6 +15575,7 @@
       "displayName": "왕립 순찰 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "왕립 순찰 작살",
@@ -15369,6 +15653,7 @@
       "displayName": "왕립 서고 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "왕립 서고 작살",
@@ -15446,6 +15731,7 @@
       "displayName": "근위 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "근위 작살",
@@ -15523,6 +15809,7 @@
       "displayName": "왕실 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "왕실 작살",
@@ -15600,6 +15887,7 @@
       "displayName": "천공의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "천공의 작살",
@@ -15698,6 +15986,7 @@
       "displayName": "바르칸 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "바르칸 작살",
@@ -15796,6 +16085,7 @@
       "displayName": "강철 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "강철 작살",
@@ -15845,6 +16135,7 @@
       "displayName": "다이아 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "다이아 작살",
@@ -15908,6 +16199,7 @@
       "displayName": "네더라이트 작살",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "네더라이트 작살",
@@ -15971,6 +16263,7 @@
       "displayName": "강화 네더라이트 파편",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -15998,6 +16291,7 @@
       "displayName": "네더라이트 주괴",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -16032,6 +16326,7 @@
       "displayName": "심해어가면",
       "locked": false,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -16061,6 +16356,7 @@
       "displayName": "녹슨 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "녹슨 릴",
@@ -16089,6 +16385,7 @@
       "displayName": "삼베줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "삼베줄",
@@ -16124,6 +16421,7 @@
       "displayName": "구부러진 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "구부러진 바늘",
@@ -16159,6 +16457,7 @@
       "displayName": "지렁이",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "지렁이",
@@ -16172,8 +16471,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P113": {
       "id": "P113",
@@ -16181,6 +16479,7 @@
       "displayName": "나무 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "나무 찌",
@@ -16216,6 +16515,7 @@
       "displayName": "채집용 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "채집용 낚싯대",
       "ingredients": [
@@ -16257,6 +16557,7 @@
       "displayName": "수집가의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "수집가의 낚싯대",
       "ingredients": [
@@ -16298,6 +16599,7 @@
       "displayName": "탐사자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "탐사자의 낚싯대",
       "ingredients": [
@@ -16346,6 +16648,7 @@
       "displayName": "발굴자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "발굴자의 낚싯대",
       "ingredients": [
@@ -16401,6 +16704,7 @@
       "displayName": "유물사냥꾼의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "유물사냥꾼의 낚싯대",
       "ingredients": [
@@ -16463,6 +16767,7 @@
       "displayName": "수집상의 낚싯대",
       "locked": false,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "수집상의 낚싯대",
       "ingredients": [
@@ -16532,6 +16837,7 @@
       "displayName": "탐구자의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "탐구자의 낚싯대",
       "ingredients": [
@@ -16601,6 +16907,7 @@
       "displayName": "발굴왕의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "발굴왕의 낚싯대",
       "ingredients": [
@@ -16670,6 +16977,7 @@
       "displayName": "수집왕의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "수집왕의 낚싯대",
       "ingredients": [
@@ -16746,6 +17054,7 @@
       "displayName": "수집 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "수집 릴",
@@ -16781,6 +17090,7 @@
       "displayName": "유적 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "유적 릴",
@@ -16830,6 +17140,7 @@
       "displayName": "수집상 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "수집상 릴",
@@ -16900,6 +17211,7 @@
       "displayName": "수집 삼합줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "수집 삼합줄",
@@ -16935,6 +17247,7 @@
       "displayName": "유적 밧줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "유적 밧줄",
@@ -16991,6 +17304,7 @@
       "displayName": "수집상 합사줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "수집상 합사줄",
@@ -17061,6 +17375,7 @@
       "displayName": "수집 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "수집 바늘",
@@ -17096,6 +17411,7 @@
       "displayName": "유적 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "유적 바늘",
@@ -17152,6 +17468,7 @@
       "displayName": "수집상 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "수집상 바늘",
@@ -17229,6 +17546,7 @@
       "displayName": "수집 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "수집 미끼",
@@ -17249,8 +17567,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P124": {
       "id": "P124",
@@ -17258,6 +17575,7 @@
       "displayName": "유적 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "유적 미끼",
@@ -17278,8 +17596,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P125": {
       "id": "P125",
@@ -17287,6 +17604,7 @@
       "displayName": "수집상 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "수집상 미끼",
@@ -17314,8 +17632,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P126": {
       "id": "P126",
@@ -17323,6 +17640,7 @@
       "displayName": "수집 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "수집 찌",
@@ -17358,6 +17676,7 @@
       "displayName": "유적 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "유적 찌",
@@ -17414,6 +17733,7 @@
       "displayName": "수집상 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "수집상 찌",
@@ -17491,6 +17811,7 @@
       "displayName": "채집 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "채집 릴",
@@ -17533,6 +17854,7 @@
       "displayName": "채집실",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "채집실",
@@ -17575,6 +17897,7 @@
       "displayName": "채집 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "채집 바늘",
@@ -17617,6 +17940,7 @@
       "displayName": "채집 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "채집 미끼",
@@ -17630,8 +17954,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P133": {
       "id": "P133",
@@ -17639,6 +17962,7 @@
       "displayName": "채집 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "채집 찌",
@@ -17681,6 +18005,7 @@
       "displayName": "심해 잠수 작살",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "심해 잠수 작살",
@@ -17779,6 +18104,7 @@
       "displayName": "압력관통 작살",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "압력관통 작살",
@@ -17863,6 +18189,7 @@
       "displayName": "심연의 작살",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "심연의 작살",
@@ -17947,6 +18274,7 @@
       "displayName": "수습 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "수습 릴",
@@ -17996,6 +18324,7 @@
       "displayName": "장터 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "장터 릴",
@@ -18038,6 +18367,7 @@
       "displayName": "수습 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "수습 줄",
@@ -18080,6 +18410,7 @@
       "displayName": "장터 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "장터 줄",
@@ -18115,6 +18446,7 @@
       "displayName": "수습 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "수습 바늘",
@@ -18157,6 +18489,7 @@
       "displayName": "장터 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "장터 바늘",
@@ -18199,6 +18532,7 @@
       "displayName": "수습 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "수습 찌",
@@ -18241,6 +18575,7 @@
       "displayName": "장터 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "장터 찌",
@@ -18283,6 +18618,7 @@
       "displayName": "수습 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "수습 미끼",
@@ -18296,8 +18632,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P143": {
       "id": "P143",
@@ -18305,6 +18640,7 @@
       "displayName": "장터 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "장터 미끼",
@@ -18318,8 +18654,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "HP93": {
       "id": "HP93",
@@ -18327,6 +18662,7 @@
       "displayName": "채집 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "채집 작살",
@@ -18362,6 +18698,7 @@
       "displayName": "수집 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "수집 작살",
@@ -18411,6 +18748,7 @@
       "displayName": "탐사 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "탐사 작살",
@@ -18460,6 +18798,7 @@
       "displayName": "방벽 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "방벽 낚싯대",
       "ingredients": [
@@ -18536,6 +18875,7 @@
       "displayName": "사자 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사자 낚싯대",
       "ingredients": [
@@ -18612,6 +18952,7 @@
       "displayName": "왕관 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "왕관 낚싯대",
       "ingredients": [
@@ -18688,6 +19029,7 @@
       "displayName": "세관 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "세관 낚싯대",
       "ingredients": [
@@ -18764,6 +19106,7 @@
       "displayName": "문서고 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "문서고 낚싯대",
       "ingredients": [
@@ -18840,6 +19183,7 @@
       "displayName": "조병창 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "조병창 낚싯대",
       "ingredients": [
@@ -18916,6 +19260,7 @@
       "displayName": "전령 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "전령 작살",
@@ -18986,6 +19331,7 @@
       "displayName": "조병창 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "조병창 작살",
@@ -19056,6 +19402,7 @@
       "displayName": "기사단 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "기사단 작살",
@@ -19126,6 +19473,7 @@
       "displayName": "세관 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "세관 작살",
@@ -19196,6 +19544,7 @@
       "displayName": "창병 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "창병 작살",
@@ -19266,6 +19615,7 @@
       "displayName": "방벽 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "방벽 릴",
@@ -19329,6 +19679,7 @@
       "displayName": "사자 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "사자 릴",
@@ -19392,6 +19743,7 @@
       "displayName": "왕관 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "왕관 릴",
@@ -19455,6 +19807,7 @@
       "displayName": "문서고 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "문서고 줄",
@@ -19518,6 +19871,7 @@
       "displayName": "방벽 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "방벽 줄",
@@ -19581,6 +19935,7 @@
       "displayName": "사자 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "사자 줄",
@@ -19644,6 +19999,7 @@
       "displayName": "방벽 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "방벽 바늘",
@@ -19707,6 +20063,7 @@
       "displayName": "문서고 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "문서고 바늘",
@@ -19770,6 +20127,7 @@
       "displayName": "왕관 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "왕관 바늘",
@@ -19833,6 +20191,7 @@
       "displayName": "방벽 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "방벽 찌",
@@ -19896,6 +20255,7 @@
       "displayName": "문서고 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "문서고 찌",
@@ -19959,6 +20319,7 @@
       "displayName": "사자 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "사자 찌",
@@ -20022,6 +20383,7 @@
       "displayName": "방벽 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "방벽 미끼",
@@ -20042,8 +20404,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P157": {
       "id": "P157",
@@ -20051,6 +20412,7 @@
       "displayName": "문서고 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "문서고 미끼",
@@ -20071,8 +20433,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P158": {
       "id": "P158",
@@ -20080,6 +20441,7 @@
       "displayName": "사자 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "사자 미끼",
@@ -20100,8 +20462,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "HP101": {
       "id": "HP101",
@@ -20109,6 +20470,7 @@
       "displayName": "장터 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "장터 작살",
@@ -20151,6 +20513,7 @@
       "displayName": "관통 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "관통 작살",
@@ -20207,6 +20570,7 @@
       "displayName": "적재상의 작살",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "작살",
       "resultPartName": "적재상의 작살",
@@ -20277,6 +20641,7 @@
       "displayName": "억센 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "억센 릴",
@@ -20319,6 +20684,7 @@
       "displayName": "예민한 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "예민한 릴",
@@ -20361,6 +20727,7 @@
       "displayName": "단련된 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "단련된 릴",
@@ -20410,6 +20777,7 @@
       "displayName": "선단 릴",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "선단 릴",
@@ -20473,6 +20841,7 @@
       "displayName": "예민한 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "예민한 줄",
@@ -20522,6 +20891,7 @@
       "displayName": "채집 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "채집 줄",
@@ -20571,6 +20941,7 @@
       "displayName": "길조 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "길조 줄",
@@ -20620,6 +20991,7 @@
       "displayName": "선단 줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "선단 줄",
@@ -20683,6 +21055,7 @@
       "displayName": "서기 줄",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "서기 줄",
@@ -20746,6 +21119,7 @@
       "displayName": "예민한 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "예민한 바늘",
@@ -20795,6 +21169,7 @@
       "displayName": "선단 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "선단 바늘",
@@ -20858,6 +21233,7 @@
       "displayName": "서기 바늘",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "서기 바늘",
@@ -20921,6 +21297,7 @@
       "displayName": "단련된 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "단련된 찌",
@@ -20970,6 +21347,7 @@
       "displayName": "선단 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "선단 찌",
@@ -21033,6 +21411,7 @@
       "displayName": "서기 찌",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "서기 찌",
@@ -21096,6 +21475,7 @@
       "displayName": "억센 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "억센 미끼",
@@ -21109,8 +21489,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P175": {
       "id": "P175",
@@ -21118,6 +21497,7 @@
       "displayName": "예민한 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "예민한 미끼",
@@ -21131,8 +21511,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P176": {
       "id": "P176",
@@ -21140,6 +21519,7 @@
       "displayName": "단련된 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "단련된 미끼",
@@ -21160,8 +21540,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P177": {
       "id": "P177",
@@ -21169,6 +21548,7 @@
       "displayName": "선단 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "선단 미끼",
@@ -21196,8 +21576,7 @@
         }
       ],
       "village": "왕도",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P178": {
       "id": "P178",
@@ -21205,6 +21584,7 @@
       "displayName": "서기 미끼",
       "locked": false,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "서기 미끼",
@@ -21232,8 +21612,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P179": {
       "id": "P179",
@@ -21241,6 +21620,7 @@
       "displayName": "행운의 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "행운의 릴",
@@ -21290,6 +21670,7 @@
       "displayName": "행운의 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "행운의 바늘",
@@ -21339,6 +21720,7 @@
       "displayName": "성벽 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "성벽 바늘",
@@ -21402,6 +21784,7 @@
       "displayName": "섬세한 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "섬세한 찌",
@@ -21451,6 +21834,7 @@
       "displayName": "채취 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "채취 찌",
@@ -21500,6 +21884,7 @@
       "displayName": "여명 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "여명 릴",
@@ -21577,6 +21962,7 @@
       "displayName": "등대 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "등대 릴",
@@ -21654,6 +22040,7 @@
       "displayName": "전갈왕 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "전갈왕 릴",
@@ -21738,6 +22125,7 @@
       "displayName": "모래폭풍 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "모래폭풍 릴",
@@ -21815,6 +22203,7 @@
       "displayName": "감정왕 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "감정왕 릴",
@@ -21892,6 +22281,7 @@
       "displayName": "대상인 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "대상인 릴",
@@ -21976,6 +22366,7 @@
       "displayName": "심해수정 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "심해수정 릴",
@@ -22060,6 +22451,7 @@
       "displayName": "심연 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "심연 릴",
@@ -22137,6 +22529,7 @@
       "displayName": "용린 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "용린 릴",
@@ -22214,6 +22607,7 @@
       "displayName": "성좌 릴",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "릴",
       "resultPartName": "성좌 릴",
@@ -22298,6 +22692,7 @@
       "displayName": "여명 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "여명 줄",
@@ -22375,6 +22770,7 @@
       "displayName": "등대 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "등대 줄",
@@ -22452,6 +22848,7 @@
       "displayName": "모래폭풍 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "모래폭풍 줄",
@@ -22529,6 +22926,7 @@
       "displayName": "전갈왕 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "전갈왕 줄",
@@ -22613,6 +23011,7 @@
       "displayName": "감정왕 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "감정왕 줄",
@@ -22690,6 +23089,7 @@
       "displayName": "대상인 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "대상인 줄",
@@ -22774,6 +23174,7 @@
       "displayName": "심연 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "심연 줄",
@@ -22851,6 +23252,7 @@
       "displayName": "심해수정 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "심해수정 줄",
@@ -22935,6 +23337,7 @@
       "displayName": "용린 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "용린 줄",
@@ -23012,6 +23415,7 @@
       "displayName": "성좌 줄",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "줄",
       "resultPartName": "성좌 줄",
@@ -23096,6 +23500,7 @@
       "displayName": "여명 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "여명 바늘",
@@ -23173,6 +23578,7 @@
       "displayName": "등대 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "등대 바늘",
@@ -23250,6 +23656,7 @@
       "displayName": "모래폭풍 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "모래폭풍 바늘",
@@ -23327,6 +23734,7 @@
       "displayName": "전갈왕 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "전갈왕 바늘",
@@ -23411,6 +23819,7 @@
       "displayName": "감정왕 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "감정왕 바늘",
@@ -23488,6 +23897,7 @@
       "displayName": "대상인 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "대상인 바늘",
@@ -23572,6 +23982,7 @@
       "displayName": "심연 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "심연 바늘",
@@ -23649,6 +24060,7 @@
       "displayName": "심해수정 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "심해수정 바늘",
@@ -23733,6 +24145,7 @@
       "displayName": "용린 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "용린 바늘",
@@ -23810,6 +24223,7 @@
       "displayName": "성좌 바늘",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "바늘",
       "resultPartName": "성좌 바늘",
@@ -23894,6 +24308,7 @@
       "displayName": "여명 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "여명 미끼",
@@ -23921,8 +24336,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P215": {
       "id": "P215",
@@ -23930,6 +24344,7 @@
       "displayName": "등대 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "등대 미끼",
@@ -23957,8 +24372,7 @@
         }
       ],
       "village": "스폰",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P216": {
       "id": "P216",
@@ -23966,6 +24380,7 @@
       "displayName": "모래폭풍 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "모래폭풍 미끼",
@@ -23993,8 +24408,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P217": {
       "id": "P217",
@@ -24002,6 +24416,7 @@
       "displayName": "전갈왕 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "전갈왕 미끼",
@@ -24029,8 +24444,7 @@
         }
       ],
       "village": "사막",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P218": {
       "id": "P218",
@@ -24038,6 +24452,7 @@
       "displayName": "감정왕 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "감정왕 미끼",
@@ -24065,8 +24480,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P219": {
       "id": "P219",
@@ -24074,6 +24488,7 @@
       "displayName": "대상인 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "대상인 미끼",
@@ -24101,8 +24516,7 @@
         }
       ],
       "village": "상단",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P220": {
       "id": "P220",
@@ -24110,6 +24524,7 @@
       "displayName": "심해수정 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "심해수정 미끼",
@@ -24137,8 +24552,7 @@
         }
       ],
       "village": "",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P221": {
       "id": "P221",
@@ -24146,6 +24560,7 @@
       "displayName": "심연 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "심연 미끼",
@@ -24173,8 +24588,7 @@
         }
       ],
       "village": "",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P222": {
       "id": "P222",
@@ -24182,6 +24596,7 @@
       "displayName": "용린 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "용린 미끼",
@@ -24209,8 +24624,7 @@
         }
       ],
       "village": "",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P223": {
       "id": "P223",
@@ -24218,6 +24632,7 @@
       "displayName": "성좌 미끼",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 10,
       "drillTier": 0,
       "resultPartType": "미끼",
       "resultPartName": "성좌 미끼",
@@ -24245,8 +24660,7 @@
         }
       ],
       "village": "",
-      "materialDiscountVersion": 1,
-      "resultAmount": 10
+      "materialDiscountVersion": 1
     },
     "P224": {
       "id": "P224",
@@ -24254,6 +24668,7 @@
       "displayName": "여명 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "여명 찌",
@@ -24331,6 +24746,7 @@
       "displayName": "등대 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "등대 찌",
@@ -24408,6 +24824,7 @@
       "displayName": "모래폭풍 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "모래폭풍 찌",
@@ -24485,6 +24902,7 @@
       "displayName": "전갈왕 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "전갈왕 찌",
@@ -24569,6 +24987,7 @@
       "displayName": "감정왕 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "감정왕 찌",
@@ -24646,6 +25065,7 @@
       "displayName": "대상인 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "대상인 찌",
@@ -24730,6 +25150,7 @@
       "displayName": "심연 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "심연 찌",
@@ -24807,6 +25228,7 @@
       "displayName": "심해수정 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "심해수정 찌",
@@ -24891,6 +25313,7 @@
       "displayName": "용린 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "용린 찌",
@@ -24968,6 +25391,7 @@
       "displayName": "성좌 찌",
       "locked": true,
       "resultMode": "part",
+      "resultAmount": 0,
       "drillTier": 0,
       "resultPartType": "찌",
       "resultPartName": "성좌 찌",
@@ -25052,6 +25476,7 @@
       "displayName": "연못 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -25104,6 +25529,7 @@
       "displayName": "상단 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -25156,6 +25582,7 @@
       "displayName": "골짜기 통발",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "barrel",
@@ -25208,6 +25635,7 @@
       "displayName": "압축 자수정",
       "locked": true,
       "resultMode": "direct",
+      "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
@@ -25235,6 +25663,7 @@
       "displayName": "밀물의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "밀물의 낚싯대",
       "ingredients": [
@@ -25290,6 +25719,7 @@
       "displayName": "갯바위의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "갯바위의 낚싯대",
       "ingredients": [
@@ -25345,6 +25775,7 @@
       "displayName": "뱃사공의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "뱃사공의 낚싯대",
       "ingredients": [
@@ -25400,6 +25831,7 @@
       "displayName": "모래시계의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "모래시계의 낚싯대",
       "ingredients": [
@@ -25462,6 +25894,7 @@
       "displayName": "카라반의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "카라반의 낚싯대",
       "ingredients": [
@@ -25531,6 +25964,7 @@
       "displayName": "사막여우의 낚싯대",
       "locked": true,
       "resultMode": "rod",
+      "resultAmount": 0,
       "drillTier": 0,
       "rodPartName": "사막여우의 낚싯대",
       "ingredients": [
