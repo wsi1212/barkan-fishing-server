@@ -3,7 +3,7 @@
 바다 필드보스가 살 «해저신전» 후보 16개를 하나의 공허 전시월드에 격자로 모았다.
 `castle_show`(무료 중세성 15개)와 같은 방식이고, `/월드 temple_show` 로 들어간다.
 
-- **dev 반영 완료** (2026-09-04). prod 미배포.
+- **dev·prod 양쪽 반영 완료** (2026-09-04). prod 는 가동 중에 `mv import` 로 넣었다 — 재시작 없음.
 - 스폰 `(-24, 64, -24)` 씨렌턴 발판. `/월드` 는 `Bukkit.getWorlds()` 를 훑는 범용 명령이라
   월드만 로드돼 있으면 목록·탭완성·TP 가 자동이다(BarkanWorldWarp.jar 손댈 것 없음).
 - 비OP 는 접속 시 스폰마을로 축출된다 — `RegionTracker.PLAYER_WORLDS` 허용목록에 없기 때문(의도).
@@ -22,7 +22,11 @@ cp <castle_show>/level.dat build/temple_show/level.dat   # 공허 flat 제너레
 ./venv/bin/python render_map.py build/temple_show map.png   # 위에서 본 검수용 지도
 cp -R build/temple_show <서버루트>/ && rm <서버루트>/temple_show/session.lock
 mv import temple_show normal && mv setspawn temple_show:-24,66,-24
+python signs.py plots.json                  # 표지판 명령 생성 → pre / 8초 / post
 ```
+
+prod 는 tar+scp → `~/mcserver/` 에 풀고 `session.lock`·`uid.dat` 삭제 → 같은 RCON 절차.
+**재시작 불필요**(`mv import` 는 가동 중에 먹는다). 실측: 접속자 5명, TPS 20.0 유지, 메모리 변화 없음.
 
 ## 함정 (다시 하면 또 밟는다)
 
@@ -40,8 +44,13 @@ mv import temple_show normal && mv setspawn temple_show:-24,66,-24
   prismarine/sea_lantern/conduit 밀도 최대 청크를 씨앗 삼아 flood-fill 하는 쪽이 정확했다.
 - **universal 팔레트 이름은 `oak_leaves` 가 아니라 `leaves[material=oak]` 처럼 «일반명+속성»** 이다.
   자연/인공 분류 정규식을 바닐라 아이디로 쓰면 나무가 전부 «인공» 으로 잡혀 숲을 신전으로 오인한다.
-- **로드 안 된 청크에 `summon` 하면 «Summoned» 라고 답해 놓고 엔티티가 사라진다.**
-  이름표(text_display)는 `forceload add` → `summon` → `save-all flush` → `forceload remove all` 순서로.
+- **★이름표를 text_display 로 만들면 안 된다.** `NpcDialogueManager.sweepOrphanBubbles` 가
+  `EntitiesLoad` 마다 «탈것 없는 persistent TextDisplay» 를 **월드 불문 전부** 지운다(말풍선 고아 청소).
+  소환 직후엔 멀쩡히 보이다가 청크가 한 번 언로드되면 없어진다 → 블록엔티티인 **표지판**을 쓴다(`signs.py`).
+  이 서버에서는 홀로그램류를 세울 수 없다는 뜻이기도 하다.
+- **로드 안 된 청크에 `setblock`/`summon` 하면 «성공» 이라 답해 놓고 유실된다.**
+  `forceload add` 전부 → **8초 대기** → 명령 → `save-all flush` → `forceload remove all`.
+  forceload 는 비동기라 바로 이어서 쏘면 아직 안 올라온 청크에 쓰게 된다(prod 에서 실측).
 - 블록엔티티(상자·간판 내용)와 엔티티는 옮기지 않는다. 실루엣/구조 검수용이라 불필요.
 
 ## 후보 목록
