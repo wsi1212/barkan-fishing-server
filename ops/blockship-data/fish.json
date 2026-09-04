@@ -948,7 +948,7 @@
     "사자갈기해파리": {
       "minSize": 382,
       "maxSize": 3951,
-      "grade": "G",
+      "grade": "L",
       "time": "밤",
       "weather": "전체"
     },
@@ -1298,7 +1298,7 @@
     "풍선장어": {
       "minSize": 124,
       "maxSize": 243,
-      "grade": "L",
+      "grade": "M",
       "time": "밤",
       "weather": "비"
     },
