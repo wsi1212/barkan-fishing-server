@@ -524,7 +524,7 @@ CREATE TABLE audit_log (                -- 웹 콘솔 운영 액션 감사 (Phas
 | `alba.invite` / `alba.expire` | P2 | `IslandCommand#handleInvite` / `#sweepExpiredAlba` | `{target}` / `{alba}` |
 | `submit.do` | P0 | `IslandSubmitManager#submitMaterial/#submitAllFish/#submitDish` | `{kind, id, n, pts, island, guild}` — 섬·길드 **동시 적립**(이중) 구조 그대로 기록 |
 | `submit.season` | P1 | `#monthlyReset`(+`#rewardTop`) | `{ym, top_island:[..], top_guild:[..], coins}` (coin money.txn 동반) |
-| `guild.create` / `guild.disband` | P0 | `GuildCommand#confirmCreate`(30000원) / `GuildManager#deleteGuild` | `{gid, cost}` / `{gid, members}` |
+| `guild.create` / `guild.disband` | P0 | `GuildCommand#confirmCreate`(GuildManager.CREATE_COST = 50,000원) / `GuildManager#deleteGuild` | `{gid, cost}` / `{gid, members}` |
 | `guild.member` | P1 | `#addMember/#removeMember`(가입/탈퇴/추방 구분) | `{gid, op:"join"\|"leave"\|"kick"}` |
 | `guild.deposit` | P0 | `GuildManager#deposit` (§6-1 guild 원장 겸) | `{gid, amt}` |
 | `guild.upgrade` / `guild.buff` / `guild.expand` | P0 | `#buyGuildUpgrade` / `#purchaseBuff` / `#expandIslandSize` | `{gid, kind, lv, price}` |
