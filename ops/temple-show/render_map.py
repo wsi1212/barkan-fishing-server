@@ -74,4 +74,5 @@ def main(world, out, scale=1):
         d.text((px+4,pz+4), p["id"], fill=(255,255,0))
     im.save(out); print("saved", out, im.size)
 
-main(sys.argv[1], sys.argv[2], int(sys.argv[3]) if len(sys.argv)>3 else 1)
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]) if len(sys.argv)>3 else 1)

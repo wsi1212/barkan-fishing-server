@@ -75,3 +75,27 @@ prod 는 tar+scp → `~/mcserver/` 에 풀고 `session.lock`·`uid.dat` 삭제 �
 | 17 | 아르타잔의 성역 | 160×123×160 | `592 64 528` | Artazan's Realm Guardian Sacred Temple |
 | 18 | 씨템플 | 208×179×128 | `104 64 752` | SeaTemple / Barbarian |
 | 19 | 시간의 신전 | 192×129×192 | `320 64 784` | Platreon - The Time Temple |
+
+## 가동 중인 월드에 큰 건물을 «렉 없이» 넣기 — region 파일 투하 (2026-09-04)
+
+17번(아르타잔의 성역)은 전시월드 플롯이 산호밭만 잘라 와서 신전이 통째로 빠져 있었다.
+전체 복합체(448×125×576, 비어있지 않은 블록 610만)를 다시 떠서 **prod flatroom 5000/100/5000**
+에 넣었는데, `//paste` 도 `setblock` 도 쓰지 않았다 — **아직 존재하지 않는 region 파일을 오프라인에서
+구워 그냥 떨어뜨렸다.** 서버가 하는 일은 0이다(접속자 5명, TPS 20.0 내내 유지).
+
+```bash
+python place17.py            # ex/17/world → build/flatroom_patch/{region,entities}/r.{9,10}.{9,10}.mca
+python render_world.py build/flatroom_patch p17.png 4992 4992 5455 5583   # 눈으로 검수
+tar czf p.tgz region entities && scp … && tar xzf -C ~/mcserver/flatroom
+```
+
+- **전제: 대상 좌표의 region 파일이 없어야 한다.** 있으면 절대 덮지 말 것(서버가 그 청크를 메모리에
+  들고 있으면 저장 때 되돌아가고, 최악은 손상이다). `ls region/r.<x>>5>.<z>>5>.mca` 로 먼저 확인하고,
+  투하 직전에 **한 번 더** 확인한다(그 사이 누가 다녀갔을 수 있다). place17.py 를 감싼 셸이 실제로 그렇게 한다.
+- **평지 지반(bedrock/dirt×2/grass, y-64..-61)을 내가 쓴 청크에 같이 넣어야 한다.** 안 그러면 새 청크는
+  status=full 이라 지형이 생성되지 않고 바닥에 460×590 짜리 구멍이 뚫린다.
+- 원점은 청크 정렬이 필요하니 서/북으로 패딩해서 4992 에 붙이고 콘텐츠가 5000 에서 시작하게 한다.
+- 검수는 청크 몇 개만 `forceload` → `execute unless block … run time query gametime` 으로.
+  **`say` 를 쓰지 말 것** — 접속자 전원 채팅에 뜬다(2026-09-04 에 두 줄 뿌렸다).
+- 원본 월드 어디가 건물인지는 `render_world.py` 로 **128블록 좌표격자 지도를 뽑아 눈으로 고르는 게**
+  밀도 휴리스틱보다 빠르고 정확했다.
