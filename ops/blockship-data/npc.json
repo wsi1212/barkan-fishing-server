@@ -5039,7 +5039,7 @@
       "shopItems": []
     },
     "모르": {
-      "citizensId": "",
+      "citizensId": "209",
       "name": "&a[Q] 모르",
       "ferry": false,
       "shop": false,
@@ -5070,7 +5070,7 @@
       "shopItems": []
     },
     "일곱셋": {
-      "citizensId": "",
+      "citizensId": "211",
       "name": "&a[Q] 일곱-셋",
       "ferry": false,
       "shop": false,
@@ -5099,7 +5099,7 @@
       "shopItems": []
     },
     "가라앉은하": {
-      "citizensId": "",
+      "citizensId": "212",
       "name": "&a[Q] 가라앉은 하",
       "ferry": false,
       "shop": false,
@@ -5128,7 +5128,7 @@
       "shopItems": []
     },
     "비늘짜는이": {
-      "citizensId": "",
+      "citizensId": "210",
       "name": "&a[Q] 비늘 짜는 이",
       "ferry": false,
       "shop": false,
@@ -5158,7 +5158,7 @@
       "shopItems": []
     },
     "울지않는것": {
-      "citizensId": "",
+      "citizensId": "213",
       "name": "&f울지 않는 것",
       "ferry": false,
       "shop": false,
