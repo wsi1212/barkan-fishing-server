@@ -2009,7 +2009,7 @@
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
-          "displayName": "정제된 갈고리",
+          "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
           "qty": 7
         },
@@ -7804,7 +7804,7 @@
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
-          "displayName": "정제된 갈고리",
+          "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
           "qty": 5
         },
@@ -7888,7 +7888,7 @@
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
-          "displayName": "정제된 갈고리",
+          "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
           "qty": 6
         },
@@ -18454,7 +18454,7 @@
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
-          "displayName": "정제된 갈고리",
+          "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
           "qty": 8
         },
@@ -18540,7 +18540,7 @@
         {
           "kind": "custom",
           "typeOrMatId": "낡은갈고리",
-          "displayName": "정제된 갈고리",
+          "displayName": "낡은 갈고리",
           "mcItem": "tripwire hook",
           "qty": 7
         },
