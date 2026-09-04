@@ -1418,12 +1418,12 @@
     "R36": {
       "id": "R36",
       "category": "낚싯대",
-      "displayName": "초보 낚싯대",
+      "displayName": "수제 낚싯대",
       "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
-      "rodPartName": "초보 낚싯대",
+      "rodPartName": "수제 낚싯대",
       "ingredients": [
         {
           "kind": "custom",
@@ -26454,7 +26454,7 @@
     "전문가 낚싯대": "R17",
     "흑단목 낚싯대": "R24",
     "바르칸 낚싯대": "R33",
-    "초보 낚싯대": "R36",
+    "수제 낚싯대": "R36",
     "천공의 낚싯대": "R45",
     "여명의 낚싯대": "R46",
     "수호자의 낚싯대": "R47",
