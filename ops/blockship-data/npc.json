@@ -983,7 +983,7 @@
         "튜토_이동2",
         "튜토07",
         "튜토08",
-        "튜토_이동5"
+        "튜토_배1"
       ],
       "shopItems": []
     },
@@ -5997,7 +5997,10 @@
       "appraisal": false,
       "villageQuest": false,
       "ranking": false,
-      "quests": [],
+      "quests": [
+        "튜토_배2",
+        "튜토_이동5"
+      ],
       "shopItems": [],
       "shipShop": true
     }
