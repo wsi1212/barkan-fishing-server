@@ -33,14 +33,14 @@
 | **퀘스트** | `quest/` (QuestManager·QuestGui·QuestCatalogGui) | 일일/주간/메인, 쉬운건 타이틀 표시 |
 | **NPC/대화** | `npc/` (NpcManager·NpcDialogueManager, data/) | NPC 우클릭 대화, 퀘스트 수락/완료 |
 | **아이스박스** | `economy/IceboxGui` | 물고기 보관함 (9단계, 신선도 보존) |
-| **페리** | `ferry/FerryManager` | 지역간 자동 이동 (노선, 요금, 보스바) |
+| **페리** | `ferry/` (FerryManager·FerryVoyage) | 지역간 정기선 (노선, 요금, 보스바). ★**항로(웨이포인트) 2개 이상이면 «배가 실제로 간다»** — `FerryVoyage` 가 선체 ItemDisplay 1 + 승객 좌석 ArmorStand N 으로 바다 항로를 항해(승객 시야 자유). 항로가 비면 옛 TP 방식 폴백. 항로 등록은 `/페리설정 <노선> 경유지추가` 를 **수면 위를 지나가며 순서대로**(좌표 상상 금지 — 육지 통과함) |
 | **지역** | `region/RegionManager` (RegionData·RegionTracker·RegionCommand) | Java 데이터(regions.json) |
 | **날씨** | `region/WeatherManager` (WeatherCommand·WeatherInfoCommand) | 지역별 독립 날씨, 파티클, 사운드, 시야 제한 |
 | **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
 | **배** | `ship/` (ShipManager·ShipFactory·ShipMover) + `model/` + `command/ShipCommandManager` + `editor/ShipEditor` | 프리셋 **1종 `돛단배`**(2026-09-05 `범선` 폐지·교체, 소유는 PlayerShipData 가 읽을 때 자동 이관). 선체=구운 ItemDisplay 1개(`ship-models.json`)+돛만 BlockDisplay, 충돌=발밑 카펫. ★블루프린트는 손편집 금지 — `imugi-boss/scan_ship_world.py <프리셋>`(월드에서 재추출) → `bake_ship.py <프리셋> <영문명>` |
 | **길드 디스코드** | `guild/GuildDiscordBridge` → vip-billing → `discord-bot/` | 길드별 전용 채널·역할 자동 생성. 훅은 `GuildManager.save()` 하나. 상세·상한·배포절차는 [discord-bot/README.md](discord-bot/README.md) |
 
-**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager·ChestLockListener — 아래 「상자 잠금 규약」) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
+**기타 시스템 위치**: 도감 `dex/`·`collectible/` · 마켓/거래 `market/`·`trade/`(SalePostManager·TradeManager) · 길드 `guild/`(GuildManager·IslandBuilder) · 섬 `island/`(IslandManager·IslandProtectionListener) · 프로필 `profile/`(ProfileGui·SkinRenderer) · 랭킹 `ranking/RankingManager` · 통발 `trap/`(TrapManager·TrapSpecs) · 특수작물 `crop/`(CropManager·CropSpecs, 요리재료·섬한도·BlockShip네이티브 ItemDisplay) · 요리 `cooking/`(DishSpecs·CookingManager·CookingGui, 먹기버프+제출+판매 3용도, 요리사NPC 주방=대장간분리) · 짚라인 `zipline/` · 스킬 `skill/SkillManager` · 제작 `crafting/`(RecipeLoader·MaterialLoader) · 광질모자 `mining/` · 여관 `inn/` · 포탈 `portal/` · 물텔포 `water/` · 캐시샵 `economy/CashShopGui`·`CashEffectManager` · 돈·수표·송금 `economy/`(MoneyCommand·CheckCommand·TransferCommand)·`playerdata/MoneyBridge` · 스크롤 `scroll/` · 잠긴문/열쇠 `door/`(LockedDoorManager — 아래 「잠긴문/열쇠 규약」 필독) · 상자잠금 `lock/`(ChestLockManager·ChestLockListener — 아래 「상자 잠금 규약」) · **조선소 시승** `ship/ShipPreviewManager`(좌클릭 미리보기 — 전용 바다 월드 `ship_preview` 로 TP 후 그 배 무료 소환·조종, `/미리보기종료` 복귀. 월드=슈퍼플랫 «공기96+기반암1+물30» 이라 **수면 y=62**, 월드보더 1000, 깊은물 강제이동 면제. 복귀좌표=extraStrs[시승복귀] 영속) · 잠수(AFK) `afk/`(AfkManager — 방치 10분→잠수대 월드 afk_world 자동이동, `/잠수`(wkatn·ㅈㅅ) 토글, 복귀위치=extraStrs[잠수복귀], `/잠수 설정 <초>` OP) · **데이터 영속** `playerdata/`(PlayerData·PlayerDataManager, 단일 권위) · 유틸 `util/`(Num 숫자포맷·Worlds.dimKey·ItemCodec)
 
 ## 코드 컨벤션
 - 명령어·UI 텍스트는 한글
@@ -115,7 +115,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 
 ## 주요 명령어
 - `/레벨` `/장비` `/강화` `/칭호` `/부품상점` `/판매` `/작물`
-- `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>` `/잠수` (잠수대 토글 — 10분 방치 시 자동)
+- `/도감` `/마켓` `/마켓등록 <가격>` `/수표 <금액>` `/잠수` (잠수대 토글 — 10분 방치 시 자동) `/미리보기종료` (조선소 시승 종료)
 - `/상자잠금` (섬/길드섬 컨테이너 자물쇠 — 잠그는 건 표지판, 이 명령은 정보·명단수정·해제)
 - `/콤보` (조회=일반, `/콤보 <n>` 설정만 op) · `/낚시테스트 [등급]` `/카메라툴` (op)
 - `/ship create/destroy/save/spawn/edit` (배)
