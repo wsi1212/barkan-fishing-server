@@ -69,6 +69,7 @@ DESIGN SPEC — 다섯의 구분축 (피부색 / 볏 / 옷 / 번호 표식, 넷 
 │  표식  ★**아직 남아 있는 번호** — 가슴 왼쪽 낙인 3px. 모르의 흉터와 정확히 짝을 이룬다
 ├ 가라앉은 하 212 — 옛 파수. 수조 곁에서 백 해. 교단 격식체를 쓰는 유일한 개체
 │  피부  납빛 회청 56666b (백 해를 서 있어 색이 바랬다 — 채도 최저)
+│  눈    ★**백내장 — 동공이 없다.** 다섯 중 모르·비늘짜는이·일곱-셋만 동공을 가진다
 │  볏    길고 뾰족하게 뒤로 넘어간 볏 — 관모(冠帽) 실루엣. 다섯 중 가장 높다
 │  옷    **교단 파수 제복의 잔재** — 프리즈머린 청록 2c5f63 튜닉 + 산호빛 견장 c9b98a
 │        + 가슴 세로 트임. 다섯 중 유일한 «제복»(재단이 갖춰져 있다)
@@ -80,7 +81,8 @@ DESIGN SPEC — 다섯의 구분축 (피부색 / 볏 / 옷 / 번호 표식, 넷 
    볏    ★없다. **잘려 나간 밑동**만 남았다(2px 어두운 자국). 등지느러미도 **중간에서
          끊긴다** — 척추선을 따라가다 뚝 끊긴 흉터로 끝난다(다른 넷은 이어진다)
    옷    없음. **몸에 감긴 낡은 붕대** + 목의 **철 구속 밴드**(수조 기구의 잔재)
-   얼굴  ★**입이 없다** — 입 자리가 잘못 자란 아가미 흉터. 눈은 발광이 꺼진 흐린 흰색
+   얼굴  ★**입이 없다** — 입 자리가 잘못 자란 아가미 흉터. 눈은 발광이 꺼진 **동공 없는**
+         유백색(하와 같은 처방 — 무채색 안구에 동공을 넣으면 사람 눈이 된다)
    표식  개조 봉합선 — 가슴 세로 시침질
 
   다섯 다 가슴 로고·문장 없다. 정체성은 재단·표식·볏 실루엣.
@@ -455,7 +457,7 @@ def _webbed(s, r, parts=('arm_r', 'arm_l')):
         fr.px(2, 10, mix(fr.get(2, 10), r[1], 0.30))
 
 
-def _fish_eyes(s, y, socket, glow, dim=False, wrap=True):
+def _fish_eyes(s, y, socket, glow, dim=False, wrap=True, pupil=True):
     """★심해어 눈 — 얼굴 **바깥 모서리**에 붙은 발광 안구 2x2.
 
     2패스 2차 실패(얼굴 확대 실측): 홍채 1px 과 눈구멍 1px 을 번갈아 놨더니 밝은 점 2개 +
@@ -468,16 +470,31 @@ def _fish_eyes(s, y, socket, glow, dim=False, wrap=True):
 
     ★_eye_guard 는 x1·x2·x5·x6 중 «두 칸»의 밝기를 요구한다. 동공을 x0·x7 로 밀었으므로
       x1·x6 이 안구 최고 광도를 받는다 — 가드가 그대로 성립한다.
+
+    ★★`pupil=False` — 2패스 4차, 오너 지적 «212 뭔가 좀 사람 눈깔같음».
+      실측하니 세 명의 눈 **구조는 완전히 같았다**(x0 동공 41~45 / x1 안구 207~255 /
+      x2 테두리 28~37). 갈린 건 **채도**다. 모르의 안구는 채도 있는 청록이라 «발광체»로
+      읽히는데, 하·울지않는것의 안구는 무채색 회백이라 그 순간 **«흰자 + 검은 동공» =
+      사람 눈 공식**이 그대로 성립한다. 밝기를 아무리 낮춰도 이건 안 풀린다.
+      → 흐린 눈은 **동공을 아예 없앤다.** 사람 눈을 사람 눈으로 만드는 건 흰자가 아니라
+        동공이다. 동공 없는 균질한 유백색 덩어리 = 백내장이고, 그건 어느 배율에서도
+        사람으로 안 읽힌다. (하의 «흐린 발광·백해를 서 있어 바랬다» 설정과도 맞는다.)
     """
     f = s.f('head', 'front')
-    hi, mid, lo = (4, 3, 2) if not dim else (3, 2, 1)
-    pupil = mix(socket, BLACK, 0.55)
+    hi, mid, lo = (4, 3, 2) if not dim else (4, 3, 2) if not pupil else (3, 2, 1)
+    pup = mix(socket, BLACK, 0.55)
     rim = mix(socket, BLACK, 0.25)
     for ox, ix in ((0, 1), (7, 6)):                 # 바깥 열, 안쪽 열
-        f.px(ox, y, pupil)                          # ★동공은 바깥 위
-        f.px(ix, y, glow[hi])
-        f.px(ox, y + 1, glow[lo])
-        f.px(ix, y + 1, glow[mid])
+        if pupil:
+            f.px(ox, y, pup)                        # ★동공은 바깥 위
+            f.px(ix, y, glow[hi])
+            f.px(ox, y + 1, glow[lo])
+            f.px(ix, y + 1, glow[mid])
+        else:                                       # 백내장 — 균질한 유백색 덩어리
+            f.px(ox, y, glow[mid])
+            f.px(ix, y, glow[hi])
+            f.px(ox, y + 1, glow[lo])
+            f.px(ix, y + 1, glow[mid])
     for x in (2, 5):                                # 안쪽 테두리 한 열 = 안구가 튀어나온 근거
         f.px(x, y, rim)
         f.px(x, y + 1, mix(rim, BLACK, 0.20))
@@ -702,7 +719,7 @@ def build_ha():
     P = dict(
         base='56666b',
         skin=scaleskin('56666b', 0.26),             # 납빛 회청 — 백 해를 서 있어 바랬다
-        glow=glowramp('9ab6bd'),                    # 흐린 발광(백내장)
+        glow=glowramp('a9c9c0', 0.30),              # 백내장 — ★무채색이면 «흰자»가 된다
         fin=scaleskin('6e8288', 0.28),              # 바랜 지느러미 — 채도 최저
         robe=matte('1e4448', 0.24),                 # ★1패스 2c5f63 은 피부와 값이 붙었다
         coral=matte('c9b98a', 0.22),                # 산호빛 견장 — 금속이 아니다
@@ -712,7 +729,7 @@ def build_ha():
     _dorsal_head(s, P['fin'], height=4, span=(2, 5), back=6, front=3, sweep=0.9)  # 가장 높은 관모
     g.face_shape(s, P['skin'], jaw='square', temple=True)
     g.wrinkles(s, P['skin'], brow_y=2, crow=True, forehead=True)   # 백 해의 나이
-    _fish_eyes(s, 4, mix(P['skin'][0], BLACK, 0.45), P['glow'], dim=True)
+    _fish_eyes(s, 4, mix(P['skin'][0], BLACK, 0.45), P['glow'], dim=True, pupil=False)
     #   ★수염 대신 수염돌기(barbel) — 늙은 저서어의 표식. 다섯 중 하만 가진다
     _fish_face(s, P['skin'], eye_y=4, mouth_y=6, mouth_w=4, barbel=P['fin'])
 
@@ -745,7 +762,7 @@ def build_mute():
     P = dict(
         base='8c7f80',
         skin=scaleskin('8c7f80', 0.34),             # ★유일하게 «바다색»이 아니다
-        glow=glowramp('b9b2ad'),                    # 빛이 꺼진 눈
+        glow=glowramp('c3bcb2', 0.30),              # 빛이 꺼진 눈 — 동공 없는 유백색
         fin=scaleskin('9c8d8e', 0.28),
         wrap=matte('a89f8c', 0.20),                 # 낡은 붕대
         iron=ramp_lit('7d7a75'),                    # 수조 기구의 잔재
@@ -762,7 +779,9 @@ def build_mute():
     for x in range(2, 6):                       #   — 다른 넷은 여기에 볏이 솟아 있다
         fr.px(x, 0, mix(P['skin'][0], BLACK, 0.40))
     g.face_shape(s, P['skin'], jaw='round')
-    _fish_eyes(s, 4, mix(P['skin'][0], BLACK, 0.60), P['glow'], dim=True)
+    #   ★212 와 같은 이유로 동공을 뺀다 — 무채색 안구 + 동공은 어느 배율에서도
+    #     «사람 눈»으로 읽힌다. 동공 없는 유백색 눈이 «개조되다 만 것»에 더 맞다.
+    _fish_eyes(s, 4, mix(P['skin'][0], BLACK, 0.60), P['glow'], dim=True, pupil=False)
     #   ★입이 없다 — 입 자리가 잘못 자란 아가미 흉터(세로 3줄)
     #   1패스 실측: 비늘 격자 + 흉터가 겹쳐 아래 얼굴이 «얼룩 죽»이 됐다.
     #   슬릿이 읽히려면 먼저 «평평한 바탕»을 만들어야 한다.
