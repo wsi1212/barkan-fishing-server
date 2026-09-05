@@ -305,29 +305,51 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 로그: `~/oracle-auto-retry/resize-retry.log`
 - 성공: `~/oracle-auto-retry/SUCCESS-RESIZE.txt` 생성 + macOS 알림
 
+## 체스·보드게임 + 피아노 (별도 플러그인 — BlockShip 아님)
+
+### ★2026-09-06 업스트림 통합 — 플러그인이 3개 → 2개가 됐다
+원저자가 보드게임과 피아노를 **한 jar 로 합쳐서** 준다: `BarkanBoardGames-Piano-1.1.0.jar`
+(`name: BarkanChess`, `version: 1.1.0-combined`, `main: kr.barkan.chess.BarkanChessPlugin`,
+안에 `kr.barkan.piano.*`). **체커·요트**가 새로 들어왔고 피아노는 **44 → 49건반**이 됐다.
+`BarkanPiano-*.jar` 은 이제 필요 없다 — **같이 두면 피아노를 두 플러그인이 관리한다.**
+- ★**빠진 것이 있다**: `kr.barkan.chess.art`(그림·캔버스·이젤)와 `kr.barkan.chess.backrooms`
+  (스마일러·손전등·캠코더)를 통째로 들어냈다. 새 메인 클래스에 두 패키지 참조가 **0건**이라
+  `tools/patch-art.sh` 식 클래스 오버레이가 안 통한다(죽은 코드만 남는다). → 동반 플러그인
+  **`BarkanArt`** 로 밖에서 세운다: `~/development/barkan-chess/tools/build-art-companion.sh`.
+  매니저에 **BarkanChess 인스턴스를 넘겨서** NamespacedKey·데이터폴더·config 가 예전과 똑같다
+  (`this` 를 넘기면 유저 인벤의 붓·팔레트·손전등이 전부 남남이 된다). 상세는 그 저장소 README.
+- **`/piano 설치88`(88건반)은 폐기된 정책** — `piano88.*` 음원은 팩에 넣지 않는다.
+- **피아노 데이터 이관은 한 번뿐이다**: 통합 jar 이 부팅 때 `plugins/BarkanPiano/pianos.yml` 을
+  `plugins/BarkanChess/pianos.yml` 로 복사하는데, **목적지가 없을 때만** 한다. 레거시 파일 없이
+  한 번이라도 뜨면 빈 `pianos.yml` 이 생기고 이관은 영영 건너뛴다(2026-09-06 dev 재현). prod 에
+  올릴 때 `plugins/BarkanChess/pianos.yml` 이 없는지 먼저 확인할 것.
+
 ## 체스 (별도 플러그인 — BlockShip 아님)
 - 소스: **`~/development/barkan-chess`** / GitHub `wsi1212/barkan-chess`(private). 2026-08-11 BlockShip에서 분리(결합도 0 — 순수 Bukkit/Adventure).
 - 원저자가 **컴파일된 jar만** 주므로 소스는 vineflower 역컴파일 복원본이다. **배포 전 `tools/gate.sh <업스트림.jar>` 필수** — ①업스트림 바이트코드 대조 ②랜덤 자가대국 퍼징(무한루프/예외). 2026-08-10 `hasBattery` 역컴파일 왜곡으로 무한루프→Paper 워치독이 prod를 죽인 사고 재발 방지책.
 - 데이터: `plugins/BarkanChess/`(config.yml=테이블·엔진, skins/preferences/achievements/decks/player-stats/variant-stats.yml). 말 모델은 **메인 리소스팩**에 포함(PAPER `custom_model_data` 21001~22301, `assets/minecraft/items/paper.json`).
-- **캔버스(그림·이젤·팔레트)도 이 플러그인이다** — `kr.barkan.chess.art`. 원저자 jar 안에만 있어서
-  저장소 빌드로는 배포 못 한다(복원 소스가 낡음) → `tools/patch-art.sh <업스트림.jar> <출력.jar>` 로
-  **업스트림 jar + art 클래스만 교체**해 올린다. ★이젤 모델(`art_easel.json`)과 `PaintingManager.EASEL_Y`
+- **캔버스(그림·이젤·팔레트)는 2026-09-06 부터 동반 플러그인 `BarkanArt` 다** — `kr.barkan.chess.art`.
+  업스트림 통합 jar 이 이 패키지를 들어내서 오버레이(`tools/patch-art.sh`)가 못 쓰게 됐다.
+  빌드: `tools/build-art-companion.sh`. ★이젤 모델(`art_easel.json`)과 `PaintingManager.EASEL_Y`
   는 짝이라 리소스팩·jar 을 함께 배포해야 한다(한쪽만 올리면 이젤과 그림이 0.5블록 어긋남).
 - `/체스`(cp) — 참가/솔로/AI/퇴장/스킨/규칙/덱/증강/도전과제/전적, op: 생성·제거·테이블·소환·평가·엔진탐지·변형통계·리로드. Stockfish는 dev `/opt/homebrew/bin/stockfish`, prod `/usr/games/stockfish`.
 
-## 피아노 (별도 플러그인 — BlockShip·체스 아님)
-- 소스: **`~/development/barkan-piano`** (2026-08-25 분리). 체스와 같은 사정 — 원저자가 **jar만** 주므로
-  소스는 vineflower 역컴파일 복원본이고, **배포 전 `tools/gate.sh` 필수**(업스트림 바이트코드 대조 +
-  리소스 동봉 확인). 업스트림 jar 은 `upstream/` 에 짝으로 넣어 둔다(체스처럼 Downloads 를 가리켜
-  낡은 jar 로 대조하는 사고 방지).
-- 데이터: `plugins/BarkanPiano/` (`config.yml` 좌석/상호작용 오프셋, `pianos.yml` 설치 목록).
-  엔티티는 태그 `barkan_piano_<id>`/`barkan_seat_<id>`, `layout-version`(현재 5) 은 옛 피아노 높이 보정용.
+## 피아노 (2026-09-06 부터 위 통합 jar 안에 있다 — 별도 플러그인 아님)
+- 소스: **`~/development/barkan-piano`** (2026-08-25 분리 → 2026-09-06 업스트림이 BarkanChess 로
+  흡수). **자바 소스는 더 이상 배포되지 않는다** — 살아 있는 건 `tools/sync-resourcepack.py` 하나다.
+  코드 후속 작업은 `~/development/barkan-chess`.
+- 데이터: **`plugins/BarkanChess/pianos.yml`** (통합 후 위치. `plugins/BarkanPiano/` 는 이관 원본으로만
+  남는다 — 위 「업스트림 통합」의 1회성 복사 주의). 엔티티는 태그 `barkan_piano_<id>`/`barkan_seat_<id>`,
+  `layout-version`(현재 5) 은 옛 피아노 높이 보정용.
 - **소리는 메인 리소스팩에 병합해서 간다** — 팩을 3개로 늘리지 않는다. 업스트림 사운드팩 zip 은
   체스팩+피아노 한 덩어리라 **피아노만 골라** 넣는다: `barkan-piano/tools/sync-resourcepack.py <zip>`
   (매번 zip 에서 다시 뽑음). 배포는 `ops/rp-deploy.sh`.
-  - ★**스테레오 ogg 는 마인크래프트가 위치 음원으로 취급하지 않는다**(거리 감쇠·방향 소실) → 위치
-    음원은 반드시 모노. 업스트림 피아노 88개가 스테레오라 스크립트가 모노로 내린다. `chess/move`·
-    `bgm/*` 도 같은 이유로 모노.
+  - ★**모노 변환은 기본이 아니다**(`--mono` 로만). 2026-08-25 에 모노로 내렸다가 「받은 곳이랑 소리가
+    다르다」는 지적을 받고 되돌렸다 — 넓은 스테레오 피아노는 다운믹스에서 위상이 상쇄돼 음색이 얇아진다.
+    대가는 알고 간다: 마인크래프트는 스테레오 ogg 를 위치 음원으로 취급하지 않아 거리 감쇠·방향이 없다.
+    음색을 지키는 쪽을 택했다. 권위는 그 스크립트의 주석이다(이 줄이 아니라).
+  - ★**업스트림이 안 쓰는 `piano.*` 선언은 지운다** — 파일만 지우고 선언을 남기면 클라가 없는 ogg 를
+    찾아 로그를 쌓는다(49건반 전환 때 `piano.release_*` 44개가 그럴 뻔했다).
   - ★인코딩은 **`oggenc`** 로 — homebrew ffmpeg 8.1 에 libvorbis 인코더가 없어 위 「커스텀 사운드」
     절의 `ffmpeg -c:a libvorbis` 는 이 맥에서 실패한다. ffmpeg 은 디코드·다운믹스만.
 - **실연주는 클라이언트 모드 전제** — 건반 입력이 플러그인 메시지 채널 `barkan_piano:note` 로 온다.
