@@ -98,6 +98,7 @@
       "desc": "&7처음 시작하는 어부",
       "icon": "lime_dye",
       "tier": "평범",
+      "prestige": 0,
       "category": "낚시",
       "source": "dyn"
     },
@@ -107,6 +108,7 @@
       "desc": "&7현재 낚시 레벨 표시 (Lv.5 달성)",
       "icon": "experience_bottle",
       "tier": "평범",
+      "prestige": 20,
       "category": "낚시",
       "source": "dyn"
     },
@@ -116,6 +118,7 @@
       "desc": "&7물고기 100마리를 낚은 어부",
       "icon": "cod",
       "tier": "평범",
+      "prestige": 15,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_100"
@@ -126,6 +129,7 @@
       "desc": "&7물고기 10마리를 낚은 사람",
       "icon": "cod",
       "tier": "평범",
+      "prestige": 5,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_10"
@@ -136,6 +140,7 @@
       "desc": "&7물고기 1000마리를 낚아올린 전설",
       "icon": "tropical_fish",
       "tier": "숙련",
+      "prestige": 40,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_1000"
@@ -146,6 +151,7 @@
       "desc": "&7A등급 어획물을 알아본 눈",
       "icon": "spyglass",
       "tier": "숙련",
+      "prestige": 30,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_A"
@@ -156,6 +162,7 @@
       "desc": "&7크기 100 이상의 대물을 낚은 어부",
       "icon": "fishing_rod",
       "tier": "숙련",
+      "prestige": 30,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_대물100"
@@ -166,6 +173,7 @@
       "desc": "&7물고기 1만 마리를 낚아올린 자",
       "icon": "trident",
       "tier": "희귀",
+      "prestige": 120,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_10000"
@@ -176,6 +184,7 @@
       "desc": "&7S등급 물고기를 끌어올린 자",
       "icon": "glow_ink_sac",
       "tier": "희귀",
+      "prestige": 60,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_S"
@@ -186,6 +195,7 @@
       "desc": "&7M등급 물고기를 끌어올린 자",
       "icon": "echo_shard",
       "tier": "희귀",
+      "prestige": 110,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_M"
@@ -196,6 +206,7 @@
       "desc": "&7최고 콤보 100 달성 (최고 기록 표시)",
       "icon": "magenta_dye",
       "tier": "희귀",
+      "prestige": 40,
       "category": "낚시",
       "source": "dyn"
     },
@@ -205,6 +216,7 @@
       "desc": "&7200 콤보를 달성한 집중력의 화신",
       "icon": "blaze_rod",
       "tier": "희귀",
+      "prestige": 90,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_콤보200"
@@ -215,6 +227,7 @@
       "desc": "&7500 콤보 — 손이 기억하는 영역",
       "icon": "end_crystal",
       "tier": "전설",
+      "prestige": 200,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_콤보500"
@@ -225,6 +238,7 @@
       "desc": "&7크기 500 이상의 초대물을 끌어올린 자",
       "icon": "salmon",
       "tier": "전설",
+      "prestige": 190,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_대물500"
@@ -235,6 +249,7 @@
       "desc": "&7바다의 신을 낚아올린 전설적인 어부",
       "icon": "nether_star",
       "tier": "유일",
+      "prestige": 400,
       "category": "낚시",
       "source": "ach",
       "ach": "낚시_G",
@@ -247,6 +262,7 @@
       "desc": "&7낚시 레벨 10 달성",
       "icon": "wooden_hoe",
       "tier": "평범",
+      "prestige": 10,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨10"
@@ -257,6 +273,7 @@
       "desc": "&77일 동안 열도를 찾은 사람",
       "icon": "oak_boat",
       "tier": "평범",
+      "prestige": 10,
       "category": "성장",
       "source": "ach",
       "ach": "유산_접속7"
@@ -267,6 +284,7 @@
       "desc": "&7낚시 레벨 30 — 물때가 보이기 시작한다",
       "icon": "clock",
       "tier": "숙련",
+      "prestige": 40,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨30"
@@ -277,6 +295,7 @@
       "desc": "&730일 동안 열도에 머문 사람",
       "icon": "barrel",
       "tier": "숙련",
+      "prestige": 45,
       "category": "성장",
       "source": "ach",
       "ach": "유산_접속30"
@@ -287,6 +306,7 @@
       "desc": "&7낚시 레벨 50에 도달한 장인",
       "icon": "netherite_ingot",
       "tier": "희귀",
+      "prestige": 100,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨50"
@@ -297,6 +317,7 @@
       "desc": "&7100일을 항구에서 보낸 어부",
       "icon": "lantern",
       "tier": "희귀",
+      "prestige": 130,
       "category": "성장",
       "source": "ach",
       "ach": "유산_접속100"
@@ -307,6 +328,7 @@
       "desc": "&7365일, 한 해를 통째로 건넌 자",
       "icon": "golden_apple",
       "tier": "전설",
+      "prestige": 320,
       "category": "성장",
       "source": "ach",
       "ach": "유산_접속365"
@@ -317,6 +339,7 @@
       "desc": "&7낚시 레벨 100에 도달한 전설",
       "icon": "nether_star",
       "tier": "유일",
+      "prestige": 420,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨100",
@@ -329,6 +352,7 @@
       "desc": "&7지역 3곳을 방문한 탐험가",
       "icon": "filled_map",
       "tier": "평범",
+      "prestige": 8,
       "category": "탐험",
       "source": "ach",
       "ach": "여정_세지역"
@@ -339,6 +363,7 @@
       "desc": "&7배를 몰아 첫 뱃길을 익힌 사람",
       "icon": "oak_planks",
       "tier": "평범",
+      "prestige": 8,
       "category": "탐험",
       "source": "ach",
       "ach": "생활_항해1000"
@@ -349,6 +374,7 @@
       "desc": "&7지역 10곳을 밟은 순례자",
       "icon": "compass",
       "tier": "숙련",
+      "prestige": 45,
       "category": "탐험",
       "source": "ach",
       "ach": "여정_열지역"
@@ -359,6 +385,7 @@
       "desc": "&7바닷길에 익숙해진 항해사",
       "icon": "map",
       "tier": "희귀",
+      "prestige": 70,
       "category": "탐험",
       "source": "ach",
       "ach": "생활_항해10000"
@@ -369,6 +396,7 @@
       "desc": "&7해가 오르기 전 물가에 선 어부",
       "icon": "light_blue_dye",
       "tier": "희귀",
+      "prestige": 55,
       "category": "탐험",
       "source": "ach",
       "ach": "여정_새벽"
@@ -379,6 +407,7 @@
       "desc": "&7모래바람 속에서도 낚싯대를 든 자",
       "icon": "lightning_rod",
       "tier": "희귀",
+      "prestige": 60,
       "category": "탐험",
       "source": "ach",
       "ach": "유산_폭풍"
@@ -389,6 +418,7 @@
       "desc": "&7대양을 가로지른 항해사",
       "icon": "heart_of_the_sea",
       "tier": "전설",
+      "prestige": 170,
       "category": "탐험",
       "source": "ach",
       "ach": "생활_항해100000"
@@ -399,6 +429,7 @@
       "desc": "&710종을 도감에 올린 기록자",
       "icon": "book",
       "tier": "평범",
+      "prestige": 10,
       "category": "수집",
       "source": "ach",
       "ach": "수집_도감10"
@@ -409,6 +440,7 @@
       "desc": "&750종의 물고기를 등록한 학자",
       "icon": "enchanted_book",
       "tier": "숙련",
+      "prestige": 45,
       "category": "수집",
       "source": "ach",
       "ach": "수집_도감50"
@@ -419,6 +451,7 @@
       "desc": "&7낚싯대 7종을 모은 수집가",
       "icon": "fishing_rod",
       "tier": "숙련",
+      "prestige": 40,
       "category": "수집",
       "source": "ach",
       "ach": "수집_낚싯대7"
@@ -429,6 +462,7 @@
       "desc": "&7100종의 물고기를 등록한 박학다식",
       "icon": "knowledge_book",
       "tier": "희귀",
+      "prestige": 110,
       "category": "수집",
       "source": "ach",
       "ach": "수집_도감100"
@@ -439,6 +473,7 @@
       "desc": "&7수집품 5개를 찾아낸 수집가",
       "icon": "bundle",
       "tier": "숙련",
+      "prestige": 35,
       "category": "수집",
       "source": "collect"
     },
@@ -448,6 +483,7 @@
       "desc": "&7모든 낚싯대를 손에 넣은 자",
       "icon": "chest",
       "tier": "전설",
+      "prestige": 220,
       "category": "수집",
       "source": "ach",
       "ach": "수집_낚싯대전체"
@@ -458,6 +494,7 @@
       "desc": "&7수집품 30개를 찾아낸 달인",
       "icon": "spyglass",
       "tier": "전설",
+      "prestige": 170,
       "category": "수집",
       "source": "collect",
       "animation": true,
@@ -469,6 +506,7 @@
       "desc": "&7모든 수집품을 발견한 유일한 사람",
       "icon": "light",
       "tier": "유일",
+      "prestige": 380,
       "category": "수집",
       "source": "collect",
       "animation": true,
@@ -480,6 +518,7 @@
       "desc": "&7물고기 100마리를 팔아본 장수",
       "icon": "cod_bucket",
       "tier": "평범",
+      "prestige": 10,
       "category": "경제",
       "source": "ach",
       "ach": "경제_판매100"
@@ -490,6 +529,7 @@
       "desc": "&710만원을 모은 사람",
       "icon": "iron_ingot",
       "tier": "숙련",
+      "prestige": 25,
       "category": "경제",
       "source": "ach",
       "ach": "경제_10만"
@@ -500,6 +540,7 @@
       "desc": "&7어시장에서 1000마리를 넘긴 단골",
       "icon": "emerald",
       "tier": "숙련",
+      "prestige": 40,
       "category": "경제",
       "source": "ach",
       "ach": "경제_판매1000"
@@ -510,6 +551,7 @@
       "desc": "&7100만원을 보유한 부자",
       "icon": "gold_block",
       "tier": "희귀",
+      "prestige": 70,
       "category": "경제",
       "source": "ach",
       "ach": "경제_100만"
@@ -520,6 +562,7 @@
       "desc": "&71000만원을 보유한 자산가",
       "icon": "gold_ingot",
       "tier": "희귀",
+      "prestige": 130,
       "category": "경제",
       "source": "ach",
       "ach": "경제_1000만"
@@ -530,6 +573,7 @@
       "desc": "&71억을 보유한 재벌",
       "icon": "beacon",
       "tier": "전설",
+      "prestige": 260,
       "category": "경제",
       "source": "ach",
       "ach": "경제_1억"
@@ -540,6 +584,7 @@
       "desc": "&71만 마리를 유통한 대상인",
       "icon": "emerald_block",
       "tier": "전설",
+      "prestige": 210,
       "category": "경제",
       "source": "ach",
       "ach": "경제_판매10000"
@@ -550,6 +595,7 @@
       "desc": "&7광석 100개를 캔 광부",
       "icon": "iron_pickaxe",
       "tier": "평범",
+      "prestige": 10,
       "category": "생활",
       "source": "ach",
       "ach": "생활_채굴100"
@@ -560,6 +606,7 @@
       "desc": "&7채집물 25개를 모은 약초꾼",
       "icon": "fern",
       "tier": "평범",
+      "prestige": 8,
       "category": "생활",
       "source": "ach",
       "ach": "생활_채집25"
@@ -570,6 +617,7 @@
       "desc": "&7요리 10접시를 만든 조리사",
       "icon": "bowl",
       "tier": "평범",
+      "prestige": 8,
       "category": "생활",
       "source": "ach",
       "ach": "생활_요리10"
@@ -580,6 +628,7 @@
       "desc": "&7작물 50번을 수확한 농부",
       "icon": "wheat_seeds",
       "tier": "평범",
+      "prestige": 8,
       "category": "생활",
       "source": "ach",
       "ach": "생활_수확50"
@@ -590,6 +639,7 @@
       "desc": "&7작살로 100번 명중시킨 사람",
       "icon": "trident",
       "tier": "평범",
+      "prestige": 10,
       "category": "생활",
       "source": "ach",
       "ach": "생활_작살100"
@@ -600,6 +650,7 @@
       "desc": "&7+5 강화에 도달",
       "icon": "anvil",
       "tier": "평범",
+      "prestige": 12,
       "category": "생활",
       "source": "ach",
       "ach": "생활_강화5"
@@ -610,6 +661,7 @@
       "desc": "&7광석 1000개를 캔 숙련공",
       "icon": "diamond_pickaxe",
       "tier": "숙련",
+      "prestige": 40,
       "category": "생활",
       "source": "ach",
       "ach": "생활_채굴1000"
@@ -620,6 +672,7 @@
       "desc": "&7요리 100접시를 낸 주방의 주인",
       "icon": "cake",
       "tier": "숙련",
+      "prestige": 40,
       "category": "생활",
       "source": "ach",
       "ach": "생활_요리100"
@@ -630,6 +683,7 @@
       "desc": "&750번 제작한 손재주",
       "icon": "crafting_table",
       "tier": "숙련",
+      "prestige": 35,
       "category": "생활",
       "source": "ach",
       "ach": "생활_제작50"
@@ -640,6 +694,7 @@
       "desc": "&7하루 의뢰를 전부 끝낸 성실함",
       "icon": "clock",
       "tier": "숙련",
+      "prestige": 30,
       "category": "생활",
       "source": "ach",
       "ach": "생활_일퀘올클"
@@ -650,6 +705,7 @@
       "desc": "&7+10 강화를 달성한 장인",
       "icon": "netherite_ingot",
       "tier": "희귀",
+      "prestige": 90,
       "category": "생활",
       "source": "ach",
       "ach": "생활_강화10"
@@ -660,6 +716,7 @@
       "desc": "&7섬에 250번 물자를 대준 사람",
       "icon": "scaffolding",
       "tier": "희귀",
+      "prestige": 80,
       "category": "생활",
       "source": "ach",
       "ach": "생활_제출250"
@@ -670,6 +727,7 @@
       "desc": "&7갱도를 통째로 비운 사람",
       "icon": "netherite_pickaxe",
       "tier": "전설",
+      "prestige": 180,
       "category": "생활",
       "source": "ach",
       "ach": "생활_채굴5000"
@@ -680,6 +738,7 @@
       "desc": "&7숲의 결을 읽어내는 채집가",
       "icon": "flowering_azalea",
       "tier": "전설",
+      "prestige": 175,
       "category": "생활",
       "source": "ach",
       "ach": "생활_채집1000"
@@ -690,6 +749,7 @@
       "desc": "&7열도에서 이름난 명요리사",
       "icon": "golden_carrot",
       "tier": "전설",
+      "prestige": 180,
       "category": "생활",
       "source": "ach",
       "ach": "생활_요리500"
@@ -700,6 +760,7 @@
       "desc": "&7밭에서 풍년을 만들어낸 사람",
       "icon": "hay_block",
       "tier": "전설",
+      "prestige": 175,
       "category": "생활",
       "source": "ach",
       "ach": "생활_수확2000"
@@ -710,6 +771,7 @@
       "desc": "&7작살 1만 번, 물속에서 빗나가지 않는 손",
       "icon": "prismarine_shard",
       "tier": "전설",
+      "prestige": 230,
       "category": "생활",
       "source": "ach",
       "ach": "생활_작살10000"
@@ -720,6 +782,7 @@
       "desc": "&7+15 — 부러질 자리를 넘어선 자",
       "icon": "enchanting_table",
       "tier": "전설",
+      "prestige": 300,
       "category": "생활",
       "source": "ach",
       "ach": "생활_강화15"
@@ -730,6 +793,7 @@
       "desc": "&7바르칸의 강과 물길을 조사한 어부",
       "icon": "filled_map",
       "tier": "숙련",
+      "prestige": 35,
       "category": "스토리",
       "source": "quest"
     },
@@ -739,6 +803,7 @@
       "desc": "&7붉은사막 심층에서 이프리트의 분노를 낚은 자",
       "icon": "blaze_powder",
       "tier": "희귀",
+      "prestige": 90,
       "category": "스토리",
       "source": "quest",
       "animation": true,
@@ -750,6 +815,7 @@
       "desc": "&7은빛 갈매기호의 맹우",
       "icon": "feather",
       "tier": "희귀",
+      "prestige": 85,
       "category": "스토리",
       "source": "quest"
     },
@@ -759,6 +825,7 @@
       "desc": "&7국왕의 어부로 임명된 자",
       "icon": "gold_ingot",
       "tier": "희귀",
+      "prestige": 95,
       "category": "스토리",
       "source": "quest"
     },
@@ -768,6 +835,7 @@
       "desc": "&7안개 해역을 넘어 꺼진 자리에 닿은 자",
       "icon": "heart_of_the_sea",
       "tier": "희귀",
+      "prestige": 100,
       "category": "스토리",
       "source": "quest"
     },
@@ -777,6 +845,7 @@
       "desc": "&7섬을 통째로 밭으로 만든 사람",
       "icon": "hay_block",
       "tier": "희귀",
+      "prestige": 85,
       "category": "스토리",
       "source": "quest"
     },
@@ -786,6 +855,7 @@
       "desc": "&7봉인된 진실을 밝혀낸 자",
       "icon": "ender_eye",
       "tier": "전설",
+      "prestige": 240,
       "category": "스토리",
       "source": "quest"
     },
@@ -795,6 +865,7 @@
       "desc": "&7섬 만 칸을 밭으로 갈아엎은 사람",
       "icon": "grass_block",
       "tier": "전설",
+      "prestige": 260,
       "category": "스토리",
       "source": "quest"
     },
@@ -804,6 +875,7 @@
       "desc": "&7심해전왕 레비아를 끌어내린 자",
       "icon": "nautilus_shell",
       "tier": "유일",
+      "prestige": 500,
       "category": "스토리",
       "source": "quest",
       "animation": true,
@@ -815,6 +887,7 @@
       "desc": "&7프리미엄 금색 칭호",
       "icon": "gold_ingot",
       "tier": "전설",
+      "prestige": 150,
       "category": "특수",
       "source": "cash",
       "animation": true,
@@ -826,6 +899,7 @@
       "desc": "&7프리미엄 무지개 칭호",
       "icon": "painting",
       "tier": "전설",
+      "prestige": 150,
       "category": "특수",
       "source": "cash",
       "animation": true,
@@ -837,6 +911,7 @@
       "desc": "&7프리미엄 불꽃 칭호",
       "icon": "blaze_powder",
       "tier": "전설",
+      "prestige": 150,
       "category": "특수",
       "source": "cash",
       "animation": true,
@@ -848,6 +923,7 @@
       "desc": "&7서버를 후원해주신 분께 드리는 칭호",
       "icon": "pink_dye",
       "tier": "유일",
+      "prestige": 200,
       "category": "특수",
       "source": "admin",
       "animation": true,
@@ -859,6 +935,7 @@
       "desc": "&7바르칸 열도를 건설한 위대한 건축가",
       "icon": "brick",
       "tier": "유일",
+      "prestige": 550,
       "category": "특수",
       "source": "admin",
       "animation": true,
@@ -870,6 +947,7 @@
       "desc": "&7아무것도 갖춰지지 않은 바다를 가장 먼저 건넌 이들",
       "icon": "prismarine_crystals",
       "tier": "유일",
+      "prestige": 160,
       "category": "특수",
       "source": "limited",
       "animation": true,
@@ -881,6 +959,7 @@
       "desc": "&7정식 출시 전 바다를 함께 다듬어준 이들",
       "icon": "prismarine_crystals",
       "tier": "유일",
+      "prestige": 100,
       "category": "특수",
       "source": "limited",
       "animation": true,
@@ -892,6 +971,7 @@
       "desc": "&7서버 운영진에게 부여되는 칭호",
       "icon": "command_block",
       "tier": "유일",
+      "prestige": 1000,
       "category": "특수",
       "source": "admin"
     },
@@ -901,6 +981,7 @@
       "desc": "&7신규 유저를 돕는 안내자에게 부여되는 칭호",
       "icon": "compass",
       "tier": "유일",
+      "prestige": 600,
       "category": "특수",
       "source": "admin"
     },
@@ -910,6 +991,7 @@
       "desc": "&7한 지역의 도감을 완성한 어부",
       "icon": "map",
       "tier": "희귀",
+      "prestige": 100,
       "category": "수집",
       "source": "ach",
       "ach": "수집_지역1"
@@ -920,6 +1002,7 @@
       "desc": "&7세 지역의 도감을 완성한 기록자",
       "icon": "filled_map",
       "tier": "전설",
+      "prestige": 250,
       "category": "수집",
       "source": "ach",
       "ach": "수집_지역3"
@@ -930,6 +1013,7 @@
       "desc": "&7물고기 도감을 전부 채운 유일한 사람",
       "icon": "enchanted_book",
       "tier": "유일",
+      "prestige": 450,
       "category": "수집",
       "source": "ach",
       "ach": "수집_도감전체",
@@ -942,6 +1026,7 @@
       "desc": "&7사막에서 이프리트의 조각을 건져 올린 어부",
       "icon": "brush",
       "tier": "희귀",
+      "prestige": 80,
       "category": "스토리",
       "source": "quest"
     },
@@ -951,6 +1036,7 @@
       "desc": "&7빈 왕실 금고를 대신해 심해 원정을 댄 어부",
       "icon": "gold_block",
       "tier": "전설",
+      "prestige": 230,
       "category": "스토리",
       "source": "quest",
       "animation": true,
@@ -962,6 +1048,7 @@
       "desc": "&7바르칸 항구의 해바라기를 하나도 빠짐없이 찾아낸 자",
       "icon": "sunflower",
       "tier": "유일",
+      "prestige": 150,
       "category": "수집",
       "source": "quest",
       "animation": true,
@@ -973,6 +1060,7 @@
       "desc": "&7사막마을의 사막 호박을 하나도 빠짐없이 찾아낸 자",
       "icon": "resin_clump",
       "tier": "유일",
+      "prestige": 150,
       "category": "수집",
       "source": "quest",
       "animation": true,
@@ -984,6 +1072,7 @@
       "desc": "&7상단마을의 양초를 하나도 빠짐없이 찾아낸 자",
       "icon": "candle",
       "tier": "유일",
+      "prestige": 150,
       "category": "수집",
       "source": "quest",
       "animation": true,
@@ -995,6 +1084,7 @@
       "desc": "&7바르칸 열도에 음악을 입힌 이에게 드리는 칭호",
       "icon": "music_disc_pigstep",
       "tier": "유일",
+      "prestige": 300,
       "category": "특수",
       "source": "admin",
       "animation": true,
