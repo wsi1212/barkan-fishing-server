@@ -122,6 +122,7 @@ NPC 머리 위 표시 이름의 **색코드**는 역할별로 통일한다. ★�
 - `/지역 생성/삭제/목록/정보/설정/바이옴/파티클/리로드` (Java, op)
 - `/날씨설정 <지역|전역> <날씨|해제>` (Java, op) — **날씨 목록을 여기 적지 않는다**(드리프트). `/날씨설정` 을 인자 없이 치면 WeatherManager 가 정의한 전체 목록 + 각각의 전역/지역·시간 조건을 출력한다. 지역전용 날씨는 지역 `allowedWeathers` 화이트리스트에 이름이 있어야 자동 발동한다 — 비어 있으면 OP 수동 발동만 되고 자동으로는 영원히 안 뜬다(2026-08-27 태풍·눈보라가 그 상태였다).
 - **중요**: 서버 최초 설정 시 `/gamerule advance_weather false` 필수 (MC 자체 날씨 비활성화, 우리 WeatherManager가 제어)
+- **`send_command_feedback=false` 는 의도된 설정이다 (2026-09-06, prod·dev 양쪽).** 우리 워프(페리·포탈·섬·여관·잠수·지역이동)가 전부 콘솔 `execute in <dim> run tp` 라 바닐라가 «…을(를) …(으)로 순간이동시켰습니다» 를 접속 중인 **모든 OP** 에게 뿌렸다(`CommandSourceStack#broadcastToAdmins` — 유일한 게이트가 이 게임룰). 부작용으로 OP 가 직접 친 바닐라 명령의 **성공** 메시지도 안 뜬다(실패 메시지는 그대로) — 유저가 그래도 좋다고 결정했다. 디스패치 순간에만 껐다 되돌리는 코드(util/Tp)는 «부하만 는다» 는 이유로 폐기됐으니 되살리지 말 것. `true` 로 되돌리면 도배가 그대로 재발한다.
 - **⚠️ 1.21.11 게임룰 개명 — 옛 camelCase 이름은 전부 없는 이름이다.** 콘솔/RCON 에서 `gamerule doWeatherCycle` 같은 걸 치면 `Incorrect argument for command` 만 나오고 **에러 원인이 안 보인다**(룰이 없다는 말을 안 해 준다). 이름은 level.dat `game_rules` 가 권위 — snake_case 인데다 **뜻까지 바뀐 게 있다**:
   - `doDaylightCycle` → **`advance_time`** · `doWeatherCycle` → **`advance_weather`**
   - `doMobGriefing` → `mob_griefing` · `keepInventory` → `keep_inventory` · `commandBlockOutput` → `command_block_output` 등 나머지는 단순 snake_case
