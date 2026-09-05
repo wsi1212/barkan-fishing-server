@@ -573,10 +573,43 @@ def build(dry: bool, max_px: int = 64) -> int:
     #     안 뜨고 아이템이 투명» 했다. 옛 팩이 그대로 쓰이고 있었던 것.
     #   ★해시는 «스테이징이 다 끝난 뒤» 실제 산출물에서 뽑는다. 원본 텍스처만 해싱했다가
     #     축소 크기·승계 방식을 바꿔도 버전이 그대로여서 같은 사고를 두 번 더 냈다.
+    # ── JSON UI 덮어쓰기 ─────────────────────────────────────────────────────
+    #   ★사이드바 오른쪽의 «빨간 점수 숫자» 를 지운다.
+    #     자바 1.20.3+ 의 number_format=blank(SidebarManager 가 이미 쓴다) 는 자바 클라에서만
+    #     듣는다. Geyser 2.11.2 실측(SidebarDisplayScore.update): FixedFormat 만 처리하고
+    #     BlankFormat 은 «무시» 한 채 ScoreInfo 에 점수 정수를 그대로 실어 보낸다. 베드락 클라는
+    #     받은 점수를 항상 그린다 → 서버에서는 끌 방법이 없고 클라 UI 를 덮어써야 한다.
+    #   베드락 JSON UI 는 같은 경로의 파일을 «최상위 컨트롤 단위로» 병합한다. 그래서 바꿀
+    #   컨트롤 하나만 적으면 되고 나머지 사이드바(제목·이름줄·일시정지 화면 명단)는 바닐라 그대로다.
+    #   ★locked_alpha 를 쓰지 말 것 — 알파를 그 값으로 «고정» 해서 숨김이 풀린다.
+    #   원본: Mojang/bedrock-samples resource_pack/ui/scoreboards.json 의
+    #        scoreboard.scoreboard_sidebar_score (label, text="#player_score_sidebar")
+    ui_files = {
+        "ui/scoreboards.json": {
+            "namespace": "scoreboard",
+            "scoreboard_sidebar_score": {
+                "type": "label",
+                "text": "",
+                "size": [0, 10],
+                "alpha": 0.0,
+                "layer": 2,
+                "localize": False,
+            },
+        },
+    }
+    for rel, doc in ui_files.items():
+        dst = stage / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"▶ JSON UI 덮어쓰기 {len(ui_files)}개 (사이드바 점수 숨김)")
+
     stamp = hashlib.sha1()
     stamp.update(f"max_px={max_px}".encode())
     stamp.update(json.dumps(mappings, sort_keys=True, ensure_ascii=False).encode())
     stamp.update(json.dumps(texture_data, sort_keys=True, ensure_ascii=False).encode())
+    # ★UI 덮어쓰기도 해시에 넣는다 — 안 넣으면 UI 만 고쳤을 때 팩 버전이 그대로라
+    #   클라가 캐시본을 쓰고 «고쳤는데 그대로» 가 된다(2026-09-04 아이콘 사고와 같은 원인).
+    stamp.update(json.dumps(ui_files, sort_keys=True, ensure_ascii=False).encode())
     for f in sorted((stage / "textures").rglob("*.png")):
         stamp.update(str(f.relative_to(stage)).encode())
         stamp.update(f.read_bytes())
