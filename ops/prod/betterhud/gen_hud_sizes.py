@@ -37,6 +37,7 @@ MARGIN_X, MARGIN_Y = 10, 3      # 화면 모서리에서의 여백(배율 무관
 #   (표시 높이 = 폰트 scale x 이 값. 32 x 0.31 = 9.9 ~ 예전 16 x 0.62 와 같다)
 TEXT_SCALE = 0.31               # 배율 1.0 기준 글자 크기
 TEXT_H = 10.6                   # 그 크기에서 글자 한 줄의 대략 높이(세로 가운데 맞춤용)
+STATUS_ICON_DISPLAY = (16, 16)  # 128px 원본을 BetterHud가 이 표시 크기로 축소한다.
 
 # 폰트도 화면 역할별로 나눈다. 파일은 npc-dialogue-font.yml 에서 선언한다.
 FONT_HUD = "hud_font"                    # 나머지 HUD — 얇은 폰트
@@ -164,12 +165,18 @@ def scaled_file(folder, fname, sid, s, base=None, suffix=""):
     return f"{folder}/{GEN}/{out}", w, h, round(1.0 / k, 4)
 
 
-def png(name, s=1.0):
+def png(name, s=1.0, base=None):
     """축소 후의 (폭, 높이). ★BetterHud 는 투명 여백을 잘라내므로 그 뒤 크기를 재야
-    세로 가운데 맞춤이 맞는다."""
+    세로 가운데 맞춤이 맞는다.
+
+    base는 HD 원본의 실제 화면 표시 크기다. 상태 아이콘은 원본이 128px이지만 16px로
+    표시하므로, 배치 좌표도 이 값을 기준으로 계산해야 한다.
+    """
     with Image.open(os.path.join(ART, "status", name)) as im:
-        im = im.convert("RGBA").resize(
-            (max(1, round(im.width * s)), max(1, round(im.height * s))), Image.LANCZOS)
+        im = im.convert("RGBA")
+        if base:
+            im = im.resize(base, Image.LANCZOS)
+        im = im.resize((max(1, round(im.width * s)), max(1, round(im.height * s))), Image.LANCZOS)
         box = im.split()[3].getbbox() or (0, 0, im.width, im.height)
         return box[2] - box[0], box[3] - box[1]
 
@@ -195,8 +202,8 @@ def build_status():
         n = 2
         for i, icon in enumerate(STATUS["icons"]):
             key = f"status_icon_{i}_{sid}"
-            iw, ih = png(icon, s)
-            fi, _, _, sc = scaled_file("status", icon, sid, s)
+            iw, ih = png(icon, s, base=STATUS_ICON_DISPLAY)
+            fi, _, _, sc = scaled_file("status", icon, sid, s, base=STATUS_ICON_DISPLAY)
             img.append(f"{key}:\n  type: single\n  file: {fi}\n"
                        f"  setting:\n    scale: {sc}\n")
             center = MARGIN_Y + STATUS["rows"][i] * s

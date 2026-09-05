@@ -19,7 +19,7 @@ barkan_status_layout_sm:  # 작게 (x0.5)
     4:
       name: status_icon_2_sm
       x: -36
-      y: 28
+      y: 27
     5:
       name: exp_bar_empty_sm
       x: -3
@@ -72,7 +72,7 @@ barkan_status_layout_md:  # 보통 (x0.66)
     4:
       name: status_icon_2_md
       x: -44
-      y: 35
+      y: 34
     5:
       name: exp_bar_empty_md
       x: -1
@@ -125,7 +125,7 @@ barkan_status_layout_lg:  # 크게 (x0.85)
     4:
       name: status_icon_2_lg
       x: -54.5
-      y: 44
+      y: 41
     5:
       name: exp_bar_empty_lg
       x: 2.5
@@ -170,15 +170,15 @@ barkan_status_layout_xl:  # 아주 크게 (x1.0)
     2:
       name: status_icon_0_xl
       x: -62
-      y: 12
+      y: 11
     3:
       name: status_icon_1_xl
       x: -62
-      y: 30
+      y: 29
     4:
       name: status_icon_2_xl
       x: -62
-      y: 50
+      y: 47
     5:
       name: exp_bar_empty_xl
       x: 4
