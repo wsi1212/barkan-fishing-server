@@ -2,7 +2,9 @@
 """배 blueprint → 단일 선체 RP 모델 bake + 인라인 수치검증 (이무기 파이프라인의 배 버전).
 
 소스: plugins/BlockShip/ships/<프리셋>.json (풀 blockstate 저장돼 있어 월드 스캔 불필요)
-- animGroup 블록(돛/깃발)은 제외 — 계속 BlockDisplay로 빌로잉 애니 유지
+- 돛/깃발(animGroup)도 함께 bake — BlockDisplay 0개 (2026-09-05: 돛 엔티티 제거, 빌로잉 애니 포기)
+- blueprint 의 per-block scale(얇은 돛 [1,1,0.15] 등)은 셀 원점 기준으로 기하에 곱해 재현
+  (BlockDisplay Transformation 의 scale 이 원점 코너 기준이라 동일)
 - 면 텍스처/UV/회전/기하 전부 바닐라 클라 jar에서 직접 해석 (이무기식 수동 TEX 매핑 없음)
 - ★렌더 레시피(이무기서 실측 확정): 스팬≤31유닛 bake(k=최대반경×16/15.5, 클라 자동축소 미발동 f=1),
   스폰 left_rotation = yaw회전 × Y180
@@ -153,13 +155,16 @@ DIRS = {"down": (0, -1, 0), "up": (0, 1, 0), "north": (0, 0, -1),
 
 # ---------- blueprint 로드 ----------
 bp = json.load(open(os.path.join(SHIPS, preset + ".json")))
-hull = [b for b in bp["blocks"] if not b.get("animGroup")]
-sails = [b for b in bp["blocks"] if b.get("animGroup")]
-print(f"{preset}: 전체 {len(bp['blocks'])} = 선체 {len(hull)} + 애니(돛) {len(sails)} (돛은 BlockDisplay 유지)")
+anim = [b for b in bp["blocks"] if b.get("animGroup")]
+print(f"{preset}: 전체 {len(bp['blocks'])} 블록 전부 bake (애니 블록 {len(anim)}개 포함 — BlockDisplay 0개)")
 
-cells = {}
-for b in hull:
-    cells[(b["x"], b["y"], b["z"])] = b["data"]
+cells, scales = {}, {}
+for b in bp["blocks"]:
+    c = (b["x"], b["y"], b["z"])
+    cells[c] = b["data"]
+    sc = b.get("scale")
+    if sc and tuple(float(v) for v in sc) != (1.0, 1.0, 1.0):
+        scales[c] = [float(v) for v in sc]
 
 @functools.lru_cache(maxsize=None)
 def state_parts_cached(data): return parts_for_state(data)
@@ -170,7 +175,8 @@ def is_full_opaque(data):
     boxes = [(tuple(e["from"]), tuple(e["to"])) for els, _ in parts for e in els]
     return boxes == [((0, 0, 0), (16, 16, 16))]
 
-full_cells = {c for c, d in cells.items() if is_full_opaque(d)}
+# 축소된 셀(얇은 돛)은 풀큐브가 아니므로 컬링 대상에서 제외
+full_cells = {c for c, d in cells.items() if c not in scales and is_full_opaque(d)}
 
 # ---------- 피벗/스케일 ----------
 xs = [c[0] for c in cells]; ys = [c[1] for c in cells]; zs = [c[2] for c in cells]
@@ -191,9 +197,12 @@ def tex_var(resolved):
 
 for c, data in sorted(cells.items()):
     full = c in full_cells
+    sc = scales.get(c)
     for els, texmap in state_parts_cached(data):
         for e in els:
-            fr, to = e["from"], e["to"]
+            fr0, to0 = e["from"], e["to"]
+            fr = [fr0[a] * sc[a] for a in range(3)] if sc else fr0
+            to = [to0[a] * sc[a] for a in range(3)] if sc else to0
             exp_boxes.append(tuple(c[a] + fr[a] / 16 for a in range(3)) +
                              tuple(c[a] + to[a] / 16 for a in range(3)))
             faces = {}
@@ -203,8 +212,9 @@ for c, data in sorted(cells.items()):
                     if (c[0] + d[0], c[1] + d[1], c[2] + d[2]) in full_cells:
                         continue  # 선체 내부 맞닿은 면 컬링
                 resolved = _resolve_tex(texmap, fv.get("texture", "#missing"))
+                # UV 는 축소 전 기하 기준 (돛 텍스처가 눌리지 않게)
                 nf = {"texture": "#" + tex_var(resolved),
-                      "uv": [round(u, 4) for u in fv.get("uv", auto_uv(fn, fr, to))]}
+                      "uv": [round(u, 4) for u in fv.get("uv", auto_uv(fn, fr0, to0))]}
                 if fv.get("rotation"): nf["rotation"] = fv["rotation"]
                 if "tintindex" in fv: warn["tint"] += 1
                 faces[fn] = nf
@@ -216,7 +226,8 @@ for c, data in sorted(cells.items()):
             assert all(-16 <= v <= 32 for v in ne["from"] + ne["to"]), f"coord out of range @ {c}"
             if "rotation" in e and e["rotation"]:
                 r = dict(e["rotation"])
-                r["origin"] = [round(8 + (c[a] - pivot[a]) * 16 / k + r["origin"][a] / k, 4) for a in range(3)]
+                r["origin"] = [round(8 + (c[a] - pivot[a]) * 16 / k
+                                     + r["origin"][a] * (sc[a] if sc else 1.0) / k, 4) for a in range(3)]
                 ne["rotation"] = r
             elements.append(ne)
 
