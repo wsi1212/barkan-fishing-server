@@ -1164,7 +1164,9 @@ async function communityGuildPageWithApply(current, guild, notice = "") {
 async function discordOAuthUser(code) {
   const tokenResponse = await fetch("https://discord.com/api/v10/oauth2/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ client_id: DISCORD_CLIENT_ID, client_secret: DISCORD_CLIENT_SECRET, grant_type: "authorization_code", code, redirect_uri: `${COMMUNITY_BASE_URL}/oauth/callback` }) });
   const tokenBody = await tokenResponse.json();
-  if (!tokenResponse.ok || !tokenBody.access_token) throw new Error("Discord 로그인 승인을 확인하지 못했습니다.");
+  // Discord 가 무엇을 거부했는지 남긴다. invalid_client = 앱 시크릿이 어긋난 것이고,
+  // 그 경우 모든 유저의 웹 로그인이 조용히 502 로 막힌다(2026-09-05 실제 사고).
+  if (!tokenResponse.ok || !tokenBody.access_token) throw new Error(`Discord token exchange failed (${tokenResponse.status} ${tokenBody.error ?? "unknown"})`);
   const userResponse = await fetch("https://discord.com/api/v10/users/@me", { headers: { Authorization: `Bearer ${tokenBody.access_token}` } });
   const user = await userResponse.json();
   if (!userResponse.ok || !/^\d{16,22}$/.test(String(user.id ?? ""))) throw new Error("Discord 사용자 정보를 가져오지 못했습니다.");
@@ -1274,6 +1276,7 @@ async function route(req, res) {
       await pool.query("INSERT INTO community_sessions (token_hash,discord_id,minecraft_uuid,player_name,discord_name,avatar_hash,csrf_token,expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW()+INTERVAL '30 days')", [hash(sessionToken), user.id, link.rows[0].minecraft_uuid, link.rows[0].player_name, discordName, avatarHash, csrf]);
       return redirect(res, COMMUNITY_BASE_URL, [`community_session=${encodeURIComponent(sessionToken)}; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax`, "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax", clearState]);
     } catch (error) {
+      console.error("community oauth callback failed:", error.message);
       return send(res, 502, communityLayout("로그인 오류", `<main><section class="panel"><h2>Discord 로그인에 실패했습니다.</h2><p class="muted">잠시 후 다시 시도해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
     }
   }
