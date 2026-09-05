@@ -594,6 +594,7 @@
           "qty": 1
         }
       ],
+      "village": "스폰",
       "materialDiscountVersion": 1
     },
     "R00c": {
@@ -629,6 +630,7 @@
           "qty": 1
         }
       ],
+      "village": "스폰",
       "materialDiscountVersion": 1
     },
     "R00d": {
@@ -657,6 +659,7 @@
           "qty": 1
         }
       ],
+      "village": "스폰",
       "materialDiscountVersion": 1
     },
     "R00e": {
@@ -692,6 +695,7 @@
           "qty": 1
         }
       ],
+      "village": "스폰",
       "materialDiscountVersion": 1
     },
     "C01": {
