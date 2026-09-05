@@ -47,20 +47,34 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 SKIP_MARK="$DIR/.skip-nightly-once"
 
-# --- 로컬 백업(정지 중 실행) ---------------------------------------------
-#   2026-09-05: 05:00/05:10 KST 별도 cron 이던 local-backup.sh main/islands 를
-#   여기로 흡수했다. 서버가 내려간 사이에 tar 를 뜨므로 save-all flush 로 달래던
-#   «읽는 중 파일 변경»(tar rc=1)이 원천적으로 사라진다. 대가는 다운타임 —
-#   실측 본월드 1.47GB 84초 + 섬 64MB 21초 ≈ 105초가 재시작 위에 얹힌다.
+# --- 로컬 백업 -------------------------------------------------------------
+#   대용량 월드(main/islands)는 05:50 KST pre-restart-backup.sh 가 라이브에서
+#   save-all flush 후 미리 만든다. 오늘 마커가 없을 때만 06:00 정지 창에서
+#   폴백한다. 따라서 정상적인 재시작에는 139초의 월드 tar가 더해지지 않는다.
+#   playerdata(BlockShip)는 종료 저장 직후가 가장 정확하고 약 4초뿐이므로 06:00
+#   정지 창에서 계속 tar 한다.
 #   ★오프사이트 3종(offsite-backup / offsite-worlds)은 여기 넣지 않는다.
 #     OCI 업로드가 네트워크에 묶여 있어 다운타임이 예측 불가능해진다
 #     (격주 본월드는 1.4GB 업로드). 그건 각자 cron 그대로 둔다.
 #   ★백업이 어떻게 끝나든 서버는 반드시 다시 올린다(아래 trap).
 BACKUP_GROUPS=${BACKUP_GROUPS:-"main islands"}
 BACKUP_TIMEOUT=${BACKUP_TIMEOUT:-600}
-bsec=""; boot_line=""; OFFSITE_BS_TAR=""
+bsec=""; boot_line=""; OFFSITE_BS_TAR=""; backup_note=""
 OFFLOG=${OFFLOG:-$HOME/mcserver/backups/offsite.log}
 BAKDIR=${BAKDIR:-$HOME/mcserver/backups}
+PREBACKUP_MARK=${PREBACKUP_MARK:-$BAKDIR/.pre-restart-backup-ready}
+PREBACKUP_LOCK=${PREBACKUP_LOCK:-$BAKDIR/.pre-restart-backup.lock}
+prebackup_ready(){
+  [ -s "$PREBACKUP_MARK" ] && grep -qx "$(TZ=Asia/Seoul date +%Y-%m-%d)" "$PREBACKUP_MARK"
+}
+# 05:50 작업이 예외적으로 아직 돌고 있으면 tar 중인 월드를 종료하지 않는다.
+# 정상 실측은 약 139초라 이 대기는 생기지 않는다.
+wait_for_prebackup(){
+  if ! flock -n "$PREBACKUP_LOCK" -c true; then
+    log "05:50 월드 백업 진행 중 — 완료 후 정기 재시작 계속"
+    flock "$PREBACKUP_LOCK" -c true
+  fi
+}
 # 백업 디렉터리에서 «방금 만들어진» tar 하나를 고른다. 최신 파일을 그냥 집으면
 # 오늘 백업이 실패한 날 어제 tar 를 오늘 이름으로 올려버린다 — 조용한 거짓 백업.
 fresh_tar(){ find "$BAKDIR" -maxdepth 1 -name "$1-*.tar.gz" -mmin -"${2:-60}" -print 2>/dev/null | sort | tail -1; }
@@ -124,9 +138,13 @@ today=$(TZ=Asia/Seoul date +%Y-%m-%d)
 if [ "$IMMEDIATE" = "0" ] && [ -f "$SKIP_MARK" ]; then
   rm -f "$SKIP_MARK"
   if [ "${PREVIEW:-0}" = "1" ]; then echo "(스킵 마커 있음 — 오늘밤 재시작 생략됨)"; exit 0; fi
-  # 재시작만 건너뛴다 — 백업까지 빠지면 그날 로컬 사본이 통째로 없어진다.
-  log "skip-once 마커로 오늘 재시작 생략 — 백업은 라이브로 수행"
-  run_local_backups live
+  # 재시작만 건너뛴다. 05:50 선행 백업이 성공했으면 같은 tar를 다시 뜨지 않는다.
+  if prebackup_ready; then
+    log "skip-once 마커로 오늘 재시작 생략 — 05:50 라이브 월드 백업 사용"
+  else
+    log "skip-once 마커로 오늘 재시작 생략 — 선행 백업 없음, 라이브로 수행"
+    run_local_backups live
+  fi
   notify "$LABEL ⏭️ 오늘 06:00 정기 재시작 — 요청에 의해 1회 스킵됨(내일부터 정상 진행). 로컬 백업은 서버를 켠 채 수행했습니다."
   exit 0
 fi
@@ -237,11 +255,15 @@ fi
 # `latest` asset을 교체하면 URL은 같고 파일만 바뀐다. 이 검증 없이 재시작하면
 # require-resource-pack=true 환경에서 모든 접속자가 리소스팩 다운로드에 실패한다.
 if [ "$DRYRUN" = "0" ] && ! "$DIR/resourcepack-guard.sh" --repair; then
-  log "resource pack guard failed — restart cancelled (백업은 라이브로 수행)"
-  run_local_backups live
+  log "resource pack guard failed — restart cancelled"
+  prebackup_ready || run_local_backups live
   notify "$LABEL 🔴 리소스팩 공개파일 검증 실패로 정기 재시작을 취소했습니다. 서버는 기존 상태를 유지하고, 로컬 백업은 켠 채 수행했습니다."
   exit 1
 fi
+
+# 05:50 백업이 예외적으로 아직 tar 중이면 먼저 끝낼 때까지 기다린다. 그래야
+# 종료 과정이 라이브 tar와 겹치지 않고, 실패 시에도 아래 정지 중 폴백이 안전하다.
+if [ "$IMMEDIATE" = "0" ] && [ "$DRYRUN" = "0" ]; then wait_for_prebackup; fi
 
 # --- ② 재시작 예고 ---
 #   정기: restart-warning.sh 가 30/10/5/1분 전 방송을 이미 했다 → 직전 1회만.
@@ -296,7 +318,7 @@ $deploy_summary
 else
   msg="$LABEL 🌅 데일리 리포트 ($today · 06:00 KST)
 
-🔄 정기 재시작 실행${bsec:+ · 정지 중 로컬 백업 ${bsec}초}
+🔄 정기 재시작 실행${bsec:+ · 정지 중 로컬 백업 ${bsec}초}${backup_note}
 $deploy_summary
 
 📦 백업 ${bcount}건 성공
@@ -327,10 +349,13 @@ KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약
 if [ "$DRYRUN" = "0" ]; then rcon "kick @a $KICK_MSG"; sleep 1; fi
 
 # --- ③ 재시작 (무조건) ---
-#   정기: 정지 → 로컬 백업 → 기동. restart 한 방이 아니라 창을 벌리는 이유는
-#   백업 tar 를 «아무도 쓰지 않는 월드 파일»에 대고 뜨기 위해서다.
+#   정기: 정지 → (05:50 마커 없을 때만) 로컬 백업 → 기동.
 #   즉시 모드는 백업과 무관하므로 예전 그대로 restart 한 방.
-if [ "${DRY:-0}" = "1" ]; then log "DRY: would restart"; run_local_backups down; exit 0; fi
+if [ "${DRY:-0}" = "1" ]; then
+  log "DRY: would restart"
+  prebackup_ready || run_local_backups down
+  exit 0
+fi
 if [ "$IMMEDIATE" = "1" ]; then
   eval "$RESTART_CMD"
   log "restarted"
@@ -347,15 +372,26 @@ else
   trap '_ensure_start' EXIT
   eval "$STOP_CMD"; log "stopped — 백업 창 시작"
   _b0=$(date +%s)
-  run_local_backups down
+  if prebackup_ready; then
+    backup_note=" · 05:50 라이브 월드 백업 사용"
+    log "05:50 라이브 월드 백업 확인 — 정지 중 main/islands tar 생략"
+  else
+    log "05:50 라이브 월드 백업 없음/실패 — 정지 중 폴백"
+    run_local_backups down
+  fi
   # playerdata(BlockShip 폴더)는 «종료 저장 직후»가 가장 정확하다. tar 4초, 업로드는 기동 후.
   if [ "$DRYRUN" = "0" ]; then
     OFFSITE_BS_TAR=$("$DIR/offsite-backup.sh" --tar-only 2>>"$OFFLOG")
     if [ -s "$OFFSITE_BS_TAR" ]; then log "playerdata tar 생성: $(basename "$OFFSITE_BS_TAR")"
     else OFFSITE_BS_TAR=""; log "playerdata tar 실패"; fi
   fi
-  bsec=$(( $(date +%s) - _b0 ))
-  log "백업 창 종료 (${bsec}초)"
+  _bsec=$(( $(date +%s) - _b0 ))
+  if [ -z "$backup_note" ]; then
+    bsec=$_bsec
+    log "백업 창 종료 (${bsec}초)"
+  else
+    log "playerdata 백업 창 종료 (${_bsec}초)"
+  fi
   _started=1; trap - EXIT INT TERM
   eval "$START_CMD"
   log "started"

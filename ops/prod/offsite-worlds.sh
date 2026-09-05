@@ -62,10 +62,9 @@ mkdir -p "$STAGE"
 cd "$ROOT"
 
 if [ "$MODE" = "upload" ]; then
-  # ★남이 만든 tar 를 그대로 올린다. 06:00 유지보수가 «정지 중»에 뜬 로컬 백업
-  #   (localmain-/localislands-)을 넘겨준다 — 월드 목록이 이 스크립트와 글자까지
-  #   같아서 같은 내용을 하루 두 번 tar 뜨던 낭비가 사라지고, 덤으로 라이브 tar 가
-  #   아니라 정지 tar 라 스냅샷 일관성도 올라간다.
+  # ★남이 만든 tar 를 그대로 올린다. 05:50 선행 백업이 만든 로컬 백업
+  #   (localmain-/localislands-)을 06:00 유지보수가 넘겨준다 — 월드 목록이 이
+  #   스크립트와 글자까지 같아서 같은 내용을 하루 두 번 tar 뜨던 낭비가 사라진다.
   [ -n "$SRC_TAR" ] || fail "--upload-only 에 tar 경로가 없음"
   [ -s "$SRC_TAR" ] || fail "업로드할 tar 가 없음: $SRC_TAR"
   gzip -t "$SRC_TAR" 2>/dev/null || fail "아카이브 무결성 실패 (gzip -t): $SRC_TAR"
