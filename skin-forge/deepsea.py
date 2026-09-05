@@ -72,7 +72,7 @@ DESIGN SPEC — 다섯의 구분축 (피부색 / 볏 / 옷 / 번호 표식, 넷 
 │  눈    ★**백내장 — 동공이 없다.** 다섯 중 모르·비늘짜는이·일곱-셋만 동공을 가진다
 │  볏    길고 뾰족하게 뒤로 넘어간 볏 — 관모(冠帽) 실루엣. 다섯 중 가장 높다
 │  옷    **교단 파수 제복의 잔재** — 프리즈머린 청록 2c5f63 튜닉 + 산호빛 견장 c9b98a
-│        + 가슴 세로 트임. 다섯 중 유일한 «제복»(재단이 갖춰져 있다)
+│        + 가슴 여밈선(★면이 아니라 선 — 채우면 목도리가 된다). 유일한 «제복»
 │  표식  번호 없음 — 파수는 번호가 아니라 «자리»였다. 대신 목에 옛 교단 링
 │  추가  ★수염 대신 **입가 수염돌기(barbel)** 2가닥 — 늙은 저서어의 표식. 하만 가진다
 └ 울지 않는 것 213 — 수조에서 «그릇»으로 개조되다 만 개체. 소리를 못 낸다. &f 대화 전용
@@ -736,7 +736,17 @@ def build_ha():
     #   유일한 «제복» — 재단이 갖춰져 있다(가슴 세로 트임 + 견장)
     g.tunic(s, P['robe'], y0=1, y1=11, collar=True, layer='outer', seed=SEED,
             fold_cols=(2, 5), grain=0.06)
-    g.placket(s, P['coral'], x=(3, 4), y0=2, y1=9, layer='outer')
+    #   ★가슴 트임 — 오너 지적 «심해 물고기가 왠 목도리냐». 1차엔 `g.placket` 으로
+    #     산호색 2px 세로띠를 y2~y9 **꽉 채웠고**, 거기에 어깨 견장 두 장 + 목 링이
+    #     겹치자 정확히 «목에 두르고 앞으로 늘어뜨린 목도리»가 됐다.
+    #     트임은 «채우는 것»이 아니라 «여미는 선»이다 — 어두운 이음선 한 열 + 걸쇠 3점.
+    #     악센트는 점으로 흩으면 옷이 되고, 면으로 채우면 천이 된다.
+    ff = s.f('body', 'front', 'outer')
+    for y in range(2, 10):
+        ff.px(4, y, mix(P['robe'][0], BLACK, 0.30))        # 여밈선
+        ff.px(3, y, P['robe'][4] if y % 2 else P['robe'][3])   # 겹친 자락의 밝은 모서리
+    for y in (3, 5, 7):                                    # 산호 걸쇠 — 1px 3점
+        ff.px(4, y, P['coral'][3])
     for fname in ('front', 'back'):                        # 견장 — 어깨 2행
         f = s.f('body', fname, 'outer')
         f.rect(0, 0, 1, 1, P['coral'][3])
@@ -744,9 +754,12 @@ def build_ha():
     s.f('body', 'top', 'outer').rect(0, 0, 1, 3, P['coral'][3])
     s.f('body', 'top', 'outer').rect(6, 0, 7, 3, P['coral'][2])
     g.sleeves(s, P['robe'], y0=0, y1=6, seed=SEED, grain=0.06, layer='outer')
-    #   목의 옛 교단 링 — 번호가 아니라 «자리»의 표식
+    #   목의 옛 교단 링 — 번호가 아니라 «자리»의 표식.
+    #   ★산호색으로 목을 한 바퀴 두르면 그것도 목도리다. 링은 옷 색의 어두운 띠로 두고
+    #     산호는 **앞 가운데 1px**(펜던트)만 — 그래야 «두른 천»이 아니라 «건 것»이 된다.
     for fname in SIDES:
-        s.f('body', fname, 'outer').row(0, P['coral'][1], 2, 5)
+        s.f('body', fname, 'outer').row(0, mix(P['robe'][0], BLACK, 0.25), 1, 6)
+    s.f('body', 'front', 'outer').px(4, 0, P['coral'][2])
     _dorsal_body(s, P['fin'], y0=0, y1=9)                  # 제복을 튼 등지느러미
     for part in ('arm_r', 'arm_l'):
         _finray(s, part, P['fin'], y0=7, y1=11)
