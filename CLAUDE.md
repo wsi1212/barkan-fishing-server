@@ -237,22 +237,33 @@ ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'tail -f ~/mcserver/logs/latest
 scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip/playerdata ~/Desktop/prod-playerdata-$(date +%Y%m%d)
 ```
 
-### 자동 백업 (오라클 cron, 시각=UTC / KST=+9h) — 2026-07-24 오프사이트 DR 전면 개편
+### 자동 백업 — 2026-09-05 부터 **cron 이 아니라 06:00 KST 유지보수 창 안에서 전부 돈다**
 **2겹 백업**: 로컬(빠른 되돌리기) + 오프사이트(인스턴스 사망 대비 DR). 스크립트는 박스 `~/mcserver/scripts/`.
-- **오프사이트 → Oracle Object Storage 버킷 `mc-backups`** (instance principal 인증=박스에 OCI키 없음, 버전관리 ON):
-  - 19:00 `offsite-backup.sh` — BlockShip 폴더 전체(playerdata + 라이브 JSON) → `blockship/`, 원격 30개
-  - 20:30 `offsite-worlds.sh islands` — guild_world+island_world → `islands/`, 원격 5개
-  - 1·15일 22:00 `offsite-worlds.sh main` — world계열+flatroom+mine → `world/`, 원격 2개(격주)
-- **로컬 → `~/mcserver/backups/`** (`local-backup.sh <main|islands>`, 파일명 접두어 `localmain-`/`localislands-`):
-  - **cron 이 아니라 06:00 KST 재시작 창 안에서 돈다 (2026-09-05 이관).** 데일리 스크립트가
-    `stop → local-backup.sh main → islands → start` 로 서버가 **정지한 사이에** tar 를 뜬다 —
-    라이브 tar 의 «읽는 중 파일 변경»(rc=1) 이 원천적으로 사라진다. 대가는 다운타임 **+105초**
-    (실측 본월드 1.47GB 84초 + 섬 64MB 21초) → 안내 kick 문구도 「3~4분 뒤」로 바꿨다.
-    보관 main 3개 / islands 7개. ★옛 `0 20`·`10 20` cron 두 줄을 되살리면 라이브 tar 로
-    회귀하고 같은 백업이 하루 두 번 돈다. **오프사이트 3종은 옮기지 않았다** — OCI 업로드가
-    네트워크에 묶여 있어 다운타임이 예측 불가능해진다(격주 본월드는 1.4GB 업로드).
-  - 21:00 구 `playerdata-*.tar.gz` prune(자동소멸, 신규생성 없음)
-- 모든 백업: 백업 전 tmux `mc`에 `save-all flush`(스냅샷 일관성). **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작(정지 중 로컬 백업 포함) ③RCON 부팅확인(최대 3분) ④데일리 리포트** 🌅(배포결과+백업 성공목록+부팅확인+헬스)로 하루 1회 통합 발송(노이즈 최소화). 재시작 사전예고는 `restart-warning.sh <30|10|5|1>`(각각 05:30/05:50/05:55/05:59 KST 별도 cron, 접속자 0명이면 조용히 스킵)이 담당 — nightly-restart.sh 자체는 재시작 직전 즉시 알림 1회만. ★그래서 격주 본월드 오프사이트는 20:45로 당겨 리포트 전에 끝냄. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`. ★리포트는 백업 결과를 담아야 하므로 **기동 후**에 나간다(그래서 `.backup-status` 도 그때 비운다). 스킵 마커·리소스팩 가드 실패로 재시작을 취소하는 날엔 백업만 라이브로 돈다. ★같은 스크립트에 **즉시 모드(`--now`/`NOW=1`)** 가 있다 — `fetch-staging.sh`가 APPLY_NOW 마커를 보면 부른다(아래 무인운영 절).
+★**백업 cron 줄은 이제 하나도 없다.** 5종 전부 `nightly-restart.sh`(cron 21:00 UTC=06:00 KST) 안에 있다.
+- **[서버 정지 중]** — 아무도 안 쓰는 파일에 tar 를 떠서 「읽는 중 파일 변경」(tar rc=1)이 원천 소멸.
+  다운타임 **≈110초**(실측 본월드 1.47GB 84초 + 섬 64MB 21초 + playerdata 34MB 4초) → 안내 kick 은 「3~4분 뒤」.
+  1. `local-backup.sh main` — world계열+flatroom+mine → `backups/localmain-*`, 로컬 3개
+  2. `local-backup.sh islands` — guild_world+island_world → `backups/localislands-*`, 로컬 7개
+  3. `offsite-backup.sh --tar-only` — BlockShip 폴더(playerdata+라이브 JSON) **tar 만**. playerdata 는
+     종료 저장 직후가 가장 정확하다.
+- **[기동 + RCON 부팅확인 후]** — 업로드는 네트워크에 묶여 있어 정지 창에 넣지 않는다.
+  → Oracle Object Storage 버킷 `mc-backups`(instance principal 인증=박스에 OCI키 없음, 버전관리 ON)
+  4. `offsite-backup.sh --upload-only <tar>` → `blockship/`, 원격 30개
+  5. `offsite-worlds.sh islands --upload-only <localislands tar>` → `islands/`, 원격 5개
+  6. **KST 1·15일만** `offsite-worlds.sh main --upload-only <localmain tar>` → `world/`, 원격 2개(격주)
+  7. 레거시 `playerdata-*.tar.gz` prune(신규 생성 없음)
+- ★**오프사이트는 tar 를 다시 뜨지 않는다.** `offsite-worlds.sh` 의 월드 목록이 `local-backup.sh` 와
+  글자까지 같아서 예전엔 **같은 내용을 하루 두 번 압축**했다(본월드 1.4GB×2회). 이제 정지 중에 뜬
+  로컬 tar 를 `--upload-only` 로 그대로 올린다 → 중복 압축 제거 + 오프사이트도 «정지 스냅샷» 이 됐다.
+  두 스크립트를 **인자 없이** 부르면 예전처럼 tar+업로드를 혼자 다 한다(수동 실행·복구용).
+- ★**낡은 tar 가 오늘 이름으로 올라가지 않는다** — `fresh_tar` 가 60분 이내 파일만 고른다. 로컬 백업이
+  실패한 날엔 오프사이트도 로그에 «건너뜀» 으로 남지, 어제 것이 오늘 백업으로 둔갑하지 않는다.
+- ★**옛 cron 줄(`0 19`/`30 20`/`45 20 1,15`/`0 20`/`10 20`)을 되살리지 말 것** — 라이브 tar 로 회귀하고
+  같은 백업이 하루 두 번 돈다.
+- **백업이 아닌 cron 은 그대로 둔다**: 디스크가드(매시 :15)·하트비트(5분)·crash-watch(2분)·
+  fetch-staging/fetch-resourcepack(5분)·재시작 예고(05:30/50/55/59). 상시 감시라 하루 1회로 몰면 의미가 없다.
+- 정지 중 tar 라 `save-all flush` 는 필요 없다(스크립트의 tmux 세션 체크가 알아서 건너뛴다).
+  인자 없이 수동 실행할 때만 flush 가 걸린다. **알림**: 실패=즉시 개별 🔴, 성공=상태파일(`.backup-status`)에 누적 → `nightly-restart.sh`(cron 21:00 UTC=06:00 KST, "데일리 유지보수")가 **①staging 자동배포 ②무조건 재시작(정지 중 로컬+playerdata tar 포함) ③RCON 부팅확인(최대 3분) ④오프사이트 업로드 ⑤데일리 리포트** 🌅(배포결과+백업 성공목록+부팅확인+헬스)로 하루 1회 통합 발송(노이즈 최소화). 재시작 사전예고는 `restart-warning.sh <30|10|5|1>`(각각 05:30/05:50/05:55/05:59 KST 별도 cron, 접속자 0명이면 조용히 스킵)이 담당 — nightly-restart.sh 자체는 재시작 직전 즉시 알림 1회만. PREVIEW=1로 발송·재시작·배포 없이 리포트 미리보기 가능. webhook=`~/mcserver/scripts/discord-webhook.url`. ★리포트는 백업 결과를 담아야 하므로 **기동 후**에 나간다(그래서 `.backup-status` 도 그때 비운다). 스킵 마커·리소스팩 가드 실패로 재시작을 취소하는 날엔 백업만 라이브로 돈다. ★같은 스크립트에 **즉시 모드(`--now`/`NOW=1`)** 가 있다 — `fetch-staging.sh`가 APPLY_NOW 마커를 보면 부른다(아래 무인운영 절).
 - tar는 라이브 서버 파일이 읽는중 바뀌면 exit 1(경고, 아카이브 유효)을 냄 → `tar||fail` 금지, `--warning=no-file-changed`+rc≥2만 치명+`gzip -t` 무결성검증으로 성공판정(2026-07-24 본월드 백업 오탐 사고 후 수정).
 - ★staging은 `~/mcserver/backups/offsite-stage/`로 격리(로컬 백업과 glob 충돌 방지 필수).
 - 상세·복원법: memory `project_offsite_backup_dr`. 복원 = Object Storage에서 `oci os object get`→tar 해제.

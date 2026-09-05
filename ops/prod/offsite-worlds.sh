@@ -5,11 +5,24 @@
 #     islands : guild_world + island_world      (매일, 원격 5개 보관)
 #     main    : world 계열 + flatroom + mine     (격주, 원격 2개 보관)
 #   백업 전 tmux 세션 mc에 save-all flush 로 디스크 동기화 → 스냅샷 일관성 ↑
+#   모드(2026-09-05 신설) — 06:00 유지보수 창 안에서 tar 와 업로드를 쪼개 쓴다:
+#     --tar-only            tar 만 만들고 경로를 stdout 에 찍고 끝(정지 중에 부른다)
+#     --upload-only <tar>   이미 있는 tar 를 업로드(기동 후에 부른다)
+#   인자 없이 부르면 예전처럼 tar+업로드를 한 번에 한다.
 #   인증 instance principal (박스에 키 없음) / 실패·성공 Discord 알림
 # =====================================================================
 set -uo pipefail
 
-GROUP="${1:-}"
+GROUP="${1:-}"; [ $# -gt 0 ] && shift
+MODE=full; SRC_TAR=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --tar-only)    MODE=tar ;;
+    --upload-only) MODE=upload; SRC_TAR="${2:-}"; shift ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+  shift
+done
 OCI=~/oci-cli-venv/bin/oci
 NS=ax4ljwis9hth
 BUCKET=mc-backups
@@ -48,25 +61,40 @@ fail(){ echo "FAIL: $1" >&2; notify "🔴" "$HUMAN 백업 실패: $1"; exit 1; }
 mkdir -p "$STAGE"
 cd "$ROOT"
 
-# 존재하는 월드만 추림
-LIST=""
-for w in $WORLDS; do [ -d "$ROOT/$w" ] && LIST="$LIST $w"; done
-[ -n "$LIST" ] || fail "백업할 월드 폴더가 하나도 없음 ($WORLDS)"
+if [ "$MODE" = "upload" ]; then
+  # ★남이 만든 tar 를 그대로 올린다. 06:00 유지보수가 «정지 중»에 뜬 로컬 백업
+  #   (localmain-/localislands-)을 넘겨준다 — 월드 목록이 이 스크립트와 글자까지
+  #   같아서 같은 내용을 하루 두 번 tar 뜨던 낭비가 사라지고, 덤으로 라이브 tar 가
+  #   아니라 정지 tar 라 스냅샷 일관성도 올라간다.
+  [ -n "$SRC_TAR" ] || fail "--upload-only 에 tar 경로가 없음"
+  [ -s "$SRC_TAR" ] || fail "업로드할 tar 가 없음: $SRC_TAR"
+  gzip -t "$SRC_TAR" 2>/dev/null || fail "아카이브 무결성 실패 (gzip -t): $SRC_TAR"
+  LOCAL="$SRC_TAR"
+  SIZE=$(du -h "$LOCAL" | cut -f1)
+else
+  # 존재하는 월드만 추림
+  LIST=""
+  for w in $WORLDS; do [ -d "$ROOT/$w" ] && LIST="$LIST $w"; done
+  [ -n "$LIST" ] || fail "백업할 월드 폴더가 하나도 없음 ($WORLDS)"
 
-# 1) 서버에 저장 플러시 (tmux 세션 있으면)
-if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
-  tmux send-keys -t "$TMUX_SESSION" "save-all flush" Enter 2>/dev/null || true
-  sleep 6
+  # 1) 서버에 저장 플러시 (tmux 세션 있으면 — 정지 중이면 세션이 없어 그냥 건너뛴다)
+  if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
+    tmux send-keys -t "$TMUX_SESSION" "save-all flush" Enter 2>/dev/null || true
+    sleep 6
+  fi
+
+  # 2) tar
+  tar --warning=no-file-changed -czf "$LOCAL" -C "$ROOT" $LIST 2>/dev/null
+  rc=$?
+  # tar rc: 0=성공, 1=읽는 중 파일 변경(라이브 서버 정상, 아카이브 유효), 2+=치명
+  [ "$rc" -ge 2 ] && fail "tar 치명 오류 (rc=$rc)"
+  [ -s "$LOCAL" ] || fail "tar 결과가 비어있음"
+  gzip -t "$LOCAL" 2>/dev/null || fail "아카이브 무결성 실패 (gzip -t)"
+  SIZE=$(du -h "$LOCAL" | cut -f1)
+
+  # tar 만 요청받았으면 경로만 찍고 끝낸다(호출자가 나중에 --upload-only 로 올린다).
+  if [ "$MODE" = "tar" ]; then echo "$LOCAL"; exit 0; fi
 fi
-
-# 2) tar
-tar --warning=no-file-changed -czf "$LOCAL" -C "$ROOT" $LIST 2>/dev/null
-rc=$?
-# tar rc: 0=성공, 1=읽는 중 파일 변경(라이브 서버 정상, 아카이브 유효), 2+=치명
-[ "$rc" -ge 2 ] && fail "tar 치명 오류 (rc=$rc)"
-[ -s "$LOCAL" ] || fail "tar 결과가 비어있음"
-gzip -t "$LOCAL" 2>/dev/null || fail "아카이브 무결성 실패 (gzip -t)"
-SIZE=$(du -h "$LOCAL" | cut -f1)
 
 # 3) 업로드
 $OCI os object put --namespace "$NS" --bucket-name "$BUCKET" \
@@ -90,8 +118,8 @@ for o in $OLD; do
     --name "$o" --force --auth instance_principal >/dev/null 2>&1
 done
 
-# 6) 로컬 staging 정리
-ls -1t "$STAGE"/${PREFIX}-*.tar.gz 2>/dev/null | tail -n +$((KEEP_LOCAL+1)) | xargs -r rm -f
+# 6) 로컬 staging 정리 (내가 만든 tar 일 때만 — 남의 파일 보관은 그쪽 정책이다)
+[ "$MODE" = "full" ] && ls -1t "$STAGE"/${PREFIX}-*.tar.gz 2>/dev/null | tail -n +$((KEEP_LOCAL+1)) | xargs -r rm -f
 
 # 성공은 즉시 알림 안 하고 상태파일에 누적 (23:00 요약이 한 번에 발송). 실패만 즉시 개별 알림.
 echo "🟢 ${HUMAN} 오프사이트 ($SIZE)" >> "$STATUS_FILE"

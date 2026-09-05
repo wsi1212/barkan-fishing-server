@@ -58,12 +58,52 @@ SKIP_MARK="$DIR/.skip-nightly-once"
 #   ★백업이 어떻게 끝나든 서버는 반드시 다시 올린다(아래 trap).
 BACKUP_GROUPS=${BACKUP_GROUPS:-"main islands"}
 BACKUP_TIMEOUT=${BACKUP_TIMEOUT:-600}
-bsec=""; boot_line=""
+bsec=""; boot_line=""; OFFSITE_BS_TAR=""
+OFFLOG=${OFFLOG:-$HOME/mcserver/backups/offsite.log}
+BAKDIR=${BAKDIR:-$HOME/mcserver/backups}
+# 백업 디렉터리에서 «방금 만들어진» tar 하나를 고른다. 최신 파일을 그냥 집으면
+# 오늘 백업이 실패한 날 어제 tar 를 오늘 이름으로 올려버린다 — 조용한 거짓 백업.
+fresh_tar(){ find "$BAKDIR" -maxdepth 1 -name "$1-*.tar.gz" -mmin -"${2:-60}" -print 2>/dev/null | sort | tail -1; }
+
+# --- 오프사이트 업로드(기동 후) ---
+#   2026-09-05: 04:00/05:30/05:45 KST 개별 cron 이던 오프사이트 3종을 여기로 흡수했다.
+#   ★tar 를 다시 뜨지 않는다 — 정지 중에 만든 로컬 tar 를 그대로 올린다.
+#     offsite-worlds.sh 의 월드 목록이 local-backup.sh 와 글자까지 같아서, 예전엔
+#     같은 내용을 하루 두 번 압축하고 있었다(본월드 1.4GB × 2회).
+#   ★업로드는 네트워크에 묶여 있어 정지 창에 넣지 않는다. 서버를 올린 뒤에 한다.
+run_offsite_uploads(){
+  local isl mn d
+  if [ "$DRYRUN" = "1" ]; then log "DRY: would run offsite uploads"; return 0; fi
+  # ① playerdata(BlockShip 폴더) — 매일. tar 는 정지 중에 떠 뒀다.
+  if [ -n "$OFFSITE_BS_TAR" ]; then
+    "$DIR/offsite-backup.sh" --upload-only "$OFFSITE_BS_TAR" >>"$OFFLOG" 2>&1 \
+      || log "playerdata 오프사이트 업로드 실패"
+  else
+    log "playerdata 오프사이트 건너뜀 (정지 중 tar 없음)"
+  fi
+  # ② 섬 — 매일
+  isl=$(fresh_tar localislands)
+  if [ -n "$isl" ]; then
+    "$DIR/offsite-worlds.sh" islands --upload-only "$isl" >>"$OFFLOG" 2>&1 \
+      || log "섬 오프사이트 업로드 실패"
+  else log "섬 오프사이트 건너뜀 (오늘 tar 없음)"; fi
+  # ③ 본월드 — KST 1·15일만(격주). 1.4GB 라 매일 올리지 않는다.
+  d=$(TZ=Asia/Seoul date +%d)
+  case "$d" in 01|15)
+    mn=$(fresh_tar localmain)
+    if [ -n "$mn" ]; then
+      "$DIR/offsite-worlds.sh" main --upload-only "$mn" >>"$OFFLOG" 2>&1 \
+        || log "본월드 오프사이트 업로드 실패"
+    else log "본월드 오프사이트 건너뜀 (오늘 tar 없음)"; fi
+  ;; esac
+  # ④ 레거시 playerdata-*.tar.gz 정리(옛 21:00 cron 이관 — 신규 생성은 없다)
+  find "$BAKDIR" -maxdepth 1 -name 'playerdata-*.tar.gz' -mtime +30 -delete 2>/dev/null
+}
 run_local_backups(){   # $1 = down(정지 중) | live(서버 켜진 채 폴백)
   local where="$1" g rc
   for g in $BACKUP_GROUPS; do
     if [ "$DRYRUN" = "1" ]; then log "DRY: would back up $g ($where)"; continue; fi
-    timeout "$BACKUP_TIMEOUT" "$DIR/local-backup.sh" "$g" >>"$HOME/mcserver/backups/local.log" 2>&1
+    timeout "$BACKUP_TIMEOUT" "$DIR/local-backup.sh" "$g" >>"$BAKDIR/local.log" 2>&1
     rc=$?
     if [ "$rc" = "0" ]; then log "로컬 백업 $g 완료 ($where)"
     else
@@ -308,6 +348,12 @@ else
   eval "$STOP_CMD"; log "stopped — 백업 창 시작"
   _b0=$(date +%s)
   run_local_backups down
+  # playerdata(BlockShip 폴더)는 «종료 저장 직후»가 가장 정확하다. tar 4초, 업로드는 기동 후.
+  if [ "$DRYRUN" = "0" ]; then
+    OFFSITE_BS_TAR=$("$DIR/offsite-backup.sh" --tar-only 2>>"$OFFLOG")
+    if [ -s "$OFFSITE_BS_TAR" ]; then log "playerdata tar 생성: $(basename "$OFFSITE_BS_TAR")"
+    else OFFSITE_BS_TAR=""; log "playerdata tar 실패"; fi
+  fi
   bsec=$(( $(date +%s) - _b0 ))
   log "백업 창 종료 (${bsec}초)"
   _started=1; trap - EXIT INT TERM
@@ -335,6 +381,7 @@ if [ "$IMMEDIATE" = "0" ]; then
     fi
     sleep 5
   done
+  run_offsite_uploads
   read_backups
   build_msg
   notify "$msg"
