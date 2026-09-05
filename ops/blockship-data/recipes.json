@@ -799,7 +799,14 @@
           "typeOrMatId": "강화석탄",
           "displayName": "강화 석탄",
           "mcItem": "coal",
-          "qty": 4
+          "qty": 3
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화구리괴",
+          "displayName": "강화 구리괴",
+          "mcItem": "copper ingot",
+          "qty": 2
         }
       ]
     },
