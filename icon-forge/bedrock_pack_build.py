@@ -156,6 +156,11 @@ def scan_source_bases() -> dict[str, str]:
     pat = re.compile(r'(?:GuiIcons\.)?custom\(\s*"([A-Za-z0-9_/]+)"\s*,\s*Material\.([A-Z_]+)')
     # applyRaw(meta, "barkan_icon/모델") 앞쪽 6줄 안의 new ItemStack(Material.XXX)
     raw = re.compile(r'applyRaw\([^,]+,\s*"barkan_icon/([A-Za-z0-9_/]+)"')
+    # ★setItemModel(new NamespacedKey("barkan", "barkan_icon/모델")) — 세 번째 서식이다.
+    #   이걸 안 읽어서 «젖은 보물상자» 가 베드락에서만 바닐라 상자로 나왔다(2026-09-06 유저 제보).
+    #   자바 팩에는 모델·텍스처가 멀쩡히 있었는데 매핑에만 없었다 — 스캐너가 못 본 서식이라
+    #   조용히 빠진 것. 표를 손으로 채우지 말고 서식을 늘린다(생성기의 원칙).
+    key = re.compile(r'setItemModel\(\s*new NamespacedKey\(\s*"barkan"\s*,\s*"barkan_icon/([A-Za-z0-9_/]+)"')
     mat = re.compile(r'new ItemStack\(\s*(?:org\.bukkit\.)?Material\.([A-Z_]+)')
     for f in PLUGIN_SRC.rglob("*.java"):
         try:
@@ -168,6 +173,14 @@ def scan_source_bases() -> dict[str, str]:
             for m in raw.finditer(line):
                 icon = m.group(1).split("/")[-1]
                 for j in range(max(0, i - 6), i + 1):
+                    mm = mat.search(lines[j])
+                    if mm:
+                        out.setdefault(icon, f"minecraft:{mm.group(1).lower()}")
+                        break
+            for m in key.finditer(line):
+                icon = m.group(1).split("/")[-1]
+                # 아이템을 만든 줄이 위쪽에 있다 — applyRaw 와 같은 방식으로 거슬러 찾는다.
+                for j in range(max(0, i - 12), i + 1):
                     mm = mat.search(lines[j])
                     if mm:
                         out.setdefault(icon, f"minecraft:{mm.group(1).lower()}")
@@ -491,14 +504,27 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
     fresh_icons = {e["icon"] for e in resolved}
     carried_defs = 0
     dropped: list[str] = []
+    stale = 0
     for base, defs in legacy.items():
         for entry in defs:
             icon = entry.get("bedrock_options", {}).get("icon")
-            if icon and icon not in fresh_icons and icon not in seed_keys:
+            # ★이번 판이 만든 아이콘이면 «이번 판이 권위» — 옛 정의는 버린다.
+            #   여기가 뒤집혀 있었다(옛 정의를 오히려 지켜 줬다). 결과: 폐기한 규칙이
+            #   영원히 살아남는다. 중복 제거는 bedrock_identifier 로 하는데, 같은 아이콘을
+            #   두 번째 베이스에 달면 id 가 «b1_» 접두어로 «달라져서» 걸리지도 않는다.
+            #   2026-09-06 실측 사고: 작살을 paper 베이스로도 등록하는 우회를 넣었다가
+            #   되돌렸는데, 매핑에는 67개가 그대로 남아 커스텀 아이템이 1806→1873 이 됐고
+            #   베드락이 로그인 직후 끊겼다. 소스를 되돌려도 산출물이 안 돌아왔다.
+            if icon and icon in fresh_icons:
+                stale += 1
+                continue
+            if icon and icon not in seed_keys:
                 dropped.append(icon)
                 continue
             if put(base, entry):
                 carried_defs += 1
+    if stale:
+        print(f"  ▶ 이번 판이 다시 만든 아이콘의 옛 정의 {stale}개 폐기(권위=이번 판)")
     if dropped:
         print(f"  ⚠ 텍스처가 사라져 승계에서 뺀 옛 정의 {len(dropped)}개: {', '.join(dropped[:8])}")
 
