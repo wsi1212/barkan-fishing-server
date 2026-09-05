@@ -71,9 +71,11 @@ DESIGN SPEC — 다섯의 구분축 (피부색 / 볏 / 옷 / 번호 표식, 넷 
 │  피부  납빛 회청 56666b (백 해를 서 있어 색이 바랬다 — 채도 최저)
 │  눈    ★**백내장 — 동공이 없다.** 다섯 중 모르·비늘짜는이·일곱-셋만 동공을 가진다
 │  볏    길고 뾰족하게 뒤로 넘어간 볏 — 관모(冠帽) 실루엣. 다섯 중 가장 높다
-│  옷    **교단 파수 제복의 잔재** — 프리즈머린 청록 2c5f63 튜닉 + 산호빛 견장 c9b98a
-│        + 가슴 여밈선(★면이 아니라 선 — 채우면 목도리가 된다). 유일한 «제복»
-│  표식  번호 없음 — 파수는 번호가 아니라 «자리»였다. 대신 목에 옛 교단 링
+│  옷    **한쪽 어깨에 걸친 삭은 파수복 조각** — 프리즈머린 청록, 밑단이 뜯기고
+│        구멍이 났다. 반대쪽은 맨몸. ★재단된 옷(튜닉·단추·견장·소매) 전면 폐기 —
+│        치수와 단추는 «만든 사람»을 전제한다. 도망친 것에겐 없다.
+│        묶음은 힘줄 끈 한 줄 + 어긋난 뼈 구슬 두 점뿐
+│  표식  번호 없음 — 파수는 번호가 아니라 «자리»였다. 대신 끈에 꿴 뼈 구슬 두 점
 │  추가  ★수염 대신 **입가 수염돌기(barbel)** 2가닥 — 늙은 저서어의 표식. 하만 가진다
 └ 울지 않는 것 213 — 수조에서 «그릇»으로 개조되다 만 개체. 소리를 못 낸다. &f 대화 전용
    피부  병약한 창백 회분홍 8c7f80 ★네 명의 «바다색»에서 유일하게 벗어난다 —
@@ -90,6 +92,7 @@ DESIGN SPEC — 다섯의 구분축 (피부색 / 볏 / 옷 / 번호 표식, 넷 
   나머지 셋은 금속을 가질 수 없는 처지다(도망친 것들이다).
 """
 import pathlib
+import random
 import sys
 import zlib
 
@@ -536,6 +539,87 @@ def _fish_face(s, r, eye_y=4, mouth_y=6, mouth_w=6, barbel=None):
             f.px(x, mouth_y - 1, mix(f.get(x, mouth_y - 1), barbel[2], 0.55))
 
 
+def _ragged(s, part, r, y_hem, layer='outer', seed=0, depth=3, faces=SIDES,
+            holes=0):
+    """옷단을 **뜯어낸다** — 수평으로 반듯한 밑단은 «재단된 옷»이고, 도망친 것들은
+    그런 걸 가질 수 없다(오너 지적: "좀 헌 뭔가 야생스러운 옷이여야지").
+
+    겉레이어 픽셀을 지우면 그 자리에 base 의 맨살이 드러난다 — 그게 «해진» 것이다.
+    지운 자리 바로 위 한 칸은 한 단 어둡게 해 닳은 올을 만든다.
+    `holes` 는 옷 한가운데를 뚫는다(삭아서 난 구멍).
+    """
+    rnd = random.Random(seed)
+    for fname in faces:
+        f = s.f(part, fname, layer)
+        for x in range(f.w):
+            cut = rnd.choice((0, 1, 1, 2, 2, 3)[:max(2, depth * 2)])
+            for y in range(y_hem - cut + 1, y_hem + 1):
+                if f.get(x, y)[3]:
+                    f.px(x, y, (0, 0, 0, 0), 0)
+            yy = y_hem - cut
+            if f.get(x, yy)[3]:
+                f.px(x, yy, mix(f.get(x, yy), r[0], 0.45))     # 닳은 올
+        for _ in range(holes):
+            hx, hy = rnd.randrange(f.w), rnd.randrange(max(1, y_hem - 2))
+            if f.get(hx, hy)[3]:
+                f.px(hx, hy, (0, 0, 0, 0), 0)
+                if f.get(hx, hy - 1)[3]:
+                    f.px(hx, hy - 1, mix(f.get(hx, hy - 1), r[0], 0.50))
+
+
+def _pelt(s, r, seed, y0=0, y1=10, side='r'):
+    """★한쪽 어깨에만 걸친 삭은 천/가죽 — «재단이 없는 옷».
+
+    2패스 5차, 오너 지적: 제복 튜닉 + 여밈선 + 걸쇠로 고쳤더니 «바꾼거도 단추옷이잖아».
+    맞다 — 단추·견장·소매는 **재단의 문법**이고, 재단은 «만든 사람과 치수»를 전제한다.
+    도망친 사역어에게 그런 게 있을 리 없다. 그래서 걸치는 방식 자체를 바꾼다:
+    양쪽 어깨를 덮는 옷(=치수가 있다) 대신 **한쪽에만 걸쳐 반대쪽 맨몸이 드러나는 천**.
+    비대칭 자체가 «주워 걸친 것»의 증거고, 드러난 맨살로 비늘·역광음영·측선이 보인다.
+
+    ★5차 1차 실패: 안쪽 경계를 x3 에 **딱 떨어지는 세로선**으로 두니 옷이 아니라
+      «칠하다 만 자국»으로 읽혔다. 천의 가장자리는 직선일 수 없다 — 행마다 ±1 흔들어
+      들쭉날쭉하게 내려야 «늘어진 천»이 된다.
+    ★몸의 «오른쪽»은 front x0~3 · right 면 전체 · back x4~7 이다(Strip 언랩
+      right→front→left→back 에서 right 의 끝 열이 front 의 첫 열과 맞닿는다).
+    """
+    rnd = random.Random(seed ^ 0x5EA)
+    right = side == 'r'
+    ff = s.f('body', 'front', 'outer')
+    bf = s.f('body', 'back', 'outer')
+    sf = s.f('body', 'right' if right else 'left', 'outer')
+    #   ★5차 3차 실패: 픽셀마다 램프에서 무작위로 골라 칠했더니 «천»이 아니라 **이끼 얼룩**이
+    #     됐다. 천은 한 덩어리 값이고, 그 위에 «접힌 자국»과 «빛 받는 모서리»가 얹히는 것이다.
+    #     노이즈는 재질이 아니라 형태의 부재다.
+    fold = rnd.choice((1, 2))                              # 늘어진 주름 한 줄
+    for y in range(y0, y1 + 1):
+        e = 5 + rnd.choice((-1, 0, 0, 1))                  # 흔들리는 안쪽 경계
+        xs = range(0, e) if right else range(8 - e, 8)
+        for x in xs:
+            ff.px(x, y, r[3])
+        ff.px(xs[-1] if right else xs[0], y, r[4])         # 늘어진 안쪽 모서리 = 빛 받는 면
+        ff.px(fold if right else 7 - fold, y, r[2])
+        eb = 5 + rnd.choice((-1, 0, 0, 1))
+        xb = range(8 - eb, 8) if right else range(0, eb)
+        for x in xb:
+            bf.px(x, y, r[2])
+        for x in range(4):
+            sf.px(x, y, r[3] if x % 3 else r[2])
+        if y % 4 == 3:                                     # 가로 구김 한 줄
+            for x in xs:
+                ff.px(x, y, mix(ff.get(x, y), r[1], 0.40))
+    tf = s.f('body', 'top', 'outer')                       # 어깨 위로 넘어간다
+    for x in (range(0, 4) if right else range(4, 8)):
+        for y in range(4):
+            tf.px(x, y, r[3] if y % 3 else r[2])
+    for x in range(8):                                     # 목쪽 가장자리도 물어뜯는다
+        if ff.get(x, y0)[3] and rnd.random() < 0.45:
+            ff.px(x, y0, (0, 0, 0, 0), 0)
+        if bf.get(x, y0)[3] and rnd.random() < 0.45:
+            bf.px(x, y0, (0, 0, 0, 0), 0)
+    _ragged(s, 'body', r, y1, seed=seed, depth=1, holes=2,
+            faces=('front', 'back', 'right' if right else 'left'))
+
+
 def _brand(s, part, face, marks, color, layer='outer'):
     """비늘에 새긴 번호 낙인 / 흉터. ★4px 이하 — 가슴 로고는 금지 규칙이다."""
     f = s.f(part, face, layer)
@@ -607,6 +691,10 @@ def build_mor():
                     mf.px(x, y, mix(mf.get(x, y), P['cloak'][1], 0.32))
                 elif (x + off) % 4 == 1:
                     mf.px(x, y, mix(mf.get(x, y), P['cloak'][4], 0.20))
+    #   ★망토 밑단도 뜯는다 — 반듯한 수평 밑단은 «재단된 옷»이다(212 와 같은 근거)
+    _ragged(s, 'body', P['cloak'], 5, seed=SEED, holes=1, faces=('front',))
+    _ragged(s, 'body', P['cloak'], 10, seed=SEED + 1, holes=2,
+            faces=('back', 'right', 'left'))
     g.belt(s, P['strap'], y=8, layer='outer', ao=False)
     _dorsal_body(s, P['fin'], y0=0, y1=8)                  # ★망토를 뚫고 나온 등지느러미
     for part in ('arm_r', 'arm_l'):
@@ -652,6 +740,7 @@ def build_weaver():
         for x in range(8):
             if af.get(x, y)[3] and (x + off) % 4 == 0:
                 af.px(x, y, mix(af.get(x, y), P['apron'][1], 0.32))
+    _ragged(s, 'body', P['apron'], 11, seed=SEED, holes=2, faces=('front',))
     g.pouch(s, P['strap'], part='leg_l', face='front', x=1, y=1, w=2, h=3)
     _dorsal_body(s, P['fin'], y0=0, y1=7)
     for part in ('arm_r', 'arm_l'):
@@ -721,8 +810,9 @@ def build_ha():
         skin=scaleskin('56666b', 0.26),             # 납빛 회청 — 백 해를 서 있어 바랬다
         glow=glowramp('a9c9c0', 0.30),              # 백내장 — ★무채색이면 «흰자»가 된다
         fin=scaleskin('6e8288', 0.28),              # 바랜 지느러미 — 채도 최저
-        robe=matte('1e4448', 0.24),                 # ★1패스 2c5f63 은 피부와 값이 붙었다
-        coral=matte('c9b98a', 0.22),                # 산호빛 견장 — 금속이 아니다
+        robe=matte('1b3a3e', 0.26),                 # ★1패스 2c5f63 은 피부와 값이 붙었다
+        coral=matte('c9b98a', 0.22),                # 산호빛 — 이제 뼈 구슬 2점에만 쓴다
+        cord=leather('4a4034', 0.26),               # 힘줄 끈 — ★밝으면 그게 또 목도리다
     )
     s = Skin()
     _species(s, P, SEED)
@@ -733,33 +823,23 @@ def build_ha():
     #   ★수염 대신 수염돌기(barbel) — 늙은 저서어의 표식. 다섯 중 하만 가진다
     _fish_face(s, P['skin'], eye_y=4, mouth_y=6, mouth_w=4, barbel=P['fin'])
 
-    #   유일한 «제복» — 재단이 갖춰져 있다(가슴 세로 트임 + 견장)
-    g.tunic(s, P['robe'], y0=1, y1=11, collar=True, layer='outer', seed=SEED,
-            fold_cols=(2, 5), grain=0.06)
-    #   ★가슴 트임 — 오너 지적 «심해 물고기가 왠 목도리냐». 1차엔 `g.placket` 으로
-    #     산호색 2px 세로띠를 y2~y9 **꽉 채웠고**, 거기에 어깨 견장 두 장 + 목 링이
-    #     겹치자 정확히 «목에 두르고 앞으로 늘어뜨린 목도리»가 됐다.
-    #     트임은 «채우는 것»이 아니라 «여미는 선»이다 — 어두운 이음선 한 열 + 걸쇠 3점.
-    #     악센트는 점으로 흩으면 옷이 되고, 면으로 채우면 천이 된다.
+    #   ★제복을 통째로 폐기했다 — 튜닉→여밈선→걸쇠까지 고쳐도 «단추옷»이었다.
+    #     문제는 장식이 아니라 **재단** 자체였다(_pelt docstring 참조).
+    #     남은 건 한쪽 어깨에 걸친 삭은 파수복 조각 + 힘줄 끈뿐이고, 반대쪽은 맨몸이다.
+    _pelt(s, P['robe'], SEED, y0=0, y1=10, side='r')
+    #   힘줄 끈 — 걸친 천이 흘러내리지 않게 반대 어깨로 비스듬히 묶었다(유일한 «묶음»)
+    #   ★끈을 산호색(c9b98a)으로 그었더니 값 174~229 로 튀어 «빛나는 어깨띠»가 됐다
+    #     — 목도리를 지우고 그 자리에 띠를 새로 만든 꼴이다. 끈은 어두운 힘줄이어야 한다.
     ff = s.f('body', 'front', 'outer')
-    for y in range(2, 10):
-        ff.px(4, y, mix(P['robe'][0], BLACK, 0.30))        # 여밈선
-        ff.px(3, y, P['robe'][4] if y % 2 else P['robe'][3])   # 겹친 자락의 밝은 모서리
-    for y in (3, 5, 7):                                    # 산호 걸쇠 — 1px 3점
-        ff.px(4, y, P['coral'][3])
-    for fname in ('front', 'back'):                        # 견장 — 어깨 2행
-        f = s.f('body', fname, 'outer')
-        f.rect(0, 0, 1, 1, P['coral'][3])
-        f.rect(6, 0, 7, 1, P['coral'][2])
-    s.f('body', 'top', 'outer').rect(0, 0, 1, 3, P['coral'][3])
-    s.f('body', 'top', 'outer').rect(6, 0, 7, 3, P['coral'][2])
-    g.sleeves(s, P['robe'], y0=0, y1=6, seed=SEED, grain=0.06, layer='outer')
-    #   목의 옛 교단 링 — 번호가 아니라 «자리»의 표식.
-    #   ★산호색으로 목을 한 바퀴 두르면 그것도 목도리다. 링은 옷 색의 어두운 띠로 두고
-    #     산호는 **앞 가운데 1px**(펜던트)만 — 그래야 «두른 천»이 아니라 «건 것»이 된다.
-    for fname in SIDES:
-        s.f('body', fname, 'outer').row(0, mix(P['robe'][0], BLACK, 0.25), 1, 6)
-    s.f('body', 'front', 'outer').px(4, 0, P['coral'][2])
+    for i, y in enumerate(range(1, 9)):
+        x = min(7, 1 + i)
+        ff.px(x, y, P['cord'][1] if i % 2 else P['cord'][2])
+    bf = s.f('body', 'back', 'outer')
+    for i, y in enumerate(range(1, 5)):                    # 등쪽은 짧게 — 매듭만 보인다
+        bf.px(max(0, 6 - i), y, P['cord'][1])
+    #   옛 교단의 «자리» 표식 — 끈에 꿴 뼈 구슬 둘. 나란한 단추가 아니라 어긋난 두 점
+    ff.px(3, 3, P['coral'][4])
+    ff.px(5, 6, P['coral'][3])
     _dorsal_body(s, P['fin'], y0=0, y1=9)                  # 제복을 튼 등지느러미
     for part in ('arm_r', 'arm_l'):
         _finray(s, part, P['fin'], y0=7, y1=11)
