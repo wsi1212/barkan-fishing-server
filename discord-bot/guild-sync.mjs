@@ -30,8 +30,12 @@ const VOICE_ALLOW = [
   PermissionsBitField.Flags.UseVAD,
 ];
 
+// 디스코드 텍스트 채널은 유니코드 문자를 그대로 받는다(한자·가나·키릴 포함).
+// 한글만 허용하면 한자 닉 길드가 전부 걸러져 대체값 "guild" 로 무너진다.
+const NAME_ALLOWED = /[^\p{L}\p{N}\p{M}_-]/gu;
+
 export function textChannelName(guildId) {
-  const cleaned = String(guildId).trim().toLowerCase().replace(/\s+/g, "-").replace(/[^0-9a-z가-힣ㄱ-ㅎㅏ-ㅣ_-]/gu, "");
+  const cleaned = String(guildId).trim().toLowerCase().replace(/\s+/g, "-").replace(NAME_ALLOWED, "");
   return cleaned.slice(0, 90) || "guild";
 }
 /** 음성 채널은 표시 이름이라 정규화하지 않고 길이만 자른다. */
@@ -39,7 +43,8 @@ export function voiceChannelName(guildId) {
   return String(guildId).slice(0, 90);
 }
 export function safeFileName(guildId) {
-  return String(guildId).replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_-]/gu, "_").slice(0, 60) || "guild";
+  // 경로 구분자·점이 \p{L}\p{N} 에 안 들어가므로 traversal 은 그대로 막힌다.
+  return String(guildId).replace(NAME_ALLOWED, "_").slice(0, 60) || "guild";
 }
 
 /**

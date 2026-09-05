@@ -203,6 +203,15 @@ test("채널 이름은 소문자·하이픈으로 정규화하고 한글은 유�
   assert.equal(textChannelName("바르칸 #1!"), "바르칸-1");
 });
 
+test("한자·가나·키릴 이름도 대체값으로 무너지지 않는다", () => {
+  assert.equal(textChannelName("龍王"), "龍王");
+  assert.equal(textChannelName("漁師 ギルド"), "漁師-ギルド");
+  assert.equal(textChannelName("Русь"), "русь");
+  assert.equal(safeFileName("龍王"), "龍王");
+  // 서로 다른 한자 길드가 같은 파일명으로 뭉개지지 않는다
+  assert.notEqual(safeFileName("龍王"), safeFileName("虎王"));
+});
+
 test("이름이 전부 걸러지면 빈 이름 대신 대체값을 쓴다", () => {
   assert.equal(textChannelName("###"), "guild");
   assert.equal(safeFileName("../../etc/passwd"), "______etc_passwd");
