@@ -424,7 +424,7 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
             shutil.copyfile(src, dst)   # 이미지 처리 실패해도 아이콘은 나가야 한다
 
 
-def build(dry: bool, max_px: int = 64) -> int:
+def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
     entries, warns = collect()
     for w in warns:
         print(f"  ⚠ {w}")
@@ -614,11 +614,72 @@ def build(dry: bool, max_px: int = 64) -> int:
             },
         },
     }
+
+    # ── 베드락 전용 HUD 실험 (--bedrock-hud, 기본 꺼짐) ──────────────────────
+    #   BetterHud 는 자바 리소스팩의 음수 폭 space 글리프로 그림을 겹쳐 그린다. 베드락
+    #   글리프는 16×16 고정 셀이라 음수 전진값이 없어 합성 자체가 성립하지 않고, BetterHud
+    #   자신도 disable-to-bedrock-player: true 로 베드락에는 HUD 를 보내지 않는다.
+    #   베드락에서 «판» 을 그리려면 클라 UI 를 덮어쓰는 수밖에 없는데, JSON UI 가 서버에서
+    #   받을 수 있는 문자열은 액션바($actionbar_text)·제목·부제목뿐이다. 그래서 서버
+    #   (com.blockship.hud.BedrockHud)가 액션바로 세 줄을 보내고 여기서 자리만 옮긴다.
+    #   ★서버 config 의 bedrock.hud-experiment 와 «짝» 이다. 팩만 넣으면 아무 일도 없고,
+    #     서버만 켜면 액션바가 화면 한가운데 그대로 뜬다.
+    if bedrock_hud:
+        ui_files["ui/hud_screen.json"] = {
+            "namespace": "hud",
+            # 액션바는 3초에 걸쳐 사라지고 destroy_at_end 로 컨트롤이 파괴된다. HUD 로 쓰려면
+            # «투명해지지 않고» 다음 갱신까지 버텨야 한다 → from=to=1 로 평평하게 두고 수명만
+            # 1.4초로 줄인다(서버 재전송 주기 1초보다 길어야 끊기지 않는다).
+            # ★destroy_at_end 를 지우면 컨트롤이 영원히 남아 갱신 때마다 겹쳐 쌓인다.
+            "anim_actionbar_text_alpha_out": {
+                "anim_type": "alpha", "easing": "linear", "duration": 1.4,
+                "from": 1.0, "to": 1.0,
+                "destroy_at_end": "hud_actionbar_text",
+                "end_event": "hud_actionbar_text_complete",
+            },
+            "anim_actionbar_text_background_alpha_out": {
+                "anim_type": "alpha", "easing": "linear", "duration": 1.4,
+                "from": 0.75, "to": 0.75,
+                "destroy_at_end": "hud_actionbar_text",
+                "end_event": "hud_actionbar_text_complete",
+            },
+            # 화면 한가운데 아래(50%-68px) → 오른쪽 위. 배경은 바닐라 텍스처를 그대로 쓴다
+            # (새 에셋을 넣지 않는다 — 실험이 실패해도 지울 게 JSON 하나뿐이게).
+            "hud_actionbar_text": {
+                "type": "image",
+                "size": ["100%c + 10px", "100%c + 8px"],
+                "anchor_from": "top_right",
+                "anchor_to": "top_right",
+                "offset": [-4, 4],
+                "texture": "textures/ui/hud_tip_text_background",
+                "alpha": "@hud.anim_actionbar_text_background_alpha_out",
+                "controls": [{
+                    "actionbar_message": {
+                        "type": "label",
+                        "anchor_from": "top_left",
+                        "anchor_to": "top_left",
+                        "offset": [5, 4],
+                        "text_alignment": "left",
+                        "color": [1.0, 1.0, 1.0],
+                        # ★프로필 필터를 끈다 — 바닐라는 켜 두는데, 우리 글자는 지역명·요리
+                        #   이름이라 걸릴 이유가 없고 걸리면 ### 로 나온다.
+                        "enable_profanity_filter": False,
+                        "layer": 31,
+                        "text": "$actionbar_text",
+                        "shadow": True,
+                        "localize": False,
+                        "alpha": "@hud.anim_actionbar_text_alpha_out",
+                    },
+                }],
+            },
+        }
+
     for rel, doc in ui_files.items():
         dst = stage / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"▶ JSON UI 덮어쓰기 {len(ui_files)}개 (사이드바 점수 숨김)")
+    print(f"▶ JSON UI 덮어쓰기 {len(ui_files)}개"
+          + (" (사이드바 점수 숨김 + 베드락 HUD 실험)" if bedrock_hud else " (사이드바 점수 숨김)"))
 
     stamp = hashlib.sha1()
     stamp.update(f"max_px={max_px}".encode())
@@ -696,5 +757,8 @@ if __name__ == "__main__":
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--max-px", type=int, default=64,
                     help="텍스처 최대 변 길이(기본 64). ★올리지 말 것 — 아래 주석 참조")
+    ap.add_argument("--bedrock-hud", action="store_true",
+                    help="베드락 HUD 실험용 JSON UI 를 넣는다(dev 전용). "
+                         "서버 config 의 bedrock.hud-experiment 와 짝이다")
     a = ap.parse_args()
-    sys.exit(build(a.dry_run, a.max_px))
+    sys.exit(build(a.dry_run, a.max_px, a.bedrock_hud))
