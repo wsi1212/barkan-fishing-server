@@ -384,6 +384,17 @@ def collect() -> tuple[list[dict], list[str]]:
         base = harpoon_base.get(icon, BASE_ITEM[fam][0] if isinstance(BASE_ITEM[fam], list)
                                 else BASE_ITEM[fam]) if fam == "harpoon" else BASE_ITEM[fam]
         bases = base if isinstance(base, list) else [base]
+        # ★작살은 «창 재질» 만으론 부족하다 — 베이스 빌더가 둘이라 실물이 paper 로도 존재한다.
+        #   HarpoonItemFactory.build() 는 등급별 창(wooden_spear…)을 만들지만,
+        #   EquipmentManager.buildPart() 는 partIcon(type) 기본값인 PAPER 로 만든다. 상점·조합·
+        #   지급 경로가 후자를 타면 손에 든 작살이 paper 다 — dev 실측(2026-09-06):
+        #     data get entity <player> SelectedItem
+        #     → {id: "minecraft:paper", components: {"minecraft:item_model": "barkan:...harpoon_12c59d7741"}}
+        #   Geyser 매핑은 (자바 베이스 아이템 + item_model) 짝으로 걸리므로 창으로만 등록하면
+        #   그 작살은 베드락에서 «종이» 로 보인다(유저 제보). 낚싯대가 fishing_rod·paper 를
+        #   둘 다 등록하는 것과 같은 이유다 — 자바 쪽 빌더를 통일하기 전까지 양쪽을 등록한다.
+        if fam == "harpoon" and "minecraft:paper" not in bases:
+            bases = bases + ["minecraft:paper"]
         entries.append({
             "icon": icon,
             "model": f"{NS}:barkan_icon/{icon}",
@@ -424,7 +435,7 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
             shutil.copyfile(src, dst)   # 이미지 처리 실패해도 아이콘은 나가야 한다
 
 
-def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
+def build(dry: bool, max_px: int = 64, plate: str = "off") -> int:
     entries, warns = collect()
     for w in warns:
         print(f"  ⚠ {w}")
@@ -624,7 +635,7 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
     #     충돌하는 것으로 본다. ★★그 파일을 다시 넣지 말 것 — 액션바·타이틀 통로는 끝났다.
     #   대신 «살아 있는 게 확인된» ui/scoreboards.json 으로 사이드바 자체를 판으로 만든다.
     #   자바 스코어보드가 이미 통로라 새로 뺏을 채널도 없다.
-    if bedrock_plate:
+    if plate != "off":
         plate_src = SERVER / "plugins/Skript/scripts/ops/prod/betterhud/assets/status/status-plate.png"
         icons = {  # 글리프 칸 → 원본 아이콘 (자바 HUD 와 같은 그림을 쓴다)
             0x00: "icon-coin.png",
@@ -666,10 +677,17 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
         sheet.save(stage / "font/glyph_E2.png")
         print(f"▶ 사이드바 판 + 글리프 {len(icons)}칸 (font/glyph_E2.png)")
 
+        # ★한꺼번에 넣었다가 클라가 죽어 원인을 못 가렸다(2026-09-06). 단계로 쪼갠다:
+        #     assets  = 텍스처·글리프 파일만. ui/scoreboards.json 은 «검증된 두 줄» 그대로.
+        #     shallow = + 2단 경로 패치(부모/자식). Geyser 통합팩이 실제로 쓰는 idiom.
+        #     deep    = + 3단 경로 패치(부모/자식/손자). 미검증 — 제일 유력한 범인.
+        #   각 단계는 베드락 접속 한 번으로 판정된다. 통과한 단계까지만 prod 로 보낸다.
         sb = ui_files["ui/scoreboards.json"]
         # ★2단 경로 패치(부모/자식)는 Geyser 통합팩이 실제로 쓰는 idiom이다
         #   ("root_panel/hud_tip_text_factory": {"ignored": true}).
         #   3단(main/자식)은 미검증이라, 안 먹으면 «여백만 안 맞고» 깨지지는 않는 선택만 넣는다.
+        if plate == "assets":
+            sb = {}          # 아래 패치를 전부 버린다(딕셔너리를 갈아 끼워 분기를 하나만 둔다)
         sb["scoreboard_sidebar/main"] = {
             "texture": "textures/ui/barkan_sidebar_plate",
             # 바닐라는 유저의 「텍스트 배경 투명도」 설정(#objective_background_opacity)을
@@ -678,10 +696,13 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
             # 나무 테두리(10px) 안쪽에 글자가 들어가도록 판을 키운다.
             "size": ["100%cm + 20px", "100%c + 16px"],
         }
-        sb["scoreboard_sidebar/main/displayed_objective"] = {"offset": [0, 8]}
-        sb["scoreboard_sidebar/main/lists"] = {"offset": [0, 19]}
-        # 제목 뒤의 검은 띠 — 판 위에서는 얼룩으로 보인다.
+        # 제목 뒤의 검은 띠 — 판 위에서는 얼룩으로 보인다. (2단)
         sb["scoreboard_sidebar/displayed_objective_background"] = {"alpha": 0.0}
+        if plate == "deep":
+            # 나무 테두리 안쪽으로 글자를 밀어 넣는다. 3단 경로가 안 먹으면 «여백만 안 맞고»
+            # 깨지지는 않아야 정상이다 — 이 단계가 접속을 깨면 3단 경로가 범인이다.
+            sb["scoreboard_sidebar/main/displayed_objective"] = {"offset": [0, 8]}
+            sb["scoreboard_sidebar/main/lists"] = {"offset": [0, 19]}
 
 
     for rel, doc in ui_files.items():
@@ -689,7 +710,7 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"▶ JSON UI 덮어쓰기 {len(ui_files)}개"
-          + (" (점수 숨김 + 사이드바 판)" if bedrock_plate else " (점수 숨김)"))
+          + (f" (점수 숨김 + 사이드바 판:{plate})" if plate != "off" else " (점수 숨김)"))
 
     stamp = hashlib.sha1()
     stamp.update(f"max_px={max_px}".encode())
@@ -768,8 +789,11 @@ if __name__ == "__main__":
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--max-px", type=int, default=64,
                     help="텍스처 최대 변 길이(기본 64). ★올리지 말 것 — 아래 주석 참조")
-    ap.add_argument("--bedrock-plate", action="store_true",
-                    help="베드락 사이드바를 양피지 판으로 꾸미고 글리프 아이콘을 넣는다. "
+    ap.add_argument("--bedrock-plate", choices=["off", "assets", "shallow", "deep"],
+                    default="off",
+                    help="베드락 사이드바 꾸미기 단계. assets=텍스처·글리프 파일만 / "
+                         "shallow=+2단 경로 UI 패치 / deep=+3단 경로. "
+                         "★한 단계씩 올리며 베드락 접속으로 판정할 것. "
                          "서버 config 의 bedrock.sidebar-glyphs 와 짝이다")
     a = ap.parse_args()
     sys.exit(build(a.dry_run, a.max_px, a.bedrock_plate))
