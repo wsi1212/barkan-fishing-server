@@ -7097,16 +7097,16 @@
     "WARP01": {
       "id": "WARP01",
       "category": "재료",
-      "displayName": "스폰 도시 주문서",
+      "displayName": "바르칸 항구 주문서",
       "locked": false,
       "resultMode": "direct",
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
         "mcItem": "paper",
-        "name": "&f스폰 도시 주문서",
+        "name": "&f바르칸 항구 주문서",
         "lore": [
-          "&7사용 시 §f스폰 마을로 이동합니다.",
+          "&7사용 시 §f바르칸 항구로 이동합니다.",
           "",
           "&e우클릭하여 사용",
           "&8warpscroll:spawn"
