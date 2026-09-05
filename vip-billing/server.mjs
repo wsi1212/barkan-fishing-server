@@ -512,9 +512,16 @@ async function enqueueGuildJob(client, kind, guildId, payload = {}) {
 
 async function session(req) {
   const value = cookies(req).vip_session;
-  if (!value) return null;
-  const result = await pool.query("SELECT minecraft_uuid, player_name, csrf_token FROM web_sessions WHERE token_hash=$1 AND expires_at > NOW()", [hash(value)]);
-  return result.rows[0] ?? null;
+  if (value) {
+    const result = await pool.query("SELECT minecraft_uuid, player_name, csrf_token FROM web_sessions WHERE token_hash=$1 AND expires_at > NOW()", [hash(value)]);
+    if (result.rowCount) return result.rows[0];
+  }
+  // 링크코드를 안 받았어도 Discord 로그인이 살아 있으면 그걸 신원으로 쓴다.
+  // 두 경로의 종착점이 같은 discord_links 라 결과가 같고, OAuth 쪽이 오히려
+  // 10분짜리 1회용 코드보다 강한 인증이다. community_session 은 Path=/ 라
+  // /vip 요청에도 이미 실려 온다 — 여태 읽지 않았을 뿐이다.
+  // csrf_token 도 community_sessions 가 들고 있어서 폼 검증은 그대로 돈다.
+  return await communitySession(req);
 }
 function requireCsrf(data, current) { return current && data.csrf && data.csrf === current.csrf_token; }
 async function subscription(uuid) {
@@ -637,7 +644,7 @@ function purchasePage(current, tierId, requestedMonths) {
 function linkPage(selection, error = "") {
   const chosen = selection ? `<div class="notice"><b style="color:${selection.tier.color}">${selection.tier.name}</b> · ${periodLabel(selection.months)} · <b>₩${periodPrice(selection.tier, selection.months).toLocaleString()}</b></div>` : `<p class="muted">게임 안에서 <code>/구독</code>을 실행해 1회용 연결 코드를 받은 뒤 입력하세요.</p>`;
   const hidden = selection ? `<input type="hidden" name="tier" value="${esc(selection.tierId)}"><input type="hidden" name="months" value="${selection.months}">` : "";
-  return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p></div>`);
+  return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p><p class="muted">이미 게임에서 <code>/디스코드</code> 인증을 마쳤다면 코드 없이 바로 들어올 수 있습니다.</p><a class="button alt" href="${COMMUNITY_BASE_URL}/login">Discord로 로그인</a></div>`);
 }
 
 const COMMUNITY_CATEGORIES = Object.freeze(["공지", "공략", "인사글", "판매글", "홍보글", "자유게시판", "구인구직", "질문", "후기", "소식"]);
@@ -1580,7 +1587,13 @@ async function route(req, res) {
   }
   if (req.method === "GET" && path === "/health") { await pool.query("SELECT 1"); return json(res, 200, { ok: true, paymentConfigured: bankTransferConfigured(), paymentMethod: "BANK_TRANSFER" }); }
   if (req.method === "GET" && path === "/") return send(res, 200, home(url.searchParams.get("tier"), url.searchParams.get("months")));
-  if (req.method === "GET" && path === "/link") return send(res, 200, linkPage(selectionFrom(url.searchParams.get("tier"), url.searchParams.get("months"))));
+  if (req.method === "GET" && path === "/link") {
+    // 이미 신원이 잡히면(링크코드든 Discord 로그인이든) 연결 단계를 보여줄 이유가 없다.
+    const selected = selectionFrom(url.searchParams.get("tier"), url.searchParams.get("months"));
+    const known = await session(req);
+    if (known) return redirect(res, selected ? purchaseUrl(selected.tierId, selected.months) : `${BASE_URL}/account`);
+    return send(res, 200, linkPage(selected));
+  }
   if (req.method === "POST" && path === "/link") {
     const data = await form(req); const code = String(data.code ?? "").toUpperCase().replace(/[^A-Z0-9-]/g, ""); const selected = selectionFrom(data.tier, data.months);
     const client = await pool.connect();
