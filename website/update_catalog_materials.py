@@ -87,11 +87,32 @@ def material_recipe_index(materials: dict, recipes: dict) -> dict[str, dict]:
     return result
 
 
+def drop_source_index(root: dict) -> dict[str, list[dict]]:
+    """재료 → 낚시 획득처([{region, chance}]) — materials.json 드롭테이블에서 매번 다시 뽑는다.
+
+    ★예전엔 catalog-data.js 안의 ``sources``/``desc``/``name`` 를 손으로 넣고 얼려 뒀다.
+    그래서 녹슨부품이 「강 12% · 협곡 7% · 바르칸 10%」처럼 지금은 없는 지역과 옛 확률을
+    계속 보여 줬다(실제로는 13개 어장 6%). 얼린 사본을 고치지 말고 여기서 파생시킨다.
+    """
+    index: dict[str, list[dict]] = {}
+    for area, table in (root.get("dropTables") or {}).items():
+        for drop in table or []:
+            index.setdefault(drop["matId"], []).append(
+                {"region": area.replace("_", " "), "chance": drop["chance"]})
+    for weather, table in (root.get("weatherDrops") or {}).items():
+        for drop in table or []:
+            index.setdefault(drop["matId"], []).append(
+                {"region": f"{weather} (전역 날씨)", "chance": drop["chance"]})
+    return index
+
+
 def main() -> None:
     catalog = load_catalog()
-    materials = json.loads(MATERIALS.read_text(encoding="utf-8"))["materials"]
+    materials_root = json.loads(MATERIALS.read_text(encoding="utf-8"))
+    materials = materials_root["materials"]
     recipes = json.loads(RECIPES.read_text(encoding="utf-8"))["recipes"]
     recipe_index = material_recipe_index(materials, recipes)
+    source_index = drop_source_index(materials_root)
 
     before = [item for item in catalog["items"] if item.get("kind") == "material"]
     kept = []
@@ -108,6 +129,16 @@ def main() -> None:
         item["recipe"] = recipe_index.get(material_id)
         if item["recipe"]:
             attached += 1
+        # 표시이름·설명·획득처는 materials.json 이 권위 — 매번 덮어쓴다.
+        live = materials.get(material_id)
+        if live:
+            if live.get("name"):
+                item["name"] = strip_color(live["name"])
+            if live.get("desc"):
+                item["desc"] = live["desc"]
+        # 낚시 드롭이 없는 재료(광질·조합 산출물)는 기존 값을 건드리지 않는다.
+        if source_index.get(material_id):
+            item["sources"] = source_index[material_id]
         kept.append(item)
 
     catalog["items"] = kept
