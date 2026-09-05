@@ -424,7 +424,7 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
             shutil.copyfile(src, dst)   # 이미지 처리 실패해도 아이콘은 나가야 한다
 
 
-def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
+def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
     entries, warns = collect()
     for w in warns:
         print(f"  ⚠ {w}")
@@ -617,32 +617,79 @@ def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
     #   (com.blockship.hud.BedrockHud)가 액션바로 세 줄을 보내고 여기서 자리만 옮긴다.
     #   ★서버 config 의 bedrock.hud-experiment 와 «짝» 이다. 팩만 넣으면 아무 일도 없고,
     #     서버만 켜면 액션바가 화면 한가운데 그대로 뜬다.
-    if bedrock_hud:
-        # ★v1 은 베드락 클라를 죽였다(2026-09-06 실측: 리소스팩 협상 단계에서 클라가 스스로
-        #   끊음, 서버 로그엔 아무 단서도 안 남는다). v1 이 한 짓: hud_actionbar_text 를 통짜로
-        #   다시 쓰고 **바닐라 애니메이션 두 개**(anim_actionbar_text_alpha_out /
-        #   _background_alpha_out)까지 갈아엎었다. 그 애니메이션은 바닐라 팩토리가 참조하는
-        #   공용 정의라 건드리면 안 된다 — 실제로 도는 남의 팩(TrippleAWap/Sidebar-HUD)도
-        #   hud_actionbar_text 는 다시 쓰되 애니메이션은 «자기 이름으로 새로» 만든다.
-        # ★v2 는 «바꿀 속성만» 적는다 — Geyser 자체 팩(GeyserIntegratedPack)의 hud_screen.json
-        #   과 같은 idiom. 위치만 옮기고 애니메이션·팩토리·컨트롤 구조는 바닐라 그대로 둔다.
-        #   페이드는 in_expo 3초라 «거의 끝까지 알파 1» 이고, 서버가 1초마다 다시 보내면
-        #   매번 처음부터 재생돼 사실상 항상 떠 있다 → 애니메이션을 건드릴 이유가 없다.
-        ui_files["ui/hud_screen.json"] = {
-            "namespace": "hud",
-            "hud_actionbar_text": {
-                "anchor_from": "top_right",
-                "anchor_to": "top_right",
-                "offset": [-4, 4],
-            },
+    # ── 베드락 사이드바 꾸미기 (--bedrock-plate) ────────────────────────────
+    #   ★ui/hud_screen.json 은 «내용과 무관하게» 베드락 클라를 죽인다(2026-09-06 실측 2회:
+    #     통짜 재정의도, 다섯 줄짜리 위치 패치도 리소스팩 협상 단계에서 클라가 자체 종료).
+    #     Geyser 통합팩(enable-integrated-pack: true)이 같은 파일을 이미 덮어쓰는 것과
+    #     충돌하는 것으로 본다. ★★그 파일을 다시 넣지 말 것 — 액션바·타이틀 통로는 끝났다.
+    #   대신 «살아 있는 게 확인된» ui/scoreboards.json 으로 사이드바 자체를 판으로 만든다.
+    #   자바 스코어보드가 이미 통로라 새로 뺏을 채널도 없다.
+    if bedrock_plate:
+        plate_src = SERVER / "plugins/Skript/scripts/ops/prod/betterhud/assets/status/status-plate.png"
+        icons = {  # 글리프 칸 → 원본 아이콘 (자바 HUD 와 같은 그림을 쓴다)
+            0x00: "icon-coin.png",
+            0x01: "icon-star.png",
+            0x02: "icon-gem.png",
         }
+        icon_dir = plate_src.parent
+        if not plate_src.is_file():
+            print(f"❌ 판 텍스처가 없습니다: {plate_src}")
+            return 1
+
+        # 판 — 자바 HUD 의 양피지 판을 그대로 쓴다(같은 서버가 두 얼굴을 갖지 않게).
+        (stage / "textures/ui").mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(plate_src, stage / "textures/ui/barkan_sidebar_plate.png")
+        # ★나인슬라이스가 없으면 나무 테두리가 통째로 늘어나 뭉개진다. 테두리 10px + 모서리
+        #   장식이 그 안에 들어간다(실측: 124x72, 프레임 ~9px). 스키마는 베드락 표준.
+        (stage / "textures/ui/barkan_sidebar_plate.json").write_text(json.dumps({
+            "nineslice_size": [10, 10, 10, 10],
+            "base_size": [124, 72],
+        }, indent=2), encoding="utf-8")
+
+        # 글리프 — 512x512 를 16x16 칸(칸당 32px)으로. E0·E1 은 바닐라가 쓰므로 E2 를 쓴다.
+        #   문자 = U+E2<행><열>(16진). 칸 폭은 고정이라 자바식 음수 폭 배치는 불가하다.
+        cell = 32
+        sheet = Image.new("RGBA", (cell * 16, cell * 16), (0, 0, 0, 0))
+        for slot, name in icons.items():
+            src = icon_dir / name
+            if not src.is_file():
+                print(f"❌ 글리프 아이콘 없음: {src}")
+                return 1
+            im = Image.open(src).convert("RGBA")
+            im.thumbnail((cell - 4, cell - 4), Image.LANCZOS)
+            row, col = slot >> 4, slot & 0xF
+            # 글자 기준선에 맞추려고 칸 안에서 살짝 내려 붙인다(위로 뜨면 줄이 어긋나 보인다).
+            x = col * cell + (cell - im.width) // 2
+            y = row * cell + (cell - im.height) // 2 + 2
+            sheet.alpha_composite(im, (x, y))
+        (stage / "font").mkdir(parents=True, exist_ok=True)
+        sheet.save(stage / "font/glyph_E2.png")
+        print(f"▶ 사이드바 판 + 글리프 {len(icons)}칸 (font/glyph_E2.png)")
+
+        sb = ui_files["ui/scoreboards.json"]
+        # ★2단 경로 패치(부모/자식)는 Geyser 통합팩이 실제로 쓰는 idiom이다
+        #   ("root_panel/hud_tip_text_factory": {"ignored": true}).
+        #   3단(main/자식)은 미검증이라, 안 먹으면 «여백만 안 맞고» 깨지지는 않는 선택만 넣는다.
+        sb["scoreboard_sidebar/main"] = {
+            "texture": "textures/ui/barkan_sidebar_plate",
+            # 바닐라는 유저의 「텍스트 배경 투명도」 설정(#objective_background_opacity)을
+            # 따라간다 — 0 으로 둔 사람에게는 판이 안 보이므로 고정한다.
+            "alpha": 1.0,
+            # 나무 테두리(10px) 안쪽에 글자가 들어가도록 판을 키운다.
+            "size": ["100%cm + 20px", "100%c + 16px"],
+        }
+        sb["scoreboard_sidebar/main/displayed_objective"] = {"offset": [0, 8]}
+        sb["scoreboard_sidebar/main/lists"] = {"offset": [0, 19]}
+        # 제목 뒤의 검은 띠 — 판 위에서는 얼룩으로 보인다.
+        sb["scoreboard_sidebar/displayed_objective_background"] = {"alpha": 0.0}
+
 
     for rel, doc in ui_files.items():
         dst = stage / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"▶ JSON UI 덮어쓰기 {len(ui_files)}개"
-          + (" (사이드바 점수 숨김 + 베드락 HUD 실험)" if bedrock_hud else " (사이드바 점수 숨김)"))
+          + (" (점수 숨김 + 사이드바 판)" if bedrock_plate else " (점수 숨김)"))
 
     stamp = hashlib.sha1()
     stamp.update(f"max_px={max_px}".encode())
@@ -651,7 +698,8 @@ def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
     # ★UI 덮어쓰기도 해시에 넣는다 — 안 넣으면 UI 만 고쳤을 때 팩 버전이 그대로라
     #   클라가 캐시본을 쓰고 «고쳤는데 그대로» 가 된다(2026-09-04 아이콘 사고와 같은 원인).
     stamp.update(json.dumps(ui_files, sort_keys=True, ensure_ascii=False).encode())
-    for f in sorted((stage / "textures").rglob("*.png")):
+    # ★textures/ 만 해싱하면 글리프 시트(font/)를 고쳐도 버전이 그대로라 클라가 캐시본을 쓴다.
+    for f in sorted(list((stage / "textures").rglob("*.png")) + list((stage / "font").rglob("*.png"))):
         stamp.update(str(f.relative_to(stage)).encode())
         stamp.update(f.read_bytes())
     rev = int(stamp.hexdigest()[:6], 16) % 100000
@@ -720,8 +768,8 @@ if __name__ == "__main__":
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--max-px", type=int, default=64,
                     help="텍스처 최대 변 길이(기본 64). ★올리지 말 것 — 아래 주석 참조")
-    ap.add_argument("--bedrock-hud", action="store_true",
-                    help="베드락 HUD 실험용 JSON UI 를 넣는다(dev 전용). "
-                         "서버 config 의 bedrock.hud-experiment 와 짝이다")
+    ap.add_argument("--bedrock-plate", action="store_true",
+                    help="베드락 사이드바를 양피지 판으로 꾸미고 글리프 아이콘을 넣는다. "
+                         "서버 config 의 bedrock.sidebar-glyphs 와 짝이다")
     a = ap.parse_args()
-    sys.exit(build(a.dry_run, a.max_px, a.bedrock_hud))
+    sys.exit(build(a.dry_run, a.max_px, a.bedrock_plate))
