@@ -644,7 +644,7 @@ function purchasePage(current, tierId, requestedMonths) {
 function linkPage(selection, error = "") {
   const chosen = selection ? `<div class="notice"><b style="color:${selection.tier.color}">${selection.tier.name}</b> · ${periodLabel(selection.months)} · <b>₩${periodPrice(selection.tier, selection.months).toLocaleString()}</b></div>` : `<p class="muted">게임 안에서 <code>/구독</code>을 실행해 1회용 연결 코드를 받은 뒤 입력하세요.</p>`;
   const hidden = selection ? `<input type="hidden" name="tier" value="${esc(selection.tierId)}"><input type="hidden" name="months" value="${selection.months}">` : "";
-  return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p><p class="muted">이미 게임에서 <code>/디스코드</code> 인증을 마쳤다면 코드 없이 바로 들어올 수 있습니다.</p><a class="button alt" href="${COMMUNITY_BASE_URL}/login">Discord로 로그인</a></div>`);
+  return layout("게임 계정 연결", `<div class="panel"><h1>게임 계정 연결</h1>${chosen}${error ? `<div class="notice danger">${esc(error)}</div>` : ""}<form method="post" action="${BASE_URL}/link">${hidden}<label>게임 안에서 받은 코드</label><input name="code" maxlength="16" autocomplete="one-time-code" required placeholder="예: BK-AB12CD"><button>연결하기</button></form><p class="muted">게임에서 <code>/구독</code>을 실행하면 코드가 발급됩니다. 코드는 10분 동안 사용할 수 있습니다.</p><p class="muted">이미 게임에서 <code>/디스코드</code> 인증을 마쳤다면 코드 없이 바로 들어올 수 있습니다.</p><a class="button alt" href="${COMMUNITY_BASE_URL}/login?next=${encodeURIComponent(selection ? purchaseUrl(selection.tierId, selection.months) : `${BASE_URL}/account`)}">Discord로 로그인</a></div>`);
 }
 
 const COMMUNITY_CATEGORIES = Object.freeze(["공지", "공략", "인사글", "판매글", "홍보글", "자유게시판", "구인구직", "질문", "후기", "소식"]);
@@ -661,6 +661,28 @@ const COMMUNITY_CATEGORY_META = Object.freeze({
   "소식": "서버의 새 소식"
 });
 const communityConfigured = () => Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET);
+
+/**
+ * OAuth 뒤 돌아갈 주소. 우리 사이트의 /vip · /community 아래만 허용한다.
+ *
+ * <p>여기를 느슨하게 두면 그대로 오픈 리다이렉트가 된다 — 로그인 링크에 남의
+ * 도메인을 실어 보내면 우리 도메인을 거쳐 피싱 페이지로 튕길 수 있다.
+ * 그래서 «허용 목록»이지 «차단 목록»이 아니다. 발급할 때와 소비할 때 두 번 건다.
+ */
+function safeReturnUrl(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw || /[\r\n]/.test(raw)) return null;   // 줄바꿈은 Location 헤더를 쪼갠다
+  let target;
+  try { target = new URL(raw); } catch { return null; }
+  // 문자열 접두사 비교 대신 파싱해서 본다 — "…/vipEVIL.com" 같은 게 접두사로는 통과한다.
+  // URL 은 ".." 도 여기서 이미 정규화해 준다.
+  for (const allowed of [BASE_URL, COMMUNITY_BASE_URL]) {
+    const base = new URL(allowed);
+    if (target.origin !== base.origin) continue;
+    if (target.pathname === base.pathname || target.pathname.startsWith(`${base.pathname}/`)) return target.toString();
+  }
+  return null;
+}
 async function communitySession(req) {
   const value = cookies(req).community_session;
   if (!value) return null;
@@ -1311,13 +1333,22 @@ async function route(req, res) {
     authorize.searchParams.set("response_type", "code");
     authorize.searchParams.set("scope", "identify");
     authorize.searchParams.set("state", state);
-    return redirect(res, authorize.toString(), [`community_oauth_state=${encodeURIComponent(state)}; Path=/community; Max-Age=600; HttpOnly; Secure; SameSite=Lax`]);
+    const next = safeReturnUrl(url.searchParams.get("next"));
+    return redirect(res, authorize.toString(), [
+      `community_oauth_state=${encodeURIComponent(state)}; Path=/community; Max-Age=600; HttpOnly; Secure; SameSite=Lax`,
+      next
+        ? `community_oauth_next=${encodeURIComponent(next)}; Path=/community; Max-Age=600; HttpOnly; Secure; SameSite=Lax`
+        : "community_oauth_next=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax"
+    ]);
   }
   if (path === "/community/oauth/callback" && req.method === "GET") {
     const stateCookie = cookies(req).community_oauth_state;
     const state = url.searchParams.get("state") ?? "";
     const code = url.searchParams.get("code") ?? "";
     const clearState = "community_oauth_state=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax";
+    const clearNext = "community_oauth_next=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax";
+    // 쿠키를 그대로 믿지 않는다 — 심어 두고 로그인시키는 수법이 있어서 소비할 때 다시 건다.
+    const returnUrl = safeReturnUrl(cookies(req).community_oauth_next) ?? COMMUNITY_BASE_URL;
     if (!communityConfigured() || !stateCookie || !state || stateCookie !== state || !code) {
       return send(res, 400, communityLayout("로그인 오류", `<main><section class="panel"><h2>로그인 요청이 만료되었습니다.</h2><p class="muted">커뮤니티에서 Discord 로그인을 다시 시작해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
     }
@@ -1333,7 +1364,7 @@ async function route(req, res) {
       const avatarHash = user.avatar ? `${user.id}/${user.avatar}` : null;
       await pool.query("UPDATE discord_links SET discord_name=$1,avatar_hash=$2,updated_at=NOW() WHERE discord_id=$3", [discordName || null, avatarHash, user.id]);
       await pool.query("INSERT INTO community_sessions (token_hash,discord_id,minecraft_uuid,player_name,discord_name,avatar_hash,csrf_token,expires_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW()+INTERVAL '30 days')", [hash(sessionToken), user.id, link.rows[0].minecraft_uuid, link.rows[0].player_name, discordName, avatarHash, csrf]);
-      return redirect(res, COMMUNITY_BASE_URL, [`community_session=${encodeURIComponent(sessionToken)}; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax`, "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax", clearState]);
+      return redirect(res, returnUrl, [`community_session=${encodeURIComponent(sessionToken)}; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax`, "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax", clearState, clearNext]);
     } catch (error) {
       console.error("community oauth callback failed:", error.message);
       return send(res, 502, communityLayout("로그인 오류", `<main><section class="panel"><h2>Discord 로그인에 실패했습니다.</h2><p class="muted">잠시 후 다시 시도해 주세요.</p><a class="back" href="${COMMUNITY_BASE_URL}">돌아가기</a></section></main>`), "text/html; charset=utf-8", { "Set-Cookie": clearState });
