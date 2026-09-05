@@ -58,9 +58,9 @@ const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
 
 const TIERS = Object.freeze({
-  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수작물 레벨 상한 +1", "갈색 여행마·배 무료 무제한"] },
-  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수작물 레벨 상한 +1", "백은 준마·배 무료 무제한"] },
-  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수작물 레벨 상한 +2", "흑요석 천리마·배 무료 무제한", "개인 창고 27칸 (MVP+ 전용)"] }
+  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["매월 캐시 1,500 지급", "[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수작물 레벨 상한 +1", "갈색 여행마·배 무료 무제한"] },
+  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["매월 캐시 3,000 지급", "[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수작물 레벨 상한 +1", "백은 준마·배 무료 무제한"] },
+  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["매월 캐시 6,000 지급", "1년권은 결제 즉시 캐시 50,000 추가", "[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수작물 레벨 상한 +2", "흑요석 천리마·배 무료 무제한", "개인 창고 27칸 (MVP+ 전용)"] }
 });
 
 const ANNUAL_MONTHS = Math.max(...PURCHASE_MONTHS);
@@ -350,6 +350,21 @@ async function migrate() {
       expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE web_sessions ADD COLUMN IF NOT EXISTS player_name TEXT;
+    -- 멤버십 월간 캐시. 백엔드는 «언제 얼마를 줘야 하는지»만 들고, 실제 지급은
+    -- 게임이 플레이어 접속 시 가져가고 확정한다(오프라인 유저를 놓치지 않으려고).
+    -- 디스코드 인증 보상과 같은 구조 — grant_id 로 양쪽이 중복 지급을 막는다.
+    CREATE TABLE IF NOT EXISTS membership_cash_grants (
+      grant_id TEXT PRIMARY KEY,
+      minecraft_uuid UUID NOT NULL,
+      tier TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK (kind IN ('monthly','annual_bonus')),
+      amount BIGINT NOT NULL CHECK (amount > 0),
+      due_at TIMESTAMPTZ NOT NULL,
+      claimed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS membership_cash_grants_due_idx
+      ON membership_cash_grants (minecraft_uuid, due_at) WHERE claimed_at IS NULL;
     CREATE TABLE IF NOT EXISTS community_sessions (
       token_hash TEXT PRIMARY KEY, discord_id TEXT NOT NULL, minecraft_uuid UUID NOT NULL,
       player_name TEXT NOT NULL, discord_name TEXT, avatar_hash TEXT, csrf_token TEXT NOT NULL,
@@ -506,12 +521,49 @@ async function subscription(uuid) {
   const r = await pool.query("SELECT minecraft_uuid, player_name, tier, expires_at, auto_renew, cancelled_at, expires_at > NOW() AS active FROM subscriptions WHERE minecraft_uuid=$1", [uuid]);
   return r.rows[0] ?? null;
 }
+// 등급별 월간 캐시. 이용권이 살아 있는 달마다 1회씩 나눠 준다.
+const MEMBERSHIP_MONTHLY_CASH = Object.freeze({ VIP: 1500, MVP: 3000, MVP_PLUS: 6000 });
+// MVP+ 1년권만 결제 즉시 주는 일시금.
+const MVP_PLUS_ANNUAL_BONUS_CASH = 50000;
+const ANNUAL_PERIOD_DAYS = 365;
+
+/** 결제 기간(일) → 지급 횟수. 1년권은 365일이지만 12회로 센다. */
+const grantMonths = (days) => days === ANNUAL_PERIOD_DAYS ? 12 : Math.max(1, Math.round(days / 30));
+
+/**
+ * 이용권 지급/연장분에 대한 캐시 지급을 원장에 예약한다.
+ *
+ * <p>첫 회는 즉시(due_at=NOW), 이후 30일 간격. 연장 결제는 이 함수가 다시 불려
+ * 그만큼의 회차가 «추가»된다 — 기존 예약을 건드리지 않으므로 중복도 누락도 없다.
+ * 실제 지급은 게임이 due_at 이 지난 미수령분을 가져갈 때 일어난다.
+ */
+async function scheduleMembershipCash(client, uuid, tier, days) {
+  const monthly = MEMBERSHIP_MONTHLY_CASH[tier];
+  if (!monthly) return;
+  const months = grantMonths(days);
+  for (let i = 0; i < months; i += 1) {
+    await client.query(
+      `INSERT INTO membership_cash_grants (grant_id,minecraft_uuid,tier,kind,amount,due_at)
+       VALUES ($1,$2,$3,'monthly',$4,NOW()+($5::int * INTERVAL '30 days'))`,
+      [`mc-${randomBytes(9).toString("base64url")}`, uuid, tier, monthly, i]
+    );
+  }
+  if (tier === "MVP_PLUS" && days === ANNUAL_PERIOD_DAYS) {
+    await client.query(
+      `INSERT INTO membership_cash_grants (grant_id,minecraft_uuid,tier,kind,amount,due_at)
+       VALUES ($1,$2,$3,'annual_bonus',$4,NOW())`,
+      [`ab-${randomBytes(9).toString("base64url")}`, uuid, tier, MVP_PLUS_ANNUAL_BONUS_CASH]
+    );
+  }
+}
+
 async function extendSubscription(client, uuid, name, tier, days) {
   const r = await client.query(`INSERT INTO subscriptions (minecraft_uuid, player_name, tier, expires_at, auto_renew, cancelled_at)
     VALUES ($1,$2,$3,NOW()+($4::int * INTERVAL '1 day'),FALSE,NULL)
     ON CONFLICT (minecraft_uuid) DO UPDATE SET player_name=EXCLUDED.player_name, tier=EXCLUDED.tier,
       expires_at=GREATEST(subscriptions.expires_at,NOW())+($4::int * INTERVAL '1 day'), cancelled_at=NULL, updated_at=NOW()
     RETURNING tier, expires_at`, [uuid, name, tier, days]);
+  await scheduleMembershipCash(client, uuid, tier, days);
   return r.rows[0];
 }
 
@@ -1695,6 +1747,34 @@ async function route(req, res) {
       await client.query("COMMIT");
       return json(res, 200, { message: `${order.player_name ?? "플레이어"}에게 ${order.period_days}일 ${order.tier} 이용권을 지급했습니다. 만료: ${new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` });
     } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+  }
+  if (path === "/internal/membership/cash/status" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    if (!validUuid(data.minecraftUuid)) return json(res, 400, { error: "invalid_player" });
+    // 만료된 이용권의 잔여 회차는 주지 않는다 — «유효한 동안 매월»이 약속이다.
+    const rows = await pool.query(
+      `SELECT g.grant_id, g.amount, g.kind, g.tier
+         FROM membership_cash_grants g
+         JOIN subscriptions s ON s.minecraft_uuid = g.minecraft_uuid
+        WHERE g.minecraft_uuid=$1 AND g.claimed_at IS NULL AND g.due_at<=NOW()
+          AND s.expires_at > NOW()
+        ORDER BY g.due_at ASC LIMIT 20`,
+      [data.minecraftUuid]
+    );
+    return json(res, 200, {
+      grants: rows.rows.map((row) => ({ grantId: row.grant_id, amount: Number(row.amount), kind: row.kind, tier: row.tier }))
+    });
+  }
+  if (path === "/internal/membership/cash/confirm" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    if (!validUuid(data.minecraftUuid) || typeof data.grantId !== "string" || !data.grantId) return json(res, 400, { error: "invalid_request" });
+    const done = await pool.query(
+      "UPDATE membership_cash_grants SET claimed_at=NOW() WHERE grant_id=$1 AND minecraft_uuid=$2 AND claimed_at IS NULL RETURNING amount",
+      [data.grantId, data.minecraftUuid]
+    );
+    return json(res, 200, { confirmed: done.rowCount > 0 });
   }
   if (path === "/internal/link-codes" && req.method === "POST") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" }); const data = await bodyJson(req); if (!validUuid(data.uuid) || !minecraftName(data.playerName)) return json(res, 400, { error: "invalid_player" });
