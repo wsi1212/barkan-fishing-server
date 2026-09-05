@@ -36,6 +36,7 @@ import sys
 import zipfile
 from pathlib import Path
 
+import yaml
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
@@ -180,25 +181,69 @@ CE_ROOT = SERVER / "plugins/CraftEngine/resources/barkan_furniture"
 CE_CONFIGS = ["dishes.yml", "food_library.yml", "forage_custom.yml"]
 
 
-def collect_craftengine() -> tuple[list[dict], list[str]]:
-    """CraftEngine 아이템(요리 등) — CE 는 Geyser 연동이 없어 베드락에서 바닐라로 보인다.
+def _ce_default_material() -> str:
+    """CE 아이템에 {@code material} 이 없을 때의 베이스. CraftEngine config 를 읽는다.
 
-    <p>CE 아이템도 자바에선 {@code item_model} 로 그려진다(생성 팩의
-    {@code assets/barkan/items/<id>.json} 이 그 증거). 그래서 우리 매핑에 그대로 넣을 수 있다.
-    · 베이스   = configuration/*.yml 의 {@code material}
-    · item_model = barkan:<id>
-    · 텍스처   = {@code model:} 이 가리키는 모델의 layer0
+    ★값을 여기 적어 두지 않는다 — 2026-09-06 시점 prod 는 {@code nether_brick} 이고,
+      채집물 31종이 material 을 안 적어서 «베드락에서 네더벽돌» 로 보였다. 운영자가 이 설정을
+      바꾸면 베이스가 통째로 달라지므로 설정을 따라간다.
     """
-    import re
+    cfg = SERVER / "plugins/CraftEngine/config.yml"
+    try:
+        for line in cfg.read_text(encoding="utf-8").split("\n"):
+            m = re.match(r'\s*default-material:\s*"?([a-z0-9_]+)"?', line)
+            if m:
+                return m.group(1)
+    except Exception:
+        pass
+    return "nether_brick"
+
+
+def _ce_gui_model(model):
+    """CE 의 {@code model:} 은 문자열이거나 select 구조다.
+
+    채집물은 «GUI 에서는 2D 아이콘, 바닥에 놓으면 3D» 라 select 로 갈라 둔다. 베드락은 인벤
+    아이콘만 필요하므로 gui 케이스를 먼저 찾고, 없으면 fallback 을 쓴다.
+    ★구버전 파서는 {@code model:} 뒤에 값이 오는 줄만 읽어서 이 구조를 통째로 놓쳤고,
+      그래서 채집물이 매핑에서 조용히 빠져 있었다.
+    """
+    if isinstance(model, str):
+        return model
+    if not isinstance(model, dict):
+        return None
+    for case in model.get("cases") or []:
+        when = case.get("when")
+        if when == "gui" or (isinstance(when, list) and "gui" in when):
+            got = _ce_gui_model(case.get("model"))
+            if got:
+                return got
+    for key in ("model", "fallback"):
+        if key in model:
+            got = _ce_gui_model(model[key])
+            if got:
+                return got
+    return None
+
+
+def collect_craftengine() -> tuple[list[dict], list[str]]:
+    """CraftEngine 아이템(요리·채집물 등) — CE 는 Geyser 연동이 없어 베드락에서 바닐라로 보인다.
+
+    CE 아이템도 자바에선 {@code item_model} 로 그려진다(생성 팩의
+    {@code assets/barkan/items/<id>.json} 이 그 증거). 그래서 우리 매핑에 그대로 넣을 수 있다.
+    · 베이스     = configuration/*.yml 의 {@code material}, 없으면 CE {@code default-material}
+    · item_model = barkan:<id>
+    · 텍스처     = {@code model:} 이 가리키는 모델(select 면 gui 케이스)의 layer0
+    """
     out: list[dict] = []
     warns: list[str] = []
     if not CE_ROOT.is_dir():
         return out, ["CraftEngine 리소스 폴더 없음 — 요리 아이콘을 건너뜁니다"]
     rp = CE_ROOT / "resourcepack/assets"
+    default_mat = _ce_default_material()
 
     def texture_of(model_id: str) -> Path | None:
         # barkan:item/food/pasta → assets/barkan/models/item/food/pasta.json → layer0
-        if ":" not in model_id:
+        if not model_id or ":" not in model_id:
             return None
         ns, path = model_id.split(":", 1)
         mj = rp / ns / "models" / f"{path}.json"
@@ -216,42 +261,59 @@ def collect_craftengine() -> tuple[list[dict], list[str]]:
         png = rp / tns / "textures" / f"{tpath}.png"
         return png if png.is_file() else None
 
-    block = re.compile(r'^  ([a-z0-9_]+:[a-z0-9_]+):\s*$')
-    kv = re.compile(r'^\s+(material|model):\s*(\S+)')
     for name in CE_CONFIGS:
         f = CE_ROOT / "configuration" / name
         if not f.is_file():
             continue
-        cur, mat, mod = None, None, None
-
-        def flush():
-            nonlocal cur, mat, mod
-            if cur and mat and mod:
-                png = texture_of(mod)
-                if png:
-                    ident = cur.split(":", 1)[1]
-                    out.append({
-                        "icon": f"ce_{ident}",
-                        "model": f"{NS}:{ident}",
-                        "bases": [f"minecraft:{mat}"],
-                        "label": f"CE {ident}",
-                        "texture": png,
-                    })
-            cur, mat, mod = None, None, None
-
-        for line in f.read_text(encoding="utf-8").split("\n"):
-            m = block.match(line)
-            if m:
-                flush()
-                cur = m.group(1)
+        try:
+            doc = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        except Exception as e:
+            warns.append(f"{name} 파싱 실패 — 건너뜁니다: {e}")
+            continue
+        got = 0
+        for ident_full, spec in (doc.get("items") or {}).items():
+            if not isinstance(spec, dict) or ":" not in str(ident_full):
                 continue
-            k = kv.match(line)
-            if k and cur:
-                if k.group(1) == "material": mat = k.group(2)
-                else: mod = k.group(2)
-        flush()
-    warns.append(f"CraftEngine 아이템 {len(out)}종 등록 ({', '.join(CE_CONFIGS)})")
+            mat = spec.get("material") or default_mat
+            png = texture_of(_ce_gui_model(spec.get("model")))
+            if not png:
+                continue
+            ident = str(ident_full).split(":", 1)[1]
+            out.append({
+                "icon": f"ce_{ident}",
+                "model": f"{NS}:{ident}",
+                "bases": [f"minecraft:{mat}"],
+                "label": f"CE {ident}",
+                "texture": png,
+            })
+            got += 1
+        warns.append(f"  {name}: {got}종")
+    warns.append(f"CraftEngine 아이템 {len(out)}종 등록 (기본 베이스 minecraft:{default_mat})")
     return out, warns
+
+
+def _seed_pack() -> Path | None:
+    """텍스처를 «승계» 해 올 팩. 물고기 486종은 생성기가 없는 원본 입력이라 씨앗에서 가져온다."""
+    p = HERE / "seed/fish_pack_original.mcpack"
+    if p.is_file():
+        return p
+    p = SERVER / "plugins/Geyser-Spigot/packs/barkan_bedrock.mcpack"
+    return p if p.is_file() else None
+
+
+def _seed_texture_keys() -> set[str]:
+    """씨앗 팩이 실제 PNG 까지 갖고 있는 아이콘 키. 승계 매핑을 거르는 기준이 된다."""
+    pk = _seed_pack()
+    if not pk:
+        return set()
+    try:
+        with zipfile.ZipFile(pk) as z:
+            td = json.loads(z.read("textures/item_texture.json"))["texture_data"]
+            names = set(z.namelist())
+            return {k for k, v in td.items()
+                    if isinstance(v, dict) and f"{v.get('textures')}.png" in names}
+    except Exception:
+        return set()
 
 
 def collect() -> tuple[list[dict], list[str]]:
@@ -422,11 +484,23 @@ def build(dry: bool, max_px: int = 64) -> int:
                 "bedrock_identifier": bid,
                 "bedrock_options": {"icon": e["icon"], "creative_category": "items"},
             })
+    # ★승계는 «텍스처까지 따라올 수 있는 것» 만. 코드에서 사라진 아이콘(예: 더는 쓰지 않는
+    #   GUI 버튼)이 옛 매핑에 남아 있으면, 정의만 있고 그림이 없는 항목이 되어 자기검증이
+    #   배포를 통째로 막는다. 2026-09-06 실측: ui_guild_chat 하나가 그렇게 팩 생성을 세웠다.
+    seed_keys = _seed_texture_keys()
+    fresh_icons = {e["icon"] for e in resolved}
     carried_defs = 0
+    dropped: list[str] = []
     for base, defs in legacy.items():
         for entry in defs:
+            icon = entry.get("bedrock_options", {}).get("icon")
+            if icon and icon not in fresh_icons and icon not in seed_keys:
+                dropped.append(icon)
+                continue
             if put(base, entry):
                 carried_defs += 1
+    if dropped:
+        print(f"  ⚠ 텍스처가 사라져 승계에서 뺀 옛 정의 {len(dropped)}개: {', '.join(dropped[:8])}")
 
     mappings = {"format_version": "2", "items": items}
     total = sum(len(v) for v in items.values())
@@ -466,9 +540,7 @@ def build(dry: bool, max_px: int = 64) -> int:
     #   ★씨앗은 seed/fish_pack_original.mcpack — 물고기 팩은 «생성기가 없는» 원본 입력이라
     #     레포에 그대로 둔다(libs/*.jar 과 같은 취급). 배포된 팩을 씨앗으로 삼으면 한 번
     #     잘못 만든 팩이 다음 판의 입력이 되어 오류가 눌러앉는다 — 실제로 그렇게 됐었다.
-    prev = HERE / "seed/fish_pack_original.mcpack"
-    if not prev.is_file():
-        prev = SERVER / "plugins/Geyser-Spigot/packs/barkan_bedrock.mcpack"
+    prev = _seed_pack()
     carried = 0
     if prev and prev.is_file():
         with zipfile.ZipFile(prev) as z:
