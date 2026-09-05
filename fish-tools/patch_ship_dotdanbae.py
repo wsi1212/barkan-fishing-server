@@ -71,10 +71,13 @@ def patch_dialogue(path):
     return d, n
 
 
-def write(path, data):
+def write(path, data, trailing_nl):
+    # ★끝 개행까지 원본대로 — 서버가 dialogue.json 은 개행 없이, quests.json 은 개행 붙여 쓴다.
+    #   한 바이트 달라지면 ops/audit-copies.py ②(라이브 vs 미러 byte 비교)가 배포를 멈춘다.
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+        if trailing_nl:
+            f.write("\n")
 
 
 def main():
@@ -86,9 +89,10 @@ def main():
             p = os.path.join(base, fname)
             if not os.path.exists(p):
                 print(f"- {p} 없음, 스킵"); continue
+            trailing_nl = open(p, "rb").read()[-1:] == b"\n"
             data, n = fn(p)
             if n:
-                write(p, data)
+                write(p, data, trailing_nl)
             print(f"  {'✓' if n else '·'} {p} — {n}줄 교체")
             total += n
     if total == 0:
