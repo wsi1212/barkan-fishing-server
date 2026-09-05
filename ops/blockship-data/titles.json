@@ -262,7 +262,7 @@
       "desc": "&7낚시 레벨 10 달성",
       "icon": "wooden_hoe",
       "tier": "평범",
-      "prestige": 10,
+      "prestige": 20,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨10"
@@ -339,7 +339,7 @@
       "desc": "&7낚시 레벨 100에 도달한 전설",
       "icon": "nether_star",
       "tier": "유일",
-      "prestige": 420,
+      "prestige": 820,
       "category": "성장",
       "source": "ach",
       "ach": "유산_레벨100",
