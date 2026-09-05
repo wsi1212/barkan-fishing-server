@@ -86,6 +86,7 @@
     "베타테스터",
     "GM",
     "가이드",
+    "사운드트랙",
     "바르칸항구의전설",
     "사막의탐험왕",
     "전설의탐험왕"
@@ -987,6 +988,17 @@
       "source": "quest",
       "animation": true,
       "palette": "radiant"
+    },
+    "사운드트랙": {
+      "name": "&#00e5ff♪ &#1cd2ffS&#38beffO&#55abffU&#7198ffN&#8d85ffD&#a477fbT&#b66ff4R&#c867edA&#db5fe6C&#ed57dfK &#ff4fd8♪",
+      "color": "&b",
+      "desc": "&7바르칸 열도에 음악을 입힌 이에게 드리는 칭호",
+      "icon": "music_disc_pigstep",
+      "tier": "유일",
+      "category": "특수",
+      "source": "admin",
+      "animation": true,
+      "palette": "soundtrack"
     }
   }
 }
