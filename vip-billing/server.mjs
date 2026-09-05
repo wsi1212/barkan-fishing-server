@@ -58,9 +58,9 @@ const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
 
 const TIERS = Object.freeze({
-  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["VIP 채팅 태그", "월간 꾸미기 보상", "멤버십 전용 소식"] },
-  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["MVP 채팅 태그", "전용 외형·칭호", "멤버십 전용 꾸미기"] },
-  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["VIP 전체 혜택", "월간 외형 선택권", "프리미엄 프로필 꾸미기"] }
+  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수작물 레벨 상한 +1", "갈색 여행마·배 무료 무제한"] },
+  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수작물 레벨 상한 +1", "백은 준마·배 무료 무제한"] },
+  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수작물 레벨 상한 +2", "흑요석 천리마·배 무료 무제한", "개인 창고 27칸 (MVP+ 전용)"] }
 });
 
 const ANNUAL_MONTHS = Math.max(...PURCHASE_MONTHS);
