@@ -29,6 +29,8 @@
     {"id": "ui_guild_island_upgrade", "name": "섬 업그레이드", "category": "prop", "source": "imagegen-guild/ui_guild_island_upgrade.png", "pipeline": "copy_native"},
     {"id": "ui_guild_browse", "name": "길드 둘러보기", "category": "prop", "source": "imagegen-guild/ui_guild_browse.png", "pipeline": "copy_native"},
     {"id": "ui_guild_quest", "name": "길드 임무", "category": "prop", "source": "imagegen-guild/ui_guild_quest.png", "pipeline": "copy_native"},
+    {"id": "ui_guild_submit_fish", "name": "물고기 제출", "category": "prop", "source": "imagegen-guild/ui_guild_submit_fish_source.png", "pipeline": "imagegen_256", "size": 256},
+    {"id": "ui_guild_submit_dish", "name": "요리 제출", "category": "prop", "source": "imagegen-guild/ui_guild_submit_dish_source.png", "pipeline": "imagegen_256", "size": 256},
     {"id": "recommend_coin", "name": "추천 코인", "category": "prop", "source": "imagegen-utility/recommend_coin_native.png", "pipeline": "copy_native"},
     {"id": "ui_ticket_village_warp", "name": "마을 이동권", "category": "prop", "source": "imagegen-utility/ui_ticket_village_warp_native.png", "pipeline": "copy_native"},
     {"id": "ui_check", "name": "수표", "category": "prop", "source": "imagegen-utility/ui_check_native.png", "pipeline": "copy_native"},
