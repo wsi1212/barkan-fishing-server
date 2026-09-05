@@ -252,7 +252,7 @@ if [ "$n" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
     sleep "$GRACE"
     rcon "say [서버] 지금 재시작합니다."
   else
-    rcon "say [서버] 서버 재부팅합니다 (정기 점검 06:00~06:10). 06:10 이후 다시 접속해 주세요."
+    rcon "say [서버] 서버 재부팅합니다 (정기 점검). 약 3분 뒤 다시 접속해 주세요."
   fi
 fi
 
@@ -323,7 +323,7 @@ if [ "$IMMEDIATE" = "1" ]; then read_backups; build_msg; notify "$msg"; log "즉
 #     고친 날 아침에는 여전히 옛 문구로 튕긴다 — 그래서 여기서 직접 kick 한다.
 #   ★/kick 의 사유는 평문이다. § 색코드를 넣으면 색이 아니라 글자로 찍힌다.
 #   접속자가 없으면 "No entity was found" 가 나지만 rcon() 이 삼킨다(무해).
-KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약 3~4분 뒤 다시 접속해 주세요!}"
+KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약 3분 뒤 다시 접속해 주세요!}"
 if [ "$DRYRUN" = "0" ]; then rcon "kick @a $KICK_MSG"; sleep 1; fi
 
 # --- ③ 재시작 (무조건) ---
