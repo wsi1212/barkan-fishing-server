@@ -137,6 +137,14 @@ PLUGIN_SRC = Path(os.path.expanduser("~/development/blockship-plugin/src/main/ja
 EXPLICIT_PREFIX = {
     "recipe_": "minecraft:paper",   # PartShopGui.withRecipeModel — 레시피 두루마리는 종이
     "crop_": "minecraft:paper",     # CropSpecs.ITEM_BASE
+    # 젖은 보물상자 — WetTreasureChestManager.CHEST_ITEM(=PAPER).
+    #   ★★CHEST 로 되돌리지 말 것. 매핑에 minecraft:chest 를 «한 줄» 넣는 것만으로 베드락
+    #     접속이 로그인 직후 끊겼다(2026-09-06 실측: 커스텀 아이템 1806=정상 / 1807=끊김,
+    #     델타는 그 한 줄뿐). 같은 «놓을 수 있는 블록» 인 barrel(통발 80종)은 멀쩡하니 개수가
+    #     아니라 chest 특유의 문제다 — 상자는 클라가 인벤에서도 블록엔티티로 그린다.
+    #   ★소스는 상수(CHEST_ITEM)를 쓰므로 scan_source_bases 의 `Material.XXX` 정규식에
+    #     안 걸린다. 그래서 여기 명시한다 — 상수를 바꾸면 이 줄도 같이 바꿔야 한다.
+    "wet_treasure_chest": "minecraft:paper",
 }
 
 
