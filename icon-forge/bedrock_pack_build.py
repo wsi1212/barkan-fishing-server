@@ -587,30 +587,23 @@ def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
     ui_files = {
         "ui/scoreboards.json": {
             "namespace": "scoreboard",
+            # 바꿀 속성만 적는다(위 ★★ 참조). text 를 비우면 그릴 게 없고, 폭 0 이면
+            # 오른쪽 여백도 사라진다. ★locked_alpha 는 알파를 고정하니 건드리지 않는다.
             "scoreboard_sidebar_score": {
-                "type": "label",
                 "text": "",
                 "size": [0, 10],
-                "alpha": 0.0,
-                "layer": 2,
-                "localize": False,
             },
-            # ★줄 폭 넓히기 — 바닐라는 max_size 100px 라 우리 퀘스트 안내("펠릭스에게 말을
-            #   걸어 수락하세요")나 위치·환경 줄이 베드락에서만 잘려 나간다. 사이드바 제목이
-            #   이미 170px 를 쓰므로 같은 값으로 맞춘다(폰 화면을 더 먹지 않는 상한).
+            # ★줄 폭 — 바닐라는 max_size 100px 라 퀘스트 안내·위치 줄이 베드락에서만 잘린다.
+            #   Geyser 자체 팩(GeyserIntegratedPack, enable-integrated-pack: true 로 «항상 같이
+            #   전송된다»)이 이미 250px 로 넓혀 두었다. 우리가 이 컨트롤을 건드리면 팩 적용
+            #   순서에 따라 그 250 을 도로 좁힐 수 있어서, 같은 값을 명시해 어느 쪽이 이기든
+            #   결과가 같게 만든다.
+            # ★★통짜로 다시 쓰지 말 것 — Geyser 팩의 scoreboards.json 이 정확히 이 형태다:
+            #   {"scoreboard_sidebar_player": {"max_size": [250, 10]}} — 바꿀 «속성만» 적는다.
+            #   JSON UI 는 속성 단위로 병합되므로 type·bindings 를 다시 쓸 이유가 없고,
+            #   다시 쓰면 바닐라가 나중에 바꾼 속성을 우리가 낡은 값으로 덮어쓰게 된다.
             "scoreboard_sidebar_player": {
-                "type": "label",
-                "text": "#player_name_sidebar",
-                "size": ["default", 10],
-                "max_size": [170, 10],
-                "locked_alpha": 1.0,
-                "color": "$player_name_color",
-                "localize": False,
-                "bindings": [{
-                    "binding_name": "#player_name_sidebar",
-                    "binding_type": "collection",
-                    "binding_collection_name": "scoreboard_players",
-                }],
+                "max_size": [250, 10],
             },
         },
     }
@@ -625,52 +618,22 @@ def build(dry: bool, max_px: int = 64, bedrock_hud: bool = False) -> int:
     #   ★서버 config 의 bedrock.hud-experiment 와 «짝» 이다. 팩만 넣으면 아무 일도 없고,
     #     서버만 켜면 액션바가 화면 한가운데 그대로 뜬다.
     if bedrock_hud:
+        # ★v1 은 베드락 클라를 죽였다(2026-09-06 실측: 리소스팩 협상 단계에서 클라가 스스로
+        #   끊음, 서버 로그엔 아무 단서도 안 남는다). v1 이 한 짓: hud_actionbar_text 를 통짜로
+        #   다시 쓰고 **바닐라 애니메이션 두 개**(anim_actionbar_text_alpha_out /
+        #   _background_alpha_out)까지 갈아엎었다. 그 애니메이션은 바닐라 팩토리가 참조하는
+        #   공용 정의라 건드리면 안 된다 — 실제로 도는 남의 팩(TrippleAWap/Sidebar-HUD)도
+        #   hud_actionbar_text 는 다시 쓰되 애니메이션은 «자기 이름으로 새로» 만든다.
+        # ★v2 는 «바꿀 속성만» 적는다 — Geyser 자체 팩(GeyserIntegratedPack)의 hud_screen.json
+        #   과 같은 idiom. 위치만 옮기고 애니메이션·팩토리·컨트롤 구조는 바닐라 그대로 둔다.
+        #   페이드는 in_expo 3초라 «거의 끝까지 알파 1» 이고, 서버가 1초마다 다시 보내면
+        #   매번 처음부터 재생돼 사실상 항상 떠 있다 → 애니메이션을 건드릴 이유가 없다.
         ui_files["ui/hud_screen.json"] = {
             "namespace": "hud",
-            # 액션바는 3초에 걸쳐 사라지고 destroy_at_end 로 컨트롤이 파괴된다. HUD 로 쓰려면
-            # «투명해지지 않고» 다음 갱신까지 버텨야 한다 → from=to=1 로 평평하게 두고 수명만
-            # 1.4초로 줄인다(서버 재전송 주기 1초보다 길어야 끊기지 않는다).
-            # ★destroy_at_end 를 지우면 컨트롤이 영원히 남아 갱신 때마다 겹쳐 쌓인다.
-            "anim_actionbar_text_alpha_out": {
-                "anim_type": "alpha", "easing": "linear", "duration": 1.4,
-                "from": 1.0, "to": 1.0,
-                "destroy_at_end": "hud_actionbar_text",
-                "end_event": "hud_actionbar_text_complete",
-            },
-            "anim_actionbar_text_background_alpha_out": {
-                "anim_type": "alpha", "easing": "linear", "duration": 1.4,
-                "from": 0.75, "to": 0.75,
-                "destroy_at_end": "hud_actionbar_text",
-                "end_event": "hud_actionbar_text_complete",
-            },
-            # 화면 한가운데 아래(50%-68px) → 오른쪽 위. 배경은 바닐라 텍스처를 그대로 쓴다
-            # (새 에셋을 넣지 않는다 — 실험이 실패해도 지울 게 JSON 하나뿐이게).
             "hud_actionbar_text": {
-                "type": "image",
-                "size": ["100%c + 10px", "100%c + 8px"],
                 "anchor_from": "top_right",
                 "anchor_to": "top_right",
                 "offset": [-4, 4],
-                "texture": "textures/ui/hud_tip_text_background",
-                "alpha": "@hud.anim_actionbar_text_background_alpha_out",
-                "controls": [{
-                    "actionbar_message": {
-                        "type": "label",
-                        "anchor_from": "top_left",
-                        "anchor_to": "top_left",
-                        "offset": [5, 4],
-                        "text_alignment": "left",
-                        "color": [1.0, 1.0, 1.0],
-                        # ★프로필 필터를 끈다 — 바닐라는 켜 두는데, 우리 글자는 지역명·요리
-                        #   이름이라 걸릴 이유가 없고 걸리면 ### 로 나온다.
-                        "enable_profanity_filter": False,
-                        "layer": 31,
-                        "text": "$actionbar_text",
-                        "shadow": True,
-                        "localize": False,
-                        "alpha": "@hud.anim_actionbar_text_alpha_out",
-                    },
-                }],
             },
         }
 
