@@ -595,6 +595,23 @@ def build(dry: bool, max_px: int = 64) -> int:
                 "layer": 2,
                 "localize": False,
             },
+            # ★줄 폭 넓히기 — 바닐라는 max_size 100px 라 우리 퀘스트 안내("펠릭스에게 말을
+            #   걸어 수락하세요")나 위치·환경 줄이 베드락에서만 잘려 나간다. 사이드바 제목이
+            #   이미 170px 를 쓰므로 같은 값으로 맞춘다(폰 화면을 더 먹지 않는 상한).
+            "scoreboard_sidebar_player": {
+                "type": "label",
+                "text": "#player_name_sidebar",
+                "size": ["default", 10],
+                "max_size": [170, 10],
+                "locked_alpha": 1.0,
+                "color": "$player_name_color",
+                "localize": False,
+                "bindings": [{
+                    "binding_name": "#player_name_sidebar",
+                    "binding_type": "collection",
+                    "binding_collection_name": "scoreboard_players",
+                }],
+            },
         },
     }
     for rel, doc in ui_files.items():
