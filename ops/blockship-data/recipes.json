@@ -1262,7 +1262,7 @@
       "id": "R24",
       "category": "낚싯대",
       "displayName": "흑단목 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -2181,7 +2181,7 @@
       "id": "P03",
       "category": "부품",
       "displayName": "정밀 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -2402,7 +2402,7 @@
       "id": "P07",
       "category": "부품",
       "displayName": "만능 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -2473,7 +2473,7 @@
       "id": "P08",
       "category": "부품",
       "displayName": "바르칸 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -2673,7 +2673,7 @@
       "id": "P12",
       "category": "부품",
       "displayName": "PE합사줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -2930,7 +2930,7 @@
       "id": "P17",
       "category": "부품",
       "displayName": "바르칸 줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -3001,7 +3001,7 @@
       "id": "P18",
       "category": "부품",
       "displayName": "천공 와이어",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -3201,7 +3201,7 @@
       "id": "P22",
       "category": "부품",
       "displayName": "용뼈 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -3508,7 +3508,7 @@
       "id": "P28",
       "category": "부품",
       "displayName": "바르칸 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -3715,7 +3715,7 @@
       "id": "P32",
       "category": "부품",
       "displayName": "수정 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -3943,7 +3943,7 @@
       "id": "P36",
       "category": "부품",
       "displayName": "바르칸 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -8737,7 +8737,7 @@
       "id": "R77",
       "category": "낚싯대",
       "displayName": "정밀 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -8807,7 +8807,7 @@
       "id": "R78",
       "category": "낚싯대",
       "displayName": "감별사의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -8877,7 +8877,7 @@
       "id": "R79",
       "category": "낚싯대",
       "displayName": "무역상의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -8947,7 +8947,7 @@
       "id": "R80",
       "category": "낚싯대",
       "displayName": "회계사의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -9017,7 +9017,7 @@
       "id": "R83",
       "category": "낚싯대",
       "displayName": "왕립 서고 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -9094,7 +9094,7 @@
       "id": "R85",
       "category": "낚싯대",
       "displayName": "왕도 상회 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -9430,7 +9430,7 @@
       "id": "R90",
       "category": "낚싯대",
       "displayName": "정산가의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -9507,7 +9507,7 @@
       "id": "R91",
       "category": "낚싯대",
       "displayName": "항해사의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -10403,7 +10403,7 @@
       "id": "R101",
       "category": "낚싯대",
       "displayName": "중개인의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -10480,7 +10480,7 @@
       "id": "R102",
       "category": "낚싯대",
       "displayName": "왕실 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -10550,7 +10550,7 @@
       "id": "R103",
       "category": "낚싯대",
       "displayName": "근위 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -10620,7 +10620,7 @@
       "id": "R104",
       "category": "낚싯대",
       "displayName": "왕립 순찰 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -11118,7 +11118,7 @@
       "id": "P68",
       "category": "부품",
       "displayName": "교역 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -11524,7 +11524,7 @@
       "id": "P75",
       "category": "부품",
       "displayName": "교역 합사줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -11887,7 +11887,7 @@
       "id": "P81",
       "category": "부품",
       "displayName": "세공 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -11958,7 +11958,7 @@
       "id": "P82",
       "category": "부품",
       "displayName": "교역 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -12406,7 +12406,7 @@
       "id": "P96",
       "category": "부품",
       "displayName": "프리미엄 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -12442,7 +12442,7 @@
       "id": "P97",
       "category": "부품",
       "displayName": "천공 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -12478,7 +12478,7 @@
       "id": "P98",
       "category": "부품",
       "displayName": "교역 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -12514,7 +12514,7 @@
       "id": "P99",
       "category": "부품",
       "displayName": "바르칸 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -12921,7 +12921,7 @@
       "id": "P107",
       "category": "부품",
       "displayName": "세공 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -12992,7 +12992,7 @@
       "id": "P108",
       "category": "부품",
       "displayName": "교역 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -16776,7 +16776,7 @@
       "id": "R110",
       "category": "낚싯대",
       "displayName": "수집상의 낚싯대",
-      "locked": false,
+      "locked": true,
       "resultMode": "rod",
       "resultAmount": 0,
       "drillTier": 0,
@@ -17149,7 +17149,7 @@
       "id": "P116",
       "category": "부품",
       "displayName": "수집상 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -17313,7 +17313,7 @@
       "id": "P119",
       "category": "부품",
       "displayName": "수집상 합사줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -17477,7 +17477,7 @@
       "id": "P122",
       "category": "부품",
       "displayName": "수집상 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -17613,7 +17613,7 @@
       "id": "P125",
       "category": "부품",
       "displayName": "수집상 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -17742,7 +17742,7 @@
       "id": "P128",
       "category": "부품",
       "displayName": "수집상 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -18877,7 +18877,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "R115": {
@@ -18954,7 +18954,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "R116": {
@@ -19031,7 +19031,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "R117": {
@@ -19108,7 +19108,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "R118": {
@@ -19185,7 +19185,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "R119": {
@@ -19262,7 +19262,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP96": {
@@ -19333,7 +19333,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP97": {
@@ -19404,7 +19404,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP98": {
@@ -19475,7 +19475,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP99": {
@@ -19546,7 +19546,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP100": {
@@ -19617,7 +19617,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P144": {
@@ -19681,7 +19681,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P145": {
@@ -19809,7 +19809,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P147": {
@@ -19873,7 +19873,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P148": {
@@ -19937,7 +19937,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P149": {
@@ -20001,7 +20001,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P150": {
@@ -20065,7 +20065,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P151": {
@@ -20129,7 +20129,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P152": {
@@ -20193,7 +20193,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P153": {
@@ -20257,7 +20257,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P154": {
@@ -20321,7 +20321,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P155": {
@@ -20385,7 +20385,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P156": {
@@ -20414,7 +20414,7 @@
           "qty": 5
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P157": {
@@ -20443,7 +20443,7 @@
           "qty": 6
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P158": {
@@ -20472,7 +20472,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "HP101": {
@@ -20786,7 +20786,7 @@
       "id": "P162",
       "category": "부품",
       "displayName": "선단 릴",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21000,7 +21000,7 @@
       "id": "P166",
       "category": "부품",
       "displayName": "선단 줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21064,7 +21064,7 @@
       "id": "P167",
       "category": "부품",
       "displayName": "서기 줄",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21178,7 +21178,7 @@
       "id": "P169",
       "category": "부품",
       "displayName": "선단 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21242,7 +21242,7 @@
       "id": "P170",
       "category": "부품",
       "displayName": "서기 바늘",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21356,7 +21356,7 @@
       "id": "P172",
       "category": "부품",
       "displayName": "선단 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21413,14 +21413,14 @@
           "qty": 10
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P173": {
       "id": "P173",
       "category": "부품",
       "displayName": "서기 찌",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -21557,7 +21557,7 @@
       "id": "P177",
       "category": "부품",
       "displayName": "선단 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -21586,14 +21586,14 @@
           "qty": 5
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P178": {
       "id": "P178",
       "category": "부품",
       "displayName": "서기 미끼",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 10,
       "drillTier": 0,
@@ -21786,7 +21786,7 @@
           "qty": 4
         }
       ],
-      "village": "사막",
+      "village": "왕도",
       "materialDiscountVersion": 1
     },
     "P182": {
