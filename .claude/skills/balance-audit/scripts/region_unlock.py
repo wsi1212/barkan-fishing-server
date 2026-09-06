@@ -127,7 +127,8 @@ def build(live: pathlib.Path = LIVE) -> dict[str, int]:
                 lv = lvl.get(nm)
                 if lv and (best is None or lv < best):
                     best = lv
-            out[rg] = best or max([quests[q].get("필요레벨") or 0 for q in chain] + [1])
+            # 역산이 실패하면 메인 체인 최대 필요레벨로 폴백한다(가장 보수적인 상한).
+            out[rg] = best or max([quests[q].get("필요레벨") or 0 for q in _main_chain(quests)] + [1])
     return out
 
 
