@@ -19,15 +19,15 @@ buff_plate_3_sm:
   setting:
     scale: 0.5
 
-buff_bar_empty_sm:
+buff_bar_empty_1_sm:
   type: single
-  file: status/gen/buff-bar-empty-sm.png
+  file: status/gen/buff-bar-empty-sm-p1.png
   setting:
     scale: 0.5
 
-buff_bar_sm:
+buff_bar_1_sm:
   type: listener
-  file: status/gen/buff-bar-fill-sm.png
+  file: status/gen/buff-bar-fill-sm-p1.png
   split: 30
   split-type: left
   setting:
@@ -35,49 +35,129 @@ buff_bar_sm:
     listener:
       class: barkan_buff_time
 
-buff_stat_icon_1_sm:
+buff_stat_icon_1_1_sm:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-sm-r1.png
-    - status/gen/icon-stat-size-sm-r1.png
-    - status/gen/icon-stat-gradeup-sm-r1.png
-    - status/gen/icon-stat-escape-sm-r1.png
-    - status/gen/icon-stat-crit-sm-r1.png
-    - status/gen/icon-stat-double-sm-r1.png
-    - status/gen/icon-stat-sell-sm-r1.png
-    - status/gen/icon-stat-difficulty-sm-r1.png
+    - status/gen/icon-stat-exp-sm-p1r1.png
+    - status/gen/icon-stat-size-sm-p1r1.png
+    - status/gen/icon-stat-gradeup-sm-p1r1.png
+    - status/gen/icon-stat-escape-sm-p1r1.png
+    - status/gen/icon-stat-crit-sm-p1r1.png
+    - status/gen/icon-stat-double-sm-p1r1.png
+    - status/gen/icon-stat-sell-sm-p1r1.png
+    - status/gen/icon-stat-difficulty-sm-p1r1.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat1
 
-buff_stat_icon_2_sm:
+buff_bar_empty_2_sm:
+  type: single
+  file: status/gen/buff-bar-empty-sm-p2.png
+  setting:
+    scale: 0.5
+
+buff_bar_2_sm:
+  type: listener
+  file: status/gen/buff-bar-fill-sm-p2.png
+  split: 30
+  split-type: left
+  setting:
+    scale: 0.5
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_2_1_sm:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-sm-r2.png
-    - status/gen/icon-stat-size-sm-r2.png
-    - status/gen/icon-stat-gradeup-sm-r2.png
-    - status/gen/icon-stat-escape-sm-r2.png
-    - status/gen/icon-stat-crit-sm-r2.png
-    - status/gen/icon-stat-double-sm-r2.png
-    - status/gen/icon-stat-sell-sm-r2.png
-    - status/gen/icon-stat-difficulty-sm-r2.png
+    - status/gen/icon-stat-exp-sm-p2r1.png
+    - status/gen/icon-stat-size-sm-p2r1.png
+    - status/gen/icon-stat-gradeup-sm-p2r1.png
+    - status/gen/icon-stat-escape-sm-p2r1.png
+    - status/gen/icon-stat-crit-sm-p2r1.png
+    - status/gen/icon-stat-double-sm-p2r1.png
+    - status/gen/icon-stat-sell-sm-p2r1.png
+    - status/gen/icon-stat-difficulty-sm-p2r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_2_2_sm:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-sm-p2r2.png
+    - status/gen/icon-stat-size-sm-p2r2.png
+    - status/gen/icon-stat-gradeup-sm-p2r2.png
+    - status/gen/icon-stat-escape-sm-p2r2.png
+    - status/gen/icon-stat-crit-sm-p2r2.png
+    - status/gen/icon-stat-double-sm-p2r2.png
+    - status/gen/icon-stat-sell-sm-p2r2.png
+    - status/gen/icon-stat-difficulty-sm-p2r2.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat2
 
-buff_stat_icon_3_sm:
+buff_bar_empty_3_sm:
+  type: single
+  file: status/gen/buff-bar-empty-sm-p3.png
+  setting:
+    scale: 0.5
+
+buff_bar_3_sm:
+  type: listener
+  file: status/gen/buff-bar-fill-sm-p3.png
+  split: 30
+  split-type: left
+  setting:
+    scale: 0.5
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_3_1_sm:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-sm-r3.png
-    - status/gen/icon-stat-size-sm-r3.png
-    - status/gen/icon-stat-gradeup-sm-r3.png
-    - status/gen/icon-stat-escape-sm-r3.png
-    - status/gen/icon-stat-crit-sm-r3.png
-    - status/gen/icon-stat-double-sm-r3.png
-    - status/gen/icon-stat-sell-sm-r3.png
-    - status/gen/icon-stat-difficulty-sm-r3.png
+    - status/gen/icon-stat-exp-sm-p3r1.png
+    - status/gen/icon-stat-size-sm-p3r1.png
+    - status/gen/icon-stat-gradeup-sm-p3r1.png
+    - status/gen/icon-stat-escape-sm-p3r1.png
+    - status/gen/icon-stat-crit-sm-p3r1.png
+    - status/gen/icon-stat-double-sm-p3r1.png
+    - status/gen/icon-stat-sell-sm-p3r1.png
+    - status/gen/icon-stat-difficulty-sm-p3r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_3_2_sm:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-sm-p3r2.png
+    - status/gen/icon-stat-size-sm-p3r2.png
+    - status/gen/icon-stat-gradeup-sm-p3r2.png
+    - status/gen/icon-stat-escape-sm-p3r2.png
+    - status/gen/icon-stat-crit-sm-p3r2.png
+    - status/gen/icon-stat-double-sm-p3r2.png
+    - status/gen/icon-stat-sell-sm-p3r2.png
+    - status/gen/icon-stat-difficulty-sm-p3r2.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat2
+
+buff_stat_icon_3_3_sm:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-sm-p3r3.png
+    - status/gen/icon-stat-size-sm-p3r3.png
+    - status/gen/icon-stat-gradeup-sm-p3r3.png
+    - status/gen/icon-stat-escape-sm-p3r3.png
+    - status/gen/icon-stat-crit-sm-p3r3.png
+    - status/gen/icon-stat-double-sm-p3r3.png
+    - status/gen/icon-stat-sell-sm-p3r3.png
+    - status/gen/icon-stat-difficulty-sm-p3r3.png
   setting:
     scale: 0.25
     listener:
@@ -101,15 +181,15 @@ buff_plate_3_md:
   setting:
     scale: 0.6613
 
-buff_bar_empty_md:
+buff_bar_empty_1_md:
   type: single
-  file: status/gen/buff-bar-empty-md.png
+  file: status/gen/buff-bar-empty-md-p1.png
   setting:
     scale: 0.6667
 
-buff_bar_md:
+buff_bar_1_md:
   type: listener
-  file: status/gen/buff-bar-fill-md.png
+  file: status/gen/buff-bar-fill-md-p1.png
   split: 40
   split-type: left
   setting:
@@ -117,49 +197,129 @@ buff_bar_md:
     listener:
       class: barkan_buff_time
 
-buff_stat_icon_1_md:
+buff_stat_icon_1_1_md:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-md-r1.png
-    - status/gen/icon-stat-size-md-r1.png
-    - status/gen/icon-stat-gradeup-md-r1.png
-    - status/gen/icon-stat-escape-md-r1.png
-    - status/gen/icon-stat-crit-md-r1.png
-    - status/gen/icon-stat-double-md-r1.png
-    - status/gen/icon-stat-sell-md-r1.png
-    - status/gen/icon-stat-difficulty-md-r1.png
+    - status/gen/icon-stat-exp-md-p1r1.png
+    - status/gen/icon-stat-size-md-p1r1.png
+    - status/gen/icon-stat-gradeup-md-p1r1.png
+    - status/gen/icon-stat-escape-md-p1r1.png
+    - status/gen/icon-stat-crit-md-p1r1.png
+    - status/gen/icon-stat-double-md-p1r1.png
+    - status/gen/icon-stat-sell-md-p1r1.png
+    - status/gen/icon-stat-difficulty-md-p1r1.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat1
 
-buff_stat_icon_2_md:
+buff_bar_empty_2_md:
+  type: single
+  file: status/gen/buff-bar-empty-md-p2.png
+  setting:
+    scale: 0.6667
+
+buff_bar_2_md:
+  type: listener
+  file: status/gen/buff-bar-fill-md-p2.png
+  split: 40
+  split-type: left
+  setting:
+    scale: 0.6667
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_2_1_md:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-md-r2.png
-    - status/gen/icon-stat-size-md-r2.png
-    - status/gen/icon-stat-gradeup-md-r2.png
-    - status/gen/icon-stat-escape-md-r2.png
-    - status/gen/icon-stat-crit-md-r2.png
-    - status/gen/icon-stat-double-md-r2.png
-    - status/gen/icon-stat-sell-md-r2.png
-    - status/gen/icon-stat-difficulty-md-r2.png
+    - status/gen/icon-stat-exp-md-p2r1.png
+    - status/gen/icon-stat-size-md-p2r1.png
+    - status/gen/icon-stat-gradeup-md-p2r1.png
+    - status/gen/icon-stat-escape-md-p2r1.png
+    - status/gen/icon-stat-crit-md-p2r1.png
+    - status/gen/icon-stat-double-md-p2r1.png
+    - status/gen/icon-stat-sell-md-p2r1.png
+    - status/gen/icon-stat-difficulty-md-p2r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_2_2_md:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-md-p2r2.png
+    - status/gen/icon-stat-size-md-p2r2.png
+    - status/gen/icon-stat-gradeup-md-p2r2.png
+    - status/gen/icon-stat-escape-md-p2r2.png
+    - status/gen/icon-stat-crit-md-p2r2.png
+    - status/gen/icon-stat-double-md-p2r2.png
+    - status/gen/icon-stat-sell-md-p2r2.png
+    - status/gen/icon-stat-difficulty-md-p2r2.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat2
 
-buff_stat_icon_3_md:
+buff_bar_empty_3_md:
+  type: single
+  file: status/gen/buff-bar-empty-md-p3.png
+  setting:
+    scale: 0.6667
+
+buff_bar_3_md:
+  type: listener
+  file: status/gen/buff-bar-fill-md-p3.png
+  split: 40
+  split-type: left
+  setting:
+    scale: 0.6667
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_3_1_md:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-md-r3.png
-    - status/gen/icon-stat-size-md-r3.png
-    - status/gen/icon-stat-gradeup-md-r3.png
-    - status/gen/icon-stat-escape-md-r3.png
-    - status/gen/icon-stat-crit-md-r3.png
-    - status/gen/icon-stat-double-md-r3.png
-    - status/gen/icon-stat-sell-md-r3.png
-    - status/gen/icon-stat-difficulty-md-r3.png
+    - status/gen/icon-stat-exp-md-p3r1.png
+    - status/gen/icon-stat-size-md-p3r1.png
+    - status/gen/icon-stat-gradeup-md-p3r1.png
+    - status/gen/icon-stat-escape-md-p3r1.png
+    - status/gen/icon-stat-crit-md-p3r1.png
+    - status/gen/icon-stat-double-md-p3r1.png
+    - status/gen/icon-stat-sell-md-p3r1.png
+    - status/gen/icon-stat-difficulty-md-p3r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_3_2_md:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-md-p3r2.png
+    - status/gen/icon-stat-size-md-p3r2.png
+    - status/gen/icon-stat-gradeup-md-p3r2.png
+    - status/gen/icon-stat-escape-md-p3r2.png
+    - status/gen/icon-stat-crit-md-p3r2.png
+    - status/gen/icon-stat-double-md-p3r2.png
+    - status/gen/icon-stat-sell-md-p3r2.png
+    - status/gen/icon-stat-difficulty-md-p3r2.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat2
+
+buff_stat_icon_3_3_md:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-md-p3r3.png
+    - status/gen/icon-stat-size-md-p3r3.png
+    - status/gen/icon-stat-gradeup-md-p3r3.png
+    - status/gen/icon-stat-escape-md-p3r3.png
+    - status/gen/icon-stat-crit-md-p3r3.png
+    - status/gen/icon-stat-double-md-p3r3.png
+    - status/gen/icon-stat-sell-md-p3r3.png
+    - status/gen/icon-stat-difficulty-md-p3r3.png
   setting:
     scale: 0.25
     listener:
@@ -183,15 +343,15 @@ buff_plate_3_lg:
   setting:
     scale: 0.8468
 
-buff_bar_empty_lg:
+buff_bar_empty_1_lg:
   type: single
-  file: status/gen/buff-bar-empty-lg.png
+  file: status/gen/buff-bar-empty-lg-p1.png
   setting:
     scale: 0.85
 
-buff_bar_lg:
+buff_bar_1_lg:
   type: listener
-  file: status/gen/buff-bar-fill-lg.png
+  file: status/gen/buff-bar-fill-lg-p1.png
   split: 51
   split-type: left
   setting:
@@ -199,49 +359,129 @@ buff_bar_lg:
     listener:
       class: barkan_buff_time
 
-buff_stat_icon_1_lg:
+buff_stat_icon_1_1_lg:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-lg-r1.png
-    - status/gen/icon-stat-size-lg-r1.png
-    - status/gen/icon-stat-gradeup-lg-r1.png
-    - status/gen/icon-stat-escape-lg-r1.png
-    - status/gen/icon-stat-crit-lg-r1.png
-    - status/gen/icon-stat-double-lg-r1.png
-    - status/gen/icon-stat-sell-lg-r1.png
-    - status/gen/icon-stat-difficulty-lg-r1.png
+    - status/gen/icon-stat-exp-lg-p1r1.png
+    - status/gen/icon-stat-size-lg-p1r1.png
+    - status/gen/icon-stat-gradeup-lg-p1r1.png
+    - status/gen/icon-stat-escape-lg-p1r1.png
+    - status/gen/icon-stat-crit-lg-p1r1.png
+    - status/gen/icon-stat-double-lg-p1r1.png
+    - status/gen/icon-stat-sell-lg-p1r1.png
+    - status/gen/icon-stat-difficulty-lg-p1r1.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat1
 
-buff_stat_icon_2_lg:
+buff_bar_empty_2_lg:
+  type: single
+  file: status/gen/buff-bar-empty-lg-p2.png
+  setting:
+    scale: 0.85
+
+buff_bar_2_lg:
+  type: listener
+  file: status/gen/buff-bar-fill-lg-p2.png
+  split: 51
+  split-type: left
+  setting:
+    scale: 0.85
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_2_1_lg:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-lg-r2.png
-    - status/gen/icon-stat-size-lg-r2.png
-    - status/gen/icon-stat-gradeup-lg-r2.png
-    - status/gen/icon-stat-escape-lg-r2.png
-    - status/gen/icon-stat-crit-lg-r2.png
-    - status/gen/icon-stat-double-lg-r2.png
-    - status/gen/icon-stat-sell-lg-r2.png
-    - status/gen/icon-stat-difficulty-lg-r2.png
+    - status/gen/icon-stat-exp-lg-p2r1.png
+    - status/gen/icon-stat-size-lg-p2r1.png
+    - status/gen/icon-stat-gradeup-lg-p2r1.png
+    - status/gen/icon-stat-escape-lg-p2r1.png
+    - status/gen/icon-stat-crit-lg-p2r1.png
+    - status/gen/icon-stat-double-lg-p2r1.png
+    - status/gen/icon-stat-sell-lg-p2r1.png
+    - status/gen/icon-stat-difficulty-lg-p2r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_2_2_lg:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-lg-p2r2.png
+    - status/gen/icon-stat-size-lg-p2r2.png
+    - status/gen/icon-stat-gradeup-lg-p2r2.png
+    - status/gen/icon-stat-escape-lg-p2r2.png
+    - status/gen/icon-stat-crit-lg-p2r2.png
+    - status/gen/icon-stat-double-lg-p2r2.png
+    - status/gen/icon-stat-sell-lg-p2r2.png
+    - status/gen/icon-stat-difficulty-lg-p2r2.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat2
 
-buff_stat_icon_3_lg:
+buff_bar_empty_3_lg:
+  type: single
+  file: status/gen/buff-bar-empty-lg-p3.png
+  setting:
+    scale: 0.85
+
+buff_bar_3_lg:
+  type: listener
+  file: status/gen/buff-bar-fill-lg-p3.png
+  split: 51
+  split-type: left
+  setting:
+    scale: 0.85
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_3_1_lg:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-lg-r3.png
-    - status/gen/icon-stat-size-lg-r3.png
-    - status/gen/icon-stat-gradeup-lg-r3.png
-    - status/gen/icon-stat-escape-lg-r3.png
-    - status/gen/icon-stat-crit-lg-r3.png
-    - status/gen/icon-stat-double-lg-r3.png
-    - status/gen/icon-stat-sell-lg-r3.png
-    - status/gen/icon-stat-difficulty-lg-r3.png
+    - status/gen/icon-stat-exp-lg-p3r1.png
+    - status/gen/icon-stat-size-lg-p3r1.png
+    - status/gen/icon-stat-gradeup-lg-p3r1.png
+    - status/gen/icon-stat-escape-lg-p3r1.png
+    - status/gen/icon-stat-crit-lg-p3r1.png
+    - status/gen/icon-stat-double-lg-p3r1.png
+    - status/gen/icon-stat-sell-lg-p3r1.png
+    - status/gen/icon-stat-difficulty-lg-p3r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_3_2_lg:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-lg-p3r2.png
+    - status/gen/icon-stat-size-lg-p3r2.png
+    - status/gen/icon-stat-gradeup-lg-p3r2.png
+    - status/gen/icon-stat-escape-lg-p3r2.png
+    - status/gen/icon-stat-crit-lg-p3r2.png
+    - status/gen/icon-stat-double-lg-p3r2.png
+    - status/gen/icon-stat-sell-lg-p3r2.png
+    - status/gen/icon-stat-difficulty-lg-p3r2.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat2
+
+buff_stat_icon_3_3_lg:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-lg-p3r3.png
+    - status/gen/icon-stat-size-lg-p3r3.png
+    - status/gen/icon-stat-gradeup-lg-p3r3.png
+    - status/gen/icon-stat-escape-lg-p3r3.png
+    - status/gen/icon-stat-crit-lg-p3r3.png
+    - status/gen/icon-stat-double-lg-p3r3.png
+    - status/gen/icon-stat-sell-lg-p3r3.png
+    - status/gen/icon-stat-difficulty-lg-p3r3.png
   setting:
     scale: 0.25
     listener:
@@ -265,15 +505,15 @@ buff_plate_3_xl:
   setting:
     scale: 1.0
 
-buff_bar_empty_xl:
+buff_bar_empty_1_xl:
   type: single
-  file: status/gen/buff-bar-empty-xl.png
+  file: status/gen/buff-bar-empty-xl-p1.png
   setting:
     scale: 1.0
 
-buff_bar_xl:
+buff_bar_1_xl:
   type: listener
-  file: status/gen/buff-bar-fill-xl.png
+  file: status/gen/buff-bar-fill-xl-p1.png
   split: 60
   split-type: left
   setting:
@@ -281,49 +521,129 @@ buff_bar_xl:
     listener:
       class: barkan_buff_time
 
-buff_stat_icon_1_xl:
+buff_stat_icon_1_1_xl:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-xl-r1.png
-    - status/gen/icon-stat-size-xl-r1.png
-    - status/gen/icon-stat-gradeup-xl-r1.png
-    - status/gen/icon-stat-escape-xl-r1.png
-    - status/gen/icon-stat-crit-xl-r1.png
-    - status/gen/icon-stat-double-xl-r1.png
-    - status/gen/icon-stat-sell-xl-r1.png
-    - status/gen/icon-stat-difficulty-xl-r1.png
+    - status/gen/icon-stat-exp-xl-p1r1.png
+    - status/gen/icon-stat-size-xl-p1r1.png
+    - status/gen/icon-stat-gradeup-xl-p1r1.png
+    - status/gen/icon-stat-escape-xl-p1r1.png
+    - status/gen/icon-stat-crit-xl-p1r1.png
+    - status/gen/icon-stat-double-xl-p1r1.png
+    - status/gen/icon-stat-sell-xl-p1r1.png
+    - status/gen/icon-stat-difficulty-xl-p1r1.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat1
 
-buff_stat_icon_2_xl:
+buff_bar_empty_2_xl:
+  type: single
+  file: status/gen/buff-bar-empty-xl-p2.png
+  setting:
+    scale: 1.0
+
+buff_bar_2_xl:
+  type: listener
+  file: status/gen/buff-bar-fill-xl-p2.png
+  split: 60
+  split-type: left
+  setting:
+    scale: 1.0
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_2_1_xl:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-xl-r2.png
-    - status/gen/icon-stat-size-xl-r2.png
-    - status/gen/icon-stat-gradeup-xl-r2.png
-    - status/gen/icon-stat-escape-xl-r2.png
-    - status/gen/icon-stat-crit-xl-r2.png
-    - status/gen/icon-stat-double-xl-r2.png
-    - status/gen/icon-stat-sell-xl-r2.png
-    - status/gen/icon-stat-difficulty-xl-r2.png
+    - status/gen/icon-stat-exp-xl-p2r1.png
+    - status/gen/icon-stat-size-xl-p2r1.png
+    - status/gen/icon-stat-gradeup-xl-p2r1.png
+    - status/gen/icon-stat-escape-xl-p2r1.png
+    - status/gen/icon-stat-crit-xl-p2r1.png
+    - status/gen/icon-stat-double-xl-p2r1.png
+    - status/gen/icon-stat-sell-xl-p2r1.png
+    - status/gen/icon-stat-difficulty-xl-p2r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_2_2_xl:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-xl-p2r2.png
+    - status/gen/icon-stat-size-xl-p2r2.png
+    - status/gen/icon-stat-gradeup-xl-p2r2.png
+    - status/gen/icon-stat-escape-xl-p2r2.png
+    - status/gen/icon-stat-crit-xl-p2r2.png
+    - status/gen/icon-stat-double-xl-p2r2.png
+    - status/gen/icon-stat-sell-xl-p2r2.png
+    - status/gen/icon-stat-difficulty-xl-p2r2.png
   setting:
     scale: 0.25
     listener:
       class: barkan_buff_stat2
 
-buff_stat_icon_3_xl:
+buff_bar_empty_3_xl:
+  type: single
+  file: status/gen/buff-bar-empty-xl-p3.png
+  setting:
+    scale: 1.0
+
+buff_bar_3_xl:
+  type: listener
+  file: status/gen/buff-bar-fill-xl-p3.png
+  split: 60
+  split-type: left
+  setting:
+    scale: 1.0
+    listener:
+      class: barkan_buff_time
+
+buff_stat_icon_3_1_xl:
   type: sequence
   files:
-    - status/gen/icon-stat-exp-xl-r3.png
-    - status/gen/icon-stat-size-xl-r3.png
-    - status/gen/icon-stat-gradeup-xl-r3.png
-    - status/gen/icon-stat-escape-xl-r3.png
-    - status/gen/icon-stat-crit-xl-r3.png
-    - status/gen/icon-stat-double-xl-r3.png
-    - status/gen/icon-stat-sell-xl-r3.png
-    - status/gen/icon-stat-difficulty-xl-r3.png
+    - status/gen/icon-stat-exp-xl-p3r1.png
+    - status/gen/icon-stat-size-xl-p3r1.png
+    - status/gen/icon-stat-gradeup-xl-p3r1.png
+    - status/gen/icon-stat-escape-xl-p3r1.png
+    - status/gen/icon-stat-crit-xl-p3r1.png
+    - status/gen/icon-stat-double-xl-p3r1.png
+    - status/gen/icon-stat-sell-xl-p3r1.png
+    - status/gen/icon-stat-difficulty-xl-p3r1.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat1
+
+buff_stat_icon_3_2_xl:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-xl-p3r2.png
+    - status/gen/icon-stat-size-xl-p3r2.png
+    - status/gen/icon-stat-gradeup-xl-p3r2.png
+    - status/gen/icon-stat-escape-xl-p3r2.png
+    - status/gen/icon-stat-crit-xl-p3r2.png
+    - status/gen/icon-stat-double-xl-p3r2.png
+    - status/gen/icon-stat-sell-xl-p3r2.png
+    - status/gen/icon-stat-difficulty-xl-p3r2.png
+  setting:
+    scale: 0.25
+    listener:
+      class: barkan_buff_stat2
+
+buff_stat_icon_3_3_xl:
+  type: sequence
+  files:
+    - status/gen/icon-stat-exp-xl-p3r3.png
+    - status/gen/icon-stat-size-xl-p3r3.png
+    - status/gen/icon-stat-gradeup-xl-p3r3.png
+    - status/gen/icon-stat-escape-xl-p3r3.png
+    - status/gen/icon-stat-crit-xl-p3r3.png
+    - status/gen/icon-stat-double-xl-p3r3.png
+    - status/gen/icon-stat-sell-xl-p3r3.png
+    - status/gen/icon-stat-difficulty-xl-p3r3.png
   setting:
     scale: 0.25
     listener:

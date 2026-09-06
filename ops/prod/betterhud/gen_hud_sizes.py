@@ -389,29 +389,37 @@ def build_buff():
             img.append(f"buff_plate_{n}_{sid}:\n  type: single\n  file: {f}\n"
                        f"  setting:\n    scale: {sc}\n")
 
-        # 남은시간 게이지 (빈 홈 + 채움). 채움은 listener 가 비율만큼 잘라 그린다.
+        # 남은시간 게이지(빈 홈 + 채움)와 스탯 아이콘 — ★판(n)마다 «따로» 굽는다.
+        #
+        # ★★BetterHud 는 이미지 정의를 «처음 참조한 layout» 의 폰트 하나에만 넣는다. 판 1·2·3 이
+        #   같은 정의를 공유하면 판 1 의 폰트에만 글리프가 생기고, 판 2·3 에서는 그 요소가 통째로
+        #   사라진다 — 경고도 로그도 없다. 2026-09-07 실측: 황금연어롤(경험치+난이도 = 2줄)을
+        #   먹으면 시간 게이지와 «첫 줄 아이콘»이 안 보였다. 3줄 버프면 두 줄이 사라진다.
+        #   (같은 함정의 «파일» 판은 scaled_file 주석 참고. 정의 이름까지 갈라야 막힌다.)
         empty, fill, bx, bw, bh = B["bar"]
-        fe, _, _, sce = scaled_file("status", empty, sid, s_)
-        img.append(f"buff_bar_empty_{sid}:\n  type: single\n  file: {fe}\n"
-                   f"  setting:\n    scale: {sce}\n")
-        ff, _, _, scf = scaled_file("status", fill, sid, s_)
-        img.append(f"buff_bar_{sid}:\n  type: listener\n  file: {ff}\n"
-                   f"  split: {round(bw * s_)}\n  split-type: left\n"
-                   f"  setting:\n    scale: {scf}\n    listener:\n      class: barkan_buff_time\n")
+        for n in range(1, B["rows_max"] + 1):
+            fe, _, _, sce = scaled_file("status", empty, sid, s_, suffix=f"-p{n}")
+            img.append(f"buff_bar_empty_{n}_{sid}:\n  type: single\n  file: {fe}\n"
+                       f"  setting:\n    scale: {sce}\n")
+            ff, _, _, scf = scaled_file("status", fill, sid, s_, suffix=f"-p{n}")
+            img.append(f"buff_bar_{n}_{sid}:\n  type: listener\n  file: {ff}\n"
+                       f"  split: {round(bw * s_)}\n  split-type: left\n"
+                       f"  setting:\n    scale: {scf}\n    listener:\n      class: barkan_buff_time\n")
 
-        # 스탯 아이콘 sequence — 줄마다 한 벌(파일도 줄마다 따로)
-        icon_scale = None
-        for row in range(1, B["rows_max"] + 1):
-            files = []
-            for key in B["stats"]:
-                fi, iw, ih, sci = scaled_file("status", f"icon-stat-{key}.png", sid, s_,
-                                              base=(B["icon_h"], B["icon_h"]), suffix=f"-r{row}")
-                files.append(fi)
-                icon_scale = sci
-            body = "".join(f"    - {f}\n" for f in files)
-            img.append(f"buff_stat_icon_{row}_{sid}:\n  type: sequence\n  files:\n{body}"
-                       f"  setting:\n    scale: {icon_scale}\n    listener:\n"
-                       f"      class: barkan_buff_stat{row}\n")
+            # 그 판이 실제로 쓰는 줄만 만든다(판 n 은 1..n 줄).
+            for row in range(1, n + 1):
+                files = []
+                icon_scale = None
+                for key in B["stats"]:
+                    fi, iw, ih, sci = scaled_file("status", f"icon-stat-{key}.png", sid, s_,
+                                                  base=(B["icon_h"], B["icon_h"]),
+                                                  suffix=f"-p{n}r{row}")
+                    files.append(fi)
+                    icon_scale = sci
+                body = "".join(f"    - {f}\n" for f in files)
+                img.append(f"buff_stat_icon_{n}_{row}_{sid}:\n  type: sequence\n  files:\n{body}"
+                           f"  setting:\n    scale: {icon_scale}\n    listener:\n"
+                           f"      class: barkan_buff_stat{row}\n")
 
         def ty(center_row, h):
             """판 좌표의 줄 중심 -> 그 높이 h 짜리 요소의 y (세로 가운데 맞춤)."""
@@ -419,14 +427,14 @@ def build_buff():
 
         for n in range(1, B["rows_max"] + 1):
             images = [f"    1:\n      name: buff_plate_{n}_{sid}\n      x: {base_x:g}\n      y: {top}\n",
-                      f"    2:\n      name: buff_bar_empty_{sid}\n"
+                      f"    2:\n      name: buff_bar_empty_{n}_{sid}\n"
                       f"      x: {base_x + round(bx * s_):g}\n      y: {ty(B['bar_y'], bh)}\n",
-                      f"    3:\n      name: buff_bar_{sid}\n"
+                      f"    3:\n      name: buff_bar_{n}_{sid}\n"
                       f"      x: {base_x + round(bx * s_):g}\n      y: {ty(B['bar_y'], bh)}\n"]
             k = 4
             for row in range(1, n + 1):
                 center = B["row0"] + B["row_dy"] * (row - 1)
-                images.append(f"    {k}:\n      name: buff_stat_icon_{row}_{sid}\n"
+                images.append(f"    {k}:\n      name: buff_stat_icon_{n}_{row}_{sid}\n"
                               f"      x: {base_x + round(B['icon_x'] * s_):g}\n"
                               f"      y: {ty(center, B['icon_h'])}\n")
                 k += 1

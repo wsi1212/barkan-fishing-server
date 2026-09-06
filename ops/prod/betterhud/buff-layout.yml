@@ -9,15 +9,15 @@ barkan_buff_layout_1_sm:  # 작게 (x0.5) · 스탯 1줄
       x: 41
       y: 27
     2:
-      name: buff_bar_empty_sm
+      name: buff_bar_empty_1_sm
       x: 46
       y: 40
     3:
-      name: buff_bar_sm
+      name: buff_bar_1_sm
       x: 46
       y: 40
     4:
-      name: buff_stat_icon_1_sm
+      name: buff_stat_icon_1_1_sm
       x: 46
       y: 46
   texts:
@@ -54,19 +54,19 @@ barkan_buff_layout_2_sm:  # 작게 (x0.5) · 스탯 2줄
       x: 41
       y: 27
     2:
-      name: buff_bar_empty_sm
+      name: buff_bar_empty_2_sm
       x: 46
       y: 40
     3:
-      name: buff_bar_sm
+      name: buff_bar_2_sm
       x: 46
       y: 40
     4:
-      name: buff_stat_icon_1_sm
+      name: buff_stat_icon_2_1_sm
       x: 46
       y: 46
     5:
-      name: buff_stat_icon_2_sm
+      name: buff_stat_icon_2_2_sm
       x: 46
       y: 55
   texts:
@@ -111,23 +111,23 @@ barkan_buff_layout_3_sm:  # 작게 (x0.5) · 스탯 3줄
       x: 41
       y: 27
     2:
-      name: buff_bar_empty_sm
+      name: buff_bar_empty_3_sm
       x: 46
       y: 40
     3:
-      name: buff_bar_sm
+      name: buff_bar_3_sm
       x: 46
       y: 40
     4:
-      name: buff_stat_icon_1_sm
+      name: buff_stat_icon_3_1_sm
       x: 46
       y: 46
     5:
-      name: buff_stat_icon_2_sm
+      name: buff_stat_icon_3_2_sm
       x: 46
       y: 55
     6:
-      name: buff_stat_icon_3_sm
+      name: buff_stat_icon_3_3_sm
       x: 46
       y: 64
   texts:
@@ -180,15 +180,15 @@ barkan_buff_layout_1_md:  # 보통 (x0.66) · 스탯 1줄
       x: 51
       y: 34
     2:
-      name: buff_bar_empty_md
+      name: buff_bar_empty_1_md
       x: 58
       y: 51
     3:
-      name: buff_bar_md
+      name: buff_bar_1_md
       x: 58
       y: 51
     4:
-      name: buff_stat_icon_1_md
+      name: buff_stat_icon_1_1_md
       x: 58
       y: 58
   texts:
@@ -225,19 +225,19 @@ barkan_buff_layout_2_md:  # 보통 (x0.66) · 스탯 2줄
       x: 51
       y: 34
     2:
-      name: buff_bar_empty_md
+      name: buff_bar_empty_2_md
       x: 58
       y: 51
     3:
-      name: buff_bar_md
+      name: buff_bar_2_md
       x: 58
       y: 51
     4:
-      name: buff_stat_icon_1_md
+      name: buff_stat_icon_2_1_md
       x: 58
       y: 58
     5:
-      name: buff_stat_icon_2_md
+      name: buff_stat_icon_2_2_md
       x: 58
       y: 71
   texts:
@@ -282,23 +282,23 @@ barkan_buff_layout_3_md:  # 보통 (x0.66) · 스탯 3줄
       x: 51
       y: 34
     2:
-      name: buff_bar_empty_md
+      name: buff_bar_empty_3_md
       x: 58
       y: 51
     3:
-      name: buff_bar_md
+      name: buff_bar_3_md
       x: 58
       y: 51
     4:
-      name: buff_stat_icon_1_md
+      name: buff_stat_icon_3_1_md
       x: 58
       y: 58
     5:
-      name: buff_stat_icon_2_md
+      name: buff_stat_icon_3_2_md
       x: 58
       y: 71
     6:
-      name: buff_stat_icon_3_md
+      name: buff_stat_icon_3_3_md
       x: 58
       y: 83
   texts:
@@ -351,15 +351,15 @@ barkan_buff_layout_1_lg:  # 크게 (x0.85) · 스탯 1줄
       x: 62.5
       y: 42
     2:
-      name: buff_bar_empty_lg
+      name: buff_bar_empty_1_lg
       x: 70.5
       y: 63
     3:
-      name: buff_bar_lg
+      name: buff_bar_1_lg
       x: 70.5
       y: 63
     4:
-      name: buff_stat_icon_1_lg
+      name: buff_stat_icon_1_1_lg
       x: 70.5
       y: 73
   texts:
@@ -396,19 +396,19 @@ barkan_buff_layout_2_lg:  # 크게 (x0.85) · 스탯 2줄
       x: 62.5
       y: 42
     2:
-      name: buff_bar_empty_lg
+      name: buff_bar_empty_2_lg
       x: 70.5
       y: 63
     3:
-      name: buff_bar_lg
+      name: buff_bar_2_lg
       x: 70.5
       y: 63
     4:
-      name: buff_stat_icon_1_lg
+      name: buff_stat_icon_2_1_lg
       x: 70.5
       y: 73
     5:
-      name: buff_stat_icon_2_lg
+      name: buff_stat_icon_2_2_lg
       x: 70.5
       y: 89
   texts:
@@ -453,23 +453,23 @@ barkan_buff_layout_3_lg:  # 크게 (x0.85) · 스탯 3줄
       x: 62.5
       y: 42
     2:
-      name: buff_bar_empty_lg
+      name: buff_bar_empty_3_lg
       x: 70.5
       y: 63
     3:
-      name: buff_bar_lg
+      name: buff_bar_3_lg
       x: 70.5
       y: 63
     4:
-      name: buff_stat_icon_1_lg
+      name: buff_stat_icon_3_1_lg
       x: 70.5
       y: 73
     5:
-      name: buff_stat_icon_2_lg
+      name: buff_stat_icon_3_2_lg
       x: 70.5
       y: 89
     6:
-      name: buff_stat_icon_3_lg
+      name: buff_stat_icon_3_3_lg
       x: 70.5
       y: 106
   texts:
@@ -522,15 +522,15 @@ barkan_buff_layout_1_xl:  # 아주 크게 (x1.0) · 스탯 1줄
       x: 72
       y: 48
     2:
-      name: buff_bar_empty_xl
+      name: buff_bar_empty_1_xl
       x: 82
       y: 73
     3:
-      name: buff_bar_xl
+      name: buff_bar_1_xl
       x: 82
       y: 73
     4:
-      name: buff_stat_icon_1_xl
+      name: buff_stat_icon_1_1_xl
       x: 82
       y: 85
   texts:
@@ -567,19 +567,19 @@ barkan_buff_layout_2_xl:  # 아주 크게 (x1.0) · 스탯 2줄
       x: 72
       y: 48
     2:
-      name: buff_bar_empty_xl
+      name: buff_bar_empty_2_xl
       x: 82
       y: 73
     3:
-      name: buff_bar_xl
+      name: buff_bar_2_xl
       x: 82
       y: 73
     4:
-      name: buff_stat_icon_1_xl
+      name: buff_stat_icon_2_1_xl
       x: 82
       y: 85
     5:
-      name: buff_stat_icon_2_xl
+      name: buff_stat_icon_2_2_xl
       x: 82
       y: 104
   texts:
@@ -624,23 +624,23 @@ barkan_buff_layout_3_xl:  # 아주 크게 (x1.0) · 스탯 3줄
       x: 72
       y: 48
     2:
-      name: buff_bar_empty_xl
+      name: buff_bar_empty_3_xl
       x: 82
       y: 73
     3:
-      name: buff_bar_xl
+      name: buff_bar_3_xl
       x: 82
       y: 73
     4:
-      name: buff_stat_icon_1_xl
+      name: buff_stat_icon_3_1_xl
       x: 82
       y: 85
     5:
-      name: buff_stat_icon_2_xl
+      name: buff_stat_icon_3_2_xl
       x: 82
       y: 104
     6:
-      name: buff_stat_icon_3_xl
+      name: buff_stat_icon_3_3_xl
       x: 82
       y: 123
   texts:
