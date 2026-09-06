@@ -976,14 +976,16 @@
       "source": "admin"
     },
     "가이드": {
-      "name": "&#bde6dd가이드",
-      "color": "&#bde6dd",
+      "name": "&#78e8e0가&#d3ffe5이&#78e8e0드",
+      "color": "&#78e8e0",
       "desc": "&7신규 유저를 돕는 안내자에게 부여되는 칭호",
       "icon": "compass",
       "tier": "유일",
       "prestige": 600,
       "category": "특수",
-      "source": "admin"
+      "source": "admin",
+      "animation": true,
+      "palette": "guide"
     },
     "물길을외운자": {
       "name": "&b물길의 달인",
