@@ -18014,7 +18014,7 @@
       "id": "HP49",
       "category": "작살",
       "displayName": "심해 잠수 작살",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -18106,14 +18106,14 @@
           "qty": 17
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "HP50": {
       "id": "HP50",
       "category": "작살",
       "displayName": "압력관통 작살",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -18191,14 +18191,14 @@
           "qty": 19
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "HP51": {
       "id": "HP51",
       "category": "작살",
       "displayName": "심연의 작살",
-      "locked": false,
+      "locked": true,
       "resultMode": "part",
       "resultAmount": 0,
       "drillTier": 0,
@@ -18276,7 +18276,7 @@
           "qty": 21
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P134": {
@@ -22453,7 +22453,7 @@
           "qty": 16
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P191": {
@@ -22531,7 +22531,7 @@
           "qty": 17
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P192": {
@@ -23254,7 +23254,7 @@
           "qty": 16
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P201": {
@@ -23339,7 +23339,7 @@
           "qty": 17
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P202": {
@@ -24062,7 +24062,7 @@
           "qty": 15
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P211": {
@@ -24147,7 +24147,7 @@
           "qty": 18
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P212": {
@@ -24562,7 +24562,7 @@
           "qty": 8
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P221": {
@@ -24598,7 +24598,7 @@
           "qty": 9
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P222": {
@@ -25230,7 +25230,7 @@
           "qty": 16
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P231": {
@@ -25315,7 +25315,7 @@
           "qty": 18
         }
       ],
-      "village": "왕도",
+      "village": "상단",
       "materialDiscountVersion": 1
     },
     "P232": {
