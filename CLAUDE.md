@@ -33,7 +33,7 @@
 | **퀘스트** | `quest/` (QuestManager·QuestGui·QuestCatalogGui) | 일일/주간/메인, 쉬운건 타이틀 표시 |
 | **NPC/대화** | `npc/` (NpcManager·NpcDialogueManager, data/) | NPC 우클릭 대화, 퀘스트 수락/완료 |
 | **아이스박스** | `economy/IceboxGui` | 물고기 보관함 (9단계, 신선도 보존) |
-| **페리** | `ferry/` (FerryManager·FerryVoyage) | 지역간 정기선 (노선, 요금, 보스바). ★**항로(웨이포인트) 2개 이상이면 «배가 실제로 간다»** — `FerryVoyage` 가 선체 ItemDisplay 1 + 승객 좌석 ArmorStand N 으로 바다 항로를 항해(승객 시야 자유). 항로가 비면 옛 TP 방식 폴백. 항로 등록은 `/페리설정 <노선> 경유지추가` 를 **수면 위를 지나가며 순서대로**(좌표 상상 금지 — 육지 통과함) |
+| **페리** | `ferry/` (FerryManager·FerryVoyage) | 지역간 정기선 (노선, 요금, 보스바). ★**항로(웨이포인트) 2개 이상이면 «배가 실제로 간다»** — `FerryVoyage` 가 선체 ItemDisplay 1 + 승객 좌석 ArmorStand N 으로 바다 항로를 항해(승객 시야 자유). 항로가 비면 옛 TP 방식 폴백. 항로 등록은 `/페리설정 <노선> 경유지추가` 를 **수면 위를 지나가며 순서대로**(좌표 상상 금지 — 육지 통과함). 장거리는 손으로 못 찍으니 **`ops/make-ferry-route.py --from X,Z --to X,Z`**(월드 region 직접 읽어 A*, 육지관통 0 검산) 로 뽑아 `ferries.json` 의 `waypoints` 에 넣는다 — 편집은 **서버 정지 중에**(가동 중이면 save() 가 덮음) |
 | **지역** | `region/RegionManager` (RegionData·RegionTracker·RegionCommand) | Java 데이터(regions.json) |
 | **날씨** | `region/WeatherManager` (WeatherCommand·WeatherInfoCommand) | 지역별 독립 날씨, 파티클, 사운드, 시야 제한 |
 | **사이드바** | `sidebar/SidebarManager` | 스코어보드 HUD (레벨, 돈, 위치, 환경, 콤보) |
