@@ -3,6 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": { "start": "node bot.mjs" },
+  "scripts": { "start": "node bot.mjs", "test": "node --test" },
   "dependencies": { "discord.js": "^14.22.1" }
 }

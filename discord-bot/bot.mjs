@@ -1,5 +1,6 @@
 import { Client, GatewayIntentBits, MessageFlags, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { deprovisionGuild, ensureRankRoles, provisionGuild, syncMembers } from "./guild-sync.mjs";
+import { EDITION_ROLES, applyEditionRole, ensureEditionRoles } from "./edition-roles.mjs";
 
 const required = (name) => {
   const value = process.env[name]?.trim();
@@ -16,6 +17,11 @@ if (!INTERNAL_TOKEN) throw new Error("DISCORD_INTERNAL_TOKEN or INTERNAL_API_TOK
 // 해체된 길드의 채팅은 지우기 전에 여기에 JSONL 로 남긴다. systemd ReadWritePaths 안이어야 쓸 수 있다.
 const ARCHIVE_DIR = process.env.GUILD_ARCHIVE_DIR ?? "/srv/barkan-discord-bot/archive";
 const CATEGORY_PREFIX = process.env.GUILD_CATEGORY_PREFIX ?? "길드";
+// 에디션 표시 역할(자바/베드락) id. 비워 두면 봇이 이름으로 찾거나 직접 만든다.
+const editionRoleIds = new Map(
+  [["java", (process.env.DISCORD_JAVA_ROLE_ID ?? "").trim()],
+   ["bedrock", (process.env.DISCORD_BEDROCK_ROLE_ID ?? "").trim()]].filter(([, id]) => id)
+);
 
 // GuildMembers 는 특권 인텐트다. 개발자 포털에서 켜지 않으면 역할 회수와 재입장 복구가 조용히 동작하지 않는다.
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
@@ -78,6 +84,18 @@ async function registerCommands(user) {
     } else if (botMember.roles.highest.position <= targetRole.position) {
       console.error(`[Discord] role hierarchy: move the bot role above '${targetRole.name}' (${ROLE_ID}) to grant it`);
     }
+    // 에디션 역할은 없으면 여기서 만든다. 실패해도 /인증 등록 재시도 루프에 말려들지 않도록 따로 감싼다.
+    try {
+      await ensureEditionRoles(guild, editionRoleIds);
+      for (const id of editionRoleIds.values()) {
+        const role = guild.roles.cache.get(id) ?? await guild.roles.fetch(id).catch(() => null);
+        if (role && botMember.roles.highest.position <= role.position) {
+          console.error(`[Discord] role hierarchy: move the bot role above '${role.name}' (${id}) to grant it`);
+        }
+      }
+    } catch (error) {
+      console.error(`[Discord] edition role setup failed (${error?.message ?? error}); Manage Roles 권한을 확인하세요`);
+    }
     if (registerTimer) clearInterval(registerTimer);
   } catch (error) {
     console.error(`[Discord] /인증 registration failed (${error.code ?? "unknown"}); invite the bot to guild ${GUILD_ID} with applications.commands, then retrying in 30s`);
@@ -125,7 +143,15 @@ async function handleVerification(interaction) {
       // 역할은 이미 지급됐으므로 인증 응답은 성공으로 처리하고, 캐시 보상은 재시도 가능하게 로그만 남긴다.
       console.warn(`[Discord] verified mark failed for discord=${interaction.user.id}: ${error.message}`);
     }
-    await interaction.editReply(`인증 완료! **${linked.playerName}** 계정과 연결됐고 인증 역할을 지급했어요.`);
+    let edition = null;
+    try {
+      ({ edition } = await applyEditionRole(member, linked.minecraftUuid, editionRoleIds));
+    } catch (error) {
+      // 표시용 역할이다. Manage Roles 누락·역할 순서 문제로 실패해도 인증은 성공으로 끝낸다.
+      console.warn(`[Discord] edition role failed for discord=${interaction.user.id}: ${error?.message ?? error}`);
+    }
+    const editionNote = edition ? ` 에디션은 **${EDITION_ROLES[edition].name}** 로 표시됩니다.` : "";
+    await interaction.editReply(`인증 완료! **${linked.playerName}** 계정과 연결됐고 인증 역할을 지급했어요.${editionNote}`);
     if (!linked.retry) {
       try {
         await interaction.channel.send({
@@ -248,11 +274,64 @@ client.on("guildMemberAdd", member => {
   })();
 });
 
+/**
+ * 이미 인증을 끝낸 사람에게도 에디션 역할을 채운다.
+ *
+ * 인증 시점 지급만 두면 «이 기능이 생기기 전에 인증한 사람» 이 영원히 빈칸으로 남고,
+ * 디스코드를 나갔다 들어오면 역할이 전부 날아간다(길드 역할과 같은 사정). 여기서 복구한다.
+ * vip-billing 이 아직 /internal/discord/links 를 모르는 구버전이면 이번 회차만 건너뛴다 —
+ * 봇을 먼저 배포해도 인증 시점 지급은 그대로 돌고, vip-billing 이 올라오면 봇 재시작 없이 이어진다.
+ * (404 를 영구히 끄면 배포 순서가 함정이 된다.)
+ */
+let backfill404Warned = false;
+async function reconcileEditions() {
+  if (!client.isReady()) return;
+  let links;
+  try {
+    ({ links } = await api("/internal/discord/links"));
+    backfill404Warned = false;
+  } catch (error) {
+    const message = String(error?.message ?? error);
+    if (message.startsWith("api_404_")) {
+      if (!backfill404Warned) {
+        console.warn("[Discord] vip-billing 에 /internal/discord/links 가 아직 없어 에디션 백필을 건너뜁니다(인증 시점 지급은 정상).");
+        backfill404Warned = true;
+      }
+      return;
+    }
+    console.warn(`[Discord] edition backfill poll failed: ${message}`);
+    return;
+  }
+  try {
+    const guild = await homeGuild();
+    await ensureEditionRoles(guild, editionRoleIds);
+    let changed = 0;
+    for (const link of links ?? []) {
+      // ★멤버 전체 fetch(게이트웨이 opcode 8)를 쓰지 않는다 — 20초 뒤 도는 길드 reconcile 이
+      //   같은 요청을 하고 있어서 둘이 겹치면 "opcode 8 rate limited" 로 통째로 실패한다.
+      //   id 지정 fetch 는 REST 라 겹치지 않고, 캐시가 차면 그마저도 안 나간다.
+      const member = guild.members.cache.get(link.discordId)
+        ?? await guild.members.fetch(link.discordId).catch(() => null);
+      if (!member) continue; // 디스코드 서버를 나간 사람
+      try {
+        if ((await applyEditionRole(member, link.minecraftUuid, editionRoleIds)).changed) changed += 1;
+      } catch (error) {
+        console.warn(`[Discord] edition role failed for ${link.discordId}: ${error?.message ?? error}`);
+      }
+    }
+    if (changed) console.log(`[Discord] edition roles reconciled (${changed} changed)`);
+  } catch (error) {
+    console.warn(`[Discord] edition backfill failed: ${error?.message ?? error}`);
+  }
+}
+
 client.once("ready", ready => {
   void registerCommands(ready.user);
   setInterval(() => void drainGuildJobs(), 5_000);
   setInterval(() => void reconcileGuilds(), 30 * 60_000);
   setTimeout(() => void reconcileGuilds(), 20_000);
+  setInterval(() => void reconcileEditions(), 30 * 60_000);
+  setTimeout(() => void reconcileEditions(), 45_000);   // 길드 reconcile(20초)과 겹치지 않게
 });
 
 client.on("error", error => console.error("[Discord] client error", error));

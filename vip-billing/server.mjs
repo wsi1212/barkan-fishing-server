@@ -13,6 +13,7 @@ import {
   periodLabelFromDays,
   validMonths
 } from "./membership-periods.mjs";
+import { minecraftName, validUuid } from "./player-identity.mjs";
 
 const { Pool } = pg;
 
@@ -72,8 +73,6 @@ const monthlyPrice = (tier, months) => Math.round(periodPrice(tier, months) / mo
 
 const hash = (value) => createHash("sha256").update(value).digest("hex");
 const token = (bytes = 32) => randomBytes(bytes).toString("base64url");
-const minecraftName = (value) => typeof value === "string" && /^[A-Za-z0-9_]{3,16}$/.test(value);
-const validUuid = (value) => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const esc = (value = "") => String(value).replace(/[&<>'"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[c]);
 
 function rconPacket(id, type, body) {
@@ -1906,6 +1905,15 @@ async function route(req, res) {
     );
     if (!updated.rowCount) return json(res, 404, { error: "link_not_found" });
     return json(res, 200, { verified: true, minecraftUuid, discordId });
+  }
+  // 디스코드 봇의 에디션(자바/베드락) 표시 역할 백필용. 봇이 UUID 모양으로 에디션을 판정하므로
+  // 여기서는 «인증을 끝낸 연결» 만 그대로 넘긴다.
+  if (path === "/internal/discord/links" && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const rows = await pool.query(
+      "SELECT minecraft_uuid,discord_id FROM discord_links WHERE verified_at IS NOT NULL ORDER BY linked_at"
+    );
+    return json(res, 200, { links: rows.rows.map((row) => ({ minecraftUuid: row.minecraft_uuid, discordId: row.discord_id })) });
   }
   // === 길드 디스코드 연동 ===
   // 게임이 길드 명부 전체를 밀어넣으면 직전 스냅샷과 비교해 작업만 큐에 남긴다.
