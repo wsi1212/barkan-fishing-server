@@ -1,0 +1,4 @@
+CAMPFIRE01 (길드 요리 조리대) 1건 삭제 의도됨 — 2026-09-07 품목 폐지.
+CashShopGui.RETIRED_TAGS 의 item:guild_cooking_station 과 짝이고, cashshop.json 에서
+「길드조리대」 항목도 함께 빠졌다. prod 476 → 475.
+확인: recipes.json 의 id 집합 차이가 CAMPFIRE01 하나뿐임을 대조했다(2026-09-08).
