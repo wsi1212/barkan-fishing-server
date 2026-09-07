@@ -433,6 +433,10 @@ async function migrate() {
     ALTER TABLE orders ALTER COLUMN payment_method SET DEFAULT 'BANK_TRANSFER';
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS transfer_reference TEXT UNIQUE;
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS transfer_deadline TIMESTAMPTZ;
+    -- 입금자명을 «플레이어 닉» 으로 바꾸면서 UNIQUE 를 뗀다. 같은 사람이 두 번 사면
+    -- 같은 닉이 두 줄 생기므로, 남겨 두면 재구매가 23505 로 죽는다.
+    -- 주문의 유일성은 order_id 가 지키고, 미결제 주문은 1인 1건으로 강제된다(아래 INSERT 직전 EXPIRE).
+    ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_transfer_reference_key;
     CREATE INDEX IF NOT EXISTS orders_transfer_pending_idx ON orders (created_at DESC)
       WHERE status = 'PENDING_TRANSFER';
     CREATE TABLE IF NOT EXISTS refund_requests (
@@ -615,7 +619,7 @@ function home(requestedTier, requestedMonths) {
     .config .choice-grid{grid-template-columns:repeat(2,1fr)}
     @media(max-width:800px){.hero{padding:42px 26px;border-radius:23px}}
     @media(max-width:800px){.store-grid{grid-template-columns:1fr}.store-card{min-height:0}}@media(max-width:620px){.config .choice-grid{grid-template-columns:repeat(2,1fr)}}
-  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">채팅 태그, 전용 외형, 프로필 꾸미기. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>1개월·3개월·5개월 이용권과 1년 이용권 중 하나를 선택하세요.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
+  </style><section class="hero"><p class="hero-kicker">BARKAN ISLANDS</p><h1>VIP · MVP · <span>MVP+</span></h1><p class="muted">매월 캐시 지급, 채팅·탭 태그, 통발·마켓·작물 확장, 말·배 어디서나 무제한 소환. 원하는 혜택이 있는 등급을 선택하세요.</p></section><div class="section-head"><div><h2>이용권</h2><p>1개월·3개월·5개월 이용권과 1년 이용권 중 하나를 선택하세요.</p></div></div><div class="membership-grid">${cards}</div><section class="config" id="periods"><h2>기간 설정</h2><p class="muted">${selected.tier.name} 이용권의 기간과 금액을 선택하세요.</p><div class="tier-tabs">${tierTabs}</div><div class="choice-grid">${options}</div><div class="notice"><b style="color:${selected.tier.color}">${selected.tier.name}</b> · <b>${periodLabel(selected.months)}</b><br><span style="font-size:22px;font-weight:900">₩${periodPrice(selected.tier, selected.months).toLocaleString()}</span> <span class="muted">· 월 ₩${monthlyPrice(selected.tier, selected.months).toLocaleString()}</span></div><a class="button" href="${linkUrl(selected)}">게임 계정 연결하기</a></section><section class="shop-section"><h2>캐시 충전</h2><p class="muted">1캐시 = ₩1 · 충전한 캐시는 게임 안 <code>/캐시상점</code>에서 사용합니다.</p><div class="store-grid">${cashOptions}</div><p class="support">문의 및 환불: <a href="mailto:wsiwsiwsi123@gmail.com">wsiwsiwsi123@gmail.com</a></p></section>`);
 }
 function accountPage(current, sub, refunds, pendingOrders, notice = "") {
   const tier = sub ? TIERS[sub.tier] : null;
@@ -1260,7 +1264,17 @@ async function discordOAuthUser(code) {
   return user;
 }
 
-function transferReference() { return `BK${randomBytes(4).toString("hex").toUpperCase()}`; }
+/**
+ * 입금자명 — 플레이어의 마크 닉을 그대로 쓴다.
+ * <p>예전엔 `BK`+랜덤 8자리였다. 확인은 사람이 은행 입출금내역과 대조하는 일이라,
+ * 랜덤 토큰은 「이게 누구 입금이지」를 한 번 더 찾아보게 만들었다. 닉이면 그 단계가 없다.
+ * <p>베드락(Floodgate) 접두사 "." 는 은행 입금자명에 못 넣으므로 떼고 보여준다 —
+ * 관리자 화면에는 원래 닉이 player_name 으로 따로 나오므로 대조가 깨지지 않는다.
+ */
+function transferReference(playerName) {
+  const clean = String(playerName ?? "").replace(/^\.+/, "").trim();
+  return clean || `BK${randomBytes(4).toString("hex").toUpperCase()}`;
+}
 
 async function route(req, res) {
   const url = new URL(req.url, "http://localhost");
@@ -1679,7 +1693,7 @@ async function route(req, res) {
     const months = Number.parseInt(data.months, 10);
     if (!tier || !PURCHASE_MONTHS.includes(months)) return send(res, 400, "기간 선택이 올바르지 않습니다.");
     const orderId = `BK-${randomUUID().replaceAll("-", "")}`;
-    const reference = transferReference();
+    const reference = transferReference(current.player_name);
     await pool.query("UPDATE orders SET status='EXPIRED' WHERE minecraft_uuid=$1 AND status='PENDING_TRANSFER'", [current.minecraft_uuid]);
     await pool.query("INSERT INTO orders (order_id,minecraft_uuid,player_name,tier,amount_krw,status,period_days,payment_method,transfer_reference,transfer_deadline) VALUES ($1,$2,$3,$4,$5,'PENDING_TRANSFER',$6,'BANK_TRANSFER',$7,NOW()+INTERVAL '24 hours')", [orderId, current.minecraft_uuid, current.player_name, tierId, periodPrice(tier, months), periodDays(months), reference]);
     return redirect(res, `${BASE_URL}/bank-transfer/orders/${encodeURIComponent(orderId)}`);
@@ -1693,7 +1707,7 @@ async function route(req, res) {
     if (order.status !== "PENDING_TRANSFER") return send(res, 200, layout("주문 상태", `<div class="panel"><h1>주문 상태: ${esc(order.status)}</h1><a class="button" href="${BASE_URL}/account">내 이용권</a></div>`));
     if (!bankTransferConfigured()) return send(res, 503, layout("입금 계좌 준비 중", `<div class="panel"><p>운영팀이 계좌이체 정보를 설정하는 중입니다.</p></div>`));
     const deadline = new Date(order.transfer_deadline).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-    return send(res, 200, layout("계좌이체 안내", `<div class="panel"><h1>계좌이체 안내</h1><div class="notice">입금 확인 후 운영팀이 ${esc(current.player_name ?? "게임")} 계정에 혜택을 지급합니다.</div><table><tr><th>이용권</th><td><b style="color:${tier.color}">${tier.name}</b> · ${periodLabelFromDays(order.period_days)}</td></tr><tr><th>입금 금액</th><td><b>₩${Number(order.amount_krw).toLocaleString()}</b></td></tr><tr><th>은행</th><td>${esc(BANK_TRANSFER_BANK)}</td></tr><tr><th>계좌번호</th><td><b>${esc(BANK_TRANSFER_ACCOUNT_NUMBER)}</b></td></tr><tr><th>예금주</th><td>${esc(BANK_TRANSFER_ACCOUNT_HOLDER)}</td></tr><tr><th>입금자명</th><td><b>${esc(order.transfer_reference)}</b></td></tr><tr><th>입금 기한</th><td>${deadline}</td></tr></table><p class="muted">입금자명을 정확히 입력해 주세요. 기한이 지나거나 다른 이름으로 입금했다면 운영팀에 주문번호를 알려주세요.</p><a class="button alt" href="${BASE_URL}/account">내 이용권으로</a></div>`));
+    return send(res, 200, layout("계좌이체 안내", `<div class="panel"><h1>계좌이체 안내</h1><div class="notice">입금 확인 후 운영팀이 ${esc(current.player_name ?? "게임")} 계정에 혜택을 지급합니다.</div><table><tr><th>이용권</th><td><b style="color:${tier.color}">${tier.name}</b> · ${periodLabelFromDays(order.period_days)}</td></tr><tr><th>입금 금액</th><td><b>₩${Number(order.amount_krw).toLocaleString()}</b></td></tr><tr><th>은행</th><td>${esc(BANK_TRANSFER_BANK)}</td></tr><tr><th>계좌번호</th><td><b>${esc(BANK_TRANSFER_ACCOUNT_NUMBER)}</b></td></tr><tr><th>예금주</th><td>${esc(BANK_TRANSFER_ACCOUNT_HOLDER)}</td></tr><tr><th>입금자명</th><td><b style="font-size:19px">${esc(order.transfer_reference)}</b><br><span class="muted">내 마인크래프트 닉네임입니다. 이 이름으로 보내주세요.</span></td></tr><tr><th>입금 기한</th><td>${deadline}</td></tr><tr><th>주문번호</th><td><span class="muted">${esc(order.order_id)}</span></td></tr></table><p class="muted">입금자명이 닉네임과 다르면 누구 입금인지 확인이 안 됩니다. 은행 앱에서 «받는 분 통장에 표시할 내용»(입금자명)을 위 이름으로 바꿔 주세요. 이미 다른 이름으로 보냈거나 기한이 지났다면 위 주문번호를 운영팀에 알려주세요.</p><a class="button alt" href="${BASE_URL}/account">내 이용권으로</a></div>`));
   }
   /* 토스 카드 결제 경로는 계좌이체 운영 안정화 후 재개할 수 있도록 보존만 한다.
   if (req.method === "GET" && path.startsWith("/pay/")) {
