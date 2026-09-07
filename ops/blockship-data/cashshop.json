@@ -274,15 +274,6 @@
         "icon": "ENDER_CHEST",
         "lore": "§7어디서나 공유되는 보관함",
         "tag": "item:ENDER_CHEST"
-      },
-      {
-        "id": "길드조리대",
-        "name": "길드 요리 조리대",
-        "coin": 20,
-        "cash": 5000,
-        "icon": "CAMPFIRE",
-        "lore": "§7길드섬에 설치하는 요리 조리대",
-        "tag": "item:guild_cooking_station"
       }
     ],
     "인챈트북": [

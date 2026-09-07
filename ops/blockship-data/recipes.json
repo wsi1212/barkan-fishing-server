@@ -13116,42 +13116,6 @@
         }
       ]
     },
-    "CAMPFIRE01": {
-      "id": "CAMPFIRE01",
-      "category": "모닥불",
-      "displayName": "기본 모닥불",
-      "locked": true,
-      "resultMode": "direct",
-      "resultAmount": 0,
-      "drillTier": 0,
-      "result": {
-        "mcItem": "campfire",
-        "name": "&e기본 모닥불",
-        "lore": [
-          "&7소모성 아이템. 5분 지속.",
-          "&7반경 2블럭 내에서 조리 가능",
-          "",
-          "&8[campfire]"
-        ]
-      },
-      "ingredients": [
-        {
-          "kind": "item",
-          "typeOrMatId": "stick",
-          "displayName": "막대기",
-          "mcItem": "stick",
-          "qty": 3
-        },
-        {
-          "kind": "item",
-          "typeOrMatId": "coal",
-          "displayName": "석탄",
-          "mcItem": "coal",
-          "qty": 2
-        }
-      ],
-      "village": ""
-    },
     "HP02": {
       "id": "HP02",
       "category": "작살",
@@ -26443,9 +26407,6 @@
       "CK_숙성대연회",
       "CK_전설의발효액",
       "CK_왕실케이크"
-    ],
-    "모닥불": [
-      "CAMPFIRE01"
     ],
     "요리재료": [
       "F01",
