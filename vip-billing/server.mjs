@@ -60,9 +60,9 @@ const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
 
 const TIERS = Object.freeze({
-  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["매월 캐시 1,500 지급", "[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수작물 레벨 상한 +1", "갈색 여행마·배 무료 무제한"] },
-  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["매월 캐시 3,000 지급", "[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수작물 레벨 상한 +1", "백은 준마·배 무료 무제한"] },
-  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["매월 캐시 6,000 지급", "1년권은 결제 즉시 캐시 50,000 추가", "[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수작물 레벨 상한 +2", "흑요석 천리마·배 무료 무제한", "개인 창고 27칸 (MVP+ 전용)"] }
+  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["매월 캐시 1,500 지급", "[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수 작물 개수 +5", "갈색 여행마·배 어디서나 무제한 소환"] },
+  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["매월 캐시 3,000 지급", "[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수 작물 개수 +10", "백은 준마·배 어디서나 무제한 소환"] },
+  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["매월 캐시 6,000 지급", "1년권은 결제 즉시 캐시 50,000 추가", "[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수 작물 개수 +20", "흑요석 천리마·배 어디서나 무제한 소환", "개인 창고 27칸 (MVP+ 전용)"] }
 });
 
 const ANNUAL_MONTHS = Math.max(...PURCHASE_MONTHS);
@@ -598,8 +598,8 @@ function home(requestedTier, requestedMonths) {
   const selected = selectionFrom(tierId, requestedMonths);
   const cashOptions = [
     { pay: 5000, cash: 5000, bonus: 0 },
-    { pay: 10000, cash: 10500, bonus: 500 },
-    { pay: 30000, cash: 33000, bonus: 3000 }
+    { pay: 10000, cash: 11000, bonus: 1000 },
+    { pay: 30000, cash: 40000, bonus: 10000 }
   ].map((product) => {
     return `<a class="store-card cash-card" href="${BASE_URL}/link"><p class="store-label">캐시 충전</p><h3>${product.cash.toLocaleString()} 캐시</h3><p class="store-copy">${product.bonus ? `${product.bonus.toLocaleString()} 보너스 캐시 포함` : "기본 충전"}</p><div class="store-price">₩${product.pay.toLocaleString()}</div><span class="store-state">${product.bonus ? `+${product.bonus.toLocaleString()} 캐시` : "1캐시 · ₩1"}</span><span class="store-action">계정 연결하기 →</span></a>`;
   }).join("");
