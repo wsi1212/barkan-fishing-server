@@ -8674,38 +8674,110 @@ npc_dialogue_149_base_xl:
         x: 50
         y: 100
 
-npc_dialogue_151_base_sm:
+npc_dialogue_208_base_sm:
   tick: 1
   layouts:
     1:
-      name: npc_dialogue_layout_151_base_sm
+      name: npc_dialogue_layout_208_base_sm
       gui:
         x: 50
         y: 100
 
-npc_dialogue_151_base_md:
+npc_dialogue_208_base_md:
   tick: 1
   layouts:
     1:
-      name: npc_dialogue_layout_151_base_md
+      name: npc_dialogue_layout_208_base_md
       gui:
         x: 50
         y: 100
 
-npc_dialogue_151_base_lg:
+npc_dialogue_208_base_lg:
   tick: 1
   layouts:
     1:
-      name: npc_dialogue_layout_151_base_lg
+      name: npc_dialogue_layout_208_base_lg
       gui:
         x: 50
         y: 100
 
-npc_dialogue_151_base_xl:
+npc_dialogue_208_base_xl:
   tick: 1
   layouts:
     1:
-      name: npc_dialogue_layout_151_base_xl
+      name: npc_dialogue_layout_208_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_208_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_208_complete_xl
       gui:
         x: 50
         y: 100
@@ -10434,6 +10506,690 @@ npc_dialogue_175_complete_xl:
   layouts:
     1:
       name: npc_dialogue_layout_175_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_206_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_206_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_207_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_207_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_209_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_209_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_210_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_210_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_211_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_211_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_progress_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_progress_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_progress_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_progress_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_progress_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_progress_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_progress_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_progress_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_complete_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_complete_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_complete_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_complete_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_complete_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_complete_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_212_complete_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_212_complete_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_213_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_213_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_213_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_213_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_213_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_213_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_213_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_213_base_xl
       gui:
         x: 50
         y: 100

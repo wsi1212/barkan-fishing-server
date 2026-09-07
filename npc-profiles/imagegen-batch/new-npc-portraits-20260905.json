@@ -1,0 +1,12 @@
+{
+  "queue": [
+    { "citizensId": 206, "states": ["base", "progress", "complete"] },
+    { "citizensId": 207, "states": ["base", "progress", "complete"] },
+    { "citizensId": 208, "states": ["base", "progress", "complete"] },
+    { "citizensId": 209, "states": ["base", "progress", "complete"] },
+    { "citizensId": 210, "states": ["base", "progress", "complete"] },
+    { "citizensId": 211, "states": ["base", "progress", "complete"] },
+    { "citizensId": 212, "states": ["base", "progress", "complete"] },
+    { "citizensId": 213, "states": ["base"] }
+  ]
+}

@@ -5929,27 +5929,75 @@ npc_dialogue_portrait_149_base_xl:
   setting:
     scale: 0.3333
 
-npc_dialogue_portrait_151_base_sm:
+npc_dialogue_portrait_208_base_sm:
   type: single
-  file: dialogue/npc_151_base_sm.png
+  file: dialogue/npc_208_base_sm.png
   setting:
     scale: 0.3333
 
-npc_dialogue_portrait_151_base_md:
+npc_dialogue_portrait_208_base_md:
   type: single
-  file: dialogue/npc_151_base_md.png
+  file: dialogue/npc_208_base_md.png
   setting:
     scale: 0.3333
 
-npc_dialogue_portrait_151_base_lg:
+npc_dialogue_portrait_208_base_lg:
   type: single
-  file: dialogue/npc_151_base_lg.png
+  file: dialogue/npc_208_base_lg.png
   setting:
     scale: 0.3333
 
-npc_dialogue_portrait_151_base_xl:
+npc_dialogue_portrait_208_base_xl:
   type: single
-  file: dialogue/npc_151_base_xl.png
+  file: dialogue/npc_208_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_progress_sm:
+  type: single
+  file: dialogue/npc_208_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_progress_md:
+  type: single
+  file: dialogue/npc_208_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_progress_lg:
+  type: single
+  file: dialogue/npc_208_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_progress_xl:
+  type: single
+  file: dialogue/npc_208_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_complete_sm:
+  type: single
+  file: dialogue/npc_208_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_complete_md:
+  type: single
+  file: dialogue/npc_208_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_complete_lg:
+  type: single
+  file: dialogue/npc_208_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_208_complete_xl:
+  type: single
+  file: dialogue/npc_208_complete_xl.png
   setting:
     scale: 0.3333
 
@@ -7102,6 +7150,462 @@ npc_dialogue_portrait_175_complete_lg:
 npc_dialogue_portrait_175_complete_xl:
   type: single
   file: dialogue/npc_175_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_base_sm:
+  type: single
+  file: dialogue/npc_206_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_base_md:
+  type: single
+  file: dialogue/npc_206_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_base_lg:
+  type: single
+  file: dialogue/npc_206_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_base_xl:
+  type: single
+  file: dialogue/npc_206_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_progress_sm:
+  type: single
+  file: dialogue/npc_206_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_progress_md:
+  type: single
+  file: dialogue/npc_206_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_progress_lg:
+  type: single
+  file: dialogue/npc_206_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_progress_xl:
+  type: single
+  file: dialogue/npc_206_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_complete_sm:
+  type: single
+  file: dialogue/npc_206_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_complete_md:
+  type: single
+  file: dialogue/npc_206_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_complete_lg:
+  type: single
+  file: dialogue/npc_206_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_206_complete_xl:
+  type: single
+  file: dialogue/npc_206_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_base_sm:
+  type: single
+  file: dialogue/npc_207_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_base_md:
+  type: single
+  file: dialogue/npc_207_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_base_lg:
+  type: single
+  file: dialogue/npc_207_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_base_xl:
+  type: single
+  file: dialogue/npc_207_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_progress_sm:
+  type: single
+  file: dialogue/npc_207_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_progress_md:
+  type: single
+  file: dialogue/npc_207_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_progress_lg:
+  type: single
+  file: dialogue/npc_207_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_progress_xl:
+  type: single
+  file: dialogue/npc_207_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_complete_sm:
+  type: single
+  file: dialogue/npc_207_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_complete_md:
+  type: single
+  file: dialogue/npc_207_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_complete_lg:
+  type: single
+  file: dialogue/npc_207_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_207_complete_xl:
+  type: single
+  file: dialogue/npc_207_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_base_sm:
+  type: single
+  file: dialogue/npc_209_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_base_md:
+  type: single
+  file: dialogue/npc_209_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_base_lg:
+  type: single
+  file: dialogue/npc_209_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_base_xl:
+  type: single
+  file: dialogue/npc_209_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_progress_sm:
+  type: single
+  file: dialogue/npc_209_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_progress_md:
+  type: single
+  file: dialogue/npc_209_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_progress_lg:
+  type: single
+  file: dialogue/npc_209_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_progress_xl:
+  type: single
+  file: dialogue/npc_209_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_complete_sm:
+  type: single
+  file: dialogue/npc_209_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_complete_md:
+  type: single
+  file: dialogue/npc_209_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_complete_lg:
+  type: single
+  file: dialogue/npc_209_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_209_complete_xl:
+  type: single
+  file: dialogue/npc_209_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_base_sm:
+  type: single
+  file: dialogue/npc_210_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_base_md:
+  type: single
+  file: dialogue/npc_210_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_base_lg:
+  type: single
+  file: dialogue/npc_210_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_base_xl:
+  type: single
+  file: dialogue/npc_210_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_progress_sm:
+  type: single
+  file: dialogue/npc_210_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_progress_md:
+  type: single
+  file: dialogue/npc_210_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_progress_lg:
+  type: single
+  file: dialogue/npc_210_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_progress_xl:
+  type: single
+  file: dialogue/npc_210_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_complete_sm:
+  type: single
+  file: dialogue/npc_210_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_complete_md:
+  type: single
+  file: dialogue/npc_210_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_complete_lg:
+  type: single
+  file: dialogue/npc_210_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_210_complete_xl:
+  type: single
+  file: dialogue/npc_210_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_base_sm:
+  type: single
+  file: dialogue/npc_211_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_base_md:
+  type: single
+  file: dialogue/npc_211_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_base_lg:
+  type: single
+  file: dialogue/npc_211_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_base_xl:
+  type: single
+  file: dialogue/npc_211_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_progress_sm:
+  type: single
+  file: dialogue/npc_211_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_progress_md:
+  type: single
+  file: dialogue/npc_211_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_progress_lg:
+  type: single
+  file: dialogue/npc_211_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_progress_xl:
+  type: single
+  file: dialogue/npc_211_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_complete_sm:
+  type: single
+  file: dialogue/npc_211_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_complete_md:
+  type: single
+  file: dialogue/npc_211_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_complete_lg:
+  type: single
+  file: dialogue/npc_211_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_211_complete_xl:
+  type: single
+  file: dialogue/npc_211_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_base_sm:
+  type: single
+  file: dialogue/npc_212_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_base_md:
+  type: single
+  file: dialogue/npc_212_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_base_lg:
+  type: single
+  file: dialogue/npc_212_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_base_xl:
+  type: single
+  file: dialogue/npc_212_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_progress_sm:
+  type: single
+  file: dialogue/npc_212_progress_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_progress_md:
+  type: single
+  file: dialogue/npc_212_progress_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_progress_lg:
+  type: single
+  file: dialogue/npc_212_progress_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_progress_xl:
+  type: single
+  file: dialogue/npc_212_progress_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_complete_sm:
+  type: single
+  file: dialogue/npc_212_complete_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_complete_md:
+  type: single
+  file: dialogue/npc_212_complete_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_complete_lg:
+  type: single
+  file: dialogue/npc_212_complete_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_212_complete_xl:
+  type: single
+  file: dialogue/npc_212_complete_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_213_base_sm:
+  type: single
+  file: dialogue/npc_213_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_213_base_md:
+  type: single
+  file: dialogue/npc_213_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_213_base_lg:
+  type: single
+  file: dialogue/npc_213_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_213_base_xl:
+  type: single
+  file: dialogue/npc_213_base_xl.png
   setting:
     scale: 0.3333
 

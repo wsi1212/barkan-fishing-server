@@ -54,13 +54,13 @@
 <body>
   <div class="shell"><div data-site-nav></div></div>
   <main class="shell">
-    <header class="masthead"><p class="eyebrow">BARKAN ISLANDS · FISH COMPENDIUM</p><h1><em>물고기 도감</em></h1><p>원하는 어종을 찾고, <strong>서식 지역·시간·날씨·통발 여부</strong>를 확인하세요. 조건이 맞는 곳으로 바로 항해하면 됩니다.</p><div class="stats"><div class="stat"><b id="total-count">565</b><span>등록된 어종</span></div><div class="stat"><b id="region-count">—</b><span>낚시 지역</span></div><div class="stat"><b id="trap-count">—</b><span>통발 획득 가능</span></div></div></header>
+    <header class="masthead"><p class="eyebrow">BARKAN ISLANDS · FISH COMPENDIUM</p><h1><em>물고기 도감</em></h1><p>원하는 어종을 찾고, <strong>서식 지역·시간·날씨·통발 여부</strong>를 확인하세요. 조건이 맞는 곳으로 바로 항해하면 됩니다.</p><div class="stats"><div class="stat"><b id="total-count">470</b><span>등록된 어종</span></div><div class="stat"><b id="region-count">—</b><span>낚시 지역</span></div><div class="stat"><b id="trap-count">—</b><span>통발 획득 가능</span></div></div></header>
     <section class="tools" aria-label="도감 검색 및 필터"><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"></circle><path d="m16 16 4.2 4.2"></path></svg><input id="search" type="search" autocomplete="off" placeholder="물고기 이름, 지역, 조건 검색"></label><div class="filters"><select id="region" class="region-select" aria-label="서식 지역"><option value="">모든 지역</option></select><label class="method"><input id="trap-only" type="checkbox"> 통발로 잡을 수 있는 어종만 보기</label></div><div id="grade-row" class="grade-row" aria-label="등급 필터"></div></section>
     <div class="result-meta"><span><b id="result-count">—</b>종 표시</span><span>카드를 누르면 획득 조건을 자세히 봅니다.</span></div>
     <section class="dex-layout"><div id="fish-grid" class="fish-grid" aria-live="polite"></div><div id="empty" class="empty">조건에 맞는 어종이 없습니다.<br>검색어나 필터를 바꿔 보세요.</div><aside id="detail" class="detail empty-state"><p>물고기를 선택하면<br>획득 조건이 여기에 표시됩니다.</p></aside></section>
   </main>
   <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java &amp; Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/wiki/fishing">낚시 위키</a><a href="/wiki/explore">탐험 위키</a><a href="/ranking">랭킹</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a></div></div></footer>
-  <script src="assets/fish-data.js"></script>
+  <script src="assets/fish-data.js?v=20260906-live"></script>
   <script>document.querySelector('.masthead .stats').insertAdjacentHTML('beforebegin','<nav class="catalog-switch" aria-label="도감 전환"><a class="active" href="/dex">물고기 도감</a><a href="/catalog">장비·부품·재료</a></nav>');</script>
   <script>
     (() => {
@@ -99,8 +99,7 @@
       }
       function showDetail(item, focus = false) {
         selected = item;
-        // ★fish-data.js 는 sources 를 안 내보낸다(565/565 없음) — regions+conditions 로 만든다.
-        //   예전엔 item.sources.length 를 바로 읽어서 클릭마다 예외가 났고, 그래서 상세가 안 떴다.
+        // 오래된 캐시에도 안전하도록 sources가 없을 때만 regions+conditions에서 보완한다.
         const sources = item.sources?.length ? item.sources
           : item.regions.map(name => ({region: name, condition: item.conditions.find(value => value !== '통발') || '기본'}));
         const routes = sources.length ? sources.map(source => `<div class="route"><span><strong>${esc(label(source.region))}</strong> <small>· ${esc(routeText(source))}</small></span></div>`).join('') : '<div class="route"><span>현재 배정된 지역 정보가 없습니다.</span></div>';
@@ -131,7 +130,7 @@
       function addDescription() {
         const name = detail.querySelector('h2')?.textContent?.trim();
         const fish = fishByName.get(name);
-        if (!fish || detail.dataset.descriptionFor === fish.name) return;
+        if (!fish || !fish.description || detail.dataset.descriptionFor === fish.name) return;
         detail.querySelector('.dex-description')?.remove();
         const target = detail.querySelector('.wiki-link');
         if (!target) return;

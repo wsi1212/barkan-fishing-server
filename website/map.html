@@ -24,7 +24,7 @@
   <meta name="twitter:description" content="바르칸 열도의 실제 서버 지역 좌표와 주요 마을을 탐색하는 3D 지도">
   <meta name="twitter:image" content="https://barkan.kr/assets/og-image.jpg?v=2">
   <meta name="twitter:image:alt" content="노을 진 바르칸 열도 항구 마을과 정박한 범선">
-  <script src="/assets/map-data.js?v=2"></script>
+  <script src="/assets/map-data.js?v=3"></script>
   <script src="/assets/site-nav.js?v=8" defer></script>
   <style>
     @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-light.ttf') format('truetype');font-weight:300;font-display:swap}
@@ -142,7 +142,7 @@
         <h1>바르칸을<br><em>한눈에.</em></h1>
         <p>게임 안에서 실제로 쓰이는 지역 범위와 좌표를, 항해자의 시선으로 다시 펼쳤습니다. 영역을 가리키면 미리 보고, 누르면 그곳으로 초점을 맞춰 보세요.</p>
       </div>
-      <aside class="map-mast-aside"><strong>35개 지역</strong><span>PROD REGION SNAPSHOT<br>minecraft:world · X / Z 기준</span></aside>
+      <aside class="map-mast-aside"><strong id="map-area-count">—</strong><span>PROD REGION SNAPSHOT<br>minecraft:world · X / Z 기준</span></aside>
     </section>
     <div class="map-toolbar">
       <div class="map-filters" role="group" aria-label="지도 필터">
@@ -195,11 +195,13 @@
   <script src="/assets/terrain-data.js?v=3"></script>
   <script src="/assets/three.min.js?v=128"></script>
   <script src="/assets/OrbitControls.js?v=128"></script>
-  <script src="/assets/voxel-map-3d.js?v=41"></script>
+  <script src="/assets/voxel-map-3d.js?v=42"></script>
   <script>
     (() => {
       const data = window.BARKAN_MAP_DATA;
       if (!data) return;
+      const mapAreaCount = document.querySelector('#map-area-count');
+      if (mapAreaCount) mapAreaCount.textContent = `${data.areas.length}개 지역`;
       const svg = document.querySelector('#map-svg');
       const areasLayer = document.querySelector('#map-areas');
       const markerLayer = document.querySelector('#map-markers');

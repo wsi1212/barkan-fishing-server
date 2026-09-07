@@ -140,11 +140,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cid", type=int, required=True)
     ap.add_argument("--source", type=Path, required=True)
+    ap.add_argument("--queue", type=Path, default=QUEUE,
+                    help="portrait state queue (defaults to the 2026-08 repair queue)")
+    ap.add_argument("--out", type=Path, default=OUT,
+                    help="directory that receives raw, transparent, and framed panels")
     args = ap.parse_args()
-    item = next(x for x in json.loads(QUEUE.read_text(encoding="utf-8"))["queue"] if x["citizensId"] == args.cid)
-    raw_dir = OUT / "raw"
-    transparent_dir = OUT / "transparent"
-    framed_dir = OUT / "framed"
+    item = next(x for x in json.loads(args.queue.read_text(encoding="utf-8"))["queue"] if x["citizensId"] == args.cid)
+    raw_dir = args.out / "raw"
+    transparent_dir = args.out / "transparent"
+    framed_dir = args.out / "framed"
     for d in (raw_dir, transparent_dir, framed_dir):
         d.mkdir(parents=True, exist_ok=True)
     raw_sheet = raw_dir / f"{args.cid:03d}_sheet.png"

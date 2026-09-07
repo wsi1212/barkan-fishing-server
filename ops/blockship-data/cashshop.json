@@ -233,7 +233,7 @@
       {
         "id": "신호기",
         "name": "신호기",
-        "coin": 25,
+        "coin": 32,
         "cash": 0,
         "icon": "BEACON",
         "lore": "§7범위 효과를 주는 신호기 블록",
@@ -269,11 +269,29 @@
       {
         "id": "엔더상자",
         "name": "엔더 상자",
-        "coin": 8,
+        "coin": 10,
         "cash": 0,
         "icon": "ENDER_CHEST",
         "lore": "§7어디서나 공유되는 보관함",
         "tag": "item:ENDER_CHEST"
+      },
+      {
+        "id": "스피드블럭",
+        "name": "스피드 블럭",
+        "coin": 10,
+        "cash": 0,
+        "icon": "CHISELED_QUARTZ_BLOCK",
+        "lore": "§7개인섬, 길드섬에 설치 가능하고 밟으면 신속 10을 5초간 부여합니다.",
+        "tag": "special:스피드블럭"
+      },
+      {
+        "id": "점프대",
+        "name": "점프대",
+        "coin": 5,
+        "cash": 0,
+        "icon": "SLIME_BLOCK",
+        "lore": "§7개인섬, 길드섬에 설치 가능하고 밟으면 높이 점프합니다.",
+        "tag": "special:점프대"
       }
     ],
     "인챈트북": [

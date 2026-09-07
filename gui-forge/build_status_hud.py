@@ -6,9 +6,9 @@
   늘리는 방법은 "띠 반복"이 아니라 "안쪽 구간 resize" — 반복하면 같은 얼룩이 되풀이된다
   (2026-08-08 대화창 판에서 실제로 그 지적을 받았다).
 
-★아이콘은 직접 그리지 않는다. src/status_icons/ 의 납품 아트(128px)를 여기서 내려 쓴다.
+★아이콘은 직접 그리지 않는다. src/status_icons/ 의 납품 아트(128px)를 HD 원본으로 유지한다.
+  BetterHud가 표시 시점에 16px로 축소하도록 해 버프 스탯 아이콘과 같은 선명도를 낸다.
   (처음엔 원/별/마름모를 절차적으로 그렸는데 반려됐다 — 그 코드는 지웠다.)
-  내릴 때 16px 로 간다: 14px 이하면 레벨 아이콘의 "LV" 글자가 뭉개져 못 읽는다(실측 비교).
 
 ★버프 판(우상단 정보바 아래, 먹은 요리 버프를 포션 효과처럼 표시)도 여기서 굽는다.
   판은 스탯 줄 수(1~3)만큼 높이가 다른 3장이고, 스탯 아이콘은 src/icons/stats/ 납품 아트를
@@ -83,29 +83,22 @@ def build_place_plate():
 
 
 ICON_SRC = os.path.join(HERE, "src", "status_icons")
-ICON_BOX = 16           # 긴 변 기준. 14 이하면 "LV" 가 안 읽힌다.
+STATUS_ICON_H = 128     # 납품 해상도를 보존한다. 표시 16px 축소는 gen_hud_sizes.py가 맡는다.
 
 
-def import_icon(fname):
-    """납품 128px 아트를 16px 픽셀아트로 내린다.
+def import_status_icon(fname):
+    """납품 128px 아트를 HD 원본 그대로 상태 HUD에 보낸다.
 
-    ★그냥 resize 하면 안티에일리어싱이 남아 뭉갠 젤리가 된다. 면적평균(BOX)으로 내린 뒤
-      **알파를 이진화하고 색 수를 줄여서** 각을 세운다. 색 수 제한이 곧 픽셀아트 느낌이다.
-    ★가로세로 비를 유지한다 — 지폐(캐시)는 가로로 길어서 정사각으로 맞추면 찌그러진다.
-    ★투명 여백은 잘라서 내보낸다. BetterHud 가 어차피 잘라내고 x 는 되돌려주지만
-      y 는 안 되돌려주므로, 여백을 남기면 그 줄만 위로 떠 버린다.
+    버프 스탯 아이콘과 같은 파이프라인이다. BetterHud가 작은 화면 크기로 줄여 그릴 때
+    원본 디테일을 보존할 수 있도록, 여기서는 16px 축소·색수 제한을 절대 하지 않는다.
+    세 아이콘의 표시 높이와 세로축이 같도록 알파 영역을 잘라 높이 128로 정규화한다.
     """
     im = Image.open(os.path.join(ICON_SRC, fname)).convert("RGBA")
     im = im.crop(im.split()[3].getbbox())
-    k = ICON_BOX / max(im.width, im.height)
-    w, h = max(1, round(im.width * k)), max(1, round(im.height * k))
-    small = im.resize((w, h), Image.BOX)
-    quant = small.convert("RGB").quantize(colors=10, method=Image.MEDIANCUT).convert("RGB")
-    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    sp, qp, op = small.load(), quant.load(), out.load()
-    for y in range(h):
-        for x in range(w):
-            op[x, y] = (*qp[x, y], 255) if sp[x, y][3] >= 128 else (0, 0, 0, 0)
+    k = STATUS_ICON_H / im.height
+    im = im.resize((max(1, round(im.width * k)), STATUS_ICON_H), Image.LANCZOS)
+    out = Image.new("RGBA", (max(STATUS_ICON_H, im.width), STATUS_ICON_H), (0, 0, 0, 0))
+    out.alpha_composite(im, ((out.width - im.width) // 2, 0))
     return out
 
 
@@ -214,9 +207,9 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     made = [("status-plate.png", build_plate()),
             ("place-plate.png", build_place_plate()),
-            ("icon-coin.png", import_icon("money.png")),
-            ("icon-star.png", import_icon("level.png")),
-            ("icon-gem.png", import_icon("cash.png")),
+            ("icon-coin.png", import_status_icon("money-hd.png")),
+            ("icon-star.png", import_status_icon("fishing-level-hd.png")),
+            ("icon-gem.png", import_status_icon("cash-hd.png")),
             ("exp-bar-empty.png", bar_empty()),
             ("exp-bar-fill.png", bar_fill()),
             ("buff-bar-empty.png", bar_empty(BUFF_BAR_W, BUFF_BAR_H)),

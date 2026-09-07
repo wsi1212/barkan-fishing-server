@@ -16,9 +16,12 @@
 ## 그림
 인게임과 같은 카탈로그 아이콘을 쓴다. 파일명 규칙은 자바 `ItemIconModel` 과 같다:
     catalog_<분류>_<sha1(유형 \\0 이름)의 앞 10자>
-226종 전부 리소스팩에 있다(2026-08-11 확인). 규칙이 어긋나면 바로 '아이콘 없음'으로 잡힌다.
+리소스팩의 아이콘 파일이 없거나 규칙이 어긋나면 바로 '아이콘 없음'으로 잡힌다.
 
-사용: python3 build_gear_data.py [--check]
+사용:
+    python3 build_gear_data.py              # 현재 parts.json 기준으로 /gear 산출물 생성
+    python3 build_gear_data.py --check      # 원본 아이콘 + 기존 웹 장비 아이콘 파일 검사
+    python3 sync_hidden_gear_icons.py       # 히든 62종을 /gear·/catalog에 동기화
 """
 import hashlib
 import json
@@ -96,6 +99,53 @@ def export_icons(ids):
           + (f" · ★원본없음 {missing}" if missing else "") + (f" · 정리 {len(stale)}" if stale else ""))
 
 
+def validate_web_data(expected):
+    """현재 원본과 웹 산출물의 장비 행·아이콘이 모두 일치하는지 확인한다."""
+    if not os.path.exists(OUT):
+        print(f"  ★웹 데이터 없음: {OUT}")
+        return False
+    try:
+        text = open(OUT, encoding="utf-8").read()
+        payload = json.loads(text.split("=", 1)[1].rstrip(" ;\n"))
+    except (OSError, IndexError, json.JSONDecodeError) as exc:
+        print(f"  ★웹 데이터 읽기 실패: {exc}")
+        return False
+
+    actual = payload.get("gear", [])
+    errors = []
+    if payload.get("count") != len(expected) or len(actual) != len(expected):
+        errors.append(f"장비 수 불일치: 원본 {len(expected)}종 · 웹 {len(actual)}종")
+    if actual != expected:
+        expected_by_key = {(row["category"], row["name"]): row for row in expected}
+        actual_by_key = {(row.get("category"), row.get("name")): row for row in actual}
+        missing_rows = [f"{category}/{name}" for category, name in expected_by_key if (category, name) not in actual_by_key]
+        stale_rows = [f"{category}/{name}" for category, name in actual_by_key if (category, name) not in expected_by_key]
+        changed_rows = [f"{category}/{name}" for (category, name), row in expected_by_key.items()
+                        if (category, name) in actual_by_key and actual_by_key[(category, name)] != row]
+        if missing_rows:
+            errors.append(f"웹에 없는 장비 {len(missing_rows)}종: {missing_rows[:6]}")
+        if stale_rows:
+            errors.append(f"원본에 없는 웹 장비 {len(stale_rows)}종: {stale_rows[:6]}")
+        if changed_rows:
+            errors.append(f"원본과 다른 웹 장비 {len(changed_rows)}종: {changed_rows[:6]}")
+
+    missing_icons = []
+    for row in actual:
+        icon = row.get("icon")
+        if not icon or os.path.basename(icon) != icon:
+            missing_icons.append(f"{row.get('category', '?')}/{row.get('name', '?')}: {icon or '(없음)'}")
+        elif not os.path.isfile(os.path.join(ICONDIR, icon + ".png")):
+            missing_icons.append(f"{row.get('category', '?')}/{row.get('name', '?')}: {icon}.png")
+    if missing_icons:
+        errors.append(f"웹 장비 아이콘 파일 없음 {len(missing_icons)}종: {missing_icons[:6]}")
+    if errors:
+        for error in errors:
+            print(f"  ★{error}")
+        return False
+    print(f"  웹 장비 데이터·아이콘 확인 {len(actual)}종")
+    return True
+
+
 def build():
     d = json.load(open(PARTS, encoding="utf-8"))
     parts, order = d["parts"], d.get("order") or []
@@ -147,14 +197,15 @@ def main():
         print(f"  ★아이콘 없음 {len(noicon)}종 → {noicon[:6]}")
     if check:
         print("  --check: 파일 안 씀")
-        return
+        return 1 if noicon or not validate_web_data(gear) else 0
     export_icons([g["icon"] for g in gear if g["icon"]])
     payload = {"generatedAt": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
                "count": len(gear), "categories": cats, "gear": gear}
     open(OUT, "w", encoding="utf-8").write(HEAD + "window.BARKAN_GEAR_DATA=" +
                                            json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";\n")
     print(f"  → {OUT}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

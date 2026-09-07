@@ -1082,43 +1082,23 @@
     if ((!activePayload && !tileState.manifest) || rebuildTimer) return;
     rebuildTimer = window.setTimeout(() => { rebuildTimer = 0; rebuildForCamera(false); }, 140);
   };
-  const loadTown = async id => {
+  // Keep one cartographic terrain layer at every distance. The previous
+  // implementation fetched a town scan (and, outside towns, detail tiles)
+  // whenever the camera came close, so zooming visibly replaced the map with
+  // a different rendering. Region focus now changes only the camera and the
+  // highlighted border; it never changes the terrain representation.
+  const loadTown = id => {
     const area = townAreas.get(id);
-    const slug = townSlugs[id];
     clearGroup(voxelGroup);
     clearTileMeshes();
     buildBorders(id);
-    if (!slug) {
-      activePayload = null;
-      activeTownId = '';
-      activeMode = 'overview';
-      buildOverview();
-      fitOverview();
-      if (tileState.manifest) reconcileTiles();
-      return;
-    }
-    const token = `${id}:${Date.now()}`;
-    loadTown.token = token;
-    status.textContent = '3D 블록 스캔을 불러오는 중…';
-    try {
-      const response = await fetch(`/assets/town-detail-${slug}.json?v=4`, { cache: 'no-store' });
-      const payload = await response.json();
-      if (loadTown.token !== token) return;
-      activePayload = payload;
-      activeTownId = id;
-      activeMode = 'surface';
-      buildOverview(id);
-      const hasColumns = typeof payload.columns === 'string' && Number(payload.columnCount || 0) > 0;
-      const count = hasColumns ? buildSurfaceDetail(payload) : buildDetail(payload);
-      closeCenter.copy(controls.target);
-      status.textContent = hasColumns
-        ? `3D SURFACE · ${id.toUpperCase()} · ${count.toLocaleString()} cells`
-        : `3D VOXEL · ${id.toUpperCase()} · ${count.toLocaleString()} meshes`;
-    } catch (error) {
-      status.textContent = '3D 스캔을 불러오지 못했습니다';
-      console.error(error);
-    }
-    focusArea(area);
+    activePayload = null;
+    activeTownId = '';
+    activeMode = 'overview';
+    buildOverview();
+    if (area) focusArea(area);
+    else fitOverview();
+    if (status) status.textContent = '3D TERRAIN · 전체 섬 개요';
   };
 
   document.querySelectorAll('.map-zoom button').forEach(button => button.addEventListener('click', () => {
@@ -1143,8 +1123,5 @@
     if (area && !townSlugs[id]) focusArea(area);
   });
   render();
-  // Tile generation is intentionally asynchronous; the verified town scan is
-  // shown immediately while the optional island index is discovered.
-  loadTileManifest();
   loadTown('스폰도시');
 })();

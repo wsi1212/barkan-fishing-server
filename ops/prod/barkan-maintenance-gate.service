@@ -1,0 +1,17 @@
+[Unit]
+Description=Barkan Minecraft maintenance connection responder
+Wants=network-online.target
+After=network-online.target
+Before=mcserver.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /home/ubuntu/mcserver/scripts/maintenance-gate.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

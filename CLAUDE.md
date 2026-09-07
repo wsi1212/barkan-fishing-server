@@ -51,6 +51,19 @@
   - 인자가 **고정 선택지** (등급, 타입 등)이면: 가능한 값을 모두 나열
   - 자동완성 없이 명령어만 만드는 것은 금지
 
+### OP 게이트 규약 — `isOp()` 대신 `GuideAccess.admin()` (2026-09-07 신설)
+- **「가이드」 칭호 보유자는 OP 없이 BlockShip 관리 명령을 쓴다.** 판정은 **보유**다(장착 아님 — `moderation/ChatMuteManager` 가 세운 규칙). 진짜 OP 로 만들지 않고 `guide/GuideAccess` 가 `PermissionAttachment` 로 **우리 명령이 실제로 쓰는 노드 넷**(`blockship.admin`·`"op"`·`blockship.op`·`watertp.admin`)만 붙인다. 바닐라 `/op`·`/gamemode`·`/give` 는 `minecraft.command.*` 라 **여전히 못 쓴다**.
+- ⇒ **새 관리 명령의 권한 검사는 `com.blockship.guide.GuideAccess.admin(sender)` 로 쓴다.** `if (!s.isOp())` 로 쓰면 가이드가 조용히 배제된다(컴파일도 되고 OP 로 테스트하면 통과해서 안 보인다). `setPermission("blockship.admin")` 은 그대로 병행할 것 — 브리가디어가 먼저 막는 이중방어다.
+- **게임플레이 우회는 주지 않는다** — 맵 보호·금지아이템·차원 가드·섬/길드 건축권·레벨제한·가구 한도·랭킹 제외·접속 시 크리에이티브의 `isOp()` 71곳은 **일부러 안 바꿨다**. 가이드는 관리 명령을 쓰는 역할이지 무적이 아니다. `security/CommandGuard`·`misc/VanillaWhisperRedirect` 도 가이드를 통과시키지 않는다(내장 `/me` 가 채팅정지·전체채팅 차단을 우회하므로).
+- **쓸 때마다 디스코드에 남는다** — `discord.guide-webhook`(라이브 `config.yml` 에만, git 에는 빈 값). `guide/GuideAudit` 이 2초 창으로 모아 임베드당 15줄까지 보낸다(건당 발송은 분당 30건 한도에 닿아 **감사 로그가 유실**된다). 웹훅이 비어 있어도 서버 로그엔 항상 `[Guide] 닉 → /명령` 이 남는다.
+- 조회용 하위 명령은 기록되지 않는다(`/콤보` 는 조용, `/콤보 7` 은 기록). 탭 자동완성도 기록 안 함. **차단된 시도(🚫)도 같은 채널로 간다** — 권한 상승 시도는 성공한 명령보다 먼저 봐야 한다.
+- **치명적인 명령은 코드에 하드코딩해 막았다** (`GuideAccess.HARD_DENY`, 62규칙). config 가 아닌 이유는 지우는 실수로 뚫리면 안 되는 경계라서다. 막은 갈래: ①권한 증식(`칭호 부여/회수/생성/전체지급`·`구독`) ②재화·아이템 생성(`돈 설정`·`캐시지급`·`*지급` 전부·`보물상자`·`플라이 추가/발권`) ③**`낚시테스트`·`낚시발동`** — 이름은 테스트지만 다음 어획 «등급·발동을 강제»해 최고등급을 무한 생산한다 ④진행도 조작·초기화(`레벨설정/초기화`·`퀘스트강제완료/클리어/초기화`·`스탯관리`·`도감관리`·`섬 초기화`·`콤보 *`) ⑤남의 소지품 **편집**(`아이템확인 * 편집`·`보관함확인 * 편집` — 열람은 허용) ⑥되돌릴 수 없는 삭제·서버 전체(`아이템청소`·`npc해제`·`페리삭제`·`지역 생성/삭제/설정`·`잠긴문`(마스터키)·`이무기`·`랜덤블럭10`·`name`(희귀템 사칭)).
+  - 규칙 문법은 **공백 토큰 접두 + `*` 한 토큰 와일드카드**. `칭호 부여` 는 `/칭호`(내 칭호 GUI)를 안 막는다. 별칭 방향을 몰라도 되게 **정식이름+별칭 전부를 함께 대조**한다(`/cldgh 부여`·`/fragmentadmin` 도 걸린다).
+  - 통째로 막힌 명령은 가이드의 **탭 목록에서도 지운다**. 하위만 막힌 건 루트가 살아 있어야 하므로 남는다.
+  - ★`titlegrant`·`moneyoffline`·`fishpay` 류 내부 브릿지 명령은 원래부터 **콘솔 전용 가드**(`s instanceof Player` → 거부)가 있어 별도 차단이 필요 없다. 새 브릿지를 만들 때 이 가드를 빼면 우회로가 생긴다.
+- 조이거나 푸는 손잡이: `guide.denied-commands`(추가 차단) · `guide.allowed-commands`(하드 차단 예외, 차단보다 우선) · `guide.enabled: false`(전체 끄기).
+- **바닐라는 안 열린다** — `/op`·`/stop`·`/deop`·`/ban`·`/kick`·`/whitelist`·`/gamemode`·`/give`·`/tp`·`/execute`, 네임스페이스 우회 `/minecraft:op` 까지 dev 실측 전부 차단.
+
 ### 아이템 지급 규약 (mail/ItemDelivery — 2026-08-26 신설, 위반 시 훅이 경고)
 - 플레이어에게 아이템을 주는 **모든** 경로는 `com.blockship.mail.ItemDelivery.give(p, "출처", item)` 하나만 쓴다.
   `p.getInventory().addItem(...)` 을 직접 부르고 잔량을 `dropItemNaturally` 하거나 반환값을 버리는 것은 금지.
@@ -308,7 +321,7 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 
 ## 체스·보드게임 + 피아노 (별도 플러그인 — BlockShip 아님)
 
-### ★2026-09-06 업스트림 통합 — 플러그인이 3개 → 2개가 됐다
+### ★2026-09-06 업스트림이 두 번 바뀌었다 — 통합(2개) → 보드게임 전용(다시 3개)
 원저자가 보드게임과 피아노를 **한 jar 로 합쳐서** 준다: `BarkanBoardGames-Piano-1.1.0.jar`
 (`name: BarkanChess`, `version: 1.1.0-combined`, `main: kr.barkan.chess.BarkanChessPlugin`,
 안에 `kr.barkan.piano.*`). **체커·요트**가 새로 들어왔고 피아노는 **44 → 49건반**이 됐다.
@@ -319,6 +332,25 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
   **`BarkanArt`** 로 밖에서 세운다: `~/development/barkan-chess/tools/build-art-companion.sh`.
   매니저에 **BarkanChess 인스턴스를 넘겨서** NamespacedKey·데이터폴더·config 가 예전과 똑같다
   (`this` 를 넘기면 유저 인벤의 붓·팔레트·손전등이 전부 남남이 된다). 상세는 그 저장소 README.
+
+**같은 날 저녁 또 바뀌었다 — `BarkanBoardGames-Complete-1.2.0.zip`(jar+팩).** `version: 1.2.0-boardgames`,
+「보드게임 전용 빌드」라는 이름대로 **오목·우르·쿼리도**가 들어오고(135클래스) **피아노가 통째로 빠졌다**
+(`kr/barkan/piano/**` 6클래스 + `models/grand-piano-1013-*.mcfunction` 4개, 새 메인에 참조 0건,
+`plugin.yml` 에 piano 명령 없음). → 피아노도 **동반 플러그인 `BarkanPiano`** 로 밖에서 세운다:
+`~/development/barkan-chess/tools/build-piano-companion.sh`. 그래서 지금 prod 는 **jar 3개**다
+(BarkanChess=보드게임 8종 · BarkanArt=그림/백룸 · BarkanPiano).
+- ★**피아노는 art 와 반대로 `this` 를 넘긴다** — PDC 키가 `NamespacedKey("barkanpiano", …)` 문자열
+  리터럴이고 엔티티는 스코어보드 태그라 호스트 무관인데, `plugin.getResource()` 로 **자기 jar 의 모델
+  mcfunction** 을 읽기 때문이다. 호스트를 넘기면 1.2.0 에 그 리소스가 없어 피아노가 안 그려진다.
+  데이터는 `plugins/BarkanChess/` → `plugins/BarkanPiano/` 로 첫 기동에 자동 이관(«호스트가 더
+  새로우면» 규칙 + `.bak-<mtime>` 백업).
+- ★**업스트림 jar 은 바이트 그대로 배포**하므로 상수 개명이 우리 컴파일러에 안 걸린다 →
+  `tools/check-upstream-constants.sh <jar>` 필수(1.2.0: Material·Sound 97개 통과).
+- ★**스테이징은 «라이브 파일명 그대로»** 올린다. `nightly-restart.sh` 는 교체만 하고 삭제 기능이
+  없어서 새 이름으로 올리면 옛 jar 이 남아 **BarkanChess 가 두 개 로드**된다. 그래서 1.2.0 을
+  `staging/BarkanBoardGames-Piano-1.1.0.jar` 로 올려 뒀다 — 파일명은 낡았고 진짜 버전은
+  `plugin.yml`(로그·`/plugins`)에 나온다. 정지 창이 생길 때 파일명을 바로잡으면 된다.
+
 - **`/piano 설치88`(88건반)은 폐기된 정책** — `piano88.*` 음원은 팩에 넣지 않는다.
 - **피아노 데이터 이관은 한 번뿐이다**: 통합 jar 이 부팅 때 `plugins/BarkanPiano/pianos.yml` 을
   `plugins/BarkanChess/pianos.yml` 로 복사하는데, **목적지가 없을 때만** 한다. 레거시 파일 없이
@@ -339,8 +371,8 @@ scp -i ~/.ssh/oracle-mc.key -r ubuntu@168.107.8.107:~/mcserver/plugins/BlockShip
 - 소스: **`~/development/barkan-piano`** (2026-08-25 분리 → 2026-09-06 업스트림이 BarkanChess 로
   흡수). **자바 소스는 더 이상 배포되지 않는다** — 살아 있는 건 `tools/sync-resourcepack.py` 하나다.
   코드 후속 작업은 `~/development/barkan-chess`.
-- 데이터: **`plugins/BarkanChess/pianos.yml`** (통합 후 위치. `plugins/BarkanPiano/` 는 이관 원본으로만
-  남는다 — 위 「업스트림 통합」의 1회성 복사 주의). 엔티티는 태그 `barkan_piano_<id>`/`barkan_seat_<id>`,
+- 데이터: **`plugins/BarkanPiano/pianos.yml`** (2026-09-06 저녁 1.2.0 이 피아노를 들어내며 동반
+  플러그인으로 되돌아왔다. `plugins/BarkanChess/pianos.yml` 은 이관 원본으로 남는다 — 지우지 말 것). 엔티티는 태그 `barkan_piano_<id>`/`barkan_seat_<id>`,
   `layout-version`(현재 5) 은 옛 피아노 높이 보정용.
 - **소리는 메인 리소스팩에 병합해서 간다** — 팩을 3개로 늘리지 않는다. 업스트림 사운드팩 zip 은
   체스팩+피아노 한 덩어리라 **피아노만 골라** 넣는다: `barkan-piano/tools/sync-resourcepack.py <zip>`

@@ -820,6 +820,66 @@
     "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_d5d7f293ec.png"
   },
   {
+    "kind": "낚싯대",
+    "name": "밀물의 낚싯대",
+    "grade": "C",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_rod_524b02fa13",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_524b02fa13.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "갯바위의 낚싯대",
+    "grade": "C",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_rod_a5a3660e01",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_a5a3660e01.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "뱃사공의 낚싯대",
+    "grade": "C",
+    "origin": "히든-스폰마을",
+    "variant": null,
+    "id": "catalog_rod_d76d1a5162",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_d76d1a5162.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "모래시계의 낚싯대",
+    "grade": "B",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_rod_18e60102e1",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_18e60102e1.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "카라반의 낚싯대",
+    "grade": "B",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_rod_0596447e75",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_0596447e75.png"
+  },
+  {
+    "kind": "낚싯대",
+    "name": "사막여우의 낚싯대",
+    "grade": "B",
+    "origin": "히든-사막마을",
+    "variant": null,
+    "id": "catalog_rod_f17046c521",
+    "resolution": 256,
+    "path": "/Users/user/development/barkan-resourcepack/assets/minecraft/textures/item/barkan_icon/catalog_rod_f17046c521.png"
+  },
+  {
     "kind": "릴",
     "name": "초보자 릴",
     "grade": "E",

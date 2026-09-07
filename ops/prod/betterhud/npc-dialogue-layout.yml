@@ -48198,7 +48198,7 @@ npc_dialogue_layout_149_base_xl:  # 아주 크게 (x1.4)
       scale: 0.35
       align: center
 
-npc_dialogue_layout_151_base_sm:  # 작게 (x0.75)
+npc_dialogue_layout_208_base_sm:  # 작게 (x0.75)
   align: left
   images:
     1:
@@ -48218,7 +48218,7 @@ npc_dialogue_layout_151_base_sm:  # 작게 (x0.75)
       x: 123
       y: -82
     5:
-      name: npc_dialogue_portrait_151_base_sm
+      name: npc_dialogue_portrait_208_base_sm
       x: -103
       y: -74
     6:
@@ -48248,7 +48248,7 @@ npc_dialogue_layout_151_base_sm:  # 작게 (x0.75)
       scale: 0.188
       align: center
 
-npc_dialogue_layout_151_base_md:  # 보통 (x1.0)
+npc_dialogue_layout_208_base_md:  # 보통 (x1.0)
   align: left
   images:
     1:
@@ -48268,7 +48268,7 @@ npc_dialogue_layout_151_base_md:  # 보통 (x1.0)
       x: 165
       y: -102
     5:
-      name: npc_dialogue_portrait_151_base_md
+      name: npc_dialogue_portrait_208_base_md
       x: -138
       y: -92
     6:
@@ -48298,7 +48298,7 @@ npc_dialogue_layout_151_base_md:  # 보통 (x1.0)
       scale: 0.25
       align: center
 
-npc_dialogue_layout_151_base_lg:  # 크게 (x1.2)
+npc_dialogue_layout_208_base_lg:  # 크게 (x1.2)
   align: left
   images:
     1:
@@ -48318,7 +48318,7 @@ npc_dialogue_layout_151_base_lg:  # 크게 (x1.2)
       x: 198
       y: -118
     5:
-      name: npc_dialogue_portrait_151_base_lg
+      name: npc_dialogue_portrait_208_base_lg
       x: -166
       y: -106
     6:
@@ -48348,7 +48348,7 @@ npc_dialogue_layout_151_base_lg:  # 크게 (x1.2)
       scale: 0.3
       align: center
 
-npc_dialogue_layout_151_base_xl:  # 아주 크게 (x1.4)
+npc_dialogue_layout_208_base_xl:  # 아주 크게 (x1.4)
   align: left
   images:
     1:
@@ -48368,7 +48368,407 @@ npc_dialogue_layout_151_base_xl:  # 아주 크게 (x1.4)
       x: 231
       y: -134
     5:
-      name: npc_dialogue_portrait_151_base_xl
+      name: npc_dialogue_portrait_208_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_208_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_208_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_208_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_208_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_208_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_208_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_208_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_208_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_208_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_208_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_208_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_208_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_208_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_208_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_208_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_208_complete_xl
       x: -194
       y: -120
     6:
@@ -57969,6 +58369,3806 @@ npc_dialogue_layout_175_complete_xl:  # 아주 크게 (x1.4)
       y: -134
     5:
       name: npc_dialogue_portrait_175_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_206_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_206_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_206_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_206_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_206_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_206_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_206_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_206_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_206_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_206_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_206_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_206_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_206_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_206_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_206_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_206_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_206_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_206_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_206_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_206_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_206_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_206_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_206_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_206_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_207_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_207_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_207_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_207_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_207_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_207_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_207_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_207_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_207_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_207_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_207_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_207_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_207_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_207_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_207_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_207_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_207_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_207_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_207_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_207_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_207_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_207_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_207_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_207_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_209_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_209_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_209_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_209_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_209_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_209_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_209_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_209_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_209_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_209_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_209_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_209_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_209_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_209_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_209_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_209_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_209_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_209_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_209_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_209_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_209_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_209_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_209_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_209_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_210_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_210_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_210_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_210_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_210_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_210_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_210_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_210_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_210_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_210_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_210_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_210_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_210_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_210_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_210_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_210_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_210_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_210_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_210_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_210_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_210_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_210_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_210_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_210_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_211_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_211_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_211_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_211_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_211_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_211_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_211_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_211_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_211_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_211_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_211_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_211_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_211_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_211_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_211_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_211_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_211_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_211_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_211_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_211_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_211_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_211_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_211_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_211_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_212_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_212_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_212_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_212_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_212_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_212_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_212_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_212_base_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_212_progress_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_212_progress_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_212_progress_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_212_progress_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_212_progress_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_212_progress_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_212_progress_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_212_progress_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_212_complete_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_212_complete_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_212_complete_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_212_complete_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_212_complete_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_212_complete_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_212_complete_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_212_complete_xl
+      x: -194
+      y: -120
+    6:
+      name: npc_dialogue_nameplate_xl
+      x: -218
+      y: -47
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -60
+      y: -120
+      scale: 0.595
+      align: left
+      line-align: left
+      line: 3
+      line-width: 21
+      split-width: 294
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -156
+      y: -39
+      scale: 0.35
+      align: center
+
+npc_dialogue_layout_213_base_sm:  # 작게 (x0.75)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_sm
+      x: -123
+      y: -82
+    2:
+      name: dialogue_panel_2_sm
+      x: -41
+      y: -82
+    3:
+      name: dialogue_panel_3_sm
+      x: 41
+      y: -82
+    4:
+      name: dialogue_panel_4_sm
+      x: 123
+      y: -82
+    5:
+      name: npc_dialogue_portrait_213_base_sm
+      x: -103
+      y: -74
+    6:
+      name: npc_dialogue_nameplate_sm
+      x: -116
+      y: -36
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -31
+      y: -74
+      scale: 0.319
+      align: left
+      line-align: left
+      line: 3
+      line-width: 11
+      split-width: 158
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -83
+      y: -31
+      scale: 0.188
+      align: center
+
+npc_dialogue_layout_213_base_md:  # 보통 (x1.0)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_md
+      x: -165
+      y: -102
+    2:
+      name: dialogue_panel_2_md
+      x: -55
+      y: -102
+    3:
+      name: dialogue_panel_3_md
+      x: 55
+      y: -102
+    4:
+      name: dialogue_panel_4_md
+      x: 165
+      y: -102
+    5:
+      name: npc_dialogue_portrait_213_base_md
+      x: -138
+      y: -92
+    6:
+      name: npc_dialogue_nameplate_md
+      x: -156
+      y: -40
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -43
+      y: -92
+      scale: 0.425
+      align: left
+      line-align: left
+      line: 3
+      line-width: 15
+      split-width: 210
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -111
+      y: -34
+      scale: 0.25
+      align: center
+
+npc_dialogue_layout_213_base_lg:  # 크게 (x1.2)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_lg
+      x: -198
+      y: -118
+    2:
+      name: dialogue_panel_2_lg
+      x: -66
+      y: -118
+    3:
+      name: dialogue_panel_3_lg
+      x: 66
+      y: -118
+    4:
+      name: dialogue_panel_4_lg
+      x: 198
+      y: -118
+    5:
+      name: npc_dialogue_portrait_213_base_lg
+      x: -166
+      y: -106
+    6:
+      name: npc_dialogue_nameplate_lg
+      x: -187
+      y: -44
+  texts:
+    1:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_text]"
+      color: "#3D2840"
+      x: -52
+      y: -106
+      scale: 0.51
+      align: left
+      line-align: left
+      line: 3
+      line-width: 18
+      split-width: 252
+      force-split: false
+    2:
+      name: dialogue_font
+      pattern: "[string:npc_dialogue_name]"
+      color: "#4A2D3D"
+      x: -134
+      y: -36
+      scale: 0.3
+      align: center
+
+npc_dialogue_layout_213_base_xl:  # 아주 크게 (x1.4)
+  align: left
+  images:
+    1:
+      name: dialogue_panel_1_xl
+      x: -231
+      y: -134
+    2:
+      name: dialogue_panel_2_xl
+      x: -77
+      y: -134
+    3:
+      name: dialogue_panel_3_xl
+      x: 77
+      y: -134
+    4:
+      name: dialogue_panel_4_xl
+      x: 231
+      y: -134
+    5:
+      name: npc_dialogue_portrait_213_base_xl
       x: -194
       y: -120
     6:
