@@ -28,6 +28,10 @@ MAP="$OUT/barkan_mappings.json"
 #   barkan_blocks.json 둘 다 없음 → 베드락에서 채집물이 바닐라 밀·흰들국화로 폴백).
 BLOCKMAP="$OUT/barkan_blocks.json"      # → Geyser custom_mappings/
 BLOCKDATA="$OUT/bedrock-blocks.json"    # → plugins/BlockShip/ (자바가 읽어 blockstate 를 보낸다)
+# 소리 팩 — bedrock_sound_pack_build.py 산출. 아이콘 팩과 «별도 팩» 이다(용량 때문에 분리).
+#   베드락은 커스텀 사운드 정의가 클라 팩에 있어야 소리가 난다 — 이게 없으면 BGM·효과음이
+#   전부 무음이다. 있으면 나르고, 없으면 조용히 건너뛴다(소리 팩은 선택 산출물).
+SOUNDPACK="$OUT/barkan_bedrock_sounds.mcpack"
 
 TARGET="${1:-}"
 [[ -f "$PACK" && -f "$MAP" ]] || { echo "❌ 산출물이 없습니다 — 먼저: python3 bedrock_pack_build.py"; exit 1; }
@@ -53,6 +57,7 @@ case "$TARGET" in
     mkdir -p "$DEST" "$MAPDEST"
     BSDEST="${DEST%/Geyser-Spigot/packs}/BlockShip"
     cp "$PACK" "$DEST/"
+    [ -f "$SOUNDPACK" ] && cp "$SOUNDPACK" "$DEST/"
     cp "$MAP" "$MAPDEST/"
     cp "$BLOCKMAP" "$MAPDEST/"
     mkdir -p "$BSDEST" && cp "$BLOCKDATA" "$BSDEST/"
@@ -69,6 +74,7 @@ case "$TARGET" in
     BSSTAGE='~/mcserver/staging/BlockShip'
     ssh -i "$KEY" "$HOST" "mkdir -p $STAGE $BSSTAGE"
     scp -i "$KEY" "$PACK"     "$HOST:$STAGE/"
+    [ -f "$SOUNDPACK" ] && scp -i "$KEY" "$SOUNDPACK" "$HOST:$STAGE/"
     scp -i "$KEY" "$MAP"      "$HOST:$STAGE/"
     # nightly-restart.sh 의 geyser 적용부는 *.mcpack → packs/, *.json → custom_mappings/ 로 나른다.
     scp -i "$KEY" "$BLOCKMAP" "$HOST:$STAGE/"
@@ -76,11 +82,18 @@ case "$TARGET" in
     scp -i "$KEY" "$BLOCKDATA" "$HOST:$BSSTAGE/"
     ssh -i "$KEY" "$HOST" "ls -la $STAGE $BSSTAGE"
     SZ=$(stat -f%z "$PACK" 2>/dev/null || stat -c%s "$PACK")
-    echo "✅ prod 스테이징 완료 (${SZ} bytes) — 06:00 KST 정기 재시작에서 반영됩니다"
-    if [ "$SZ" -gt 6500000 ]; then
-      echo "⚠️  팩이 6.5MB 를 넘습니다. 15MB 는 베드락 접속 자체를 깼고 6.0MB 는 정상이었습니다"
-      echo "    (그 사이 임계는 미측정) — dev 에서 실제 접속 확인 후 두고 갈 것."
-    fi
+    SS=0; [ -f "$SOUNDPACK" ] && SS=$(stat -f%z "$SOUNDPACK" 2>/dev/null || stat -c%s "$SOUNDPACK")
+    echo "✅ prod 스테이징 완료 (아이콘·블록 ${SZ} + 소리 ${SS} bytes) — 06:00 KST 정기 재시작에서 반영됩니다"
+    # ★「15MB 가 베드락 접속을 깬다」는 기록은 «단일 팩» 기준이었다. 2026-09-07 dev 실측:
+    #   팩 3개 합계 17.86MB(아이콘·블록 7.43 + 소리 10.34 + Geyser 통합 0.09)로 접속 정상.
+    #   그래도 «한 팩» 이 커지는 건 여전히 위험하니 개별 크기로 경고한다.
+    for f in "$PACK" "$SOUNDPACK"; do
+      [ -f "$f" ] || continue
+      z=$(stat -f%z "$f" 2>/dev/null || stat -c%s "$f")
+      if [ "$z" -gt 12000000 ]; then
+        echo "⚠️  $(basename "$f") 가 12MB 를 넘습니다 — 단일 팩 15MB 에서 베드락 접속이 깨진 전례가 있습니다."
+      fi
+    done
     ;;
   *)
     echo "사용법: $0 <dev|prod>"; exit 2 ;;
