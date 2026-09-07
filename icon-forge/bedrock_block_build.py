@@ -46,9 +46,26 @@ ASSETS = CE / "resourcepack/assets"
 OUT = HERE / "out/bedrock"
 STAGE = OUT / "pack"
 
-BASE_BLOCK = "minecraft:tripwire"
-# tripwire 의 boolean 프로퍼티(알파벳 순) — 상태 문자열도 이 순서로 만든다.
-PROPS = ["attached", "disarmed", "east", "north", "powered", "south", "west"]
+# ★한 베이스 블록에 «65개째부터는 안 먹는다» (2026-09-07 실측).
+#   66종을 tripwire 하나에 몰아넣었더니 정렬 순서로 64·65번(황금이삭·물냉이)만
+#   state_overrides 가 무시되고 «최상위 기본 지오메트리»(=0번 양배추)로 그려졌다.
+#   유저 제보: 「황금이삭이 특수양배추 자라는 도중처럼 보임」 — 정확히 그 폴백이다.
+#   Geyser/베드락 어느 쪽 상한인지는 못 밝혔지만 경계는 64로 깨끗하다.
+#   ⇒ 베이스를 여러 개 두고 «베이스당 64개» 로 끊는다.
+PER_BASE_CAP = 64
+
+# 베이스 후보 — 전부 boolean 프로퍼티만 가진 블록이어야 상태 문자열을 비트로 만들 수 있다.
+#   ★우리 월드에 «실물이 있을 일이 없어야» 한다. 실물이 있으면 그 자리가 베드락 유저에게
+#     채집물로 보인다. 블록을 바꿀 땐 이 조건부터 볼 것.
+#   · tripwire     — 7 bool. 함정선은 우리가 안 쓴다.
+#   · chorus_plant — 6 bool. 엔드에만 자연 생성된다(우리 콘텐츠는 엔드를 안 쓴다).
+#     ★glow_lichen·vine·sculk_vein 은 쓰지 말 것 — 동굴·정글·딥다크에 흔하다(광산이 있다).
+BASES = [
+    ("minecraft:tripwire", ["attached", "disarmed", "east", "north", "powered", "south", "west"]),
+    ("minecraft:chorus_plant", ["down", "east", "north", "south", "up", "west"]),
+]
+BASE_BLOCK = BASES[0][0]     # 하위호환(옛 로그·문서용)
+PROPS = BASES[0][1]
 DESTRUCT = 1000000          # 사실상 파괴 불가(탭으로 사라지지 않게)
 
 CONFIGS = [("forage", "forage_custom.yml"), ("crop", "crops.yml")]
@@ -93,12 +110,24 @@ def texture_of(model_id: str):
     return model, (png if png.is_file() else None)
 
 
-def state_string(index: int) -> str:
-    """인덱스 → tripwire 상태 문자열. 정렬된 id 순서라 매번 같은 값이 나온다."""
-    if index >= 1 << len(PROPS):
-        raise SystemExit(f"베이스 블록 상태({1 << len(PROPS)})보다 종이 많다 — 블록을 바꿔야 한다")
-    bits = [(index >> i) & 1 for i in range(len(PROPS))]
-    return ",".join(f"{p}={'true' if b else 'false'}" for p, b in zip(PROPS, bits))
+def state_string(index: int, props: list[str]) -> str:
+    """베이스 안에서의 인덱스 → 상태 문자열. 정렬된 id 순서라 매번 같은 값이 나온다."""
+    bits = [(index >> i) & 1 for i in range(len(props))]
+    return ",".join(f"{p}={'true' if b else 'false'}" for p, b in zip(props, bits))
+
+
+def slot_of(i: int):
+    """전체 i 번째 종 → (베이스 블록, 프로퍼티목록, 베이스 안 인덱스).
+
+    ★베이스당 PER_BASE_CAP 로 끊는다. 그 위는 조용히 «다른 모양» 이 되므로 넘치면 멈춘다.
+    """
+    for base, props in BASES:
+        cap = min(PER_BASE_CAP, 1 << len(props))
+        if i < cap:
+            return base, props, i
+        i -= cap
+    raise SystemExit(f"베이스 상태가 모자라다 — BASES 에 블록을 더 넣을 것"
+                     f" (현재 상한 {sum(min(PER_BASE_CAP, 1 << len(pr)) for _, pr in BASES)}종)")
 
 
 def main() -> int:
@@ -132,7 +161,9 @@ def main() -> int:
 
     (STAGE / "models/blocks").mkdir(parents=True, exist_ok=True)
     (STAGE / "textures/blocks").mkdir(parents=True, exist_ok=True)
-    tex_data, overrides, assign = {}, {}, {}
+    tex_data, assign = {}, {}
+    per_base: dict[str, dict] = {}   # 베이스 → {상태문자열: 정의}
+    first_of: dict[str, str] = {}    # 베이스 → 그 베이스의 0번 ident(최상위 기본 정의용)
 
     for i, e in enumerate(entries):
         ident = e["ident"]
@@ -144,33 +175,41 @@ def main() -> int:
         defn = {
             "geometry": f"geometry.barkan.{ident}",
             "material_instances": {"*": {"texture": ident, "render_method": "alpha_test",
-                                         "face_dimming": False, "ambient_occlusion": False}},
+                                         # ★face_dimming 을 끄면 모든 면이 같은 밝기라 «형체 없는
+                                         #   덩어리» 로 보인다. 자바는 면 방향마다 음영이 들어간다.
+                                         "face_dimming": True, "ambient_occlusion": False}},
             "destructible_by_mining": DESTRUCT,
         }
-        st = state_string(i)
-        overrides[st] = defn
-        assign[e["item"]] = f"{BASE_BLOCK}[{st}]"
+        base, props, idx = slot_of(i)
+        st = state_string(idx, props)
+        per_base.setdefault(base, {})[st] = defn
+        first_of.setdefault(base, ident)
+        assign[e["item"]] = f"{base}[{st}]"
 
     (STAGE / "textures/terrain_texture.json").write_text(json.dumps({
         "resource_pack_name": "barkan", "texture_name": "atlas.terrain",
         "padding": 8, "num_mip_levels": 4, "texture_data": tex_data}, indent=1))
 
-    first = entries[0]["ident"]
-    blocks = {"format_version": 1, "blocks": {BASE_BLOCK: {
-        "name": "barkan_display",
-        "display_name": "바르칸 표시물",
-        "included_in_creative_inventory": False,
-        # ★박스(collision/selection)는 넣지 않는다 — 넣으면 베드락이 그리지 않는다.
-        "geometry": f"geometry.barkan.{first}",
-        "material_instances": {"*": {"texture": first, "render_method": "alpha_test",
-                                     "face_dimming": False, "ambient_occlusion": False}},
-        "destructible_by_mining": DESTRUCT,
-        "state_overrides": overrides,
-    }}}
+    # 베이스마다 하나씩 — 최상위 정의는 «그 베이스의 0번» 이 맡는다.
+    #   ★상태가 안 걸리면 여기로 폴백한다. 그래서 64개 초과분이 «0번 모양» 으로 보였다.
+    blocks = {"format_version": 1, "blocks": {}}
+    for base, overrides in per_base.items():
+        first = first_of[base]
+        blocks["blocks"][base] = {
+            "name": "barkan_display" + ("" if base == BASES[0][0] else "_" + base.split(":")[1]),
+            "display_name": "바르칸 표시물",
+            "included_in_creative_inventory": False,
+            # ★박스(collision/selection)는 넣지 않는다 — 넣으면 베드락이 그리지 않는다.
+            "geometry": f"geometry.barkan.{first}",
+            "material_instances": {"*": {"texture": first, "render_method": "alpha_test",
+                                         "face_dimming": True, "ambient_occlusion": False}},
+            "destructible_by_mining": DESTRUCT,
+            "state_overrides": overrides,
+        }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "barkan_blocks.json").write_text(json.dumps(blocks, ensure_ascii=False, indent=2))
     (OUT / "bedrock-blocks.json").write_text(json.dumps(
-        {"base": BASE_BLOCK, "blocks": assign}, ensure_ascii=False, indent=2))
+        {"bases": [b for b, _ in BASES], "blocks": assign}, ensure_ascii=False, indent=2))
 
     mf = json.loads((STAGE / "manifest.json").read_text())
     for blk in [mf["header"]] + mf["modules"]:
@@ -184,7 +223,10 @@ def main() -> int:
             if p.is_file():
                 z.write(p, p.relative_to(STAGE).as_posix())
 
-    print(f"▶ 커스텀 블록 {len(entries)}종 / 상태 여유 {(1 << len(PROPS)) - len(entries)}개")
+    cap = sum(min(PER_BASE_CAP, 1 << len(pr)) for _, pr in BASES)
+    print(f"▶ 커스텀 블록 {len(entries)}종 / 상한 {cap}종 (베이스 {len(per_base)}개, 베이스당 {PER_BASE_CAP})")
+    for b, o in per_base.items():
+        print(f"     {b}: {len(o)}종")
     print(f"▶ 팩 {pack.stat().st_size // 1024} KB · manifest {mf['header']['version']}")
     print(f"✅ {OUT/'barkan_blocks.json'}\n✅ {OUT/'bedrock-blocks.json'}")
     return 0
