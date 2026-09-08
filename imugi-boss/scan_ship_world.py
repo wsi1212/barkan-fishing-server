@@ -42,7 +42,8 @@ SHIPS = os.path.join(SERVER, "plugins/BlockShip/ships")
 #    엉뚱한 방향을 보고 돛 두께축(scale)이 뒤집혀 돛이 슬랫으로 잘려 보인다.
 #
 #  ★max_kmh = 최고 속도(km/h). 배 HUD 가 km/h 로 찍으므로 저장도 km/h 로 한다.
-#    노트 → km/h 는 ×1.852.
+#    노트로 말할 땐 ×1.852 로 환산해 넣을 것.
+#  ★cash = 캐시 전용 상품이면 캐시가(그때 price 는 0). 한 배에 두 통화를 같이 붙이지 않는다.
 PRESETS = {
     "돛단배": dict(
         world=os.path.join(SERVER, "world"),
@@ -50,7 +51,9 @@ PRESETS = {
         origin=(418, 60, 1021),                # x=용골 중심, y=갑판 바닥칸, z=선체 중앙
         pilot=(418, 61, 1023),                 # 선미 조종석
         passengers=[(418, 61, 1018)],          # 선수 탑승석
-        max_kmh=18.52,                         # 10노트 (2026-09-08 유저 지정)
+        max_kmh=30,                            # 2026-09-08 유저 지정
+        # ★원화로 남긴다 — 튜토리얼 「튜토_배2」(action|배구매)의 유일한 구매 경로다.
+        #   캐시 전용으로 돌리면 캐시가 없는 신규가 튜토에서 영구히 막힌다.
         duration=90, cooldown=60, price=10000,
         created=1788700000000,
         uuid="6b1f2d4a-8c33-5e17-9a20-0d1c7f4b3e88",
@@ -65,8 +68,9 @@ PRESETS = {
         pilot=(490, 160, 357),                 # 유저 지정
         passengers=[(487, 160, 357), (481, 160, 357),
                     (478, 160, 357), (475, 160, 357)],   # 노꾼 벤치 4석 (유저 지정)
-        max_kmh=27.78,                         # 15노트 (2026-09-08 유저 지정)
-        duration=180, cooldown=90, price=50000,
+        max_kmh=40,                            # 2026-09-08 유저 지정
+        # 캐시 전용 상품(price 0). 10,000 캐시 = 캐시샵 「배스킨」 3종과 같은 등급.
+        duration=180, cooldown=90, price=0, cash=10000,
         created=1788800000000,
         uuid="2f7c9e51-4b6a-5d38-8e14-7a3f0c92b6d1",
     ),
@@ -179,6 +183,7 @@ def build(name):
         "durationSeconds": spec["duration"],
         "cooldownSeconds": spec["cooldown"],
         "price": spec["price"],
+        "cashPrice": spec.get("cash", 0),
     }
 
     os.makedirs(SHIPS, exist_ok=True)
@@ -194,6 +199,8 @@ def build(name):
     print(f"  rel y {min(ys)}..{max(ys)}  → 흘수 {-min(ys)}칸 (소환 시 수면 아래 요구 깊이)")
     print(f"  rel z {min(zs)}..{max(zs)}  (선수=+Z 쪽 {max(zs)}, 선미={min(zs)})")
     print(f"  최고속도 {spec['max_kmh']} km/h ({spec['max_kmh']/1.852:.1f}노트)")
+    print(f"  가격 {spec['price']:,}원" if not spec.get("cash")
+          else f"  가격 {spec['cash']:,} 캐시 (캐시 전용)")
     print(f"  조종석 {out['pilotSeat']}  탑승석 {out['passengerSeats']}")
     return out
 
