@@ -7006,7 +7006,7 @@
           "typeOrMatId": "흑정석",
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
-          "qty": 60
+          "qty": 115
         },
         {
           "kind": "custom",
@@ -7014,13 +7014,6 @@
           "displayName": "특수 밀",
           "mcItem": "wheat",
           "qty": 40
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "채집_라벤더선반버섯",
-          "displayName": "라벤더 선반버섯",
-          "mcItem": "allium",
-          "qty": 10
         }
       ]
     },
@@ -7050,20 +7043,13 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 30
+          "qty": 49
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_감자",
           "displayName": "특수 감자",
           "mcItem": "potato",
-          "qty": 30
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "채집_라벤더선반버섯",
-          "displayName": "라벤더 선반버섯",
-          "mcItem": "allium",
           "qty": 30
         }
       ]
@@ -7094,13 +7080,6 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 30
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "채집_라벤더선반버섯",
-          "displayName": "라벤더 선반버섯",
-          "mcItem": "allium",
           "qty": 80
         }
       ]
@@ -7164,14 +7143,7 @@
           "typeOrMatId": "흑정석",
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
-          "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "채집_라벤더선반버섯",
-          "displayName": "라벤더 선반버섯",
-          "mcItem": "allium",
-          "qty": 5
+          "qty": 43
         }
       ]
     },
@@ -7199,20 +7171,13 @@
           "typeOrMatId": "흑정석",
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
-          "qty": 15
+          "qty": 43
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_밀",
           "displayName": "특수 밀",
           "mcItem": "wheat",
-          "qty": 5
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "채집_라벤더선반버섯",
-          "displayName": "라벤더 선반버섯",
-          "mcItem": "allium",
           "qty": 5
         }
       ]
