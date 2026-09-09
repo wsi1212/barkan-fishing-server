@@ -54,12 +54,19 @@ NS = "barkan"
 #     릴=CLOCK 줄=STRING 바늘=TRIPWIRE_HOOK 미끼=WHEAT_SEEDS 찌=PUFFERFISH 그 외=PAPER
 #   작살은 HarpoonManager 가 COD, 통발은 TrapSpecs.ITEM_MAT=BARREL,
 #   재료는 MaterialLoader 가 mcItem 을 무조건 "paper" 로 강제한다.
-#   ★낚싯대는 «완성품» 이 minecraft:fishing_rod 다(EquipmentManager.buildRodResult).
-#     partIcon 기본값(PAPER)만 보고 paper 로 잡았다가 낚싯대만 베드락에서 바닐라
-#     텍스처로 나왔다(2026-09-04 유저 제보). 조합대 미리보기 등 paper 로 뜨는 경로도
-#     있어 «둘 다» 등록한다 — 리스트를 주면 각각 다른 bedrock_identifier 로 나간다.
+#   ★★낚싯대를 minecraft:fishing_rod 로 등록하면 «절대» 안 된다 — 베드락에서 낚시가
+#     불가능해진다. Geyser 커스텀 아이템은 새 베드락 아이템(barkan:catalog_rod_*)이 되고,
+#     Geyser 가 실어 보낼 수 있는 컴포넌트에 «낚시» 가 없다(실측: CustomItemRegistryPopulator
+#     의 컴포넌트 목록 = bow·crossbow·throwable·food·block_placer·trident… fishing 없음).
+#     바닐라 낚시 동작은 minecraft:fishing_rod «식별자» 에 하드코딩돼 있어 커스텀 아이템은
+#     물려받지 못한다 ⇒ 터치 UI 에 던지기 버튼 자체가 안 뜬다.
+#     2026-09-07 15:26 에 이 매핑(89종)이 prod 에 올라가 모바일 유저가 낚싯대를 들어도
+#     던질 수 없었다(2026-09-09 유저 제보). 원인 커밋 f53007d5 «낚싯대 베이스가 틀렸다».
+#     ⇒ 대가를 알고 고른다: 모바일은 낚싯대 «아이콘» 을 바닐라로 본다. 아이콘 하나 때문에
+#       낚시 서버에서 낚시를 못 하게 만들 수는 없다. paper 등록만 남긴다(조합대 미리보기 등
+#       paper 로 뜨는 경로용 — 실제 낚싯대는 fishing_rod 라 이 정의에 걸리지 않는다).
 BASE_ITEM = {
-    "rod": ["minecraft:fishing_rod", "minecraft:paper"],
+    "rod": ["minecraft:paper"],
     "reel": "minecraft:clock",
     "line": "minecraft:string",
     "hook": "minecraft:tripwire_hook",
