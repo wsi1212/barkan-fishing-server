@@ -204,6 +204,17 @@ VALIDATOR="$SCRIPTS_REPO/ops/validate-staged.py"
 REJECTED=0
 for f in "${DATA_FILES[@]}"; do
   if [ -f "$LOCAL_DATA/$f" ]; then
+    # 항목 삭제를 명시 승인한 경우, JSON보다 먼저 마커도 같은 목적지에 올린다.
+    # nightly-restart.sh 는 JSON을 검증할 때 바로 옆의 이 마커를 읽는다. 마커를 빼먹으면
+    # 여기의 사전 검증만 통과하고 06:00 적용 때는 다시 거부되는 반쪽 배포가 된다.
+    if [ -f "$LOCAL_DATA/$f.allow-shrink" ]; then
+      if ! scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+          "$LOCAL_DATA/$f.allow-shrink" \
+          "$REMOTE_USER@$REMOTE_HOST:$PROD_DATA_DEST"; then
+        echo "  ⛔ $f.allow-shrink 업로드 실패"
+        REJECTED=$((REJECTED+1)); continue
+      fi
+    fi
     if [ -x "$VALIDATOR" ]; then
       TMPLIVE=$(mktemp)
       scp -q -i "$SSH_KEY" -o StrictHostKeyChecking=no \
