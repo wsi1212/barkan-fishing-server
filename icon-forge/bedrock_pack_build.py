@@ -77,6 +77,20 @@ BASE_ITEM = {
     "material": "minecraft:paper",
 }
 
+# ── 낚싯대 두 갈래 ───────────────────────────────────────────────────────────
+#   [기본·안전] 커스텀 아이템으로 만들지 않는다(위 주석). 대신 팩에서 «바닐라 낚싯대
+#     텍스처» 를 우리 아트로 덮는다 → 89종이 한 그림을 공유하지만 던지기 버튼이 산다.
+VANILLA_ROD_ICON = "catalog_rod_a950ca0978"   # 참나무 낚싯대 = 등급색 없는 평범한 나무 대
+#   [실험 --rod-usable] fishing_rod 로도 등록하고 «consumable» 컴포넌트를 붙인다.
+#     베드락 터치 버튼은 «클라가 쓸 수 있는 물건으로 아는가» 로만 뜬다. Geyser V2 정의의
+#     components 블록은 «자바 아이템이 어떤 데이터 컴포넌트를 갖는지» 를 Geyser 에게 알려
+#     주는 것이라(실측: SingleDefinitionReader.readComponents → DataComponentReaders),
+#     실제 자바 서버 동작은 그대로 낚싯대다. 탭 → Bedrock ITEM_USE → Geyser
+#     ServerboundUseItem → 서버가 «우클릭» 으로 받아 캐스팅. 즉 아이콘과 던지기를 둘 다
+#     가질 수 있는지 «실측» 하는 스위치다 — 폰으로 확인하기 전엔 prod 에 넣지 말 것.
+ROD_USABLE = False
+ROD_ANIM = "none"     # none|eat|drink|bow|spear|brush — none 으로 버튼이 안 뜨면 eat 로
+
 # ItemIconModel.category(type) 와 같아야 한다 — 어긋나면 모델 경로가 안 맞아 조용히 빠진다.
 TYPE_KEY = {
     "낚싯대": "rod", "릴": "reel", "줄": "line", "바늘": "hook",
@@ -453,6 +467,9 @@ def _emit_texture(src: Path, dst: Path, max_px: int) -> None:
 
 
 def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
+    if ROD_USABLE:
+        BASE_ITEM["rod"] = ["minecraft:fishing_rod", "minecraft:paper"]
+        print(f"  ⚠ 실험 모드 — 낚싯대를 fishing_rod 로 등록 (consumable animation={ROD_ANIM})")
     entries, warns = collect()
     for w in warns:
         print(f"  ⚠ {w}")
@@ -506,12 +523,17 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
         for i, base in enumerate(e["bases"]):
             # 같은 아이콘을 여러 베이스에 달 때 식별자가 겹치면 안 된다 — 두 번째부터 접두어.
             bid = f"{NS}:{e['icon']}" if i == 0 else f"{NS}:b{i}_{e['icon']}"
-            put(base, {
+            entry = {
                 "type": "definition",
                 "model": e["model"],
                 "bedrock_identifier": bid,
                 "bedrock_options": {"icon": e["icon"], "creative_category": "items"},
-            })
+            }
+            # 낚싯대만 «쓸 수 있는 물건» 으로 선언한다 — 안 하면 터치 던지기 버튼이 없다.
+            if ROD_USABLE and base == "minecraft:fishing_rod":
+                entry["components"] = {"consumable": {"consume_seconds": 0.05,
+                                                      "animation": ROD_ANIM}}
+            put(base, entry)
     # ★승계는 «텍스처까지 따라올 수 있는 것» 만. 코드에서 사라진 아이콘(예: 더는 쓰지 않는
     #   GUI 버튼)이 옛 매핑에 남아 있으면, 정의만 있고 그림이 없는 항목이 되어 자기검증이
     #   배포를 통째로 막는다. 2026-09-06 실측: ui_guild_chat 하나가 그렇게 팩 생성을 세웠다.
@@ -572,6 +594,21 @@ def build(dry: bool, max_px: int = 64, bedrock_plate: bool = False) -> int:
     for e in resolved:
         _emit_texture(e["texture"], stage / "textures/items" / f"{e['icon']}.png", max_px)
         texture_data[e["icon"]] = {"textures": f"textures/items/{e['icon']}"}
+
+    # ── 바닐라 낚싯대 텍스처 덮어쓰기 ────────────────────────────────────────
+    #   낚싯대는 커스텀 아이템이 아니라 «바닐라 fishing_rod» 로 나간다(그래야 던지기
+    #   버튼이 산다). 그대로 두면 폰에서 막대기 그림이 되니, 우리 아트 하나로 덮는다.
+    #   ★키는 바닐라가 쓰는 이름이어야 한다 — fishing_rod / fishing_rod_cast(줄 던진 상태).
+    #   실험 모드에선 낚싯대가 커스텀 아이템이라 이 그림을 아무도 안 쓴다 → 건너뛴다.
+    if not ROD_USABLE:
+        src = next((e["texture"] for e in resolved if e["icon"] == VANILLA_ROD_ICON), None)
+        if src is None:
+            print(f"  ⚠ 바닐라 낚싯대 덮어쓸 아트({VANILLA_ROD_ICON})를 못 찾음 — 막대기로 남습니다")
+        else:
+            _emit_texture(src, stage / "textures/items/vanilla_fishing_rod.png", max_px)
+            for key in ("fishing_rod", "fishing_rod_cast"):
+                texture_data[key] = {"textures": "textures/items/vanilla_fishing_rod"}
+            print(f"  ▶ 바닐라 낚싯대 텍스처를 {VANILLA_ROD_ICON} 로 덮었습니다(모바일 전용)")
 
     # ── 기존(물고기) 텍스처 승계 ─────────────────────────────────────────────
     #   ★파일명이 아니라 «옛 item_texture.json 의 키→경로» 를 그대로 가져온다.
@@ -812,5 +849,13 @@ if __name__ == "__main__":
     ap.add_argument("--bedrock-plate", action="store_true",
                     help="베드락 사이드바를 양피지 판으로 꾸미고 글리프 아이콘을 넣는다. "
                          "서버 config 의 bedrock.sidebar-glyphs 와 짝이다")
+    ap.add_argument("--rod-usable", action="store_true",
+                    help="[실험] 낚싯대를 fishing_rod 커스텀 아이템으로 등록하고 consumable "
+                         "컴포넌트를 붙인다(아이콘 살리기 + 던지기 버튼 실측). dev 전용")
+    ap.add_argument("--rod-anim", default="none",
+                    choices=["none", "eat", "drink", "bow", "spear", "brush"],
+                    help="--rod-usable 의 consumable animation (기본 none)")
     a = ap.parse_args()
+    ROD_USABLE = a.rod_usable
+    ROD_ANIM = a.rod_anim
     sys.exit(build(a.dry_run, a.max_px, a.bedrock_plate))
