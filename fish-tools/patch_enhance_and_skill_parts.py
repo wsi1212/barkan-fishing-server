@@ -112,20 +112,20 @@ ROD_PLAN = {
     "수집가의 낚싯대":     ("경험치:4,재료확률:17", None),
     "탐사자의 낚싯대":     ("경험치:7,재료확률:28", None),
 }
-#: 숙련 계열 부품 — 이름: (슬롯, 난이도, 새 돈가격|None=유지)
+#: C급 난이도 전용 부품 — 이름: (슬롯, 난이도, 새 돈가격|None=유지).
+#: D급 부품은 난이도를 주지 않으며, C급도 조작에 직접 관여하는 3슬롯만 허용한다.
 PART_PLAN = {
-    "나무 릴":      ("릴", 1, None),
     "철제 릴":      ("릴", 1, None),
-    "전술 릴":      ("릴", 1, None),
-    "면줄":        ("줄", 1, None),
     "나일론줄":      ("줄", 1, None),
-    "카본줄":       ("줄", 1, None),
-    "철 바늘":      ("바늘", 1, None),
-    "날카로운 바늘":  ("바늘", 1, None),
-    "미늘 바늘":     ("바늘", 1, None),
-    "코르크 찌":     ("찌", 1, None),
     "가벼운 찌":     ("찌", 1, None),
-    "전자 찌":      ("찌", 1, None),
+}
+#: 과거 숙련 라인에서 난이도를 받은 D급과 비선정 C급 부품. 재실행해도 난이도가 되살아나지 않게 한다.
+REMOVE_DIFFICULTY = {
+    ("릴", "나무 릴"), ("릴", "억센 릴"), ("릴", "단련된 릴"),
+    ("줄", "면줄"),
+    ("바늘", "철 바늘"), ("바늘", "날카로운 바늘"),
+    ("미끼", "억센 미끼"), ("미끼", "단련된 미끼"),
+    ("찌", "코르크 찌"), ("찌", "단련된 찌"),
 }
 #: 스폰마을 밖 낚싯대의 기본 난이도도 3층 예산에 맞춘다(라인 밸런스는 건드리지 않는다 —
 #  사막·상단·왕도·히든은 아직 감사하지 않았다. 난이도만 예산표로 정렬한다).
@@ -211,13 +211,30 @@ def main():
     for n, g, line, dk, a, b in dlog:
         print(f"  · {n:<20} [{g}] {line}/{dk}  난이도 {a} → {b}")
 
-    # ═══ 3. 숙련 계열 부품 12종 ═══
+    # ═══ 3. C급 난이도 전용 부품 3종 + 이전 난이도 제거 ═══
+    rlog = []
+    for slot, pname in sorted(REMOVE_DIFFICULTY):
+        raw = P["parts"].get(slot, {}).get(pname)
+        if raw is None:
+            continue
+        f = raw.split("|")
+        d = {k: v for k, v in (x.split(":", 1) for x in f[4].split(",") if ":" in x)}
+        if "난이도" not in d:
+            continue
+        old = f[4]
+        d.pop("난이도")
+        f[4] = canon(",".join(f"{k}:{v}" for k, v in d.items()))
+        P["parts"][slot][pname] = "|".join(f)
+        rlog.append((slot, pname, old, f[4]))
+    print(f"\n[부품] D급·비선정 C급 난이도 제거 {len(rlog)}종")
+    for slot, n, a, b in rlog:
+        print(f"  · {slot} {n:<14} {a}\n     → {b}")
+
     plog = []
     for pname, (slot, dv, price) in PART_PLAN.items():
         f = P["parts"][slot][pname].split("|")
-        d = {k: v for k, v in (x.split(":", 1) for x in f[4].split(",") if ":" in x)}
+        d = {"난이도": str(dv)}
         old, oldp = f[4], f[2]
-        d["난이도"] = str(dv)
         f[4] = canon(",".join(f"{k}:{v}" for k, v in d.items()))
         if price is not None:
             f[2] = str(price)
@@ -225,7 +242,7 @@ def main():
             continue
         P["parts"][slot][pname] = "|".join(f)
         plog.append((slot, pname, old, f[4], oldp, f[2]))
-    print(f"\n[부품] 숙련 계열 {len(plog)}종")
+    print(f"\n[부품] C급 난이도 전용 {len(plog)}종")
     for slot, n, a, b, pa, pb in plog:
         pr = "" if pa == pb else f"   가격 {int(pa):,} → {int(pb):,}"
         print(f"  · {slot} {n:<14} {a}\n     → {b}{pr}")

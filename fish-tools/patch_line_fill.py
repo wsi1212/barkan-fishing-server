@@ -76,6 +76,12 @@ K_CAP = 2.4
 STAT_CAP = 1.5
 SKIPSRC = {"캐시", "개발자", "잠수상점"}
 GRADES = ("D", "C", "B", "A")        # ★S 는 제외 (히든-전설·심해)
+#: 난이도는 D 부품에 주지 않는다. C도 릴·줄·찌의 전용 기본품 3개만 허용하며,
+#: 그 값은 patch_enhance_and_skill_parts.py가 관리한다. 자동 라인 채움으로 숙련품을
+#: 다시 만들면 이 정책이 깨지므로 D/C 숙련 라인은 의도적으로 빈칸으로 둔다.
+SKIP_LINES = {(cat, grade, "숙련")
+              for grade in ("D", "C")
+              for cat in ("릴", "줄", "바늘", "미끼", "찌")}
 
 
 def main():
@@ -155,7 +161,7 @@ def main():
             have = {label[r["name"]] for r in rows if r["cat"] == cat and r["grade"] == g
                     and r["src"] not in SKIPSRC}
             for line in canon:
-                if line not in have:
+                if line not in have and (cat, g, line) not in SKIP_LINES:
                     plan.append((cat, g, line))
 
     added, recs, missing = [], [], []
