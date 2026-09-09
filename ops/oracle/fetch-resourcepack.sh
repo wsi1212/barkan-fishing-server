@@ -104,18 +104,27 @@ PY
 SHA=$(sha1sum "$TMP/barkan-resourcepack.zip" | awk '{print $1}')
 
 python3 - "$PROPS" "$URL" "$SHA" <<'PY'
-import io, os, sys
+import io, os, sys, uuid
 props, url, sha = sys.argv[1:]
 escaped = url.replace(":", "\\:", 1)
-out=[]; seen_url=False; seen_sha=False
+# 1.20.3+ 클라이언트는 이 UUID로 서버 팩 응답을 식별한다. URL/SHA만 새로
+# 바꾸고 UUID를 재사용하면 캐시된 이전 팩의 SUCCESSFULLY_LOADED 응답이 다음
+# 접속에 늦게 도착해 Paper가 `join_world` 상태 오류를 낸다. 팩 바이트마다
+# 결정적으로 새 UUID를 만들어 URL·SHA·ID를 항상 한 세트로 유지한다.
+pack_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "barkan-resourcepack\\n" + url + "\\n" + sha))
+out=[]; seen_url=False; seen_sha=False; seen_id=False
 for line in io.open(props, encoding="utf-8"):
     if line.startswith("resource-pack="):
         out.append("resource-pack=" + escaped + "\n"); seen_url=True
     elif line.startswith("resource-pack-sha1="):
         out.append("resource-pack-sha1=" + sha + "\n"); seen_sha=True
+    elif line.startswith("resource-pack-id="):
+        out.append("resource-pack-id=" + pack_id + "\n"); seen_id=True
     else:
         out.append(line)
 assert seen_url and seen_sha, "resource-pack 항목 없음"
+if not seen_id:
+    out.append("resource-pack-id=" + pack_id + "\n")
 tmp=props + ".mobile.tmp"
 io.open(tmp, "w", encoding="utf-8").write("".join(out))
 os.replace(tmp, props)

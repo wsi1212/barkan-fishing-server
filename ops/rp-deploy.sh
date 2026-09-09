@@ -296,18 +296,26 @@ fi
 # ── 6. server.properties 갱신 (URL + sha1 을 원자적으로) ──────────────────
 say "$TARGET server.properties 갱신"
 WRITE_PY='
-import io, os, sys
+import io, os, sys, uuid
 props, url, sha = sys.argv[1:4]
 esc = url.replace(":", "\\:", 1)          # properties 규약: 스킴 콜론을 이스케이프
-out, seen_u, seen_s = [], False, False
+# UUID도 팩 바이트를 식별해야 한다. SHA만 갈고 기존 ID를 재사용하면 일부
+# 클라이언트가 캐시된 완료 응답을 다음 접속에 보내 Paper의 configuration task가
+# `join_world` 상태에서 끝나는 오류를 낸다.
+pack_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "barkan-resourcepack\\n" + url + "\\n" + sha))
+out, seen_u, seen_s, seen_id = [], False, False, False
 for line in io.open(props, encoding="utf-8"):
     if line.startswith("resource-pack="):
         out.append("resource-pack=" + esc + "\n"); seen_u = True
     elif line.startswith("resource-pack-sha1="):
         out.append("resource-pack-sha1=" + sha + "\n"); seen_s = True
+    elif line.startswith("resource-pack-id="):
+        out.append("resource-pack-id=" + pack_id + "\n"); seen_id = True
     else:
         out.append(line)
 assert seen_u and seen_s, "resource-pack / resource-pack-sha1 항목을 못 찾았다"
+if not seen_id:
+    out.append("resource-pack-id=" + pack_id + "\n")
 tmp = props + ".tmp"
 io.open(tmp, "w", encoding="utf-8").write("".join(out))
 os.replace(tmp, props)
