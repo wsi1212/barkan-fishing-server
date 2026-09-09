@@ -925,7 +925,7 @@
       "tier": "유일",
       "prestige": 200,
       "category": "특수",
-      "source": "admin",
+      "source": "cash",
       "animation": true,
       "palette": "supporter"
     },
