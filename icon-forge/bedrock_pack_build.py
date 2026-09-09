@@ -81,13 +81,18 @@ BASE_ITEM = {
 #   [기본·안전] 커스텀 아이템으로 만들지 않는다(위 주석). 대신 팩에서 «바닐라 낚싯대
 #     텍스처» 를 우리 아트로 덮는다 → 89종이 한 그림을 공유하지만 던지기 버튼이 산다.
 VANILLA_ROD_ICON = "catalog_rod_a950ca0978"   # 참나무 낚싯대 = 등급색 없는 평범한 나무 대
-#   [실험 --rod-usable] fishing_rod 로도 등록하고 «consumable» 컴포넌트를 붙인다.
-#     베드락 터치 버튼은 «클라가 쓸 수 있는 물건으로 아는가» 로만 뜬다. Geyser V2 정의의
-#     components 블록은 «자바 아이템이 어떤 데이터 컴포넌트를 갖는지» 를 Geyser 에게 알려
-#     주는 것이라(실측: SingleDefinitionReader.readComponents → DataComponentReaders),
-#     실제 자바 서버 동작은 그대로 낚싯대다. 탭 → Bedrock ITEM_USE → Geyser
-#     ServerboundUseItem → 서버가 «우클릭» 으로 받아 캐스팅. 즉 아이콘과 던지기를 둘 다
-#     가질 수 있는지 «실측» 하는 스위치다 — 폰으로 확인하기 전엔 prod 에 넣지 말 것.
+#   [--rod-usable ★실측 실패 2026-09-09 — 켜지 말 것] fishing_rod 로 등록하고 정의에
+#     «consumable» 컴포넌트를 붙여 보는 스위치. 클라가 «쓸 수 있는 물건» 으로 알면 터치
+#     버튼이 뜰 것이라는 가설이었다(Geyser V2 정의가 components 를 읽는 것은 사실이다 —
+#     SingleDefinitionReader.readComponents → DataComponentReaders).
+#     결과: 로드는 되는데(Registered 1806 custom items, 거부 0) **베드락 클라가 로그인
+#     핸드셰이크에서 끊긴다.** dev 실측 로그: 21:35 정상 접속(안전판 1717종) → 21:44 실험판
+#     반영 → 21:48~ 「Could not find packet for ClientToServerHandshakePacket」 +
+#     「ClientCacheStatusPacket」 후 연결 종료, 접속 0.
+#     ★개수 문제가 아니다 — prod 는 09-07~09 내내 1805종으로 «접속은 됐다»(버튼만 없었다).
+#     범인은 components 블록 자체다. 다른 animation 값으로 재시도해도 소용없다(실패 지점이
+#     아이템을 쓰기 전, StartGame 보다도 앞이다).
+#     ⇒ 결론: «89종 커스텀 아이콘» 과 «던지기 버튼» 은 지금 Geyser 로 동시에 못 얻는다.
 ROD_USABLE = False
 ROD_ANIM = "none"     # none|eat|drink|bow|spear|brush — none 으로 버튼이 안 뜨면 eat 로
 
@@ -850,8 +855,8 @@ if __name__ == "__main__":
                     help="베드락 사이드바를 양피지 판으로 꾸미고 글리프 아이콘을 넣는다. "
                          "서버 config 의 bedrock.sidebar-glyphs 와 짝이다")
     ap.add_argument("--rod-usable", action="store_true",
-                    help="[실험] 낚싯대를 fishing_rod 커스텀 아이템으로 등록하고 consumable "
-                         "컴포넌트를 붙인다(아이콘 살리기 + 던지기 버튼 실측). dev 전용")
+                    help="[★실패·켜지 말 것] 낚싯대를 fishing_rod 커스텀 아이템으로 등록 + "
+                         "consumable 컴포넌트. 베드락 로그인 핸드셰이크가 깨진다(09-09 실측)")
     ap.add_argument("--rod-anim", default="none",
                     choices=["none", "eat", "drink", "bow", "spear", "brush"],
                     help="--rod-usable 의 consumable animation (기본 none)")
