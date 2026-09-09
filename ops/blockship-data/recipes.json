@@ -4686,7 +4686,7 @@
           "&7[간단] 버프 요리",
           "&7낚시 경험치 &a+5%",
           "&7이동 속도 &bI",
-          "&8지속 10분  &7· &8먹기 전용",
+          "&8지속 5분  &7· &8먹기 전용",
           "&8조리시간 3초",
           "",
           "&8dish:들꽃꿀차"
@@ -4739,7 +4739,7 @@
           "typeOrMatId": "채집_도토리다발",
           "displayName": "도토리 다발",
           "mcItem": "sweet_berries",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -4864,14 +4864,14 @@
           "typeOrMatId": "채집_붉은열매",
           "displayName": "붉은 열매",
           "mcItem": "glow_berries",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_주황요정버섯",
           "displayName": "주황 요정버섯",
           "mcItem": "orange_tulip",
-          "qty": 1
+          "qty": 2
         }
       ]
     },
@@ -4947,14 +4947,14 @@
           "typeOrMatId": "작물_밀",
           "displayName": "특수 밀",
           "mcItem": "wheat",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화밀",
           "displayName": "강화 밀",
           "mcItem": "wheat",
-          "qty": 4
+          "qty": 2
         }
       ]
     },
@@ -4988,21 +4988,21 @@
           "typeOrMatId": "도토리묵",
           "displayName": "도토리 두부",
           "mcItem": "PUMPKIN_PIE",
-          "qty": 1
+          "qty": 2
         },
         {
-          "kind": "custom",
-          "typeOrMatId": "작물_버섯",
-          "displayName": "특수 버섯",
+          "kind": "mushroomany",
+          "typeOrMatId": "mushroomany",
+          "displayName": "버섯류 아무거나",
           "mcItem": "brown_mushroom",
-          "qty": 1
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화감자",
           "displayName": "강화 감자",
           "mcItem": "potato",
-          "qty": 2
+          "qty": 4
         }
       ]
     },
@@ -5037,21 +5037,21 @@
           "typeOrMatId": "들꽃꿀차",
           "displayName": "들꽃 꿀차",
           "mcItem": "HONEY_BOTTLE",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_감자",
           "displayName": "특수 감자",
           "mcItem": "potato",
-          "qty": 2
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화감자",
           "displayName": "강화 감자",
           "mcItem": "potato",
-          "qty": 2
+          "qty": 4
         }
       ]
     },
@@ -5086,21 +5086,21 @@
           "typeOrMatId": "가시배화채",
           "displayName": "가시배 화채",
           "mcItem": "HONEY_BOTTLE",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_수박",
           "displayName": "특수 수박",
           "mcItem": "melon_slice",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화멜론",
           "displayName": "강화 멜론",
           "mcItem": "melon_slice",
-          "qty": 2
+          "qty": 4
         }
       ]
     },
@@ -5135,21 +5135,21 @@
           "typeOrMatId": "도토리묵",
           "displayName": "도토리 두부",
           "mcItem": "PUMPKIN_PIE",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_바위솔",
           "displayName": "바위솔",
           "mcItem": "sea_pickle",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_벼랑초롱꽃",
           "displayName": "벼랑초롱꽃",
           "mcItem": "cornflower",
-          "qty": 1
+          "qty": 3
         }
       ]
     },
@@ -5184,21 +5184,21 @@
           "typeOrMatId": "설산서리차",
           "displayName": "설산 서리차",
           "mcItem": "HONEY_BOTTLE",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_야광버섯",
           "displayName": "야광버섯",
           "mcItem": "warped_fungus",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_푸른요정버섯",
           "displayName": "푸른 요정버섯",
           "mcItem": "blue_orchid",
-          "qty": 1
+          "qty": 3
         }
       ]
     },
