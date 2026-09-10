@@ -195,7 +195,7 @@ $rejlist"
   if [ "$DRYRUN" = "0" ]; then rm -rf "$STAGING/BlockShip"; log "배포 설정 적용 ${ok}개 / 거부 ${rej}개"
   else log "DRY: would deploy $ok, reject $rej"; fi
 fi
-# --- ①-3 Geyser 베드락 팩·매핑 스테이징 (재시작 «직전» 적용) ---
+# --- ①-3 Geyser 베드락 팩·매핑·확장 스테이징 (재시작 «직전» 적용) ---
 # ★라이브 폴더에 직접 넣으면 안 된다. Geyser 는 부팅 때 읽은 uuid·버전·해시·크기를
 #   클라에 알려주고 바이트는 그때그때 디스크에서 흘려보낸다 → 가동 중에 파일을 갈면
 #   알린 해시와 보낸 바이트가 어긋나 «커스텀 아이템이 전부 투명» 해진다(2026-09-04 실측).
@@ -203,7 +203,7 @@ fi
 GEYDIR="$PLUGINS/Geyser-Spigot"
 if [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
   gok=0; gbad=""
-  for src in "$STAGING/geyser"/*.mcpack "$STAGING/geyser"/*.json; do
+  for src in "$STAGING/geyser"/*.mcpack "$STAGING/geyser"/*.json "$STAGING/geyser"/*.jar; do
     [ -e "$src" ] || continue
     bn=$(basename "$src")
     case "$bn" in
@@ -213,6 +213,13 @@ if [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; 
       *.json)   dst="$GEYDIR/custom_mappings/$bn"
                 python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$src" >/dev/null 2>&1 \
                   || { gbad+="   ⛔ $bn — JSON 파싱 실패"$'\n'; continue; } ;;
+      *.jar)    dst="$GEYDIR/extensions/$bn"
+                extmeta=$(unzip -p "$src" extension.yml 2>/dev/null) \
+                  || { gbad+="   ⛔ $bn — extension.yml 을 읽을 수 없음"$'\n'; continue; }
+                printf '%s\n' "$extmeta" | grep -Eq '^id:[[:space:]]*[^[:space:]]+' \
+                  || { gbad+="   ⛔ $bn — extension id 없음"$'\n'; continue; }
+                printf '%s\n' "$extmeta" | grep -Eq '^main:[[:space:]]*[^[:space:]]+' \
+                  || { gbad+="   ⛔ $bn — extension main 없음"$'\n'; continue; } ;;
     esac
     if [ "$DRYRUN" = "0" ]; then
       mkdir -p "$(dirname "$dst")"
@@ -221,7 +228,7 @@ if [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; 
     else log "DRY: would apply geyser $bn"; fi
     gok=$((gok+1))
   done
-  [ "$gok" -gt 0 ] && deploy_lines+="🚀 Geyser 베드락 팩·매핑 ${gok}개 적용"$'\n'
+  [ "$gok" -gt 0 ] && deploy_lines+="🚀 Geyser 베드락 팩·매핑·확장 ${gok}개 적용"$'\n'
   if [ -n "$gbad" ]; then
     deploy_lines+="🔴 Geyser 스테이징 거부(적용 안 함)"$'\n'"$gbad"
     notify "$LABEL 🔴 Geyser 스테이징 거부 — 깨진 팩이 올라갈 뻔했습니다.

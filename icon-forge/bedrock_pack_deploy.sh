@@ -28,6 +28,10 @@ MAP="$OUT/barkan_mappings.json"
 #   barkan_blocks.json 둘 다 없음 → 베드락에서 채집물이 바닐라 밀·흰들국화로 폴백).
 BLOCKMAP="$OUT/barkan_blocks.json"      # → Geyser custom_mappings/
 BLOCKDATA="$OUT/bedrock-blocks.json"    # → plugins/BlockShip/ (자바가 읽어 blockstate 를 보낸다)
+# 회전형 선체 custom entity identifier를 Geyser 초기화 단계에서 등록하는 작은 extension.
+# Bukkit 플러그인보다 먼저 로드되어야 하므로 plugins/ 루트가 아니라 Geyser-Spigot/extensions/ 로 간다.
+PLUGIN="/Users/user/development/blockship-plugin"
+SHIP_EXTENSION="$PLUGIN/build/libs/BarkanShipGeyserExtension.jar"
 # 소리 팩 — bedrock_sound_pack_build.py 산출. 아이콘 팩과 «별도 팩» 이다(용량 때문에 분리).
 #   베드락은 커스텀 사운드 정의가 클라 팩에 있어야 소리가 난다 — 이게 없으면 BGM·효과음이
 #   전부 무음이다. 있으면 나르고, 없으면 조용히 건너뛴다(소리 팩은 선택 산출물).
@@ -50,19 +54,36 @@ if [ "$(unzip -l "$PACK" 2>/dev/null | grep -c "models/blocks/" || true)" = "0" 
 fi
 [[ -f "$BLOCKMAP" && -f "$BLOCKDATA" ]] || { echo "❌ 블록 산출물이 없습니다 — python3 bedrock_block_build.py"; exit 1; }
 
+# 배 선체는 가짜 블록이 아니라 custom entity다. builder를 마지막에 돌리지 않으면 팩에는
+# 아이콘·블록만 있고 배가 계속 투명해지므로 두 선체의 client_entity까지 강제 확인한다.
+for ship in ship_dotdanbae ship_viking_longship; do
+  if [ "$(unzip -l "$PACK" 2>/dev/null | grep -c "entity/${ship}.entity.json" || true)" = "0" ]; then
+    echo "❌ 팩에 회전형 선체 ${ship}가 없습니다."
+    echo "   순서: python3 bedrock_pack_build.py → python3 bedrock_block_build.py → python3 bedrock_ship_build.py"
+    exit 1
+  fi
+done
+[[ -f "$SHIP_EXTENSION" ]] || { echo "❌ Geyser 선체 extension이 없습니다 — cd $PLUGIN && ./gradlew geyserExtensionJar"; exit 1; }
+SHIP_EXTENSION_META=$(unzip -p "$SHIP_EXTENSION" extension.yml 2>/dev/null) \
+  || { echo "❌ extension.yml을 읽을 수 없습니다: $SHIP_EXTENSION"; exit 1; }
+printf '%s\n' "$SHIP_EXTENSION_META" | grep -Eq '^id:[[:space:]]*barkanships[[:space:]]*$' \
+  || { echo "❌ 잘못된 Geyser 선체 extension: $SHIP_EXTENSION"; exit 1; }
+
 case "$TARGET" in
   dev)
     DEST="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Geyser-Spigot/packs"
     MAPDEST="${DEST%/packs}/custom_mappings"
-    mkdir -p "$DEST" "$MAPDEST"
+    EXTDEST="${DEST%/packs}/extensions"
+    mkdir -p "$DEST" "$MAPDEST" "$EXTDEST"
     BSDEST="${DEST%/Geyser-Spigot/packs}/BlockShip"
     cp "$PACK" "$DEST/"
     [ -f "$SOUNDPACK" ] && cp "$SOUNDPACK" "$DEST/"
     cp "$MAP" "$MAPDEST/"
     cp "$BLOCKMAP" "$MAPDEST/"
+    cp "$SHIP_EXTENSION" "$EXTDEST/"
     mkdir -p "$BSDEST" && cp "$BLOCKDATA" "$BSDEST/"
     rm -f "$DEST/barkan_mappings.json"    # packs/ 의 사본은 혼동만 준다
-    ls -la "$DEST" "$MAPDEST" "$BSDEST/bedrock-blocks.json"
+    ls -la "$DEST" "$MAPDEST" "$EXTDEST" "$BSDEST/bedrock-blocks.json"
     echo "✅ dev 반영 — 적용하려면: ~/dev-mc.sh restart"
     ;;
   prod)
@@ -78,12 +99,14 @@ case "$TARGET" in
     scp -i "$KEY" "$MAP"      "$HOST:$STAGE/"
     # nightly-restart.sh 의 geyser 적용부는 *.mcpack → packs/, *.json → custom_mappings/ 로 나른다.
     scp -i "$KEY" "$BLOCKMAP" "$HOST:$STAGE/"
+    # nightly-restart.sh가 재시작 직전에 extensions/로 승격한다. 라이브에 직접 쓰지 않는다.
+    scp -i "$KEY" "$SHIP_EXTENSION" "$HOST:$STAGE/"
     # bedrock-blocks.json 은 Geyser 가 아니라 «우리 플러그인» 이 읽는다 → staging/BlockShip/.
     scp -i "$KEY" "$BLOCKDATA" "$HOST:$BSSTAGE/"
     ssh -i "$KEY" "$HOST" "ls -la $STAGE $BSSTAGE"
     SZ=$(stat -f%z "$PACK" 2>/dev/null || stat -c%s "$PACK")
     SS=0; [ -f "$SOUNDPACK" ] && SS=$(stat -f%z "$SOUNDPACK" 2>/dev/null || stat -c%s "$SOUNDPACK")
-    echo "✅ prod 스테이징 완료 (아이콘·블록 ${SZ} + 소리 ${SS} bytes) — 06:00 KST 정기 재시작에서 반영됩니다"
+    echo "✅ prod 스테이징 완료 (아이콘·블록·회전형 선체 ${SZ} + 소리 ${SS} bytes) — 06:00 KST 정기 재시작에서 반영됩니다"
     # ★「15MB 가 베드락 접속을 깬다」는 기록은 «단일 팩» 기준이었다. 2026-09-07 dev 실측:
     #   팩 3개 합계 17.86MB(아이콘·블록 7.43 + 소리 10.34 + Geyser 통합 0.09)로 접속 정상.
     #   그래도 «한 팩» 이 커지는 건 여전히 위험하니 개별 크기로 경고한다.
