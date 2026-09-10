@@ -63,6 +63,8 @@
     "갱도의주인",
     "숲을읽는자",
     "열도의명요리사",
+    "미식가",
+    "777",
     "풍년의증인",
     "심해의창",
     "한계를넘은자",
@@ -753,6 +755,31 @@
       "category": "생활",
       "source": "ach",
       "ach": "생활_요리500"
+    },
+    "미식가": {
+      "name": "&6미식가",
+      "color": "&6",
+      "desc": "&7바르칸의 요리 1,000접시를 맛본 사람",
+      "icon": "enchanted_golden_apple",
+      "tier": "전설",
+      "prestige": 280,
+      "category": "생활",
+      "source": "ach",
+      "ach": "생활_요리1000",
+      "animation": true,
+      "palette": "gourmet"
+    },
+    "777": {
+      "name": "&c&l777",
+      "color": "&c",
+      "desc": "&7슬롯머신에서 행운의 7 7 7을 맞춘 자",
+      "icon": "gold_ingot",
+      "tier": "유일",
+      "prestige": 450,
+      "category": "특수",
+      "source": "casino",
+      "animation": true,
+      "palette": "casino"
     },
     "풍년의증인": {
       "name": "&6풍요의 손",
