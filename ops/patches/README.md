@@ -192,7 +192,7 @@ prod에는 깔려 있는 걸 확인했다. 다만 **`plugin.yml` softdepend에 `
 해제를 **비켜 준다**(`Material.isInteractable()`). 안 그러면 꾸러미를 든 채로는 상자를 못 연다.
 웅크리면 = 블록을 놓겠다는 자세이므로 그때는 꾸러미를 푼다.
 
-### 새 보상 타입 4종 (`보상아이템`)
+### 새 보상 타입 5종 (`보상아이템`)
 
 | spec | 주는 것 |
 |---|---|
@@ -200,6 +200,7 @@ prod에는 깔려 있는 걸 확인했다. 다만 **`plugin.yml` softdepend에 `
 | `cropbundle:<작물id>[:<개>]` | 압축 꾸러미 1개 = 산출물 64개. 우클릭 해제(`CropManager.onBundleOpen`). **조합법은 일부러 없다** — 압축→해제 단방향이라 증식 경로가 안 생긴다 |
 | `fly:<분>[:<장수>]` | 비행 추가권 (`IslandFlyManager.makeTicket`) |
 | `autoplant:<횟수>[:<장수>]` | 자동심기 추가권 (`IslandAutoPlantManager.makeTicket`) |
+| `wettreasure` | 튜토리얼용 젖은 보물상자. PDC 개봉 표식과 보상 릴이 필요하므로 `WetTreasureChestManager`로만 생성하며, 현금 당첨은 500~1,500원으로 제한한다 |
 
 ### `동시진행: true` — 「한 번에 하나」 잠금 예외
 
