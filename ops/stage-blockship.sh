@@ -13,6 +13,14 @@
 #   게이트가 늘거나 바뀌어도 이 경로가 저절로 따라온다.
 set -euo pipefail
 
+# 코드 수정만 격리해야 할 때 JSON을 전혀 건드리지 않는 명시적 모드.
+JAR_ONLY=0
+case "${1:-}" in
+  "") ;;
+  --jar-only) JAR_ONLY=1 ;;
+  *) echo "사용법: $0 [--jar-only]" >&2; exit 2 ;;
+esac
+
 # ★심볼릭링크를 풀어야 한다 — ~/stage-blockship.sh 로 실행되면 BASH_SOURCE 가 홈을
 #   가리켜 REPO 가 /Users 가 된다(2026-08-31 실측: /Users/ops/deploy-blockship.sh not found).
 SELF="${BASH_SOURCE[0]}"
@@ -28,10 +36,14 @@ echo "▶ staging 디렉터리 확인"
 ssh -o BatchMode=yes -o ConnectTimeout=12 -i "$HOME/.ssh/oracle-mc.key" \
   ubuntu@168.107.8.107 "install -d -m 0755 '$STAGE_JAR' '$STAGE_DATA'"
 
-PROD_JAR_DEST="$STAGE_JAR" PROD_DATA_DEST="$STAGE_DATA" \
+STAGE_JAR_ONLY="$JAR_ONLY" PROD_JAR_DEST="$STAGE_JAR" PROD_DATA_DEST="$STAGE_DATA" \
   "$REPO/ops/deploy-blockship.sh" --no-restart
 
 echo ""
-echo "✅ 스테이징 완료 — 게이트 전부 통과한 jar/JSON 이 staging/ 에 있습니다."
+if [ "$JAR_ONLY" = 1 ]; then
+  echo "✅ JAR 전용 스테이징 완료 — JSON은 복사·업로드하지 않았습니다."
+else
+  echo "✅ 스테이징 완료 — 게이트 전부 통과한 jar/JSON 이 staging/ 에 있습니다."
+fi
 echo "   다음 06:00 KST 데일리 유지보수 때 자동 적용됩니다."
 echo "   즉시 적용하려면: ~/deploy-blockship.sh"

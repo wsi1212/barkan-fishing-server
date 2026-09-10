@@ -22,6 +22,18 @@ for arg in "$@"; do
   esac
 done
 
+# staging에서 코드만 격리해 올릴 때 사용한다. JSON 복사·업로드를 실제로 전부 생략할 때만
+# 데이터 사본 드리프트 감사를 생략하므로, 진행 중인 데이터 변경이 JAR 배포에 섞이지 않는다.
+JAR_ONLY="${STAGE_JAR_ONLY:-0}"
+if [ "$JAR_ONLY" != 0 ] && [ "$JAR_ONLY" != 1 ]; then
+  echo "❌ STAGE_JAR_ONLY는 0 또는 1이어야 합니다." >&2
+  exit 2
+fi
+if [ "$JAR_ONLY" = 1 ] && [ "$RESTART_PROD" != 0 ]; then
+  echo "❌ JAR 전용 모드는 staging(--no-restart)에서만 사용할 수 있습니다." >&2
+  exit 2
+fi
+
 if [ "$RESTART_PROD" = 1 ]; then
   echo "❌ prod 재시작 금지 정책: ~/stage-blockship.sh 로 staging에만 올리세요." >&2
   exit 2
@@ -95,7 +107,11 @@ python3 "$SCRIPTS_REPO/ops/audit-quest-goal-ids.py"
 # ★사본 드리프트 — 「같아야 하는 두 벌」이 갈라진 채 배포되면, 게이트가 검사한 파일과
 #   실제 올라가는 파일이 다른 물건이 된다(2026-08-31: 레포 fish.json 이 개명 전에 멈춰
 #   유령 ERROR 21건 + 진짜 버그 1건을 가렸다).
-python3 "$SCRIPTS_REPO/ops/audit-copies.py"
+if [ "$JAR_ONLY" = 1 ]; then
+  echo "▶ JAR 전용 staging — JSON 사본 감사 생략 (JSON 복사·업로드도 전부 생략)"
+else
+  python3 "$SCRIPTS_REPO/ops/audit-copies.py"
+fi
 
 # ★어종 도달성 — fish.json 서브리스트 이름은 자유롭게 적히지만 코드는 정해진 키만 읽는다.
 #   2026-09-02: 원양·대양의 «낮»/«밤» 서브리스트를 아무도 안 읽어 104종이 전 서버 어디서도
@@ -177,12 +193,16 @@ echo ""
 echo "▶ 로컬 마크 서버에도 배포 (dev)"
 cp "$LOCAL_JAR" "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/"
 echo "  ✓ 로컬 패더 plugins/ 에 복사됨"
-for f in "${DATA_FILES[@]}"; do
-  if [ -f "$LOCAL_DATA/$f" ]; then
-    cp "$LOCAL_DATA/$f" "$DEV_DATA/$f"
-  fi
-done
-echo "  ✓ dev BlockShip 데이터 미러 갱신"
+if [ "$JAR_ONLY" = 1 ]; then
+  echo "  - JAR 전용: dev JSON 데이터 미러는 건드리지 않음"
+else
+  for f in "${DATA_FILES[@]}"; do
+    if [ -f "$LOCAL_DATA/$f" ]; then
+      cp "$LOCAL_DATA/$f" "$DEV_DATA/$f"
+    fi
+  done
+  echo "  ✓ dev BlockShip 데이터 미러 갱신"
+fi
 # ★jar만 복사하고 dev를 안 재시작하면 dev도 lazy-load CNFE 지뢰가 된다(prod와 같은 원리).
 #   dev가 돌고 있으면 즉시 재시작해서 중간 상태를 남기지 않는다.
 if pgrep -f "paper-1\.21\..*\.jar" >/dev/null 2>&1; then
@@ -190,6 +210,17 @@ if pgrep -f "paper-1\.21\..*\.jar" >/dev/null 2>&1; then
   ~/dev-mc.sh restart || echo "  ⚠ dev 재시작 실패 — 수동으로 ~/dev-mc.sh restart 할 것"
 else
   echo "  · dev 미가동 → 다음 기동 때 적용됨"
+fi
+
+if [ "$JAR_ONLY" = 1 ]; then
+  echo ""
+  echo "▶ 오라클 staging에 JAR만 업로드"
+  echo "  목적지: $PROD_JAR_DEST"
+  scp -i "$SSH_KEY" -o StrictHostKeyChecking=no \
+    "$LOCAL_JAR" \
+    "$REMOTE_USER@$REMOTE_HOST:$PROD_JAR_DEST"
+  echo "⏸ prod 재시작 없음 — 다음 정기 재시작에서 staging JAR 적용"
+  exit 0
 fi
 
 echo ""
