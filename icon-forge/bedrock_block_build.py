@@ -18,8 +18,10 @@
       입력을 동시에 일으켜 깜빡인다.
 
 베이스 자바 블록
-    minecraft:tripwire — 상태 128개(7 boolean). 우리 월드에 실물이 있을 일이 없어야 한다.
-    ★실물이 있으면 그 자리가 베드락 유저에게 채집물로 보인다. 블록을 바꿀 땐 이 조건부터 볼 것.
+    chorus_plant(64상태) + sculk_vein(128상태). 조건 두 개를 «둘 다» 만족해야 한다 —
+    ①우리 월드에 실물이 사실상 없을 것 ②CraftEngine 이 안 쓰는 블록일 것.
+    ★tripwire 는 ②에 걸린다(CE 가 126상태 점유 — pebble·magma_plant·ender_pearl_flower).
+      검산은 assert_bases_free_of_craftengine() 이 매 빌드마다 한다.
 
 산출물
     out/bedrock/barkan_blocks.json   → Geyser custom_mappings/
@@ -55,14 +57,21 @@ STAGE = OUT / "pack"
 PER_BASE_CAP = 64
 
 # 베이스 후보 — 전부 boolean 프로퍼티만 가진 블록이어야 상태 문자열을 비트로 만들 수 있다.
-#   ★우리 월드에 «실물이 있을 일이 없어야» 한다. 실물이 있으면 그 자리가 베드락 유저에게
-#     채집물로 보인다. 블록을 바꿀 땐 이 조건부터 볼 것.
-#   · tripwire     — 7 bool. 함정선은 우리가 안 쓴다.
-#   · chorus_plant — 6 bool. 엔드에만 자연 생성된다(우리 콘텐츠는 엔드를 안 쓴다).
-#     ★glow_lichen·vine·sculk_vein 은 쓰지 말 것 — 동굴·정글·딥다크에 흔하다(광산이 있다).
+#   조건 두 개를 «둘 다» 만족해야 한다:
+#     ① 우리 월드에 실물이 사실상 없어야 한다. 실물이 있으면 그 자리가 베드락 유저에게
+#        우리 3D 모델(또는 폴백 양배추)로 보인다.
+#     ② ★CraftEngine 이 안 쓰는 블록이어야 한다. CE 는 «안 쓰이는 바닐라 상태를 훔쳐»
+#        자기 블록을 만든다(jar 안 resources/internal/configuration/mappings.yml).
+#        그 풀과 겹치면 CE 블록이 베드락에서 우리 모델로 둔갑한다.
+#   · chorus_plant — 6 bool. 엔드에만 자연 생성(우리 콘텐츠는 엔드를 안 쓴다). 실측 0청크.
+#   · sculk_vein   — 7 bool. 딥다크에만. 메인월드 표본 23,638청크 중 10청크(0.04%).
+#     ★glow_lichen(1,686청크)·vine(85청크) 은 쓰지 말 것 — 동굴·정글에 흔하다.
+#     ★★tripwire 는 절대 쓰지 말 것 — CE 가 126상태를 물고 있다. 2026-09-12 에 이걸로
+#       default:pebble(땅바닥 조약돌)·magma_plant·ender_pearl_flower 가 베드락에서
+#       양배추로 보였다(우리 64칸과 4상태 충돌). 유저 제보: 「돌 같은 가구들까지 양배추」.
 BASES = [
-    ("minecraft:tripwire", ["attached", "disarmed", "east", "north", "powered", "south", "west"]),
     ("minecraft:chorus_plant", ["down", "east", "north", "south", "up", "west"]),
+    ("minecraft:sculk_vein", ["down", "east", "north", "south", "up", "waterlogged", "west"]),
 ]
 BASE_BLOCK = BASES[0][0]     # 하위호환(옛 로그·문서용)
 PROPS = BASES[0][1]
@@ -130,9 +139,48 @@ def slot_of(i: int):
                      f" (현재 상한 {sum(min(PER_BASE_CAP, 1 << len(pr)) for _, pr in BASES)}종)")
 
 
+def assert_bases_free_of_craftengine() -> None:
+    """CE 가 훔쳐 쓰는 바닐라 블록을 베이스로 고르지 않았는지 검산한다.
+
+    CraftEngine 은 «안 쓰이는 바닐라 블록상태»에 자기 블록을 얹는다. 그 풀은 CE jar 안
+    resources/internal/configuration/mappings.yml 이 권위이고, 실제 배정은 라이브 캐시
+    plugins/CraftEngine/cache/visual_block_states.json 에 남는다. 둘 다 본다 —
+    mappings.yml 은 «앞으로 쓸 수 있는 풀», 캐시는 «지금 실제로 쓰는 것».
+    """
+    claimed: set[str] = set()
+    jar = SERVER / "plugins/CraftEngine.jar"
+    if jar.is_file():
+        import zipfile
+        with zipfile.ZipFile(jar) as z:
+            name = "resources/internal/configuration/mappings.yml"
+            if name in z.namelist():
+                for line in z.read(name).decode("utf-8", "replace").splitlines():
+                    t = line.strip()
+                    if t.startswith("#") or "[" not in t:
+                        continue
+                    head = t.split("[", 1)[0]
+                    if head and all(c.islower() or c == "_" for c in head):
+                        claimed.add("minecraft:" + head)
+    cache = SERVER / "plugins/CraftEngine/cache/visual_block_states.json"
+    if cache.is_file():
+        for v in json.loads(cache.read_text(encoding="utf-8")).values():
+            claimed.add(str(v).split("[", 1)[0])
+    if not claimed:
+        print("\u26a0 CraftEngine 배정표를 못 읽었다 — 베이스 충돌 검산을 건너뛴다")
+        return
+    bad = [b for b, _ in BASES if b in claimed]
+    if bad:
+        raise SystemExit(
+            "베이스 블록이 CraftEngine 과 겹친다: " + ", ".join(bad) +
+            "\n  \u2192 CE 블록이 베드락에서 우리 모델(또는 폴백 양배추)로 둔갑한다."
+            "\n  \u2192 BASES 를 CE 가 안 쓰는 블록으로 바꿀 것.")
+    print(f"\u2713 베이스 {len(BASES)}종 CraftEngine 충돌 없음 (CE 점유 {len(claimed)}종)")
+
+
 def main() -> int:
     if not STAGE.is_dir():
         raise SystemExit("팩 스테이지가 없다 — 먼저 bedrock_pack_build.py 를 돌릴 것")
+    assert_bases_free_of_craftengine()
 
     entries = []
     for kind, fname in CONFIGS:
