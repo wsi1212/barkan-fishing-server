@@ -204,6 +204,12 @@ def main() -> int:
             "material_instances": {"*": {"texture": first, "render_method": "alpha_test",
                                          "face_dimming": True, "ambient_occlusion": False}},
             "destructible_by_mining": DESTRUCT,
+            # ★베이스의 «모든» 상태로 퍼뮤테이션을 만들지 않는다. tripwire 는 상태가 128개인데
+            #   우리가 쓰는 건 64개뿐이고, 안 쓰는 64개까지 등록하면 퍼뮤테이션이 두 배가 된다.
+            #   그 상태에서 «일부 종만 기본 모양(양배추)으로 떨어지는» 증상이 났다
+            #   (2026-09-12 유저 제보: 야생베리 등 일부. 전부가 아니라 «일부» 인 것이 단서였다).
+            #   Geyser 의 only_override_states 로 쓰는 상태만 등록한다.
+            "only_override_states": True,
             "state_overrides": overrides,
         }
     OUT.mkdir(parents=True, exist_ok=True)
