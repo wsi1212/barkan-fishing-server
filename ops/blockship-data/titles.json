@@ -971,9 +971,9 @@
       "palette": "gold"
     },
     "균열감지자": {
-      "name": "&a균열 감지자",
+      "name": "&aBug Finder",
       "color": "&a",
-      "desc": "&7바르칸의 작은 균열을 놓치지 않고 찾아낸 관찰자",
+      "desc": "&7바르칸의 오류를 발견한 자",
       "icon": "spyglass",
       "tier": "희귀",
       "prestige": 180,
@@ -982,7 +982,7 @@
       "palette": "bugfinder"
     },
     "바르칸의구원자": {
-      "name": "&#a94f5c바르칸의 &#de8990구원자",
+      "name": "&#a94f5cBug Finder: &#de8990Critical",
       "color": "&#a94f5c",
       "desc": "&7바르칸의 멸망을 막은 자",
       "icon": "totem_of_undying",
