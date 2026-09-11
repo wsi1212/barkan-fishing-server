@@ -38,7 +38,12 @@ def strip_checkerboard(im: Image.Image) -> Image.Image:
         r, g, b = px[x, y]
         # 체크무늬는 거의 무채색이며, 장비의 밝은 금속/실은 어두운 외곽선에
         # 둘러싸여 있으므로 테두리 flood-fill에 들어오지 않는다.
-        return max(r, g, b) - min(r, g, b) <= 18 and min(r, g, b) >= 220
+        # ImageGen checkerboards are not consistently near-white. Some runs use
+        # alternating ~#d2d2d2/#fdfdfd tiles, so accepting only >=220 leaves the
+        # darker half baked into the icon. Flood-fill starts at the canvas edge,
+        # therefore this wider neutral-gray threshold does not erase enclosed
+        # silver highlights on the item itself.
+        return max(r, g, b) - min(r, g, b) <= 18 and min(r, g, b) >= 190
 
     seen = bytearray(w * h)
     queue: deque[tuple[int, int]] = deque()
@@ -74,7 +79,7 @@ def strip_checkerboard(im: Image.Image) -> Image.Image:
     return out
 
 
-def normalize(source: Path, target: Path, size: int) -> None:
+def normalize(source: Path, target: Path, size: int, pixel_grid: int | None = None) -> None:
     src = Image.open(source).convert("RGBA")
     if not has_real_alpha(src):
         # 가짜 체크무늬가 아닌 불투명 결과를 실수로 설치하지 않도록 강제한다.
@@ -89,7 +94,10 @@ def normalize(source: Path, target: Path, size: int) -> None:
     if bbox is None:
         raise SystemExit(f"배경 제거 후 내용이 없습니다: {source}")
     cropped = src.crop(bbox)
-    side = max(cropped.size)
+    # Exact-bbox crops touch the 16px slot edge after downscaling. Keep a small
+    # clear rim while letting narrow props retain enough width to read in-slot.
+    pad = max(1, round(max(cropped.size) * 0.05))
+    side = max(cropped.size) + pad * 2
     square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     square.alpha_composite(cropped, ((side - cropped.width) // 2, (side - cropped.height) // 2))
 
@@ -113,6 +121,21 @@ def normalize(source: Path, target: Path, size: int) -> None:
                 sp[x, y] = (min(255, round(rr * factor)), min(255, round(gg * factor)),
                             min(255, round(bb * factor)), aa)
     small = small.filter(ImageFilter.UnsharpMask(radius=1, percent=55, threshold=2))
+    if pixel_grid:
+        if pixel_grid > size or size % pixel_grid:
+            raise SystemExit("--pixel-grid는 --size의 약수여야 합니다")
+        grid = small.resize((pixel_grid, pixel_grid), Image.Resampling.LANCZOS)
+        alpha = grid.getchannel("A").point(lambda value: 255 if value >= 128 else 0)
+        rgb = grid.convert("RGB")
+        pixels = rgb.load()
+        for y in range(pixel_grid):
+            for x in range(pixel_grid):
+                red, green, blue = pixels[x, y]
+                if red < 8 and green < 8 and blue < 8:
+                    pixels[x, y] = (12, 18, 27)
+        rgb = rgb.quantize(colors=14, method=Image.Quantize.MEDIANCUT).convert("RGB")
+        grid = Image.merge("RGBA", (*rgb.split(), alpha))
+        small = grid.resize((size, size), Image.Resampling.NEAREST)
     target.parent.mkdir(parents=True, exist_ok=True)
     small.save(target)
     if small.getchannel("A").getbbox() is None or target.stat().st_size <= 100:
@@ -125,9 +148,11 @@ def main() -> None:
     ap.add_argument("source", type=Path)
     ap.add_argument("icon_id")
     ap.add_argument("--size", type=int, required=True)
+    ap.add_argument("--pixel-grid", type=int,
+                    help="논리 픽셀 격자로 축소·14색 양자화한 뒤 nearest로 확대")
     args = ap.parse_args()
     target = RP / "assets/minecraft/textures/item/barkan_icon" / f"{args.icon_id}.png"
-    normalize(args.source.expanduser(), target, args.size)
+    normalize(args.source.expanduser(), target, args.size, args.pixel_grid)
 
 
 if __name__ == "__main__":

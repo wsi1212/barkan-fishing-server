@@ -1396,10 +1396,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "용비늘",
-          "displayName": "용 비늘",
-          "mcItem": "phantom_membrane",
-          "qty": 32
+          "typeOrMatId": "이무기역린",
+          "displayName": "이무기의 역린",
+          "mcItem": "dragon_breath",
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -1543,10 +1543,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "용비늘",
-          "displayName": "용 비늘",
-          "mcItem": "phantom_membrane",
-          "qty": 28
+          "typeOrMatId": "이무기역린",
+          "displayName": "이무기의 역린",
+          "mcItem": "dragon_breath",
+          "qty": 1
         },
         {
           "kind": "custom",

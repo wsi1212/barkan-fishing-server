@@ -64,5 +64,6 @@
   {"id":"강화사탕수수","slug":"compressed_sugar_cane","subject":"a compact compressed sugar cane agricultural bundle, pale green segmented stalks pressed into one dense bundle with tan twine"},
   {"id":"강화코코아","slug":"compressed_cocoa","subject":"a compact compressed cocoa agricultural bundle, glossy dark cocoa beans and one split cocoa pod pressed into a dense cluster"},
   {"id":"저울추","slug":"merchant_balance_weight","subject":"one solid brass merchant balance weight, a squat calibration weight with a top knob and engraved concentric rings"},
-  {"id":"압축자수정","slug":"compressed_amethyst","subject":"a dense compressed amethyst crystal block, compact violet mineral briquette with pressed crystal layers, lilac inner seam and dark stone base"}
+  {"id":"압축자수정","slug":"compressed_amethyst","subject":"a dense compressed amethyst crystal block, compact violet mineral briquette with pressed crystal layers, lilac inner seam and dark stone base"},
+  {"id":"이무기역린","slug":"imugi_reverse_scale","subject":"one asymmetrical reverse dragon scale with a jagged crown and hooked point, obsidian-indigo enamel, cyan rim, magenta lightning fissure"}
 ]
