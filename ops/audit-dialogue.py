@@ -33,7 +33,7 @@ FALLBACK_ACTIONS = {"기본낚싯대", "닫기", "대기열", "대화", "슬롯�
                     "여관설정", "퀘스트목록", "포기", "항해"}
 
 # NPC 없이 코드가 직접 부여하는 퀘스트 — QuestManager.FORCE_GRANTED 와 같아야 한다.
-FORCE_GRANTED = {"튜토_선원", "튜토_길드"}
+FORCE_GRANTED = {"튜토_선원"}
 # npc.json 에 대응 NPC가 없어도 정상인 대사 키(가상 화자).
 VIRTUAL_DIALOGUE = {"인트로"}
 # npc.json 의 역할 플래그 — 하나라도 켜져 있으면 «기능형»(닉네임 하늘색 &b)
