@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "rarityForgeCosts": [200, 300, 500, 800, 1200],
+  "rarityDisassembleYields": [100, 100, 200, 300, 400],
+  "forgeToDisassembleMultiplier": 2.0,
+  "forageDisassembleYields": {
+    "common": 10,
+    "rare": 30
+  },
+  "materials": {
+    "미끼": { "grindBundle": 1, "grindYield": 10 },
+    "나뭇가지": { "grindBundle": 1, "grindYield": 10 },
+    "깨진 토기 조각": { "grindBundle": 1, "grindYield": 20 },
+
+    "흑정석": { "grindBundle": 1, "grindYield": 1 },
+    "철광석": { "grindBundle": 1, "grindYield": 1 },
+    "자수정": { "grindBundle": 4, "grindYield": 5 },
+    "압축흑정석": { "grindBundle": 1, "grindYield": 10 },
+    "압축철광석": { "grindBundle": 1, "grindYield": 10 },
+
+    "강화석탄": { "grindBundle": 1, "grindYield": 1 },
+    "강화구리괴": { "grindBundle": 1, "grindYield": 1 },
+    "강화청금석": { "grindBundle": 1, "grindYield": 1 },
+    "강화철괴": { "grindBundle": 1, "grindYield": 1 },
+    "강화금괴": { "grindBundle": 4, "grindYield": 5 },
+    "강화흑요석": { "grindBundle": 4, "grindYield": 5 },
+    "강화다이아몬드": { "grindBundle": 1, "grindYield": 2 },
+    "강화에메랄드": { "grindBundle": 1, "grindYield": 2 },
+    "강화네더라이트파편": { "grindBundle": 1, "grindYield": 12 },
+
+    "강화밀": { "grindBundle": 1, "grindYield": 1 },
+    "강화당근": { "grindBundle": 1, "grindYield": 1 },
+    "강화감자": { "grindBundle": 1, "grindYield": 1 },
+    "강화비트루트": { "grindBundle": 1, "grindYield": 1 },
+    "강화멜론": { "grindBundle": 1, "grindYield": 1 },
+    "강화스위트베리": { "grindBundle": 1, "grindYield": 1 },
+    "강화호박": { "grindBundle": 1, "grindYield": 1 },
+    "강화사탕수수": { "grindBundle": 1, "grindYield": 1 },
+    "강화코코아": { "grindBundle": 1, "grindYield": 1 },
+
+    "압축석탄블록": { "grindBundle": 1, "grindYield": 33 },
+    "압축철블록": { "grindBundle": 1, "grindYield": 33 },
+    "압축금블록": { "grindBundle": 1, "grindYield": 33 },
+    "압축다이아블록": { "grindBundle": 1, "grindYield": 50 },
+    "압축에메랄드블록": { "grindBundle": 1, "grindYield": 50 },
+    "황금건초더미": { "grindBundle": 1, "grindYield": 33 },
+    "황금당근": { "grindBundle": 1, "grindYield": 33 },
+    "네더라이트주괴": { "grindBundle": 1, "grindYield": 50 },
+
+    "정제된갈고리": { "grindBundle": 1, "grindYield": 600 },
+    "단단한자루": { "grindBundle": 1, "grindYield": 1000 },
+    "강철심": { "grindBundle": 1, "grindYield": 600 },
+    "행운의매듭": { "grindBundle": 1, "grindYield": 600 },
+    "진주코어": { "grindBundle": 1, "grindYield": 900 },
+    "정글그립": { "grindBundle": 1, "grindYield": 800 },
+    "고대부적": { "grindBundle": 1, "grindYield": 800 },
+    "용암코어": { "grindBundle": 1, "grindYield": 800 },
+    "심해코어": { "grindBundle": 1, "grindYield": 1200 },
+    "바르칸핵": { "grindBundle": 1, "grindYield": 1800 },
+
+    "용비늘": {
+      "grindBundle": 1,
+      "grindYield": 4000,
+      "forgeCost": 8000,
+      "forgeable": true,
+      "grindable": true
+    },
+    "무명의낱장": { "forgeable": false, "grindable": false },
+    "심해전왕의핵": { "forgeable": false, "grindable": false },
+    "이무기역린": { "forgeable": false, "grindable": false }
+  }
+}

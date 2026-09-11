@@ -82,7 +82,7 @@ ALLOW = [
 ]
 
 CHECK_LIST_OK = ['npc.json', 'dialogue.json', 'titles.json', 'parts.json', 'enhance.json',
-                 'recipes.json', 'materials.json', 'quests.json', 'item-flavor.json']
+                 'recipes.json', 'materials.json', 'fragment-economy.json', 'quests.json', 'item-flavor.json']
 CHECK_LIST_BAD = ['npc.json', 'regions.json', 'islands.json']
 
 

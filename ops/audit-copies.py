@@ -132,6 +132,7 @@ if len(lists) > 1:
 #   새로 깐 서버만 옛 가격표로 도는 «조용한 두 물건»이 된다. 라이브를 권위로 같이 묶는다.
 SEED_RESOURCE = {
     "cashshop.json": (PLUGIN / "src/main/resources/cashshop.json",),
+    "fragment-economy.json": (PLUGIN / "src/main/resources/fragment-economy.json",),
 }
 
 print("\n2) git 미러 두 벌(ops/blockship-data · blockship-plugin)이 라이브와 같은가")
