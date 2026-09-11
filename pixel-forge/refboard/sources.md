@@ -3,3 +3,4 @@
 - paidpacks/food-pack_*.png — MCModels "Food Pack" 상품 이미지 https://mcmodels.net/products/10546/food-pack
 - mcstyle/fresh-food_*.png — Modrinth Fresh Food 갤러리 (ARR, 참조) https://modrinth.com/resourcepack/fresh-food
 - mcstyle/actually-3d-plants_*.png — Modrinth Actually 3D (CC-BY, Chomik_Oto) https://modrinth.com/resourcepack/actually-3d-plants
+- scarecrow/scarecrows-plus.webp — Modrinth Scarecrows+ 갤러리(단순한 황금 밀짚 머리·T자 실루엣 참고) https://modrinth.com/resourcepack/scarecrows+

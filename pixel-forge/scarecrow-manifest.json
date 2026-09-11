@@ -1,0 +1,15 @@
+{
+  "id": "scarecrow",
+  "item_id": "barkan:scarecrow",
+  "name": "허수아비",
+  "painter": "farm_scarecrow",
+  "seed": 1212,
+  "model": "barkan:item/furniture/farm/scarecrow",
+  "texture": "barkan:furniture/farm/scarecrow",
+  "icon_model": "barkan:item/furniture/farm/icon/scarecrow",
+  "icon_texture": "barkan:furniture/farm/icon/scarecrow",
+  "world_scale": 1.0,
+  "world_translation_y": 0.5,
+  "icon_yaw": 30,
+  "icon_pitch": 20
+}
