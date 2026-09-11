@@ -1534,7 +1534,8 @@
       "quests": [
         "왕도08",
         "왕도09c",
-        "왕도09d"
+        "왕도09d",
+        "왕도14b"
       ],
       "shopItems": []
     },
@@ -1594,9 +1595,9 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
+        "왕도11",
         "왕도11b",
-        "왕도11c",
-        "왕도11"
+        "왕도11c"
       ],
       "shopItems": []
     },
@@ -1625,9 +1626,9 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
+        "왕도12",
         "왕도12b",
         "왕도12c",
-        "왕도12",
         "왕도13",
         "왕도13b",
         "심해18"
@@ -1660,7 +1661,6 @@
       "ranking": false,
       "quests": [
         "왕도14",
-        "왕도14b",
         "심해17"
       ],
       "shopItems": []
@@ -1756,10 +1756,10 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
+        "배상단03b",
         "배상단04",
         "심해10",
-        "심해10b",
-        "배상단03b"
+        "심해10b"
       ],
       "shopItems": []
     },
