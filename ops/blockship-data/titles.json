@@ -84,6 +84,8 @@
     "프리미엄불꽃",
     "서포터",
     "건축가",
+    "균열감지자",
+    "바르칸의구원자",
     "알파테스터",
     "베타테스터",
     "GM",
@@ -967,6 +969,30 @@
       "source": "admin",
       "animation": true,
       "palette": "gold"
+    },
+    "균열감지자": {
+      "name": "&a균열 감지자",
+      "color": "&a",
+      "desc": "&7바르칸의 작은 균열을 놓치지 않고 찾아낸 관찰자",
+      "icon": "spyglass",
+      "tier": "희귀",
+      "prestige": 180,
+      "category": "특수",
+      "source": "admin",
+      "animation": true,
+      "palette": "bugfinder"
+    },
+    "바르칸의구원자": {
+      "name": "&4바르칸의 &6구원자",
+      "color": "&4",
+      "desc": "&7바르칸의 멸망을 막은 자",
+      "icon": "totem_of_undying",
+      "tier": "유일",
+      "prestige": 1500,
+      "category": "특수",
+      "source": "admin",
+      "animation": true,
+      "palette": "savior"
     },
     "알파테스터": {
       "name": "&bα 알파 테스터",
