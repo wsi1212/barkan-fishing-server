@@ -109,6 +109,29 @@ clean lines, no detail on scales, sticker-like flat art, no text
 2. 배포는 한 줄: `~/deploy-rp.sh` (ZIP 생성 → GitHub Release 업로드(`--clobber`) → SHA1 계산 → server.properties 갱신까지 전부 자동)
 3. 서버 재시작 (접속자에게 자동 적용)
 
+## 길드 엠블럼 오버레이 팩
+
+`/길드` GUI의 엠블럼은 바닐라 `FILLED_MAP` 인벤토리 아이콘으로는 지도 내용이 보이지 않아,
+메인 리소스팩과 분리된 동적 오버레이 팩을 사용한다.
+
+- 권위 원본: `guilds.json`의 128×128 `emblemCanvasRgbFull`
+- Java: 접속 시 선택형 overlay ZIP을 기존 필수 메인팩 위에 추가
+- Bedrock: 같은 빌드가 Geyser `.mcpack`과 custom mapping을 함께 생성
+- 등록 시점: 운영 파일을 즉시 바꾸지 않고 `~/mcserver/staging/guild-icons/`,
+  `~/mcserver/staging/geyser/`에만 생성
+- 적용 시점: 매일 06:00 정기 재시작의 `nightly-restart.sh`가 승격
+- 안전 폴백: 현재 그림 해시가 활성 manifest와 다르거나 Java 클라이언트가 overlay를
+  못 불러오면 기존 `FILLED_MAP`으로 표시한다. 누락 텍스처는 노출하지 않는다.
+
+최초/수동 staging 빌드는 BlockShip 저장소에서 다음처럼 실행한다. 이 명령은 입력
+`guilds.json`을 읽기만 하며 플레이어/길드 데이터를 수정하지 않는다.
+
+```bash
+./gradlew guildIconPackBuild \
+  -PguildsJson=/path/to/guilds.json \
+  -PserverRoot=/path/to/server-root
+```
+
 수동으로 해야 할 때만:
 ```bash
 cd ~/development/barkan-resourcepack && zip -r /tmp/barkan-resourcepack.zip . -x ".*"

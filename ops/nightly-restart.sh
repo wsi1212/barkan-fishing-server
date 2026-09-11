@@ -195,6 +195,19 @@ $rejlist"
   if [ "$DRYRUN" = "0" ]; then rm -rf "$STAGING/BlockShip"; log "배포 설정 적용 ${ok}개 / 거부 ${rej}개"
   else log "DRY: would deploy $ok, reject $rej"; fi
 fi
+# --- ①-1 길드 엠블럼 Java overlay 스테이징 ---
+# 유저가 /길드 엠블럼 등록을 해도 낮에 팩을 다시 받게 하지 않는다. BlockShip이 만든
+# 콘텐츠 주소형 ZIP+manifest를 여기서 공개/활성화하고, 아래 Geyser 절이 같은 빌드의
+# mcpack/mapping을 이어서 적용한다. 둘 다 서버가 내려가기 전 파일만 준비하고 새 부팅이 읽는다.
+GUILD_ICON_STAGE="$DIR/apply-guild-icons-staging.sh"
+if [ -x "$GUILD_ICON_STAGE" ]; then
+  if giline=$(DRY=$DRYRUN "$GUILD_ICON_STAGE" 2>&1); then
+    [ -n "$giline" ] && deploy_lines+="$giline"$'\n'
+  else
+    girc=$?
+    [ "$girc" = "3" ] || deploy_lines+="🔴 길드 아이콘 스테이징 실패(rc=$girc): $giline"$'\n'
+  fi
+fi
 # --- ①-3 Geyser 베드락 팩·매핑·확장 스테이징 (재시작 «직전» 적용) ---
 # ★라이브 폴더에 직접 넣으면 안 된다. Geyser 는 부팅 때 읽은 uuid·버전·해시·크기를
 #   클라에 알려주고 바이트는 그때그때 디스크에서 흘려보낸다 → 가동 중에 파일을 갈면
