@@ -193,6 +193,15 @@
         "tag": "buff:길드부스터"
       },
       {
+        "id": "허수아비",
+        "name": "허수아비",
+        "coin": 5,
+        "cash": 2500,
+        "icon": "CARVED_PUMPKIN",
+        "lore": "§7주변 16×16×16의 바닐라 작물을 오프라인에도 성장시킵니다.",
+        "tag": "ce:barkan:scarecrow"
+      },
+      {
         "id": "스폰스크롤",
         "name": "바르칸 항구 스크롤",
         "coin": 1,
