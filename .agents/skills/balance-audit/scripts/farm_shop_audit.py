@@ -67,6 +67,7 @@ MODELS = (
     CropModel("sugar_cane", "사탕수수", 900, {"SUGAR_CANE": 2.0}, {"SUGAR_CANE": 1.0}, role_mult=0.90),
     CropModel("bamboo", "대나무", 300, {"BAMBOO": 3.0}, {"BAMBOO": 1.0}, role_mult=0.80),
     CropModel("cocoa", "코코아", 900, {"COCOA_BEANS": 2.5}, {"COCOA_BEANS": 1.0}),
+    CropModel("sweet_berries", "스위트베리", 900, {"SWEET_BERRIES": 2.5}, {"SWEET_BERRIES": 1.0}),
 )
 
 

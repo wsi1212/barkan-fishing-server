@@ -48,7 +48,7 @@ Lv1→5 개인 810,000원(+28칸)/길드 4,050,000원(정확히 ×5, AGENTS.md �
 
 섬상점의 `농사` 탭은 특수작물의 `mat:작물_X` 마커를 직접 사거나 팔지 않는다. 따라서 아래는
 `WHEAT`, `CARROT`, `POTATO`, `BEETROOT`, `MELON_SLICE`, `PUMPKIN`, `SUGAR_CANE`,
-`BAMBOO`, `COCOA_BEANS`처럼 바닐라 수확물이 실제로 상점에 들어오는 별도 경로다.
+`BAMBOO`, `COCOA_BEANS`, `SWEET_BERRIES`처럼 바닐라 수확물이 실제로 상점에 들어오는 별도 경로다.
 
 ### 계산 공식
 
