@@ -105,3 +105,22 @@ Geyser 팩·custom mapping·extension은 가동 중 파일을 덮지 않는다. 
 옮겨야 한다. main Paper 재시작과 Velocity/Geyser 재시작은 서로 다른 작업이다. 평상시
 main-only 재시작은 Java와 Bedrock 모두 연결을 유지하지만 Velocity 자체를 재시작하면
 연결이 끊긴다.
+
+## 기존 macOS dev에서 실제 이동 테스트
+
+`prepare-dev-layout.sh`는 비활성 파일만 준비하고, `activate-dev.sh`가 기존 dev 설정을
+백업한 뒤 Paper를 25567 backend로 전환한다. 이후 Java는 기존처럼 `localhost:25565`,
+Bedrock은 UDP 19132로 접속한다.
+
+접속 후 아래 명령을 사용할 수 있다. 이 명령은
+`BARKAN_MAINTENANCE_TEST_COMMANDS=true`인 dev Velocity에서만 등록된다.
+
+```text
+/점검테스트 진입
+/점검테스트 복귀
+/점검테스트 상태
+/점검테스트 재시작
+```
+
+`재시작`은 supervisor가 main 유저 0명 ACK를 확인하고 기존 `~/dev-mc.sh`로 Paper만
+재시작한 뒤 자동 복귀시킨다. Velocity와 waiting은 계속 살아 있다.

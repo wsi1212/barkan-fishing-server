@@ -11,6 +11,8 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.command.CommandMeta;
+import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
@@ -27,6 +29,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +69,7 @@ public final class BarkanMaintenanceProxy {
     private final Path shipMarkerDirectory;
     private final String mainName;
     private final String waitingName;
+    private final boolean testCommandsEnabled;
     private final Map<UUID, Long> nextConnectAttempt = new ConcurrentHashMap<>();
     private final AtomicBoolean pingInFlight = new AtomicBoolean();
 
@@ -90,6 +94,8 @@ public final class BarkanMaintenanceProxy {
                 dataDirectory.resolve("ship-entities"));
         this.mainName = environmentText("BARKAN_MAIN_SERVER", "main");
         this.waitingName = environmentText("BARKAN_WAITING_SERVER", "waiting");
+        this.testCommandsEnabled = Boolean.parseBoolean(
+                environmentText("BARKAN_MAINTENANCE_TEST_COMMANDS", "false"));
     }
 
     @Subscribe
@@ -107,6 +113,8 @@ public final class BarkanMaintenanceProxy {
                 .repeat(Duration.ofMillis(500))
                 .schedule();
 
+        if (testCommandsEnabled) registerTestCommand();
+
         try {
             geyserShipBridge = ProxyGeyserShipBridge.install(this, logger, shipMarkerDirectory);
         } catch (NoClassDefFoundError | ExceptionInInitializerError unavailable) {
@@ -117,6 +125,73 @@ public final class BarkanMaintenanceProxy {
 
         logger.info("Barkan maintenance routing ready: {} -> {}, control={}",
                 mainName, waitingName, controlDirectory);
+    }
+
+    private void registerTestCommand() {
+        CommandMeta meta = proxy.getCommandManager().metaBuilder("점검테스트")
+                .aliases("mainttest")
+                .plugin(this)
+                .build();
+        proxy.getCommandManager().register(meta, new SimpleCommand() {
+            private final List<String> choices = List.of("진입", "복귀", "재시작", "상태");
+
+            @Override
+            public void execute(Invocation invocation) {
+                String[] arguments = invocation.arguments();
+                if (arguments.length != 1) {
+                    invocation.source().sendMessage(Component.text(
+                            "사용법: /점검테스트 <진입|복귀|재시작|상태>", NamedTextColor.YELLOW));
+                    return;
+                }
+                try {
+                    switch (arguments[0].toLowerCase(Locale.ROOT)) {
+                        case "진입", "drain" -> {
+                            atomicWrite(requestFile, "drain\n");
+                            invocation.source().sendMessage(Component.text(
+                                    "공허 대기실 진입을 요청했습니다.", NamedTextColor.AQUA));
+                        }
+                        case "복귀", "resume" -> {
+                            atomicWrite(requestFile, "resume\n");
+                            invocation.source().sendMessage(Component.text(
+                                    "본 서버 복귀를 요청했습니다.", NamedTextColor.GREEN));
+                        }
+                        case "재시작", "restart" -> {
+                            atomicWrite(requestFile, "drain\n");
+                            atomicWrite(controlDirectory.resolve("dev-action"), "restart\n");
+                            invocation.source().sendMessage(Component.text(
+                                    "대기실 이동 후 dev Paper를 재시작합니다. 접속을 유지하세요.",
+                                    NamedTextColor.GOLD));
+                        }
+                        case "상태", "status" -> {
+                            String status = Files.exists(statusFile)
+                                    ? Files.readString(statusFile, StandardCharsets.UTF_8).trim()
+                                    : "아직 상태 없음";
+                            invocation.source().sendMessage(Component.text(status, NamedTextColor.GRAY));
+                        }
+                        default -> invocation.source().sendMessage(Component.text(
+                                "사용법: /점검테스트 <진입|복귀|재시작|상태>", NamedTextColor.YELLOW));
+                    }
+                } catch (IOException failure) {
+                    logger.warn("Could not handle dev maintenance test command", failure);
+                    invocation.source().sendMessage(Component.text(
+                            "점검 제어 파일을 쓰지 못했습니다.", NamedTextColor.RED));
+                }
+            }
+
+            @Override
+            public List<String> suggest(Invocation invocation) {
+                String[] arguments = invocation.arguments();
+                if (arguments.length > 1) return List.of();
+                String prefix = arguments.length == 0 ? "" : arguments[0].toLowerCase(Locale.ROOT);
+                return choices.stream().filter(choice -> choice.startsWith(prefix)).toList();
+            }
+
+            @Override
+            public boolean hasPermission(Invocation invocation) {
+                return testCommandsEnabled;
+            }
+        });
+        logger.warn("DEV-ONLY maintenance test commands enabled: /점검테스트, /mainttest");
     }
 
     @Subscribe

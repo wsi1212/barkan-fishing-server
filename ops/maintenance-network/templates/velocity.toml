@@ -1,5 +1,5 @@
 # Velocity 4.1.x — public Java entry point. The forwarding secret is generated separately.
-config-version = "2.9"
+config-version = "2.8"
 bind = "0.0.0.0:25565"
 motd = "<#43d5ff>바르칸 열도 <gray>· <white>낚시와 모험"
 show-max-players = 100
@@ -12,13 +12,7 @@ announce-forge = false
 kick-existing-players = false
 sample-players-in-ping = false
 enable-player-address-logging = true
-
-[ping-passthrough]
-version = true
-players = true
-description = true
-favicon = true
-modinfo = false
+ping-passthrough = "ALL"
 
 [packet-limiter]
 interval = 7
