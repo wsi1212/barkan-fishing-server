@@ -97,6 +97,7 @@ fi
 install -m 0644 "$SCRIPT_DIR/templates/barkan-velocity.service" "$NETWORK_ROOT/systemd/barkan-velocity.service"
 install -m 0644 "$SCRIPT_DIR/templates/barkan-waiting.service" "$NETWORK_ROOT/systemd/barkan-waiting.service"
 install -m 0644 "$SCRIPT_DIR/templates/mcserver-velocity-backend.conf" "$NETWORK_ROOT/systemd/mcserver-velocity-backend.conf"
+install -m 0644 "$SCRIPT_DIR/templates/needrestart-barkan.conf" "$NETWORK_ROOT/systemd/needrestart-barkan.conf"
 install -m 0755 "$SCRIPT_DIR/control.sh" "$NETWORK_ROOT/bin/control.sh"
 install -m 0755 "$SCRIPT_DIR/configure-backend.py" "$NETWORK_ROOT/bin/configure-backend.py"
 install -m 0755 "$SCRIPT_DIR/preflight-prod.sh" "$NETWORK_ROOT/bin/preflight-prod.sh"

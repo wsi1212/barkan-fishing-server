@@ -58,6 +58,10 @@ BlockShip 본체도 함께 빌드해야 한다. `BedrockShipMarkerStore`가 syst
 9. `nightly-restart.sh`, `restart-warning.sh`, 새 BlockShip jar를 staging에 둔다.
 10. `preflight-prod.sh` 통과 후에만 한 번의 계획된 cutover를 수행한다.
 
+`install-systemd.sh`는 `/etc/needrestart/conf.d/barkan-minecraft.conf`도 설치한다. Ubuntu
+무인 패키지 업데이트가 임의 시각에 main·Velocity·waiting을 재시작하면 대기실 구조
+자체가 함께 끊기므로, 세 서비스의 재시작은 명시적인 유지보수 경로에만 맡긴다.
+
 `prepare-prod-layout.sh` 뒤에는 서비스에 손대지 않는 systemd 정의 설치까지만 미리 할 수
 있다. 이 명령은 unit을 시작하거나 enable하지 않는다.
 

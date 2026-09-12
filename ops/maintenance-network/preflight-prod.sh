@@ -17,6 +17,7 @@ check "waiting Paper" "test -s '$NETWORK_ROOT/waiting/paper.jar'"
 check "waiting plugin" "test -s '$NETWORK_ROOT/waiting/plugins/BarkanWaitingRoom.jar'"
 check "waiting EULA" "grep -qx 'eula=true' '$NETWORK_ROOT/waiting/eula.txt'"
 check "main ship marker environment" "systemctl show mcserver -p Environment --value | grep -q 'BLOCKSHIP_SHIP_MARKER_DIR=/home/ubuntu/mc-network/shared/ship-entities'"
+check "package upgrades cannot restart MC network" "test -s /etc/needrestart/conf.d/barkan-minecraft.conf && grep -q 'barkan-velocity' /etc/needrestart/conf.d/barkan-minecraft.conf"
 check "disk headroom >= 3 GiB" "test \$(df -Pk / | awk 'NR==2{print \$4}') -ge 3145728"
 
 echo "현재 포트:"

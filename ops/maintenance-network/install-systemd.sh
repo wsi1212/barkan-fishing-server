@@ -10,7 +10,8 @@ DROPIN_DIR=/etc/systemd/system/mcserver.service.d
 for required in \
   "$UNIT_SOURCE/barkan-velocity.service" \
   "$UNIT_SOURCE/barkan-waiting.service" \
-  "$UNIT_SOURCE/mcserver-velocity-backend.conf"; do
+  "$UNIT_SOURCE/mcserver-velocity-backend.conf" \
+  "$UNIT_SOURCE/needrestart-barkan.conf"; do
   [ -s "$required" ] || { echo "필수 unit 파일 없음: $required" >&2; exit 2; }
 done
 
@@ -21,7 +22,9 @@ sudo -n install -m 0644 "$UNIT_SOURCE/barkan-waiting.service" \
 sudo -n install -d -m 0755 "$DROPIN_DIR"
 sudo -n install -m 0644 "$UNIT_SOURCE/mcserver-velocity-backend.conf" \
   "$DROPIN_DIR/velocity-backend.conf"
+sudo -n install -d -m 0755 /etc/needrestart/conf.d
+sudo -n install -m 0644 "$UNIT_SOURCE/needrestart-barkan.conf" \
+  /etc/needrestart/conf.d/barkan-minecraft.conf
 sudo -n systemctl daemon-reload
 
 echo "systemd 정의 설치 완료 (서비스 시작·enable·main 재시작 없음)"
-
