@@ -38,6 +38,7 @@ JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
 MAINT_NETWORK_ROOT=${MAINT_NETWORK_ROOT:-$HOME/mc-network}
 MAINT_CONTROL_DIR=${MAINT_CONTROL_DIR:-$MAINT_NETWORK_ROOT/control}
 MAINT_ENABLED_FILE=${MAINT_ENABLED_FILE:-$MAINT_NETWORK_ROOT/enabled}
+MAINT_CUTOVER_FILE=${MAINT_CUTOVER_FILE:-$MAINT_NETWORK_ROOT/cutover-once}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
 IMMEDIATE=${NOW:-0}
 case "${1:-}" in --now|now) IMMEDIATE=1 ;; esac
@@ -485,9 +486,30 @@ else
   else
     log "playerdata 백업 창 종료 (${_bsec}초)"
   fi
-  _started=1; trap - EXIT INT TERM
-  eval "$START_CMD"
-  log "started"
+  if [ -f "$MAINT_CUTOVER_FILE" ]; then
+    log "Velocity 대기실 네트워크 최초 전환 시작"
+    if BARKAN_PROXY_CUTOVER_CONFIRM=BARKAN_PROXY_25565 \
+        BARKAN_CUTOVER_LEAVE_DRAINED=1 \
+        "$MAINT_NETWORK_ROOT/bin/cutover-prod.sh"; then
+      rm -f "$MAINT_CUTOVER_FILE"
+      MAINT_ACTIVE=1
+      _started=1; trap - EXIT INT TERM
+      log "Velocity 대기실 네트워크 최초 전환 완료 — final health까지 drain 유지"
+    else
+      cutover_rc=$?
+      failed_marker="$MAINT_CUTOVER_FILE.failed-$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)"
+      mv -f "$MAINT_CUTOVER_FILE" "$failed_marker" 2>/dev/null || true
+      if systemctl is-active --quiet mcserver; then _started=1; else _ensure_start; fi
+      trap - EXIT INT TERM
+      log "Velocity 대기실 네트워크 최초 전환 실패(rc=$cutover_rc) — 자동 재시도 차단"
+      notify "$LABEL 🔴 프록시 대기실 최초 전환이 실패해 기존 구성으로 롤백했습니다. 자동 재시도는 하지 않습니다. 로그: \`tail -100 ~/mcserver/backups/ops.log\`"
+      exit "$cutover_rc"
+    fi
+  else
+    _started=1; trap - EXIT INT TERM
+    eval "$START_CMD"
+    log "started"
+  fi
 fi
 
 # --- BetterHud 후반부: 팩 재생성 → 공개배치 → CE sha1 → 마무리 재시작 ---

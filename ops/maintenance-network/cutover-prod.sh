@@ -9,6 +9,7 @@ MAIN_ROOT=${BARKAN_MAIN_ROOT:-/home/ubuntu/mcserver}
 CONTROL_DIR="$NETWORK_ROOT/control"
 BACKUP_ROOT="$NETWORK_ROOT/cutover-backups"
 CONFIRM=${BARKAN_PROXY_CUTOVER_CONFIRM:-}
+LEAVE_DRAINED=${BARKAN_CUTOVER_LEAVE_DRAINED:-0}
 DROPIN_DIR=/etc/systemd/system/mcserver.service.d
 OLD_GATE_DROPIN="$DROPIN_DIR/maintenance-gate.conf"
 NEW_BACKEND_DROPIN="$DROPIN_DIR/velocity-backend.conf"
@@ -89,9 +90,9 @@ systemctl is-enabled --quiet "$GATE_SERVICE" && GATE_WAS_ENABLED=1 || true
 CUTOVER_COMPLETE=0
 
 rollback(){
-  local rc=$?
+  local rc="${1:-$?}"
   [ "$CUTOVER_COMPLETE" = "1" ] && return 0
-  trap - ERR
+  trap - ERR INT TERM
   set +e
   echo "cutover 실패 — 기존 단일 Paper 진입점으로 롤백합니다." >&2
   rm -f "$NETWORK_ROOT/enabled"
@@ -113,12 +114,25 @@ rollback(){
   echo "롤백 기동 요청 완료. 백업: $BACKUP_DIR" >&2
   exit "$rc"
 }
-trap rollback ERR
+trap 'rollback $?' ERR
+trap 'rollback 130' INT TERM
 
 "$NETWORK_ROOT/bin/install-systemd.sh"
 "$NETWORK_ROOT/bin/configure-backend.py" \
   --root "$MAIN_ROOT" --port 25567 \
   --secret-file "$NETWORK_ROOT/velocity/forwarding.secret" --apply
+
+# The scheduled restart may have applied newer Bedrock packs/mappings/extensions to the
+# old Geyser-Spigot directory after the inactive proxy layout was first prepared. Copy
+# those final stopped-server bytes before Geyser-Velocity starts.
+MAIN_GEYSER_DATA="$MAIN_ROOT/plugins/Geyser-Spigot"
+PROXY_GEYSER_DATA="$NETWORK_ROOT/velocity/plugins/Geyser-Velocity"
+for asset_dir in packs custom_mappings extensions; do
+  if [ -d "$MAIN_GEYSER_DATA/$asset_dir" ]; then
+    install -d -m 0755 "$PROXY_GEYSER_DATA/$asset_dir"
+    cp -a "$MAIN_GEYSER_DATA/$asset_dir/." "$PROXY_GEYSER_DATA/$asset_dir/"
+  fi
+done
 
 shopt -s nullglob
 geyser_jars=("$MAIN_ROOT"/plugins/Geyser-Spigot*.jar)
@@ -166,26 +180,36 @@ done
 systemctl is-active --quiet mcserver
 "$MAIN_ROOT/scripts/rcon.py" list >/dev/null
 
+if [ "$LEAVE_DRAINED" = "1" ]; then
+  "$NETWORK_ROOT/bin/control.sh" drain
+fi
+
+EXPECTED_STATE=IDLE
+[ "$LEAVE_DRAINED" = "1" ] && EXPECTED_STATE=MAINTENANCE
 for _wait in $(seq 1 90); do
-  if python3 - "$CONTROL_DIR/status.json" <<'PY'
+  if python3 - "$CONTROL_DIR/status.json" "$EXPECTED_STATE" <<'PY'
 import json, sys, time
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 fresh = time.time() * 1000 - int(data.get("updatedEpochMs", 0)) < 5000
-raise SystemExit(0 if fresh and data.get("state") == "IDLE" and data.get("mainReachable") is True else 1)
+empty_field = "mainPlayers" if sys.argv[2] == "MAINTENANCE" else "waitingPlayers"
+ok = fresh and data.get("state") == sys.argv[2] and data.get("mainReachable") is True
+raise SystemExit(0 if ok and data.get(empty_field) == 0 else 1)
 PY
   then
     break
   fi
   sleep 1
 done
-python3 - "$CONTROL_DIR/status.json" <<'PY'
+python3 - "$CONTROL_DIR/status.json" "$EXPECTED_STATE" <<'PY'
 import json, sys, time
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 fresh = time.time() * 1000 - int(data.get("updatedEpochMs", 0)) < 5000
-raise SystemExit(0 if fresh and data.get("state") == "IDLE" and data.get("mainReachable") is True else 1)
+empty_field = "mainPlayers" if sys.argv[2] == "MAINTENANCE" else "waitingPlayers"
+ok = fresh and data.get("state") == sys.argv[2] and data.get("mainReachable") is True
+raise SystemExit(0 if ok and data.get(empty_field) == 0 else 1)
 PY
 
 touch "$NETWORK_ROOT/enabled"
 CUTOVER_COMPLETE=1
-trap - ERR
+trap - ERR INT TERM
 echo "Velocity 대기실 네트워크 최초 전환 완료. 백업: $BACKUP_DIR"

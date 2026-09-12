@@ -88,6 +88,12 @@ BARKAN_PROXY_CUTOVER_CONFIRM=BARKAN_PROXY_25565 \
   ~/mc-network/bin/cutover-prod.sh
 ```
 
+운영에서는 `~/mc-network/cutover-once`를 만들어 두면 다음 06:00 정기 재시작이 staging
+적용·백업 후 이 전환을 한 번만 실행한다. 성공 시 마커를 지우고 `enabled`를 남기며, 실패
+시 `cutover-once.failed-날짜`로 바꿔 자동 재시도를 막고 기존 main을 복구한다. 첫날은
+프록시가 아직 public 포트를 소유하기 전이므로 기존 접속이 한 번 끊기지만, 이후부터는
+정기 재시작 내내 waiting에 유지된다.
+
 ## Geyser 자산 업데이트 주의
 
 Geyser 팩·custom mapping·extension은 가동 중 파일을 덮지 않는다. 기존 nightly의
