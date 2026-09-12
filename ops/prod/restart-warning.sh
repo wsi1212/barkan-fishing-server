@@ -16,4 +16,8 @@ out=$("$DIR/rcon.py" list 2>/dev/null) || exit 0
 n=$(printf '%s' "$out" | grep -oE 'are [0-9]+' | grep -oE '[0-9]+' | head -1); n=${n:-0}
 [ "$n" -eq 0 ] && exit 0
 
-"$DIR/rcon.py" "say [서버] 서버 재부팅까지 ${MINUTES}분 남았습니다 (정기 점검, 약 3분 소요). 안전한 곳으로 이동해 주세요." >/dev/null 2>&1
+if [ -f "$HOME/mc-network/enabled" ]; then
+  "$DIR/rcon.py" "say [서버] 서버 재부팅까지 ${MINUTES}분 남았습니다. 재시작 중에는 공허 대기실로 자동 이동하며 접속은 유지됩니다." >/dev/null 2>&1
+else
+  "$DIR/rcon.py" "say [서버] 서버 재부팅까지 ${MINUTES}분 남았습니다 (정기 점검, 약 3분 소요). 안전한 곳으로 이동해 주세요." >/dev/null 2>&1
+fi

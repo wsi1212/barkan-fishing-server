@@ -1,0 +1,19 @@
+[Unit]
+Description=Barkan void maintenance waiting room
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mc-network/waiting
+ExecStart=/usr/lib/jvm/zulu25-ca-arm64/bin/java -Xms512M -Xmx768M -XX:+UseG1GC -XX:+ParallelRefProcEnabled -jar paper.jar --nogui
+Restart=always
+RestartSec=5
+SuccessExitStatus=0 130 143
+NoNewPrivileges=true
+PrivateTmp=true
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

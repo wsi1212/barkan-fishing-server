@@ -1,0 +1,23 @@
+[Unit]
+Description=Barkan Velocity proxy
+Wants=network-online.target barkan-waiting.service
+After=network-online.target barkan-waiting.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mc-network/velocity
+Environment=BARKAN_MAINTENANCE_CONTROL_DIR=/home/ubuntu/mc-network/control
+Environment=BARKAN_SHIP_MARKER_DIR=/home/ubuntu/mc-network/shared/ship-entities
+Environment=BARKAN_MAIN_SERVER=main
+Environment=BARKAN_WAITING_SERVER=waiting
+ExecStart=/usr/lib/jvm/zulu25-ca-arm64/bin/java -Xms512M -Xmx1G -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -jar velocity.jar
+Restart=always
+RestartSec=3
+SuccessExitStatus=0 130 143
+NoNewPrivileges=true
+PrivateTmp=true
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

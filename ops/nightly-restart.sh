@@ -35,6 +35,9 @@ START_CMD=${START_CMD:-sudo systemctl start mcserver}
 STAGING=${STAGING:-$HOME/mcserver/staging}
 PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
 JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
+MAINT_NETWORK_ROOT=${MAINT_NETWORK_ROOT:-$HOME/mc-network}
+MAINT_CONTROL_DIR=${MAINT_CONTROL_DIR:-$MAINT_NETWORK_ROOT/control}
+MAINT_ENABLED_FILE=${MAINT_ENABLED_FILE:-$MAINT_NETWORK_ROOT/enabled}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
 IMMEDIATE=${NOW:-0}
 case "${1:-}" in --now|now) IMMEDIATE=1 ;; esac
@@ -46,6 +49,45 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
   curl -sf -m 10 -H 'Content-Type: application/json' -d "$p" "$u" >/dev/null 2>&1 || true; }
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 SKIP_MARK="$DIR/.skip-nightly-once"
+
+# --- 무중단 대기실 제어 -----------------------------------------------------
+# enabled 마커는 Velocity+waiting Paper가 실제 public 경로를 소유하는 cutover 마지막에만
+# 만든다. 그 전에는 기존 kick 경로가 그대로 유지되어 반쯤 설치된 프록시가 정기 작업을
+# 막지 않는다. 마커가 있는데 프록시 응답이 없으면 유저를 튕기며 강행하지 않고 재시작을
+# 취소한다.
+maintenance_network_enabled(){ [ -f "$MAINT_ENABLED_FILE" ]; }
+maintenance_request(){
+  local request="$1" temporary="$MAINT_CONTROL_DIR/request.$$"
+  mkdir -p "$MAINT_CONTROL_DIR"
+  printf '%s\n' "$request" > "$temporary"
+  mv -f "$temporary" "$MAINT_CONTROL_DIR/request"
+}
+maintenance_status_field(){
+  python3 - "$MAINT_CONTROL_DIR/status.json" "$1" <<'PY'
+import json, sys, time
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8"))
+    if time.time() * 1000 - int(data.get("updatedEpochMs", 0)) > 5000:
+        raise ValueError("stale")
+    print(data.get(sys.argv[2], ""))
+except Exception:
+    raise SystemExit(1)
+PY
+}
+maintenance_drain(){
+  local state players
+  systemctl is-active --quiet barkan-velocity || return 1
+  systemctl is-active --quiet barkan-waiting || return 1
+  maintenance_request drain || return 1
+  for _wait in $(seq 1 60); do
+    state=$(maintenance_status_field state 2>/dev/null || true)
+    players=$(maintenance_status_field mainPlayers 2>/dev/null || true)
+    if [ "$state" = "MAINTENANCE" ] && [ "$players" = "0" ]; then return 0; fi
+    sleep 1
+  done
+  return 1
+}
+maintenance_resume(){ maintenance_request resume; }
 
 # --- 로컬 백업 -------------------------------------------------------------
 #   대용량 월드(main/islands)는 05:50 KST pre-restart-backup.sh 가 라이브에서
@@ -214,7 +256,16 @@ fi
 #   알린 해시와 보낸 바이트가 어긋나 «커스텀 아이템이 전부 투명» 해진다(2026-09-04 실측).
 #   그래서 반드시 여기서, 서버를 내리기 직전에 갈아 끼운다.
 GEYDIR="$PLUGINS/Geyser-Spigot"
-if [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
+if maintenance_network_enabled && [ -d "$STAGING/geyser" ] \
+    && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
+  # Geyser가 main Paper가 아니라 상시접속 Velocity 안에 있으므로 이 파일들을 지금
+  # 갈아끼우면 안 된다. main 재시작은 새 파일을 읽어주지 않고, 가동 중 pack 덮어쓰기는
+  # 신규 Bedrock 접속에 광고한 해시와 실제 bytes를 어긋나게 한다. 접속자 0명일 때
+  # maintenance-network/apply-proxy-assets.sh가 별도 적용한다.
+  gpending=$(find "$STAGING/geyser" -maxdepth 1 -type f \( -name '*.mcpack' -o -name '*.json' -o -name '*.jar' \) | wc -l | tr -d ' ')
+  deploy_lines+="⏸️ Geyser 프록시 자산 ${gpending}개 보류(무접속 프록시 유지보수 필요)"$'\n'
+  log "Geyser 프록시 자산 ${gpending}개 보류 — main 재시작과 분리"
+elif [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
   gok=0; gbad=""
   for src in "$STAGING/geyser"/*.mcpack "$STAGING/geyser"/*.json "$STAGING/geyser"/*.jar; do
     [ -e "$src" ] || continue
@@ -294,12 +345,32 @@ if [ "$n" -gt 0 ] && [ "$DRYRUN" = "0" ]; then
     sleep "$GRACE"
     rcon "say [서버] 지금 재시작합니다."
   else
-    rcon "say [서버] 서버 재부팅합니다 (정기 점검). 약 3분 뒤 다시 접속해 주세요."
+    if maintenance_network_enabled; then
+      rcon "say [서버] 서버 재부팅합니다 (정기 점검). 잠시 공허 대기실로 자동 이동합니다."
+    else
+      rcon "say [서버] 서버 재부팅합니다 (정기 점검). 약 3분 뒤 다시 접속해 주세요."
+    fi
   fi
 fi
 
 # --- 저장 플러시 (서버 응답할 때) ---
 [ "$n" -ge 0 ] && [ "$DRYRUN" = "0" ] && { rcon "save-all flush"; sleep 3; }
+
+# Proxy가 모든 현재/신규 접속을 waiting으로 옮겼고 mainPlayers=0이라고 확인한 뒤에만
+# Paper를 내린다. 이 확인에 실패하면 기존 kick으로 폴백하지 않는다 — 무중단 기능이
+# 켜진 날의 안전한 실패는 «재시작 취소»다.
+MAINT_ACTIVE=0
+if maintenance_network_enabled && [ "$DRYRUN" = "0" ]; then
+  if maintenance_drain; then
+    MAINT_ACTIVE=1
+    log "Velocity 대기실 전환 완료 — main 접속자 0명"
+  else
+    log "Velocity 대기실 전환 실패 — 정기 재시작 취소"
+    maintenance_resume || true
+    notify "$LABEL 🔴 대기실 전환을 확인하지 못해 정기 재시작을 취소했습니다. 본 서버는 계속 가동 중이며 유저를 강제 종료하지 않았습니다."
+    exit 1
+  fi
+fi
 
 # --- 백업 성공 목록 ---
 #   ★호출 시점이 중요하다. 로컬 백업이 재시작 창 안으로 들어갔으므로 STATUS_FILE 은
@@ -359,14 +430,16 @@ if [ "${PREVIEW:-0}" = "1" ]; then read_backups; build_msg; printf '%s\n' "$msg"
 # 정기 리포트는 백업이 끝나야 내용이 채워지므로 기동 후로 내려갔다(아래).
 if [ "$IMMEDIATE" = "1" ]; then read_backups; build_msg; notify "$msg"; log "즉시 배포 알림 발송"; fi
 
-# --- 종료 직전 안내 kick ---
+# --- 종료 직전 안내 kick (프록시 cutover 전 레거시 경로) ---
 #   ★bukkit.yml 의 shutdown-message 는 «서버가 시작할 때 읽은» 값이라, 파일을 지금 고쳐도
 #     다음 종료가 아니라 그 다음 종료부터 반영된다. 정기 점검 문구를 거기에만 두면
 #     고친 날 아침에는 여전히 옛 문구로 튕긴다 — 그래서 여기서 직접 kick 한다.
 #   ★/kick 의 사유는 평문이다. § 색코드를 넣으면 색이 아니라 글자로 찍힌다.
 #   접속자가 없으면 "No entity was found" 가 나지만 rcon() 이 삼킨다(무해).
 KICK_MSG="${KICK_MSG:-[정기 점검] 매일 새벽 6시 재시작입니다. 약 3분 뒤 다시 접속해 주세요!}"
-if [ "$DRYRUN" = "0" ]; then rcon "kick @a $KICK_MSG"; sleep 1; fi
+if [ "$DRYRUN" = "0" ] && [ "$MAINT_ACTIVE" = "0" ]; then
+  rcon "kick @a $KICK_MSG"; sleep 1
+fi
 
 # --- ③ 재시작 (무조건) ---
 #   정기: 정지 → (05:50 마커 없을 때만) 로컬 백업 → 기동.
@@ -431,12 +504,25 @@ fi
 #   감지 경로다. 예전 주석의 "워치독이 8분 안에 잡는다"는 지금 성립하지 않는다.)
 if [ "$IMMEDIATE" = "0" ]; then
   boot_line="🔴 부팅 확인 실패 — RCON 무응답 (\`tail -50 ~/mcserver/logs/latest.log\`)"
+  boot_ok=0
   for i in $(seq 1 36); do
     if systemctl is-active --quiet mcserver && "$DIR/rcon.py" list >/dev/null 2>&1; then
+      boot_ok=1
       boot_line="✅ 부팅 확인 (${i}회 체크)"; break
     fi
     sleep 5
   done
+  if [ "$boot_ok" = "1" ] && [ "$MAINT_ACTIVE" = "1" ]; then
+    if maintenance_resume; then
+      boot_line="$boot_line · 대기실 복귀 시작"
+      log "Velocity 대기실 해제 — 본 서버 복귀 시작"
+    else
+      boot_line="$boot_line · 🔴 대기실 해제 실패"
+      notify "$LABEL 🔴 본 서버는 기동했지만 대기실 해제 요청에 실패했습니다. \`printf 'resume\\n' > ~/mc-network/control/request\` 확인이 필요합니다."
+    fi
+  elif [ "$MAINT_ACTIVE" = "1" ]; then
+    boot_line="$boot_line · 유저는 대기실에 유지"
+  fi
   run_offsite_uploads
   read_backups
   build_msg
@@ -453,6 +539,7 @@ if [ "$IMMEDIATE" = "1" ]; then
   for i in $(seq 1 40); do
     if systemctl is-active --quiet mcserver && "$DIR/rcon.py" list >/dev/null 2>&1; then
       log "부팅 확인 완료 (${i}회 체크)"
+      if [ "$MAINT_ACTIVE" = "1" ]; then maintenance_resume || true; fi
       notify "$LABEL ✅ 즉시 배포 후 서버 정상 (부팅 확인 ${i}회)."
       exit 0
     fi

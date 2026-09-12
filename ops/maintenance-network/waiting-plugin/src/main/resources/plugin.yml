@@ -1,0 +1,6 @@
+name: BarkanWaitingRoom
+version: 1.0.0
+main: com.blockship.maintenance.waiting.BarkanWaitingRoom
+api-version: '1.21'
+load: STARTUP
+description: 바르칸 본 서버 재시작 중 연결을 유지하는 공허 대기실
