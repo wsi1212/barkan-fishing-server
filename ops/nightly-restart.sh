@@ -39,6 +39,8 @@ MAINT_NETWORK_ROOT=${MAINT_NETWORK_ROOT:-$HOME/mc-network}
 MAINT_CONTROL_DIR=${MAINT_CONTROL_DIR:-$MAINT_NETWORK_ROOT/control}
 MAINT_ENABLED_FILE=${MAINT_ENABLED_FILE:-$MAINT_NETWORK_ROOT/enabled}
 MAINT_CUTOVER_FILE=${MAINT_CUTOVER_FILE:-$MAINT_NETWORK_ROOT/cutover-once}
+GUIDE_WEBHOOK_CONFIG=${GUIDE_WEBHOOK_CONFIG:-$PLUGINS/BlockShip/config.yml}
+GUIDE_WEBHOOK_RESTORE=${GUIDE_WEBHOOK_RESTORE:-$DIR/.guide-webhook-restore-once}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
 IMMEDIATE=${NOW:-0}
 case "${1:-}" in --now|now) IMMEDIATE=1 ;; esac
@@ -50,6 +52,73 @@ notify(){ [ -s "$WEBHOOK_FILE" ] || return 0; local u p; u=$(cat "$WEBHOOK_FILE"
   curl -sf -m 10 -H 'Content-Type: application/json' -d "$p" "$u" >/dev/null 2>&1 || true; }
 rcon(){ "$DIR/rcon.py" "$1" >/dev/null 2>&1; }
 SKIP_MARK="$DIR/.skip-nightly-once"
+
+# 현재 JVM에서 가이드 감사 웹훅을 즉시 끈 뒤, 수정 JAR이 올라오는 다음 정기 재시작에만
+# 다시 켜기 위한 1회성 복구 게이트. 마커 첫 줄에는 복구할 Discord 웹훅 URL을 둔다.
+# JAR의 오탐 방지 코드와 CoreProtect 읽기 권한이 모두 확인되지 않으면 마커를 소비하지
+# 않고 웹훅을 계속 꺼 둔다. 즉시 모드/미리보기에서는 절대 복구하지 않는다.
+guide_audit_fix_present(){
+  local jar bytecode
+  jar="$PLUGINS/BlockShip-1.0.0-SNAPSHOT.jar"
+  [ -f "$jar" ] || return 1
+  bytecode=$(javap -classpath "$jar" -c -p com.blockship.guide.GuideAccess 2>/dev/null) || return 1
+  grep -q 'Bukkit.isPrimaryThread' <<<"$bytecode" &&
+    grep -q 'coreprotect.lookup' <<<"$bytecode" &&
+    grep -q '스폰' <<<"$bytecode"
+}
+restore_guide_webhook_once(){
+  [ "$IMMEDIATE" = "0" ] || return 0
+  [ "$DRYRUN" = "0" ] || return 0
+  [ -s "$GUIDE_WEBHOOK_RESTORE" ] || return 0
+
+  if ! guide_audit_fix_present; then
+    log "가이드 감사 웹훅 복구 보류 — 수정된 GuideAccess를 확인하지 못함"
+    return 1
+  fi
+
+  local url
+  IFS= read -r url < "$GUIDE_WEBHOOK_RESTORE"
+  case "$url" in
+    https://discord.com/api/webhooks/*|https://discordapp.com/api/webhooks/*) ;;
+    *) log "가이드 감사 웹훅 복구 거부 — 마커 URL 형식 오류"; return 1 ;;
+  esac
+  [ -f "$GUIDE_WEBHOOK_CONFIG" ] || {
+    log "가이드 감사 웹훅 복구 거부 — config.yml 없음"; return 1; }
+
+  if ! GUIDE_WEBHOOK_URL="$url" python3 - "$GUIDE_WEBHOOK_CONFIG" <<'PY'
+import json
+import os
+import re
+import stat
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    lines = handle.readlines()
+
+matches = [i for i, line in enumerate(lines)
+           if re.match(r"^\s*guide-webhook\s*:", line)]
+if len(matches) != 1:
+    raise SystemExit(f"guide-webhook key count is {len(matches)}, expected 1")
+
+index = matches[0]
+indent = re.match(r"^(\s*)", lines[index]).group(1)
+lines[index] = f"{indent}guide-webhook: {json.dumps(os.environ['GUIDE_WEBHOOK_URL'])}\n"
+mode = stat.S_IMODE(os.stat(path).st_mode)
+temporary = path + ".guide-webhook-restore.tmp"
+with open(temporary, "w", encoding="utf-8") as handle:
+    handle.writelines(lines)
+os.chmod(temporary, mode)
+os.replace(temporary, path)
+PY
+  then
+    log "가이드 감사 웹훅 복구 실패 — config.yml 갱신 오류"
+    return 1
+  fi
+
+  rm -f "$GUIDE_WEBHOOK_RESTORE"
+  log "가이드 감사 웹훅 1회 복구 적용 — 수정 JAR 확인 완료"
+}
 
 # --- 무중단 대기실 제어 -----------------------------------------------------
 # enabled 마커는 Velocity+waiting Paper가 실제 public 경로를 소유하는 cutover 마지막에만
@@ -335,6 +404,10 @@ fi
 
 # 05:50 백업이 예외적으로 아직 tar 중이면 먼저 끝낼 때까지 기다린다. 그래야
 # 종료 과정이 라이브 tar와 겹치지 않고, 실패 시에도 아래 정지 중 폴백이 안전하다.
+if ! restore_guide_webhook_once; then
+  notify "$LABEL 🔴 가이드 감사 웹훅 복구를 보류했습니다. 오탐 방지 코드가 확인될 때까지 Discord 감사는 계속 꺼져 있습니다."
+fi
+
 if [ "$IMMEDIATE" = "0" ] && [ "$DRYRUN" = "0" ]; then wait_for_prebackup; fi
 
 # --- ② 재시작 예고 ---
