@@ -105,15 +105,14 @@ def compute(snapshot, casts, size_score, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=D
     price_per_size_score = 0.005 / m  # 가격 상대증가율 per +1 크기점수
     V["크기 (1%)"] = (income * price_per_size_score * 1.0, "+1%size≈+1크기점수 (★어종편차 큼)")
 
-    # ── 크리 (★시너지·기준점 의존, 2026-07-24부터 size경로+직접가격보너스 2갈래) ──
-    # size경로: income × 크리율 × critDmg×10% × price_per_size_score (기존, XP에도 기여)
-    # 직접경로: income × 크리율 × critDmg×CRIT_PRICE_COEF (신설, FishingListener 판매가 직접배수)
-    # 두 경로 합 = 크리 1회당 가격 상대증가. 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
-    crit_gain_per_dmg = crit_dmg * 10 * price_per_size_score + crit_dmg * CRIT_PRICE_COEF
+    # ── 크리 (★시너지·기준점 의존, 2026-09-12부터 직접 판매가보너스만) ──
+    # 크리 1회당 가격 상대증가 = critDmg×CRIT_PRICE_COEF.
+    # 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
+    crit_gain_per_dmg = crit_dmg * CRIT_PRICE_COEF
     V["크리확률 (1%)"] = (income * 0.01 * crit_gain_per_dmg,
-                       f"+1%크리율×(critDmg{crit_dmg}: 크기경로+직접가격+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
-    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_size_score + CRIT_PRICE_COEF),
-                       f"크리율{int(crit_rate*100)}%: size+10%/점 + 판매가직접+6%/점 (상한없음)")
+                       f"+1%크리율×(critDmg{crit_dmg}: 판매가직접+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
+    V["크리배율 (1점)"] = (income * crit_rate * CRIT_PRICE_COEF,
+                       f"크리율{int(crit_rate*100)}%: 판매가직접+6%/점 (상한없음)")
 
     # ── 미니게임 성공확률 (2026-07-25, MinigameManager Monte Carlo 실측 — 선형근사 아님) ──
     # 난이도: rodBonus가 zoneWidth를 직접 넓혀 존폭 자체를 키움(1차 방어선). 등급별 S자곡선이라
@@ -150,7 +149,7 @@ def main():
     ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
     ap.add_argument("--size-score", type=int, default=DEFAULT_SIZE_SCORE)
     ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE, help="기준 크리율(0~1), 크리배율 가치가 비례")
-    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~8), 크리확률 가치가 비례")
+    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~15), 크리확률 가치가 비례")
     args = ap.parse_args()
 
     snap_dir = os.path.join(skill, "audits", "snapshots")
