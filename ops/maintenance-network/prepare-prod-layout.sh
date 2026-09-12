@@ -31,7 +31,8 @@ install -d -m 0755 \
   "$NETWORK_ROOT/systemd"
 
 download_verified(){
-  local url="$1" expected="$2" destination="$3" temporary="$destination.download"
+  local url="$1" expected="$2" destination="$3"
+  local temporary="$destination.download"
   curl -fL --retry 3 -o "$temporary" "$url"
   printf '%s  %s\n' "$expected" "$temporary" | sha256sum -c - >/dev/null
   mv -f "$temporary" "$destination"
