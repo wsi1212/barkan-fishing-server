@@ -58,6 +58,13 @@ BlockShip 본체도 함께 빌드해야 한다. `BedrockShipMarkerStore`가 syst
 9. `nightly-restart.sh`, `restart-warning.sh`, 새 BlockShip jar를 staging에 둔다.
 10. `preflight-prod.sh` 통과 후에만 한 번의 계획된 cutover를 수행한다.
 
+`prepare-prod-layout.sh` 뒤에는 서비스에 손대지 않는 systemd 정의 설치까지만 미리 할 수
+있다. 이 명령은 unit을 시작하거나 enable하지 않는다.
+
+```bash
+~/mc-network/bin/install-systemd.sh
+```
+
 백엔드 설정은 기존 값을 통째로 덮지 않고 필요한 키만 바꾸는 도구를 사용한다. 기본은
 읽기 전용 점검이고 `--apply`일 때만 타임스탬프 백업을 만든 뒤 쓴다.
 
@@ -71,6 +78,15 @@ BlockShip 본체도 함께 빌드해야 한다. `BedrockShipMarkerStore`가 syst
 최초 cutover에는 Paper가 public 25565를 내려놓고 backend 25567로 다시 떠야 하므로 기존
 접속이 한 번 끊긴다. 이후 `~/mc-network/enabled`를 마지막에 만들면 정기 main 재시작은
 대기실 경로를 쓴다.
+
+실제 전환은 **mcserver가 이미 완전히 내려간 계획된 정지 창에서만** 실행한다. 스크립트는
+가동 중인 main을 스스로 내리지 않으며, 중간 검증 실패 시 설정·Geyser-Spigot·기존
+maintenance gate를 복원하고 main 기동을 요청한다.
+
+```bash
+BARKAN_PROXY_CUTOVER_CONFIRM=BARKAN_PROXY_25565 \
+  ~/mc-network/bin/cutover-prod.sh
+```
 
 ## Geyser 자산 업데이트 주의
 

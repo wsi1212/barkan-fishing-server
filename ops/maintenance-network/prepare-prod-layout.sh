@@ -16,6 +16,13 @@ GEYSER_SHA256=1d6ab14770494c59e12cf019cc26356824725ffa298efd24e2104c6209b2a098
 FLOODGATE_URL=https://download.geysermc.org/v2/projects/floodgate/versions/2.2.5/builds/140/downloads/velocity
 FLOODGATE_SHA256=f5867ad79b90d38abcc72755a685428fbcf423b52c9830a39ffed5203de6936a
 
+if [ -e "$NETWORK_ROOT/enabled" ] \
+    || systemctl is-active --quiet barkan-velocity.service 2>/dev/null \
+    || systemctl is-active --quiet barkan-waiting.service 2>/dev/null; then
+  echo "거부: 활성 프록시 네트워크에는 prepare-prod-layout.sh를 다시 실행하지 않습니다." >&2
+  exit 2
+fi
+
 for required in "$PROXY_JAR" "$WAITING_JAR" "$SHIP_EXTENSION" "$MAIN_ROOT/paper.jar" \
     "$MAIN_ROOT/config/paper-global.yml" "$MAIN_ROOT/spigot.yml"; do
   [ -s "$required" ] || { echo "필수 파일 없음: $required" >&2; exit 2; }
@@ -28,7 +35,7 @@ install -d -m 0755 \
   "$NETWORK_ROOT/velocity/plugins/floodgate" \
   "$NETWORK_ROOT/waiting/plugins" "$NETWORK_ROOT/waiting/config" \
   "$NETWORK_ROOT/control" "$NETWORK_ROOT/shared/ship-entities" \
-  "$NETWORK_ROOT/systemd"
+  "$NETWORK_ROOT/systemd" "$NETWORK_ROOT/bin"
 
 download_verified(){
   local url="$1" expected="$2" destination="$3"
@@ -74,7 +81,12 @@ if [ -d "$MAIN_FLOODGATE" ]; then
   [ ! -f "$MAIN_FLOODGATE/key.pem" ] || install -m 0600 "$MAIN_FLOODGATE/key.pem" "$NETWORK_ROOT/velocity/plugins/floodgate/key.pem"
   if [ -f "$MAIN_FLOODGATE/config.yml" ]; then
     install -m 0600 "$MAIN_FLOODGATE/config.yml" "$NETWORK_ROOT/velocity/plugins/floodgate/config.yml"
-    perl -pi -e 's/^send-floodgate-data:\s*.*/send-floodgate-data: true/' "$NETWORK_ROOT/velocity/plugins/floodgate/config.yml"
+    if grep -q '^send-floodgate-data:' "$NETWORK_ROOT/velocity/plugins/floodgate/config.yml"; then
+      perl -pi -e 's/^send-floodgate-data:\s*.*/send-floodgate-data: true/' "$NETWORK_ROOT/velocity/plugins/floodgate/config.yml"
+    else
+      printf '\n# Forward Bedrock identity to backend Floodgate API instances.\nsend-floodgate-data: true\n' \
+        >> "$NETWORK_ROOT/velocity/plugins/floodgate/config.yml"
+    fi
   fi
 fi
 
@@ -85,6 +97,12 @@ fi
 install -m 0644 "$SCRIPT_DIR/templates/barkan-velocity.service" "$NETWORK_ROOT/systemd/barkan-velocity.service"
 install -m 0644 "$SCRIPT_DIR/templates/barkan-waiting.service" "$NETWORK_ROOT/systemd/barkan-waiting.service"
 install -m 0644 "$SCRIPT_DIR/templates/mcserver-velocity-backend.conf" "$NETWORK_ROOT/systemd/mcserver-velocity-backend.conf"
+install -m 0755 "$SCRIPT_DIR/control.sh" "$NETWORK_ROOT/bin/control.sh"
+install -m 0755 "$SCRIPT_DIR/configure-backend.py" "$NETWORK_ROOT/bin/configure-backend.py"
+install -m 0755 "$SCRIPT_DIR/preflight-prod.sh" "$NETWORK_ROOT/bin/preflight-prod.sh"
+install -m 0755 "$SCRIPT_DIR/apply-proxy-assets.sh" "$NETWORK_ROOT/bin/apply-proxy-assets.sh"
+install -m 0755 "$SCRIPT_DIR/install-systemd.sh" "$NETWORK_ROOT/bin/install-systemd.sh"
+install -m 0755 "$SCRIPT_DIR/cutover-prod.sh" "$NETWORK_ROOT/bin/cutover-prod.sh"
 
 echo "inactive prod layout 준비 완료: $NETWORK_ROOT"
 echo "서비스 시작·enable, main 설정 변경, enabled 마커 생성은 하지 않았습니다."
