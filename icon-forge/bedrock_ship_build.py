@@ -25,6 +25,7 @@ import io
 import json
 import math
 import os
+import sys
 import zipfile
 from pathlib import Path
 
@@ -250,6 +251,15 @@ def client_entity(entity_id: str, slug: str) -> dict:
 
 
 def main() -> int:
+    # ★2026-09-12: 기본 비활성. 이 자산이 팩에 들어간 날(prod 06:00 적용) 베드락 클라가
+    #   팩 적용 단계에서 전부 튕겼다 — 하루 동안 모바일 로그인 0건, 4개 IP 28회 시도.
+    #   소거법으로 범인 확정(같은 날 올라간 길드 엠블럼 팩은 되돌려도 정상 접속).
+    #   의심 지점: 롱쉽 지오메트리가 큐브 1,048개 · 0크기(평면) 큐브 15개.
+    #   원인을 고치고 «실기기에서 접속 확인» 하기 전까지 되살리지 말 것.
+    if "--force-enable" not in sys.argv:
+        print("⏭ 선체 베드락 엔티티 빌드 건너뜀 (기본 비활성 — 모바일 접속을 깬 자산)")
+        print("   되살리려면 원인 수정 후 실기기 확인하고 --force-enable 로 실행할 것")
+        return 0
     if not STAGE.is_dir() or not (STAGE / "manifest.json").is_file():
         raise SystemExit("팩 스테이지가 없습니다 — item → block 빌더를 먼저 실행하세요")
     if not SHIP_MODELS.is_file():

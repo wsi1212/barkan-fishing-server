@@ -54,15 +54,19 @@ if [ "$(unzip -l "$PACK" 2>/dev/null | grep -c "models/blocks/" || true)" = "0" 
 fi
 [[ -f "$BLOCKMAP" && -f "$BLOCKDATA" ]] || { echo "❌ 블록 산출물이 없습니다 — python3 bedrock_block_build.py"; exit 1; }
 
-# 배 선체는 가짜 블록이 아니라 custom entity다. builder를 마지막에 돌리지 않으면 팩에는
-# 아이콘·블록만 있고 배가 계속 투명해지므로 두 선체의 client_entity까지 강제 확인한다.
+# 배 선체는 가짜 블록이 아니라 custom entity다. ★2026-09-12 부터 이 자산은 «기본 비활성»이다
+# — 팩에 들어간 날 베드락 클라가 팩 적용 단계에서 전부 튕겼다(모바일 로그인 0건). 그래서
+# 「없으면 실패」가 아니라 「있으면 확인, 없으면 경고」로 바꾼다. 되살리는 조건은
+# bedrock_ship_build.py 의 --force-enable 주석 참조(원인 수정 + 실기기 접속 확인).
+SHIPS_IN_PACK=1
 for ship in ship_dotdanbae ship_viking_longship; do
   if [ "$(unzip -l "$PACK" 2>/dev/null | grep -c "entity/${ship}.entity.json" || true)" = "0" ]; then
-    echo "❌ 팩에 회전형 선체 ${ship}가 없습니다."
-    echo "   순서: python3 bedrock_pack_build.py → python3 bedrock_block_build.py → python3 bedrock_ship_build.py"
-    exit 1
+    SHIPS_IN_PACK=0
   fi
 done
+if [ "$SHIPS_IN_PACK" = "0" ]; then
+  echo "⚠ 팩에 회전형 선체 자산 없음 — 베드락에서 배는 안 보입니다(의도된 기본값)."
+fi
 [[ -f "$SHIP_EXTENSION" ]] || { echo "❌ Geyser 선체 extension이 없습니다 — cd $PLUGIN && ./gradlew geyserExtensionJar"; exit 1; }
 SHIP_EXTENSION_META=$(unzip -p "$SHIP_EXTENSION" extension.yml 2>/dev/null) \
   || { echo "❌ extension.yml을 읽을 수 없습니다: $SHIP_EXTENSION"; exit 1; }
