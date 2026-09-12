@@ -116,8 +116,7 @@ items:
         - "<!i><gray>주변 <white>16×16×16</white>의 일반 작물이</gray>"
         - "<!i><gray>섬이 비어 있는 동안에도 자랍니다.</gray>"
         - ""
-        - "<!i><dark_gray>청크를 계속 로딩하지 않습니다.</dark_gray>"
-        - "<!i><yellow>우클릭: 적용 범위 보기</yellow>"
+        - "<!i><yellow>우클릭: 적용 범위 10초 보기</yellow>"
     model:
       type: minecraft:select
       property: minecraft:display_context
