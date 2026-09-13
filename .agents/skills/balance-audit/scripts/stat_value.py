@@ -12,15 +12,19 @@ stat_value.py — 스탯별 실질가치 산정 (공통화폐 = 원/h 환산).
   grade×크기점수, G조차 6,700캐스트당 1마리). 행운의 추가 효용(도감/고등급 baseExp)은 별도.
   이런 '어디서 가치가 나오나'를 표의 근거란에 명시한다 — 직관이 틀리기 쉬운 지점.
 
-사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--size-score 50]
+사용법: python3 stat_value.py [--snapshot audits/snapshots/<date>.raw.json] [--casts 150] [--size-score 50] \
+  --crit-rate <실제 결과 크리율> --crit-dmg <최종 크리배율>
+
+크리 입력은 ``crit_telemetry.py``에서 표본 판정까지 통과한 실제 결과 크리율을 쓴다. ``크리확률``
+스탯은 존 칸별 금칸 생성확률이므로 20을 20% 결과 크리율로 넣는 식의 환산은 금지한다.
 """
 import argparse, json, os
 
 # 미니게임 1판 ≈ 24초 가정 → 150판/h. balance.md 기준.
 DEFAULT_CASTS = 150
 DEFAULT_SIZE_SCORE = 50  # 평균 크기점수 (FishItem.sizeScore 기본 50)
-DEFAULT_CRIT_RATE = 0.20  # 기준 크리율 (크리확률 스탯 투자 가정). 크리배율 가치는 여기 비례.
-DEFAULT_CRIT_DMG = 4      # 기준 크리배율 (base 1, 캡 폐지). 크리확률 가치는 여기 비례.
+DEFAULT_CRIT_RATE = None  # 보편 기본값 금지 — 존별 생성+조준 결과는 실제 텔레메트리로 넣는다.
+DEFAULT_CRIT_DMG = None   # 보편 기본값 금지 — 기본 1을 포함한 해당 빌드 최종값을 넣는다.
 CRIT_PRICE_COEF = 0.06    # 2026-07-24 신설: 크리 시 판매가 직접 ×(1+critDmg×COEF). FishingListener.java 참조.
 
 # ── 2026-07-25 신설: 난이도/도주감소는 미니게임 성공확률(존폭/도주율)을 통해서만 수입에 기여 ──
@@ -39,7 +43,7 @@ MAX_MAGNITUDE = {
     "판매보너스 (1%)": 110, "더블찬스 (1%)": 110, "트리플찬스 (1%)": 13,
     "등급업 (1%)": 56,      # 캡 폐지 후 실현가능 최대(balance.md §9 종결세팅 합계)
     "크기 (1%)": 100, "행운 (1점)": 100, "도주감소 (1%)": 50,
-    "크리확률 (1%)": 80, "크리배율 (1점)": 15,  # 캡8 폐지: 장비5+강화10 = 실현가능 15
+    "결과 크리율 (1%p, 조건부)": 80, "크리배율 (1점)": 15,  # historical magnitude only; live catalog must recheck.
     "경험치 (1%)": 255,     # gear115 + enhance140
     "난이도 (1점)": 12,     # 낚싯대 전용 스탯(다른 카테고리엔 없음): 바르칸낚싯대 base8 + 강화max4
 }
@@ -73,7 +77,7 @@ def avg_catch_value(dist, price, size_score):
     return sum(dist[g] * price.get(g, 0) * m for g in dist)
 
 
-def compute(snapshot, casts, size_score, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
+def compute(snapshot, casts, size_score, crit_rate, crit_dmg):
     raw = snapshot["raw"]
     prob = raw["rng"]["grade_base_prob"]
     price = raw["economy"]["grade_base_price"]
@@ -109,10 +113,13 @@ def compute(snapshot, casts, size_score, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=D
     # 크리 1회당 가격 상대증가 = critDmg×CRIT_PRICE_COEF.
     # 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
     crit_gain_per_dmg = crit_dmg * CRIT_PRICE_COEF
-    V["크리확률 (1%)"] = (income * 0.01 * crit_gain_per_dmg,
-                       f"+1%크리율×(critDmg{crit_dmg}: 판매가직접+{crit_dmg*6}%). ★critDmg 낮으면 값↓")
+    # This is deliberately *result* critical-rate, not the item stat.  A nominal
+    # per-cell chance point has a non-linear, build/zone/player-dependent mapping.
+    V["결과 크리율 (1%p, 조건부)"] = (income * 0.01 * crit_gain_per_dmg,
+                       f"가정상 결과크리율 +1%p × (최종크리배율{crit_dmg}: 판매가직접+{crit_dmg*6}%). "
+                       "★존 칸별 명목크확 1점과 동일시 금지")
     V["크리배율 (1점)"] = (income * crit_rate * CRIT_PRICE_COEF,
-                       f"크리율{int(crit_rate*100)}%: 판매가직접+6%/점 (상한없음)")
+                       f"실제 결과크리율{crit_rate*100:.1f}%: 판매가직접+6%/점 (상한없음)")
 
     # ── 미니게임 성공확률 (2026-07-25, MinigameManager Monte Carlo 실측 — 선형근사 아님) ──
     # 난이도: rodBonus가 zoneWidth를 직접 넓혀 존폭 자체를 키움(1차 방어선). 등급별 S자곡선이라
@@ -148,9 +155,19 @@ def main():
     ap.add_argument("--snapshot", default=None)
     ap.add_argument("--casts", type=int, default=DEFAULT_CASTS)
     ap.add_argument("--size-score", type=int, default=DEFAULT_SIZE_SCORE)
-    ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE, help="기준 크리율(0~1), 크리배율 가치가 비례")
-    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG, help="기준 크리배율(1~15), 크리확률 가치가 비례")
+    ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE,
+                    help="필수: 텔레메트리로 확인한 실제 결과 크리율(0~1); 명목 칸확률 아님")
+    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG,
+                    help="필수: 기본 1을 포함한 해당 빌드 최종 크리배율")
     args = ap.parse_args()
+
+    if args.crit_rate is None or args.crit_dmg is None:
+        ap.error("크리는 보편 기본값으로 환산하지 않습니다. --crit-rate와 --crit-dmg를 명시하세요. "
+                 "crit_telemetry.py의 '측정 가능' 구간만 사용하고, 그 외에는 미판정으로 남기세요.")
+    if not 0.0 <= args.crit_rate <= 1.0:
+        ap.error("--crit-rate는 0~1 범위의 실제 결과 크리율입니다.")
+    if args.crit_dmg < 1:
+        ap.error("--crit-dmg는 기본 1을 포함한 최종 크리배율이라 최소 1입니다.")
 
     snap_dir = os.path.join(skill, "audits", "snapshots")
     if args.snapshot is None:
@@ -162,7 +179,7 @@ def main():
     snap = load_snapshot(args.snapshot)
     income, avg, dist, V = compute(snap, args.casts, args.size_score, args.crit_rate, args.crit_dmg)
 
-    print(f"기준: {args.casts}캐스트/h, 크기점수{args.size_score}, 크리율{int(args.crit_rate*100)}%, 크리배율{args.crit_dmg}")
+    print(f"기준: {args.casts}캐스트/h, 크기점수{args.size_score}, 실제 결과크리율{args.crit_rate*100:.1f}%, 크리배율{args.crit_dmg}")
     print(f"무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
     anchor = V["판매보너스 (1%)"][0]
     print(f"{'스탯':<15}{'원/h/단위':>9}{'정규화':>7}{'상한':>6}{'최대기여원/h':>12}{'최대정규화':>10}   근거")

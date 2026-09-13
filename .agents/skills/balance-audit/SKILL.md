@@ -72,7 +72,7 @@ description: >-
 
 | 경제 | 상태 | 데이터소스 | 지표/경보선 | 감사 리포트 |
 |---|---|---|---|---|
-| 🎣 낚시 | 🟡 기본 골드곡선 완료, 코호트/로드아웃 비교를 표준 루프에 편입(2026-08-20) | [data-sources.md](references/data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md), [cohort-metrics.md](references/cohort-metrics.md) | 기존 낚시 감사 + 코호트 리포트 |
+| 🎣 낚시 | 🟡 기본 골드곡선 완료, 코호트/로드아웃 비교를 표준 루프에 편입(2026-08-20) | [data-sources.md](references/data-sources.md), [telemetry-data-sources.md](references/telemetry-data-sources.md) | [metrics.md](references/metrics.md), [stat-values.md](references/stat-values.md), [cohort-metrics.md](references/cohort-metrics.md) | 기존 낚시 감사 + 코호트 리포트 |
 | 🔱 작살(harpoon) | 🟡 코드 기반 시뮬레이터·로드아웃 비교 구현(2026-08-20), 적중률/행동시간 실측 대기 | [harpoon-data-sources.md](references/harpoon-data-sources.md) | [harpoon-metrics.md](references/harpoon-metrics.md), [cohort-metrics.md](references/cohort-metrics.md) | [audits/2026-08-03-income-aggregation.md](audits/2026-08-03-income-aggregation.md) + 신규 코호트 리포트 |
 | ⛏️ 광질(드릴+섬광산) | ✅ 완료(2026-07-25) — 🟢 양호(초안 🔴는 운영자확인 후 철회) | [mining-data-sources.md](references/mining-data-sources.md) | [mining-metrics.md](references/mining-metrics.md) | [audits/2026-07-25-mining.md](audits/2026-07-25-mining.md) |
 | 🌾 농사(특수작물+섬상점 바닐라 농사) | 🟡 특수작물 완료 + 섬상점 원/h 운영안(2026-08-20) | [farming-data-sources.md](references/farming-data-sources.md) | [farming-metrics.md](references/farming-metrics.md) | [audits/2026-07-25-farming.md](audits/2026-07-25-farming.md) + [섬상점 감사](audits/2026-08-20-farm-shop.md) |
@@ -134,12 +134,31 @@ python3 .agents/skills/balance-audit/scripts/catalog.py
 - `recipes.json`의 `resultPartType/resultPartName`을 부품에 연결한다. 연결되지 않은 장비는 “획득불가”라고 즉시 단정하지 말고, 상점·퀘스트·OP 지급 등 다른 획득 경로 확인 전까지 **획득경로 미연결**로 표시한다.
 - 레시피·부품·어종의 source fingerprint와 `catalog_hash`를 남겨, 서로 다른 시점의 JSON을 섞은 분석을 차단한다.
 
-### 4. 스탯 실질가치 산출 (공통 잣대)
+### 4. 크리 실측 → 스탯 실질가치 산출 (공통 잣대)
 ```bash
-python3 .claude/skills/balance-audit/scripts/stat_value.py
+python3 .agents/skills/balance-audit/scripts/crit_telemetry.py \
+  --telemetry-dir ../../BlockShip/telemetry \
+  --out /tmp/crit-telemetry.json
+
+# 특정 부품 판정 전에는 해당 바늘의 실사용 표본도 별도로 확인한다.
+python3 .agents/skills/balance-audit/scripts/crit_telemetry.py \
+  --telemetry-dir ../../BlockShip/telemetry --hook '<바늘명>'
+
+# 실제 크리율·최종 크리배율을 정한 "해당 빌드"만 환산한다.
+python3 .agents/skills/balance-audit/scripts/stat_value.py \
+  --crit-rate <crit_telemetry의_측정가능_결과율> \
+  --crit-dmg <기본1을포함한_최종크리배율>
 ```
 - 각 스탯 1단위를 원/h로 환산(판매1%=1.0 앵커). 요리·날씨·장비를 비교할 **공통 화폐**.
-- 상세·방법론·직관 교정: [references/stat-values.md](references/stat-values.md).
+- 크리는 **반드시 먼저 실측**한다. `크리확률`은 캐치 단위 확률이 아니라 존의 칸별 금칸 생성확률이고,
+  플레이어는 보이는 금칸을 조준한다. 그러므로 합성 `크리율20%·배율4` 기본값이나 `크확 n = 결과크리 n%`
+  환산은 금지다.
+- `crit_telemetry.py`는 명목 칸확률별 결과 크리율, 표본 수·플레이어 수·Wilson 신뢰구간, 금칸 전환
+  스냅샷의 충분성을 함께 낸다. 표본 부족이면 값은 **미판정**이며, 약한 구간을 다른 장비의 수치로 메우지 않는다.
+- 현재 과거 데이터에는 존폭·금칸 존재가 결과별로 기록되지 않는다. 따라서 금칸 존재율과 조준 전환율을
+  부품별로 분해할 수 없으면, 그 한계를 리포트에 적고 코드 메커니즘 기반 반사실값을 별도 가정으로만 쓴다.
+- 상세·방법론·개인정보 규칙: [references/telemetry-data-sources.md](references/telemetry-data-sources.md),
+  [references/stat-values.md](references/stat-values.md).
 
 ### 5. 플레이어 코호트·로드아웃 시뮬레이션 (필수)
 ```bash
@@ -164,7 +183,8 @@ python3 .agents/skills/balance-audit/scripts/cohort_sim.py \
 - **코호트(I)** — 레벨/지역/목표별 최적 로드아웃, 대체장비 대비 상대효율, 가격·재료 회수시간, 사용률 후보.
 - **도구 선택(J)** — 낚싯대 vs 작살의 골드/h·XP/h·캐치/h·품질·실패율을 한 표에 놓고, 한쪽이 다른 쪽을 지배하는 레벨 구간을 표시.
 - **기회비용(K)** — 같은 레벨 포인트/강화/재료를 한 도구에 투자했을 때 다른 도구 대비 잃는 생산량과 회수시간.
-- **실측 보정(L)** — telemetry의 스윙·명중·미스·캐치·세션 시간을 시뮬레이션 가정과 대조한다. 표본 부족이면 “미판정”으로 둔다.
+- **실측 보정(L)** — telemetry의 스윙·명중·미스·캐치·세션 시간을 시뮬레이션 가정과 대조한다. 낚시 크리는
+  명목 칸확률→금칸 존재→조준 전환→실제 결과율→보상 프리미엄의 4층을 분리하고, 각 층의 표본·신뢰구간·식별 한계를 적는다. 표본 부족이면 “미판정”으로 둔다.
 - ★요리(DishSpecs.java)·날씨(env-bonuses.json+WeatherManager)·장비(parts.json)는 pull.py가
   전량 파싱하진 않으므로, 값이 바뀌었으면 해당 소스를 재추출해 측정한다(data-sources.md 위치 참조).
 
@@ -193,7 +213,7 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 ## B. 경제 (수입/소모)
 ## C. RNG / 등급
 ## D. 장비 / 강화 / 부품
-## E. 스탯 실질가치 (stat_value.py 표 + 직관 교정)
+## E. 스탯 실질가치 (stat_value.py 표 + 크리 실측)
 ## F. 요리 (버프가치 원 vs 제작난이도)
 ## G. 날씨 (환경보너스 원/h + 다운사이드 + 빈도)
 ## H. 장비 스탯가치 vs 가격 (회수시간, 등급-가격 정합성)
