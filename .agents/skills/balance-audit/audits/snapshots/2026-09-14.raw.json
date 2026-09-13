@@ -30671,8 +30671,8 @@
   "derived": {
     "fountain_loot": {
       "casts_per_hour_assumption": 150,
-      "fixed_exp_per_catch": 10000,
-      "fixed_exp_per_hour": 1500000,
+      "fixed_exp_per_catch": 1,
+      "fixed_exp_per_hour": 150,
       "coin_chances_pct": {"copper_100": 3.0, "silver_1000": 0.4, "gold_10000": 0.5},
       "expected_money_per_cast": 138.685,
       "expected_money_per_hour": 20802.75,
