@@ -3405,6 +3405,30 @@
       "time": "전체",
       "weather": "전체",
       "itemType": "junk"
+    },
+    "구리 동전": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "은 동전": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "황금 동전": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
     }
   },
   "regions": {
