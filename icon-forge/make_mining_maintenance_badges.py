@@ -230,4 +230,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    # The original hand-drawn 16px implementation produced the blurry badges
+    # that were shipped by mistake.  Keep this filename as a safe legacy entry
+    # point, but always build from the approved ImageGen source now.
+    from make_mining_maintenance_imagegen import main as imagegen_main
+
+    imagegen_main()
