@@ -172,8 +172,8 @@
       "submit_reward_cap": 1000000,
       "quest_rewards": {
         "count": 403,
-        "sum": 11702123,
-        "max": 1800000,
+        "sum": 10902123,
+        "max": 1000000,
         "min": 200
       },
       "pearl_drop_chance": {
@@ -3322,11 +3322,11 @@
             "durability": 340,
             "level": 45,
             "stats": {
-              "크리배율": 11.0,
-              "등급업": 18.0,
-              "크리확률": 33.0,
-              "크기": 16.0,
-              "행운": 30.0
+              "크리배율": 8.0,
+              "등급업": 9.0,
+              "크리확률": 24.0,
+              "크기": 9.0,
+              "행운": 16.0
             },
             "source": "사막마을"
           },
@@ -29923,9 +29923,9 @@
         },
         "duplicate_names": [],
         "fish": {
-          "fish_count": 472,
+          "fish_count": 485,
           "fish_by_grade": {
-            "E": 80,
+            "E": 93,
             "D": 59,
             "B": 89,
             "C": 73,
@@ -30023,6 +30023,9 @@
             "부두": {
               "기본": 20,
               "통발": 2
+            },
+            "분수대": {
+              "기본": 10
             },
             "붉은_골짜기": {
               "기본": 22,
@@ -30374,6 +30377,11 @@
                 "E"
               ]
             },
+            "분수대": {
+              "기본": [
+                "E"
+              ]
+            },
             "붉은_골짜기": {
               "기본": [
                 "A",
@@ -30428,7 +30436,7 @@
               ]
             }
           },
-          "region_count": 19,
+          "region_count": 20,
           "size_range": {
             "min": 1,
             "max": 3951
@@ -30444,19 +30452,19 @@
           ]
         },
         "source_fingerprints": {
-          "parts.json": "82b588593533a79e",
+          "parts.json": "8000fd74c9525ee2",
           "recipes.json": "885f043039953767",
-          "fish.json": "a71be9e22fe7d566",
+          "fish.json": "cfd4127efa81d31e",
           "enhance.json": "7c51b75c6052ad78"
         },
-        "catalog_hash": "34b6635f20996379"
+        "catalog_hash": "100ec231e544a394"
       },
       "catalog_integrity": {
         "part_total": 379,
         "recipe_total": 475,
         "missing_recipe_total": 15,
         "duplicate_name_total": 0,
-        "catalog_hash": "34b6635f20996379"
+        "catalog_hash": "100ec231e544a394"
       },
       "part_counts": {
         "낚싯대": 88,
@@ -30660,5 +30668,15 @@
     }
   },
   "warnings": [],
-  "derived": {}
+  "derived": {
+    "fountain_loot": {
+      "casts_per_hour_assumption": 150,
+      "fixed_exp_per_catch": 10000,
+      "fixed_exp_per_hour": 1500000,
+      "coin_chances_pct": {"copper_100": 3.0, "silver_1000": 0.4, "gold_10000": 0.5},
+      "expected_money_per_cast": 138.685,
+      "expected_money_per_hour": 20802.75,
+      "stat_multipliers": "disabled"
+    }
+  }
 }
