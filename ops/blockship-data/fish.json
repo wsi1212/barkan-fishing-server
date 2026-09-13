@@ -3325,6 +3325,86 @@
       "grade": "A",
       "time": "전체",
       "weather": "전체"
+    },
+    "페트병": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "낡은 타이어": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "과자 봉지": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "구부러진 포크": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "젖은 신문": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "물먹은 장화": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "녹슨 캔": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "찢어진 비닐봉지": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "깨진 컵": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
+    },
+    "엉킨 그물": {
+      "minSize": 1,
+      "maxSize": 1,
+      "grade": "E",
+      "time": "전체",
+      "weather": "전체",
+      "itemType": "junk"
     }
   },
   "regions": {
@@ -4419,6 +4499,20 @@
       "통발": [
         "부두돌게",
         "항구쏙"
+      ]
+    },
+    "분수대": {
+      "기본": [
+        "페트병",
+        "낡은 타이어",
+        "과자 봉지",
+        "구부러진 포크",
+        "젖은 신문",
+        "물먹은 장화",
+        "녹슨 캔",
+        "찢어진 비닐봉지",
+        "깨진 컵",
+        "엉킨 그물"
       ]
     },
     "붉은_골짜기": {
