@@ -79,7 +79,7 @@
       "iconId": "ui_gui_profile",
       "cashShop": true,
       "coinShop": false,
-      "locked": true
+      "locked": false
     }
   ],
   "items": {
@@ -586,6 +586,15 @@
       }
     ],
     "칭호": [
+      {
+        "id": "서포터칭호",
+        "name": "❤ Supporter",
+        "coin": 0,
+        "cash": 5000,
+        "icon": "PINK_DYE",
+        "lore": "§d서버를 후원하는 서포터를 위한 특별 칭호",
+        "tag": "title:서포터"
+      },
       {
         "id": "특수칭호",
         "name": "프리미엄 칭호 팩",
