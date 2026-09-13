@@ -113,6 +113,7 @@ def compute(snapshot, casts, size_score, crit_rate, crit_dmg):
     # 크리 1회당 가격 상대증가 = critDmg×CRIT_PRICE_COEF.
     # 크리확률·크리배율은 서로 곱이라 시너지(단독값 무의미).
     crit_gain_per_dmg = crit_dmg * CRIT_PRICE_COEF
+    crit_bundle_sbeq = crit_rate * crit_gain_per_dmg
     # This is deliberately *result* critical-rate, not the item stat.  A nominal
     # per-cell chance point has a non-linear, build/zone/player-dependent mapping.
     V["결과 크리율 (1%p, 조건부)"] = (income * 0.01 * crit_gain_per_dmg,
@@ -178,8 +179,11 @@ def main():
 
     snap = load_snapshot(args.snapshot)
     income, avg, dist, V = compute(snap, args.casts, args.size_score, args.crit_rate, args.crit_dmg)
+    crit_bundle_sbeq = args.crit_rate * args.crit_dmg * CRIT_PRICE_COEF
 
     print(f"기준: {args.casts}캐스트/h, 크기점수{args.size_score}, 실제 결과크리율{args.crit_rate*100:.1f}%, 크리배율{args.crit_dmg}")
+    print(f"크리 묶음 판매보너스 등가(SB-eq) = +{crit_bundle_sbeq*100:.2f}% "
+          "(판매보너스·신선도 제외, 실제 결과크리율×최종크리배율×6%)")
     print(f"무버프 수입 = {income:,.0f}원/h (평균 캐치 {avg:,.1f}원)\n")
     anchor = V["판매보너스 (1%)"][0]
     print(f"{'스탯':<15}{'원/h/단위':>9}{'정규화':>7}{'상한':>6}{'최대기여원/h':>12}{'최대정규화':>10}   근거")
@@ -201,7 +205,9 @@ def main():
     # JSON 출력(스냅샷 derived 병합용)
     result = {"income_per_hour": round(income), "avg_catch": round(avg, 1),
               "casts": args.casts, "size_score": args.size_score,
-              "crit_rate": args.crit_rate, "crit_dmg": args.crit_dmg, "anchor_won": round(anchor, 1),
+              "crit_rate": args.crit_rate, "crit_dmg": args.crit_dmg,
+              "crit_bundle_sale_bonus_equiv_pct": round(crit_bundle_sbeq * 100, 4),
+              "anchor_won": round(anchor, 1),
               "stat_values": out}
     print("\n--- JSON ---")
     print(json.dumps(result, ensure_ascii=False, indent=2))

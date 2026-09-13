@@ -16,12 +16,18 @@ import json
 import math
 import sqlite3
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
 VALID_RESULTS = {"성공", "크리티컬"}
 BANDS = ((0, 0), (1, 5), (6, 10), (11, 15), (16, 20), (21, 30),
          (31, 45), (46, 60), (61, 80), (81, 1000))
+# FishItem.fishPrice current grade bases. These are deliberately pre-critical and
+# pre-sell-bonus so the metric below cannot be inflated by a separate sell stat.
+GRADE_BASE_PRICE = {"E": 100, "D": 250, "C": 600, "B": 2000, "A": 6000,
+                    "S": 20000, "M": 65000, "L": 170000, "G": 450000}
+KST = timezone(timedelta(hours=9))
 
 
 def wilson(successes: int, total: int) -> tuple[float | None, float | None]:
@@ -52,6 +58,18 @@ def open_read_only(path: Path) -> sqlite3.Connection:
     return sqlite3.connect(f"file:{path.absolute()}?mode=ro", uri=True)
 
 
+def epoch_kst(date_text: str) -> int:
+    """Start of YYYY-MM-DD in KST, returned in telemetry's millisecond epoch."""
+    return int(datetime.strptime(date_text, "%Y-%m-%d").replace(tzinfo=KST).timestamp() * 1000)
+
+
+def base_fish_price(grade: str, quality: float) -> int | None:
+    """FishItem.fishPrice: base × (0.5 + quality × 0.5 / 100), rounded down."""
+    if grade not in GRADE_BASE_PRICE:
+        return None
+    return math.floor(GRADE_BASE_PRICE[grade] * (0.5 + max(0.0, quality) * 0.5 / 100.0))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="fish.result / fish.macro 기반 크리 실현율 측정")
     parser.add_argument("--telemetry-dir", type=Path,
@@ -60,23 +78,33 @@ def main() -> None:
     parser.add_argument("--db", type=Path, action="append", default=[],
                         help="개별 events DB (여러 번 지정 가능; telemetry-dir보다 우선)")
     parser.add_argument("--hook", help="특정 바늘 이름만 측정(로드아웃에 없는 결과는 제외)")
+    parser.add_argument("--revenue-since", default="2026-09-13",
+                        help="현행 직접 판매보너스 크리 체계가 적용된 KST 날짜 (기본: 2026-09-13)")
     parser.add_argument("--out", type=Path, help="집계 JSON 출력 경로(선택)")
     args = parser.parse_args()
 
     files = sorted(args.db) if args.db else sorted(args.telemetry_dir.glob("events-*.db"))
     if not files:
         parser.error("읽을 events-YYYY-MM.db가 없습니다. --telemetry-dir 또는 --db를 지정하세요.")
+    try:
+        revenue_epoch = epoch_kst(args.revenue_since)
+    except ValueError:
+        parser.error("--revenue-since는 YYYY-MM-DD 형식이어야 합니다.")
 
     # chance -> [valid catches, realised crits, players]
     exact: dict[int, list] = defaultdict(lambda: [0, 0, set()])
     macro = [0, 0.0, 0.0, set()]  # snapshots, gold opportunities, estimated gold hits, players
+    # current-reward-era only: catches, pre-bonus base sales, crit's exact pre-bonus increment, players
+    revenue = [0, 0, 0, set()]
+    revenue_by_chance: dict[int, list[int]] = defaultdict(lambda: [0, 0, 0])
     valid, malformed = 0, 0
     file_summary = []
 
     for path in files:
+        con = None
         try:
             con = open_read_only(path)
-            rows = con.execute("SELECT uuid, ctx FROM ev WHERE type='fish.result'").fetchall()
+            rows = con.execute("SELECT ts, uuid, ctx FROM ev WHERE type='fish.result'").fetchall()
             macro_rows = con.execute("SELECT uuid, ctx FROM ev WHERE type='fish.macro'").fetchall()
             loadouts = {}
             for loadout_hash, payload in con.execute("SELECT hash, json FROM loadout"):
@@ -88,13 +116,11 @@ def main() -> None:
             print(f"경고: {path.name} 건너뜀 ({exc})")
             continue
         finally:
-            try:
+            if con is not None:
                 con.close()
-            except UnboundLocalError:
-                pass
 
         file_valid = 0
-        for uuid, text in rows:
+        for ts, uuid, text in rows:
             try:
                 ctx = json.loads(text)
                 if ctx.get("res") not in VALID_RESULTS:
@@ -111,6 +137,26 @@ def main() -> None:
             exact[chance][0] += 1
             exact[chance][1] += int(critical)
             exact[chance][2].add(uuid)
+
+            # Current valuation: rebuild the fish's price before *both* critical and
+            # sell bonus.  This makes "equivalent sell bonus" an intrinsic value;
+            # a player's unrelated sale bonus cannot make critical look stronger.
+            if ts >= revenue_epoch:
+                try:
+                    base = base_fish_price(str(ctx["g"]), float(ctx["q"]))
+                    if base is None:
+                        continue
+                    damage = int(ctx["critd"]) if critical else 0
+                except (KeyError, TypeError, ValueError):
+                    continue
+                increment = math.floor(base * (1.0 + damage * 0.06)) - base if critical else 0
+                revenue[0] += 1
+                revenue[1] += base
+                revenue[2] += increment
+                revenue[3].add(uuid)
+                revenue_by_chance[chance][0] += 1
+                revenue_by_chance[chance][1] += base
+                revenue_by_chance[chance][2] += increment
 
         # Macro snapshots contain neither loadout nor nominal chance, so a hook-level
         # query must not accidentally claim their all-player conversion as this hook's.
@@ -156,6 +202,22 @@ def main() -> None:
 
     macro_opps, macro_players = macro[1], len(macro[3])
     macro_evidence = evidence_level(int(macro_opps), macro_players)
+
+    def revenue_row(label: str, values: list[int]) -> dict:
+        catches, base, increment = values
+        return {
+            "nominal_cell_chance": label,
+            "catches": catches,
+            "pre_bonus_base_won": base,
+            "critical_increment_won": increment,
+            "extra_won_per_catch": round(increment / catches, 3) if catches else None,
+            "equivalent_sell_bonus_pct": round(100 * increment / base, 4) if base else None,
+        }
+
+    revenue_rows = [revenue_row(f"{chance}%", values)
+                    for chance, values in sorted(revenue_by_chance.items())]
+    revenue_evidence = ("측정 가능" if revenue[0] >= 100 and len(revenue[3]) >= 3
+                        else "표본 부족")
     result = {
         "schema": 1,
         "filter": {"hook": args.hook} if args.hook else {},
@@ -183,6 +245,21 @@ def main() -> None:
             "reason": "현재 fish.result는 critd를 크리 결과에만 기록해 같은 빌드의 비크리 대조군을 만들 수 없다. "
                       "보상 프리미엄은 코드 공식(판매 +6d%, XP +10d%)을 사용한다.",
         },
+        "sale_value_excluding_sell_bonus": {
+            "mechanics_epoch_kst": args.revenue_since,
+            "formula": "Σ[floor(base_price × (1 + 0.06 × crit_damage)) - base_price for critical catches] / Σ base_price",
+            "meaning": "판매보너스·신선도 이전의 등급×품질 기본가만 분모로 쓰므로, 결과는 판매보너스와 직접 비교 가능한 등가 %다.",
+            "catches": revenue[0], "pre_bonus_base_won": revenue[1],
+            "critical_increment_won": revenue[2],
+            "players": len(revenue[3]),
+            "extra_won_per_catch": round(revenue[2] / revenue[0], 3) if revenue[0] else None,
+            "equivalent_sell_bonus_pct": round(100 * revenue[2] / revenue[1], 4) if revenue[1] else None,
+            "evidence": revenue_evidence,
+            "by_exact_nominal_chance": revenue_rows,
+            "limit": ("현행 직접 판매보너스 크리 체계 이후 fish.result가 없어 수익 등가치는 미측정. "
+                      "이전 체계의 price/critd는 현재 공식과 섞지 않는다." if not revenue[0] else
+                      "이 값은 실제 발생한 크리와 최종 크리배율의 묶음 가치다. 명목 크확 1점의 한계가치는 별도 계측이 필요하다."),
+        },
         "verdict": {
             "realised_crit_rate": "측정 가능" if valid >= 500 and len(set().union(*(v[2] for v in exact.values()))) >= 5 else "표본 부족",
             "gold_opportunity_and_aim_split": macro_evidence,
@@ -202,6 +279,14 @@ def main() -> None:
     print(f"스냅샷 {macro[0]} · 금칸기회 {macro_opps:.0f} · 전환 "
           f"{conversion * 100:.1f}%" if conversion is not None else "데이터 없음")
     print(f"판정: {macro_evidence}. {result['macro_gold_conversion']['limit']}")
+    sales = result["sale_value_excluding_sell_bonus"]
+    print("\n[판매보너스 제외 크리 수익 등가치]")
+    if sales["catches"]:
+        print(f"현행 체계 {args.revenue_since} 이후 {sales['catches']}캐치: "
+              f"기본가 대비 +{sales['equivalent_sell_bonus_pct']:.2f}% "
+              f"({sales['extra_won_per_catch']:.1f}원/캐치)")
+    else:
+        print(f"현행 체계 {args.revenue_since} 이후 유효 캐치 0건 — 수익 등가치 미측정")
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

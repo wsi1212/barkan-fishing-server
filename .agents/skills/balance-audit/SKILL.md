@@ -157,6 +157,9 @@ python3 .agents/skills/balance-audit/scripts/stat_value.py \
   스냅샷의 충분성을 함께 낸다. 표본 부족이면 값은 **미판정**이며, 약한 구간을 다른 장비의 수치로 메우지 않는다.
 - 현재 과거 데이터에는 존폭·금칸 존재가 결과별로 기록되지 않는다. 따라서 금칸 존재율과 조준 전환율을
   부품별로 분해할 수 없으면, 그 한계를 리포트에 적고 코드 메커니즘 기반 반사실값을 별도 가정으로만 쓴다.
+- 크리 수익은 `crit_telemetry.py`의 **판매보너스 등가치(SB-eq)**로만 비교한다. 등급×품질의 기본가에서
+  크리·판매보너스·신선도를 모두 뺀 뒤 실제 크리의 `+6d%`만 계산한다. 현행 직접 판매가 체계(2026-09-13)
+  전의 수익 로그는 결과 크리율 보조 자료일 뿐 SB-eq에 합산하지 않는다.
 - 상세·방법론·개인정보 규칙: [references/telemetry-data-sources.md](references/telemetry-data-sources.md),
   [references/stat-values.md](references/stat-values.md).
 
