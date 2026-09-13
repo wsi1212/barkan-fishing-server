@@ -24,6 +24,7 @@ from urllib.request import Request, urlopen
 ROOT = Path.home() / "mcserver"
 LATEST_LOG = ROOT / "logs" / "latest.log"
 CONFIG = ROOT / "plugins" / "BlockShip" / "config.yml"
+OPS_FILE = ROOT / "ops.json"
 RESTORE_MARKER = ROOT / "scripts" / ".guide-webhook-restore-once"
 LOCK_FILE = ROOT / "scripts" / ".guide-audit-bridge.lock"
 MAX_BATCH = 15
@@ -101,6 +102,16 @@ def should_forward(command: str) -> bool:
     return True
 
 
+def is_operator(player: str) -> bool:
+    """Mirror Bukkit's persistent OP check for the temporary log bridge."""
+    try:
+        entries = json.loads(OPS_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    wanted = player.casefold()
+    return any(str(entry.get("name", "")).casefold() == wanted for entry in entries)
+
+
 def markdown_escape(value: str) -> str:
     return re.sub(r"([*_~`|\\])", r"\\\1", value)
 
@@ -108,6 +119,8 @@ def markdown_escape(value: str) -> str:
 def parse_line(raw: str) -> str | None:
     match = LINE_RE.match(raw.rstrip("\r\n"))
     if not match:
+        return None
+    if is_operator(match.group("player")):
         return None
     command = match.group("command").replace("`", "'")[:160]
     if not should_forward(command):
