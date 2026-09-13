@@ -78,8 +78,8 @@
       "icon": "NAME_TAG",
       "iconId": "ui_gui_profile",
       "cashShop": true,
-      "coinShop": true,
-      "locked": false
+      "coinShop": false,
+      "locked": true
     }
   ],
   "items": {
@@ -193,6 +193,60 @@
         "tag": "buff:길드부스터"
       },
       {
+        "id": "자동심기500",
+        "name": "자동심기 추가권 (500회)",
+        "coin": 2,
+        "cash": 1000,
+        "icon": "WHEAT_SEEDS",
+        "lore": "§7섬에서 일반 작물을 수확하면 자동으로 다시 심습니다. §8(우클릭 후 /자동심기)",
+        "tag": "autoplant:500"
+      },
+      {
+        "id": "자동심기1000",
+        "name": "자동심기 추가권 (1,000회)",
+        "coin": 4,
+        "cash": 2000,
+        "icon": "WHEAT_SEEDS",
+        "lore": "§7섬에서 일반 작물을 수확하면 자동으로 다시 심습니다. §8(우클릭 후 /자동심기)",
+        "tag": "autoplant:1000"
+      },
+      {
+        "id": "자동심기2000",
+        "name": "자동심기 추가권 (2,000회)",
+        "coin": 7,
+        "cash": 3500,
+        "icon": "WHEAT_SEEDS",
+        "lore": "§7섬에서 일반 작물을 수확하면 자동으로 다시 심습니다. §8(우클릭 후 /자동심기)",
+        "tag": "autoplant:2000"
+      },
+      {
+        "id": "플라이5",
+        "name": "비행 추가권 (5분)",
+        "coin": 1,
+        "cash": 500,
+        "icon": "FEATHER",
+        "lore": "§7섬/길드섬에서 쓸 수 있는 비행 시간권입니다. §8(우클릭하여 사용)",
+        "tag": "fly:5"
+      },
+      {
+        "id": "플라이10",
+        "name": "비행 추가권 (10분)",
+        "coin": 2,
+        "cash": 1000,
+        "icon": "FEATHER",
+        "lore": "§7섬/길드섬에서 쓸 수 있는 비행 시간권입니다. §8(우클릭하여 사용)",
+        "tag": "fly:10"
+      },
+      {
+        "id": "플라이20",
+        "name": "비행 추가권 (20분)",
+        "coin": 3,
+        "cash": 1500,
+        "icon": "FEATHER",
+        "lore": "§7섬/길드섬에서 쓸 수 있는 비행 시간권입니다. §8(우클릭하여 사용)",
+        "tag": "fly:20"
+      },
+      {
         "id": "허수아비",
         "name": "허수아비",
         "coin": 4,
@@ -247,15 +301,6 @@
         "icon": "BEACON",
         "lore": "§7범위 효과를 주는 신호기 블록",
         "tag": "item:BEACON"
-      },
-      {
-        "id": "전달체",
-        "name": "전달체",
-        "coin": 15,
-        "cash": 0,
-        "icon": "CONDUIT",
-        "lore": "§7수중 시야·호흡 효과 블록",
-        "tag": "item:CONDUIT"
       },
       {
         "id": "마법부여대",
@@ -541,16 +586,6 @@
       }
     ],
     "칭호": [
-      {
-        "id": "서포터칭호",
-        "name": "❤ Supporter",
-        "coin": 0,
-        "cash": 5000,
-        "recommendCash": true,
-        "icon": "PINK_DYE",
-        "lore": "§d서버를 후원하는 서포터를 위한 특별 칭호",
-        "tag": "title:서포터"
-      },
       {
         "id": "특수칭호",
         "name": "프리미엄 칭호 팩",
