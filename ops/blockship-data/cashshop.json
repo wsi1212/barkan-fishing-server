@@ -195,8 +195,8 @@
       {
         "id": "허수아비",
         "name": "허수아비",
-        "coin": 5,
-        "cash": 2500,
+        "coin": 4,
+        "cash": 2000,
         "icon": "CARVED_PUMPKIN",
         "lore": "§7주변 16×16×16의 바닐라 작물을 오프라인에도 성장시킵니다.",
         "tag": "ce:barkan:scarecrow"
