@@ -121,11 +121,29 @@ PY
   return 1
 }
 
+wait_main_ready(){
+  for _wait in $(seq 1 420); do
+    if python3 - "$CONTROL_DIR/status.json" <<'PY'
+import json, sys, time
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8"))
+    fresh = time.time() * 1000 - int(data.get("updatedEpochMs", 0)) < 5000
+    raise SystemExit(0 if fresh and data.get("mainReady") is True else 1)
+except Exception:
+    raise SystemExit(1)
+PY
+    then return 0; fi
+    sleep 1
+  done
+  return 1
+}
+
 restart_backend(){
   "$CONTROL" drain
   "$CONTROL" wait-drained >/dev/null
   "$DEV_MC" restart
   wait_main_reachable
+  wait_main_ready
   "$CONTROL" resume
   "$CONTROL" wait-idle >/dev/null
   echo "dev Paper 재시작·자동 복귀 완료"
