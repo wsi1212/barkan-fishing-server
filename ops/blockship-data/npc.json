@@ -195,7 +195,8 @@
     "배대여_-168_-409",
     "말대여_-209_-375",
     "배대여_-214_-388",
-    "조선소"
+    "조선소",
+    "말대여_930_-36"
   ],
   "npcs": {
     "낚시꾼할아버지": {
@@ -6202,6 +6203,33 @@
       "quests": [
         "튜토_배2"
       ],
+      "shopItems": []
+    },
+    "말대여_930_-36": {
+      "citizensId": "214",
+      "name": "&b[말 대여] 체사레",
+      "ferry": false,
+      "shop": false,
+      "inn": false,
+      "smithy": false,
+      "islandShop": false,
+      "scrollShop": false,
+      "guild": false,
+      "submit": false,
+      "cooking": false,
+      "drillShop": false,
+      "heal": false,
+      "horseRental": true,
+      "boatRental": false,
+      "shipShop": false,
+      "market": false,
+      "quest": false,
+      "casino": false,
+      "casinoRanking": false,
+      "appraisal": false,
+      "villageQuest": false,
+      "ranking": false,
+      "quests": [],
       "shopItems": []
     }
   }
