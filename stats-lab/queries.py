@@ -188,19 +188,33 @@ def c5_zero_purchase(months=None):
 
 
 # ── C6: 인플레(일별 순발행) ──────────────────────────────────────
-def c6_inflation(months=None):
+def c6_inflation(months=None, split_cash_sources=False):
     """★2026-07-28 수정: ctx.cur(money/cash/afkp 등 재화 종류)를 안 가리고 reason만으로 묶었더니
     골드·캐시·잠수포인트가 전부 한 숫자로 합산되던 버그(유저 발견) — cur도 같이 GROUP BY해서
-    재화별로 행을 분리한다. app.py가 cur별로 섹션을 나눠 표시."""
+    재화별로 행을 분리한다. app.py가 cur별로 섹션을 나눠 표시.
+
+    split_cash_sources=True이면 캐시 멤버십 지급처럼 reason은 admin.give이지만
+    ctx.dt가 "멤버십 ..."인 기록을 별도 사유(cash.membership)로 나눈다.
+    기본값은 기존 CLI/report 호환을 위해 False로 둔다.
+    """
     c, aliases = _conn_with_events(months)
     union = _union_ev(aliases)
+    reason_expr = "json_extract(ctx,'$.r')"
+    if split_cash_sources:
+        reason_expr = """CASE
+            WHEN COALESCE(json_extract(ctx,'$.cur'), '') = 'cash'
+             AND LOWER(COALESCE(json_extract(ctx,'$.dt'), '')) LIKE '멤버십 %'
+            THEN 'cash.membership'
+            ELSE json_extract(ctx,'$.r')
+        END"""
     sql = f"""
     WITH ev AS ({union})
-    SELECT COALESCE(json_extract(ctx,'$.cur'), '(미지정)') cur, json_extract(ctx,'$.r') reason,
+    SELECT COALESCE(json_extract(ctx,'$.cur'), '(미지정)') cur, {reason_expr} reason,
            SUM(CASE WHEN CAST(json_extract(ctx,'$.d') AS INTEGER) > 0 THEN json_extract(ctx,'$.d') ELSE 0 END) sourced,
            SUM(CASE WHEN CAST(json_extract(ctx,'$.d') AS INTEGER) < 0 THEN json_extract(ctx,'$.d') ELSE 0 END) sunk,
            COUNT(*) n
-    FROM ev WHERE type='money.txn' GROUP BY cur, reason ORDER BY cur, ABS(sourced + sunk) DESC
+    FROM ev WHERE type='money.txn' GROUP BY cur, {reason_expr}
+    ORDER BY cur, ABS(sourced + sunk) DESC
     """
     rows = [dict(r) for r in c.execute(sql)]
     c.close()
@@ -429,13 +443,46 @@ def c16_shop_sales(months=None):
     sql = f"""
     WITH ev AS ({union})
     SELECT json_extract(ctx,'$.shop') shop, json_extract(ctx,'$.item') item,
-           SUM(CASE WHEN type='shop.buy' THEN CAST(json_extract(ctx,'$.n') AS INTEGER) ELSE 0 END) bought_qty,
+           SUM(CASE WHEN type='shop.buy' THEN COALESCE(CAST(json_extract(ctx,'$.n') AS INTEGER), 1) ELSE 0 END) bought_qty,
            SUM(CASE WHEN type='shop.buy' THEN CAST(json_extract(ctx,'$.price') AS INTEGER) ELSE 0 END) bought_revenue,
-           SUM(CASE WHEN type='shop.sell' THEN CAST(json_extract(ctx,'$.n') AS INTEGER) ELSE 0 END) sold_qty,
+           SUM(CASE WHEN type='shop.sell' THEN COALESCE(CAST(json_extract(ctx,'$.n') AS INTEGER), 1) ELSE 0 END) sold_qty,
            SUM(CASE WHEN type='shop.sell' THEN CAST(json_extract(ctx,'$.price') AS INTEGER) ELSE 0 END) sold_payout
     FROM ev WHERE type IN ('shop.buy', 'shop.sell')
     GROUP BY shop, item
     ORDER BY (bought_qty + sold_qty) DESC
+    """
+    rows = [dict(r) for r in c.execute(sql)]
+    c.close()
+    return rows
+
+
+# ── C21: 캐시상점 구매 품목별 집계 ───────────────────────────────────────
+def c21_cashshop_sales(months=None):
+    """cashshop.buy(ctx.item, cash, coin)를 결제 재화×상품별로 묶는다.
+
+    CashShopGui가 실제로 차감한 재화만 cash 또는 coin 중 하나에 기록하고 다른 쪽은
+    0으로 기록하므로, 두 금액을 모두 보존해 캐시 구매와 추천코인 구매를 분리한다.
+    """
+    c, aliases = _conn_with_events(months)
+    union = _union_ev(aliases)
+    sql = f"""
+    WITH ev AS ({union}), purchases AS (
+        SELECT
+            CASE
+                WHEN CAST(COALESCE(json_extract(ctx,'$.cash'), 0) AS INTEGER) > 0 THEN 'cash'
+                WHEN CAST(COALESCE(json_extract(ctx,'$.coin'), 0) AS INTEGER) > 0 THEN 'coin'
+                ELSE '(미지정)'
+            END currency,
+            COALESCE(json_extract(ctx,'$.item'), '(상품 ID 없음)') item,
+            CAST(COALESCE(json_extract(ctx,'$.cash'), 0) AS INTEGER) cash_spent,
+            CAST(COALESCE(json_extract(ctx,'$.coin'), 0) AS INTEGER) coin_spent
+        FROM ev WHERE type='cashshop.buy'
+    )
+    SELECT currency, item, COUNT(*) bought_qty,
+           SUM(cash_spent) cash_spent, SUM(coin_spent) coin_spent
+    FROM purchases
+    GROUP BY currency, item
+    ORDER BY currency, bought_qty DESC, item
     """
     rows = [dict(r) for r in c.execute(sql)]
     c.close()
@@ -615,6 +662,7 @@ COOKBOOK = {
     "c18b": c18b_trade_overview,
     "c19": c19_xfer_by_via,
     "c20": c20_check_summary,
+    "c21": c21_cashshop_sales,
 }
 
 

@@ -130,6 +130,35 @@ def _blockship_data_dir():
     return ""
 
 
+def _cashshop_item_labels():
+    """캐시상점 telemetry의 상품 ID를 현재 cashshop.json의 표시 이름으로 바꾼다.
+
+    운영은 BLOCKSHIP_DATA_DIR 아래의 배포본을 우선하고, 로컬 샌드박스에서는
+    저장소의 ops/blockship-data seed를 fallback으로 사용한다. 카탈로그를 읽지 못해도
+    telemetry의 원래 상품 ID는 그대로 표시해 통계 페이지가 죽지 않게 한다.
+    """
+    candidates = []
+    blockship_dir = _blockship_data_dir()
+    if blockship_dir:
+        candidates.append(os.path.join(blockship_dir, "cashshop.json"))
+    candidates.append(os.path.abspath(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "ops", "blockship-data", "cashshop.json")))
+    for path in candidates:
+        try:
+            with open(path, encoding="utf-8") as file:
+                payload = json.load(file)
+            labels = {}
+            for items in (payload.get("items", {}) or {}).values():
+                for item in items or []:
+                    if isinstance(item, dict) and item.get("id"):
+                        labels[str(item["id"])] = str(item.get("name") or item["id"])
+            if labels:
+                return labels
+        except (OSError, ValueError, TypeError):
+            continue
+    return {}
+
+
 def _number(value, default=0):
     try:
         return int(value or 0)
@@ -702,6 +731,12 @@ def _fmt_rows(rows, col_fmt):
     return out
 
 
+def _is_admin_fix_reason(reason):
+    """admin.fix/admin_fix처럼 구분자가 달라진 운영자 보정 사유를 모두 판정한다."""
+    normalized = re.sub(r"[^a-z0-9]+", "_", str(reason or "").strip().lower()).strip("_")
+    return normalized == "admin_fix"
+
+
 # ── 인증 ─────────────────────────────────────────────────────────
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, error: str = ""):
@@ -874,10 +909,17 @@ def economy(request: Request):
     # ★2026-07-28 유저 지적으로 발견: 예전엔 reason만 GROUP BY해서 골드(money)·캐시(cash)·
     # 잠수포인트(afkp)가 전부 한 숫자로 합쳐져 나왔음 — 서로 다른 재화라 섞으면 안 됨. 이제
     # c6_inflation이 cur도 같이 묶어서 반환하니, 재화별로 섹션을 분리해서 렌더링한다.
-    # 운영자 보정(admin_fix)은 실제 플레이어 경제 흐름이 아니고 큰 일회성 금액이
+    # 운영자 보정(admin.fix/admin_fix)은 실제 플레이어 경제 흐름이 아니고 큰 일회성 금액이
     # 섞일 수 있으므로, 어드민 경제 페이지의 그래프/인사이트/표에서는 제외한다.
     # 원본 텔레메트리와 stats-lab 공용 쿼리는 보존한다.
-    all_money_rows = [r for r in queries.c6_inflation() if r.get("reason") != "admin_fix"]
+    all_money_rows = [r for r in queries.c6_inflation(split_cash_sources=True)
+                      if not _is_admin_fix_reason(r.get("reason"))]
+    money_reason_labels = {
+        "cash.membership": "현질(멤버십 캐시)",
+        "admin.give": "관리자 지급",
+    }
+    for r in all_money_rows:
+        r["reason"] = money_reason_labels.get(r.get("reason"), r.get("reason"))
     for r in all_money_rows:
         r["net"] = (r["sourced"] or 0) + (r["sunk"] or 0)
     # 순액이 가장 큰 소스(=인플레 유발 주범, 주의 필요)와 가장 큰 싱크(=화폐 회수, 건강한 신호)를
@@ -906,8 +948,36 @@ def economy(request: Request):
             "table_rows": cur_table_rows,
         })
 
-    # ── 상점(섬/드릴 등) 품목별 구매/판매(C16) — "섬상점에서 어떤 품목이 얼마나 팔렸고"(2026-07-28 요청) ──
+    # ── 캐시상점 구매 품목(C21) — 캐시와 추천코인을 실제 결제 재화별로 분리 ──
+    cashshop_raw = queries.c21_cashshop_sales()
+    cashshop_item_labels = _cashshop_item_labels()
+    payment_labels = {"cash": "캐시", "coin": "추천코인", "(미지정)": "미지정"}
+    for r in cashshop_raw:
+        r["currency"] = payment_labels.get(r.get("currency"), r.get("currency"))
+        raw_item = str(r.get("item") or "")
+        r["item"] = cashshop_item_labels.get(raw_item, raw_item)
+    insights.flag_extremes(cashshop_raw, "bought_qty", good_label="🔥 많이 구매됨",
+                           bad_label="⚠️ 구매 저조", n=2, good="high")
+    cashshop_chart = charts.bar_chart(
+        [f"[{r['currency']}] {r['item']}" for r in cashshop_raw[:15]],
+        [r["bought_qty"] or 0 for r in cashshop_raw[:15]],
+        value_fmt=_num1, title="캐시상점 구매 품목(상위 15)") if cashshop_raw else None
+    cashshop_rows = _fmt_rows(cashshop_raw, {"bought_qty": _num1, "cash_spent": _num1,
+                                              "coin_spent": _num1})
+
+    # ── 게임 내 상점(섬/드릴/잠수/추천 등) 품목별 구매/판매(C16) ──
     shop = queries.c16_shop_sales()
+    shop_labels = {
+        "afk": "잠수포인트 상점",
+        "recommend": "추천코인 상점",
+        "island": "섬상점",
+        "drill": "드릴상점",
+        "trap_recipe": "통발레시피 상점",
+        "cooking": "요리 상점",
+        "ship": "배 상점",
+    }
+    for r in shop:
+        r["shop"] = shop_labels.get(r.get("shop"), r.get("shop"))
     shop_chart = charts.bar_chart(
         [f"[{r['shop']}]{r['item']}" for r in shop[:15]], [r["bought_qty"] or 0 for r in shop[:15]],
         value_fmt=_num1, title="상점별 품목 구매량(상위 15)") if shop else None
@@ -950,7 +1020,13 @@ def economy(request: Request):
     sections = [
         *money_sections,
         {
-            "heading": "상점 품목별 구매/판매(C16)",
+            "heading": "캐시상점 구매 품목(C21) — 캐시/추천코인",
+            "chart_svg": cashshop_chart,
+            "table_cols": ["currency", "item", "bought_qty", "cash_spent", "coin_spent"],
+            "table_rows": cashshop_rows,
+        },
+        {
+            "heading": "게임 내 상점 품목별 구매/판매(C16)",
             "chart_svg": shop_chart,
             "table_cols": ["shop", "item", "bought_qty", "bought_revenue", "sold_qty", "sold_payout"],
             "table_rows": shop_rows,
@@ -986,8 +1062,12 @@ def economy(request: Request):
                       "판매·마켓·직거래·송금·수표까지 돈이 오가는 모든 경로의 균형을 보는 페이지예요.",
         "page_note": "C6 — 골드/캐시/잠수포인트 등 재화 종류별로 섹션이 분리되어 있습니다(서로 다른 "
                      "재화라 합산하면 안 됨, 2026-07-28 수정). 🟢초록 배지=화폐 회수(건강) · "
-                     "🔴빨강 배지=화폐 발행 최대치(인플레 주의) — 배지는 재화별로 따로 매겨짐.<br>"
-                     "<b>C16</b> shop=island(섬상점)/recommend(추천상점)/drill(드릴상점) 등 · "
+                     "🔴빨강 배지=화폐 발행 최대치(인플레 주의) — 배지는 재화별로 따로 매겨짐. "
+                     "admin.fix/admin_fix 운영자 보정은 그래프·표에서 제외합니다. "
+                     "캐시의 <b>현질(멤버십 캐시)</b>와 <b>관리자 지급</b>도 별도 사유로 나눕니다.<br>"
+                     "<b>C21</b> 캐시상점의 상품별 구매량과 실제 결제 재화(캐시/추천코인)를 표시합니다. "
+                     "상품명은 현재 cashshop.json으로 보정하고, 없으면 원래 상품 ID를 표시합니다.<br>"
+                     "<b>C16</b> shop=island(섬상점)/recommend(추천코인 상점)/afk(잠수포인트 상점)/drill(드릴상점) 등 · "
                      "bought/sold=구매·되팔기 수량·금액.<br>"
                      "<b>C17</b> listings=등록건수 · sold/cancelled/expired=결과별 건수 · "
                      "avg_sell_min=등록부터 판매까지 평균 소요분(높으면 안 팔리고 오래 걸린다는 뜻).<br>"
