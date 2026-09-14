@@ -38,12 +38,13 @@ FISH_BASE = {"E": 100, "D": 250, "C": 600, "B": 2000, "A": 6000,
 FISH_SIZE = 0.5 + 69.3 / 200.0
 CATCH_WON = 606.0
 
-# 특수작물·채집의 기존 cross-economy 앵커. 0원 취급을 막기 위한 보수적 floor이며,
+# 특수작물의 기존 cross-economy 앵커. 0원 취급을 막기 위한 보수적 floor이며,
 # 새 농사 실측이 쌓이면 이 표를 대체한다.
 CROP = {"작물_밀": 28.1, "작물_당근": 63.3, "작물_감자": 94.9,
         "작물_토마토": 126.6, "작물_양배추": 52.7, "작물_버섯": 56.3,
         "작물_수박": 1518.8}
-FORAGE = {"흔함": 355.0, "희귀": 4730.0}
+# 채집의 행동비 floor. 종별 가치는 forage_node_values()가 prod 노드 수로 보정한다.
+FORAGE_FLOOR = {"흔함": 355.0, "희귀": 4730.0}
 
 
 def measured_buff_value() -> tuple[dict[str, float], str]:
@@ -142,6 +143,43 @@ def prod_shop() -> dict:
     return json.loads(raw)
 
 
+def prod_forage_nodes() -> dict:
+    """운영 노드 구성에서 typeId별 노드 수를 읽는다(개별 플레이어 쿨다운의 공급량 분모)."""
+    cmd = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-i", str(KEY), PROD,
+           "cat ~/mcserver/plugins/BlockShip/forage-nodes.json"]
+    raw = subprocess.check_output(cmd, text=True, timeout=20)
+    nodes = json.loads(raw)
+    out = collections.Counter()
+    for node in nodes.values():
+        type_id = node.get("typeId") or node.get("type") or node.get("forageType")
+        if type_id:
+            out[type_id] += 1
+    return dict(out)
+
+
+def forage_node_values(forage: dict, node_counts: dict[str, int]) -> dict[str, float]:
+    """희귀도 floor에 노드 밀도를 곱한다.
+
+    모든 채집물이 같은 희귀도라는 이유만으로 같은 원가가 되는 오류를 막는다. 행동비는
+    floor로 유지하고, 같은 희귀도 중앙 노드 수보다 희소한 종만 비례해 올린다. 노드가
+    없는 종은 원가 0으로 숨기지 않고 호출자에게 unknown으로 남긴다.
+    """
+    by_rarity: dict[str, list[int]] = collections.defaultdict(list)
+    for type_id, spec in forage.items():
+        n = node_counts.get(type_id, 0)
+        if n:
+            by_rarity[spec.get("rarity", "흔함")].append(n)
+    median = {rarity: sorted(ns)[len(ns) // 2] for rarity, ns in by_rarity.items()}
+    out = {}
+    for type_id, spec in forage.items():
+        rarity, n = spec.get("rarity", "흔함"), node_counts.get(type_id, 0)
+        if not n:
+            continue
+        floor = FORAGE_FLOOR[rarity]
+        out["채집_" + spec.get("name", "").replace(" ", "")] = floor * max(1.0, median[rarity] / n)
+    return out
+
+
 def shop_sells(cfg: dict) -> dict[str, float]:
     out = {}
     for cat in cfg.get("categories", []):
@@ -158,6 +196,34 @@ def lore_mat(recipe: dict) -> str | None:
     return None
 
 
+def source_recipe_overrides(recipes: dict) -> dict:
+    """DishSpecs.java의 아직 부팅되지 않은 레시피도 분석할 수 있게 CK_*만 동기화한다."""
+    src = re.sub(r"//[^\n]*", "", SRC.read_text(encoding="utf-8"))
+    helper_kind = {"forage": "custom", "crop": "custom", "mat": "custom", "fish": "fish",
+                   "dish": "dish", "herbAny": "herbany", "mushroomAny": "mushroomany"}
+    for fn in ("buff", "submit", "sell"):
+        for args in calls(fn, src):
+            if not args:
+                continue
+            did, ing_src = args[0].strip('"'), args[-1]
+            ingredients = []
+            for helper, kind in helper_kind.items():
+                for ing in calls(helper, ing_src):
+                    try:
+                        if helper == "forage":
+                            key = "채집_" + ing[0].strip('"').replace(" ", "")
+                        else:
+                            key = ing[0].strip('"')
+                        ingredients.append({"kind": kind, "typeOrMatId": key, "qty": int(ing[-1])})
+                    except (ValueError, IndexError):
+                        continue
+            if ingredients:
+                rec = dict(recipes.get("CK_" + did, {}))
+                rec.update(id="CK_" + did, ingredients=ingredients)
+                recipes[rec["id"]] = rec
+    return recipes
+
+
 @dataclass
 class Cost:
     won: float = 0.0
@@ -172,11 +238,12 @@ class Cost:
 
 
 class Model:
-    def __init__(self, recipes: dict, dishes: dict, shop: dict, forage: dict, drops: dict):
+    def __init__(self, recipes: dict, dishes: dict, shop: dict, forage: dict, forage_values: dict[str, float], drops: dict):
         self.recipes, self.dishes, self.shop = recipes, dishes, shop
         self.by_mat = {m: r for r in recipes.values() if (m := lore_mat(r))}
         self.forage_rarity = {"채집_" + v.get("name", "").replace(" ", ""): v.get("rarity", "흔함")
                               for v in forage.values()}
+        self.forage_values = forage_values
         self.drop = collections.defaultdict(float)
         for entries in drops.get("dropTables", {}).values():
             for e in entries:
@@ -194,10 +261,10 @@ class Model:
         if mat in CROP:
             return Cost(won=CROP[mat] * qty, terms=collections.Counter({mat: qty}))
         if mat.startswith("채집_"):
-            rarity = self.forage_rarity.get(mat)
-            if not rarity:
+            value = self.forage_values.get(mat)
+            if value is None:
                 return Cost(unknown=collections.Counter({mat: qty}))
-            return Cost(won=FORAGE[rarity] * qty, terms=collections.Counter({mat: qty}))
+            return Cost(won=value * qty, terms=collections.Counter({mat: qty}))
         if mat in self.by_mat:
             return self.recipe_cost(self.by_mat[mat]).scaled(qty)
         if mat in FISH_BASE:
@@ -250,7 +317,7 @@ def legacy_cost(recipe: dict, dishes: dict, forage: dict, drops: dict) -> Cost:
         if k == "fish" or v in FISH_BASE: c.won += FISH_BASE.get(v, 0) * FISH_SIZE * q
         elif v in CROP: c.won += CROP[v] * q
         elif v.startswith("강화"): continue  # 이전 모델의 치명적 0원 처리
-        elif v.startswith("채집_"): c.won += FORAGE[rarity.get(v, "흔함")] * q
+        elif v.startswith("채집_"): c.won += FORAGE_FLOOR[rarity.get(v, "흔함")] * q
         elif chance.get(v): c.won += (CATCH_WON / chance[v]) * q
         else: c.unknown[v] += q
     return c
@@ -259,13 +326,21 @@ def legacy_cost(recipe: dict, dishes: dict, forage: dict, drops: dict) -> Cost:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--shop-source", choices=("prod", "local"), default="prod")
+    ap.add_argument("--recipe-source", choices=("runtime", "java"), default="java",
+                    help="java는 DishSpecs.java 변경을 부팅 전에도 분석한다")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     recipes = json.loads((DATA / "recipes.json").read_text(encoding="utf-8"))["recipes"]
     forage = json.loads((DATA / "forage-types.json").read_text(encoding="utf-8"))
     drops = json.loads((DATA / "materials.json").read_text(encoding="utf-8"))
+    if args.recipe_source == "java":
+        recipes = source_recipe_overrides(recipes)
     cfg = prod_shop() if args.shop_source == "prod" else json.loads((DATA / "shop-items.json").read_text(encoding="utf-8"))
-    shop = shop_sells(cfg); dishes = load_dishes(); model = Model(recipes, dishes, shop, forage, drops)
+    node_counts = prod_forage_nodes() if args.shop_source == "prod" else {
+        type_id: 1 for type_id in forage  # local에는 노드 배치가 없으므로 희귀도 floor만 적용
+    }
+    forage_values = forage_node_values(forage, node_counts)
+    shop = shop_sells(cfg); dishes = load_dishes(); model = Model(recipes, dishes, shop, forage, forage_values, drops)
     units, value_source = measured_buff_value()
     rows = []
     for did, d in dishes.items():
@@ -295,8 +370,9 @@ def main():
             extra = f" ROI {r.get('roi')}x · {r.get('won_h'):,.0f}원/h" if p == "sell" else (f" {r.get('pts_per_won')}점/원" if p == "submit" else "")
             unk = " ⚠" + ",".join(r["unknown"]) if r["unknown"] else ""
             print(f"  T{r['tier']} {r['name']:<16} 구 {r['old_cost']:>8,} → 신 {r['new_cost_floor']:>8,} (+{r['added_floor']:>8,}){extra}{unk}")
-    payload = {"method": "runtime recipes + prod island-shop sell opportunity + recursive dish/material cost",
-               "buff_value_source": value_source, "rows": rows}
+    payload = {"method": "DishSpecs/runtime recipes + prod island-shop sell opportunity + recursive dish/material cost",
+               "recipe_source": args.recipe_source, "buff_value_source": value_source,
+               "forage_node_counts": node_counts, "forage_values": forage_values, "rows": rows}
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
