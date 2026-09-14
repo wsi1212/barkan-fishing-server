@@ -36,8 +36,8 @@
     "수집가",
     "백과사전",
     "물길을외운자",
-    "장비의주인",
     "탐험의달인",
+    "장비의주인",
     "세바다의기록자",
     "모든것의발견자",
     "도감의완성자",
@@ -497,12 +497,10 @@
       "color": "&6",
       "desc": "&7수집품 30개를 찾아낸 달인",
       "icon": "spyglass",
-      "tier": "전설",
-      "prestige": 170,
+      "tier": "희귀",
+      "prestige": 90,
       "category": "수집",
-      "source": "collect",
-      "animation": true,
-      "palette": "radiant"
+      "source": "collect"
     },
     "모든것의발견자": {
       "name": "&c만물박사",
