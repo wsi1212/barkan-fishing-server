@@ -14,10 +14,19 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import shlex
 import sqlite3
+import subprocess
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# ★기본 소스는 prod 캐시다.  맥(dev) 의 plugins/BlockShip/telemetry 는 부분 미러라
+#   2026-09-14 실측으로 4,514캐치·16명(09-05 까지)뿐이었고 같은 시각 prod 는 80,208캐치·239명이었다.
+#   그 미러를 읽은 09-13 감사가 "현행 체계 표본 0건 — 미측정" 으로 끝났다.
+#   캐시 채우기:  python3 pull_players.py      (scp 로 prod events-*.db 를 내려받는다)
+CACHE = Path(__file__).resolve().parent.parent / "audits" / "telemetry-cache"
 
 
 VALID_RESULTS = {"성공", "크리티컬"}
@@ -28,6 +37,188 @@ BANDS = ((0, 0), (1, 5), (6, 10), (11, 15), (16, 20), (21, 30),
 GRADE_BASE_PRICE = {"E": 100, "D": 250, "C": 600, "B": 2000, "A": 6000,
                     "S": 20000, "M": 65000, "L": 170000, "G": 450000}
 KST = timezone(timedelta(hours=9))
+
+
+# ── 명목 크확 → 실현 크리율 (단일 권위) ──────────────────────────────────────
+# ★`크리확률 20` 을 «캐치의 20%» 로 읽으면 안 된다.  금칸은 존의 칸마다 굴러가고 사람이 그걸
+#   조준해야 하므로 실현치는 명목보다 훨씬 높다 — 명목 20% 의 실측 실현 크리율은 45.7% 다.
+#   아래는 prod 실측 65,947캐치·56구간에 최대우도 적합한 «관측» 반응곡선이다(메커니즘 주장 아님).
+#       r(p) = ceiling × (1 − (1−p)^cells)
+#   cells 2.9 = 캐치당 «실효» 금칸 기회 수(존폭 그 자체가 아니라 조준까지 반영된 유효값),
+#   ceiling 0.90 = 전 칸이 금칸일 때조차 남는 존 이탈·타임아웃 손실.
+#   ★값을 손으로 고치지 말 것 — `fit_realised_curve()` 로 다시 뽑는다.
+REALISED_FIT = {
+    "ceiling": 0.900,
+    "cells": 2.9,
+    "fitted_on": "prod events-2026-08/09, 2026-09-14",
+    "n_catches": 65947,
+    "n_bands": 56,
+}
+
+
+def realised_from_nominal(nominal_pct: float, fit: dict | None = None) -> float:
+    """명목 크확(%) → 실현 크리율(0~1).  크리 수입을 재는 모든 스크립트가 이 함수만 쓴다."""
+    f = fit or REALISED_FIT
+    p = max(0.0, min(100.0, float(nominal_pct))) / 100.0
+    return f["ceiling"] * (1.0 - (1.0 - p) ** f["cells"])
+
+
+def fit_realised_curve(paths, min_n: int = 50) -> dict:
+    """반응곡선을 텔레메트리에서 다시 적합한다(REALISED_FIT 갱신용).  격자 최대우도."""
+    pts: dict[int, list[int]] = defaultdict(lambda: [0, 0])
+    for path in paths:
+        con = open_read_only(Path(path))
+        try:
+            for (text,) in con.execute("SELECT ctx FROM ev WHERE type='fish.result'"):
+                try:
+                    ctx = json.loads(text)
+                    if ctx.get("res") not in VALID_RESULTS:
+                        continue
+                    nominal = int(ctx["st"]["crit"])
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    continue
+                if not 0 < nominal <= 100:
+                    continue
+                pts[nominal][0] += 1
+                pts[nominal][1] += int(int(ctx.get("crit", 0)) == 1)
+        finally:
+            con.close()
+    data = [(k, v[0], v[1]) for k, v in sorted(pts.items()) if v[0] >= min_n]
+    if not data:
+        return dict(REALISED_FIT, n_catches=0, n_bands=0, note="표본 부족 — 적합 불가")
+    best = None
+    for cells10 in range(10, 1201):
+        cells = cells10 / 10
+        for ceil100 in range(20, 101):
+            ceiling = ceil100 / 100
+            ll = 0.0
+            for nominal, n, k in data:
+                q = min(max(ceiling * (1 - (1 - nominal / 100) ** cells), 1e-6), 1 - 1e-6)
+                ll += k * math.log(q) + (n - k) * math.log(1 - q)
+            if best is None or ll > best[0]:
+                best = (ll, cells, ceiling)
+    _, cells, ceiling = best
+    return {"ceiling": ceiling, "cells": cells, "n_catches": sum(d[1] for d in data),
+            "n_bands": len(data), "fitted_on": "refit"}
+
+
+# ── prod 원격 집계 ───────────────────────────────────────────────────────────
+# ★DB 를 내려받지 않는다.  2026-09-14 기준 prod `events-2026-09.db` 만 698 MB 이고 하루 ~50 MB 씩
+#   큰다 — `pull_players.py --fetch` 식 scp 는 이제 유지되지 않는다.  이 스크립트 자신을 박스에
+#   올려 거기서 집계하고 **JSON 만** 가져온다.  라이브 WAL 이지만 `mode=ro` 로 그대로 읽힌다.
+PROD_HOST = os.environ.get("BALANCE_PROD_HOST", "ubuntu@168.107.8.107")
+PROD_KEY = os.environ.get("BALANCE_PROD_KEY", os.path.expanduser("~/.ssh/oracle-mc.key"))
+PROD_TELEMETRY = "~/mcserver/plugins/BlockShip/telemetry"
+PROD_WORKDIR = "~/crit-audit"
+
+
+def remote_constants(revenue_since: str = "2026-09-13", months: int = 2) -> dict:
+    """prod 박스에서 직접 집계해 상수 JSON 만 받아온다."""
+    me = Path(__file__).resolve()
+    scp = ["scp", "-q", "-o", "ConnectTimeout=20", "-i", PROD_KEY,
+           str(me), f"{PROD_HOST}:{PROD_WORKDIR}/crit_telemetry.py"]
+    mk = ["ssh", "-o", "ConnectTimeout=20", "-i", PROD_KEY, PROD_HOST,
+          f"mkdir -p {PROD_WORKDIR}/run"]
+    r = subprocess.run(mk, capture_output=True, text=True)
+    if r.returncode:
+        return {"evidence": "원격 실패", "error": r.stderr.strip()[:300]}
+    r = subprocess.run(scp, capture_output=True, text=True)
+    if r.returncode:
+        return {"evidence": "원격 실패", "error": r.stderr.strip()[:300]}
+    # ★`run/` 하위에서 돌린다 — 얕은 경로면 기본 인자의 Path.cwd().parents[1] 가 IndexError 를 낸다.
+    #   그리고 박스 /tmp 에는 다른 작업이 둔 inspect.py 가 있어 표준 라이브러리를 가린다.
+    dbs = " ".join(f"--db {PROD_TELEMETRY}/events-2026-{m:02d}.db"
+                   for m in _recent_months(months))
+    cmd = (f"cd {PROD_WORKDIR}/run && python3 ../crit_telemetry.py --json-constants "
+           f"--revenue-since {shlex.quote(revenue_since)} {dbs}")
+    r = subprocess.run(["ssh", "-o", "ConnectTimeout=20", "-i", PROD_KEY, PROD_HOST, cmd],
+                       capture_output=True, text=True)
+    if r.returncode:
+        return {"evidence": "원격 실패", "error": (r.stderr or r.stdout).strip()[:300]}
+    try:
+        out = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return {"evidence": "원격 실패", "error": r.stdout.strip()[:300]}
+    out["_source"] = f"prod {PROD_HOST} ({datetime.now(KST):%Y-%m-%d %H:%M} KST)"
+    return out
+
+
+def _recent_months(count: int) -> list[int]:
+    now = datetime.now(KST)
+    return sorted({(now - timedelta(days=31 * i)).month for i in range(count)})
+
+
+def crit_constants(paths, revenue_since: str = "2026-09-13") -> dict:
+    """`measured.py` 가 가져가는 압축 상수.  개수가중·금액가중을 **둘 다** 낸다.
+
+    ★SB-eq 항등식 `r × d × 6%` 는 **금액가중**일 때만 성립한다.  크리배율이 높은 빌드가 비싼
+      물고기를 잡기 때문에 개수평균 배율(8.23)과 금액가중 배율(9.77)이 다르고, 개수가중으로
+      손계산하면 크리 가치를 약 17% 과소평가한다(2026-09-14 prod 실측).
+    """
+    epoch = epoch_kst(revenue_since)
+    n = k = 0
+    base_all = base_crit = 0
+    dmg_n = dmg_w = 0
+    inc = 0
+    players: set = set()
+    macro_opp = macro_hit = 0.0
+    for path in paths:
+        con = open_read_only(Path(path))
+        try:
+            rows = con.execute("SELECT ts, uuid, ctx FROM ev WHERE type='fish.result'").fetchall()
+            macro_rows = con.execute("SELECT ctx FROM ev WHERE type='fish.macro'").fetchall()
+        except sqlite3.Error:
+            con.close()
+            continue
+        con.close()
+        for ts, uuid, text in rows:
+            if ts < epoch:
+                continue
+            try:
+                ctx = json.loads(text)
+                if ctx.get("res") not in VALID_RESULTS:
+                    continue
+                base = base_fish_price(str(ctx["g"]), float(ctx["q"]))
+                if base is None:
+                    continue
+                crit = int(ctx.get("crit", 0)) == 1
+                dmg = int(ctx["critd"]) if crit else 0
+            except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                continue
+            n += 1
+            base_all += base
+            players.add(uuid)
+            if crit:
+                k += 1
+                base_crit += base
+                dmg_n += dmg
+                dmg_w += dmg * base
+                inc += math.floor(base * (1.0 + dmg * 0.06)) - base
+        for (text,) in macro_rows:
+            try:
+                ctx = json.loads(text)
+                opp = float(ctx.get("gold_n", 0))
+                if opp <= 0:
+                    continue
+                macro_hit += opp * float(ctx.get("gold_conv", 0))
+                macro_opp += opp
+            except (TypeError, ValueError, json.JSONDecodeError):
+                continue
+    if not n:
+        return {"evidence": "표본 없음", "catches": 0, "era_kst": revenue_since}
+    return {
+        "era_kst": revenue_since,
+        "catches": n, "criticals": k, "players": len(players),
+        "realised_rate": round(k / n, 5),
+        "realised_rate_value_weighted": round(base_crit / base_all, 5) if base_all else None,
+        "crit_damage_mean": round(dmg_n / k, 3) if k else None,
+        "crit_damage_value_weighted": round(dmg_w / base_crit, 3) if base_crit else None,
+        "sb_eq_pct": round(100 * inc / base_all, 4) if base_all else None,
+        "extra_won_per_catch": round(inc / n, 3),
+        "aim_conversion": round(macro_hit / macro_opp, 5) if macro_opp else None,
+        "aim_opportunities": round(macro_opp, 1),
+        "evidence": "측정 가능" if (n >= 100 and len(players) >= 3) else "표본 부족",
+    }
 
 
 def wilson(successes: int, total: int) -> tuple[float | None, float | None]:
@@ -72,20 +263,31 @@ def base_fish_price(grade: str, quality: float) -> int | None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="fish.result / fish.macro 기반 크리 실현율 측정")
-    parser.add_argument("--telemetry-dir", type=Path,
-                        default=Path.cwd().parents[1] / "BlockShip" / "telemetry",
-                        help="events-YYYY-MM.db가 있는 디렉터리")
+    parser.add_argument("--telemetry-dir", type=Path, default=CACHE,
+                        help=f"events-YYYY-MM.db가 있는 디렉터리 (기본: prod 캐시 {CACHE})")
     parser.add_argument("--db", type=Path, action="append", default=[],
                         help="개별 events DB (여러 번 지정 가능; telemetry-dir보다 우선)")
     parser.add_argument("--hook", help="특정 바늘 이름만 측정(로드아웃에 없는 결과는 제외)")
     parser.add_argument("--revenue-since", default="2026-09-13",
                         help="현행 직접 판매보너스 크리 체계가 적용된 KST 날짜 (기본: 2026-09-13)")
     parser.add_argument("--out", type=Path, help="집계 JSON 출력 경로(선택)")
+    parser.add_argument("--json-constants", action="store_true",
+                        help="measured.py 용 상수 JSON 만 stdout 으로 (다른 출력 없음)")
+    parser.add_argument("--remote", action="store_true",
+                        help="prod 박스에서 집계해 상수 JSON 만 받아온다 (DB 를 내려받지 않음)")
     args = parser.parse_args()
+
+    if args.remote:
+        print(json.dumps(remote_constants(args.revenue_since), ensure_ascii=False, indent=2))
+        return
 
     files = sorted(args.db) if args.db else sorted(args.telemetry_dir.glob("events-*.db"))
     if not files:
         parser.error("읽을 events-YYYY-MM.db가 없습니다. --telemetry-dir 또는 --db를 지정하세요.")
+
+    if args.json_constants:
+        print(json.dumps(crit_constants(files, args.revenue_since), ensure_ascii=False))
+        return
     try:
         revenue_epoch = epoch_kst(args.revenue_since)
     except ValueError:

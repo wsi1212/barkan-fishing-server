@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-pull_farming.py — 농사(특수작물) 경제 스냅샷 추출기. balance-audit 낚시 pull.py와 같은 패턴.
+pull_farming.py — 농사 경제 스냅샷 추출기. balance-audit 낚시 pull.py와 같은 패턴.
 
-작물엔 직접 판매가가 없다(요리재료 전용) — "개/h"가 1차 처리량 지표.
-farming-data-sources.md/farming-metrics.md 참조.
+특수작물은 요리재료 전용이라 "개/h"가 1차 처리량 지표다. 추가로 섬상점의
+바닐라 농사 가격표를 raw.shop에 보존해 farm_shop_audit.py가 작물별 원/h를
+재현할 수 있게 한다.
 
 사용법: python3 pull_farming.py [--date YYYY-MM-DD]
 """
@@ -12,6 +13,11 @@ import argparse, json, os, re, sys
 JAVA_ROOT = os.environ.get(
     "BLOCKSHIP_JAVA",
     "/Users/user/development/blockship-plugin/src/main/java/com/blockship",
+)
+SHOP_PATH = os.environ.get(
+    "BLOCKSHIP_SHOP_ITEMS",
+    "/Users/user/Library/Application Support/feather/player-server/servers/"
+    "07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip/shop-items.json",
 )
 WARNINGS = []
 
@@ -76,6 +82,25 @@ def pull_plot_limits():
     return out
 
 
+def pull_shop():
+    """runtime JSON의 농사 카테고리만 원문 보존용으로 추출한다."""
+    try:
+        with open(SHOP_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        warn(f"섬상점 JSON 못 읽음: {SHOP_PATH} ({e})")
+        return {"path": SHOP_PATH, "category": None, "items": []}
+    for category in data.get("categories", []):
+        if category.get("key") == "농사":
+            return {
+                "path": SHOP_PATH,
+                "category": category.get("key"),
+                "items": category.get("items", []),
+            }
+    warn("섬상점 JSON에 농사 카테고리가 없음")
+    return {"path": SHOP_PATH, "category": None, "items": []}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date")
@@ -90,7 +115,7 @@ def main():
     snapshot = {
         "date": args.date,
         "economy": "farming",
-        "raw": {"crops": pull_crops(), "plot_limits": pull_plot_limits()},
+        "raw": {"crops": pull_crops(), "plot_limits": pull_plot_limits(), "shop": pull_shop()},
         "warnings": WARNINGS,
         "derived": {},
     }

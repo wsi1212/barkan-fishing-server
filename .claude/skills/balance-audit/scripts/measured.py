@@ -51,6 +51,30 @@ FALLBACK = {
                              "철": 863, "금": 364, "다이아몬드": 296, "에메랄드": 294,
                              "네더라이트": 19},
     "drill_per_hour": {"흑정석": 2715, "철광석": 340},
+    # ── 크리 (2026-09-14 prod 실측) ──────────────────────────────────────────
+    # ★`크리확률 20` 을 «캐치의 20%» 로 읽는 환산은 금지다.  금칸은 존의 «칸마다» 굴러가고
+    #   사람이 조준해야 하므로 실현치가 훨씬 높다 — 명목 20% 의 실측 실현 크리율은 45.7% 다.
+    #   명목→실현은 `crit_telemetry.realised_from_nominal()` 하나만 쓴다.
+    # ★`sb_eq_pct` = 판매보너스 등가치.  판매보너스·신선도를 **뺀** 등급×품질 기본가가 분모라
+    #   "판매보너스 +19%" 와 정확히 같은 순수 판매수익이다.  크기보너스는 분자·분모에 똑같이
+    #   들어가 비율에는 영향이 없다(원/캐치 절대값에는 들어간다).
+    # ★갱신:  python3 crit_telemetry.py --remote      (698 MB DB 를 내려받지 않는다)
+    "crit": {
+        "era_kst": "2026-09-13",
+        "catches": 16161, "criticals": 5182, "players": 80,
+        "realised_rate": 0.32065,
+        "realised_rate_value_weighted": 0.32439,
+        "crit_damage_mean": 8.208,
+        "crit_damage_value_weighted": 9.747,
+        "sb_eq_pct": 18.95,
+        "extra_won_per_catch": 115.0,
+        "aim_conversion": 0.545,
+        "aim_opportunities": 127173.0,
+        "nominal_to_realised_slope_pp": 2.0,   # 플레이어 내 대조 50명 중앙값, 명목 50%+ 는 0
+        "saturation_nominal_pct": 50,
+        "evidence": "측정 가능",
+        "_source": "FALLBACK(prod 2026-09-14)",
+    },
     "_source": "FALLBACK(2026-08-26)", "is_fallback": True,
 }
 
@@ -114,6 +138,8 @@ def load(path=None, refresh=False):
             k["island_mine_per_hour"] = s["island_mine"]["per_hour"]
         if (s.get("drill") or {}).get("per_hour"):
             k["drill_per_hour"] = s["drill"]["per_hour"]
+        if s.get("crit"):
+            k["crit"] = {**k["crit"], **{kk: vv for kk, vv in s["crit"].items() if vv is not None}}
         if s.get("region_mix_pct"):
             k["region_mix_pct"] = s["region_mix_pct"]
         if (s.get("coverage") or {}).get("max_level_observed"):
@@ -124,6 +150,31 @@ def load(path=None, refresh=False):
     if path is None:
         _cache = k
     return k
+
+
+def crit(k=None):
+    """크리 실측 블록.  ★선형 환산 금지 — 명목 크확은 `crit_telemetry.realised_from_nominal()`."""
+    return (k or load())["crit"]
+
+
+def refresh_crit(revenue_since=None, write=True):
+    """prod 에서 크리 상수를 다시 재고 FALLBACK 을 갱신할 값을 돌려준다.
+
+    ★DB 를 내려받지 않는다 — 박스에서 집계해 JSON 만 받는다(2026-09-14 기준 698 MB).
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("crit_telemetry",
+                                                  os.path.join(HERE, "crit_telemetry.py"))
+    ct = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ct)
+    out = ct.remote_constants(revenue_since or FALLBACK["crit"]["era_kst"])
+    if write and out.get("evidence") == "측정 가능":
+        d = os.path.join(SKILL, "audits", "snapshots")
+        os.makedirs(d, exist_ok=True)
+        path = os.path.join(d, "crit-latest.json")
+        json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        out["_written"] = path
+    return out
 
 
 def apply(SV, k=None):
@@ -137,6 +188,13 @@ def apply(SV, k=None):
     SV.CASTS_PER_HOUR = k["attempts_per_active_h"]
     SV.COMPLETION = k["completion_pct"] / 100.0
     SV.SIZE_SCORE = k["size_score"]
+    # ★크리도 가정 상수를 쓰지 않는다 (제7원칙).  개수가중이 아니라 **금액가중**을 넣는다 —
+    #   SB-eq 항등식 `r × d × 6%` 가 금액가중일 때만 성립하기 때문(개수가중은 17% 과소평가).
+    c = k.get("crit") or {}
+    if c.get("realised_rate_value_weighted") is not None:
+        SV.DEFAULT_CRIT_RATE = c["realised_rate_value_weighted"]
+    if c.get("crit_damage_value_weighted") is not None:
+        SV.DEFAULT_CRIT_DMG = c["crit_damage_value_weighted"]
     try:
         SV.income_of.__defaults__ = (k["size_score"], 0.0)
     except Exception:
@@ -148,8 +206,11 @@ def banner(k=None):
     """모든 스크립트가 첫 줄에 찍는 출처 한 줄. 폴백이면 그렇게 밝힌다."""
     k = k or load()
     tag = "★FALLBACK — pull_players.py 로 실측을 갱신할 것" if k["is_fallback"] else k["_source"]
+    c = k.get("crit") or {}
     return (f"실측: 포획 {k['catches_per_active_h']}/h · 소모 {k['attempts_per_active_h']}/h · "
             f"완주 {k['completion_pct']}% · 크기점수 {k['size_score']} · "
+            f"크리 {c.get('realised_rate_value_weighted', 0) * 100:.1f}%×배율 "
+            f"{c.get('crit_damage_value_weighted', 0):.1f} = SB-eq {c.get('sb_eq_pct', 0):.1f}% · "
             f"커버리지 Lv.{k['max_level_observed']} · 출처 {tag}")
 
 

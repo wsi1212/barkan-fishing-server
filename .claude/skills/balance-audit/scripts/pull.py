@@ -16,6 +16,8 @@ pull.py — 바르칸 열도 밸런스 스냅샷 추출기.
 """
 import argparse, json, os, re, sys
 
+from catalog import build_catalog
+
 JAVA_ROOT = os.environ.get(
     "BLOCKSHIP_JAVA",
     "/Users/user/development/blockship-plugin/src/main/java/com/blockship",
@@ -79,9 +81,22 @@ def pull_leveling():
     out = {}
     m = re.search(r"MAX_LV\s*=\s*(\d+)", src)
     out["max_level"] = int(m.group(1)) if m else None
+    # 2026-08-01부터 구간 승수 대신 레벨별 NEED_TABLE이 권위다.
+    # 테이블은 L1→L2부터 각 목표 레벨의 필요 경험치를 인덱스 0부터 가진다.
+    m = re.search(r"NEED_TABLE\s*=\s*new\s+int\[\]\s*\{(.*?)\};", src, re.S)
+    need_table = nums(m.group(1)) if m else None
+    if need_table:
+        out["growth_model"] = "need_table"
+        out["need_table"] = need_table
+        out["base_req_exp"] = need_table[0]
+        out["tier_walls"] = []
+        out["tier_wall_top"] = None
+    else:
+        out["growth_model"] = "tier_multiplier"
     # base requiredExp: `if (need <= 0) need = 200;` (첫 등장, 값 있는 대입만)
     m = re.search(r"\bneed\s*=\s*(\d+)\s*;", src)
-    out["base_req_exp"] = int(m.group(1)) if m else None
+    if not need_table:
+        out["base_req_exp"] = int(m.group(1)) if m else None
     # 구간별 벽 배수: `< N) ... mult = M` 쌍 (addExp/needForLevel 두 블록에 중복 → dedupe)
     tiers = re.findall(r"<\s*(\d+)\)\s*(?:\{)?\s*mult\s*=\s*([\d.]+)", src)
     seen, walls = set(), []
@@ -89,19 +104,11 @@ def pull_leveling():
         if a not in seen:
             seen.add(a)
             walls.append({"below_level": int(a), "mult": float(b)})
-    out["tier_walls"] = walls
+    if not need_table:
+        out["tier_walls"] = walls
     m = re.search(r"else\s+mult\s*=\s*([\d.]+)", src)
-    out["tier_wall_top"] = float(m.group(1)) if m else None
-
-    # ★2026-08-01 개편 — 레벨별 필요경험치가 배수 공식에서 하드코딩 NEED_TABLE로 교체됐다.
-    #   테이블이 있으면 그게 권위(배수 walls는 레거시 참고용으로만 남김).
-    m = re.search(r"NEED_TABLE\s*=\s*new\s+int\[\]\s*\{(.*?)\}", src, re.S)
-    if m:
-        nums = re.findall(r"\d+", m.group(1))
-        out["need_table"] = [int(n) for n in nums]
-    else:
-        out["need_table"] = None
-        warn("NEED_TABLE 파싱 실패 — 레벨 곡선 소스가 또 바뀐 것. FishingLevelManager 직접 확인 필요")
+    if not need_table:
+        out["tier_wall_top"] = float(m.group(1)) if m else None
 
     # 등급 해금 마일스톤 (RewardMath.maxGradeNum 또는 GradeRoller.maxGradeNum)
     gr = read_java("fishing/GradeRoller.java")
@@ -114,22 +121,19 @@ def pull_leveling():
 
 
 def cumulative_xp(lvl):
+    table = lvl.get("need_table")
+    if table:
+        result = {}
+        for target in (30, 45, 60, 70, lvl.get("max_level") or 100):
+            # Lv.N 도달에는 L1→L2 ... L(N-1)→LN, 총 N-1회 경험치가 필요하다.
+            if 1 <= target <= len(table) + 1:
+                result[str(target)] = round(sum(table[:target - 1]))
+        return result
+
     base = lvl.get("base_req_exp")
     walls = lvl.get("tier_walls")
     top = lvl.get("tier_wall_top")
     maxlv = lvl.get("max_level") or 100
-    marks_all = {5, 12, 20, 25, 30, 40, 45, 50, 60, 70, maxlv}
-
-    # ★NEED_TABLE이 있으면 그것이 권위 (2026-08-01 개편 이후).
-    table = lvl.get("need_table")
-    if table:
-        cum, result = 0, {}
-        for lv in range(1, min(maxlv, len(table) + 1)):
-            cum += table[lv - 1]      # need(lv → lv+1)
-            if (lv + 1) in marks_all:
-                result[str(lv + 1)] = cum
-        return result
-
     if not base or not walls or top is None:
         warn("누적 경험치 계산 스킵 (레벨 곡선 상수 누락)")
         return None
@@ -272,6 +276,24 @@ def pull_rng():
 # ─────────────────────────────────────────────────────────────
 def pull_equipment():
     out = {}
+    # ★카테고리 개수만으로는 플레이어 선택지를 복원할 수 없다. 부품·레시피·어종
+    # 전체를 같은 raw snapshot에 고정해, 이후 시뮬레이터가 다른 시점의 JSON을
+    # 섞어 쓰지 않게 한다.
+    try:
+        catalog = build_catalog()
+        out["catalog"] = catalog
+        out["catalog_integrity"] = {
+            "part_total": catalog.get("part_total"),
+            "recipe_total": len(catalog.get("recipes", [])),
+            "missing_recipe_total": sum(
+                len(names) for names in catalog.get("missing_recipe_names", {}).values()
+            ),
+            "duplicate_name_total": len(catalog.get("duplicate_names", [])),
+            "catalog_hash": catalog.get("catalog_hash"),
+        }
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        warn(f"장비 카탈로그 추출 실패: {e}")
+
     parts = read_json("parts.json")
     if parts is not None:
         p = parts.get("parts", parts)

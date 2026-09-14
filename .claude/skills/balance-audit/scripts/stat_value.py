@@ -60,9 +60,19 @@ CASTS_PER_HOUR = _K["attempts_per_active_h"]
 SIZE_SCORE = _K["size_score"]
 REACT_TICKS = MG.ms_to_ticks(250 + 40)         # 반응 250ms + 핑 40ms = 6틱
 
-DEFAULT_CRIT_RATE = 0.20      # 기준 크리율(크리배율 가치가 여기 비례)
-DEFAULT_CRIT_DMG = 4          # 기준 크리배율(크리확률 가치가 여기 비례)
+# ── 크리 (2026-09-14: 가정 상수 폐기, 실측으로 교체) ───────────────────────
+# 구 값 «0.20 / 4» 는 근거 없는 가정이었다(제7원칙 위반). prod 실측은 32.4% / 9.75 다.
+# ★**금액가중**을 쓴다 — SB-eq 항등식 `r × d × 6%` 는 금액가중일 때만 성립하고, 개수가중
+#   (32.1% / 8.21)으로 재면 크리 가치를 17% 과소평가한다. 크리배율이 높은 빌드가 비싼
+#   물고기를 잡기 때문에 두 배율이 다르다.
+_C = _K.get("crit") or {}
+DEFAULT_CRIT_RATE = _C.get("realised_rate_value_weighted", 0.324)
+DEFAULT_CRIT_DMG = _C.get("crit_damage_value_weighted", 9.75)
 CRIT_PRICE_COEF = 0.06        # FishingListener: 크리 시 판매가 ×(1+critDmg×0.06)
+# 명목 크확 1%p 가 실현 크리율을 몇 %p 올리는가 — 같은 플레이어가 크확을 바꾼 50명 대조 중앙값.
+# ★1:1 이 아니다. 금칸은 존의 칸마다 굴러가므로 명목보다 빠르게 실현된다.
+CRIT_NOMINAL_SLOPE = _C.get("nominal_to_realised_slope_pp", 2.0) / 100.0
+CRIT_SATURATION_PCT = _C.get("saturation_nominal_pct", 50)
 
 STAGES = {  # 구간 → (풀, 레벨)
     "초반": (set("EDCBA"), 7),
@@ -396,13 +406,18 @@ def compute(stage, crit_rate=DEFAULT_CRIT_RATE, crit_dmg=DEFAULT_CRIT_DMG):
     # +1% 크기 ≈ +1 크기점수 → 가격 상대증가 = 0.005/m
     price_per_score = 0.005 / m
     V["크기 (1%)"] = (income * price_per_score, "+1%size≈+1크기점수 (★어종편차 큼)")
+    _ = price_per_score  # 크리는 더 이상 이 경로를 타지 않는다(2026-09-12 제거)
 
-    # 크리: size경로(+critDmg×10 점) + 직접경로(판매가 ×(1+critDmg×0.06))
-    crit_gain = crit_dmg * 10 * price_per_score + crit_dmg * CRIT_PRICE_COEF
-    V["크리확률 (1%)"] = (income * 0.01 * crit_gain,
-                       f"+1%크리율×(critDmg{crit_dmg}: 크기경로+판매가직접+{crit_dmg*6}%)")
-    V["크리배율 (1점)"] = (income * crit_rate * (10 * price_per_score + CRIT_PRICE_COEF),
-                       f"크리율{int(crit_rate*100)}% 가정: 1점당 size+10 & 판매가+6%")
+    # 크리: 판매가 직접경로만 — ★크기경로는 죽었다.
+    #   2026-09-12 (FishingListener:755) 로 «크리 시 크기 보너스»가 제거되고 판매가 직접
+    #   +6d% 로 바뀌었다. 예전 식의 `crit_dmg × 10 × price_per_score` 항을 그대로 두면
+    #   존재하지 않는 크기 이득을 계속 더해 크리 가치를 부풀린다.
+    # ★명목 크확 1%p 는 실현 크리율 1%p 가 아니라 CRIT_NOMINAL_SLOPE(실측 2.0%p)다.
+    V["크리확률 (1%)"] = (income * CRIT_NOMINAL_SLOPE * crit_dmg * CRIT_PRICE_COEF,
+                       f"명목+1%p→실현+{CRIT_NOMINAL_SLOPE*100:.1f}%p × 판매가+{crit_dmg*6:.0f}% "
+                       f"(명목 {CRIT_SATURATION_PCT}%+ 는 포화=0)")
+    V["크리배율 (1점)"] = (income * crit_rate * CRIT_PRICE_COEF,
+                       f"실현 크리율 {crit_rate*100:.1f}%(금액가중) × 판매가+6%p")
 
     # ── 롤 확률 경유 (MC 유한차분, CRN) ──────────────────────────────
     # 행운: luckMult=(100+luck)/100 → 피티와 곱이라 실효는 √로 압축된다. delta=10으로 재고 ÷10.
@@ -487,14 +502,15 @@ def main():
     ap.add_argument("--stage", default=None, choices=list(STAGES))
     ap.add_argument("--all-stages", action="store_true")
     ap.add_argument("--crit-rate", type=float, default=DEFAULT_CRIT_RATE)
-    ap.add_argument("--crit-dmg", type=int, default=DEFAULT_CRIT_DMG)
+    ap.add_argument("--crit-dmg", type=float, default=DEFAULT_CRIT_DMG)
     ap.add_argument("--json", action="store_true", help="스냅샷 derived 병합용 JSON 출력")
     args = ap.parse_args()
 
     stages = list(STAGES) if (args.all_stages or args.stage is None) else [args.stage]
     print("  " + MEAS.banner(_K))
     print(f"기준: 포획 {CATCH_PER_HOUR}/h · 완주율 {COMPLETION:.0%} · 소모 {CASTS_PER_HOUR:.0f}/h · "
-          f"크기점수 {SIZE_SCORE} · 크리율 {args.crit_rate:.0%} · 크리배율 {args.crit_dmg}")
+          f"크기점수 {SIZE_SCORE} · 실현 크리율 {args.crit_rate:.1%}(금액가중) · "
+          f"크리배율 {args.crit_dmg:.2f} · SB-eq {_C.get('sb_eq_pct', 0):.1f}%")
     print("★구 버전(flat 확률 + 150캐스트)과 비교 불가 — 2026-08-05 전면 교체")
     result = {}
     for s in stages:

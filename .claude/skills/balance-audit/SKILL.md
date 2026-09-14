@@ -161,6 +161,13 @@ python3 .claude/skills/balance-audit/scripts/pull_players.py --fetch
 - prod 텔레메트리에서 처리량·완주율·등급분포·실현가·지역분포·작살·광질·실사용 로드아웃·레벨
   도달시간을 뽑아 `audits/snapshots/<date>-players.raw.json` 에 고정한다.
 - `--fetch` 는 맥에서만 된다(SSH). 클라우드 세션은 `audits/telemetry-cache/` 사본으로 돌린다.
+- ★★**맥의 `plugins/BlockShip/telemetry/` 를 읽지 말 것 — 부분 미러다.** 2026-09-14 실측으로
+  dev 는 4,514캐치·16명(09-05 에서 끊김), 같은 시각 prod 는 80,208캐치·239명이었다. 파일명·
+  스키마가 같아 **조용히 17배 작은 표본**으로 다른 결론이 난다(그 미러를 읽은 09-13 크리 감사가
+  "표본 0건 — 미측정"으로 끝났다).
+- ★크리 상수는 별도로 갱신한다 — `python3 scripts/crit_telemetry.py --remote`.
+  prod `events-2026-09.db` 가 698 MB(하루 ~50 MB 증가)라 scp 가 더는 유지되지 않아, 박스에서
+  집계하고 **JSON 만** 가져온다.
 - **`warnings` 를 반드시 읽어라.** 커버리지 상한·조업 편중·전환율 경고가 그대로 리포트의
   «유효범위» 문장이 된다.
 - 이 스냅샷이 있으면 `material_value.py` · `item_ledger.py` 가 자동으로 실측 상수를 쓴다.
@@ -196,6 +203,38 @@ python3 .claude/skills/balance-audit/scripts/stat_value.py
   `재료확률`은 게이트 렌즈(재료 게이트 ÷(1+v/100)), `돌진쿨감`은 작살 사이클 모델로 값을 낸다.
   둘 다 2026-08-23에 편입했고, 1차 모델이 종결값을 0으로 뱉었다가 요리 싱크를 세어 고쳤다 —
   경위·교훈: [audits/2026-08-23-material-chance-stat.md](audits/2026-08-23-material-chance-stat.md).
+
+### 3-b. 크리 실측 (★크리를 논하기 전에 반드시 — 2026-09-14 개정)
+
+```bash
+python3 .claude/skills/balance-audit/scripts/crit_telemetry.py --remote   # prod 상수만
+python3 .claude/skills/balance-audit/scripts/crit_telemetry.py            # 캐시 전체 표
+python3 .claude/skills/balance-audit/scripts/crit_telemetry.py --hook '<바늘명>'
+```
+
+- ★**`크리확률 20` 은 «캐치의 20%» 가 아니다.** 금칸은 미니게임 존의 **칸마다** 굴러가고
+  플레이어가 그걸 조준해야 한다. prod 실측: 명목 20% → **실현 45.7%**, 명목 48% → 73.5%.
+  환산은 `crit_telemetry.realised_from_nominal()` **하나만** 쓴다 —
+  `r(p) = 0.90 × (1 − (1−p)^2.9)` (65,947캐치·56구간 최대우도 적합, 손으로 고치지 말고
+  `fit_realised_curve()` 로 다시 뽑을 것).
+- ★**크리 수익은 판매보너스 등가치(SB-eq)로만 비교한다.**
+  `SB-eq = 실현 크리율 × 최종 크리배율 × 6%` — 분모가 판매보너스·신선도를 **뺀** 등급×품질
+  기본가라, `SB-eq +19%` 는 "판매보너스 +19%" 와 정확히 같은 순수 판매수익이다.
+  크기보너스는 분자·분모에 똑같이 들어가 **비율에는 영향이 없다**(원/캐치 절대값에는 들어간다).
+- ★**항등식은 금액가중일 때만 성립한다.** 개수가중 `32.1% × 8.21 × 6% = 15.86%` 이지만 실측
+  SB-eq 는 **19.08%** 다 — 크리배율이 높은 빌드가 비싼 물고기를 잡아 금액가중 배율이 9.75 로
+  뜬다. 개수평균으로 손계산하면 크리 가치를 **17% 과소평가**한다. `measured.crit()` 가 둘 다 준다.
+- ★**크리에는 더 이상 «크기 경로»가 없다.** 2026-09-12(`FishingListener:755`)로 크리 시 크기
+  보너스가 제거되고 판매가 직접 `+6d%` 가 됐다. 옛 식의 `critDmg × 10 × price_per_score` 항을
+  남겨 두면 존재하지 않는 이득을 계속 더한다.
+- ★**명목 크확 1%p ≠ 실현 1%p.** 같은 플레이어가 크확을 바꾼 50명 대조 중앙값이 **+2.0%p** 이고,
+  **명목 50% 를 넘으면 한계효용이 0** 이다(유일한 음수 관측이 50%→65% 구간). 부품 크확 상한을
+  설계할 때 이 포화점을 넘기지 말 것 — 61–80% 구간의 실측 SB-eq 는 **+75.6%**, 상시 판매보너스
+  +75% 와 동등하다.
+- 판정 기준은 그대로다: **100결과·3명** 이상이어야 «측정 가능», 30결과·2명은 «참고만», 그 미만은
+  «표본 부족». 표본이 없는 부품을 같은 크확의 다른 부품 수치로 메우지 않는다.
+- 상세·개인정보 규칙: [references/telemetry-data-sources.md](references/telemetry-data-sources.md) ·
+  실측 리포트: [audits/2026-09-14-crit-value-measured.md](audits/2026-09-14-crit-value-measured.md)
 
 ### 4. 파생 지표 계산 (Claude가 직접)
 스냅샷 raw + 스탯가치로 아래를 계산해 스냅샷 `derived`에 적고 리포트에 넣는다:
@@ -286,9 +325,13 @@ diff.py 출력을 사람 말로 해석. "Lv.70 누적경험치 X→Y (+Z%)" 식.
 | `measured.py` | **실측 상수 단일 출처.** 다른 스크립트는 여기서만 가져간다. ★`MIN_BAND_N`(2026-09-01) — 표본 200 미만 구간은 환율에서 제외하고 `income_by_band_thin` 으로 남긴다 | ✅ 권위 |
 | `trap_cost.py` | 통발 «재료비 ↔ 평생 산출» = τ. 산출도 **비용과 같은 LP 게이트**로 잰다(단가 합산 금지). 적용은 `fish-tools/patch_trap_materials.py` | ✅ 권위 |
 | `pull_players.py` | prod 텔레메트리 → 실측 스냅샷 (감사 0-b 단계) | ✅ 권위 |
+| `crit_telemetry.py` | **크리의 단일 권위** — 명목→실현 반응곡선 · SB-eq · 금칸 조준 전환 · 바늘별 표본. `--remote` 는 prod 에서 집계해 JSON 만 가져온다(698 MB DB 미전송) | ✅ 권위 |
+| `cohort_sim.py` | 플레이어 코호트·로드아웃 시뮬 (`gold_curve*.py` 의 후계) | ✅ 권위 |
+| `catalog.py` | 카탈로그·획득경로 무결성 | ✅ 권위 |
+| `farm_shop_audit.py` | 농사 상점 경로 감사 | ✅ 권위 |
 | `selftest.py` | 스킬 회귀 테스트 8종 (감사 0-a 단계) | ✅ 권위 |
 | `pull.py` / `diff.py` | 라이브 Java·JSON 스냅샷 + 델타 | ✅ 권위 |
-| `stat_value.py` | 낚싯대 스탯 원/h (판매보너스 1% = 앵커) | ✅ 권위 |
+| `stat_value.py` | 낚싯대 스탯 원/h (판매보너스 1% = 앵커). ★크리는 `measured.crit()` 의 **금액가중** 실측을 쓴다 — 구 가정 `0.20 / 4` 폐기(2026-09-14) | ✅ 권위 |
 | `material_value.py` | 재료 원/개 = 시간 LP 쌍대가격 | ✅ 권위 |
 | `item_ledger.py` | 장비 255종 재료·성능·레벨 원장 + 사다리 4종 | ✅ 권위 |
 | `harpoon_value.py` | 창 전용 스탯 + 등급천장 + **깊은물 강제TP 비용**(수중호흡=세션 · 호흡시간=잠수, ★더하지 말 것) | ✅ 권위 |

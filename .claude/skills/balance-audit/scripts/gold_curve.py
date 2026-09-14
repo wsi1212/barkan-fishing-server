@@ -23,6 +23,18 @@ with open(PARTS_PATH) as f:
 CATS = ["낚싯대", "릴", "줄", "바늘", "미끼", "찌"]
 
 
+
+# ★명목 크확 → 실현 크리율은 1:1 이 아니다 (2026-09-14 실측).  금칸은 미니게임 존의 «칸마다»
+#   굴러가므로 명목 20% 의 실제 실현 크리율은 45.7% 다.  `크리확률/100` 으로 읽던 옛 식은
+#   크리 수입을 저·중구간에서 2배 이상 과소평가했다.  환산은 crit_telemetry 단일 권위.
+def _realised_crit(nominal_pct):
+    import importlib.util, os
+    spec = importlib.util.spec_from_file_location(
+        "crit_telemetry", os.path.join(os.path.dirname(os.path.abspath(__file__)), "crit_telemetry.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m.realised_from_nominal(nominal_pct)
+
 def parse_item(raw):
     f = raw.split("|")
     name, grade, price, dur, statstr, lvl = f[0], f[1], f[2], f[3], f[4], f[5]
@@ -117,7 +129,7 @@ def compute_income(level, gear_stats, enhance_extra, quality=50):
     luck = stats.get("행운", 0)
     gradeup = stats.get("등급업", 0)
     rodBonus = int(stats.get("난이도", 0))
-    crit_rate = min(1.0, stats.get("크리확률", 0) / 100.0)
+    crit_rate = _realised_crit(stats.get("크리확률", 0))
     crit_dmg = 1 + stats.get("크리배율", 0)
     sell_bonus = stats.get("판매보너스", 0) / 100.0
     dbl = stats.get("더블찬스", 0) / 100.0

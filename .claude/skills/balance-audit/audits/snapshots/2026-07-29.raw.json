@@ -106,8 +106,8 @@
       ],
       "submit_reward_cap": 1000000,
       "quest_rewards": {
-        "count": 203,
-        "sum": 1827650,
+        "count": 201,
+        "sum": 1824150,
         "max": 50000,
         "min": 200
       },
@@ -313,5 +313,10 @@
     }
   },
   "warnings": [],
-  "derived": {}
+  "derived": {
+    "achievement_challenge_rewards_before": 668000,
+    "achievement_challenge_rewards_after": 41000,
+    "achievement_challenge_reward_delta_pct": -93.8622754491018,
+    "achievement_challenge_reward_count": 12
+  }
 }
