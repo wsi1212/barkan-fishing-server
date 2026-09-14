@@ -65,6 +65,7 @@
     "열도의명요리사",
     "미식가",
     "777",
+    "체스의지배자",
     "풍년의증인",
     "심해의창",
     "한계를넘은자",
@@ -780,6 +781,18 @@
       "source": "casino",
       "animation": true,
       "palette": "casino"
+    },
+    "체스의지배자": {
+      "name": "&f♛ &6체스의 지배자",
+      "color": "&6",
+      "desc": "&7모든 체스 도전과제를 완수한 자",
+      "icon": "golden_helmet",
+      "tier": "유일",
+      "prestige": 600,
+      "category": "특수",
+      "source": "chess",
+      "animation": true,
+      "palette": "radiant"
     },
     "풍년의증인": {
       "name": "&6풍요의 손",
