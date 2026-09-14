@@ -43,6 +43,9 @@ CATCH_WON = 606.0
 CROP = {"작물_밀": 28.1, "작물_당근": 63.3, "작물_감자": 94.9,
         "작물_토마토": 126.6, "작물_양배추": 52.7, "작물_버섯": 56.3,
         "작물_수박": 1518.8}
+# 교차경제 감사에서 산출한 조달 기회비용. 섬상점 판매가가 없더라도 드릴·낚시 파밍으로
+# 실제 공급되는 재료이므로 unknown으로 빼면 상위 판매/제출 원가가 체계적으로 낮아진다.
+MATERIAL_ANCHOR = {"흑정석": 64.0, "압축흑정석": 573.0, "진주조개": 15135.0}
 # 채집의 행동비 floor. 종별 가치는 forage_node_values()가 prod 노드 수로 보정한다.
 FORAGE_FLOOR = {"흔함": 355.0, "희귀": 4730.0}
 
@@ -260,6 +263,8 @@ class Model:
     def material(self, mat: str, qty: int) -> Cost:
         if mat in CROP:
             return Cost(won=CROP[mat] * qty, terms=collections.Counter({mat: qty}))
+        if mat in MATERIAL_ANCHOR:
+            return Cost(won=MATERIAL_ANCHOR[mat] * qty, terms=collections.Counter({mat: qty}))
         if mat.startswith("채집_"):
             value = self.forage_values.get(mat)
             if value is None:

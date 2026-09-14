@@ -1042,7 +1042,7 @@
           "typeOrMatId": "단단한자루",
           "displayName": "단단한 자루",
           "mcItem": "stick",
-          "qty": 8
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -2485,14 +2485,14 @@
           "typeOrMatId": "녹슨부품",
           "displayName": "녹슨 부품",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "강철심",
           "displayName": "강철 심",
           "mcItem": "iron_ingot",
-          "qty": 8
+          "qty": 4
         },
         {
           "kind": "custom",
@@ -4807,7 +4807,7 @@
           "&7목이 서늘하다.",
           "",
           "&7[간단] 버프 요리",
-          "&7낚시 경험치 &a+5%",
+          "&7낚시 경험치 &a+4%",
           "&7난이도 &a-1",
           "&7야간 투시 &bI",
           "&8지속 10분  &7· &8먹기 전용",
@@ -4822,7 +4822,7 @@
           "typeOrMatId": "채집_설화",
           "displayName": "설화",
           "mcItem": "oxeye_daisy",
-          "qty": 1
+          "qty": 2
         },
         {
           "kind": "custom",
@@ -4891,8 +4891,8 @@
           "&7끈적하게 남는 게 매력이다.",
           "",
           "&7[간단] 버프 요리",
-          "&7크리티컬 &a+10%",
-          "&7더블 &a+4%",
+          "&7크리티컬 &a+7%",
+          "&7더블 &a+2%",
           "&7화염 저항 &bI",
           "&8지속 10분  &7· &8먹기 전용",
           "&8조리시간 3초",
@@ -4910,10 +4910,24 @@
         },
         {
           "kind": "custom",
+          "typeOrMatId": "채집_주황요정버섯",
+          "displayName": "주황 요정버섯",
+          "mcItem": "orange_tulip",
+          "qty": 1
+        },
+        {
+          "kind": "custom",
           "typeOrMatId": "작물_밀",
           "displayName": "특수 밀",
           "mcItem": "wheat",
           "qty": 1
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "강화밀",
+          "displayName": "강화 밀",
+          "mcItem": "wheat",
+          "qty": 2
         }
       ]
     },
@@ -4954,7 +4968,7 @@
           "typeOrMatId": "강화밀",
           "displayName": "강화 밀",
           "mcItem": "wheat",
-          "qty": 2
+          "qty": 8
         }
       ]
     },
@@ -5022,8 +5036,8 @@
           "&7손을 덴다.",
           "",
           "&7[보통] 버프 요리",
-          "&7낚시 경험치 &a+7%",
-          "&7도망 감소 &a+45",
+          "&7낚시 경험치 &a+3%",
+          "&7도망 감소 &a+50",
           "&7이동 속도 &bI",
           "&8지속 20분  &7· &8먹기 전용",
           "&8조리시간 6초",
@@ -5032,13 +5046,6 @@
         ]
       },
       "ingredients": [
-        {
-          "kind": "dish",
-          "typeOrMatId": "들꽃꿀차",
-          "displayName": "들꽃 꿀차",
-          "mcItem": "HONEY_BOTTLE",
-          "qty": 2
-        },
         {
           "kind": "custom",
           "typeOrMatId": "작물_감자",
@@ -5051,7 +5058,7 @@
           "typeOrMatId": "강화감자",
           "displayName": "강화 감자",
           "mcItem": "potato",
-          "qty": 4
+          "qty": 6
         }
       ]
     },
@@ -5184,21 +5191,21 @@
           "typeOrMatId": "설산서리차",
           "displayName": "설산 서리차",
           "mcItem": "HONEY_BOTTLE",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_야광버섯",
           "displayName": "야광버섯",
           "mcItem": "warped_fungus",
-          "qty": 3
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_푸른요정버섯",
           "displayName": "푸른 요정버섯",
           "mcItem": "blue_orchid",
-          "qty": 3
+          "qty": 2
         }
       ]
     },
@@ -5275,7 +5282,7 @@
           "",
           "&7[고급] 버프 요리",
           "&7낚시 경험치 &a+3%",
-          "&7등급 업 &a+8%",
+          "&7등급 업 &a+5%",
           "&7성급함 &bII",
           "&8지속 30분  &7· &8먹기 전용",
           "&8조리시간 10초",
@@ -5307,10 +5314,24 @@
         },
         {
           "kind": "custom",
+          "typeOrMatId": "강화밀",
+          "displayName": "강화 밀",
+          "mcItem": "wheat",
+          "qty": 4
+        },
+        {
+          "kind": "custom",
           "typeOrMatId": "강화스위트베리",
           "displayName": "강화 스위트베리",
           "mcItem": "sweet_berries",
           "qty": 3
+        },
+        {
+          "kind": "fish",
+          "typeOrMatId": "C",
+          "displayName": "C등급 이상 물고기",
+          "mcItem": "cod",
+          "qty": 2
         }
       ]
     },
@@ -5388,7 +5409,7 @@
           "",
           "&7[고급] 버프 요리",
           "&7낚시 경험치 &a+4%",
-          "&7크리티컬 &a+32%",
+          "&7크리티컬 &a+14%",
           "&7점프 강화 &bII",
           "&8지속 30분  &7· &8먹기 전용",
           "&8조리시간 10초",
@@ -5423,6 +5444,13 @@
           "typeOrMatId": "강화사탕수수",
           "displayName": "강화 사탕수수",
           "mcItem": "sugar_cane",
+          "qty": 2
+        },
+        {
+          "kind": "fish",
+          "typeOrMatId": "B",
+          "displayName": "B등급 이상 물고기",
+          "mcItem": "cod",
           "qty": 2
         }
       ]
@@ -5500,7 +5528,7 @@
           "&7정석이다.",
           "",
           "&7[고급] 버프 요리",
-          "&7낚시 경험치 &a+19%",
+          "&7낚시 경험치 &a+13%",
           "&7성급함 &bII",
           "&8지속 30분  &7· &8먹기 전용",
           "&8조리시간 10초",
@@ -5528,7 +5556,7 @@
           "typeOrMatId": "작물_감자",
           "displayName": "특수 감자",
           "mcItem": "potato",
-          "qty": 2
+          "qty": 6
         },
         {
           "kind": "custom",
@@ -5555,7 +5583,7 @@
           "&7걸어 다니며 먹는다.",
           "",
           "&7[특급] 버프 요리",
-          "&7낚시 경험치 &a+44%",
+          "&7낚시 경험치 &a+41%",
           "&7크기 &a+26%",
           "&7이동 속도 &bII",
           "&7수중 호흡 &bI",
@@ -5575,8 +5603,8 @@
         },
         {
           "kind": "fish",
-          "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "typeOrMatId": "A",
+          "displayName": "A등급 이상 물고기",
           "mcItem": "cod",
           "qty": 2
         },
@@ -5620,7 +5648,7 @@
           "",
           "&7[특급] 버프 요리",
           "&7낚시 경험치 &a+5%",
-          "&7등급 업 &a+26%",
+          "&7등급 업 &a+18%",
           "&7성급함 &bII",
           "&7화염 저항 &bI",
           "&8지속 30분  &7· &8먹기 전용",
@@ -5706,7 +5734,14 @@
           "typeOrMatId": "A",
           "displayName": "A등급 이상 물고기",
           "mcItem": "cod",
-          "qty": 2
+          "qty": 3
+        },
+        {
+          "kind": "fish",
+          "typeOrMatId": "S",
+          "displayName": "S등급 이상 물고기",
+          "mcItem": "cod",
+          "qty": 1
         },
         {
           "kind": "custom",
@@ -5733,7 +5768,7 @@
           "&7모인다.",
           "",
           "&7[특급] 버프 요리",
-          "&7낚시 경험치 &a+60%",
+          "&7낚시 경험치 &a+51%",
           "&7성급함 &bII",
           "&7이동 속도 &bI",
           "&8지속 30분  &7· &8먹기 전용",
@@ -5756,6 +5791,13 @@
           "displayName": "마법 약초",
           "mcItem": "fern",
           "qty": 4
+        },
+        {
+          "kind": "custom",
+          "typeOrMatId": "채집_트러플",
+          "displayName": "트러플",
+          "mcItem": "brown_mushroom",
+          "qty": 1
         },
         {
           "kind": "fish",
@@ -5869,7 +5911,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 3,300점  &7· &8제출 전용",
+          "&8제출 3,800점  &7· &8제출 전용",
           "",
           "&8dish:해물탕"
         ]
@@ -5922,7 +5964,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 3,600점  &7· &8제출 전용",
+          "&8제출 5,600점  &7· &8제출 전용",
           "",
           "&8dish:트러플스튜"
         ]
@@ -6046,7 +6088,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 450점  &7· &8제출 전용",
+          "&8제출 900점  &7· &8제출 전용",
           "",
           "&8dish:호박찜"
         ]
@@ -6124,7 +6166,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 2,550점  &7· &8제출 전용",
+          "&8제출 7,500점  &7· &8제출 전용",
           "",
           "&8dish:단호박파이"
         ]
@@ -6280,7 +6322,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 900점  &7· &8제출 전용",
+          "&8제출 1,600점  &7· &8제출 전용",
           "",
           "&8dish:오디파이"
         ]
@@ -6319,7 +6361,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 850점  &7· &8제출 전용",
+          "&8제출 1,700점  &7· &8제출 전용",
           "",
           "&8dish:양고기파이"
         ]
@@ -6358,7 +6400,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 1,000점  &7· &8제출 전용",
+          "&8제출 1,700점  &7· &8제출 전용",
           "",
           "&8dish:패션타르트"
         ]
@@ -6436,7 +6478,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 450점  &7· &8제출 전용",
+          "&8제출 2,000점  &7· &8제출 전용",
           "",
           "&8dish:레드벨벳컵케이크"
         ]
@@ -6514,7 +6556,7 @@
           "",
           "&7[일반] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 450점  &7· &8제출 전용",
+          "&8제출 1,400점  &7· &8제출 전용",
           "",
           "&8dish:마르게리타피자"
         ]
@@ -6553,7 +6595,7 @@
           "",
           "&7[중급] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 750점  &7· &8제출 전용",
+          "&8제출 6,000점  &7· &8제출 전용",
           "",
           "&8dish:채집성찬"
         ]
@@ -6596,10 +6638,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "채집_야광버섯",
-          "displayName": "야광버섯",
-          "mcItem": "warped_fungus",
-          "qty": 1
+          "typeOrMatId": "채집_흰들국화",
+          "displayName": "흰들국화",
+          "mcItem": "oxeye_daisy",
+          "qty": 2
         }
       ]
     },
@@ -6620,7 +6662,7 @@
           "",
           "&7[중급] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 6,600점  &7· &8제출 전용",
+          "&8제출 9,000점  &7· &8제출 전용",
           "",
           "&8dish:스터프드캔털루프"
         ]
@@ -6631,28 +6673,28 @@
           "typeOrMatId": "빛나는샐러드",
           "displayName": "빛나는 샐러드",
           "mcItem": "BEETROOT_SOUP",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_수박",
           "displayName": "특수 수박",
           "mcItem": "melon_slice",
-          "qty": 6
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화멜론",
           "displayName": "강화 멜론",
           "mcItem": "melon_slice",
-          "qty": 6
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_서리연꽃",
           "displayName": "서리연꽃",
           "mcItem": "blue_ice",
-          "qty": 3
+          "qty": 1
         }
       ]
     },
@@ -6673,7 +6715,7 @@
           "",
           "&7[중급] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 7,500점  &7· &8제출 전용",
+          "&8제출 16,000점  &7· &8제출 전용",
           "",
           "&8dish:코러스파이"
         ]
@@ -6691,21 +6733,21 @@
           "typeOrMatId": "채집_자수정새싹",
           "displayName": "자수정새싹",
           "mcItem": "amethyst_shard",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_야광버섯",
           "displayName": "야광버섯",
           "mcItem": "warped_fungus",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_수박",
           "displayName": "특수 수박",
           "mcItem": "melon_slice",
-          "qty": 4
+          "qty": 2
         },
         {
           "kind": "fish",
@@ -6733,7 +6775,7 @@
           "",
           "&7[중급] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 2,450점  &7· &8제출 전용",
+          "&8제출 12,500점  &7· &8제출 전용",
           "",
           "&8dish:글룸고드파이"
         ]
@@ -6751,28 +6793,28 @@
           "typeOrMatId": "채집_야광버섯",
           "displayName": "야광버섯",
           "mcItem": "warped_fungus",
-          "qty": 3
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_독그늘버섯",
           "displayName": "독그늘버섯",
           "mcItem": "red_mushroom",
-          "qty": 2
+          "qty": 1
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_버섯",
           "displayName": "특수 버섯",
           "mcItem": "brown_mushroom",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "fish",
           "typeOrMatId": "B",
           "displayName": "B등급 이상 물고기",
           "mcItem": "cod",
-          "qty": 4
+          "qty": 2
         }
       ]
     },
@@ -6793,7 +6835,7 @@
           "",
           "&7[중급] 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 3,300점  &7· &8제출 전용",
+          "&8제출 14,000점  &7· &8제출 전용",
           "",
           "&8dish:근원열매파이"
         ]
@@ -6825,7 +6867,7 @@
           "typeOrMatId": "강화스위트베리",
           "displayName": "강화 스위트베리",
           "mcItem": "sweet_berries",
-          "qty": 16
+          "qty": 8
         },
         {
           "kind": "fish",
@@ -6853,7 +6895,7 @@
           "",
           "&6★전설★ 제출 요리",
           "&7(먹어도 버프 효과 없음)",
-          "&8제출 90,000점  &7· &8제출 전용",
+          "&8제출 750,000점  &7· &8제출 전용",
           "",
           "&8dish:대연회"
         ]
@@ -6885,98 +6927,98 @@
           "typeOrMatId": "강화다이아몬드",
           "displayName": "강화 다이아몬드",
           "mcItem": "diamond",
-          "qty": 15
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화에메랄드",
           "displayName": "강화 에메랄드",
           "mcItem": "emerald",
-          "qty": 15
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화청금석",
           "displayName": "강화 청금석",
           "mcItem": "lapis lazuli",
-          "qty": 10
+          "qty": 2
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 70
+          "qty": 12
         },
         {
           "kind": "custom",
           "typeOrMatId": "별빛진주",
           "displayName": "별빛 진주",
           "mcItem": "heart of the sea",
-          "qty": 60
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "바르칸핵",
           "displayName": "바르칸 핵",
           "mcItem": "netherite ingot",
-          "qty": 18
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "진주코어",
           "displayName": "진주 코어",
           "mcItem": "heart of the sea",
-          "qty": 18
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화밀",
           "displayName": "강화 밀",
           "mcItem": "wheat",
-          "qty": 96
+          "qty": 24
         },
         {
           "kind": "custom",
           "typeOrMatId": "강화당근",
           "displayName": "강화 당근",
           "mcItem": "carrot",
-          "qty": 96
+          "qty": 24
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_수박",
           "displayName": "특수 수박",
           "mcItem": "melon_slice",
-          "qty": 32
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "작물_밀",
           "displayName": "특수 밀",
           "mcItem": "wheat",
-          "qty": 32
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_트러플",
           "displayName": "트러플",
           "mcItem": "brown_mushroom",
-          "qty": 25
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "채집_야광버섯",
           "displayName": "야광버섯",
           "mcItem": "warped_fungus",
-          "qty": 35
+          "qty": 3
         },
         {
           "kind": "fish",
           "typeOrMatId": "A",
           "displayName": "A등급 이상 물고기",
           "mcItem": "cod",
-          "qty": 5
+          "qty": 2
         }
       ]
     },
@@ -7397,7 +7439,7 @@
           "",
           "&7[중] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 10,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 16,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 2시간",
           "",
           "&8dish:발효케이크"
@@ -7451,7 +7493,7 @@
           "",
           "&7[중] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 20,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 48,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 6시간",
           "",
           "&8dish:청어젓갈"
@@ -7505,7 +7547,7 @@
           "",
           "&7[중] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 40,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 96,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 12시간",
           "",
           "&8dish:꿀호두케이크"
@@ -7566,7 +7608,7 @@
           "",
           "&7[대] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 80,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 240,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 1일",
           "",
           "&8dish:숙성대연회"
@@ -7627,7 +7669,7 @@
           "",
           "&7[대] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 150,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 480,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 2일",
           "",
           "&8dish:전설의발효액"
@@ -7688,7 +7730,7 @@
           "",
           "&7[대] 판매 요리",
           "&7(먹어도 효과 없음)",
-          "&8판매가 300,000원  &7· &8섬상점 판매 전용",
+          "&8판매가 720,000원  &7· &8섬상점 판매 전용",
           "&8조리시간 3일",
           "",
           "&8dish:왕실케이크"
@@ -13040,7 +13082,7 @@
           "&7금빛이라 이름이 붙었다.",
           "",
           "&7[특급] 버프 요리",
-          "&7낚시 경험치 &a+7%",
+          "&7낚시 경험치 &a+32%",
           "&7난이도 &a-6",
           "&7이동 속도 &bII",
           "&7야간 투시 &bI",
@@ -13060,10 +13102,10 @@
         },
         {
           "kind": "fish",
-          "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "typeOrMatId": "A",
+          "displayName": "A등급 이상 물고기",
           "mcItem": "cod",
-          "qty": 1
+          "qty": 3
         },
         {
           "kind": "custom",
