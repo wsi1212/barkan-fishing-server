@@ -4639,7 +4639,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 8
+          "qty": 4
         }
       ]
     },
@@ -4657,14 +4657,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "blackstone",
-          "qty": 16
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "iron_block",
-          "qty": 8
+          "qty": 4
         }
       ]
     },
