@@ -874,7 +874,10 @@ def economy(request: Request):
     # ★2026-07-28 유저 지적으로 발견: 예전엔 reason만 GROUP BY해서 골드(money)·캐시(cash)·
     # 잠수포인트(afkp)가 전부 한 숫자로 합쳐져 나왔음 — 서로 다른 재화라 섞으면 안 됨. 이제
     # c6_inflation이 cur도 같이 묶어서 반환하니, 재화별로 섹션을 분리해서 렌더링한다.
-    all_money_rows = queries.c6_inflation()
+    # 운영자 보정(admin_fix)은 실제 플레이어 경제 흐름이 아니고 큰 일회성 금액이
+    # 섞일 수 있으므로, 어드민 경제 페이지의 그래프/인사이트/표에서는 제외한다.
+    # 원본 텔레메트리와 stats-lab 공용 쿼리는 보존한다.
+    all_money_rows = [r for r in queries.c6_inflation() if r.get("reason") != "admin_fix"]
     for r in all_money_rows:
         r["net"] = (r["sourced"] or 0) + (r["sunk"] or 0)
     # 순액이 가장 큰 소스(=인플레 유발 주범, 주의 필요)와 가장 큰 싱크(=화폐 회수, 건강한 신호)를
