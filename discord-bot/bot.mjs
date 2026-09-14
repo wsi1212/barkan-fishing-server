@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, MessageFlags, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { deprovisionGuild, ensureRankRoles, provisionGuild, syncMembers } from "./guild-sync.mjs";
 import { EDITION_ROLES, applyEditionRole, ensureEditionRoles } from "./edition-roles.mjs";
+import { MEMBERSHIP_ROLES, applyMembershipRole, ensureMembershipRoles } from "./membership-roles.mjs";
 
 const required = (name) => {
   const value = process.env[name]?.trim();
@@ -21,6 +22,11 @@ const CATEGORY_PREFIX = process.env.GUILD_CATEGORY_PREFIX ?? "길드";
 const editionRoleIds = new Map(
   [["java", (process.env.DISCORD_JAVA_ROLE_ID ?? "").trim()],
    ["bedrock", (process.env.DISCORD_BEDROCK_ROLE_ID ?? "").trim()]].filter(([, id]) => id)
+);
+const membershipRoleIds = new Map(
+  [["VIP", (process.env.DISCORD_VIP_ROLE_ID ?? "").trim()],
+   ["MVP", (process.env.DISCORD_MVP_ROLE_ID ?? "").trim()],
+   ["MVP_PLUS", (process.env.DISCORD_MVP_PLUS_ROLE_ID ?? "").trim()]].filter(([, id]) => id)
 );
 
 // GuildMembers 는 특권 인텐트다. 개발자 포털에서 켜지 않으면 역할 회수와 재입장 복구가 조용히 동작하지 않는다.
@@ -95,6 +101,17 @@ async function registerCommands(user) {
       }
     } catch (error) {
       console.error(`[Discord] edition role setup failed (${error?.message ?? error}); Manage Roles 권한을 확인하세요`);
+    }
+    try {
+      await ensureMembershipRoles(guild, membershipRoleIds);
+      for (const id of membershipRoleIds.values()) {
+        const role = guild.roles.cache.get(id) ?? await guild.roles.fetch(id).catch(() => null);
+        if (role && botMember.roles.highest.position <= role.position) {
+          console.error(`[Membership] role hierarchy: move the bot role above '${role.name}' (${id}) to grant it`);
+        }
+      }
+    } catch (error) {
+      console.error(`[Membership] role setup failed (${error?.message ?? error}); Manage Roles 권한을 확인하세요`);
     }
     if (registerTimer) clearInterval(registerTimer);
   } catch (error) {
@@ -178,6 +195,72 @@ const rankRoleIds = new Map();
 
 async function homeGuild() {
   return client.guilds.cache.get(GUILD_ID) ?? await client.guilds.fetch(GUILD_ID);
+}
+
+// ===== 멤버십 역할 =====
+// 입금확인과 같은 권위 변경은 vip-billing DB에 먼저 커밋하고, 봇은 큐를 5초마다 비운다.
+// Discord 장애로 즉시 지급이 실패해도 재시도하고, 30분 전체 대조가 최종 복구선이다.
+
+async function syncMembershipTarget(guild, target) {
+  await ensureMembershipRoles(guild, membershipRoleIds);
+  const member = guild.members.cache.get(target.discordId)
+    ?? await guild.members.fetch(target.discordId).catch(() => null);
+  if (!member) return { changed: false, skipped: "member_not_in_guild" };
+  return applyMembershipRole(member, target.tier, membershipRoleIds);
+}
+
+let membershipDraining = false;
+async function drainMembershipJobs() {
+  if (membershipDraining || !client.isReady()) return;
+  membershipDraining = true;
+  try {
+    const guild = await homeGuild();
+    const { jobs } = await api("/internal/membership/discord/jobs");
+    for (const job of jobs ?? []) {
+      try {
+        const outcome = await syncMembershipTarget(guild, job);
+        await api("/internal/membership/discord/jobs/result", {
+          method: "POST",
+          body: JSON.stringify({ id: job.id, ok: true, ...outcome }),
+        });
+        console.log(`[Membership] discord=${job.discordId} tier=${job.tier ?? "none"} done${outcome.skipped ? ` (${outcome.skipped})` : ""}`);
+      } catch (error) {
+        await api("/internal/membership/discord/jobs/result", {
+          method: "POST",
+          body: JSON.stringify({ id: job.id, ok: false, error: String(error?.message ?? error) }),
+        }).catch(() => {});
+        console.warn(`[Membership] discord=${job.discordId} failed (attempt ${job.attempts}): ${error?.message ?? error}`);
+      }
+    }
+  } catch (error) {
+    console.warn(`[Membership] job poll failed: ${error?.message ?? error}`);
+  } finally {
+    membershipDraining = false;
+  }
+}
+
+async function membershipState() {
+  const { members } = await api("/internal/membership/discord/state");
+  return members ?? [];
+}
+
+async function reconcileMemberships() {
+  if (!client.isReady()) return;
+  try {
+    const guild = await homeGuild();
+    await ensureMembershipRoles(guild, membershipRoleIds);
+    let changed = 0;
+    for (const target of await membershipState()) {
+      try {
+        if ((await syncMembershipTarget(guild, target)).changed) changed += 1;
+      } catch (error) {
+        console.warn(`[Membership] reconcile discord=${target.discordId} failed: ${error?.message ?? error}`);
+      }
+    }
+    if (changed) console.log(`[Membership] reconciled (${changed} changed)`);
+  } catch (error) {
+    console.warn(`[Membership] reconcile failed: ${error?.message ?? error}`);
+  }
 }
 
 async function runJob(job) {
@@ -274,6 +357,21 @@ client.on("guildMemberAdd", member => {
   })();
 });
 
+// 디스코드 재입장 시 활성 멤버십 역할도 즉시 복구한다.
+client.on("guildMemberAdd", member => {
+  if (member.guild.id !== GUILD_ID) return;
+  void (async () => {
+    try {
+      const target = (await membershipState()).find(entry => entry.discordId === member.id);
+      if (!target) return;
+      await syncMembershipTarget(member.guild, target);
+      console.log(`[Membership] restored role for rejoining member ${member.id}`);
+    } catch (error) {
+      console.warn(`[Membership] rejoin restore failed for ${member.id}: ${error?.message ?? error}`);
+    }
+  })();
+});
+
 /**
  * 이미 인증을 끝낸 사람에게도 에디션 역할을 채운다.
  *
@@ -327,11 +425,15 @@ async function reconcileEditions() {
 
 client.once("ready", ready => {
   void registerCommands(ready.user);
+  setInterval(() => void drainMembershipJobs(), 5_000);
+  setTimeout(() => void drainMembershipJobs(), 5_000);
   setInterval(() => void drainGuildJobs(), 5_000);
   setInterval(() => void reconcileGuilds(), 30 * 60_000);
   setTimeout(() => void reconcileGuilds(), 20_000);
   setInterval(() => void reconcileEditions(), 30 * 60_000);
   setTimeout(() => void reconcileEditions(), 45_000);   // 길드 reconcile(20초)과 겹치지 않게
+  setInterval(() => void reconcileMemberships(), 30 * 60_000);
+  setTimeout(() => void reconcileMemberships(), 60_000); // 다른 전체 동기화와 겹치지 않게
 });
 
 client.on("error", error => console.error("[Discord] client error", error));

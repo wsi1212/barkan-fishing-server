@@ -472,6 +472,23 @@ async function migrate() {
     CREATE INDEX IF NOT EXISTS guild_discord_jobs_queue_idx ON guild_discord_jobs (run_after, id) WHERE done_at IS NULL;
     -- 같은 길드에 같은 종류의 작업이 두 번 쌓이지 않게. 재요청은 run_after 를 당기는 것으로 갈음한다.
     CREATE UNIQUE INDEX IF NOT EXISTS guild_discord_jobs_pending_idx ON guild_discord_jobs (kind, guild_id) WHERE done_at IS NULL;
+    -- 멤버십 역할은 결제 트랜잭션 안에서 큐에 넣고 Discord 봇이 처리한다. Discord 장애가
+    -- 결제 확정 자체를 롤백시키지 않으면서도, 작업 유실 없이 재시도하기 위한 분리다.
+    CREATE TABLE IF NOT EXISTS membership_discord_jobs (
+      id BIGSERIAL PRIMARY KEY,
+      source_key TEXT NOT NULL UNIQUE,
+      minecraft_uuid UUID NOT NULL,
+      discord_id TEXT NOT NULL,
+      tier TEXT CHECK (tier IN ('VIP','MVP','MVP_PLUS')),
+      attempts INTEGER NOT NULL DEFAULT 0,
+      run_after TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      claimed_at TIMESTAMPTZ,
+      done_at TIMESTAMPTZ,
+      last_error TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS membership_discord_jobs_queue_idx
+      ON membership_discord_jobs (run_after, id) WHERE done_at IS NULL;
   `);
 }
 
@@ -577,6 +594,29 @@ async function extendSubscription(client, uuid, name, tier, days) {
     RETURNING tier, expires_at`, [uuid, name, tier, days]);
   await scheduleMembershipCash(client, uuid, tier, days);
   return r.rows[0];
+}
+
+/** 현재 연결된 Discord 계정과 활성 멤버십을 한 작업으로 예약한다. 미연동이면 조용히 건너뛴다. */
+async function enqueueMembershipDiscordSync(client, sourceKey, uuid) {
+  const target = await client.query(
+    `SELECT d.discord_id,
+            CASE WHEN s.expires_at > NOW() THEN s.tier ELSE NULL END AS tier
+       FROM discord_links d
+       LEFT JOIN subscriptions s ON s.minecraft_uuid=d.minecraft_uuid
+      WHERE d.minecraft_uuid=$1`,
+    [uuid]
+  );
+  if (!target.rowCount) return { linked: false, queued: false, tier: null };
+  const row = target.rows[0];
+  await client.query(
+    `INSERT INTO membership_discord_jobs (source_key,minecraft_uuid,discord_id,tier)
+     VALUES ($1,$2,$3,$4)
+     ON CONFLICT (source_key) DO UPDATE SET minecraft_uuid=EXCLUDED.minecraft_uuid,
+       discord_id=EXCLUDED.discord_id, tier=EXCLUDED.tier, attempts=0, run_after=NOW(),
+       claimed_at=NULL, done_at=NULL, last_error=NULL`,
+    [sourceKey, uuid, row.discord_id, row.tier]
+  );
+  return { linked: true, queued: true, tier: row.tier };
 }
 
 /*
@@ -1806,10 +1846,14 @@ async function route(req, res) {
         return json(res, 200, { message: "입금 미확인 주문을 취소했습니다." });
       }
       const sub = await extendSubscription(client, order.minecraft_uuid, order.player_name ?? "Unknown", order.tier, order.period_days);
+      const discordSync = await enqueueMembershipDiscordSync(client, `bank:${orderId}`, order.minecraft_uuid);
       await client.query("UPDATE orders SET status='PAID',paid_at=NOW() WHERE order_id=$1", [orderId]);
       await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('bank_transfer',$1,$2,'DONE',$3,$4) ON CONFLICT DO NOTHING", [`bank-${orderId}`, order.minecraft_uuid, order.amount_krw, { confirmedBy: actor, transferReference: order.transfer_reference, periodDays: order.period_days }]);
       await client.query("COMMIT");
-      return json(res, 200, { message: `${order.player_name ?? "플레이어"}에게 ${order.period_days}일 ${order.tier} 이용권을 지급했습니다. 만료: ${new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` });
+      const discordMessage = discordSync.linked
+        ? ` Discord ${order.tier} 역할도 자동 반영됩니다.`
+        : " Discord 미연동 계정이라 역할 지급은 건너뛰었습니다.";
+      return json(res, 200, { message: `${order.player_name ?? "플레이어"}에게 ${order.period_days}일 ${order.tier} 이용권을 지급했습니다.${discordMessage} 만료: ${new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}` });
     } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
   }
   if (path === "/internal/membership/cash/status" && req.method === "POST") {
@@ -1907,6 +1951,8 @@ async function route(req, res) {
       // 연동 직후 소속 길드 역할을 바로 받게 한다. 미연동 상태로 이미 가입해 있던 사람이 여기서 구제된다.
       const joined = await client.query("SELECT guild_id FROM guild_member_mirror WHERE minecraft_uuid=$1", [link.minecraft_uuid]);
       for (const row of joined.rows) await enqueueGuildJob(client, "guild_members", row.guild_id);
+      // 먼저 멤버십을 산 뒤 Discord를 연결한 사람도 연동 완료 직후 역할을 받는다.
+      await enqueueMembershipDiscordSync(client, `link:${link.minecraft_uuid}`, link.minecraft_uuid);
       await client.query("COMMIT");
       return json(res, 200, { linked: true, minecraftUuid: link.minecraft_uuid, playerName: link.player_name, discordId });
     } catch (error) {
@@ -2141,6 +2187,64 @@ async function route(req, res) {
       });
     }
     return json(res, 200, { guilds });
+  }
+  // 입금확인/계정연동 때 쌓인 멤버십 역할 작업. 봇이 5초마다 선점해 처리한다.
+  if (path === "/internal/membership/discord/jobs" && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const claimed = await pool.query(
+      `UPDATE membership_discord_jobs SET claimed_at=NOW(), attempts=attempts+1
+        WHERE id IN (
+          SELECT id FROM membership_discord_jobs
+           WHERE done_at IS NULL AND run_after <= NOW()
+             AND (claimed_at IS NULL OR claimed_at < NOW()-INTERVAL '5 minutes')
+           ORDER BY id LIMIT 10 FOR UPDATE SKIP LOCKED
+        )
+        RETURNING id,minecraft_uuid,discord_id,tier,attempts`
+    );
+    claimed.rows.sort((a, b) => Number(a.id) - Number(b.id));
+    return json(res, 200, { jobs: claimed.rows.map((job) => ({
+      id: Number(job.id), minecraftUuid: job.minecraft_uuid, discordId: job.discord_id,
+      tier: job.tier, attempts: job.attempts,
+    })) });
+  }
+  if (path === "/internal/membership/discord/jobs/result" && req.method === "POST") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const data = await bodyJson(req);
+    const id = Number(data.id);
+    if (!Number.isInteger(id) || id <= 0) return json(res, 400, { error: "invalid_request" });
+    if (data.ok) {
+      await pool.query(
+        "UPDATE membership_discord_jobs SET done_at=NOW(),claimed_at=NULL,last_error=NULL WHERE id=$1 AND done_at IS NULL",
+        [id]
+      );
+      return json(res, 200, { acknowledged: true });
+    }
+    const failure = String(data.error ?? "unknown").slice(0, 500);
+    await pool.query(
+      `UPDATE membership_discord_jobs
+          SET last_error=$2,
+              run_after=NOW() + (LEAST(attempts,6) * INTERVAL '30 seconds'),
+              claimed_at=NULL,
+              done_at=CASE WHEN attempts >= 10 THEN NOW() ELSE NULL END
+        WHERE id=$1 AND done_at IS NULL`,
+      [id, failure]
+    );
+    return json(res, 200, { acknowledged: true, retried: true });
+  }
+  // 만료·환불·등급 변경·재입장 복구용 전체 기대 상태. 모든 연동 계정을 반환해야
+  // 활성 멤버십이 없는 사람에게 남은 역할까지 회수할 수 있다.
+  if (path === "/internal/membership/discord/state" && req.method === "GET") {
+    if (!internal(req)) return json(res, 401, { error: "unauthorized" });
+    const rows = await pool.query(
+      `SELECT d.minecraft_uuid,d.discord_id,
+              CASE WHEN s.expires_at > NOW() THEN s.tier ELSE NULL END AS tier
+         FROM discord_links d
+         LEFT JOIN subscriptions s ON s.minecraft_uuid=d.minecraft_uuid
+        ORDER BY d.linked_at`
+    );
+    return json(res, 200, { members: rows.rows.map((row) => ({
+      minecraftUuid: row.minecraft_uuid, discordId: row.discord_id, tier: row.tier,
+    })) });
   }
   if (path === "/internal/discord/reward/status" && req.method === "POST") {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" });
