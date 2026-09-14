@@ -186,18 +186,18 @@
       "purpose": "buff",
       "tier": 2,
       "old_cost": 380,
-      "new_cost_floor": 3732,
-      "added_floor": 3352,
+      "new_cost_floor": 1148,
+      "added_floor": 768,
       "unknown": {},
       "stats": {
-        "exp": 5.0,
-        "escape": 30.0
+        "exp": 3.0,
+        "escape": 50.0
       },
       "duration_s": 1200,
       "sell": 220,
       "points": 0,
-      "buff_value": 4924,
-      "value_to_cost": 1.32
+      "buff_value": 6139,
+      "value_to_cost": 5.35
     },
     {
       "id": "빵",
@@ -323,8 +323,8 @@
       "purpose": "buff",
       "tier": 3,
       "old_cost": 1279,
-      "new_cost_floor": 5779,
-      "added_floor": 4500,
+      "new_cost_floor": 3195,
+      "added_floor": 1916,
       "unknown": {},
       "stats": {
         "exp": 13.0
@@ -333,7 +333,7 @@
       "sell": 320,
       "points": 0,
       "buff_value": 7561,
-      "value_to_cost": 1.308
+      "value_to_cost": 2.366
     },
     {
       "id": "사과파이",
@@ -479,8 +479,8 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 14983,
-      "new_cost_floor": 22958,
-      "added_floor": 7975,
+      "new_cost_floor": 17790,
+      "added_floor": 2807,
       "unknown": {},
       "stats": {
         "exp": 41.0,
@@ -490,7 +490,7 @@
       "sell": 450,
       "points": 0,
       "buff_value": 32550,
-      "value_to_cost": 1.418
+      "value_to_cost": 1.83
     },
     {
       "id": "황금연어롤",
@@ -498,8 +498,8 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 16302,
-      "new_cost_floor": 25389,
-      "added_floor": 9087,
+      "new_cost_floor": 58266,
+      "added_floor": 41964,
       "unknown": {
         "바닐라:MELON_SLICE": 64
       },
@@ -511,7 +511,7 @@
       "sell": 480,
       "points": 0,
       "buff_value": 29547,
-      "value_to_cost": 1.164
+      "value_to_cost": 0.507
     },
     {
       "id": "통닭구이",
@@ -519,8 +519,8 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 16308,
-      "new_cost_floor": 22087,
-      "added_floor": 5779,
+      "new_cost_floor": 19503,
+      "added_floor": 3195,
       "unknown": {
         "바닐라:SWEET_BERRIES": 48
       },
@@ -531,7 +531,7 @@
       "sell": 280,
       "points": 0,
       "buff_value": 29661,
-      "value_to_cost": 1.343
+      "value_to_cost": 1.521
     },
     {
       "id": "허니케이크",
