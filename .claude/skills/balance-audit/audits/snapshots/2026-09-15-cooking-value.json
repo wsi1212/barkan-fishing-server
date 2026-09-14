@@ -1,0 +1,979 @@
+{
+  "method": "runtime recipes + prod island-shop sell opportunity + recursive dish/material cost",
+  "buff_value_source": "중반 실측",
+  "rows": [
+    {
+      "id": "가시배화채",
+      "name": "가시배 화채",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 1065,
+      "new_cost_floor": 1065,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "sellBonus": 9.0
+      },
+      "duration_s": 600,
+      "sell": 280,
+      "points": 0,
+      "buff_value": 1745,
+      "value_to_cost": 1.638
+    },
+    {
+      "id": "도토리묵",
+      "name": "도토리 두부",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 1775,
+      "new_cost_floor": 1775,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "size": 15.0
+      },
+      "duration_s": 600,
+      "sell": 280,
+      "points": 0,
+      "buff_value": 1674,
+      "value_to_cost": 0.943
+    },
+    {
+      "id": "들꽃꿀차",
+      "name": "들꽃 꿀차",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 1420,
+      "new_cost_floor": 1420,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "exp": 5.0
+      },
+      "duration_s": 300,
+      "sell": 260,
+      "points": 0,
+      "buff_value": 485,
+      "value_to_cost": 0.341
+    },
+    {
+      "id": "스모어",
+      "name": "모닥불 누가바",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 383,
+      "new_cost_floor": 383,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "crit": 10.0,
+        "dbl": 4.0
+      },
+      "duration_s": 600,
+      "sell": 220,
+      "points": 0,
+      "buff_value": 3043,
+      "value_to_cost": 7.943
+    },
+    {
+      "id": "설산서리차",
+      "name": "설산 서리차",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 710,
+      "new_cost_floor": 710,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "exp": 5.0,
+        "difficulty": 1.0
+      },
+      "duration_s": 600,
+      "sell": 400,
+      "points": 0,
+      "buff_value": 1577,
+      "value_to_cost": 2.221
+    },
+    {
+      "id": "풋사과파이",
+      "name": "풋사과 파이",
+      "purpose": "buff",
+      "tier": 1,
+      "old_cost": 1420,
+      "new_cost_floor": 1420,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {
+        "exp": 5.0,
+        "size": 7.0
+      },
+      "duration_s": 600,
+      "sell": 270,
+      "points": 0,
+      "buff_value": 1751,
+      "value_to_cost": 1.233
+    },
+    {
+      "id": "구운감자",
+      "name": "구운 감자",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 380,
+      "new_cost_floor": 3732,
+      "added_floor": 3352,
+      "unknown": {},
+      "stats": {
+        "exp": 7.0,
+        "escape": 45.0
+      },
+      "duration_s": 1200,
+      "sell": 220,
+      "points": 0,
+      "buff_value": 7193,
+      "value_to_cost": 1.928
+    },
+    {
+      "id": "빵",
+      "name": "따뜻한 빵",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 112,
+      "new_cost_floor": 880,
+      "added_floor": 768,
+      "unknown": {},
+      "stats": {
+        "exp": 9.0
+      },
+      "duration_s": 1200,
+      "sell": 250,
+      "points": 0,
+      "buff_value": 3489,
+      "value_to_cost": 3.964
+    },
+    {
+      "id": "바위솔무침",
+      "name": "바위솔 무침",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 2130,
+      "new_cost_floor": 5680,
+      "added_floor": 3550,
+      "unknown": {},
+      "stats": {
+        "exp": 9.0,
+        "escape": 30.0
+      },
+      "duration_s": 1200,
+      "sell": 300,
+      "points": 0,
+      "buff_value": 6475,
+      "value_to_cost": 1.14
+    },
+    {
+      "id": "버섯스튜",
+      "name": "버섯밥",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 0,
+      "new_cost_floor": 4062,
+      "added_floor": 4062,
+      "unknown": {
+        "mushroomany": 5
+      },
+      "stats": {
+        "dbl": 13.0
+      },
+      "duration_s": 1200,
+      "sell": 220,
+      "points": 0,
+      "buff_value": 5040,
+      "value_to_cost": 1.241
+    },
+    {
+      "id": "수박주스",
+      "name": "수박 주스",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 3038,
+      "new_cost_floor": 5168,
+      "added_floor": 2130,
+      "unknown": {
+        "바닐라:MELON_SLICE": 128
+      },
+      "stats": {
+        "size": 6.0,
+        "sellBonus": 10.0
+      },
+      "duration_s": 1200,
+      "sell": 200,
+      "points": 0,
+      "buff_value": 5216,
+      "value_to_cost": 1.009
+    },
+    {
+      "id": "야광버섯수프",
+      "name": "야광베리 커스터드",
+      "purpose": "buff",
+      "tier": 2,
+      "old_cost": 2130,
+      "new_cost_floor": 3550,
+      "added_floor": 1420,
+      "unknown": {},
+      "stats": {
+        "crit": 13.0,
+        "difficulty": 2.0
+      },
+      "duration_s": 1200,
+      "sell": 440,
+      "points": 0,
+      "buff_value": 8326,
+      "value_to_cost": 2.345
+    },
+    {
+      "id": "꿀햄구이",
+      "name": "꿀 발림 햄구이",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 482,
+      "new_cost_floor": 5504,
+      "added_floor": 5022,
+      "unknown": {
+        "mushroomany": 5
+      },
+      "stats": {
+        "exp": 4.0,
+        "crit": 32.0
+      },
+      "duration_s": 1800,
+      "sell": 260,
+      "points": 0,
+      "buff_value": 24094,
+      "value_to_cost": 4.378
+    },
+    {
+      "id": "구운다리살",
+      "name": "바삭 다리살",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 900,
+      "new_cost_floor": 5399,
+      "added_floor": 4500,
+      "unknown": {},
+      "stats": {
+        "exp": 19.0
+      },
+      "duration_s": 1800,
+      "sell": 320,
+      "points": 0,
+      "buff_value": 11050,
+      "value_to_cost": 2.047
+    },
+    {
+      "id": "사과파이",
+      "name": "사과 파이",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 738,
+      "new_cost_floor": 3939,
+      "added_floor": 3201,
+      "unknown": {},
+      "stats": {
+        "exp": 13.0,
+        "size": 11.0
+      },
+      "duration_s": 1800,
+      "sell": 260,
+      "points": 0,
+      "buff_value": 11244,
+      "value_to_cost": 2.854
+    },
+    {
+      "id": "세이지생선구이",
+      "name": "세이지 생선구이",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 1218,
+      "new_cost_floor": 4768,
+      "added_floor": 3550,
+      "unknown": {},
+      "stats": {
+        "exp": 10.0,
+        "difficulty": 3.0
+      },
+      "duration_s": 1800,
+      "sell": 380,
+      "points": 0,
+      "buff_value": 11284,
+      "value_to_cost": 2.367
+    },
+    {
+      "id": "샐러드",
+      "name": "양배추 샐러드",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 232,
+      "new_cost_floor": 3145,
+      "added_floor": 2913,
+      "unknown": {},
+      "stats": {
+        "exp": 7.0,
+        "size": 20.0
+      },
+      "duration_s": 1800,
+      "sell": 220,
+      "points": 0,
+      "buff_value": 10767,
+      "value_to_cost": 3.424
+    },
+    {
+      "id": "파스타",
+      "name": "토마토 파스타",
+      "purpose": "buff",
+      "tier": 3,
+      "old_cost": 309,
+      "new_cost_floor": 1190,
+      "added_floor": 880,
+      "unknown": {
+        "바닐라:SWEET_BERRIES": 48
+      },
+      "stats": {
+        "exp": 3.0,
+        "gradeup": 8.0
+      },
+      "duration_s": 1800,
+      "sell": 240,
+      "points": 0,
+      "buff_value": 11547,
+      "value_to_cost": 9.705
+    },
+    {
+      "id": "늪지해독죽",
+      "name": "늪지 해독수프",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 8198,
+      "new_cost_floor": 12111,
+      "added_floor": 3913,
+      "unknown": {},
+      "stats": {
+        "exp": 3.0,
+        "escape": 80.0,
+        "difficulty": 5.0
+      },
+      "duration_s": 1800,
+      "sell": 300,
+      "points": 0,
+      "buff_value": 22802,
+      "value_to_cost": 1.883
+    },
+    {
+      "id": "잿불매운탕",
+      "name": "잿불 매운탕",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 12212,
+      "new_cost_floor": 13402,
+      "added_floor": 1190,
+      "unknown": {
+        "바닐라:SWEET_BERRIES": 48
+      },
+      "stats": {
+        "exp": 5.0,
+        "gradeup": 26.0
+      },
+      "duration_s": 1800,
+      "sell": 520,
+      "points": 0,
+      "buff_value": 34766,
+      "value_to_cost": 2.594
+    },
+    {
+      "id": "초밥플래터",
+      "name": "초밥 플래터",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 10868,
+      "new_cost_floor": 15636,
+      "added_floor": 4768,
+      "unknown": {},
+      "stats": {
+        "crit": 50.0,
+        "dbl": 36.0
+      },
+      "duration_s": 1800,
+      "sell": 420,
+      "points": 0,
+      "buff_value": 54949,
+      "value_to_cost": 3.514
+    },
+    {
+      "id": "피시앤칩스",
+      "name": "피시 앤 칩스",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 8211,
+      "new_cost_floor": 16186,
+      "added_floor": 7975,
+      "unknown": {},
+      "stats": {
+        "exp": 44.0,
+        "size": 26.0
+      },
+      "duration_s": 1800,
+      "sell": 450,
+      "points": 0,
+      "buff_value": 34295,
+      "value_to_cost": 2.119
+    },
+    {
+      "id": "황금연어롤",
+      "name": "황금 연어롤",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 2758,
+      "new_cost_floor": 18394,
+      "added_floor": 15636,
+      "unknown": {
+        "바닐라:MELON_SLICE": 64
+      },
+      "stats": {
+        "exp": 7.0,
+        "difficulty": 6.0
+      },
+      "duration_s": 1800,
+      "sell": 480,
+      "points": 0,
+      "buff_value": 15008,
+      "value_to_cost": 0.816
+    },
+    {
+      "id": "통닭구이",
+      "name": "훈제 통닭구이",
+      "purpose": "buff",
+      "tier": 4,
+      "old_cost": 11578,
+      "new_cost_floor": 16977,
+      "added_floor": 5399,
+      "unknown": {
+        "바닐라:SWEET_BERRIES": 48
+      },
+      "stats": {
+        "exp": 60.0
+      },
+      "duration_s": 1800,
+      "sell": 280,
+      "points": 0,
+      "buff_value": 34895,
+      "value_to_cost": 2.055
+    },
+    {
+      "id": "허니케이크",
+      "name": "꿀 월병",
+      "purpose": "sell",
+      "tier": 1,
+      "old_cost": 1177,
+      "new_cost_floor": 1177,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 1800,
+      "sell": 3000,
+      "points": 0,
+      "roi": 2.548,
+      "won_h": 6000.0
+    },
+    {
+      "id": "명란젓갈",
+      "name": "명란 젓갈",
+      "purpose": "sell",
+      "tier": 1,
+      "old_cost": 212,
+      "new_cost_floor": 212,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 300,
+      "sell": 500,
+      "points": 0,
+      "roi": 2.363,
+      "won_h": 6000.0
+    },
+    {
+      "id": "은빛정어리젓",
+      "name": "은빛 정어리 젓갈",
+      "purpose": "sell",
+      "tier": 1,
+      "old_cost": 508,
+      "new_cost_floor": 508,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 900,
+      "sell": 1500,
+      "points": 0,
+      "roi": 2.953,
+      "won_h": 6000.0
+    },
+    {
+      "id": "발효케이크",
+      "name": "과일 발효 케이크",
+      "purpose": "sell",
+      "tier": 2,
+      "old_cost": 3165,
+      "new_cost_floor": 7854,
+      "added_floor": 4689,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 7200,
+      "sell": 10000,
+      "points": 0,
+      "roi": 1.273,
+      "won_h": 5000.0
+    },
+    {
+      "id": "꿀호두케이크",
+      "name": "바나나 견과빵",
+      "purpose": "sell",
+      "tier": 2,
+      "old_cost": 10533,
+      "new_cost_floor": 16062,
+      "added_floor": 5529,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 43200,
+      "sell": 40000,
+      "points": 0,
+      "roi": 2.49,
+      "won_h": 3333.3
+    },
+    {
+      "id": "청어젓갈",
+      "name": "청어 양배추 절임",
+      "purpose": "sell",
+      "tier": 2,
+      "old_cost": 16843,
+      "new_cost_floor": 21283,
+      "added_floor": 4440,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 21600,
+      "sell": 20000,
+      "points": 0,
+      "roi": 0.94,
+      "won_h": 3333.3
+    },
+    {
+      "id": "숙성대연회",
+      "name": "숙성 비프 웰링턴",
+      "purpose": "sell",
+      "tier": 3,
+      "old_cost": 5501,
+      "new_cost_floor": 35101,
+      "added_floor": 29600,
+      "unknown": {
+        "흑정석": 180
+      },
+      "stats": {},
+      "duration_s": 86400,
+      "sell": 80000,
+      "points": 0,
+      "roi": 2.279,
+      "won_h": 3333.3
+    },
+    {
+      "id": "왕실케이크",
+      "name": "왕실 케이크",
+      "purpose": "sell",
+      "tier": 3,
+      "old_cost": 4556,
+      "new_cost_floor": 174360,
+      "added_floor": 169804,
+      "unknown": {
+        "진주조개": 4
+      },
+      "stats": {},
+      "duration_s": 259200,
+      "sell": 300000,
+      "points": 0,
+      "roi": 1.721,
+      "won_h": 4166.7
+    },
+    {
+      "id": "전설의발효액",
+      "name": "전설의 발효액",
+      "purpose": "sell",
+      "tier": 3,
+      "old_cost": 109680,
+      "new_cost_floor": 152886,
+      "added_floor": 43206,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 172800,
+      "sell": 150000,
+      "points": 0,
+      "roi": 0.981,
+      "won_h": 3125.0
+    },
+    {
+      "id": "단호박파이",
+      "name": "단호박 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 4730,
+      "new_cost_floor": 4730,
+      "added_floor": 0,
+      "unknown": {
+        "바닐라:PUMPKIN": 48
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 520,
+      "points": 2550,
+      "pts_per_won": 0.5391
+    },
+    {
+      "id": "레드벨벳컵케이크",
+      "name": "레드벨벳 케이크",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 355,
+      "new_cost_floor": 1891,
+      "added_floor": 1536,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 500,
+      "points": 450,
+      "pts_per_won": 0.238
+    },
+    {
+      "id": "마르게리타피자",
+      "name": "마르게리타 피자",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 253,
+      "new_cost_floor": 1405,
+      "added_floor": 1152,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 560,
+      "points": 450,
+      "pts_per_won": 0.3202
+    },
+    {
+      "id": "목동의파이",
+      "name": "목동의 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 900,
+      "new_cost_floor": 900,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 500,
+      "points": 1100,
+      "pts_per_won": 1.2225
+    },
+    {
+      "id": "스튜냄비",
+      "name": "보글보글 스튜",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 468,
+      "new_cost_floor": 468,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 560,
+      "points": 550,
+      "pts_per_won": 1.1762
+    },
+    {
+      "id": "빛나는샐러드",
+      "name": "빛나는 샐러드",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 763,
+      "new_cost_floor": 763,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 450,
+      "points": 900,
+      "pts_per_won": 1.18
+    },
+    {
+      "id": "호박찜",
+      "name": "속을 채운 호박찜",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 355,
+      "new_cost_floor": 355,
+      "added_floor": 0,
+      "unknown": {
+        "바닐라:PUMPKIN": 64
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 550,
+      "points": 450,
+      "pts_per_won": 1.2676
+    },
+    {
+      "id": "양고기파이",
+      "name": "양고기 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 710,
+      "new_cost_floor": 1094,
+      "added_floor": 384,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 520,
+      "points": 850,
+      "pts_per_won": 0.777
+    },
+    {
+      "id": "연어베리파이",
+      "name": "연어베리 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 863,
+      "new_cost_floor": 863,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 560,
+      "points": 1050,
+      "pts_per_won": 1.2168
+    },
+    {
+      "id": "블루베리파이",
+      "name": "체리 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 738,
+      "new_cost_floor": 738,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 450,
+      "points": 900,
+      "pts_per_won": 1.2193
+    },
+    {
+      "id": "초콜릿파이",
+      "name": "초콜릿 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 837,
+      "new_cost_floor": 837,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 450,
+      "points": 1000,
+      "pts_per_won": 1.1953
+    },
+    {
+      "id": "말차아이스크림",
+      "name": "키위 셔벗",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 1874,
+      "new_cost_floor": 1874,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 450,
+      "points": 2100,
+      "pts_per_won": 1.1207
+    },
+    {
+      "id": "트러플스튜",
+      "name": "트러플 크림스튜",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 5085,
+      "new_cost_floor": 5469,
+      "added_floor": 384,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 700,
+      "points": 3600,
+      "pts_per_won": 0.6583
+    },
+    {
+      "id": "패션타르트",
+      "name": "패션 타르트",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 837,
+      "new_cost_floor": 837,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 470,
+      "points": 1000,
+      "pts_per_won": 1.1953
+    },
+    {
+      "id": "오디파이",
+      "name": "피칸 파이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 738,
+      "new_cost_floor": 738,
+      "added_floor": 0,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 470,
+      "points": 900,
+      "pts_per_won": 1.2193
+    },
+    {
+      "id": "해물탕",
+      "name": "해물탕",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 3495,
+      "new_cost_floor": 3751,
+      "added_floor": 256,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 650,
+      "points": 3300,
+      "pts_per_won": 0.8798
+    },
+    {
+      "id": "통구이머리",
+      "name": "호글린 통다리구이",
+      "purpose": "submit",
+      "tier": 1,
+      "old_cost": 710,
+      "new_cost_floor": 710,
+      "added_floor": 0,
+      "unknown": {
+        "바닐라:PUMPKIN": 48
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 600,
+      "points": 850,
+      "pts_per_won": 1.1972
+    },
+    {
+      "id": "근원열매파이",
+      "name": "근원열매 오믈렛",
+      "purpose": "submit",
+      "tier": 2,
+      "old_cost": 12998,
+      "new_cost_floor": 13353,
+      "added_floor": 355,
+      "unknown": {
+        "바닐라:PUMPKIN": 64,
+        "바닐라:SWEET_BERRIES": 256
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 1400,
+      "points": 3300,
+      "pts_per_won": 0.2471
+    },
+    {
+      "id": "글룸고드파이",
+      "name": "글룸고드 푸딩",
+      "purpose": "submit",
+      "tier": 2,
+      "old_cost": 8885,
+      "new_cost_floor": 14354,
+      "added_floor": 5469,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 1300,
+      "points": 2450,
+      "pts_per_won": 0.1707
+    },
+    {
+      "id": "채집성찬",
+      "name": "바르칸 채집 성찬",
+      "purpose": "submit",
+      "tier": 2,
+      "old_cost": 1775,
+      "new_cost_floor": 5526,
+      "added_floor": 3751,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 1500,
+      "points": 750,
+      "pts_per_won": 0.1357
+    },
+    {
+      "id": "스터프드캔털루프",
+      "name": "캔털루프 멜론",
+      "purpose": "submit",
+      "tier": 2,
+      "old_cost": 23303,
+      "new_cost_floor": 24828,
+      "added_floor": 1525,
+      "unknown": {
+        "바닐라:MELON_SLICE": 192
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 1100,
+      "points": 6600,
+      "pts_per_won": 0.2658
+    },
+    {
+      "id": "코러스파이",
+      "name": "코러스 케이크",
+      "purpose": "submit",
+      "tier": 2,
+      "old_cost": 26054,
+      "new_cost_floor": 26954,
+      "added_floor": 900,
+      "unknown": {},
+      "stats": {},
+      "duration_s": 0,
+      "sell": 1200,
+      "points": 7500,
+      "pts_per_won": 0.2783
+    },
+    {
+      "id": "대연회",
+      "name": "바르칸 대연회",
+      "purpose": "submit",
+      "tier": 3,
+      "old_cost": 1114571,
+      "new_cost_floor": 5680736,
+      "added_floor": 4566165,
+      "unknown": {
+        "바닐라:PUMPKIN": 64,
+        "바닐라:SWEET_BERRIES": 256,
+        "흑정석": 1278,
+        "진주조개": 72
+      },
+      "stats": {},
+      "duration_s": 0,
+      "sell": 50000,
+      "points": 90000,
+      "pts_per_won": 0.0158
+    }
+  ]
+}
