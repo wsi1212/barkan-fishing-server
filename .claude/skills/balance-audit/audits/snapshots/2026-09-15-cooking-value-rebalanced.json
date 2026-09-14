@@ -301,47 +301,47 @@
       "name": "꿀 발림 햄구이",
       "purpose": "buff",
       "tier": 3,
-      "old_cost": 12980,
-      "new_cost_floor": 18002,
+      "old_cost": 3868,
+      "new_cost_floor": 8890,
       "added_floor": 5022,
       "unknown": {
         "brown_mushroom": 5
       },
       "stats": {
         "exp": 4.0,
-        "crit": 32.0
+        "crit": 14.0
       },
       "duration_s": 1800,
       "sell": 260,
       "points": 0,
-      "buff_value": 24094,
-      "value_to_cost": 1.338
+      "buff_value": 11850,
+      "value_to_cost": 1.333
     },
     {
       "id": "구운다리살",
       "name": "바삭 다리살",
       "purpose": "buff",
       "tier": 3,
-      "old_cost": 5456,
-      "new_cost_floor": 9956,
+      "old_cost": 1279,
+      "new_cost_floor": 5779,
       "added_floor": 4500,
       "unknown": {},
       "stats": {
-        "exp": 19.0
+        "exp": 13.0
       },
       "duration_s": 1800,
       "sell": 320,
       "points": 0,
-      "buff_value": 11050,
-      "value_to_cost": 1.11
+      "buff_value": 7561,
+      "value_to_cost": 1.308
     },
     {
       "id": "사과파이",
       "name": "사과 파이",
       "purpose": "buff",
       "tier": 3,
-      "old_cost": 5294,
-      "new_cost_floor": 13103,
+      "old_cost": 738,
+      "new_cost_floor": 8547,
       "added_floor": 7809,
       "unknown": {},
       "stats": {
@@ -352,7 +352,7 @@
       "sell": 260,
       "points": 0,
       "buff_value": 11244,
-      "value_to_cost": 0.858
+      "value_to_cost": 1.316
     },
     {
       "id": "세이지생선구이",
@@ -378,8 +378,8 @@
       "name": "양배추 샐러드",
       "purpose": "buff",
       "tier": 3,
-      "old_cost": 4788,
-      "new_cost_floor": 12309,
+      "old_cost": 232,
+      "new_cost_floor": 7753,
       "added_floor": 7521,
       "unknown": {},
       "stats": {
@@ -390,28 +390,28 @@
       "sell": 220,
       "points": 0,
       "buff_value": 10767,
-      "value_to_cost": 0.875
+      "value_to_cost": 1.389
     },
     {
       "id": "파스타",
       "name": "토마토 파스타",
       "purpose": "buff",
       "tier": 3,
-      "old_cost": 7400,
-      "new_cost_floor": 12121,
+      "old_cost": 1325,
+      "new_cost_floor": 6046,
       "added_floor": 4720,
       "unknown": {
         "바닐라:SWEET_BERRIES": 48
       },
       "stats": {
         "exp": 3.0,
-        "gradeup": 8.0
+        "gradeup": 5.0
       },
       "duration_s": 1800,
       "sell": 240,
       "points": 0,
-      "buff_value": 11547,
-      "value_to_cost": 0.953
+      "buff_value": 7871,
+      "value_to_cost": 1.302
     },
     {
       "id": "늪지해독죽",
@@ -419,8 +419,8 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 8198,
-      "new_cost_floor": 21764,
-      "added_floor": 13566,
+      "new_cost_floor": 17208,
+      "added_floor": 9010,
       "unknown": {},
       "stats": {
         "exp": 3.0,
@@ -431,7 +431,7 @@
       "sell": 300,
       "points": 0,
       "buff_value": 22802,
-      "value_to_cost": 1.048
+      "value_to_cost": 1.325
     },
     {
       "id": "잿불매운탕",
@@ -439,20 +439,20 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 12212,
-      "new_cost_floor": 24333,
-      "added_floor": 12121,
+      "new_cost_floor": 18258,
+      "added_floor": 6046,
       "unknown": {
         "바닐라:SWEET_BERRIES": 48
       },
       "stats": {
         "exp": 5.0,
-        "gradeup": 26.0
+        "gradeup": 18.0
       },
       "duration_s": 1800,
       "sell": 520,
       "points": 0,
-      "buff_value": 34766,
-      "value_to_cost": 1.429
+      "buff_value": 24963,
+      "value_to_cost": 1.367
     },
     {
       "id": "초밥플래터",
@@ -519,19 +519,19 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 16308,
-      "new_cost_floor": 26264,
-      "added_floor": 9956,
+      "new_cost_floor": 22087,
+      "added_floor": 5779,
       "unknown": {
         "바닐라:SWEET_BERRIES": 48
       },
       "stats": {
-        "exp": 60.0
+        "exp": 51.0
       },
       "duration_s": 1800,
       "sell": 280,
       "points": 0,
-      "buff_value": 34895,
-      "value_to_cost": 1.329
+      "buff_value": 29661,
+      "value_to_cost": 1.343
     },
     {
       "id": "허니케이크",
