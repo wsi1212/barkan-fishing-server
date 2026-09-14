@@ -11,12 +11,22 @@ TCP/25565 -> Velocity ---------> main Paper     127.0.0.1:25567
 UDP/19132 -> Geyser-Velocity \-> waiting Paper  127.0.0.1:25568
 ```
 
-`BarkanMaintenanceProxy`는 `control/request`의 `drain|resume`을 0.5초마다 읽는다.
+`BarkanMaintenanceProxy`는 `control/request`의 `drain|resume`을 0.2초마다 읽는다.
 
 - `drain`: 현재 main 유저와 신규 접속을 waiting으로 옮긴다.
-- `resume`: main ping이 성공한 뒤 waiting 유저를 main으로 되돌린다.
+- `resume`: main ping이 성공한 뒤 waiting 유저를 **200ms마다 1명**씩 main으로 되돌린다
+  (2초당 10명 처리량, 같은 틱의 접속 폭주 방지).
 - main이 예기치 않게 유저를 끊어도 Velocity의 kick event를 waiting으로 리다이렉트한다.
 - `control/status.json`은 nightly 스크립트가 `mainPlayers=0`을 확인하는 ACK다.
+
+본 서버가 RCON에 답하는 것만으로는 대기실을 해제하지 않는다. BlockShip은 지연 초기화,
+일회성 마이그레이션, 5초 연속 MSPT 35ms 이하를 모두 확인한 뒤
+`plugins/BlockShip/startup-ready.json`을 원자적으로 만든다. `nightly-restart.sh`는 새 부팅에서
+생성된 이 마커를 최대 7분 기다린 뒤에만 `resume`을 요청한다. timeout이나 마커 기록 실패의
+안전한 결과는 **본 서버는 켜 두고 유저는 대기실에 유지**하는 것이다.
+마커는 이후에도 1초 heartbeat로 현재 MSPT를 갱신한다. 순차 복귀 도중 MSPT가 45ms를
+넘거나 heartbeat가 5초 이상 끊기면 프록시는 남은 복귀 큐와 신규 접속을 대기실에 멈춰 두고,
+수치가 회복되면 200ms당 1명 속도로 자동 재개한다.
 
 `~/mc-network/enabled` 마커가 없으면 기존 `nightly-restart.sh`는 예전 kick 동작을 그대로
 쓴다. 마커가 있으면 drain ACK 실패 시 재시작을 취소하며 kick으로 폴백하지 않는다.

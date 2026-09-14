@@ -69,8 +69,8 @@ start_velocity(){
   : > "$LOG_DIR/velocity.log"
   tmux kill-session -t "$VELOCITY_SESSION" >/dev/null 2>&1 || true
   local command
-  printf -v command 'echo $$ > %q; exec env BARKAN_MAINTENANCE_CONTROL_DIR=%q BARKAN_SHIP_MARKER_DIR=%q BARKAN_MAIN_SERVER=main BARKAN_WAITING_SERVER=waiting BARKAN_MAINTENANCE_TEST_COMMANDS=true %q -Dterminal.jline=false -Dterminal.ansi=false -Xms256M -Xmx768M -XX:+UseG1GC -jar velocity.jar > %q 2>&1' \
-    "$NETWORK_ROOT/velocity.pid" "$CONTROL_DIR" "$NETWORK_ROOT/shared/ship-entities" \
+  printf -v command 'echo $$ > %q; exec env BARKAN_MAINTENANCE_CONTROL_DIR=%q BARKAN_MAIN_READY_FILE=%q BARKAN_SHIP_MARKER_DIR=%q BARKAN_MAIN_SERVER=main BARKAN_WAITING_SERVER=waiting BARKAN_MAINTENANCE_TEST_COMMANDS=true %q -Dterminal.jline=false -Dterminal.ansi=false -Xms256M -Xmx768M -XX:+UseG1GC -jar velocity.jar > %q 2>&1' \
+    "$NETWORK_ROOT/velocity.pid" "$CONTROL_DIR" "$MAIN_ROOT/plugins/BlockShip/startup-ready.json" "$NETWORK_ROOT/shared/ship-entities" \
     "$JAVA" "$LOG_DIR/velocity.log"
   tmux new-session -d -s "$VELOCITY_SESSION" -c "$NETWORK_ROOT/velocity" "$command"
   for _wait in $(seq 1 60); do

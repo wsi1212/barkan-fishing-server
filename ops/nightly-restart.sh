@@ -39,6 +39,8 @@ MAINT_NETWORK_ROOT=${MAINT_NETWORK_ROOT:-$HOME/mc-network}
 MAINT_CONTROL_DIR=${MAINT_CONTROL_DIR:-$MAINT_NETWORK_ROOT/control}
 MAINT_ENABLED_FILE=${MAINT_ENABLED_FILE:-$MAINT_NETWORK_ROOT/enabled}
 MAINT_CUTOVER_FILE=${MAINT_CUTOVER_FILE:-$MAINT_NETWORK_ROOT/cutover-once}
+BLOCKSHIP_READY_FILE=${BLOCKSHIP_READY_FILE:-$PLUGINS/BlockShip/startup-ready.json}
+BLOCKSHIP_READY_TIMEOUT=${BLOCKSHIP_READY_TIMEOUT:-420}
 GUIDE_WEBHOOK_CONFIG=${GUIDE_WEBHOOK_CONFIG:-$PLUGINS/BlockShip/config.yml}
 GUIDE_WEBHOOK_RESTORE=${GUIDE_WEBHOOK_RESTORE:-$DIR/.guide-webhook-restore-once}
 DRYRUN=0; [ "${PREVIEW:-0}" = "1" ] && DRYRUN=1; [ "${DRY:-0}" = "1" ] && DRYRUN=1
@@ -158,6 +160,34 @@ maintenance_drain(){
   return 1
 }
 maintenance_resume(){ maintenance_request resume; }
+wait_blockship_ready(){
+  local waited=0
+  while [ "$waited" -lt "$BLOCKSHIP_READY_TIMEOUT" ]; do
+    if systemctl is-active --quiet mcserver && [ -s "$BLOCKSHIP_READY_FILE" ] && \
+       python3 - "$BLOCKSHIP_READY_FILE" "$READY_BOOT_EPOCH_MS" <<'PY'
+import json, sys, time
+try:
+    data = json.load(open(sys.argv[1], encoding="utf-8"))
+    boot_ms = int(sys.argv[2])
+    updated = int(data.get("completedAtEpochMs", 0))
+    ok = (data.get("ready") is True
+          and data.get("acceptingPlayers") is True
+          and updated >= boot_ms
+          and time.time() * 1000 - updated < 5000)
+except Exception:
+    ok = False
+raise SystemExit(0 if ok else 1)
+PY
+    then
+      log "BlockShip 준비 게이트 통과 (${waited}초)"
+      return 0
+    fi
+    sleep 1
+    waited=$((waited + 1))
+  done
+  log "BlockShip 준비 게이트 timeout (${BLOCKSHIP_READY_TIMEOUT}초) — 대기실 유지"
+  return 1
+}
 
 # --- 로컬 백업 -------------------------------------------------------------
 #   대용량 월드(main/islands)는 05:50 KST pre-restart-backup.sh 가 라이브에서
@@ -523,6 +553,9 @@ if [ "${DRY:-0}" = "1" ]; then
   prebackup_ready || run_local_backups down
   exit 0
 fi
+# 오래된 마커로 대기실을 잘못 풀지 않는다. 새 JVM이 본인 PID/완료시각으로 다시 만든다.
+rm -f "$BLOCKSHIP_READY_FILE" "$BLOCKSHIP_READY_FILE.tmp"
+READY_BOOT_EPOCH_MS=$(date +%s%3N)
 if [ "$IMMEDIATE" = "1" ]; then
   eval "$RESTART_CMD"
   log "restarted"
@@ -608,12 +641,12 @@ if [ "$IMMEDIATE" = "0" ]; then
     sleep 5
   done
   if [ "$boot_ok" = "1" ] && [ "$MAINT_ACTIVE" = "1" ]; then
-    if maintenance_resume; then
-      boot_line="$boot_line · 대기실 복귀 시작"
-      log "Velocity 대기실 해제 — 본 서버 복귀 시작"
+    if wait_blockship_ready && maintenance_resume; then
+      boot_line="$boot_line · 게임 준비 완료 · 순차 복귀 시작"
+      log "Velocity 대기실 해제 — 준비 완료 후 200ms당 1명 순차 복귀 시작"
     else
-      boot_line="$boot_line · 🔴 대기실 해제 실패"
-      notify "$LABEL 🔴 본 서버는 기동했지만 대기실 해제 요청에 실패했습니다. \`printf 'resume\\n' > ~/mc-network/control/request\` 확인이 필요합니다."
+      boot_line="$boot_line · 🔴 준비 미완료/대기실 해제 실패"
+      notify "$LABEL 🔴 본 서버는 기동했지만 게임 준비 게이트를 통과하지 못했습니다. 유저는 대기실에 유지됩니다. \`cat ~/mcserver/plugins/BlockShip/startup-ready.json\` 확인이 필요합니다."
     fi
   elif [ "$MAINT_ACTIVE" = "1" ]; then
     boot_line="$boot_line · 유저는 대기실에 유지"
@@ -634,7 +667,14 @@ if [ "$IMMEDIATE" = "1" ]; then
   for i in $(seq 1 40); do
     if systemctl is-active --quiet mcserver && "$DIR/rcon.py" list >/dev/null 2>&1; then
       log "부팅 확인 완료 (${i}회 체크)"
-      if [ "$MAINT_ACTIVE" = "1" ]; then maintenance_resume || true; fi
+      if [ "$MAINT_ACTIVE" = "1" ]; then
+        if wait_blockship_ready && maintenance_resume; then
+          notify "$LABEL ✅ 즉시 배포 후 게임 준비 완료. 대기실 유저를 200ms당 1명씩 순차 복귀합니다."
+          exit 0
+        fi
+        notify "$LABEL 🔴 즉시 배포 후 게임 준비 게이트 timeout. 본 서버는 켜져 있고 유저는 대기실에 유지됩니다."
+        exit 1
+      fi
       notify "$LABEL ✅ 즉시 배포 후 서버 정상 (부팅 확인 ${i}회)."
       exit 0
     fi

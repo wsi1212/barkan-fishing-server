@@ -35,6 +35,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Keeps the public client connection on Velocity while the main Paper backend restarts.
@@ -42,7 +44,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>The local maintenance script writes either {@code drain} or {@code resume} to the
  * request file. In drain mode every current and new player is routed to the waiting
  * backend. In resume mode waiting players return only after the main backend answers a
- * Velocity ping. The status file is deliberately plain JSON so the shell orchestrator can
+ * Velocity ping, and are paced one player every 200 ms instead of reconnecting as one burst.
+ * The status file is deliberately plain JSON so the shell orchestrator can
  * wait for an acknowledged, empty main backend before stopping Paper.</p>
  */
 @Plugin(
@@ -58,6 +61,10 @@ public final class BarkanMaintenanceProxy {
     private enum DesiredMode { DRAIN, RESUME }
 
     private static final long CONNECT_RETRY_NANOS = Duration.ofSeconds(2).toNanos();
+    private static final long MAIN_PING_INTERVAL_NANOS = Duration.ofSeconds(2).toNanos();
+    private static final long READY_HEARTBEAT_MAX_AGE_MILLIS = Duration.ofSeconds(5).toMillis();
+    private static final Pattern READY_TIMESTAMP = Pattern.compile(
+            "\\\"completedAtEpochMs\\\"\\s*:\\s*(\\d+)");
     private static final Component WAITING_MESSAGE = Component.text(
             "본 서버를 준비하는 동안 대기실로 이동했습니다.", NamedTextColor.YELLOW);
 
@@ -66,15 +73,20 @@ public final class BarkanMaintenanceProxy {
     private final Path controlDirectory;
     private final Path requestFile;
     private final Path statusFile;
+    private final Path mainReadyFile;
     private final Path shipMarkerDirectory;
     private final String mainName;
     private final String waitingName;
     private final boolean testCommandsEnabled;
     private final Map<UUID, Long> nextConnectAttempt = new ConcurrentHashMap<>();
+    private final java.util.Set<UUID> resumePermits = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean pingInFlight = new AtomicBoolean();
 
     private volatile DesiredMode desired = DesiredMode.RESUME;
     private volatile boolean mainReachable;
+    private volatile boolean mainReady;
+    private volatile boolean resumeInProgress;
+    private volatile long nextMainPingNanos;
     private volatile String lastBadRequest = "";
     private volatile ProxyGeyserShipBridge geyserShipBridge;
 
@@ -90,6 +102,8 @@ public final class BarkanMaintenanceProxy {
                 dataDirectory.resolve("control"));
         this.requestFile = controlDirectory.resolve("request");
         this.statusFile = controlDirectory.resolve("status.json");
+        this.mainReadyFile = environmentPath("BARKAN_MAIN_READY_FILE",
+                Path.of("/home/ubuntu/mcserver/plugins/BlockShip/startup-ready.json"));
         this.shipMarkerDirectory = environmentPath("BARKAN_SHIP_MARKER_DIR",
                 dataDirectory.resolve("ship-entities"));
         this.mainName = environmentText("BARKAN_MAIN_SERVER", "main");
@@ -110,7 +124,8 @@ public final class BarkanMaintenanceProxy {
         }
 
         proxy.getScheduler().buildTask(this, this::tick)
-                .repeat(Duration.ofMillis(500))
+                // 복귀 처리량 2초당 10명. 한 번에 10명을 보내지 않고 200ms마다 1명씩 분산한다.
+                .repeat(Duration.ofMillis(200))
                 .schedule();
 
         if (testCommandsEnabled) registerTestCommand();
@@ -202,13 +217,16 @@ public final class BarkanMaintenanceProxy {
 
     @Subscribe
     public void onChooseInitialServer(PlayerChooseInitialServerEvent event) {
-        if (desired != DesiredMode.DRAIN) return;
+        if (desired != DesiredMode.DRAIN && mainReady && !resumeInProgress) return;
         waitingServer().ifPresent(event::setInitialServer);
     }
 
     @Subscribe
     public void onServerPreConnect(ServerPreConnectEvent event) {
-        if (desired != DesiredMode.DRAIN || !isNamed(event.getOriginalServer(), mainName)) return;
+        if (!isNamed(event.getOriginalServer(), mainName)) return;
+        UUID playerId = event.getPlayer().getUniqueId();
+        if (resumePermits.remove(playerId)) return;
+        if (desired != DesiredMode.DRAIN && mainReady && !resumeInProgress) return;
         waitingServer().ifPresent(waiting ->
                 event.setResult(ServerPreConnectEvent.ServerResult.allowed(waiting)));
     }
@@ -224,6 +242,7 @@ public final class BarkanMaintenanceProxy {
     @Subscribe
     public void onDisconnect(DisconnectEvent event) {
         nextConnectAttempt.remove(event.getPlayer().getUniqueId());
+        resumePermits.remove(event.getPlayer().getUniqueId());
     }
 
     private void tick() {
@@ -233,12 +252,18 @@ public final class BarkanMaintenanceProxy {
         RegisteredServer main = mainServer().orElse(null);
         RegisteredServer waiting = waitingServer().orElse(null);
         if (main == null || waiting == null) {
+            mainReady = false;
+            resumeInProgress = false;
             writeStatus("MISCONFIGURED", 0, 0);
             return;
         }
 
+        mainReady = mainReachable && readsFreshMainReady();
+
         int mainPlayers = 0;
         int waitingPlayers = 0;
+        Player resumeCandidate = null;
+        long now = System.nanoTime();
         for (Player player : proxy.getAllPlayers()) {
             String current = currentServerName(player);
             if (mainName.equals(current)) {
@@ -246,15 +271,20 @@ public final class BarkanMaintenanceProxy {
                 if (desired == DesiredMode.DRAIN) connect(player, waiting);
             } else if (waitingName.equals(current)) {
                 waitingPlayers++;
-                if (desired == DesiredMode.RESUME && mainReachable) connect(player, main);
+                if (desired == DesiredMode.RESUME && mainReady && resumeCandidate == null) {
+                    Long allowedAt = nextConnectAttempt.get(player.getUniqueId());
+                    if (allowedAt == null || now >= allowedAt) resumeCandidate = player;
+                }
             }
         }
+        resumeInProgress = desired == DesiredMode.RESUME && waitingPlayers > 0;
+        if (resumeCandidate != null) connect(resumeCandidate, main);
 
         String state;
         if (desired == DesiredMode.DRAIN) {
             state = mainPlayers == 0 ? "MAINTENANCE" : "DRAINING";
         } else {
-            state = waitingPlayers == 0 ? "IDLE" : "RESUMING";
+            state = waitingPlayers == 0 ? "IDLE" : (mainReady ? "RESUMING" : "RESUME_PAUSED");
         }
         writeStatus(state, mainPlayers, waitingPlayers);
     }
@@ -285,13 +315,17 @@ public final class BarkanMaintenanceProxy {
         if (desired != next) {
             desired = next;
             nextConnectAttempt.clear();
+            resumePermits.clear();
+            if (next == DesiredMode.RESUME) resumeInProgress = true;
             logger.info("Maintenance request changed to {}", next);
         }
     }
 
     private void pingMain() {
         RegisteredServer main = mainServer().orElse(null);
-        if (main == null || !pingInFlight.compareAndSet(false, true)) return;
+        long now = System.nanoTime();
+        if (main == null || now < nextMainPingNanos || !pingInFlight.compareAndSet(false, true)) return;
+        nextMainPingNanos = now + MAIN_PING_INTERVAL_NANOS;
         main.ping().orTimeout(2, TimeUnit.SECONDS).whenComplete((ping, failure) -> {
             mainReachable = failure == null;
             pingInFlight.set(false);
@@ -303,13 +337,30 @@ public final class BarkanMaintenanceProxy {
         Long allowedAt = nextConnectAttempt.get(player.getUniqueId());
         if (allowedAt != null && now < allowedAt) return;
         nextConnectAttempt.put(player.getUniqueId(), now + CONNECT_RETRY_NANOS);
+        boolean returningToMain = destination.getServerInfo().getName().equalsIgnoreCase(mainName);
+        if (returningToMain) resumePermits.add(player.getUniqueId());
 
         player.createConnectionRequest(destination).connect().whenComplete((result, failure) -> {
+            if (returningToMain) resumePermits.remove(player.getUniqueId());
             if (failure != null) {
                 logger.debug("Could not move {} to {}: {}", player.getUsername(),
                         destination.getServerInfo().getName(), failure.toString());
             }
         });
+    }
+
+    private boolean readsFreshMainReady() {
+        try {
+            String json = Files.readString(mainReadyFile, StandardCharsets.UTF_8);
+            if (!json.matches("(?s).*\\\"ready\\\"\\s*:\\s*true.*")
+                    || !json.matches("(?s).*\\\"acceptingPlayers\\\"\\s*:\\s*true.*")) return false;
+            Matcher timestamp = READY_TIMESTAMP.matcher(json);
+            if (!timestamp.find()) return false;
+            long age = System.currentTimeMillis() - Long.parseLong(timestamp.group(1));
+            return age >= 0 && age < READY_HEARTBEAT_MAX_AGE_MILLIS;
+        } catch (IOException | NumberFormatException ignored) {
+            return false;
+        }
     }
 
     private void writeStatus(String state, int mainPlayers, int waitingPlayers) {
@@ -320,6 +371,8 @@ public final class BarkanMaintenanceProxy {
                 + "\"waitingPlayers\":" + waitingPlayers + ","
                 + "\"proxyPlayers\":" + proxy.getPlayerCount() + ","
                 + "\"mainReachable\":" + mainReachable + ","
+                + "\"mainReady\":" + mainReady + ","
+                + "\"resumeRatePerSecond\":5,"
                 + "\"updatedEpochMs\":" + System.currentTimeMillis()
                 + "}\n";
         try {
