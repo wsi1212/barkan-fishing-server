@@ -28,6 +28,10 @@ UDP/19132 -> Geyser-Velocity \-> waiting Paper  127.0.0.1:25568
 넘거나 heartbeat가 5초 이상 끊기면 프록시는 남은 복귀 큐와 신규 접속을 대기실에 멈춰 두고,
 수치가 회복되면 200ms당 1명 속도로 자동 재개한다.
 
+준비 게이트는 프록시가 실제 `drain` 요청을 본 순간부터 활성화된다. 따라서 접속자 0명일 때
+새 프록시를 구 BlockShip보다 먼저 배포해도 평상시 접속은 막히지 않으며, 다음 점검 주기부터
+새 BlockShip 준비 heartbeat를 fail-closed로 요구한다.
+
 `~/mc-network/enabled` 마커가 없으면 기존 `nightly-restart.sh`는 예전 kick 동작을 그대로
 쓴다. 마커가 있으면 drain ACK 실패 시 재시작을 취소하며 kick으로 폴백하지 않는다.
 

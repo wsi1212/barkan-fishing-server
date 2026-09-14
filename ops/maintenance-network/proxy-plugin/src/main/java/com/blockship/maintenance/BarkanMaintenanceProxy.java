@@ -86,6 +86,7 @@ public final class BarkanMaintenanceProxy {
     private volatile boolean mainReachable;
     private volatile boolean mainReady;
     private volatile boolean resumeInProgress;
+    private volatile boolean readinessGateArmed;
     private volatile long nextMainPingNanos;
     private volatile String lastBadRequest = "";
     private volatile ProxyGeyserShipBridge geyserShipBridge;
@@ -217,7 +218,7 @@ public final class BarkanMaintenanceProxy {
 
     @Subscribe
     public void onChooseInitialServer(PlayerChooseInitialServerEvent event) {
-        if (desired != DesiredMode.DRAIN && mainReady && !resumeInProgress) return;
+        if (mainAdmissionOpen()) return;
         waitingServer().ifPresent(event::setInitialServer);
     }
 
@@ -226,7 +227,7 @@ public final class BarkanMaintenanceProxy {
         if (!isNamed(event.getOriginalServer(), mainName)) return;
         UUID playerId = event.getPlayer().getUniqueId();
         if (resumePermits.remove(playerId)) return;
-        if (desired != DesiredMode.DRAIN && mainReady && !resumeInProgress) return;
+        if (mainAdmissionOpen()) return;
         waitingServer().ifPresent(waiting ->
                 event.setResult(ServerPreConnectEvent.ServerResult.allowed(waiting)));
     }
@@ -271,7 +272,8 @@ public final class BarkanMaintenanceProxy {
                 if (desired == DesiredMode.DRAIN) connect(player, waiting);
             } else if (waitingName.equals(current)) {
                 waitingPlayers++;
-                if (desired == DesiredMode.RESUME && mainReady && resumeCandidate == null) {
+                if (desired == DesiredMode.RESUME && (!readinessGateArmed || mainReady)
+                        && resumeCandidate == null) {
                     Long allowedAt = nextConnectAttempt.get(player.getUniqueId());
                     if (allowedAt == null || now >= allowedAt) resumeCandidate = player;
                 }
@@ -316,9 +318,22 @@ public final class BarkanMaintenanceProxy {
             desired = next;
             nextConnectAttempt.clear();
             resumePermits.clear();
-            if (next == DesiredMode.RESUME) resumeInProgress = true;
+            if (next == DesiredMode.DRAIN) {
+                // 새 프록시를 구 BlockShip보다 먼저 무접속 창에 배포할 수 있도록 평상시에는
+                // 준비 마커를 요구하지 않는다. 실제 점검 주기를 본 뒤부터만 fail-closed 한다.
+                readinessGateArmed = true;
+                resumeInProgress = false;
+            } else {
+                resumeInProgress = readinessGateArmed;
+            }
             logger.info("Maintenance request changed to {}", next);
         }
+    }
+
+    private boolean mainAdmissionOpen() {
+        return desired != DesiredMode.DRAIN
+                && (!readinessGateArmed || mainReady)
+                && !resumeInProgress;
     }
 
     private void pingMain() {
@@ -372,6 +387,7 @@ public final class BarkanMaintenanceProxy {
                 + "\"proxyPlayers\":" + proxy.getPlayerCount() + ","
                 + "\"mainReachable\":" + mainReachable + ","
                 + "\"mainReady\":" + mainReady + ","
+                + "\"readinessGateArmed\":" + readinessGateArmed + ","
                 + "\"resumeRatePerSecond\":5,"
                 + "\"updatedEpochMs\":" + System.currentTimeMillis()
                 + "}\n";
