@@ -6200,8 +6200,7 @@
       "villageQuest": false,
       "ranking": false,
       "quests": [
-        "튜토_배2",
-        "튜토_이동5"
+        "튜토_배2"
       ],
       "shopItems": []
     }
