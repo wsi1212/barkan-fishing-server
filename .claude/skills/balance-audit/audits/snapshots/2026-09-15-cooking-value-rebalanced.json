@@ -185,19 +185,19 @@
       "name": "구운 감자",
       "purpose": "buff",
       "tier": 2,
-      "old_cost": 1898,
-      "new_cost_floor": 5250,
+      "old_cost": 380,
+      "new_cost_floor": 3732,
       "added_floor": 3352,
       "unknown": {},
       "stats": {
-        "exp": 7.0,
-        "escape": 45.0
+        "exp": 5.0,
+        "escape": 30.0
       },
       "duration_s": 1200,
       "sell": 220,
       "points": 0,
-      "buff_value": 7193,
-      "value_to_cost": 1.37
+      "buff_value": 4924,
+      "value_to_cost": 1.32
     },
     {
       "id": "빵",
@@ -323,8 +323,8 @@
       "purpose": "buff",
       "tier": 3,
       "old_cost": 5456,
-      "new_cost_floor": 11475,
-      "added_floor": 6018,
+      "new_cost_floor": 9956,
+      "added_floor": 4500,
       "unknown": {},
       "stats": {
         "exp": 19.0
@@ -333,7 +333,7 @@
       "sell": 320,
       "points": 0,
       "buff_value": 11050,
-      "value_to_cost": 0.963
+      "value_to_cost": 1.11
     },
     {
       "id": "사과파이",
@@ -479,18 +479,18 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 14983,
-      "new_cost_floor": 25996,
-      "added_floor": 11013,
+      "new_cost_floor": 22958,
+      "added_floor": 7975,
       "unknown": {},
       "stats": {
-        "exp": 44.0,
+        "exp": 41.0,
         "size": 26.0
       },
       "duration_s": 1800,
       "sell": 450,
       "points": 0,
-      "buff_value": 34295,
-      "value_to_cost": 1.319
+      "buff_value": 32550,
+      "value_to_cost": 1.418
     },
     {
       "id": "황금연어롤",
@@ -519,8 +519,8 @@
       "purpose": "buff",
       "tier": 4,
       "old_cost": 16308,
-      "new_cost_floor": 27783,
-      "added_floor": 11475,
+      "new_cost_floor": 26264,
+      "added_floor": 9956,
       "unknown": {
         "바닐라:SWEET_BERRIES": 48
       },
@@ -531,7 +531,7 @@
       "sell": 280,
       "points": 0,
       "buff_value": 34895,
-      "value_to_cost": 1.256
+      "value_to_cost": 1.329
     },
     {
       "id": "허니케이크",
