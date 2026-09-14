@@ -50,6 +50,11 @@ for required in \
   [ -s "$required" ] || { echo "필수 파일 없음: $required" >&2; exit 2; }
 done
 
+find "$NETWORK_ROOT/waiting/plugins" -maxdepth 1 -type f -name 'ViaVersion*.jar' -print -quit | grep -q . || {
+  echo "거부: waiting 서버에 ViaVersion이 없습니다. main이 허용한 최신 클라이언트를 대기실로 옮길 수 없습니다." >&2
+  exit 2
+}
+
 grep -q 'MAINT_ENABLED_FILE' "$MAIN_ROOT/scripts/nightly-restart.sh" || {
   echo "거부: 대기실 대응 nightly-restart.sh가 아직 설치되지 않았습니다." >&2; exit 2; }
 grep -q 'mc-network/enabled' "$MAIN_ROOT/scripts/restart-warning.sh" || {

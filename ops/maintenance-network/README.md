@@ -53,10 +53,12 @@ BlockShip 본체도 함께 빌드해야 한다. `BedrockShipMarkerStore`가 syst
    `floodgate-spigot`을 유지하고 proxy Floodgate의 `send-floodgate-data: true`와 같은
    `key.pem`을 사용.
 7. `BarkanShipGeyserExtension.jar`는 Geyser-Velocity의 `extensions/`로 이동.
-8. 기존 `mcserver.service.d/maintenance-gate.conf`는 제거. 남겨두면 main stop 시 iptables가
+8. waiting Paper에도 main과 같은 `ViaVersion`을 설치. 빠지면 main에서 허용된 최신
+   클라이언트가 대기실 전환에 실패해 `mainPlayers=0` ACK가 영원히 성립하지 않는다.
+9. 기존 `mcserver.service.d/maintenance-gate.conf`는 제거. 남겨두면 main stop 시 iptables가
    public 25565를 옛 점검 responder로 가로채 Velocity 신규 접속을 망친다.
-9. `nightly-restart.sh`, `restart-warning.sh`, 새 BlockShip jar를 staging에 둔다.
-10. `preflight-prod.sh` 통과 후에만 한 번의 계획된 cutover를 수행한다.
+10. `nightly-restart.sh`, `restart-warning.sh`, 새 BlockShip jar를 staging에 둔다.
+11. `preflight-prod.sh` 통과 후에만 한 번의 계획된 cutover를 수행한다.
 
 `install-systemd.sh`는 `/etc/needrestart/conf.d/barkan-minecraft.conf`도 설치한다. Ubuntu
 무인 패키지 업데이트가 임의 시각에 main·Velocity·waiting을 재시작하면 대기실 구조

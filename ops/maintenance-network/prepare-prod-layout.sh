@@ -9,6 +9,10 @@ MAIN_ROOT=${BARKAN_MAIN_ROOT:-/home/ubuntu/mcserver}
 PROXY_JAR="$SCRIPT_DIR/proxy-plugin/build/libs/BarkanMaintenanceProxy.jar"
 WAITING_JAR="$SCRIPT_DIR/waiting-plugin/build/libs/BarkanWaitingRoom.jar"
 SHIP_EXTENSION=${BARKAN_SHIP_EXTENSION:-/tmp/BarkanShipGeyserExtension.jar}
+VIA_VERSION_JAR=${BARKAN_VIAVERSION_JAR:-}
+if [ -z "$VIA_VERSION_JAR" ]; then
+  VIA_VERSION_JAR=$(find "$MAIN_ROOT/plugins" -maxdepth 1 -type f -name 'ViaVersion-*.jar' -print -quit)
+fi
 VELOCITY_URL=https://fill-data.papermc.io/v1/objects/846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee/velocity-4.1.1-24.jar
 VELOCITY_SHA256=846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee
 GEYSER_URL=https://download.geysermc.org/v2/projects/geyser/versions/2.11.2/builds/1235/downloads/velocity
@@ -23,7 +27,7 @@ if [ -e "$NETWORK_ROOT/enabled" ] \
   exit 2
 fi
 
-for required in "$PROXY_JAR" "$WAITING_JAR" "$SHIP_EXTENSION" "$MAIN_ROOT/paper.jar" \
+for required in "$PROXY_JAR" "$WAITING_JAR" "$SHIP_EXTENSION" "$VIA_VERSION_JAR" "$MAIN_ROOT/paper.jar" \
     "$MAIN_ROOT/config/paper-global.yml" "$MAIN_ROOT/spigot.yml"; do
   [ -s "$required" ] || { echo "필수 파일 없음: $required" >&2; exit 2; }
 done
@@ -51,6 +55,8 @@ download_verified "$FLOODGATE_URL" "$FLOODGATE_SHA256" "$NETWORK_ROOT/velocity/p
 
 install -m 0644 "$PROXY_JAR" "$NETWORK_ROOT/velocity/plugins/BarkanMaintenanceProxy.jar"
 install -m 0644 "$WAITING_JAR" "$NETWORK_ROOT/waiting/plugins/BarkanWaitingRoom.jar"
+# main이 ViaVersion으로 허용하는 26.x 클라이언트도 대기실에 들어갈 수 있어야 drain이 끝난다.
+install -m 0644 "$VIA_VERSION_JAR" "$NETWORK_ROOT/waiting/plugins/ViaVersion.jar"
 install -m 0644 "$SHIP_EXTENSION" "$NETWORK_ROOT/velocity/plugins/Geyser-Velocity/extensions/BarkanShipGeyserExtension.jar"
 install -m 0644 "$MAIN_ROOT/paper.jar" "$NETWORK_ROOT/waiting/paper.jar"
 install -m 0644 "$SCRIPT_DIR/templates/velocity.toml" "$NETWORK_ROOT/velocity/velocity.toml"

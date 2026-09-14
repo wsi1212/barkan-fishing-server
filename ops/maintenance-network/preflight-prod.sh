@@ -15,6 +15,7 @@ check "Floodgate backend forwarding" "grep -qx 'send-floodgate-data: true' '$NET
 check "forwarding secret" "test -s '$NETWORK_ROOT/velocity/forwarding.secret'"
 check "waiting Paper" "test -s '$NETWORK_ROOT/waiting/paper.jar'"
 check "waiting plugin" "test -s '$NETWORK_ROOT/waiting/plugins/BarkanWaitingRoom.jar'"
+check "waiting ViaVersion" "find '$NETWORK_ROOT/waiting/plugins' -maxdepth 1 -type f -name 'ViaVersion*.jar' -print -quit | grep -q ."
 check "waiting EULA" "grep -qx 'eula=true' '$NETWORK_ROOT/waiting/eula.txt'"
 check "main ship marker environment" "systemctl show mcserver -p Environment --value | grep -q 'BLOCKSHIP_SHIP_MARKER_DIR=/home/ubuntu/mc-network/shared/ship-entities'"
 check "package upgrades cannot restart MC network" "test -s /etc/needrestart/conf.d/barkan-minecraft.conf && grep -q 'barkan-velocity' /etc/needrestart/conf.d/barkan-minecraft.conf"

@@ -9,6 +9,10 @@ PAPER_JAR=${BARKAN_DEV_PAPER_JAR:-/Users/user/Library/Application Support/minecr
 PROXY_JAR="$SCRIPT_DIR/proxy-plugin/build/libs/BarkanMaintenanceProxy.jar"
 WAITING_JAR="$SCRIPT_DIR/waiting-plugin/build/libs/BarkanWaitingRoom.jar"
 SHIP_EXTENSION=${BARKAN_SHIP_EXTENSION:-/Users/user/development/blockship-plugin/build/libs/BarkanShipGeyserExtension.jar}
+VIA_VERSION_JAR=${BARKAN_VIAVERSION_JAR:-}
+if [ -z "$VIA_VERSION_JAR" ]; then
+  VIA_VERSION_JAR=$(find "$MAIN_ROOT/plugins" -maxdepth 1 -type f -name 'ViaVersion-*.jar' -print -quit)
+fi
 VELOCITY_URL=https://fill-data.papermc.io/v1/objects/846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee/velocity-4.1.1-24.jar
 VELOCITY_SHA256=846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee
 GEYSER_URL=https://download.geysermc.org/v2/projects/geyser/versions/2.11.2/builds/1235/downloads/velocity
@@ -16,7 +20,7 @@ GEYSER_SHA256=1d6ab14770494c59e12cf019cc26356824725ffa298efd24e2104c6209b2a098
 FLOODGATE_URL=https://download.geysermc.org/v2/projects/floodgate/versions/2.2.5/builds/140/downloads/velocity
 FLOODGATE_SHA256=f5867ad79b90d38abcc72755a685428fbcf423b52c9830a39ffed5203de6936a
 
-for required in "$PROXY_JAR" "$WAITING_JAR" "$SHIP_EXTENSION" "$PAPER_JAR" \
+for required in "$PROXY_JAR" "$WAITING_JAR" "$SHIP_EXTENSION" "$VIA_VERSION_JAR" "$PAPER_JAR" \
     "$MAIN_ROOT/config/paper-global.yml" "$MAIN_ROOT/spigot.yml"; do
   [ -s "$required" ] || { echo "필수 파일 없음: $required" >&2; exit 2; }
 done
@@ -49,6 +53,7 @@ download_verified "$FLOODGATE_URL" "$FLOODGATE_SHA256" "$NETWORK_ROOT/velocity/p
 
 install -m 0644 "$PROXY_JAR" "$NETWORK_ROOT/velocity/plugins/BarkanMaintenanceProxy.jar"
 install -m 0644 "$WAITING_JAR" "$NETWORK_ROOT/waiting/plugins/BarkanWaitingRoom.jar"
+install -m 0644 "$VIA_VERSION_JAR" "$NETWORK_ROOT/waiting/plugins/ViaVersion.jar"
 install -m 0644 "$SHIP_EXTENSION" "$NETWORK_ROOT/velocity/plugins/Geyser-Velocity/extensions/BarkanShipGeyserExtension.jar"
 install -m 0644 "$PAPER_JAR" "$NETWORK_ROOT/waiting/paper.jar"
 install -m 0644 "$SCRIPT_DIR/templates/velocity.toml" "$NETWORK_ROOT/velocity/velocity.toml"
