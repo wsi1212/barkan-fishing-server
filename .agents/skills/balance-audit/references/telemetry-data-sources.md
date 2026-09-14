@@ -6,6 +6,12 @@
 
 ## 권위 소스와 읽기 전용 범위
 
+★**맥(dev)의 `plugins/BlockShip/telemetry/` 를 읽으면 안 된다.** 그건 부분 미러다. 2026-09-14 실측으로
+dev `events-2026-09.db` 는 3 MB·4,514캐치·16명·09-05에서 끊겨 있었고, 같은 시각 prod 는 698 MB·80,208캐치·
+239명이었다. 스키마도 파일명도 같아서 **조용히 17배 작은 표본으로 다른 결론**이 나온다(실제로 09-13 감사가
+"현행 체계 표본 0건 — 미측정"으로 끝났다). 텔레메트리 근거는 **항상 prod 박스에서 읽는다.**
+
+
 | 대상 | 위치 | 쓰임 |
 |---|---|---|
 | 결과 원본 | `plugins/BlockShip/telemetry/events-YYYY-MM.db`, 테이블 `ev` | `fish.result`의 실제 크리 결과·명목 크확·크리배율·가격·XP |
@@ -64,6 +70,23 @@ python3 .agents/skills/balance-audit/scripts/crit_telemetry.py \
 python3 .agents/skills/balance-audit/scripts/crit_telemetry.py \
   --telemetry-dir ../../BlockShip/telemetry --hook '사구 바늘'
 ```
+
+★위 두 줄은 **dev 미러를 읽는 예시라 결론에 쓰면 안 된다.** 실제 감사는 prod 에서 돌린다 — DB 가
+698 MB 라 내려받지 말고 스크립트를 올려 박스에서 실행한다(디스크 91% 사용 중이라 복사도 피한다).
+라이브 WAL 이지만 `mode=ro` 로 그대로 읽힌다.
+
+```bash
+scp -i ~/.ssh/oracle-mc.key .agents/skills/balance-audit/scripts/crit_telemetry.py \
+  ubuntu@168.107.8.107:~/crit-audit/
+ssh -i ~/.ssh/oracle-mc.key ubuntu@168.107.8.107 'mkdir -p ~/crit-audit/run && cd ~/crit-audit/run && \
+  python3 ../crit_telemetry.py \
+    --db ~/mcserver/plugins/BlockShip/telemetry/events-2026-08.db \
+    --db ~/mcserver/plugins/BlockShip/telemetry/events-2026-09.db'
+```
+
+함정 둘: ① 인자 없이 `--telemetry-dir` 기본값을 쓰면 `Path.cwd().parents[1]` 이라 얕은 디렉터리(`/tmp`)에서
+`IndexError` 로 죽는다 → `run/` 같은 하위 폴더에서 실행하거나 `--db` 를 명시한다. ② prod `/tmp` 에 다른
+작업이 둔 `inspect.py` 가 있어 표준 라이브러리를 가린다 → `/tmp` 에서 실행하지 말 것.
 
 - `실현 크리율`: 각 명목 크확별 결과 수, 고유 플레이어 수, Wilson 95% 구간을 반드시 함께 본다.
 - `측정 가능`: 최소 100 결과와 3명. 30 결과/2명은 **참고만**, 그 미만은 **표본 부족**이다.
