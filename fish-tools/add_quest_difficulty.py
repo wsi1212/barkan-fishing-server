@@ -464,7 +464,7 @@ def dish_unlock_minutes(dish_id):
 def goal_minutes(g, made=(), have=None):
     """목표 하나의 예상 소요(분).
 
-    `made` = 같은 퀘스트가 **이미 만들라고 시킨** 요리 id 집합. `craft X` + `eatdish X`
+    `made` = 같은 퀘스트가 **이미 만들라고 시킨** 요리 id 집합. `cook X` + `eatdish X`
     처럼 짝으로 오는 목표를 두 번 세지 않으려고 받는다."""
     p = g.split("|")
     v = p[0]
@@ -573,12 +573,12 @@ def goal_minutes(g, made=(), have=None):
         return 4.0 * int(p[1])
     if v == "usebait":
         return 0.4 * int(p[1])
-    if v == "eatdish":
+    if v in ("eatdish", "submitdish"):
         n = int(p[2]) if len(p) > 2 and p[2].isdigit() else 1
         did = CRAFT_KEY.get(p[1]) if len(p) > 1 else None
         if did is None:               # 「아무 요리」 — 가장 싼 무해금 요리로 친다
             return _cheapest_free_dish() * n + 0.5 * n
-        if did in made:               # 같은 퀘스트의 craft 목표가 이미 값을 냈다
+        if did in made:               # 같은 퀘스트의 제작 목표가 이미 값을 냈다
             return 0.5 * n
         return dish_minutes(did, n, have) + 0.5 * n
     if v == "quest_daily":
@@ -682,17 +682,17 @@ def ancestor_grants(qid):
 def quest_minutes(qid, e):
     """퀘스트 하나의 예상 소요(분) — 목표 합 + 요리 해금 게이트(요리당 1회).
 
-    ★해금은 **퀘스트당 한 번**만 센다. `craft X` + `eatdish X` 처럼 같은 요리가 두 목표에
+    ★해금은 **퀘스트당 한 번**만 센다. `cook X` + `submitdish X` 처럼 같은 요리가 두 목표에
       걸쳐 있어도 레시피는 한 번만 배우면 되기 때문이다."""
     goals = e["목표"]
     have, prior = ancestor_grants(qid)
     own = {CRAFT_KEY[g.split("|")[1]] for g in goals
-           if g.split("|")[0] == "craft" and g.split("|")[1] in CRAFT_KEY}
+           if g.split("|")[0] in ("craft", "cook") and g.split("|")[1] in CRAFT_KEY}
     total = sum(goal_minutes(g, own | prior, have) for g in goals)
     gated = set()
     for g in goals:
         pr = g.split("|")
-        if pr[0] in ("craft", "eatdish") and len(pr) > 1:
+        if pr[0] in ("craft", "eatdish", "submitdish") and len(pr) > 1:
             did = CRAFT_KEY.get(pr[1])
             if did:
                 gated.add(did)

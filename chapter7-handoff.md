@@ -200,7 +200,7 @@ getRegionFish(현재지역, "기본")  +  parentIsland 체인 상속 (최대 32�
 | `submit` | `submit\|횟수` | 2번째 |
 | `area` `visit` `action` | `<verb>\|대상` (visit은 +표시명) | 항상 1 |
 | `dogam` | `dogam\|지역,지역\|종수` | 3번째 |
-| `craft` `material` `eatdish` `forage` `equip` | `<verb>\|대상\|수` | 3번째 |
+| `craft` `material` `eatdish` `submitdish` `forage` `equip` | `<verb>\|대상\|수` | 3번째 |
 | `deliver` | `deliver\|부품명\|수` (인벤 즉석 판정, **무손상만**, 완료 시 회수) | 3번째 |
 | `sell` `money` `earn` `login` `quest_daily` `trap` `enhance` `skill` `collectible` `level` | `<verb>\|수` | 2번째 |
 | `casino` | `casino\|키\|수` | 3번째 |
@@ -230,7 +230,7 @@ N = json.load(open('npc.json'))['npcs']
 R = json.load(open('regions.json'))
 F = json.load(open('fish.json'))
 OK = {'fish','fish_fresh','harpoon','area','visit','action','dogam','sell','money','earn','login',
-      'quest_daily','craft','deliver','material','forage','eatdish','equip','trap','enhance',
+      'quest_daily','craft','deliver','material','forage','eatdish','submitdish','equip','trap','enhance',
       'skill','collectible','casino','level','mine','harvest','sail','submit'}
 asg = {q for v in N.values() for q in (v.get('quests') or [])}
 
