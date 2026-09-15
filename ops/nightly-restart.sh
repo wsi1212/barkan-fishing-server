@@ -35,6 +35,7 @@ START_CMD=${START_CMD:-sudo systemctl start mcserver}
 STAGING=${STAGING:-$HOME/mcserver/staging}
 PLUGINS=${PLUGINS:-$HOME/mcserver/plugins}
 JARBAK=${JARBAK:-$HOME/mcserver/backups/deployed-jars}
+KEEP_JARBAK=${KEEP_JARBAK:-7}   # jar 백업 보관 개수(같은 jar 이름 기준) — 2026-09-15 신설
 MAINT_NETWORK_ROOT=${MAINT_NETWORK_ROOT:-$HOME/mc-network}
 MAINT_CONTROL_DIR=${MAINT_CONTROL_DIR:-$MAINT_NETWORK_ROOT/control}
 MAINT_ENABLED_FILE=${MAINT_ENABLED_FILE:-$MAINT_NETWORK_ROOT/enabled}
@@ -305,6 +306,8 @@ for j in "$STAGING"/*.jar; do
   if [ "$DRYRUN" = "0" ]; then
     mkdir -p "$JARBAK"
     [ -f "$PLUGINS/$bn" ] && cp -f "$PLUGINS/$bn" "$JARBAK/${bn}.bak-$(TZ=Asia/Seoul date +%Y%m%d-%H%M%S)"
+    # ★보관 초과분 삭제 — 이게 없어서 07-27부터 64개 847MB 가 쌓였다 (2026-09-15)
+    ls -1t "$JARBAK/${bn}.bak-"* 2>/dev/null | tail -n +$((KEEP_JARBAK+1)) | xargs -r rm -f
     mv -f "$j" "$PLUGINS/$bn"; log "배포 jar 적용: $bn"
   else log "DRY: would deploy jar $bn"; fi
 done
