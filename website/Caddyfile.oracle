@@ -69,6 +69,9 @@ barkan.kr, www.barkan.kr, barkan.kro.kr {
     handle /wiki {
         root * /var/www/barkan/site
         rewrite * /wiki.html
+        # Wiki pages are generated content; force clients to revalidate after
+        # a data/content deployment instead of keeping an old HTML response.
+        header Cache-Control "no-cache"
         file_server
     }
 
@@ -77,6 +80,7 @@ barkan.kr, www.barkan.kr, barkan.kro.kr {
         # With no fallback, an unknown guide remains a real 404 instead of
         # becoming the wiki home (and therefore a soft 404 to crawlers).
         try_files {path}.html
+        header Cache-Control "no-cache"
         file_server
     }
 
