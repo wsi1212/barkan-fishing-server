@@ -44,7 +44,7 @@
     .heading h1 { font-weight:500; letter-spacing:-.055em; }
     .detail h2 { font-weight:500; letter-spacing:-.055em; }
   </style>
-  <script src="/assets/site-nav.js?v=8" defer></script>
+  <script src="/assets/site-nav.js?v=9" defer></script>
 </head>
 <body>
   <div class="shell"><div data-site-nav></div></div>
@@ -53,7 +53,7 @@
     <div class="result-meta"><span><b id="result-count">—</b>개 표시</span><span>카드를 누르면 능력치와 제작 재료를 확인합니다.</span></div><section class="catalog-layout"><div id="item-grid" class="item-grid" aria-live="polite"></div><div id="empty" class="empty">조건에 맞는 아이템이 없습니다.<br>검색어나 필터를 바꿔 보세요.</div><aside id="detail" class="detail empty-state"><p>장비나 재료를 선택하면<br>획득 정보가 여기에 표시됩니다.</p></aside></section>
   </main>
   <footer class="footer"><div class="shell footer-inner"><div><a class="brand" href="/"><strong>BARKAN</strong><small>ISLANDS</small></a><p>바르칸 열도 · Minecraft Java &amp; Bedrock Crossplay Server</p></div><div class="footer-links"><a href="/dex">물고기 도감</a><a href="/wiki/gear">장비·강화 위키</a><a href="/wiki/mining">광질·제작 위키</a><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a></div></div></footer>
-  <script src="assets/catalog-data.js?v=20260906-live"></script>
+  <script src="assets/catalog-data.js?v=20260915-prod-sync"></script>
   <script>
     (()=>{
       const data=window.BARKAN_CATALOG_DATA,grid=document.querySelector('#item-grid'),detail=document.querySelector('#detail'),empty=document.querySelector('#empty'),search=document.querySelector('#search'),type=document.querySelector('#type'),source=document.querySelector('#source'),tabs=document.querySelector('#tabs'),gradeRow=document.querySelector('#grade-row'),resultCount=document.querySelector('#result-count');
@@ -109,7 +109,7 @@
       document.querySelector('#source')?.setAttribute('aria-label', '해금 경로');
     })();
   </script>
-  <script src="assets/gather-data.js?v=20260906-live"></script>
+  <script src="assets/gather-data.js?v=20260915-prod-sync"></script>
   <script>
     (() => {
       const data = window.BARKAN_GATHER_DATA;

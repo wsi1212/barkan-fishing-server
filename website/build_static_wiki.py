@@ -47,6 +47,24 @@ DOCS = [
             ("판매와 보관", ["/판매로 가까운 판매 NPC를 찾아 어획을 판매할 수 있습니다. 보관할 물고기는 아이스박스에 넣어 신선도를 관리하세요."], []),
             ("성장 팁", [], ["초반에는 희귀 등급보다 미니게임 성공률과 장비 상태를 안정시키세요.", "희귀 어종을 노릴 때는 레벨, 등급 해금, 해당 지역의 어종 풀을 함께 확인하세요.", "큰 물고기는 보상에 유리하지만 미니게임 난이도도 함께 올라갈 수 있습니다."]),
         ],
+        "tables": [
+            {
+                "title": "등급별 기본 판정 확률",
+                "headers": ["등급", "기본 판정 확률", "레벨 조건", "비고"],
+                "rows": [
+                    ["G", "0.0000175%", "Lv.60+", "최고 등급"],
+                    ["L", "0.0021%", "Lv.45+", "고레벨 어종 풀 필요"],
+                    ["M", "0.0105%", "Lv.30+", "중후반 등급"],
+                    ["S", "0.0165%", "제한 없음", "초반부터 판정 가능"],
+                    ["A", "0.0977%", "제한 없음", "희귀 등급"],
+                    ["B", "0.5712%", "제한 없음", "기본 판정 확률"],
+                    ["C", "7.13%", "제한 없음", "기본 판정 확률"],
+                    ["D", "21.12%", "제한 없음", "기본 판정 확률"],
+                    ["E", "잔여 확률", "제한 없음", "위 판정이 모두 빗나갈 때"],
+                ],
+                "note": "스탯 0·등급 특화 없음 상태의 1회 판정 기준입니다. 실제 출현 비율은 등급별 PRD 천장과 지역에 있는 등급 풀의 영향을 받습니다.",
+            },
+        ],
     },
     {
         "slug": "gear",
@@ -201,10 +219,25 @@ def section_html(title: str, paragraphs: list[str], bullets: list[str]) -> str:
     return f"<section><h2>{esc(title)}</h2>{body}</section>"
 
 
+def table_html(table: dict[str, object]) -> str:
+    headers = table["headers"]
+    rows = table["rows"]
+    head = "".join(f"<th scope=\"col\">{esc(str(value))}</th>" for value in headers)  # type: ignore[union-attr]
+    body = "".join(
+        "<tr>" + "".join(f"<td>{esc(str(value))}</td>" for value in row) + "</tr>"
+        for row in rows  # type: ignore[union-attr]
+    )
+    note = f"<p class=\"table-note\">{esc(str(table['note']))}</p>" if table.get("note") else ""
+    return f"<section><h2>{esc(str(table['title']))}</h2><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>{note}</section>"
+
+
 def page_html(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
     canonical = f"{SITE}/wiki/{doc['slug']}"
     related = [candidate for candidate in docs if candidate["slug"] != doc["slug"]][:4]
     sections = "".join(section_html(*section) for section in doc["sections"])  # type: ignore[arg-type]
+    tables = "".join(table_html(table) for table in doc.get("tables", []))  # type: ignore[arg-type]
+    if tables:
+        tables = "\n      " + tables
     faq = ""
     if doc.get("faq"):
         rows = "".join(f"<dt>{esc(question)}</dt><dd>{esc(answer)}</dd>" for question, answer in doc["faq"])  # type: ignore[index]
@@ -240,7 +273,7 @@ def page_html(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
     @font-face{{font-family:Barkan;src:url('/assets/barkan-aggro-medium.ttf') format('truetype');font-weight:500;font-display:swap}}
     @font-face{{font-family:Barkan;src:url('/assets/barkan-aggro-bold.ttf') format('truetype');font-weight:800;font-display:swap}}
     :root{{color-scheme:dark;--ink:#071829;--panel:#0b2438;--text:#edf7f6;--muted:#abc4cd;--tide:#8ce2e0;--gold:#ffd170;--line:rgba(210,238,238,.15)}}
-    *{{box-sizing:border-box}} body{{min-width:320px;margin:0;background:radial-gradient(970px 510px at 73% -130px,#1d5d73 0%,rgba(22,69,91,.27) 38%,transparent 72%),var(--ink);color:var(--text);font:16px/1.75 Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}} a{{color:var(--tide);text-underline-offset:3px}} .shell{{width:min(920px,calc(100% - 48px));margin:auto}} .crumb{{display:flex;gap:8px;margin:38px 0 24px;color:var(--muted);font-size:13px}} .crumb a{{color:var(--muted)}} article{{padding:clamp(24px,5vw,52px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(21,58,78,.82),rgba(8,26,42,.9));box-shadow:0 24px 70px rgba(0,0,0,.18)}} .kicker{{margin:0;color:var(--tide);font-size:11px;font-weight:800;letter-spacing:.16em}} h1{{max-width:710px;margin:14px 0 17px;font-size:clamp(2.8rem,7vw,5.5rem);font-weight:800;letter-spacing:-.09em;line-height:.98}} .lead{{max-width:690px;margin:0;color:var(--muted);font-size:18px}} section{{padding:30px 0;border-top:1px solid var(--line)}} section:first-of-type{{margin-top:36px}} h2{{margin:0 0 12px;color:var(--gold);font-size:clamp(1.35rem,3vw,1.8rem);letter-spacing:-.04em}} p{{margin:0;color:#d2e1e4}} p+p{{margin-top:12px}} ul{{margin:12px 0 0;padding-left:22px;color:#d2e1e4}} li+li{{margin-top:6px}} dl{{margin:0}} dt{{margin-top:16px;color:var(--text);font-weight:800}} dt:first-child{{margin-top:0}} dd{{margin:4px 0 0;color:var(--muted)}} .related{{margin:34px 0 0;padding:20px;border:1px solid var(--line);border-radius:11px;background:rgba(4,20,35,.42)}} .related h2{{font-size:16px}} .related ul{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 20px;margin:0;padding:0;list-style:none}} footer{{padding:46px 0 64px;color:var(--muted);font-size:13px}} @media(max-width:600px){{.shell{{width:calc(100% - 28px)}} .crumb{{margin-top:28px}} article{{padding:24px 20px;border-radius:13px}} .lead{{font-size:16px}} .related ul{{grid-template-columns:1fr}}}}
+    *{{box-sizing:border-box}} body{{min-width:320px;margin:0;background:radial-gradient(970px 510px at 73% -130px,#1d5d73 0%,rgba(22,69,91,.27) 38%,transparent 72%),var(--ink);color:var(--text);font:16px/1.75 Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}} a{{color:var(--tide);text-underline-offset:3px}} .shell{{width:min(920px,calc(100% - 48px));margin:auto}} .crumb{{display:flex;gap:8px;margin:38px 0 24px;color:var(--muted);font-size:13px}} .crumb a{{color:var(--muted)}} article{{padding:clamp(24px,5vw,52px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(21,58,78,.82),rgba(8,26,42,.9));box-shadow:0 24px 70px rgba(0,0,0,.18)}} .kicker{{margin:0;color:var(--tide);font-size:11px;font-weight:800;letter-spacing:.16em}} h1{{max-width:710px;margin:14px 0 17px;font-size:clamp(2.8rem,7vw,5.5rem);font-weight:800;letter-spacing:-.09em;line-height:.98}} .lead{{max-width:690px;margin:0;color:var(--muted);font-size:18px}} section{{padding:30px 0;border-top:1px solid var(--line)}} section:first-of-type{{margin-top:36px}} h2{{margin:0 0 12px;color:var(--gold);font-size:clamp(1.35rem,3vw,1.8rem);letter-spacing:-.04em}} p{{margin:0;color:#d2e1e4}} p+p{{margin-top:12px}} ul{{margin:12px 0 0;padding-left:22px;color:#d2e1e4}} li+li{{margin-top:6px}} dl{{margin:0}} dt{{margin-top:16px;color:var(--text);font-weight:800}} dt:first-child{{margin-top:0}} dd{{margin:4px 0 0;color:var(--muted)}} .table-wrap{{overflow-x:auto;margin-top:16px}} .data-table{{width:100%;min-width:520px;border-collapse:collapse}} .data-table th,.data-table td{{padding:10px 12px;border:1px solid var(--line);text-align:left}} .data-table th{{color:var(--gold);background:rgba(255,209,112,.08)}} .data-table td{{color:var(--muted)}} .table-note{{margin-top:12px;color:var(--muted)}} .related{{margin:34px 0 0;padding:20px;border:1px solid var(--line);border-radius:11px;background:rgba(4,20,35,.42)}} .related h2{{font-size:16px}} .related ul{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 20px;margin:0;padding:0;list-style:none}} footer{{padding:46px 0 64px;color:var(--muted);font-size:13px}} @media(max-width:600px){{.shell{{width:calc(100% - 28px)}} .crumb{{margin-top:28px}} article{{padding:24px 20px;border-radius:13px}} .lead{{font-size:16px}} .related ul{{grid-template-columns:1fr}}}}
   </style>
 </head>
 <body>
@@ -251,7 +284,7 @@ def page_html(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
       <p class="kicker">BARKAN WIKI · OFFICIAL GUIDE</p>
       <h1>{esc(doc['title'])}</h1>
       <p class="lead">{esc(doc['lead'])}</p>
-      {sections}
+      {sections}{tables}
       {faq}
       <aside class="related" aria-label="관련 공식 가이드"><h2>관련 공식 가이드</h2><ul>{links}</ul></aside>
     </article>
@@ -289,6 +322,16 @@ def llms_full() -> str:
             lines.append("")
             lines.extend(paragraphs)
             lines.extend(f"- {item}" for item in bullets)
+            lines.append("")
+        for table in doc.get("tables", []):
+            lines.append(f"### {table['title']}")
+            lines.append("")
+            headers = table["headers"]
+            lines.append("| " + " | ".join(headers) + " |")
+            lines.append("| " + " | ".join("---" for _ in headers) + " |")
+            lines.extend("| " + " | ".join(row) + " |" for row in table["rows"])
+            if table.get("note"):
+                lines.extend(["", table["note"]])
             lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
