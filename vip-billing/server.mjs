@@ -743,7 +743,7 @@ function communityLayout(title, content) {
   content = `<style>.filter{text-decoration:none}</style>${content}`;
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b1a"><title>${esc(title)} · 바르칸 열도</title><style>
   @font-face{font-family:Barkan;src:url('/assets/barkan-aggro-light.ttf') format('truetype');font-weight:300;font-display:swap}@font-face{font-family:Barkan;src:url('/assets/barkan-aggro-medium.ttf') format('truetype');font-weight:500;font-display:swap}@font-face{font-family:Barkan;src:url('/assets/barkan-aggro-bold.ttf') format('truetype');font-weight:800;font-display:swap}:root{color-scheme:dark;--ink:#071b1a;--deep:#0c2825;--panel:#123733;--line:rgba(216,238,224,.18);--text:#edf3e9;--muted:#a8bdb0;--faint:#78968a;--accent:#e2ad67;--mint:#96d9c4;--danger:#ff9b9f}*{box-sizing:border-box}body{margin:0;background:radial-gradient(720px 420px at 100% -10%,rgba(31,93,77,.4),transparent 70%),var(--ink);color:var(--text);font-family:Barkan,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;line-height:1.6}.wrap{width:min(1160px,calc(100% - 48px));margin:auto}.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{color:var(--text);text-decoration:none;line-height:1}.brand strong{display:block;font-size:20px;font-weight:800;letter-spacing:.15em}.brand small{display:block;margin-top:7px;color:var(--accent);font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.18em}.nav-links{display:flex;align-items:center;gap:18px}.nav-links a{color:var(--muted);font-size:13px;text-decoration:none}.nav-links a:hover{color:var(--accent)}.nav-login{padding:9px 13px;border:1px solid rgba(150,217,196,.55);color:var(--mint)!important}.nav-login:hover{background:rgba(150,217,196,.1)}main{padding:58px 0 110px}.eyebrow{margin:0 0 12px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}.intro{display:flex;align-items:end;justify-content:space-between;gap:30px;padding-bottom:34px;border-bottom:1px solid var(--line)}h1{max-width:700px;margin:0;font-size:clamp(3rem,7vw,6rem);font-weight:800;letter-spacing:-.12em;line-height:.95}h1 em{color:var(--accent);font-style:normal}.intro-copy{max-width:310px;margin:0;color:var(--muted);font-size:14px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:30px 0 16px}.filters{display:flex;flex-wrap:wrap;gap:7px}.filter{padding:8px 12px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 12px Barkan;cursor:pointer}.filter.active,.filter:hover{border-color:var(--accent);color:var(--accent);background:rgba(226,173,103,.08)}.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border:1px solid var(--accent);background:var(--accent);color:#25180b;font-weight:800;text-decoration:none;cursor:pointer}.button:hover{background:#f0c783;transform:translateY(-1px)}.button.ghost{border-color:var(--line);background:transparent;color:var(--text)}.feed{border-top:1px solid var(--line)}.post{display:grid;grid-template-columns:95px minmax(0,1fr) 130px;gap:24px;align-items:start;padding:25px 0;border-bottom:1px solid var(--line);text-decoration:none}.post:hover .post-title{color:var(--accent)}.post-category{padding-top:5px;color:var(--mint);font:800 10px ui-monospace,monospace;letter-spacing:.08em}.post-title{margin:0;font-size:24px;font-weight:500;letter-spacing:-.07em;transition:color .15s}.post-excerpt{display:-webkit-box;overflow:hidden;margin:8px 0 0;color:var(--muted);font-size:13px;-webkit-box-orient:vertical;-webkit-line-clamp:2}.post-meta{padding-top:5px;color:var(--faint);font-size:11px;text-align:right}.empty{padding:62px 0;border-bottom:1px solid var(--line);color:var(--muted)}.notice{margin:18px 0;padding:13px 15px;border-left:2px solid var(--mint);background:rgba(150,217,196,.08);color:#d8eee2}.notice.danger{border-left-color:var(--danger);background:rgba(255,155,159,.1);color:#ffd9d9}.panel{max-width:800px;margin:auto;padding:35px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(18,55,51,.95),rgba(8,30,29,.95))}.panel h2{margin:0 0 7px;font-size:28px;letter-spacing:-.08em}label{display:block;margin:20px 0 7px;font-size:13px;font-weight:800}input,select,textarea{width:100%;padding:13px 14px;border:1px solid var(--line);background:#071b1a;color:var(--text);font:inherit;border-radius:0}textarea{min-height:310px;resize:vertical}small.help{display:block;margin-top:-2px;color:var(--faint);font-size:11px}.detail{max-width:820px;margin:auto}.detail-head{padding-bottom:30px;border-bottom:1px solid var(--line)}.detail h1{font-size:clamp(2.6rem,6vw,5rem)}.detail-meta{margin:17px 0 0;color:var(--muted);font-size:12px}.detail-body{padding:36px 0;color:#d7e5dc;font-size:16px;white-space:pre-wrap}.back{display:inline-block;margin-top:20px;color:var(--accent);font-size:13px;text-underline-offset:4px}.footer{padding:28px 0 40px;border-top:1px solid var(--line);color:var(--faint);font-size:12px}.footer-links{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px}.footer-links a{color:var(--muted);text-decoration:none}@media(max-width:720px){.wrap{width:min(100% - 30px,620px)}.nav{height:68px}.nav-links{gap:11px}.nav-links a:not(.nav-login){display:none}.intro{display:block;padding-bottom:27px}.intro-copy{margin-top:22px}.toolbar{display:block}.filters{margin-bottom:14px}.post{grid-template-columns:70px minmax(0,1fr);gap:12px;padding:20px 0}.post-meta{grid-column:2;padding-top:0;text-align:left}.post-title{font-size:19px}.panel{padding:25px 19px}}
-  </style><script src="/assets/site-nav.js?v=6" defer></script></head><body><div class="wrap"><div data-site-nav></div>${content}<footer class="footer"><div>바르칸 열도 · 공략과 항해 기록을 함께 쌓는 공간</div><div class="footer-links"><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">멤버십 상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의 및 환불</a></div></footer></div></body></html>`;
+  </style><script src="/assets/site-nav.js?v=9" defer></script></head><body><div class="wrap"><div data-site-nav></div>${content}<footer class="footer"><div>바르칸 열도 · 공략과 항해 기록을 함께 쌓는 공간</div><div class="footer-links"><a href="https://discord.gg/fWVGGEbBsd" target="_blank" rel="noopener noreferrer">디스코드</a><a href="/vip/">멤버십 상점</a><a href="mailto:wsiwsiwsi123@gmail.com">문의 및 환불</a></div></footer></div></body></html>`;
 }
 async function communityPosts(category = "", query = "") {
   const selected = COMMUNITY_CATEGORIES.includes(category) ? category : "";
@@ -871,10 +871,10 @@ function collectibleDiscoveryIds(game) {
   return [...new Set(discovered.filter((id) => typeof id === "string" && id.length > 0))];
 }
 async function minecraftGuildFor(uuid) {
-  const guild = (await minecraftGuildList()).find((candidate) => candidate.members.some((member) => member.uuid === uuid));
+  const guild = (await minecraftGuildRecords()).find((candidate) => candidate.members.some((member) => member.uuid === uuid));
   if (!guild) return null;
   const member = guild.members.find((candidate) => candidate.uuid === uuid);
-  return { id: guild.id, name: guild.name, role: member?.role ?? "MEMBER", memberCount: guild.members.length };
+  return { id: guild.id, name: guild.name, role: member?.role ?? "MEMBER", memberCount: guild.members.length, isPublic: guild.isPublic };
 }
 async function minecraftIslandFor(uuid) {
   const islands = await readMinecraftJson(MINECRAFT_ISLANDS_FILE, {});
@@ -1030,9 +1030,12 @@ function guildEmblem(guild, className = "guild-emblem", full = false) {
   const src = rgbPngDataUrl(rgb, size);
   return `<img class="${className}" src="${src}" width="${size}" height="${size}" alt="${esc(guild?.name ?? "길드")} 엠블럼">`;
 }
-async function minecraftGuildList() {
+async function minecraftGuildRecords() {
   const source = await readMinecraftJson(MINECRAFT_GUILDS_FILE, {});
   return Object.entries(source).filter(([, guild]) => guild && typeof guild === "object").map(([key, guild]) => normalizeGuild(key, guild)).sort((a, b) => b.submitSeason - a.submitSeason || b.members.length - a.members.length || a.name.localeCompare(b.name, "ko"));
+}
+async function minecraftGuildList() {
+  return (await minecraftGuildRecords()).filter((guild) => guild.isPublic);
 }
 async function minecraftGuildById(id) {
   const guild = (await minecraftGuildList()).find((candidate) => candidate.id === id);
@@ -1062,7 +1065,7 @@ async function communityProfile(uuid) {
   const [game, posts, guild, island, profileMeta, achievementDefs, titleDefs] = await Promise.all([
     minecraftProfileData(uuid),
     pool.query("SELECT id,category,title,body,created_at FROM community_posts WHERE minecraft_uuid=$1 AND hidden=FALSE ORDER BY created_at DESC LIMIT 30", [uuid]),
-    minecraftGuildFor(uuid),
+    minecraftGuildFor(uuid).then((guild) => guild?.isPublic === false ? null : guild),
     minecraftIslandFor(uuid),
     pool.query("SELECT introduction FROM community_profiles WHERE minecraft_uuid=$1", [uuid]),
     minecraftAchievementDefinitions(),
@@ -1380,7 +1383,8 @@ async function route(req, res) {
   if (path.startsWith("/community/guild/") && req.method === "GET") {
     let guildId = "";
     try { guildId = decodeURIComponent(path.slice("/community/guild/".length)); } catch { guildId = ""; }
-    return send(res, 200, await communityGuildPageWithApply(await communitySession(req), guildId ? await minecraftGuildById(guildId) : null, url.searchParams.get("notice") ?? ""));
+    const guild = guildId ? await minecraftGuildById(guildId) : null;
+    return send(res, guild ? 200 : 404, await communityGuildPageWithApply(await communitySession(req), guild, url.searchParams.get("notice") ?? ""));
   }
   if (path === "/community/login" && req.method === "GET") {
     if (!communityConfigured()) {
@@ -1431,7 +1435,22 @@ async function route(req, res) {
     }
   }
   if (path === "/community/logout" && req.method === "GET") {
-    return redirect(res, COMMUNITY_BASE_URL, ["community_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax", "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax"]);
+    const currentCookies = cookies(req);
+    const sessions = [];
+    if (currentCookies.community_session) {
+      sessions.push(pool.query("DELETE FROM community_sessions WHERE token_hash=$1", [hash(currentCookies.community_session)]));
+    }
+    if (currentCookies.vip_session) {
+      sessions.push(pool.query("DELETE FROM web_sessions WHERE token_hash=$1", [hash(currentCookies.vip_session)]));
+    }
+    await Promise.all(sessions);
+    return redirect(res, COMMUNITY_BASE_URL, [
+      "community_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax",
+      "community_session=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax",
+      "vip_session=; Path=/vip; Max-Age=0; HttpOnly; Secure; SameSite=Lax",
+      "community_oauth_state=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax",
+      "community_oauth_next=; Path=/community; Max-Age=0; HttpOnly; Secure; SameSite=Lax"
+    ]);
   }
   if (path === "/community/profile.js" && req.method === "GET") {
     return send(res, 200, profileClientJs(), "application/javascript; charset=utf-8");

@@ -538,6 +538,9 @@ def public_ranking():
             #   그 길드 점수만 조용히 깎여 무고한 길드원의 순위가 뒤틀리므로 길드장 기준으로 자른다.
             if _guild_owner_uuid(guild) in op_uuids:
                 continue
+            # 게임의 공개 길드 목록과 동일하게 비공개 길드는 웹 랭킹에서도 숨긴다.
+            if guild.get("isPublic") is False:
+                continue
             members = guild.get("members") or {}
             score = (
                 sum(player_levels.get(str(uuid), 0) * 100 for uuid in members)
