@@ -60,9 +60,9 @@ const MC_RCON_PASSWORD = process.env.MC_RCON_PASSWORD ?? "";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 8 });
 
 const TIERS = Object.freeze({
-  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["매월 캐시 1,500 지급", "[VIP] 채팅·탭 태그", "통발 2개 · 마켓 등록 10칸", "특수 작물 개수 +5", "갈색 여행마·배 어디서나 무제한 소환"] },
-  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["매월 캐시 3,000 지급", "[MVP] 채팅·탭 태그", "통발 3개 · 마켓 등록 15칸", "특수 작물 개수 +10", "백은 준마·배 어디서나 무제한 소환"] },
-  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["매월 캐시 6,000 지급", "1년권은 결제 즉시 캐시 50,000 추가", "[MVP+] 채팅·탭 태그", "통발 5개 · 마켓 등록 25칸", "특수 작물 개수 +20", "흑요석 천리마·배 어디서나 무제한 소환", "개인 창고 27칸 (MVP+ 전용)"] }
+  VIP: { name: "VIP", price: 2990, annualPrice: 29000, color: "#83e7ff", benefits: ["매월 캐시 1,500 지급", "[VIP] 채팅·탭 태그", "머리 위 칭호 위에 [VIP] 표시", "통발 2개 · 마켓 등록 10칸", "특수 작물 개수 +5", "갈색 여행마·배 어디서나 무제한 소환"] },
+  MVP: { name: "MVP", price: 4900, annualPrice: 49000, color: "#ffd36b", benefits: ["매월 캐시 3,000 지급", "[MVP] 채팅·탭 태그", "머리 위 칭호 위에 [MVP] 표시", "통발 3개 · 마켓 등록 15칸", "특수 작물 개수 +10", "백은 준마·배 어디서나 무제한 소환"] },
+  MVP_PLUS: { name: "MVP+", price: 9900, annualPrice: 99000, color: "#ff94da", benefits: ["매월 캐시 6,000 지급", "1년권은 결제 즉시 캐시 50,000 추가", "[MVP+] 채팅·탭 태그", "머리 위 칭호 위에 [MVP+] 표시", "통발 5개 · 마켓 등록 25칸", "특수 작물 개수 +20", "흑요석 천리마·배 어디서나 무제한 소환", "개인 창고 27칸 (MVP+ 전용)", "인벤토리가 가득 차면 물고기를 아이스박스에 자동 보관"] }
 });
 
 const ANNUAL_MONTHS = Math.max(...PURCHASE_MONTHS);
