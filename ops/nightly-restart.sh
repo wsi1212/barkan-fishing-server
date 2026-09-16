@@ -353,21 +353,18 @@ if [ -x "$GUILD_ICON_STAGE" ]; then
     [ "$girc" = "3" ] || deploy_lines+="🔴 길드 아이콘 스테이징 실패(rc=$girc): $giline"$'\n'
   fi
 fi
-# --- ①-3 Geyser 베드락 팩·매핑·확장 스테이징 (재시작 «직전» 적용) ---
-# ★라이브 폴더에 직접 넣으면 안 된다. Geyser 는 부팅 때 읽은 uuid·버전·해시·크기를
-#   클라에 알려주고 바이트는 그때그때 디스크에서 흘려보낸다 → 가동 중에 파일을 갈면
-#   알린 해시와 보낸 바이트가 어긋나 «커스텀 아이템이 전부 투명» 해진다(2026-09-04 실측).
-#   그래서 반드시 여기서, 서버를 내리기 직전에 갈아 끼운다.
+# --- ①-3 Geyser 확장 스테이징 ---
+# 팩·매핑은 아래에서 대기실 전환 뒤 Geyser만 리로드해 적용한다. Velocity 자체를
+# 재시작하지 않으므로 Java 접속은 유지한다. 반면 extension JAR은 JVM 재기동이 필요해
+# 무접속 프록시 유지보수까지 보류한다.
 GEYDIR="$PLUGINS/Geyser-Spigot"
 if maintenance_network_enabled && [ -d "$STAGING/geyser" ] \
     && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
-  # Geyser가 main Paper가 아니라 상시접속 Velocity 안에 있으므로 이 파일들을 지금
-  # 갈아끼우면 안 된다. main 재시작은 새 파일을 읽어주지 않고, 가동 중 pack 덮어쓰기는
-  # 신규 Bedrock 접속에 광고한 해시와 실제 bytes를 어긋나게 한다. 접속자 0명일 때
-  # maintenance-network/apply-proxy-assets.sh가 별도 적용한다.
-  gpending=$(find "$STAGING/geyser" -maxdepth 1 -type f \( -name '*.mcpack' -o -name '*.json' -o -name '*.jar' \) | wc -l | tr -d ' ')
-  deploy_lines+="⏸️ Geyser 프록시 자산 ${gpending}개 보류(무접속 프록시 유지보수 필요)"$'\n'
-  log "Geyser 프록시 자산 ${gpending}개 보류 — main 재시작과 분리"
+  gpending=$(find "$STAGING/geyser" -maxdepth 1 -type f -name '*.jar' | wc -l | tr -d ' ')
+  if [ "$gpending" -gt 0 ]; then
+    deploy_lines+="⏸️ Geyser 확장 ${gpending}개 보류(무접속 프록시 유지보수 필요)"$'\n'
+    log "Geyser extension ${gpending}개 보류 — JVM 재기동 필요"
+  fi
 elif [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
   gok=0; gbad=""
   for src in "$STAGING/geyser"/*.mcpack "$STAGING/geyser"/*.json "$STAGING/geyser"/*.jar; do
@@ -476,6 +473,28 @@ if maintenance_network_enabled && [ "$DRYRUN" = "0" ]; then
     maintenance_resume || true
     notify "$LABEL 🔴 대기실 전환을 확인하지 못해 정기 재시작을 취소했습니다. 본 서버는 계속 가동 중이며 유저를 강제 종료하지 않았습니다."
     exit 1
+  fi
+fi
+
+# 대기실 전환 후에는 Java 플레이어가 Velocity를 통해 안전하게 머문다. 이 창에서
+# Geyser 팩·매핑을 원자 교체하고 `geyser reload`만 실행한다. Bedrock 세션만 새 팩을
+# 받기 위해 재접속되고, Velocity/Java 세션은 끊지 않는다. extension JAR은 위에서 남긴다.
+if maintenance_network_enabled && [ -d "$STAGING/geyser" ] \
+    && find "$STAGING/geyser" -maxdepth 1 -type f \( -name '*.mcpack' -o -name '*.json' \) -print -quit | grep -q .; then
+  GEYSER_ASSET_APPLIER="$MAINT_NETWORK_ROOT/bin/apply-proxy-assets.sh"
+  if [ "$DRYRUN" = "1" ]; then
+    deploy_lines+="🧪 Geyser 팩·매핑 리로드 예정(베드락만 재접속)"$'\n'
+  elif [ -x "$GEYSER_ASSET_APPLIER" ]; then
+    if geyser_line=$("$GEYSER_ASSET_APPLIER" --reload-geyser 2>&1); then
+      deploy_lines+="📱 ${geyser_line}"$'\n'
+      log "$geyser_line"
+    else
+      deploy_lines+="🔴 Geyser 팩·매핑 리로드 실패(기존 팩 유지): ${geyser_line}"$'\n'
+      log "Geyser 팩·매핑 리로드 실패: $geyser_line"
+    fi
+  else
+    deploy_lines+="⚠️ Geyser 팩·매핑 보류(리로드 도구 없음)"$'\n'
+    log "Geyser 팩·매핑 보류 — $GEYSER_ASSET_APPLIER 없음"
   fi
 fi
 

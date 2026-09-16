@@ -73,6 +73,13 @@ public final class BarkanMaintenanceProxy {
     private final Path controlDirectory;
     private final Path requestFile;
     private final Path statusFile;
+    /**
+     * Geyser 팩/매핑은 Velocity를 재시작하지 않고 Geyser만 리로드한다. systemd Velocity는
+     * stdin이 /dev/null이라, 로컬 유지보수 스크립트가 이 요청 파일을 만들어 프록시 JVM에
+     * 안전하게 명령을 전달한다.
+     */
+    private final Path geyserReloadRequestFile;
+    private final Path geyserReloadResultFile;
     private final Path mainReadyFile;
     private final Path shipMarkerDirectory;
     private final String mainName;
@@ -81,6 +88,7 @@ public final class BarkanMaintenanceProxy {
     private final Map<UUID, Long> nextConnectAttempt = new ConcurrentHashMap<>();
     private final java.util.Set<UUID> resumePermits = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean pingInFlight = new AtomicBoolean();
+    private final AtomicBoolean geyserReloadInFlight = new AtomicBoolean();
 
     private volatile DesiredMode desired = DesiredMode.RESUME;
     private volatile boolean mainReachable;
@@ -103,6 +111,8 @@ public final class BarkanMaintenanceProxy {
                 dataDirectory.resolve("control"));
         this.requestFile = controlDirectory.resolve("request");
         this.statusFile = controlDirectory.resolve("status.json");
+        this.geyserReloadRequestFile = controlDirectory.resolve("geyser-reload.request");
+        this.geyserReloadResultFile = controlDirectory.resolve("geyser-reload.result");
         this.mainReadyFile = environmentPath("BARKAN_MAIN_READY_FILE",
                 Path.of("/home/ubuntu/mcserver/plugins/BlockShip/startup-ready.json"));
         this.shipMarkerDirectory = environmentPath("BARKAN_SHIP_MARKER_DIR",
@@ -248,6 +258,7 @@ public final class BarkanMaintenanceProxy {
 
     private void tick() {
         readRequest();
+        processGeyserReloadRequest();
         pingMain();
 
         RegisteredServer main = mainServer().orElse(null);
@@ -289,6 +300,63 @@ public final class BarkanMaintenanceProxy {
             state = waitingPlayers == 0 ? "IDLE" : (mainReady ? "RESUMING" : "RESUME_PAUSED");
         }
         writeStatus(state, mainPlayers, waitingPlayers);
+    }
+
+    /**
+     * Execute one Geyser-only reload requested by the local asset deployer.
+     *
+     * <p>The token prevents a stale result from being mistaken for a newer request. The command
+     * runs through Velocity's command manager as its console source; this is deliberately not a
+     * Velocity reload or service restart, so Java players remain connected through the proxy.</p>
+     */
+    private void processGeyserReloadRequest() {
+        if (!Files.isRegularFile(geyserReloadRequestFile)) return;
+
+        final String token;
+        try {
+            token = Files.readString(geyserReloadRequestFile, StandardCharsets.UTF_8).trim();
+            Files.deleteIfExists(geyserReloadRequestFile);
+        } catch (IOException failure) {
+            logger.warn("Could not consume Geyser reload request {}", geyserReloadRequestFile, failure);
+            return;
+        }
+        if (!token.matches("[A-Za-z0-9._-]{1,96}")) {
+            writeGeyserReloadResult("invalid", "invalid-token");
+            return;
+        }
+        if (!geyserReloadInFlight.compareAndSet(false, true)) {
+            writeGeyserReloadResult(token, "busy");
+            return;
+        }
+        if (!proxy.getCommandManager().hasCommand("geyser", proxy.getConsoleCommandSource())) {
+            geyserReloadInFlight.set(false);
+            writeGeyserReloadResult(token, "unavailable");
+            logger.warn("Geyser reload requested but the Geyser command is unavailable");
+            return;
+        }
+
+        logger.info("Running requested Geyser-only reload (token={})", token);
+        proxy.getCommandManager().executeAsync(proxy.getConsoleCommandSource(), "geyser reload")
+                .whenComplete((handled, failure) -> {
+                    geyserReloadInFlight.set(false);
+                    if (failure != null) {
+                        logger.warn("Geyser-only reload failed", failure);
+                        writeGeyserReloadResult(token, "failed");
+                    } else if (Boolean.TRUE.equals(handled)) {
+                        writeGeyserReloadResult(token, "ok");
+                    } else {
+                        logger.warn("Geyser reload command was not handled");
+                        writeGeyserReloadResult(token, "unavailable");
+                    }
+                });
+    }
+
+    private void writeGeyserReloadResult(String token, String state) {
+        try {
+            atomicWrite(geyserReloadResultFile, token + " " + state + "\n");
+        } catch (IOException failure) {
+            logger.warn("Could not write Geyser reload result {}", geyserReloadResultFile, failure);
+        }
     }
 
     private void readRequest() {

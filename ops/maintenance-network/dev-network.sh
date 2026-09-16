@@ -54,7 +54,11 @@ start_waiting(){
   local command
   printf -v command 'echo $$ > %q; exec %q -Dterminal.jline=false -Dterminal.ansi=false -Xms256M -Xmx512M -XX:+UseG1GC -jar paper.jar --nogui > %q 2>&1' \
     "$NETWORK_ROOT/waiting.pid" "$JAVA" "$LOG_DIR/waiting.log"
-  tmux new-session -d -s "$WAITING_SESSION" -c "$NETWORK_ROOT/waiting" "$command"
+  # tmux's -c argument splits this workspace path at spaces on macOS. Run an
+  # explicitly quoted cd inside the shell instead so Paper resolves paper.jar.
+  local working_directory
+  printf -v working_directory '%q' "$NETWORK_ROOT/waiting"
+  tmux new-session -d -s "$WAITING_SESSION" "cd $working_directory && $command"
   wait_for_log "$LOG_DIR/waiting.log" 'Done (' 90
 }
 
@@ -72,7 +76,9 @@ start_velocity(){
   printf -v command 'echo $$ > %q; exec env BARKAN_MAINTENANCE_CONTROL_DIR=%q BARKAN_MAIN_READY_FILE=%q BARKAN_SHIP_MARKER_DIR=%q BARKAN_MAIN_SERVER=main BARKAN_WAITING_SERVER=waiting BARKAN_MAINTENANCE_TEST_COMMANDS=true %q -Dterminal.jline=false -Dterminal.ansi=false -Xms256M -Xmx768M -XX:+UseG1GC -jar velocity.jar > %q 2>&1' \
     "$NETWORK_ROOT/velocity.pid" "$CONTROL_DIR" "$MAIN_ROOT/plugins/BlockShip/startup-ready.json" "$NETWORK_ROOT/shared/ship-entities" \
     "$JAVA" "$LOG_DIR/velocity.log"
-  tmux new-session -d -s "$VELOCITY_SESSION" -c "$NETWORK_ROOT/velocity" "$command"
+  local working_directory
+  printf -v working_directory '%q' "$NETWORK_ROOT/velocity"
+  tmux new-session -d -s "$VELOCITY_SESSION" "cd $working_directory && $command"
   for _wait in $(seq 1 60); do
     listening_tcp 25565 && listening_udp 19132 && "$CONTROL" status >/dev/null 2>&1 && return 0
     sleep 1
