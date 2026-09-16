@@ -1396,10 +1396,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "이무기역린",
-          "displayName": "이무기의 역린",
+          "typeOrMatId": "용비늘",
+          "displayName": "용 비늘",
           "mcItem": "dragon_breath",
-          "qty": 1
+          "qty": 25
         },
         {
           "kind": "custom",
@@ -1543,10 +1543,10 @@
         },
         {
           "kind": "custom",
-          "typeOrMatId": "이무기역린",
-          "displayName": "이무기의 역린",
+          "typeOrMatId": "용비늘",
+          "displayName": "용 비늘",
           "mcItem": "dragon_breath",
-          "qty": 1
+          "qty": 25
         },
         {
           "kind": "custom",
@@ -4677,7 +4677,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&e들꽃 꿀차",
         "lore": [
           "&7흰들국화를 꿀물에 우린 차. 항구 사람들이 아침마다 한",
@@ -4759,7 +4759,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&d가시배 화채",
         "lore": [
           "&7선인장 열매를 얼음물에 띄운 사막식 화채. 가시는",
@@ -4800,7 +4800,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&b설산 서리차",
         "lore": [
           "&7설화를 서리열매 우린 물에 띄운 차. 뜨겁게 마셔도",
@@ -4980,7 +4980,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "MUSHROOM_STEW",
+        "mcItem": "COOKIE",
         "name": "&e버섯밥",
         "lore": [
           "&7버섯과 곡물을 함께 볶아낸 따뜻한 버섯밥. 숲에서",
@@ -5070,7 +5070,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&a수박 주스",
         "lore": [
           "&7잘 익은 수박을 통째로 짜낸, 여름 항구에서 제일 잘",
@@ -5091,7 +5091,7 @@
           "kind": "dish",
           "typeOrMatId": "가시배화채",
           "displayName": "가시배 화채",
-          "mcItem": "HONEY_BOTTLE",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5119,7 +5119,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BEETROOT_SOUP",
+        "mcItem": "COOKIE",
         "name": "&a바위솔 무침",
         "lore": [
           "&7절벽에서 딴 다육풀을 새콤하게 무친, 씹는 맛으로 먹는",
@@ -5168,7 +5168,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "MUSHROOM_STEW",
+        "mcItem": "COOKIE",
         "name": "&3야광베리 커스터드",
         "lore": [
           "&7야광 열매를 넣어 굳힌 푸른 커스터드. 어두운 곳에서",
@@ -5189,7 +5189,7 @@
           "kind": "dish",
           "typeOrMatId": "설산서리차",
           "displayName": "설산 서리차",
-          "mcItem": "HONEY_BOTTLE",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5217,7 +5217,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BEETROOT_SOUP",
+        "mcItem": "COOKIE",
         "name": "&a양배추 샐러드",
         "lore": [
           "&7양배추와 당근을 굵게 썰어 낸 샐러드. 곁들임인데 양이",
@@ -5365,7 +5365,7 @@
           "kind": "dish",
           "typeOrMatId": "야광버섯수프",
           "displayName": "야광베리 커스터드",
-          "mcItem": "MUSHROOM_STEW",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5421,7 +5421,7 @@
           "kind": "dish",
           "typeOrMatId": "버섯스튜",
           "displayName": "버섯밥",
-          "mcItem": "MUSHROOM_STEW",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5639,7 +5639,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "RABBIT_STEW",
+        "mcItem": "COOKIE",
         "name": "&c잿불 매운탕",
         "lore": [
           "&7잿불꽃을 넣어 끓인 붉은 탕. 첫 숟갈에 정신이 번쩍",
@@ -5823,7 +5823,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "RABBIT_STEW",
+        "mcItem": "COOKIE",
         "name": "&2늪지 해독수프",
         "lore": [
           "&7늪지 약초를 넣은 해독 수프. 독버섯의 기운을 씻어내는",
@@ -5846,7 +5846,7 @@
           "kind": "dish",
           "typeOrMatId": "샐러드",
           "displayName": "양배추 샐러드",
-          "mcItem": "BEETROOT_SOUP",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5902,7 +5902,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "RABBIT_STEW",
+        "mcItem": "COOKIE",
         "name": "&b해물탕",
         "lore": [
           "&7잡은 것을 아낌없이 넣고 끓인 탕. 국물이 진할수록",
@@ -5962,7 +5962,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "MUSHROOM_STEW",
+        "mcItem": "COOKIE",
         "name": "&b트러플 크림스튜",
         "lore": [
           "&7트러플을 얇게 저며 올린 크림 스튜. 향이 반이고",
@@ -6008,7 +6008,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BEETROOT_SOUP",
+        "mcItem": "COOKIE",
         "name": "&b빛나는 샐러드",
         "lore": [
           "&7빛을 머금은 버섯을 올린 샐러드. 어두운 자리에서 내야",
@@ -6203,7 +6203,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "RABBIT_STEW",
+        "mcItem": "COOKIE",
         "name": "&c보글보글 스튜",
         "lore": [
           "&7냄비째 내는 큼직한 스튜. 뚜껑을 여는 순간이 이",
@@ -6515,7 +6515,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&a키위 셔벗",
         "lore": [
           "&7잘 익은 키위를 갈아 얼린 셔벗. 더운 항구에서",
@@ -6611,7 +6611,7 @@
           "kind": "dish",
           "typeOrMatId": "해물탕",
           "displayName": "해물탕",
-          "mcItem": "RABBIT_STEW",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -6678,7 +6678,7 @@
           "kind": "dish",
           "typeOrMatId": "빛나는샐러드",
           "displayName": "빛나는 샐러드",
-          "mcItem": "BEETROOT_SOUP",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -6791,7 +6791,7 @@
           "kind": "dish",
           "typeOrMatId": "트러플스튜",
           "displayName": "트러플 크림스튜",
-          "mcItem": "MUSHROOM_STEW",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -7055,13 +7055,6 @@
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
           "qty": 115
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "작물_밀",
-          "displayName": "특수 밀",
-          "mcItem": "wheat",
-          "qty": 40
         }
       ]
     },
@@ -7157,13 +7150,6 @@
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
           "qty": 15
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "작물_밀",
-          "displayName": "특수 밀",
-          "mcItem": "wheat",
-          "qty": 10
         }
       ]
     },
@@ -7220,13 +7206,34 @@
           "displayName": "흑정석",
           "mcItem": "black_stained_glass",
           "qty": 43
-        },
+        }
+      ]
+    },
+    "WARP04": {
+      "id": "WARP04",
+      "category": "재료",
+      "displayName": "왕도 주문서",
+      "locked": false,
+      "resultMode": "direct",
+      "resultAmount": 0,
+      "drillTier": 0,
+      "result": {
+        "mcItem": "paper",
+        "name": "&c왕도 이동 스크롤",
+        "lore": [
+          "&7사용 시 &f왕도로 이동합니다.",
+          "",
+          "&e우클릭하여 사용",
+          "&8warpscroll:royal"
+        ]
+      },
+      "ingredients": [
         {
           "kind": "custom",
-          "typeOrMatId": "작물_밀",
-          "displayName": "특수 밀",
-          "mcItem": "wheat",
-          "qty": 5
+          "typeOrMatId": "흑정석",
+          "displayName": "흑정석",
+          "mcItem": "black_stained_glass",
+          "qty": 80
         }
       ]
     },
@@ -7239,7 +7246,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&d체력포션 &7(소)",
         "lore": [
           "&7약초를 우려 작은 병에 담았다. 급할 때 한 모금이면",
@@ -7278,7 +7285,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&5체력포션 &7(대)",
         "lore": [
           "&7짙게 달여 큰 병에 채운 약. 마시면 상처가 아무는 게",
@@ -7296,7 +7303,7 @@
           "kind": "dish",
           "typeOrMatId": "체력포션소",
           "displayName": "체력포션 (소)",
-          "mcItem": "HONEY_BOTTLE",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -7397,7 +7404,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&e꿀 월병",
         "lore": [
           "&7꿀을 듬뿍 넣어 구운 둥근 월병. 한입 베어 물면",
@@ -7571,7 +7578,7 @@
           "kind": "dish",
           "typeOrMatId": "허니케이크",
           "displayName": "꿀 월병",
-          "mcItem": "HONEY_BOTTLE",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -7674,7 +7681,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "HONEY_BOTTLE",
+        "mcItem": "COOKIE",
         "name": "&d전설의 발효액",
         "lore": [
           "&7과일과 꿀을 오래 발효한 진한 술. 병을 열면 숙성된",
@@ -12045,50 +12052,6 @@
       "village": "상단",
       "materialDiscountVersion": 1
     },
-    "P83": {
-      "id": "P83",
-      "category": "부품",
-      "displayName": "향기나는 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "향기나는 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 6
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
-    "P84": {
-      "id": "P84",
-      "category": "부품",
-      "displayName": "떡밥",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "떡밥",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 3
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
     "P85": {
       "id": "P85",
       "category": "부품",
@@ -12105,14 +12068,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -12134,14 +12090,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 10
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -12163,14 +12112,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 7
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -12192,14 +12134,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 9
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 1
+          "qty": 4
         }
       ],
       "village": "스폰",
@@ -12221,14 +12156,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -12250,14 +12185,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -12279,14 +12214,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "스폰",
@@ -12308,14 +12243,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -12337,14 +12272,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -12366,21 +12301,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -12402,21 +12337,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 1
         }
       ],
       "village": "사막",
@@ -12438,21 +12373,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 17
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -12474,21 +12409,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -12510,21 +12445,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -12546,21 +12481,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "왕도",
@@ -16446,28 +16381,6 @@
       "village": "스폰",
       "materialDiscountVersion": 1
     },
-    "P112": {
-      "id": "P112",
-      "category": "부품",
-      "displayName": "지렁이",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "지렁이",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 2
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
     "P113": {
       "id": "P113",
       "category": "부품",
@@ -17551,14 +17464,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -17580,14 +17486,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "사막",
@@ -17609,21 +17515,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 4
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -17924,28 +17830,6 @@
           "displayName": "물고기 비늘",
           "mcItem": "paper",
           "qty": 3
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
-    "P132": {
-      "id": "P132",
-      "category": "부품",
-      "displayName": "채집 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "채집 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 4
         }
       ],
       "village": "스폰",
@@ -18602,50 +18486,6 @@
           "displayName": "물고기 비늘",
           "mcItem": "paper",
           "qty": 7
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
-    "P142": {
-      "id": "P142",
-      "category": "부품",
-      "displayName": "수습 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "수습 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 3
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
-    "P143": {
-      "id": "P143",
-      "category": "부품",
-      "displayName": "장터 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "장터 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 5
         }
       ],
       "village": "스폰",
@@ -20388,14 +20228,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "왕도",
@@ -20417,14 +20257,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 2
         }
       ],
       "village": "왕도",
@@ -20446,14 +20286,14 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "왕도",
@@ -21464,50 +21304,6 @@
       "village": "상단",
       "materialDiscountVersion": 1
     },
-    "P174": {
-      "id": "P174",
-      "category": "부품",
-      "displayName": "억센 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "억센 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 8
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
-    "P175": {
-      "id": "P175",
-      "category": "부품",
-      "displayName": "예민한 미끼",
-      "locked": true,
-      "resultMode": "part",
-      "resultAmount": 10,
-      "drillTier": 0,
-      "resultPartType": "미끼",
-      "resultPartName": "예민한 미끼",
-      "ingredients": [
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축흑정석",
-          "displayName": "압축 흑정석",
-          "mcItem": "paper",
-          "qty": 7
-        }
-      ],
-      "village": "스폰",
-      "materialDiscountVersion": 1
-    },
     "P176": {
       "id": "P176",
       "category": "부품",
@@ -21524,14 +21320,7 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 11
-        },
-        {
-          "kind": "custom",
-          "typeOrMatId": "압축철광석",
-          "displayName": "압축 적철석",
-          "mcItem": "paper",
-          "qty": 2
+          "qty": 5
         }
       ],
       "village": "스폰",
@@ -21553,21 +21342,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 5
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -21589,21 +21378,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 6
+          "qty": 3
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 4
+          "qty": 2
         }
       ],
       "village": "상단",
@@ -24313,21 +24102,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 16
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 7
+          "qty": 3
         }
       ],
       "village": "스폰",
@@ -24349,21 +24138,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 22
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 13
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 4
         }
       ],
       "village": "스폰",
@@ -24385,21 +24174,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 17
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 3
         }
       ],
       "village": "사막",
@@ -24421,21 +24210,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 20
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         }
       ],
       "village": "사막",
@@ -24457,21 +24246,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 17
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 3
         }
       ],
       "village": "상단",
@@ -24493,21 +24282,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 23
+          "qty": 10
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 14
+          "qty": 6
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 10
+          "qty": 4
         }
       ],
       "village": "상단",
@@ -24529,21 +24318,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 8
+          "qty": 4
         }
       ],
       "village": "상단",
@@ -24565,21 +24354,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 8
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 11
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 4
         }
       ],
       "village": "상단",
@@ -24601,21 +24390,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 19
+          "qty": 9
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 5
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 9
+          "qty": 4
         }
       ],
       "village": "",
@@ -24637,21 +24426,21 @@
           "typeOrMatId": "압축흑정석",
           "displayName": "압축 흑정석",
           "mcItem": "paper",
-          "qty": 26
+          "qty": 11
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축철광석",
           "displayName": "압축 적철석",
           "mcItem": "paper",
-          "qty": 15
+          "qty": 7
         },
         {
           "kind": "custom",
           "typeOrMatId": "압축자수정",
           "displayName": "압축 자수정",
           "mcItem": "paper",
-          "qty": 12
+          "qty": 5
         }
       ],
       "village": "",
@@ -26165,8 +25954,6 @@
       "P80",
       "P81",
       "P82",
-      "P83",
-      "P84",
       "P85",
       "P86",
       "P87",
@@ -26194,7 +25981,6 @@
       "P109",
       "P110",
       "P111",
-      "P112",
       "P113",
       "P114",
       "P115",
@@ -26214,7 +26000,6 @@
       "P129",
       "P130",
       "P131",
-      "P132",
       "P133",
       "R00b",
       "R00c",
@@ -26278,8 +26063,6 @@
       "P139",
       "P140",
       "P141",
-      "P142",
-      "P143",
       "P144",
       "P145",
       "P146",
@@ -26310,8 +26093,6 @@
       "P171",
       "P172",
       "P173",
-      "P174",
-      "P175",
       "P176",
       "P177",
       "P178",
@@ -26347,7 +26128,8 @@
       "SCR07",
       "WARP01",
       "WARP02",
-      "WARP03"
+      "WARP03",
+      "WARP04"
     ],
     "드릴": [
       "DRILL2",

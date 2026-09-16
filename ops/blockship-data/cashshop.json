@@ -211,6 +211,15 @@
         "tag": "autoplant:500"
       },
       {
+        "id": "휴대판매권4",
+        "name": "휴대 물고기 판매권 (4장)",
+        "coin": 1,
+        "cash": 1000,
+        "icon": "PAPER",
+        "lore": "§7어디서나 인벤토리·아이스박스 물고기를 함께 판매합니다. §c수수료 20%",
+        "tag": "portablesell:4"
+      },
+      {
         "id": "자동심기1000",
         "name": "자동심기 추가권 (1,000회)",
         "coin": 4,
@@ -258,8 +267,8 @@
       {
         "id": "허수아비",
         "name": "허수아비",
-        "coin": 4,
-        "cash": 2000,
+        "coin": 6,
+        "cash": 3000,
         "icon": "CARVED_PUMPKIN",
         "lore": "§7주변 16×16×16의 바닐라 작물을 오프라인에도 성장시킵니다.",
         "tag": "ce:barkan:scarecrow"

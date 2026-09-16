@@ -65,6 +65,7 @@
       "forgeable": true,
       "grindable": true
     },
+    "미감정 유물": { "forgeable": false },
     "무명의낱장": { "forgeable": false, "grindable": false },
     "심해전왕의핵": { "forgeable": false, "grindable": false },
     "이무기역린": { "forgeable": false, "grindable": false }
