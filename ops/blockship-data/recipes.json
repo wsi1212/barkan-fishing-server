@@ -4718,7 +4718,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "PUMPKIN_PIE",
+        "mcItem": "COOKIE",
         "name": "&6도토리 두부",
         "lore": [
           "&7도토리 가루를 굳혀 만든 숲의 두부. 묵보다 단단하고",
@@ -4842,7 +4842,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "APPLE",
+        "mcItem": "COOKIE",
         "name": "&a풋사과 파이",
         "lore": [
           "&7덜 익은 열매로 구워 새콤한 파이. 단걸 못 먹는",
@@ -4940,7 +4940,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BREAD",
+        "mcItem": "COOKIE",
         "name": "&f따뜻한 빵",
         "lore": [
           "&7화덕에서 막 꺼낸 빵. 갓 구웠을 때가 가장 맛있다는",
@@ -5000,7 +5000,7 @@
           "kind": "dish",
           "typeOrMatId": "도토리묵",
           "displayName": "도토리 두부",
-          "mcItem": "PUMPKIN_PIE",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5028,7 +5028,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BAKED_POTATO",
+        "mcItem": "COOKIE",
         "name": "&e구운 감자",
         "lore": [
           "&7껍질째 재에 묻어 구운 감자. 뜨거울 때 까다가 꼭",
@@ -5140,7 +5140,7 @@
           "kind": "dish",
           "typeOrMatId": "도토리묵",
           "displayName": "도토리 두부",
-          "mcItem": "PUMPKIN_PIE",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5238,7 +5238,7 @@
           "kind": "dish",
           "typeOrMatId": "빵",
           "displayName": "따뜻한 빵",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5273,7 +5273,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_CHICKEN",
+        "mcItem": "COOKIE",
         "name": "&c토마토 파스타",
         "lore": [
           "&7토마토를 오래 졸여 낸 면 요리. 상단 사람들이 들여온",
@@ -5294,7 +5294,7 @@
           "kind": "dish",
           "typeOrMatId": "빵",
           "displayName": "따뜻한 빵",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5343,7 +5343,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_SALMON",
+        "mcItem": "COOKIE",
         "name": "&b세이지 생선구이",
         "lore": [
           "&7생선에 사막 향초를 얹어 구웠다. 비린내를 잡는 사막식",
@@ -5400,7 +5400,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_PORKCHOP",
+        "mcItem": "COOKIE",
         "name": "&e꿀 발림 햄구이",
         "lore": [
           "&7겉에 꿀을 발라 통째로 구운 햄. 자를 때 나는 소리가",
@@ -5463,7 +5463,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "APPLE",
+        "mcItem": "COOKIE",
         "name": "&c사과 파이",
         "lore": [
           "&7사과와 베리를 켜켜이 쌓아 구운 파이. 식어도 맛이 안",
@@ -5485,7 +5485,7 @@
           "kind": "dish",
           "typeOrMatId": "빵",
           "displayName": "따뜻한 빵",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5520,7 +5520,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_MUTTON",
+        "mcItem": "COOKIE",
         "name": "&4바삭 다리살",
         "lore": [
           "&7겉만 바삭하게 튀기듯 구운 다리살. 뼈째 들고 먹는 게",
@@ -5540,7 +5540,7 @@
           "kind": "dish",
           "typeOrMatId": "구운감자",
           "displayName": "구운 감자",
-          "mcItem": "BAKED_POTATO",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5575,7 +5575,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_COD",
+        "mcItem": "COOKIE",
         "name": "&6피시 앤 칩스",
         "lore": [
           "&7생선 튀김에 감자를 곁들인 항구 음식. 종이에 싸서",
@@ -5597,7 +5597,7 @@
           "kind": "dish",
           "typeOrMatId": "구운감자",
           "displayName": "구운 감자",
-          "mcItem": "BAKED_POTATO",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -5661,7 +5661,7 @@
           "kind": "dish",
           "typeOrMatId": "파스타",
           "displayName": "토마토 파스타",
-          "mcItem": "COOKED_CHICKEN",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5703,7 +5703,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_SALMON",
+        "mcItem": "COOKIE",
         "name": "&b초밥 플래터",
         "lore": [
           "&7좋은 생선을 골라 얹은 한 접시. 재료가 전부라 속일",
@@ -5725,7 +5725,7 @@
           "kind": "dish",
           "typeOrMatId": "세이지생선구이",
           "displayName": "세이지 생선구이",
-          "mcItem": "COOKED_SALMON",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -5760,7 +5760,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_CHICKEN",
+        "mcItem": "COOKIE",
         "name": "&6훈제 통닭구이",
         "lore": [
           "&7약초를 채워 훈연한 통닭. 굽는 냄새만으로 사람이",
@@ -5781,7 +5781,7 @@
           "kind": "dish",
           "typeOrMatId": "구운다리살",
           "displayName": "바삭 다리살",
-          "mcItem": "COOKED_MUTTON",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -6047,7 +6047,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_RABBIT",
+        "mcItem": "COOKIE",
         "name": "&6목동의 파이",
         "lore": [
           "&7고기와 감자를 층층이 깔아 구운, 한 판이면 여럿이",
@@ -6086,7 +6086,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BAKED_POTATO",
+        "mcItem": "COOKIE",
         "name": "&6속을 채운 호박찜",
         "lore": [
           "&7속을 파낸 호박에 재료를 채워 통째로 찐 요리. 자를",
@@ -6164,7 +6164,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "PUMPKIN_PIE",
+        "mcItem": "COOKIE",
         "name": "&6단호박 파이",
         "lore": [
           "&7단호박을 곱게 으깨 구워 설탕을 거의 안 넣어도 단",
@@ -6242,7 +6242,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_MUTTON",
+        "mcItem": "COOKIE",
         "name": "&4호글린 통다리구이",
         "lore": [
           "&7호글린의 큼직한 다리살을 통째로 구워 낸 요리. 잔치가",
@@ -6281,7 +6281,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "SWEET_BERRIES",
+        "mcItem": "COOKIE",
         "name": "&9체리 파이",
         "lore": [
           "&7잘 익은 체리를 가득 채워 구운 파이. 자르면 붉은",
@@ -6320,7 +6320,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "SWEET_BERRIES",
+        "mcItem": "COOKIE",
         "name": "&5피칸 파이",
         "lore": [
           "&7고소한 피칸을 듬뿍 넣어 구운 파이. 바삭한 견과 향이",
@@ -6359,7 +6359,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_MUTTON",
+        "mcItem": "COOKIE",
         "name": "&6양고기 파이",
         "lore": [
           "&7양고기와 뿌리채소를 채운 두툼한 파이. 겨울에 특히 잘",
@@ -6398,7 +6398,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "SWEET_BERRIES",
+        "mcItem": "COOKIE",
         "name": "&d패션 타르트",
         "lore": [
           "&7새콤한 열매를 얹어 구운 타르트. 각오한 것보다 훨씬",
@@ -6437,7 +6437,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_SALMON",
+        "mcItem": "COOKIE",
         "name": "&b연어베리 파이",
         "lore": [
           "&7연어 살과 열매를 함께 구운 별난 파이. 의외로 잘",
@@ -6554,7 +6554,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BREAD",
+        "mcItem": "COOKIE",
         "name": "&c마르게리타 피자",
         "lore": [
           "&7토마토와 반죽만으로 승부하는 피자. 재료가 적을수록",
@@ -6593,7 +6593,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_BEEF",
+        "mcItem": "COOKIE",
         "name": "&6바르칸 채집 성찬",
         "lore": [
           "&7열도 곳곳에서 모은 채집물을 한 상에 올렸다. 한",
@@ -6660,7 +6660,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "MELON_SLICE",
+        "mcItem": "COOKIE",
         "name": "&a캔털루프 멜론",
         "lore": [
           "&7달콤하게 익은 캔털루프 멜론. 주황빛 과육이 여름 연회",
@@ -6713,7 +6713,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "PUMPKIN_PIE",
+        "mcItem": "COOKIE",
         "name": "&d코러스 케이크",
         "lore": [
           "&7빛나는 코러스 재료로 구운 케이크. 먹고 나면 잠시",
@@ -6731,7 +6731,7 @@
           "kind": "dish",
           "typeOrMatId": "목동의파이",
           "displayName": "목동의 파이",
-          "mcItem": "COOKED_RABBIT",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -6773,7 +6773,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "PUMPKIN_PIE",
+        "mcItem": "COOKIE",
         "name": "&8글룸고드 푸딩",
         "lore": [
           "&7어두운 재료만 모아 굳힌 검은 푸딩. 맛은 보장하지만",
@@ -6833,7 +6833,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "SWEET_BERRIES",
+        "mcItem": "COOKIE",
         "name": "&5근원열매 오믈렛",
         "lore": [
           "&7숲 가장 안쪽의 열매와 알을 섞어 부친 오믈렛. 굽는",
@@ -6851,7 +6851,7 @@
           "kind": "dish",
           "typeOrMatId": "호박찜",
           "displayName": "속을 채운 호박찜",
-          "mcItem": "BAKED_POTATO",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -6893,7 +6893,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_BEEF",
+        "mcItem": "COOKIE",
         "name": "&6바르칸 대연회",
         "lore": [
           "&7열도에서 나는 최상급 재료를 전부 쏟아부은 상차림.",
@@ -6911,21 +6911,21 @@
           "kind": "dish",
           "typeOrMatId": "채집성찬",
           "displayName": "바르칸 채집 성찬",
-          "mcItem": "COOKED_BEEF",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
           "kind": "dish",
           "typeOrMatId": "코러스파이",
           "displayName": "코러스 케이크",
-          "mcItem": "PUMPKIN_PIE",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
           "kind": "dish",
           "typeOrMatId": "근원열매파이",
           "displayName": "근원열매 오믈렛",
-          "mcItem": "SWEET_BERRIES",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -7338,7 +7338,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_COD",
+        "mcItem": "COOKIE",
         "name": "&6명란 젓갈",
         "lore": [
           "&7바다의 알을 소금에 절여 숙성한 젓갈. 한 숟갈만",
@@ -7371,7 +7371,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_SALMON",
+        "mcItem": "COOKIE",
         "name": "&b은빛 정어리 젓갈",
         "lore": [
           "&7은빛 정어리를 소금에 절여 만든 젓갈. 짠맛 뒤에 바다",
@@ -7451,7 +7451,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BREAD",
+        "mcItem": "COOKIE",
         "name": "&d과일 발효 케이크",
         "lore": [
           "&7과일을 오래 숙성해 반죽에 넣은 발효 케이크. 시간이",
@@ -7470,7 +7470,7 @@
           "kind": "dish",
           "typeOrMatId": "빵",
           "displayName": "따뜻한 빵",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 3
         },
         {
@@ -7505,7 +7505,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_COD",
+        "mcItem": "COOKIE",
         "name": "&9청어 양배추 절임",
         "lore": [
           "&7청어와 양배추를 함께 절여 숙성한 반찬. 짭짤하고",
@@ -7524,7 +7524,7 @@
           "kind": "dish",
           "typeOrMatId": "은빛정어리젓",
           "displayName": "은빛 정어리 젓갈",
-          "mcItem": "COOKED_SALMON",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -7585,7 +7585,7 @@
           "kind": "dish",
           "typeOrMatId": "빵",
           "displayName": "따뜻한 빵",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -7620,7 +7620,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_BEEF",
+        "mcItem": "COOKIE",
         "name": "&6숙성 비프 웰링턴",
         "lore": [
           "&7소고기를 반죽으로 감싸 천천히 구운 숙성 요리. 오래",
@@ -7639,7 +7639,7 @@
           "kind": "dish",
           "typeOrMatId": "발효케이크",
           "displayName": "과일 발효 케이크",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -7700,7 +7700,7 @@
           "kind": "dish",
           "typeOrMatId": "청어젓갈",
           "displayName": "청어 양배추 절임",
-          "mcItem": "COOKED_COD",
+          "mcItem": "COOKIE",
           "qty": 2
         },
         {
@@ -7742,7 +7742,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "BREAD",
+        "mcItem": "COOKIE",
         "name": "&c왕실 케이크",
         "lore": [
           "&7당근과 크림을 겹겹이 올린 왕실식 케이크. 흰 크림 위",
@@ -7768,7 +7768,7 @@
           "kind": "dish",
           "typeOrMatId": "발효케이크",
           "displayName": "과일 발효 케이크",
-          "mcItem": "BREAD",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
@@ -13023,7 +13023,7 @@
       "resultAmount": 0,
       "drillTier": 0,
       "result": {
-        "mcItem": "COOKED_SALMON",
+        "mcItem": "COOKIE",
         "name": "&6황금 연어롤",
         "lore": [
           "&7연어를 황금 이삭에 말아 썰어낸 한 줄. 단면이",
@@ -13045,7 +13045,7 @@
           "kind": "dish",
           "typeOrMatId": "초밥플래터",
           "displayName": "초밥 플래터",
-          "mcItem": "COOKED_SALMON",
+          "mcItem": "COOKIE",
           "qty": 1
         },
         {
