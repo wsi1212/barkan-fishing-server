@@ -3425,7 +3425,7 @@
     "황금 동전": {
       "minSize": 1,
       "maxSize": 1,
-      "grade": "E",
+      "grade": "S",
       "time": "전체",
       "weather": "전체",
       "itemType": "junk"
