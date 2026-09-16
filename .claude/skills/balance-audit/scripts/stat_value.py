@@ -238,7 +238,7 @@ def grade_dist(pool, level, luck=0, n=400_000, seed=20260805):
 
 # ── 등급별 크기난이도 분포 (★2026-08-27 신설) ─────────────────────────────
 #  `MinigameTables.derive` 는 net = rodBonus − fishDifficulty(등급) − **sizeDifficulty(cm)** 다.
-#  여기서 sizeDifficulty 는 0(<50cm)~7(350cm+) 이고 «존폭»에 직접 들어간다. 그런데 시뮬은
+#  여기서 sizeDifficulty 는 0(<50cm)~5(250cm+) 이고 «존폭»에 직접 들어간다. 그런데 시뮬은
 #  넉 달 내내 **size=0** 으로만 돌았다 — 즉 «모든 물고기가 50cm 미만»이라는 가정이었다.
 #  S 급 46종의 기대 sizeDifficulty 는 3.23 이다(fish.json 균등 롤). 3점을 빼먹으면 존폭이
 #  1~2칸 넓게 잡히고, «순간이동(zoneWidth<1)» 구간에 언제 진입하는지가 통째로 어긋난다.
@@ -272,7 +272,7 @@ def size_difficulty_dist():
         for mn, mx in rows:
             for i in range(101):                       # 균등 롤 100분할
                 sz = mn + (mx - mn) * i / 100.0
-                sd = 0 if sz < 50 else min(int((sz - 50) // 50) + 1, 7)
+                sd = 0 if sz < 50 else min(int((sz - 50) // 50) + 1, 5)
                 acc[sd] += 1.0 / (101 * len(rows))
         out[g] = dict(acc)
     _SIZE_DIST = out

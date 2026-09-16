@@ -1368,7 +1368,7 @@ def build_workbook(out_path, sim_casts, events=(), cph_override=None):
         p = params.get(grade)
         if not p:
             return None
-        size_d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 7)
+        size_d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 5)
         net = rod_bonus - fdiff.get(grade, 0) - size_d
         bar = max(12, min(30, 14 - net))
         # Java: 8 + (int) Math.floor(net / 2.0) — 파이썬 // 도 음수에서 같은 방향으로 내림한다
@@ -1394,7 +1394,7 @@ def build_workbook(out_path, sim_casts, events=(), cph_override=None):
             "등급 파라미터", g, fdiff.get(g), p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], "",
         ])
     for size, label in ((30, "30cm"), (80, "80cm"), (180, "180cm"), (400, "400cm")):
-        d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 7)
+        d = 0 if size < 50 else min(int((size - 50) // 50) + 1, 5)
         rows.append(["크기 난이도", label, d, "", "", "", "", "", "", "", "", "", "존폭에서 추가 차감"])
     sheet(
         "28_미니게임난이도", "미니게임 파라미터 · 등급별 난이도",
