@@ -15,8 +15,8 @@ if [ -z "$VIA_VERSION_JAR" ]; then
 fi
 VELOCITY_URL=https://fill-data.papermc.io/v1/objects/846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee/velocity-4.1.1-24.jar
 VELOCITY_SHA256=846411d2d0560fed0f23496ffb89681be528d2c0650ecdcf21724d2d7bd9c1ee
-GEYSER_URL=https://download.geysermc.org/v2/projects/geyser/versions/2.11.3/builds/1241/downloads/velocity
-GEYSER_SHA256=93f3e90574b57ee31033281efb097081c756b6f89361d6da55ea9cd328a66da2
+GEYSER_URL=https://download.geysermc.org/v2/projects/geyser/versions/2.11.3/builds/1245/downloads/velocity
+GEYSER_SHA256=306abe38291d24e874c7286e1c04b537ac3ab5e3901b710f56bd242500bedfbf
 FLOODGATE_URL=https://download.geysermc.org/v2/projects/floodgate/versions/2.2.5/builds/140/downloads/velocity
 FLOODGATE_SHA256=f5867ad79b90d38abcc72755a685428fbcf423b52c9830a39ffed5203de6936a
 
