@@ -362,8 +362,13 @@ if maintenance_network_enabled && [ -d "$STAGING/geyser" ] \
     && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
   gpending=$(find "$STAGING/geyser" -maxdepth 1 -type f -name '*.jar' | wc -l | tr -d ' ')
   if [ "$gpending" -gt 0 ]; then
-    deploy_lines+="⏸️ Geyser 확장 ${gpending}개 보류(무접속 프록시 유지보수 필요)"$'\n'
-    log "Geyser extension ${gpending}개 보류 — JVM 재기동 필요"
+    if [ -s "$MAINT_NETWORK_ROOT/velocity/plugins/Geyser-Velocity.jar.next" ]; then
+      deploy_lines+="📱 Geyser 확장 ${gpending}개는 06:00 Geyser 코어 교체 때 함께 적용"$'\n'
+      log "Geyser extension ${gpending}개 — 예약된 Velocity 재기동 때 함께 적용"
+    else
+      deploy_lines+="⏸️ Geyser 확장 ${gpending}개 보류(무접속 프록시 유지보수 필요)"$'\n'
+      log "Geyser extension ${gpending}개 보류 — JVM 재기동 필요"
+    fi
   fi
 elif [ -d "$STAGING/geyser" ] && [ -n "$(ls -A "$STAGING/geyser" 2>/dev/null)" ]; then
   gok=0; gbad=""
@@ -410,6 +415,57 @@ if [ -x "$BHSTAGE" ]; then
     bhrc=$?
     # 3 = 스테이징 없음(정상). 그 외는 이미 스크립트가 Discord 로 알렸다.
     [ "$bhrc" = "3" ] || deploy_lines+="🔴 BetterHud 스테이징 실패(rc=$bhrc): $bhline"$'\n'
+  fi
+fi
+
+# CraftEngine의 58개 실제 요리 아이템은 모두 cookie 베이스여야 한다. Java 레시피의
+# mcItem만 고쳐서는 CraftEngine 정의가 예전 bread/stew/fish를 계속 만들 수 있으므로,
+# 명시적 staging 마커가 있을 때만 정기 재시작 직전에 같이 정규화한다.
+CE_DISH_STAGE="$DIR/apply-craftengine-dish-cookie-stage.sh"
+if [ -f "$STAGING/CraftEngine/dish-cookie-v1" ]; then
+  if [ "$DRYRUN" = "1" ]; then
+    deploy_lines+="🧪 CraftEngine 요리 58종 쿠키 베이스 정규화 예정"$'\n'
+  elif [ -x "$CE_DISH_STAGE" ]; then
+    if celine=$($CE_DISH_STAGE 2>&1); then
+      deploy_lines+="🍪 ${celine}"$'\n'
+      log "$celine"
+    else
+      deploy_lines+="🔴 CraftEngine 요리 쿠키 정규화 실패: ${celine}"$'\n'
+      log "CraftEngine 요리 쿠키 정규화 실패: $celine"
+    fi
+  else
+    deploy_lines+="🔴 CraftEngine 요리 쿠키 정규화 도구 없음"$'\n'
+  fi
+fi
+
+# 새 채집 가구는 설정·모델·텍스처와 생성된 CraftEngine 팩을 한 묶음으로 올린다.
+# 각각만 적용하면 노드는 생겼는데 클라이언트가 모델을 못 읽는 반쪽 배포가 된다.
+CE_FORAGE_STAGE="$DIR/apply-craftengine-forage-stage.sh"
+if [ -d "$STAGING/CraftEngine/forage-v1" ]; then
+  if [ "$DRYRUN" = "1" ]; then
+    deploy_lines+="🧪 CraftEngine 채집물 3종·생성팩 적용 예정"$'\n'
+  elif [ -x "$CE_FORAGE_STAGE" ]; then
+    if celine=$($CE_FORAGE_STAGE 2>&1); then
+      deploy_lines+="🌿 ${celine}"$'\n'
+      log "$celine"
+    else
+      deploy_lines+="🔴 CraftEngine 채집물 스테이징 실패: ${celine}"$'\n'
+      log "CraftEngine 채집물 스테이징 실패: $celine"
+    fi
+  else
+    deploy_lines+="🔴 CraftEngine 채집물 스테이징 도구 없음"$'\n'
+  fi
+fi
+
+# 메인팩과 CraftEngine 가구팩을 한 번만 보내도록 결합한다. 실패하면 기존 CE 전송을
+# 유지하고 재시작은 계속 진행한다(가구 모델을 깨뜨리지 않는 안전한 실패).
+COMBINED_RP="$DIR/apply-combined-resourcepack.sh"
+if [ -x "$COMBINED_RP" ]; then
+  if crline=$("$COMBINED_RP" 2>&1); then
+    [ -n "$crline" ] && deploy_lines+="📦 결합 리소스팩 준비됨"$'\n'
+  else
+    log "결합 리소스팩 보류: $crline"
+    deploy_lines+="⚠️ 결합 리소스팩 보류(기존 가구팩 전송 유지)"$'\n'
   fi
 fi
 
@@ -672,6 +728,28 @@ if [ "$IMMEDIATE" = "0" ]; then
     fi
   elif [ "$MAINT_ACTIVE" = "1" ]; then
     boot_line="$boot_line · 유저는 대기실에 유지"
+  fi
+
+  # Geyser 코어 JAR은 실행 중 교체하면 Velocity 클래스 로더가 깨진다. 따라서 본 서버
+  # 재시작과 대기실 복귀까지 모두 마친 뒤, 06:00 정기 작업에서만 public Velocity를 한 번
+  # 내리고 .next를 원자 승격한다. 이 순간에는 Java/Bedrock 모두 잠깐 연결이 끊기며,
+  # 기동 확인 실패 시 이전 JAR로 자동 복구한다. 즉시 배포(--now)에서는 절대 실행하지 않는다.
+  GEYSER_CORE_UPDATER="$DIR/apply-geyser-velocity-update.sh"
+  if [ -s "$MAINT_NETWORK_ROOT/velocity/plugins/Geyser-Velocity.jar.next" ]; then
+    if [ "$DRYRUN" = "1" ]; then
+      deploy_lines+="🧪 Geyser 코어 교체를 위해 Velocity 1회 재기동 예정(전체 접속 잠시 끊김)"$'\n'
+    elif [ -x "$GEYSER_CORE_UPDATER" ]; then
+      if geyser_core_line=$("$GEYSER_CORE_UPDATER" 2>&1); then
+        deploy_lines+="📱 ${geyser_core_line}"$'\n'
+        log "$geyser_core_line"
+      else
+        deploy_lines+="🔴 Geyser 코어 교체 실패(이전 JAR 자동 복구 시도): ${geyser_core_line}"$'\n'
+        log "Geyser 코어 교체 실패: $geyser_core_line"
+      fi
+    else
+      deploy_lines+="🔴 Geyser 코어 교체 도구 없음 — .next 유지"$'\n'
+      log "Geyser 코어 교체 보류 — $GEYSER_CORE_UPDATER 없음"
+    fi
   fi
   run_offsite_uploads
   read_backups
