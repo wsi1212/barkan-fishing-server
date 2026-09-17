@@ -1,0 +1,31 @@
+{
+  "world": "honor_hall",
+  "expected_blocks": 29562,
+  "mismatches": 0,
+  "samples": [],
+  "actual_palette": {
+    "minecraft:polished_andesite": 6290,
+    "minecraft:smooth_quartz": 9235,
+    "minecraft:gold_block": 543,
+    "minecraft:dark_prismarine": 583,
+    "minecraft:grass_block": 240,
+    "minecraft:quartz_block": 1316,
+    "minecraft:smooth_quartz_stairs": 406,
+    "minecraft:short_grass": 28,
+    "minecraft:oxeye_daisy": 9,
+    "minecraft:chiseled_quartz_block": 176,
+    "minecraft:quartz_slab": 1778,
+    "minecraft:quartz_pillar": 1488,
+    "minecraft:polished_andesite_slab": 1943,
+    "minecraft:smooth_quartz_slab": 897,
+    "minecraft:waxed_oxidized_cut_copper_slab": 824,
+    "minecraft:dark_prismarine_slab": 334,
+    "minecraft:sea_lantern": 32,
+    "minecraft:end_rod": 58,
+    "minecraft:quartz_stairs": 336,
+    "minecraft:waxed_oxidized_cut_copper_stairs": 2230,
+    "minecraft:dark_prismarine_stairs": 458,
+    "minecraft:quartz_bricks": 134,
+    "minecraft:water": 224
+  }
+}

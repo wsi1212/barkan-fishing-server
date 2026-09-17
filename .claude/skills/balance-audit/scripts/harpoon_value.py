@@ -16,7 +16,7 @@ harpoon_value.py — 창 전용 스탯 6종의 원/h 가치 모델 (사이클 + 
 ## 라이브 코드에서 그대로 가져온 규칙 (HarpoonManager / HarpoonListener)
 
     체력      HP(g, size) = base[g] + floor(max(0, size-100)/50)
-              base = E1 D2 C3 B5 A8 S12 M18 L25 G35        (calcFishHp)
+              base = E1 D2 C3 B5 A8 S20 M28 L35 G45        (calcFishHp)
     찌르기피해 공격력 (spearAttack = max(1, stat + 특성 완력))
     ★돌진피해  공격력 × 2  (sweepAttack(..., max(1, getAttackPower(p)*2)) — 2026-08-26 발견)
               돌진 쿨타임 = max(20, round(200 / (1+돌진쿨감/100))) 틱 → 기본 10초
@@ -87,7 +87,8 @@ SV = _load("stat_value")
 MEAS = _load("measured")     # ★실측 상수 단일 출처
 
 # ── 라이브 코드 상수 (HarpoonManager / HarpoonListener) ────────────────────
-HP_BASE = {"E": 1, "D": 2, "C": 3, "B": 5, "A": 8, "S": 12, "M": 18, "L": 25, "G": 35}
+# HarpoonManager.calcFishHp 와 반드시 같아야 한다. 2026-09-15 실측 리밸런싱.
+HP_BASE = {"E": 1, "D": 2, "C": 3, "B": 5, "A": 8, "S": 20, "M": 28, "L": 35, "G": 45}
 WIN_BASE = {"E": 140, "D": 140, "C": 140, "B": 130, "A": 120, "S": 120,
             "M": 130, "L": 160, "G": 200}          # 틱
 JAB_GAP_TICKS = 5

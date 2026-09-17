@@ -1,0 +1,35 @@
+{
+  "world": "honor_hall",
+  "origin": [
+    -891,
+    -61,
+    -891
+  ],
+  "bounds": [
+    -891,
+    -61,
+    -891,
+    -646,
+    -20,
+    -646
+  ],
+  "expected_blocks": 411728,
+  "mismatches": 0,
+  "samples": [],
+  "palette": {
+    "minecraft:grass_block": 59520,
+    "minecraft:polished_andesite": 15616,
+    "minecraft:polished_diorite": 10052,
+    "minecraft:smooth_quartz": 28165,
+    "minecraft:azalea_leaves": 60593,
+    "minecraft:oak_leaves": 189598,
+    "minecraft:oak_log": 13561,
+    "minecraft:water": 588,
+    "minecraft:quartz_pillar": 14330,
+    "minecraft:gold_block": 80,
+    "minecraft:sea_lantern": 32,
+    "minecraft:dark_prismarine": 19316,
+    "minecraft:glass": 277
+  },
+  "restart_performed": false
+}

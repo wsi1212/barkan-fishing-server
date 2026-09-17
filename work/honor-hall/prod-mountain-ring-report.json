@@ -1,0 +1,25 @@
+{
+  "world": "honor_hall",
+  "center": [
+    -769,
+    -769
+  ],
+  "radius": 208,
+  "ground_y": -61,
+  "planned_columns": 54856,
+  "placed_blocks": 2445727,
+  "peak_y": 26,
+  "expected_columns": 54856,
+  "short_columns": [],
+  "restart_performed": false,
+  "palette": {
+    "minecraft:tuff": 371120,
+    "minecraft:andesite": 299256,
+    "minecraft:dirt": 91685,
+    "minecraft:grass_block": 46218,
+    "minecraft:stone": 1032577,
+    "minecraft:cobblestone": 112410,
+    "minecraft:deepslate": 355499,
+    "minecraft:polished_andesite": 136962
+  }
+}

@@ -332,6 +332,25 @@ async function migrate() {
   await pool.query(`
     ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS player_name TEXT;
     ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
+    -- 구독 한 줄은 기존 API 호환·최종 만료일 요약용이다. 실제 등급은 기간별로
+    -- 분리한다. 그래야 VIP 도중 MVP+를 사도 MVP+ 기간 뒤에 VIP 잔여기간으로 돌아간다.
+    CREATE TABLE IF NOT EXISTS subscription_periods (
+      id BIGSERIAL PRIMARY KEY,
+      minecraft_uuid UUID NOT NULL,
+      tier TEXT NOT NULL CHECK (tier IN ('MVP','VIP','MVP_PLUS')),
+      starts_at TIMESTAMPTZ NOT NULL,
+      expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CHECK (expires_at > starts_at)
+    );
+    CREATE INDEX IF NOT EXISTS subscription_periods_active_idx
+      ON subscription_periods (minecraft_uuid, starts_at, expires_at);
+    -- 기간 구간 기능을 켜기 전의 활성 이용권은 현재 등급·남은 기간을 그대로 한 구간으로 이관한다.
+    INSERT INTO subscription_periods (minecraft_uuid,tier,starts_at,expires_at)
+      SELECT s.minecraft_uuid,s.tier,NOW(),s.expires_at
+        FROM subscriptions s
+       WHERE s.expires_at > NOW()
+         AND NOT EXISTS (SELECT 1 FROM subscription_periods p WHERE p.minecraft_uuid=s.minecraft_uuid);
     CREATE TABLE IF NOT EXISTS link_codes (
       code_hash TEXT PRIMARY KEY, minecraft_uuid UUID NOT NULL, player_name TEXT NOT NULL,
       expires_at TIMESTAMPTZ NOT NULL, used_at TIMESTAMPTZ
@@ -547,11 +566,27 @@ async function session(req) {
 }
 function requireCsrf(data, current) { return current && data.csrf && data.csrf === current.csrf_token; }
 async function subscription(uuid) {
-  const r = await pool.query("SELECT minecraft_uuid, player_name, tier, expires_at, auto_renew, cancelled_at, expires_at > NOW() AS active FROM subscriptions WHERE minecraft_uuid=$1", [uuid]);
+  const r = await pool.query(`
+    SELECT s.minecraft_uuid,s.player_name,s.auto_renew,s.cancelled_at,
+           COALESCE(current_period.tier, CASE WHEN NOT EXISTS (SELECT 1 FROM subscription_periods p WHERE p.minecraft_uuid=s.minecraft_uuid) AND s.expires_at > NOW() THEN s.tier END) AS tier,
+           COALESCE(current_period.expires_at,s.expires_at) AS expires_at,
+           COALESCE(current_period.expires_at > NOW(), NOT EXISTS (SELECT 1 FROM subscription_periods p WHERE p.minecraft_uuid=s.minecraft_uuid) AND s.expires_at > NOW()) AS active,
+           COALESCE((SELECT MAX(p.expires_at) FROM subscription_periods p WHERE p.minecraft_uuid=s.minecraft_uuid),s.expires_at) AS final_expires_at,
+           COALESCE((SELECT json_agg(json_build_object('tier',p.tier,'startsAt',p.starts_at,'expiresAt',p.expires_at) ORDER BY p.starts_at)
+                       FROM subscription_periods p WHERE p.minecraft_uuid=s.minecraft_uuid AND p.expires_at > NOW()), '[]'::json) AS periods
+      FROM subscriptions s
+      LEFT JOIN LATERAL (
+        SELECT p.tier,p.expires_at
+          FROM subscription_periods p
+         WHERE p.minecraft_uuid=s.minecraft_uuid AND p.starts_at <= NOW() AND p.expires_at > NOW()
+         ORDER BY p.starts_at DESC LIMIT 1
+      ) current_period ON TRUE
+     WHERE s.minecraft_uuid=$1`, [uuid]);
   return r.rows[0] ?? null;
 }
 // 등급별 월간 캐시. 이용권이 살아 있는 달마다 1회씩 나눠 준다.
 const MEMBERSHIP_MONTHLY_CASH = Object.freeze({ VIP: 1500, MVP: 3000, MVP_PLUS: 6000 });
+const TIER_RANK = Object.freeze({ VIP: 1, MVP: 2, MVP_PLUS: 3 });
 // MVP+ 1년권만 결제 즉시 주는 일시금.
 const MVP_PLUS_ANNUAL_BONUS_CASH = 50000;
 const ANNUAL_PERIOD_DAYS = 365;
@@ -566,15 +601,15 @@ const grantMonths = (days) => days === ANNUAL_PERIOD_DAYS ? 12 : Math.max(1, Mat
  * 그만큼의 회차가 «추가»된다 — 기존 예약을 건드리지 않으므로 중복도 누락도 없다.
  * 실제 지급은 게임이 due_at 이 지난 미수령분을 가져갈 때 일어난다.
  */
-async function scheduleMembershipCash(client, uuid, tier, days) {
+async function scheduleMembershipCash(client, uuid, tier, days, firstDueAt = new Date()) {
   const monthly = MEMBERSHIP_MONTHLY_CASH[tier];
   if (!monthly) return;
   const months = grantMonths(days);
   for (let i = 0; i < months; i += 1) {
     await client.query(
       `INSERT INTO membership_cash_grants (grant_id,minecraft_uuid,tier,kind,amount,due_at)
-       VALUES ($1,$2,$3,'monthly',$4,NOW()+($5::int * INTERVAL '30 days'))`,
-      [`mc-${randomBytes(9).toString("base64url")}`, uuid, tier, monthly, i]
+       VALUES ($1,$2,$3,'monthly',$4,$5::timestamptz+($6::int * INTERVAL '30 days'))`,
+      [`mc-${randomBytes(9).toString("base64url")}`, uuid, tier, monthly, firstDueAt, i]
     );
   }
   if (tier === "MVP_PLUS" && days === ANNUAL_PERIOD_DAYS) {
@@ -587,22 +622,83 @@ async function scheduleMembershipCash(client, uuid, tier, days) {
 }
 
 async function extendSubscription(client, uuid, name, tier, days) {
-  const r = await client.query(`INSERT INTO subscriptions (minecraft_uuid, player_name, tier, expires_at, auto_renew, cancelled_at)
-    VALUES ($1,$2,$3,NOW()+($4::int * INTERVAL '1 day'),FALSE,NULL)
-    ON CONFLICT (minecraft_uuid) DO UPDATE SET player_name=EXCLUDED.player_name, tier=EXCLUDED.tier,
-      expires_at=GREATEST(subscriptions.expires_at,NOW())+($4::int * INTERVAL '1 day'), cancelled_at=NULL, updated_at=NOW()
-    RETURNING tier, expires_at`, [uuid, name, tier, days]);
-  await scheduleMembershipCash(client, uuid, tier, days);
-  return r.rows[0];
+  // 같은 등급은 마지막 구간을 연장한다. 더 낮은 등급은 현재·예약 등급이 끝난 뒤에
+  // 붙이고, 더 높은 등급만 즉시 적용한 뒤 기존 기간을 뒤로 민다.
+  const periods = await client.query(
+    `SELECT id,tier,starts_at,expires_at FROM subscription_periods
+      WHERE minecraft_uuid=$1 AND expires_at>NOW() ORDER BY starts_at FOR UPDATE`, [uuid]
+  );
+  const active = periods.rows.find((period) => new Date(period.starts_at) <= new Date());
+  const finalPeriod = periods.rows.at(-1);
+  const isUpgrade = active && (TIER_RANK[tier] ?? 0) > (TIER_RANK[active.tier] ?? 0);
+  let startsAt;
+  let expiresAt;
+  let cashDueAt = new Date();
+
+  if (isUpgrade) {
+    // 남은 기존 기간·아직 못 받은 월간 캐시를 새 상위등급 기간만큼 뒤로 보낸다.
+    await client.query(
+      `UPDATE subscription_periods
+          SET starts_at=starts_at+($2::int * INTERVAL '1 day'), expires_at=expires_at+($2::int * INTERVAL '1 day')
+        WHERE minecraft_uuid=$1 AND expires_at>NOW()`, [uuid, days]
+    );
+    await client.query(
+      `UPDATE membership_cash_grants SET due_at=due_at+($2::int * INTERVAL '1 day')
+        WHERE minecraft_uuid=$1 AND claimed_at IS NULL AND due_at>NOW()`, [uuid, days]
+    );
+    const inserted = await client.query(
+      `INSERT INTO subscription_periods (minecraft_uuid,tier,starts_at,expires_at)
+       VALUES ($1,$2,NOW(),NOW()+($3::int * INTERVAL '1 day')) RETURNING starts_at,expires_at`, [uuid, tier, days]
+    );
+    ({ starts_at: startsAt, expires_at: expiresAt } = inserted.rows[0]);
+  } else if (active && active.tier === tier && !periods.rows.some((period) => period.starts_at > active.starts_at)) {
+    const extended = await client.query(
+      `UPDATE subscription_periods SET expires_at=expires_at+($2::int * INTERVAL '1 day')
+        WHERE id=$1 RETURNING starts_at,expires_at`, [active.id, days]
+    );
+    ({ starts_at: startsAt, expires_at: expiresAt } = extended.rows[0]);
+  } else {
+    const inserted = await client.query(
+      `INSERT INTO subscription_periods (minecraft_uuid,tier,starts_at,expires_at)
+       VALUES ($1,$2,COALESCE($3::timestamptz,NOW()),COALESCE($3::timestamptz,NOW())+($4::int * INTERVAL '1 day'))
+       RETURNING starts_at,expires_at`, [uuid, tier, finalPeriod?.expires_at ?? null, days]
+    );
+    ({ starts_at: startsAt, expires_at: expiresAt } = inserted.rows[0]);
+    // 하위 등급을 미리 사면 그 등급이 실제 시작될 때 첫 월간 캐시도 지급한다.
+    cashDueAt = startsAt;
+  }
+
+  await scheduleMembershipCash(client, uuid, tier, days, cashDueAt);
+  const current = await client.query(
+    `SELECT p.tier,p.expires_at,
+            (SELECT MAX(all_periods.expires_at) FROM subscription_periods all_periods WHERE all_periods.minecraft_uuid=$1) AS final_expires_at
+       FROM subscription_periods p
+      WHERE p.minecraft_uuid=$1 AND p.starts_at<=NOW() AND p.expires_at>NOW()
+      ORDER BY p.starts_at DESC LIMIT 1`, [uuid]
+  );
+  const live = current.rows[0] ?? { tier, expires_at: expiresAt, final_expires_at: expiresAt };
+  await client.query(`INSERT INTO subscriptions (minecraft_uuid,player_name,tier,expires_at,auto_renew,cancelled_at)
+    VALUES ($1,$2,$3,$4,FALSE,NULL)
+    ON CONFLICT (minecraft_uuid) DO UPDATE SET player_name=EXCLUDED.player_name,tier=EXCLUDED.tier,
+      expires_at=EXCLUDED.expires_at,auto_renew=FALSE,cancelled_at=NULL,updated_at=NOW()`,
+  [uuid, name, live.tier, live.final_expires_at]);
+  return { tier: live.tier, expires_at: live.expires_at, final_expires_at: live.final_expires_at, starts_at: startsAt };
 }
 
 /** 현재 연결된 Discord 계정과 활성 멤버십을 한 작업으로 예약한다. 미연동이면 조용히 건너뛴다. */
 async function enqueueMembershipDiscordSync(client, sourceKey, uuid) {
   const target = await client.query(
     `SELECT d.discord_id,
-            CASE WHEN s.expires_at > NOW() THEN s.tier ELSE NULL END AS tier
+            COALESCE(current_period.tier,
+              CASE WHEN NOT EXISTS (SELECT 1 FROM subscription_periods p WHERE p.minecraft_uuid=d.minecraft_uuid)
+                        AND s.expires_at > NOW() THEN s.tier END) AS tier
        FROM discord_links d
        LEFT JOIN subscriptions s ON s.minecraft_uuid=d.minecraft_uuid
+       LEFT JOIN LATERAL (
+         SELECT p.tier FROM subscription_periods p
+          WHERE p.minecraft_uuid=d.minecraft_uuid AND p.starts_at<=NOW() AND p.expires_at>NOW()
+          ORDER BY p.starts_at DESC LIMIT 1
+       ) current_period ON TRUE
       WHERE d.minecraft_uuid=$1`,
     [uuid]
   );
@@ -665,7 +761,12 @@ function accountPage(current, sub, refunds, pendingOrders, notice = "") {
   const tier = sub ? TIERS[sub.tier] : null;
   const status = sub?.active ? `<span style="color:#6bf0a2">활성</span>` : "미구독 또는 만료";
   const pending = pendingOrders.length ? `<h2>입금 확인 대기</h2><table>${pendingOrders.map((o) => `<tr><th>${esc(TIERS[o.tier].name)} · ${periodLabelFromDays(o.period_days)}</th><td>₩${Number(o.amount_krw).toLocaleString()}<br><a href="${BASE_URL}/bank-transfer/orders/${encodeURIComponent(o.order_id)}">입금 안내 보기</a></td></tr>`).join("")}</table>` : "";
-  return layout("내 이용권", `<div class="panel"><h1>내 이용권</h1>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<table><tr><th>게임 계정</th><td>${esc(sub?.player_name ?? current.player_name ?? "연결됨")}</td></tr><tr><th>상태</th><td>${status}</td></tr><tr><th>등급</th><td>${tier ? `<b style="color:${tier.color}">${tier.name}</b>` : "-"}</td></tr><tr><th>만료일</th><td>${sub?.expires_at ? new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"}</td></tr></table>${pending}${sub?.active ? `<hr><form method="post" action="${BASE_URL}/account/refund"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label>환불 사유</label><textarea name="reason" minlength="5" maxlength="500" required placeholder="환불 요청 사유를 입력하세요."></textarea><button style="background:#c34d5d">환불 요청하기</button></form>` : `<p class="muted">원하는 등급과 기간을 선택해 이용권을 구매하세요.</p><a class="button" href="${BASE_URL}/">이용권 보기</a>`}<h2>환불 요청</h2>${refunds.length ? `<table>${refunds.map((r) => `<tr><td>${esc(r.status)}</td><td>${esc(r.reason)}</td><td>${new Date(r.created_at).toLocaleDateString("ko-KR")}</td></tr>`).join("")}</table>` : "<p class=\"muted\">요청 내역이 없습니다.</p>"}</div>`);
+  const queued = (Array.isArray(sub?.periods) ? sub.periods : []).filter((period) => new Date(period.startsAt) > new Date());
+  const queuedRows = queued.length ? `<h2>예약된 등급</h2><table>${queued.map((period) => {
+    const scheduledTier = TIERS[period.tier];
+    return `<tr><th><b style="color:${scheduledTier?.color ?? "var(--text)"}">${scheduledTier?.name ?? esc(period.tier)}</b></th><td>${new Date(period.startsAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} ~ ${new Date(period.expiresAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</td></tr>`;
+  }).join("")}</table>` : "";
+  return layout("내 이용권", `<div class="panel"><h1>내 이용권</h1>${notice ? `<div class="notice ok">${esc(notice)}</div>` : ""}<table><tr><th>게임 계정</th><td>${esc(sub?.player_name ?? current.player_name ?? "연결됨")}</td></tr><tr><th>상태</th><td>${status}</td></tr><tr><th>현재 등급</th><td>${tier ? `<b style="color:${tier.color}">${tier.name}</b>` : "-"}</td></tr><tr><th>현재 등급 만료일</th><td>${sub?.expires_at ? new Date(sub.expires_at).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }) : "-"}</td></tr></table>${queuedRows}${pending}${sub?.active ? `<hr><form method="post" action="${BASE_URL}/account/refund"><input type="hidden" name="csrf" value="${esc(current.csrf_token)}"><label>환불 사유</label><textarea name="reason" minlength="5" maxlength="500" required placeholder="환불 요청 사유를 입력하세요."></textarea><button style="background:#c34d5d">환불 요청하기</button></form>` : `<p class="muted">원하는 등급과 기간을 선택해 이용권을 구매하세요.</p><a class="button" href="${BASE_URL}/">이용권 보기</a>`}<h2>환불 요청</h2>${refunds.length ? `<table>${refunds.map((r) => `<tr><td>${esc(r.status)}</td><td>${esc(r.reason)}</td><td>${new Date(r.created_at).toLocaleDateString("ko-KR")}</td></tr>`).join("")}</table>` : "<p class=\"muted\">요청 내역이 없습니다.</p>"}</div>`);
 }
 
 function purchasePage(current, tierId, requestedMonths) {
@@ -1833,13 +1934,13 @@ async function route(req, res) {
     // 계좌이체는 PG가 돈을 보관하지 않는다. 관리자가 실제 환불 송금을 마친 뒤에만 이 액션을 누른다.
     if (request.payment_method === "BANK_TRANSFER") {
       const client = await pool.connect();
-      try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('bank_transfer',$1,$2,'REFUNDED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.order_id}`, request.minecraft_uuid, request.amount_krw, { refundedBy: actor }]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+      try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("DELETE FROM subscription_periods WHERE minecraft_uuid=$1 AND expires_at>NOW()", [request.minecraft_uuid]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('bank_transfer',$1,$2,'REFUNDED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.order_id}`, request.minecraft_uuid, request.amount_krw, { refundedBy: actor }]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
       return json(res, 200, { message: "수동 계좌 환불 완료로 기록하고 이용권을 종료했습니다." });
     }
     /* 토스 환불은 현재 비활성화한다. 재개할 때 계좌이체 분기 뒤에 이 블록을 복원한다.
     const result = await toss(`/v1/payments/${encodeURIComponent(request.provider_payment_key)}/cancel`, "POST", { cancelReason: "바르칸 열도 운영자 승인 환불" });
     const client = await pool.connect();
-    try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('toss',$1,$2,'CANCELED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.provider_payment_key}`, request.minecraft_uuid, request.amount_krw, result]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+    try { await client.query("BEGIN"); await client.query("UPDATE refund_requests SET status='REFUNDED',decided_at=NOW(),decided_by=$1 WHERE id=$2", [actor, id]); await client.query("UPDATE orders SET status='REFUNDED' WHERE order_id=$1", [request.order_id]); await client.query("DELETE FROM subscription_periods WHERE minecraft_uuid=$1 AND expires_at>NOW()", [request.minecraft_uuid]); await client.query("UPDATE subscriptions SET expires_at=NOW(),auto_renew=FALSE,cancelled_at=NOW(),updated_at=NOW() WHERE minecraft_uuid=$1", [request.minecraft_uuid]); await client.query("INSERT INTO payment_events (provider,provider_event_id,minecraft_uuid,status,amount_krw,payload) VALUES ('toss',$1,$2,'CANCELED',$3,$4) ON CONFLICT DO NOTHING", [`refund-${request.provider_payment_key}`, request.minecraft_uuid, request.amount_krw, result]); await client.query("COMMIT"); } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
     return json(res, 200, { message: "전액 환불을 완료하고 구독을 종료했습니다." });
     */
     return json(res, 503, { error: "payment_method_disabled", message: "현재는 계좌이체 주문만 환불할 수 있습니다." });
@@ -2256,9 +2357,16 @@ async function route(req, res) {
     if (!internal(req)) return json(res, 401, { error: "unauthorized" });
     const rows = await pool.query(
       `SELECT d.minecraft_uuid,d.discord_id,
-              CASE WHEN s.expires_at > NOW() THEN s.tier ELSE NULL END AS tier
+              COALESCE(current_period.tier,
+                CASE WHEN NOT EXISTS (SELECT 1 FROM subscription_periods p WHERE p.minecraft_uuid=d.minecraft_uuid)
+                          AND s.expires_at > NOW() THEN s.tier END) AS tier
          FROM discord_links d
          LEFT JOIN subscriptions s ON s.minecraft_uuid=d.minecraft_uuid
+         LEFT JOIN LATERAL (
+           SELECT p.tier FROM subscription_periods p
+            WHERE p.minecraft_uuid=d.minecraft_uuid AND p.starts_at<=NOW() AND p.expires_at>NOW()
+            ORDER BY p.starts_at DESC LIMIT 1
+         ) current_period ON TRUE
         ORDER BY d.linked_at`
     );
     return json(res, 200, { members: rows.rows.map((row) => ({

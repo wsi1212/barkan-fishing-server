@@ -173,6 +173,62 @@ EXPLICIT_PREFIX = {
     "wet_treasure_chest": "minecraft:paper",
 }
 
+# 상수 재질/완전수식 NamespacedKey처럼 일반 소스 스캔이 재질을 복원할 수 없는 실물 아이템.
+# 휴대용 아이스박스는 Paper 베이스다. 설치 가능한 PACKED_ICE를 Geyser 커스텀 아이템
+# 베이스로 등록하면 베드락 로그인 핸드셰이크가 깨져, Java item_model만 아이스박스 외형을 낸다.
+EXPLICIT_ICON_BASES = {
+    "ui_menu_icebox": ["minecraft:paper"],
+    # 휴대용 배낭은 현재 BUNDLE이 아니라 LEATHER가 안전한 실제 재질이다(BackpackGui 주석 참조).
+    "portable_bundle": ["minecraft:leather"],
+    # FishCounterManager의 applyRaw는 ItemStack 생성부에서 10줄 떨어져 있어 일반 근접 스캔의
+    # 범위를 벗어난다. 실물 지급 아이템의 베이스는 COMPASS다.
+    "fishcounter": ["minecraft:compass"],
+}
+
+
+def cash_icon_bases() -> tuple[dict[str, list[str]], list[str]]:
+    """CashIcon의 실물/상점 아이콘을 실제 베이스 재질까지 포함해 돌려준다.
+
+    CashIcon.apply(meta, tag)는 태그에서 모델 id를 동적으로 조립한다. 그래서 일반 소스
+    스캐너가 이 호출을 만나도 어느 아이콘인지, 어떤 ItemStack 위에 붙는지 알 수 없었다.
+    그 결과 수표·마을 이동권·추천 코인처럼 Java 팩에는 그림이 있는데 BE 매핑에는 없는
+    항목이 생겼다. AVAILABLE은 CashIcon.java가 권위이므로 목록은 거기서 읽고, 재질 규칙만
+    여기서 명시한다.
+
+    자동심기는 실제 지급품은 PAPER지만 캐시 상점 미리보기는 WHEAT_SEEDS다. 둘 다 같은
+    모델이 쓰이므로 두 베이스를 등록해야 폰에서 어느 경로로 봐도 같은 그림이 나온다.
+    """
+    src = PLUGIN_SRC / "util/CashIcon.java"
+    try:
+        text = src.read_text(encoding="utf-8")
+    except Exception:
+        return {}, [f"CashIcon 소스를 읽지 못했습니다: {src}"]
+
+    import re
+    # AVAILABLE Set.of(...) 내부의 ui_* 문자열만 취한다. forTag의 "ui_scroll_*" 같은
+    # 조립용 접두어까지 읽으면 존재하지 않는 가짜 아이콘을 매핑 누락으로 오진한다.
+    # Java 쪽에 새 아이콘이 추가되면 아래 규칙으로 해석 못 한 항목을 경고해 조용한 누락을 막는다.
+    block = re.search(r'AVAILABLE\s*=\s*Set\.of\((.*?)\);', text, re.DOTALL)
+    available = set(re.findall(r'"(ui_[A-Za-z0-9_]+)"', block.group(1) if block else ""))
+    out: dict[str, list[str]] = {}
+    unknown: list[str] = []
+    for icon in available:
+        if icon.startswith(("ui_scroll_success_", "ui_scroll_shield_", "ui_scroll_down_",
+                            "ui_scroll_warp_")):
+            out[icon] = ["minecraft:paper"]
+        elif icon.startswith("ui_ticket_autoplant_"):
+            out[icon] = ["minecraft:paper", "minecraft:wheat_seeds"]
+        elif icon.startswith("ui_ticket_fly_"):
+            out[icon] = ["minecraft:feather"]
+        elif icon in {"ui_ticket_exp_double", "ui_ticket_guild_boost", "ui_ticket_village_warp",
+                      "ui_ticket_portable_sell", "ui_check"}:
+            out[icon] = ["minecraft:paper"]
+        else:
+            unknown.append(icon)
+    # 추천 코인은 CashIcon 목록에 함께 적혀 있지만 실제 권위 아이템은 금 조각이다.
+    out["recommend_coin"] = ["minecraft:gold_nugget"]
+    return out, sorted(unknown)
+
 
 def scan_source_bases() -> dict[str, str]:
     """플러그인 소스에서 «아이콘 → 베이스 아이템» 쌍을 긁어낸다.
@@ -194,7 +250,7 @@ def scan_source_bases() -> dict[str, str]:
     #   이걸 안 읽어서 «젖은 보물상자» 가 베드락에서만 바닐라 상자로 나왔다(2026-09-06 유저 제보).
     #   자바 팩에는 모델·텍스처가 멀쩡히 있었는데 매핑에만 없었다 — 스캐너가 못 본 서식이라
     #   조용히 빠진 것. 표를 손으로 채우지 말고 서식을 늘린다(생성기의 원칙).
-    key = re.compile(r'setItemModel\(\s*new NamespacedKey\(\s*"barkan"\s*,\s*"barkan_icon/([A-Za-z0-9_/]+)"')
+    key = re.compile(r'setItemModel\(\s*new (?:org\.bukkit\.)?NamespacedKey\(\s*"barkan"\s*,\s*"barkan_icon/([A-Za-z0-9_/]+)"')
     mat = re.compile(r'new ItemStack\(\s*(?:org\.bukkit\.)?Material\.([A-Z_]+)')
     for f in PLUGIN_SRC.rglob("*.java"):
         try:
@@ -395,6 +451,9 @@ def collect() -> tuple[list[dict], list[str]]:
             labels[icon_id("재료", name)] = f"재료 {name}"
 
     scanned = scan_source_bases()
+    cash_bases, unknown_cash_icons = cash_icon_bases()
+    if unknown_cash_icons:
+        warns.append("CashIcon 재질 규칙이 없는 아이콘: " + ", ".join(unknown_cash_icons))
     families = {v: k for k, v in TYPE_KEY.items()}   # rod -> 낚싯대 …
 
     # ① 카탈로그 외 아이콘(레시피 두루마리·특수작물·GUI 아이콘 등)
@@ -403,20 +462,27 @@ def collect() -> tuple[list[dict], list[str]]:
         icon = f.stem
         if icon.startswith("catalog_"):
             continue
-        base = None
-        for pre, b in EXPLICIT_PREFIX.items():
-            if icon.startswith(pre):
-                base = b
-                break
-        if base is None:
+        # CashIcon의 동적 태그 해석은 일반 정규식 스캐너가 복원할 수 없다. 먼저 중앙
+        # 권위(CashIcon AVAILABLE)에서 얻은 베이스를 쓰고, 나머지는 고정 접두어/소스
+        # 스캔 순으로 해석한다.
+        bases = EXPLICIT_ICON_BASES.get(icon)
+        if bases is None:
+            bases = cash_bases.get(icon)
+        if bases is None:
+            for pre, b in EXPLICIT_PREFIX.items():
+                if icon.startswith(pre):
+                    bases = [b]
+                    break
+        if bases is None:
             base = scanned.get(icon)
-        if base is None:
+            bases = [base] if base is not None else None
+        if bases is None:
             continue                      # 베이스를 모르면 등록하지 않는다(틀린 등록은 무용지물)
         extra += 1
         entries.append({
             "icon": icon,
             "model": f"{NS}:barkan_icon/{icon}",
-            "bases": [base],
+            "bases": bases,
             "label": icon,
         })
     warns.append(f"카탈로그 외 아이콘 {extra}종 등록 (정의 {len(list(defs_dir.glob('*.json'))) - len(list(defs_dir.glob('catalog_*.json')))}종 중)")
@@ -440,6 +506,10 @@ def collect() -> tuple[list[dict], list[str]]:
     ce, cw = collect_craftengine()
     entries.extend(ce)
     warns.extend(cw)
+    mapped = {e["icon"] for e in entries}
+    missing_cash = sorted(set(cash_bases) - mapped)
+    if missing_cash:
+        warns.append("CashIcon 아이콘 정의/매핑 누락: " + ", ".join(missing_cash))
     return entries, warns
 
 

@@ -1,0 +1,41 @@
+{
+  "status": "OFFLINE_DESIGN_ONLY",
+  "blocks": 411728,
+  "architectureBlocks": 88924,
+  "runs": 139386,
+  "trees": 352,
+  "plinths": 22,
+  "staffPlinths": 4,
+  "domeCoveredColumns": 3436,
+  "domeMaxAdjacentHeightDifference": 4,
+  "checks": [
+    "integer geometry",
+    "22 clear 3x3x2 plinths; 4 staff",
+    "continuous dome and glazing with adjacent shared solid levels",
+    "no teal or gold floor"
+  ],
+  "architectureBounds": {
+    "min": [
+      -81,
+      -1,
+      -81
+    ],
+    "max": [
+      80,
+      40,
+      115
+    ]
+  },
+  "allBounds": {
+    "min": [
+      -123,
+      -1,
+      -123
+    ],
+    "max": [
+      122,
+      40,
+      122
+    ]
+  }
+}

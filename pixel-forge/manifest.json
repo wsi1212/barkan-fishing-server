@@ -342,6 +342,43 @@
       "plant": true,
       "region": "설산",
       "rarity": "희귀"
+    },
+    {
+      "id": "cliffhoney",
+      "painter": "ground_honey",
+      "name": "바닥 석청",
+      "model": "boxes",
+      "scale": 0.95,
+      "sound": "honey_block",
+      "plant": false,
+      "region": "절벽",
+      "rarity": "희귀",
+      "cooldownSec": 72000
+    },
+    {
+      "id": "hanginghoney",
+      "painter": "hanging_honey",
+      "name": "천장 석청",
+      "model": "boxes",
+      "scale": 0.95,
+      "sound": "honey_block",
+      "plant": false,
+      "placement": "ceiling",
+      "region": "절벽",
+      "rarity": "희귀",
+      "cooldownSec": 72000
+    },
+    {
+      "id": "cliffginseng",
+      "painter": "cliff_ginseng",
+      "name": "백년 산삼",
+      "model": "boxes",
+      "scale": 0.9,
+      "sound": "rooted_dirt",
+      "plant": true,
+      "region": "절벽",
+      "rarity": "희귀",
+      "cooldownSec": 72000
     }
   ]
 }

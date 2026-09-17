@@ -11,3 +11,16 @@ casino-tools/rendered/
 
 # 베드락 팩 산출물 — 생성기(bedrock_pack_build.py)로 매번 다시 뽑는다. 15MB+PNG 1034장.
 icon-forge/out/bedrock/
+
+# 로컬에서 언제든 재생성되는 검수·캐시 산출물
+*.pyc
+pixel-forge/__pycache__/
+.claude/skills/balance-audit/audits/snapshots/*.raw.json
+gui-forge/out/
+icon-forge/imagegen-utility/*_source.png
+icon-forge/out/*_imagegen_slots.png
+icon-forge/out/*_slots.png
+pixel-forge/out/*preview*.png
+pixel-forge/out/*_raw.png
+pixel-forge/out/preview_*.json
+imugi-boss/*.bak-*

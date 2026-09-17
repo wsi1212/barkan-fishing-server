@@ -28,7 +28,7 @@ PARAMS = {
     "G": dict(escapeBase=98, escapeInc=35, cursorSpeed=500, shiftPattern=4, spotMoveSpeed=3, dirChange=3,  consecutive=3),  # gPattern 무시(라이브에선 5~6, 여기선 보수적으로 4 재사용)
 }
 
-FISH_DIFFICULTY = {"E": 0, "D": 2, "C": 4, "B": 8, "A": 12, "S": 16, "M": 24, "L": 28, "G": 32}
+FISH_DIFFICULTY = {"E": 0, "D": 2, "C": 4, "B": 8, "A": 12, "S": 16, "M": 22, "L": 26, "G": 30}
 
 MAX_STEPS = 200  # 라이브 startJava 기본값(10초)
 

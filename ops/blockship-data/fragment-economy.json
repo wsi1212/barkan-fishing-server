@@ -8,6 +8,10 @@
     "rare": 30
   },
   "materials": {
+    "물고기비늘": { "grindBundle": 1, "grindYield": 50 },
+    "강화실": { "grindBundle": 1, "grindYield": 50 },
+    "녹슨부품": { "grindBundle": 1, "grindYield": 50 },
+
     "미끼": { "grindBundle": 1, "grindYield": 10 },
     "나뭇가지": { "grindBundle": 1, "grindYield": 10 },
     "깨진 토기 조각": { "grindBundle": 1, "grindYield": 20 },
@@ -60,7 +64,7 @@
 
     "용비늘": {
       "grindBundle": 1,
-      "grindYield": 4000,
+      "grindYield": 400,
       "forgeCost": 8000,
       "forgeable": true,
       "grindable": true

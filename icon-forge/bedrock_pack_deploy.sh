@@ -75,11 +75,13 @@ printf '%s\n' "$SHIP_EXTENSION_META" | grep -Eq '^id:[[:space:]]*barkanships[[:s
 
 case "$TARGET" in
   dev)
-    DEST="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Geyser-Spigot/packs"
+    # Dev Bedrock 접속은 standalone Geyser-Spigot이 아니라 Velocity의 Geyser-Velocity를
+    # 통과한다. 옛 Spigot 경로만 갱신하면 팩을 만들고도 폰에는 이전 팩이 전송된다.
+    DEST="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/dev-maintenance-network/velocity/plugins/Geyser-Velocity/packs"
     MAPDEST="${DEST%/packs}/custom_mappings"
     EXTDEST="${DEST%/packs}/extensions"
     mkdir -p "$DEST" "$MAPDEST" "$EXTDEST"
-    BSDEST="${DEST%/Geyser-Spigot/packs}/BlockShip"
+    BSDEST="/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip"
     cp "$PACK" "$DEST/"
     [ -f "$SOUNDPACK" ] && cp "$SOUNDPACK" "$DEST/"
     cp "$MAP" "$MAPDEST/"
@@ -88,7 +90,7 @@ case "$TARGET" in
     mkdir -p "$BSDEST" && cp "$BLOCKDATA" "$BSDEST/"
     rm -f "$DEST/barkan_mappings.json"    # packs/ 의 사본은 혼동만 준다
     ls -la "$DEST" "$MAPDEST" "$EXTDEST" "$BSDEST/bedrock-blocks.json"
-    echo "✅ dev 반영 — 적용하려면: ~/dev-mc.sh restart"
+    echo "✅ dev Velocity Geyser 반영 — 적용하려면: dev-network.sh restart"
     ;;
   prod)
     KEY=~/.ssh/oracle-mc.key

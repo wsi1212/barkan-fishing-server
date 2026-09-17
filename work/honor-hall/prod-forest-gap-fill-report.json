@@ -1,0 +1,197 @@
+{
+  "world": "honor_hall",
+  "strips": [
+    {
+      "side": "north",
+      "x1": -930,
+      "x2": -608,
+      "z1": -927,
+      "z2": -896
+    },
+    {
+      "side": "south",
+      "x1": -930,
+      "x2": -608,
+      "z1": -641,
+      "z2": -610
+    },
+    {
+      "side": "west",
+      "x1": -929,
+      "x2": -896,
+      "z1": -895,
+      "z2": -643
+    },
+    {
+      "side": "east",
+      "x1": -641,
+      "x2": -608,
+      "z1": -895,
+      "z2": -643
+    }
+  ],
+  "preflight_surface_heights": {
+    "north": {
+      "min_y": -61,
+      "max_y": 25,
+      "cells": 10336
+    },
+    "south": {
+      "min_y": -61,
+      "max_y": 26,
+      "cells": 10336
+    },
+    "west": {
+      "min_y": -61,
+      "max_y": 25,
+      "cells": 8602
+    },
+    "east": {
+      "min_y": -61,
+      "max_y": 25,
+      "cells": 8602
+    }
+  },
+  "tree_types": [
+    "oak",
+    "big_oak",
+    "birch",
+    "tall_birch",
+    "azalea"
+  ],
+  "result": {
+    "trees": {
+      "north": {
+        "known_types": [
+          "tall_mangrove",
+          "small_jungle",
+          "dark_oak",
+          "jungle",
+          "mega_spruce",
+          "tall_birch",
+          "tall_spruce",
+          "big_oak",
+          "oak",
+          "spruce",
+          "birch",
+          "mangrove",
+          "acacia",
+          "cherry",
+          "azalea"
+        ],
+        "tree_types_used": [
+          "oak",
+          "big_oak",
+          "birch",
+          "tall_birch",
+          "azalea"
+        ],
+        "ok": true,
+        "snapshot_blocks": 239598
+      },
+      "south": {
+        "known_types": [
+          "tall_mangrove",
+          "small_jungle",
+          "dark_oak",
+          "jungle",
+          "mega_spruce",
+          "tall_birch",
+          "tall_spruce",
+          "big_oak",
+          "oak",
+          "spruce",
+          "birch",
+          "mangrove",
+          "acacia",
+          "cherry",
+          "azalea"
+        ],
+        "tree_types_used": [
+          "oak",
+          "big_oak",
+          "birch",
+          "tall_birch",
+          "azalea"
+        ],
+        "ok": true,
+        "snapshot_blocks": 250614
+      },
+      "west": {
+        "known_types": [
+          "tall_mangrove",
+          "small_jungle",
+          "dark_oak",
+          "jungle",
+          "mega_spruce",
+          "tall_birch",
+          "tall_spruce",
+          "big_oak",
+          "oak",
+          "spruce",
+          "birch",
+          "mangrove",
+          "acacia",
+          "cherry",
+          "azalea"
+        ],
+        "tree_types_used": [
+          "oak",
+          "big_oak",
+          "birch",
+          "tall_birch",
+          "azalea"
+        ],
+        "ok": true,
+        "snapshot_blocks": 192780
+      },
+      "east": {
+        "known_types": [
+          "tall_mangrove",
+          "small_jungle",
+          "dark_oak",
+          "jungle",
+          "mega_spruce",
+          "tall_birch",
+          "tall_spruce",
+          "big_oak",
+          "oak",
+          "spruce",
+          "birch",
+          "mangrove",
+          "acacia",
+          "cherry",
+          "azalea"
+        ],
+        "tree_types_used": [
+          "oak",
+          "big_oak",
+          "birch",
+          "tall_birch",
+          "azalea"
+        ],
+        "ok": true,
+        "snapshot_blocks": 206550
+      }
+    },
+    "understory": {
+      "north": {
+        "blocks": 2079,
+        "ok": true
+      },
+      "south": {
+        "blocks": 2120,
+        "ok": true
+      },
+      "west": {
+        "blocks": 1708,
+        "ok": true
+      },
+      "east": {
+        "blocks": 1770,
+        "ok": true
+      }
+    }
+  },
+  "restart_performed": false
+}

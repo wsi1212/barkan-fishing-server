@@ -131,6 +131,14 @@ os.replace(tmp, props)
 PY
 
 "$MC_ROOT/scripts/resourcepack-guard.sh" --check || die "공개 URL SHA1 교차검증 실패"
+
+# 새 메인팩도 다음 정기 재시작 전에 CE 가구팩과 다시 결합한다. 결합에 실패해도
+# raw 메인팩+기존 CE 전송은 동작하므로 여기서는 다음 06:00에 재시도한다.
+if [[ -x "$MC_ROOT/scripts/apply-combined-resourcepack.sh" ]]; then
+  if ! "$MC_ROOT/scripts/apply-combined-resourcepack.sh"; then
+    log "결합팩 보류 — 다음 정기 유지보수에서 재시도"
+  fi
+fi
 printf '%s\n' "$TAG" > "$STATE_FILE"
 log "server.properties 갱신 완료: $SHA"
 

@@ -35,6 +35,7 @@
     {"id": "ui_ticket_village_warp", "name": "마을 이동권", "category": "prop", "source": "imagegen-utility/ui_ticket_village_warp_native.png", "pipeline": "copy_native"},
     {"id": "ui_check", "name": "수표", "category": "prop", "source": "imagegen-utility/ui_check_native.png", "pipeline": "copy_native"},
     {"id": "ui_ticket_exp_double", "name": "경험치 2배권", "category": "prop", "source": "imagegen-utility/ui_ticket_exp_double_native.png", "pipeline": "copy_native"},
-    {"id": "ui_ticket_guild_boost", "name": "길드 부스트", "category": "prop", "source": "imagegen-utility/ui_ticket_guild_boost_native.png", "pipeline": "copy_native"}
+    {"id": "ui_ticket_guild_boost", "name": "길드 부스트", "category": "prop", "source": "imagegen-utility/ui_ticket_guild_boost_native.png", "pipeline": "copy_native"},
+    {"id": "ui_ticket_portable_sell", "name": "휴대 물고기 판매권", "category": "prop", "source": "imagegen-utility/ui_ticket_portable_sell_native.png", "pipeline": "copy_native"}
   ]
 }

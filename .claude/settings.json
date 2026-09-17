@@ -1,7 +1,8 @@
 {
   "enabledPlugins": {
     "google-analytics@local-desktop-app-uploads": false,
-    "bizben-dynamodb@local-desktop-app-uploads": false
+    "bizben-dynamodb@local-desktop-app-uploads": false,
+    "design@knowledge-work-plugins": false
   },
   "hooks": {
     "PostToolUse": [

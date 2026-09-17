@@ -330,6 +330,106 @@ def frost_lotus(seed=0):
     k.box((6.8, 3, 6.8), (9.2, 7, 9.2), core)                                  # 얼음 심
     return _build(k)
 
+def cliff_honey(seed=0):
+    """산벽 석청: 바위 처마 밑에서 굳어 길게 매달린 호박빛 꿀 (절벽, 희귀).
+
+    절벽을 잘라낸 작은 벽면과 처마를 모델 안에 포함한다. 그래서 일반 벌집이나
+    바닥 광맥이 아니라, 위쪽 암석 틈에서 아래로 응축·처진 석청으로 읽힌다.
+    """
+    k = Kit(seed)
+    rock = Mat("59616a", var=0.95, marks=[(0.25, 0.72, (59, 67, 74, 255))])
+    dark = Mat("343a40", var=0.75)
+    wax = Mat("d99728", gloss=True, var=0.55)
+    amber = Mat("f2c45b", gloss=True, var=0.42)
+    # 뒤쪽 암벽 단면 + 앞쪽으로 튀어나온 돌 처마. 아래 그림자가 재료의 시작점이 된다.
+    k.rounded_box((3.0, 0, 8.8), (13.0, 12.0, 13.0), rock, bevel=1)
+    k.box((2.0, 9.1, 4.0), (14.0, 12.6, 10.2), rock, rot=("x", 12.5))
+    k.box((3.2, 8.5, 4.4), (12.8, 9.7, 10.4), dark, cull=("up",))             # 처마 밑 그늘
+    # 암벽 면에 박힌 석청 결정. 먼저 벽 틈에서 캔다는 인상이 들고, 아래 고드름과 같은 재질로 이어진다.
+    k.rounded_box((9.4, 5.7, 8.0), (12.5, 8.8, 9.8), wax, bevel=1, rot=("y", -12.5))
+    k.box((10.1, 7.2, 7.7), (11.7, 9.3, 9.0), amber, rot=("z", -22.5))
+    # 큰 한 덩이 + 길이가 다른 세 방울. 모두 '위에 붙어' 있어 매달린 실루엣이 확실하다.
+    k.rounded_box((5.2, 6.4, 5.0), (10.5, 9.0, 9.3), wax, bevel=1, rot=("y", 22.5))
+    k.rounded_box((5.8, 2.0, 5.7), (7.8, 7.2, 7.7), amber, bevel=1, rot=("z", 12.5))
+    k.rounded_box((8.4, 3.7, 6.6), (10.2, 7.8, 8.4), wax, bevel=1, rot=("z", -12.5))
+    k.box((10.4, 5.0, 5.2), (11.7, 8.1, 6.6), amber, rot=("z", -22.5))
+    # 가장 긴 끝의 밝은 결정방울. 가느다란 아래쪽 실루엣이 고드름처럼 보인다.
+    k.box((6.25, 0, 6.2), (7.25, 2.8, 7.2), amber, rot=("z", 12.5))
+    return _build(k)
+
+def ground_honey(seed=0):
+    """바닥 석청 변주: 바위 균열에서 새어 나와 위로 응결한 굳은 꿀 덩이."""
+    k = Kit(seed)
+    rock = Mat("59616a", var=0.95, marks=[(0.25, 0.72, (59, 67, 74, 255))])
+    dark = Mat("343a40", var=0.75)
+    wax = Mat("d99728", gloss=True, var=0.55)
+    amber = Mat("f2c45b", gloss=True, var=0.42)
+    k.rounded_box((2.2, 0, 3.0), (13.8, 3.6, 13.0), rock, bevel=1)
+    k.box((4.0, 3.1, 5.0), (12.0, 5.0, 11.0), dark, cull=("down",))
+    # 넓은 바닥막에서 두꺼운 응결 덩이가 솟는다. 뾰족 광물 기둥이 아니라
+    # 매끈하게 굳은 꿀의 둥근 옆면을 유지해 '석청'으로 읽히게 한다.
+    k.rounded_box((4.8, 3.4, 5.3), (11.5, 6.2, 10.8), wax, bevel=1, rot=("y", 22.5))
+    k.rounded_box((6.0, 5.4, 6.0), (10.0, 10.8, 9.8), amber, bevel=1, rot=("z", -12.5))
+    k.rounded_box((8.8, 5.5, 4.7), (12.1, 8.8, 8.0), wax, bevel=1, rot=("z", 22.5))
+    k.box((4.3, 4.0, 8.2), (7.1, 6.8, 11.3), wax, rot=("y", 22.5))
+    return _build(k)
+
+def hanging_honey(seed=0):
+    """천장 석청 변주: 처마 밑에 넓게 붙어 아래로 좁아지는 굳은 석청 막."""
+    k = Kit(seed)
+    rock = Mat("59616a", var=0.95, marks=[(0.25, 0.72, (59, 67, 74, 255))])
+    dark = Mat("343a40", var=0.75)
+    wax = Mat("d99728", gloss=True, var=0.55)
+    amber = Mat("f2c45b", gloss=True, var=0.42)
+    # 절벽 면은 얇게, 처마는 넓게: 거대한 문틀처럼 보이던 기존 암석 기둥을 없앤다.
+    k.rounded_box((3.0, 7.0, 8.6), (13.0, 12.0, 12.3), rock, bevel=1)
+    k.rounded_box((2.0, 10.0, 3.8), (14.0, 13.0, 10.2), rock, bevel=1, rot=("x", 12.5))
+    k.box((3.0, 9.2, 4.3), (13.0, 10.5, 10.2), dark, cull=("up",))
+    # 실제 야생 벌집처럼 '폭 넓고 아주 얇은 왁스 시트'가 위에서 아래로 접혀 내려온다.
+    # 깊이를 0.5블록 수준으로 제한해 수정 기둥/돌 덩어리 같은 부피를 없앴다. 세 시트의
+    # 폭과 끝 높이만 다르게 두어 자연스러운 찢김·처짐을 만들되, 면 자체는 곧게 유지한다.
+    k.rounded_box((3.4, 8.5, 5.85), (12.4, 10.5, 6.45), wax, bevel=0.25)
+    k.rounded_box((3.7, 4.6, 5.88), (7.5, 9.2, 6.42), amber, bevel=0.2)
+    k.rounded_box((6.2, 1.5, 5.9), (9.9, 9.5, 6.44), wax, bevel=0.2)
+    k.rounded_box((9.1, 4.0, 5.87), (12.0, 8.6, 6.41), amber, bevel=0.2)
+    # 가장 긴 가운데 시트 끝의 작은 굳은 방울 한 알.
+    k.box((7.4, 0.2, 5.95), (8.6, 1.8, 6.39), amber)
+    return _build(k)
+
+def cliff_ginseng(seed=0):
+    """백년 산삼: 드러난 굵은 뿌리와 다섯 갈래 잎을 가진 절벽 흙포켓 약초 (희귀)."""
+    k = Kit(seed)
+    soil = Mat("6b5137", var=0.9)
+    root = Mat("d5b27a", var=0.7, grain="v")
+    root_shadow = Mat("a87a4e", var=0.75, grain="v")
+    stem = Mat("607541", var=0.8, grain="v")
+    leaf = Mat("557d3e", var=0.8)
+    leaf_lit = Mat("7fa354", var=0.65)
+    berry = Mat("b63232", gloss=True, var=0.45)
+    berry_shadow = Mat("7d2529", gloss=True, var=0.5)
+    # 작고 흙이 붙은 포켓: 노출된 맨바위가 아닌 '자랄 자리'를 모델 안에 포함한다.
+    k.rounded_box((3.3, 0, 4.0), (12.7, 2.1, 12.0), soil, bevel=1)
+    # 뿌리몸 + 서로 다른 방향의 두 뿌리. 채집해 뽑아낼 대상이 명확해진다.
+    k.rounded_box((6.2, 1.0, 6.0), (9.8, 5.8, 9.6), root, bevel=1, rot=("z", -12.5))
+    k.box((6.8, 1.0, 7.0), (8.1, 3.2, 11.8), root_shadow, rot=("x", -32.5))
+    k.box((8.2, 1.2, 7.4), (12.0, 2.8, 8.8), root, rot=("z", 27.5))
+    k.box((7.6, 5.2, 7.5), (8.5, 10.2, 8.5), stem, rot=("z", -10))
+    # 짧고 가는 다섯 잎: 야자수 같은 넓은 잎이 아니라 산삼 특유의 손바닥형 잎차례.
+    for f, t, rr, mat in [
+        ((3.8, 8.8, 7.2), (7.9, 10.0, 8.8), ("z", 18), leaf_lit),
+        ((8.1, 8.8, 7.2), (12.2, 10.0, 8.8), ("z", -18), leaf),
+        ((7.2, 9.1, 3.9), (8.8, 10.3, 7.9), ("x", -18), leaf_lit),
+        ((7.2, 9.0, 8.1), (8.8, 10.2, 12.0), ("x", 18), leaf),
+        ((7.25, 9.8, 7.25), (8.75, 12.1, 8.75), ("z", -8), leaf_lit),
+    ]:
+        k.box(f, t, mat, rot=rr)
+    # 산삼의 상단을 식별해 주는 붉은 열매송이. 꽃처럼 보이는 붉은 포인트를 억지로
+    # 꽃잎으로 만들지 않고, 실제 산삼의 열매를 작은 3알 군집으로 표현한다.
+    k.box((6.5, 10.0, 7.0), (7.7, 11.4, 8.2), berry_shadow, rot=("z", 12.5))
+    k.box((8.2, 10.2, 7.0), (9.5, 11.6, 8.3), berry, rot=("z", -12.5))
+    k.box((7.35, 11.1, 7.1), (8.65, 12.5, 8.4), berry, rot=("x", -12.5))
+    return _build(k)
+
 REGISTRY.update({
     "mush_blue":     (squat_fairy, {"base": "3a7ca5"}),
     "mush_orange":   (slim_fairy,  {"base": "d97a2b"}),
@@ -343,6 +443,10 @@ REGISTRY.update({
     "truffle":       (truffle,     {}),
     "desert_rose":   (desert_rose, {}),
     "frost_lotus":   (frost_lotus, {}),
+    "cliff_honey":   (cliff_honey, {}),
+    "ground_honey":  (ground_honey, {}),
+    "hanging_honey": (hanging_honey, {}),
+    "cliff_ginseng": (cliff_ginseng, {}),
 })
 
 # ═══════ 색칠놀이 린트 해소 — 도토리/서리열매/수정 2종 실루엣 분화 ═══════

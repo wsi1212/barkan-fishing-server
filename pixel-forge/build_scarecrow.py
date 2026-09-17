@@ -155,7 +155,7 @@ items:
                 invisible: true
                 blocks_building: true
                 interactive: true
-                width: 1.5
+                width: 1.0
                 height: 2.0
         loot:
           template: default:loot_table/furniture

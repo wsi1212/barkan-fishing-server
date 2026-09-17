@@ -5328,7 +5328,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "C",
-          "displayName": "C등급 이상 물고기",
+          "displayName": "C등급 물고기",
           "mcItem": "cod",
           "qty": 2
         }
@@ -5378,7 +5378,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "C",
-          "displayName": "C등급 이상 물고기",
+          "displayName": "C등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -5448,7 +5448,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 2
         }
@@ -5603,7 +5603,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 2
         },
@@ -5681,14 +5681,14 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 1
         }
@@ -5731,14 +5731,14 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 3
         },
         {
           "kind": "fish",
           "typeOrMatId": "S",
-          "displayName": "S등급 이상 물고기",
+          "displayName": "S등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -5801,7 +5801,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 2
         },
@@ -5880,7 +5880,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -5919,7 +5919,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 2
         },
@@ -6454,7 +6454,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "C",
-          "displayName": "C등급 이상 물고기",
+          "displayName": "C등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -6758,7 +6758,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 1
         }
@@ -6818,7 +6818,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 2
         }
@@ -6878,7 +6878,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 2
         }
@@ -7022,7 +7022,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 2
         }
@@ -7356,7 +7356,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "D",
-          "displayName": "D등급 이상 물고기",
+          "displayName": "D등급 물고기",
           "mcItem": "cod",
           "qty": 1
         }
@@ -7389,7 +7389,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "C",
-          "displayName": "C등급 이상 물고기",
+          "displayName": "C등급 물고기",
           "mcItem": "cod",
           "qty": 1
         }
@@ -7530,7 +7530,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "B",
-          "displayName": "B등급 이상 물고기",
+          "displayName": "B등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -7645,7 +7645,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -7706,7 +7706,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "S",
-          "displayName": "S등급 이상 물고기",
+          "displayName": "S등급 물고기",
           "mcItem": "cod",
           "qty": 1
         },
@@ -13051,7 +13051,7 @@
         {
           "kind": "fish",
           "typeOrMatId": "A",
-          "displayName": "A등급 이상 물고기",
+          "displayName": "A등급 물고기",
           "mcItem": "cod",
           "qty": 3
         },

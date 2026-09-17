@@ -132,6 +132,21 @@ def main():
         # 세계관 한줄 설명 — [채집] 태그 바로 아래, 서식지/등급 위 (BlockShip 아이템 lore 규약과 동일 순서)
         desc = flavor_lore(flavor, it["name"])
         desc_block = ("\n".join(desc) + "\n        - \"\"\n") if desc else ""
+        placement = it.get("placement", "ground")
+        if placement not in {"ground", "ceiling"}:
+            raise SystemExit(f"✗ {iid}: 알 수 없는 placement '{placement}' (ground 또는 ceiling)")
+        if placement == "ceiling":
+            rules = "        ceiling: {rotation: any, alignment: center}"
+            variant = "ceiling"
+            # 매달림형의 부착 기준은 블록 밑면이다. 모델의 바위 처마가 천장에 닿고,
+            # 꿀 판은 아래로 늘어지도록 둔다.
+            position = "0,-0.5,0"
+            translation = "0,0,0"
+        else:
+            rules = "        ground: {rotation: any, alignment: center}"
+            variant = "ground"
+            position = "0,0,0"
+            translation = f"0,{ty},0"
         cfg.append(f"""  barkan:{g}_{iid}:
     data:
       item_name: "<!i><{ncol}>{it['name']}</{ncol}>"
@@ -153,7 +168,7 @@ def main():
     behavior:
       type: furniture_item
       rules:
-        ground: {{rotation: any, alignment: center}}
+{rules}
       furniture:
         events:
           - template: default:rotatable_furniture_8
@@ -162,12 +177,13 @@ def main():
           hit_times: 1
           sounds: {{break: minecraft:block.{it['sound']}.break, place: minecraft:block.{it['sound']}.place, hit: minecraft:block.{it['sound']}.hit}}
         variants:
-          ground:
+          {variant}:
             elements:
               - item: barkan:{g}_{iid}
                 display_transform: FIXED
                 billboard: FIXED
-                translation: 0,{ty},0
+                position: {position}
+                translation: {translation}
                 scale: {sc}
             hitboxes:
               - position: 0,0,0

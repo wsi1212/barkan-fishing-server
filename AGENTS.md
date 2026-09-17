@@ -12,6 +12,7 @@
 - **이 금지는 훅으로 강제된다** — `ops/hooks/guard-prod-restart.py` (Claude `settings.json` + Codex `hooks.json` 양쪽 PreToolUse). 문서만으로 막던 2026-09-02 에 에이전트가 하루 6번 prod 를 재시작했다. 검산 `ops/hooks/guard-prod-restart-selftest.py`. 통과시키는 것: 조회·grep·히어독 본문·`crontab` 편집·`PREVIEW=1`·`systemctl start`(inactive 복구)·dev.
 - **자동복구 가드는 켜져 있다 (2026-09-02 복구)** — `watchdog.sh`(cron `*/2`, RCON 4회 연속 무응답≈8분이면 프리즈로 보고 재시작) · `jar-guard.sh`(cron `*/2`, 라이브 jar mtime > 서버 시작시각이면 알림+재시작, 30분 쿨다운). 둘은 «사람이 정한 자가복구»라 위 금지의 예외다. 백업·디스크가드·하트비트·crash-watch·fetch-staging 은 애초에 꺼진 적 없고 06:00 작업과 무관한 별도 cron이다 — 06:00 리포트는 `.backup-status` 를 읽어 «보고만» 한다. 막아 둔 것(의도): APPLY_NOW 즉시적용 — 폰에서 승격해도 staging 까지만, 즉시배포는 dev 전용. `resourcepack-restart.sh`(호출자 없는 스텁)·`oneshot-guild-rename-gm.sh` 도 그대로 차단.
 - Java/JSON 코드는 반드시 `~/stage-blockship.sh`로 `~/mcserver/staging/`에만 올린다. 운영 `plugins/` 승격은 하지 않는다.
+- **스테이징 전 미커밋 변경 확인·보고는 필수다.** `git status --short`로 작업 트리 전체를 확인해, 다른 세션에서 명시적으로 제외하라고 한 파일 외의 모든 미커밋 변경을 사용자에게 함께 보고하고 스테이징에 포함할지 확인한다. 이를 "이번 변경과 무관"하다고 임의로 제외하지 않는다.
 - prod 상태가 `inactive`로 확인된 경우에만 복구 목적으로 `systemctl start mcserver`를 검토할 수 있다. `active`, `activating`, `deactivating` 상태에서는 start/restart를 추가로 호출하지 않는다.
 - 이 항목은 아래의 기존 배포 설명보다 우선한다. 사용자가 이 안전 규칙을 명시적으로 변경하기 전까지 계속 적용한다.
 

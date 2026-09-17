@@ -60,7 +60,7 @@
 
 ### 모델의 뼈대 — 전부 라이브 코드에서 가져왔다
 ```
-체력      HP(g,size) = base[g] + floor(max(0,size-100)/50)   base = E1 D2 C3 B5 A8 S12 M18 L25 G35
+체력      HP(g,size) = base[g] + floor(max(0,size-100)/50)   base = E1 D2 C3 B5 A8 S20 M28 L35 G45
 찌르기    피해 = 공격력,      간격 = max(2, round(5/(1+공격속도/100))) 틱
 ★돌진    피해 = 공격력 × 2,  쿨타임 = max(20, round(200/(1+돌진쿨감/100))) 틱
 제한시간  W = max(20, round(base_w[g] × (1 + min(0.50, 도망감소/100)))) 틱
