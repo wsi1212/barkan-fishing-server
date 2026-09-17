@@ -436,7 +436,7 @@
         "coin": 5,
         "cash": 2500,
         "icon": "ENCHANTED_BOOK",
-        "lore": "§7채굴 드릴 광맥 보상 +0~1개 §8(행운 1)",
+        "lore": "§7섬 광산·채굴 드릴 광맥 보상 +0~1개 §8(행운 1)",
         "tag": "enchbook:fortune:1"
       },
       {
@@ -445,7 +445,7 @@
         "coin": 10,
         "cash": 5000,
         "icon": "ENCHANTED_BOOK",
-        "lore": "§7채굴 드릴 광맥 보상 +0~2개 §8(행운 2)",
+        "lore": "§7섬 광산·채굴 드릴 광맥 보상 +0~2개 §8(행운 2)",
         "tag": "enchbook:fortune:2"
       },
       {
@@ -454,7 +454,7 @@
         "coin": 20,
         "cash": 10000,
         "icon": "ENCHANTED_BOOK",
-        "lore": "§7채굴 드릴 광맥 보상 +0~3개 §8(행운 3)",
+        "lore": "§7섬 광산·채굴 드릴 광맥 보상 +0~3개 §8(행운 3)",
         "tag": "enchbook:fortune:3"
       }
     ],
