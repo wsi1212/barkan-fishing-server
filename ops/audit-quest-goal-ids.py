@@ -16,6 +16,8 @@
   submitmat→ 같음
   deliver  → parts.json 부품명 + recipes.json 결과명
   cook     → recipes.json 결과 표시명
+  eatdish  → DishSpecs 의 먹을 수 있는 요리(buff/heal) id
+  submitdish → DishSpecs 의 제출 전용 요리(submit) id
 
 `아무` 는 어디서나 허용(bumpIdCounter/onForage 가 와일드카드로 처리).
 """
@@ -53,6 +55,21 @@ farm_ids = set(re.findall(r'CROP\.put\(Material\.\w+,\s*"([^"]+)"\)', src("crop/
 if not farm_ids:
     die("VanillaFarmListener CROP 표를 못 읽었다")
 
+# 요리는 lore 표기가 아니라 DishSpecs 의 purpose 가 권위다. 제출/판매 요리는
+# UseItemEvent에서 취소되므로 eatdish 목표에 들어가면 영구 완료 불가가 된다.
+dish_purpose = {}
+for purpose, dish_id in re.findall(r'put\((buff|submit|sell|heal)\("([^"]+)"',
+                                   src("cooking/DishSpecs.java")):
+    if dish_id in dish_purpose:
+        die(f"DishSpecs 요리 id 중복: {dish_id}")
+    dish_purpose[dish_id] = purpose
+if not dish_purpose:
+    die("DishSpecs 요리 purpose 표를 못 읽었다")
+eatable_dish_ids = {dish_id for dish_id, purpose in dish_purpose.items()
+                    if purpose in {"buff", "heal"}}
+submit_dish_ids = {dish_id for dish_id, purpose in dish_purpose.items()
+                   if purpose == "submit"}
+
 forage_ids = set(json.load(open(os.path.join(LIVE, "forage-types.json"), encoding="utf-8")))
 if not forage_ids:
     die("forage-types.json 이 비었다")
@@ -87,6 +104,8 @@ CHECK = {
     "deliver": ("부품", part_names),
     # cook 은 onCook(p, rec.displayName) 이 «공백 그대로» 넘긴다(craft 와 달리 밑줄 정규화가 없다).
     "cook": ("요리 레시피", part_names),
+    "eatdish": ("먹을 수 있는 요리", eatable_dish_ids),
+    "submitdish": ("제출 전용 요리", submit_dish_ids),
 }
 
 # ── 대조 ────────────────────────────────────────────────────────────────

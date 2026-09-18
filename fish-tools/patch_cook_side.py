@@ -33,8 +33,14 @@ DESC = {
     "사사이드_유세프03": ["&f물고기 20마리&7를 판매하고 시원한 것도 좀 드시오.",
                      "&f가시배 화채&7를 하나 먹어보시오."],
     "왕사이드_요리장04": ["&7선왕비가 즐기던 요리를 재현해야 합니다.",
-                     "&f트러플 크림스튜&7를 만들어 올리세요.",
-                     "&8맛을 보려면 직접 먹어봐야 합니다."],
+                     "&f트러플 크림스튜&7를 만들어 &e제출소에 올리세요.",
+                     "&8제출 전용 요리입니다. 직접 먹을 수 없습니다."],
+}
+
+# 제출 전용 요리는 UseItemEvent 에서 먹기를 취소한다. 설명만 고치면 원본 JSON을 다시
+# 패치할 때 영구 완료 불가 목표가 되살아날 수 있으므로 목표도 이 스크립트가 권위로 고친다.
+GOAL_PATCHES = {
+    "왕사이드_요리장04": ["craft|트러플_크림스튜|1", "submitdish|트러플스튜|1"],
 }
 
 
@@ -43,7 +49,7 @@ def gate_line(e):
     tiers = []
     for g in e["목표"]:
         pr = g.split("|")
-        if pr[0] not in ("craft", "eatdish") or len(pr) < 2:
+        if pr[0] not in ("craft", "eatdish", "submitdish") or len(pr) < 2:
             continue
         key = pr[1].replace("_", "")
         if key in GATE:
@@ -68,6 +74,10 @@ for qid, e in Q["퀘스트"].items():
     if desc != before:
         e["설명"] = desc
         changed.append(qid)
+    goal_patch = GOAL_PATCHES.get(qid)
+    if goal_patch and e.get("목표") != goal_patch:
+        e["목표"] = goal_patch
+        changed.append(qid + " (목표)")
 
 print("설명 수정:", changed or "없음")
 if changed and not DRY:
