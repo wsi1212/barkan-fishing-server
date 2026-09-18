@@ -66,10 +66,10 @@ start() {
   : > "$LOG"
   tmux kill-session -t "$TMUX_SESSION" >/dev/null 2>&1 || true
   if [ -d "$DEV_NETWORK/shared/ship-entities" ]; then
-    printf -v command 'cd %q || exit 1; echo $$ > %q; exec env BLOCKSHIP_SHIP_MARKER_DIR=%q %q -Dterminal.jline=false -Dterminal.ansi=false -Xms2048M -Xmx2048M -jar %q nogui > %q 2>&1' \
+    printf -v command 'cd %q || exit 1; echo $$ > %q; exec env BLOCKSHIP_SHIP_MARKER_DIR=%q %q -Dterminal.jline=false -Dterminal.ansi=false -Xms2048M -Xmx4096M -jar %q nogui > %q 2>&1' \
       "$SRV" "$PIDFILE" "$DEV_NETWORK/shared/ship-entities" "$JAVA" "$PAPER" "$LOG"
   else
-    printf -v command 'cd %q || exit 1; echo $$ > %q; exec %q -Dterminal.jline=false -Dterminal.ansi=false -Xms2048M -Xmx2048M -jar %q nogui > %q 2>&1' \
+    printf -v command 'cd %q || exit 1; echo $$ > %q; exec %q -Dterminal.jline=false -Dterminal.ansi=false -Xms2048M -Xmx4096M -jar %q nogui > %q 2>&1' \
       "$SRV" "$PIDFILE" "$JAVA" "$PAPER" "$LOG"
   fi
   tmux new-session -d -s "$TMUX_SESSION" -c "$SRV" "$command"
