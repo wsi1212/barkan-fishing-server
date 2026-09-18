@@ -1,0 +1,21 @@
+[Unit]
+Description=Barkan Geyser (standalone, Bedrock bridge)
+# Velocity 가 떠 있어야 접속을 넘길 곳이 있다. 강제 의존은 걸지 않는다 —
+# Velocity 재기동에 Geyser 까지 딸려 내려가면 «베드락만 끊김» 이라는 목적이 깨진다.
+Wants=network-online.target
+After=network-online.target barkan-velocity.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/mc-network/geyser
+Environment=BARKAN_SHIP_MARKER_DIR=/home/ubuntu/mc-network/shared/ship-entities
+ExecStart=/usr/lib/jvm/zulu25-ca-arm64/bin/java -Xms256M -Xmx1G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -jar Geyser-Standalone.jar
+Restart=always
+RestartSec=3
+SuccessExitStatus=0 130 143
+NoNewPrivileges=true
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
