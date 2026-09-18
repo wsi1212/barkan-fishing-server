@@ -199,6 +199,14 @@ t.hideOption(EntityHideOption.FALSE);          // ★ (true,true,true,false) 금
 
 ## 5. 베드락 하이브리드 수명주기
 
+> ★**2026-09-19 — 이 절은 구현되지 않았다. 대신 §8 의 «패킷 가짜 플레이어» 를 먼저 했다**
+> (`com.blockship.npc.BedrockNpcRenderer`, config `npc.bedrock-fake-players`).
+> 이유는 아래 하이브리드의 최대 난점 — 베드락 때문에 스폰한 Citizens 를 **자바 유저 전원에게
+> hideEntity 하고 접속·리스폰·월드이동마다 재적용** — 이 패킷 경로에선 **아예 존재하지 않기**
+> 때문이다(패킷이 뷰어별이라 자바 클라는 받지 않는다). 서버 엔티티도 0개다.
+> 이 절은 «안 고른 길»의 기록으로 남긴다.
+
+
 ```
 베드락 뷰어 B 가 NPC n 의 반경 BR_ON(=24) 안으로 진입
    → n 의 Citizens NPC 가 despawned 면 spawn()
@@ -330,7 +338,29 @@ NPC 가 있는 월드가 늘면 `SUPPRESS_WORLDS` 류 목록이 자동으로 따
 
 ---
 
-## 8. 패킷 기반 베드락 NPC (후순위 평가 — 지금은 안 한다)
+## 8. 패킷 기반 베드락 NPC — ★2026-09-19 구현됨 (아래 «안 한다» 는 낡은 판정)
+
+구현: `npc/BedrockNpcRenderer.java`. 켜는 키 `npc.bedrock-fake-players`(기본 true, citizens-free 필요),
+반경 `npc.bedrock-range`/`-off`(24/32), 진단 `/npc베드락`, 검증용 `/npc베드락 강제 <닉>`(자바 클라를
+베드락처럼 취급 — 폰 없이 스폰·클릭을 실측할 수 있다).
+
+아래 «비용» 항목 중 실제로 치른 것과 아닌 것:
+- ProtocolLib 재도입 **안 했다** — 아웃바운드는 paperweight NMS(`connection.send`), 인바운드는
+  Netty 파이프라인 핸들러 1개. (ProtocolLib 5.4.0 은 1.21.8 까지만 검증이라 일부러 피했다.)
+- 클릭은 서버가 직접 해석하지 **않는다** — `ServerboundInteractPacket` 을 가로채 기존 **앵커 클릭
+  이벤트로 재발행**한다. 라우팅(`NpcInteractListener`)은 한 줄도 안 바꿨다.
+- 뷰어별 엔티티 id 관리는 필요했다(`byEntityId`, Netty 스레드가 읽어 ConcurrentHashMap).
+
+dev 실측(mineflayer 봇): 앵커 좌표에 클라 player 엔티티 1개 / 서버 엔티티 0개, 클릭 1회→응답 1건,
+60칸 밖 0개, 강제 해제 시 엔티티·프로필 전량 회수, 탭은 `listed=0` 이라 안 보임.
+★**미확인**: 실기기에서 Geyser 가 미등재 프로필의 스킨을 입히는지(Geyser #6717/#6721).
+
+함정: authlib 7 `PropertyMap` 은 생성자가 `ImmutableMultimap.copyOf` 다 — 멀티맵을 **채운 뒤
+감싸야** 하고, 순서를 바꾸면 `UnsupportedOperationException` 으로 tick 이 통째로 죽는다.
+
+---
+
+### (원안) 패킷 기반 베드락 NPC — 후순위 평가
 
 Citizens 를 **완전히** 없애려면 베드락용 가짜 플레이어를 우리가 직접 패킷으로 그려야 한다: `PLAYER_INFO_UPDATE(add + 텍스처 property)` → `SPAWN_ENTITY(player)` → 메타데이터 → `PLAYER_INFO_REMOVE`(탭 숨김) → 회전 패킷.
 
