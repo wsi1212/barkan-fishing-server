@@ -36,8 +36,25 @@ CE="$MC/plugins/CraftEngine"
 PACK="$CE/generated/resource_pack.zip"
 CFG="$CE/config.yml"
 WEBROOT=${WEBROOT:-/var/www/barkan}
+# ★공개 대상은 «CE config 의 url» 에서 읽는다 — 파일명을 여기 박아 두면 안 된다.
+#   2026-09-19 사고: 스크립트는 barkan-furniture.zip 에 배치하고 sha1 만 갱신했는데
+#   config 의 url 은 barkan-furniture-scarecrow-20260912-1525.zip 을 가리키고 있었다.
+#   sha1(새 팩) ≠ 그 URL 이 주는 파일(옛 팩) 이라 클라가 팩 적용에 실패했고, 서버는 새 HUD
+#   좌표를 보내는데 클라엔 폰트·초상이 없어 BetterHud 가 통째로 깨졌다.
+#   더 나쁜 건 아래 두 검증(PUBURL 대조·재시작 후 최종 대조)이 전부 «클라가 안 쓰는 URL» 을
+#   보고 통과해 버려서, 리포트에는 「완료」로 찍혔다는 점이다. url 을 권위로 삼아야 그 가드가
+#   비로소 진짜를 본다.
+CFG_URL=$(grep -oE 'https?://[^"'"'"' ]+\.zip' "$CFG" 2>/dev/null | head -1)
+if [ -z "${PUBFILE:-}" ] && [ -n "$CFG_URL" ]; then PUBFILE="$(basename "$CFG_URL")"; fi
 PUBFILE=${PUBFILE:-barkan-furniture.zip}
-PUBURL=${PUBURL:-https://barkan.kr/$PUBFILE}
+if [ -z "${PUBURL:-}" ]; then PUBURL="${CFG_URL:-https://barkan.kr/$PUBFILE}"; fi
+# url 과 배치 파일명이 어긋나면 그대로 두면 안 된다 — 위 사고가 정확히 그 상태였다.
+if [ -n "$CFG_URL" ] && [ "$(basename "$CFG_URL")" != "$PUBFILE" ]; then
+  echo "[bh-staging] 🔴 CE config url($CFG_URL) 과 배치 파일명($PUBFILE) 이 다르다 — 중단" >&2
+  exit 1
+fi
+# 하위 호환: 옛 이름을 직접 받아 가는 소비자가 있을 수 있어 같은 내용을 함께 둔다.
+PUBALIAS=${PUBALIAS:-barkan-furniture.zip}
 MARKER="$MC/.betterhud-staging-applied"
 BAKROOT="$MC/backups/betterhud-prev"
 WEBHOOK_FILE=${WEBHOOK_FILE:-$DIR/discord-webhook.url}
@@ -189,6 +206,12 @@ post() {
   sudo cp -f "$PACK" "$WEBROOT/.$PUBFILE.tmp"
   sudo chmod 644 "$WEBROOT/.$PUBFILE.tmp"
   sudo mv -f "$WEBROOT/.$PUBFILE.tmp" "$WEBROOT/$PUBFILE"
+  # 별칭도 같은 내용으로 맞춰 둔다(권위는 $PUBFILE, 이쪽은 하위 호환용).
+  if [ -n "$PUBALIAS" ] && [ "$PUBALIAS" != "$PUBFILE" ]; then
+    sudo cp -f "$WEBROOT/$PUBFILE" "$WEBROOT/.$PUBALIAS.tmp"
+    sudo chmod 644 "$WEBROOT/.$PUBALIAS.tmp"
+    sudo mv -f "$WEBROOT/.$PUBALIAS.tmp" "$WEBROOT/$PUBALIAS"
+  fi
 
   local PUB=""
   for i in 1 2 3; do
