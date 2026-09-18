@@ -106,7 +106,6 @@
       "Bash(1 echo:*)",
       "WebFetch(domain:docs.skunity.com)",
       "Bash(ls -la \"/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/BlockShip\"*.jar)",
-      "mcp__6c9673ed-e2d6-441d-98bc-999921a2579b__slack_create_canvas",
       "WebFetch(domain:www.9minecraft.net)",
       "Bash(brew install:*)",
       "Bash(unrar x:*)",

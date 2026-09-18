@@ -16,9 +16,11 @@ harpoon_value.py — 창 전용 스탯 6종의 원/h 가치 모델 (사이클 + 
 ## 라이브 코드에서 그대로 가져온 규칙 (HarpoonManager / HarpoonListener)
 
     체력      HP(g, size) = base[g] + floor(max(0, size-100)/50)
-              base = E1 D2 C3 B5 A8 S20 M28 L35 G45        (calcFishHp)
+              base = E1 D2 C3 B5 A8 S20 M30 L45 G60        (calcFishHp)
     찌르기피해 공격력 (spearAttack = max(1, stat + 특성 완력))
     ★돌진피해  공격력 × 2  (sweepAttack(..., max(1, getAttackPower(p)*2)) — 2026-08-26 발견)
+    등급감쇠   작살보다 물고기가 1 / 2 / 3등급 이상 높으면 피해 ×0.90 / ×0.75 / ×0.50
+              (일반 찌르기·돌진·급소 추가 피해 공통, 소수 피해는 다음 타격으로 이월)
               돌진 쿨타임 = max(20, round(200 / (1+돌진쿨감/100))) 틱 → 기본 10초
     필요타격   dash 로 먼저 깎고 남은 체력을 찌르기로: jabs = ceil((HP − dashes×2×atk) / atk)
     찌르기간격 gap = max(2, round(5 / (1+공격속도/100))) 틱   (jabGapTicks, JAB_GAP_TICKS=5)
@@ -33,10 +35,10 @@ harpoon_value.py — 창 전용 스탯 6종의 원/h 가치 모델 (사이클 + 
 
 ## ★돌진은 «이동»이 아니라 «2배 피해 공격»이다 (2026-08-26 검증에서 발견)
 
-초안 모델은 돌진을 이동수단으로만 봤고, 그래서 «철 작살(공2)로 S(HP12) 포획» 을 불가로 판정했다.
-실측은 5 명중으로 1 포획이었다 — 찌르기만으로는 6번이 필요하니 산수가 안 맞았다.
+초안 모델은 돌진을 이동수단으로만 봤고, 그래서 «철 작살(공2)로 S(HP20) 포획» 을 불가로 판정했다.
+실측은 돌진과 찌르기가 함께 들어가 찌르기만으로 계산한 횟수보다 적게 끝났다.
 원인은 `HarpoonManager:1420` 의 `sweepAttack(..., max(1, getAttackPower(p) * 2))` 였다.
-돌진이 **공격력 ×2** 로 때린다. 그래서 S = 돌진 4 + 찌르기 4×2 = 12 로 정확히 맞는다.
+돌진이 **공격력 ×2** 로 때린다. 따라서 돌진은 첫 타부터 큰 체력 압박을 만든다.
 ⇒ 돌진쿨감은 «이동 편의»가 아니라 **교전 DPS 스탯**이다. 쿨타임 200틱(10초)이 제한시간(6~7초)보다
 길어서 기본은 교전당 1회지만, 돌진쿨감 43% 부터 창 하나에 2회가 들어간다(200/1.43 = 140틱 = 7초).
 
@@ -88,12 +90,13 @@ MEAS = _load("measured")     # ★실측 상수 단일 출처
 
 # ── 라이브 코드 상수 (HarpoonManager / HarpoonListener) ────────────────────
 # HarpoonManager.calcFishHp 와 반드시 같아야 한다. 2026-09-15 실측 리밸런싱.
-HP_BASE = {"E": 1, "D": 2, "C": 3, "B": 5, "A": 8, "S": 20, "M": 28, "L": 35, "G": 45}
+HP_BASE = {"E": 1, "D": 2, "C": 3, "B": 5, "A": 8, "S": 20, "M": 30, "L": 45, "G": 60}
 WIN_BASE = {"E": 140, "D": 140, "C": 140, "B": 130, "A": 120, "S": 120,
             "M": 130, "L": 160, "G": 200}          # 틱
 JAB_GAP_TICKS = 5
 DASH_COOLDOWN_TICKS = 200          # HarpoonManager.DASH_COOLDOWN_TICKS
 DASH_DAMAGE_MULT = 2               # sweepAttack(..., getAttackPower*2) — 돌진은 2배 피해
+GRADE_RANK = {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4, "S": 5, "M": 6, "L": 7, "G": 8}
 ESCAPE_STAT_CAP = 0.50
 ESCAPE_MISS_PENALTY = 5                            # 틱/빗맞힘
 ESCAPE_MISS_CAP = 0.34                             # base_w 대비
@@ -204,7 +207,17 @@ class Model:
     def dash_cd_s(self, dashcut):
         return max(20, round(DASH_COOLDOWN_TICKS / (1.0 + max(0.0, dashcut) / 100.0))) / 20.0
 
-    def hits_needed(self, grade, atk, size=0.0, dashcut=0.0, window_s=None):
+    @staticmethod
+    def grade_damage_mult(harpoon_grade, fish_grade):
+        """HarpoonManager.gradeDamageMultiplier와 같은 소프트 등급 장벽."""
+        gap = GRADE_RANK.get(fish_grade, 0) - GRADE_RANK.get(harpoon_grade, 0)
+        if gap == 1:
+            return 0.90
+        if gap == 2:
+            return 0.75
+        return 0.50 if gap >= 3 else 1.0
+
+    def hits_needed(self, grade, atk, size=0.0, dashcut=0.0, window_s=None, harpoon_grade="G"):
         """(찌르기 횟수, 돌진 횟수) — 돌진이 공격력×2 로 먼저 깎는다.
 
         돌진은 교전 시작에 1회 쓸 수 있다고 본다(플레이어는 돌진으로 접근한다). 그 뒤
@@ -212,12 +225,13 @@ class Model:
         (돌진은 이동+타격이 한 틱이라 사실상 0초).
         """
         atk = max(1, atk)
+        damage = atk * self.grade_damage_mult(harpoon_grade, grade)
         hp = HP_BASE.get(grade, 1) + (int(max(0.0, size - 100) / 50) if size else 0)
         w = window_s if window_s is not None else WIN_BASE.get(grade, 140) / 20.0
         cd = self.dash_cd_s(dashcut)
         dashes = 1 + int(w // cd) if cd > 0 else 1
-        left = hp - dashes * DASH_DAMAGE_MULT * atk
-        jabs = max(0, math.ceil(left / atk)) if left > 0 else 0
+        left = hp - dashes * DASH_DAMAGE_MULT * damage
+        jabs = max(0, math.ceil(left / damage)) if left > 0 else 0
         return jabs, dashes
 
     def aim_gap(self, atkspd):
@@ -252,7 +266,8 @@ class Model:
         """포획 성립 확률 = P( Σ_{i<jabs} gap_i ≤ 제한시간 )."""
         w = self.window_s(grade, st.get("도망감소", 0))
         jabs, dashes = self.hits_needed(grade, st.get("공격력", 0), size,
-                                        st.get("돌진쿨감", 0), w)
+                                        st.get("돌진쿨감", 0), w,
+                                        st.get("_harpoon_grade", "G"))
         n = jabs + dashes
         if jabs <= 0:
             return 1.0, n, 0.0
@@ -388,6 +403,7 @@ class Model:
         st = dict(self.spears.get(base, {}).get("stats", {}))
         st.setdefault("공격력", 2)
         g = self.spears.get(base, {}).get("grade", "D")
+        st["_harpoon_grade"] = g
         st["수중호흡"] = max(st.get("수중호흡", 0), BREATH_FLOOR.get(g, 5))
         dist = self.dist_for(self.spears.get(base, {}).get("lvl", 1))
         # ★수색이 잠수 시간에 포함되므로 _search 는 자기 자신에 의존한다 → 고정점 반복.
@@ -454,6 +470,7 @@ class Model:
         st = dict(sp["stats"])
         st["수중호흡"] = max(st.get("수중호흡", 0), BREATH_FLOOR.get(sp["grade"], 5))
         st["공격력"] = max(1, st.get("공격력", 0))
+        st["_harpoon_grade"] = sp["grade"]
         return st
 
 

@@ -86,6 +86,8 @@ PLATES = {
     "ship_editor": (3, "shipedit_", 0xE950),
     # 길드 임무 6행 — 주간 임무 양피지·기여 순위 메달 전용 판.
     "guild_quest": (6, "guildquest_", 0xE960),
+    # Barkan Precision Series — 3개 정밀 제출 소켓과 제출/랭킹 버튼 위치가 고정된 전용 판.
+    "bps": (6, "bps_", 0xE970),
     # 상점 계열 공용 54칸 판 — 캐시·추천·스크롤·잠수·부품·드릴·통발·섬 상점.
     # prepare_cashshop_bg.py가 상품 4행과 상단 9칸 홈을 실제 좌표로 다시 찍는다.
     "cashshop": (6, "cashshop_", 0xE8A0),

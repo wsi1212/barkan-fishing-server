@@ -2718,6 +2718,42 @@
           "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/imagegen-batch/new-npc-portraits-20260905/transparent/213_base.png"
         }
       }
+    },
+    {
+      "citizensId": 219,
+      "npc": "카랜",
+      "skin": "카랜 초상화 일러스트",
+      "states": {
+        "base": {
+          "key": "219_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_219_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/honor-hall-portraits/219-calan-illustration_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 220,
+      "npc": "wsi1212",
+      "skin": "wsi1212",
+      "states": {
+        "base": {
+          "key": "220_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_220_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/honor-hall-portraits/220-wsi1212_base.png"
+        }
+      }
+    },
+    {
+      "citizensId": 221,
+      "npc": "tnry0315",
+      "skin": "tnry0315",
+      "states": {
+        "base": {
+          "key": "221_base",
+          "asset": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/ops/prod/betterhud/assets/dialogue/npc_221_base.png",
+          "source": "/Users/user/Library/Application Support/feather/player-server/servers/07de2d81-991a-47e2-b62d-06c0d1b5150a/plugins/Skript/scripts/npc-profiles/honor-hall-portraits/221-tnry0315_base.png"
+        }
+      }
     }
   ]
 }

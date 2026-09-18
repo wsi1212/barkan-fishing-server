@@ -7609,3 +7609,75 @@ npc_dialogue_portrait_213_base_xl:
   setting:
     scale: 0.3333
 
+npc_dialogue_portrait_219_base_sm:
+  type: single
+  file: dialogue/npc_219_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_219_base_md:
+  type: single
+  file: dialogue/npc_219_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_219_base_lg:
+  type: single
+  file: dialogue/npc_219_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_219_base_xl:
+  type: single
+  file: dialogue/npc_219_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_220_base_sm:
+  type: single
+  file: dialogue/npc_220_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_220_base_md:
+  type: single
+  file: dialogue/npc_220_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_220_base_lg:
+  type: single
+  file: dialogue/npc_220_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_220_base_xl:
+  type: single
+  file: dialogue/npc_220_base_xl.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_221_base_sm:
+  type: single
+  file: dialogue/npc_221_base_sm.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_221_base_md:
+  type: single
+  file: dialogue/npc_221_base_md.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_221_base_lg:
+  type: single
+  file: dialogue/npc_221_base_lg.png
+  setting:
+    scale: 0.3333
+
+npc_dialogue_portrait_221_base_xl:
+  type: single
+  file: dialogue/npc_221_base_xl.png
+  setting:
+    scale: 0.3333
+

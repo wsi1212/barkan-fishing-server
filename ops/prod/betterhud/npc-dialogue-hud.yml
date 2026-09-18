@@ -11194,6 +11194,114 @@ npc_dialogue_213_base_xl:
         x: 50
         y: 100
 
+npc_dialogue_219_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_219_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_219_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_219_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_219_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_219_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_219_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_219_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_220_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_220_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_220_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_220_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_220_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_220_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_220_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_220_base_xl
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_221_base_sm:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_221_base_sm
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_221_base_md:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_221_base_md
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_221_base_lg:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_221_base_lg
+      gui:
+        x: 50
+        y: 100
+
+npc_dialogue_221_base_xl:
+  tick: 1
+  layouts:
+    1:
+      name: npc_dialogue_layout_221_base_xl
+      gui:
+        x: 50
+        y: 100
+
 npc_dialogue_grandfather_sm:
   tick: 1
   layouts:
