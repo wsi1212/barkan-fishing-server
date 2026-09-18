@@ -19,7 +19,7 @@ harpoon_value.py — 창 전용 스탯 6종의 원/h 가치 모델 (사이클 + 
               base = E1 D2 C3 B5 A8 S20 M30 L45 G60        (calcFishHp)
     찌르기피해 공격력 (spearAttack = max(1, stat + 특성 완력))
     ★돌진피해  공격력 × 2  (sweepAttack(..., max(1, getAttackPower(p)*2)) — 2026-08-26 발견)
-    등급감쇠   작살보다 물고기가 1 / 2 / 3등급 이상 높으면 피해 ×0.90 / ×0.75 / ×0.50
+    등급감쇠   물고기 S 이상에서만, 작살보다 1 / 2 / 3등급 이상 높으면 피해 ×0.90 / ×0.75 / ×0.50
               (일반 찌르기·돌진·급소 추가 피해 공통, 소수 피해는 다음 타격으로 이월)
               돌진 쿨타임 = max(20, round(200 / (1+돌진쿨감/100))) 틱 → 기본 10초
     필요타격   dash 로 먼저 깎고 남은 체력을 찌르기로: jabs = ceil((HP − dashes×2×atk) / atk)
@@ -210,6 +210,8 @@ class Model:
     @staticmethod
     def grade_damage_mult(harpoon_grade, fish_grade):
         """HarpoonManager.gradeDamageMultiplier와 같은 소프트 등급 장벽."""
+        if GRADE_RANK.get(fish_grade, 0) < GRADE_RANK["S"]:
+            return 1.0
         gap = GRADE_RANK.get(fish_grade, 0) - GRADE_RANK.get(harpoon_grade, 0)
         if gap == 1:
             return 0.90
