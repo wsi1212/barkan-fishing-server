@@ -36,7 +36,7 @@ TMUX_SESSION=mc
 case "$GROUP" in
   islands) WORLDS="guild_world island_world"
            PREFIX=islands; KEEP_REMOTE=5; KEEP_LOCAL=3; HUMAN="섬(개인·길드)";;
-  main)    WORLDS="world world_nether world_the_end flatroom flatroom_nether flatroom_the_end mine"
+  main)    WORLDS="world flatroom mine"
            PREFIX=world; KEEP_REMOTE=2; KEEP_LOCAL=1; HUMAN="본월드(건축물)";;
   *) echo "usage: $0 <islands|main>" >&2; exit 2;;
 esac

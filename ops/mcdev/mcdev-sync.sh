@@ -14,7 +14,7 @@
 set -uo pipefail
 cd "$(dirname "$0")" && source ./mcdev-lib.sh
 
-WORLDS="world world_nether world_the_end"
+WORLDS="world"
 COPY_WORLDS=1
 DRY=0
 EXCLUDE_PLUGINS=()
@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --worlds)
       if [[ "$2" == "all" ]]; then
-        WORLDS="world world_nether world_the_end guild_world island_world afk_world flatroom mine"
+        WORLDS="world guild_world island_world afk_world flatroom mine"
       else WORLDS="$2"; fi
       shift 2 ;;
     --no-worlds)      COPY_WORLDS=0; shift ;;

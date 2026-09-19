@@ -19,7 +19,7 @@ LABEL="[바르칸 prod]"
 TMUX_SESSION=mc
 
 case "$GROUP" in
-  main)    WORLDS="world world_nether world_the_end flatroom flatroom_nether flatroom_the_end mine"
+  main)    WORLDS="world flatroom mine"
            PREFIX=localmain;    KEEP=3; HUMAN="본월드(로컬)";;
   islands) WORLDS="guild_world island_world"
            PREFIX=localislands; KEEP=7; HUMAN="섬(로컬)";;
