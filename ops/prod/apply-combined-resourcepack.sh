@@ -3,6 +3,7 @@
 # 서버가 꺼져 있지 않아도 안전하다: Paper는 다음 부팅 때만 server.properties를 읽는다.
 set -euo pipefail
 
+DIR_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MC=${MC_ROOT:-$HOME/mcserver}
 PROPS="$MC/server.properties"
 CE="$MC/plugins/CraftEngine/generated/resource_pack.zip"
@@ -190,6 +191,14 @@ with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
   z.writestr(i,files[n])
 PY
   unzip -tqq "$t" >/dev/null || die "결합팩 ZIP 검증 실패"
+  # ★게이트: 공개하기 «전»에 전수 감사. 기준선(마지막으로 눈으로 확인된 팩) 대비 결손·세대차가
+  #   있으면 여기서 멈춘다. 2026-09-19 에 이 게이트가 없어서 깨진 팩을 세 번 내보냈다.
+  AUDIT="$DIR_SELF/audit-combined-resourcepack.py"
+  if [ -x "$AUDIT" ] || [ -f "$AUDIT" ]; then
+    MC_ROOT="$MC" python3 "$AUDIT" --gate "$t" || die "결합팩 감사 실패 — 공개하지 않는다"
+  else
+    echo "combined-rp: ⚠ 감사 스크립트가 없다($AUDIT) — 게이트 없이 진행" >&2
+  fi
   combined=$(sha "$t"); target="$WEB/barkan-resourcepack-combined-$combined.zip"
   $SUDO install -d -m 0755 "$WEB"
   $SUDO install -m 0644 "$t" "$target.tmp"
