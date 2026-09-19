@@ -11,6 +11,7 @@
     "물고기비늘": { "grindBundle": 1, "grindYield": 50 },
     "강화실": { "grindBundle": 1, "grindYield": 50 },
     "녹슨부품": { "grindBundle": 1, "grindYield": 50 },
+    "낡은갈고리": { "grindBundle": 1, "grindYield": 100 },
 
     "미끼": { "grindBundle": 1, "grindYield": 10 },
     "나뭇가지": { "grindBundle": 1, "grindYield": 10 },
@@ -21,6 +22,7 @@
     "자수정": { "grindBundle": 4, "grindYield": 5 },
     "압축흑정석": { "grindBundle": 1, "grindYield": 10 },
     "압축철광석": { "grindBundle": 1, "grindYield": 10 },
+    "압축자수정": { "grindBundle": 1, "grindYield": 20 },
 
     "강화석탄": { "grindBundle": 1, "grindYield": 1 },
     "강화구리괴": { "grindBundle": 1, "grindYield": 1 },
@@ -51,7 +53,7 @@
     "황금당근": { "grindBundle": 1, "grindYield": 33 },
     "네더라이트주괴": { "grindBundle": 1, "grindYield": 50 },
 
-    "정제된갈고리": { "grindBundle": 1, "grindYield": 280 },
+    "정제된갈고리": { "grindBundle": 1, "grindYield": 140 },
     "단단한자루": { "grindBundle": 1, "grindYield": 175 },
     "강철심": { "grindBundle": 1, "grindYield": 180 },
     "행운의매듭": { "grindBundle": 1, "grindYield": 600 },
