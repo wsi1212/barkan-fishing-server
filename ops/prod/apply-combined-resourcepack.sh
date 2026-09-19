@@ -62,7 +62,7 @@ else
   t=$(mktemp "$BASE_DIR/combined.XXXXXX.zip")
   trap 'rm -f "$t"' EXIT
   python3 - "$BASE" "$CE" "$t" <<'PY'
-import sys,zipfile
+import json,sys,zipfile
 from pathlib import PurePosixPath
 base,ce,out=sys.argv[1:]
 def safe(n):
@@ -71,11 +71,39 @@ files={}
 with zipfile.ZipFile(base) as z:
  for i in z.infolist():
   if safe(i.filename): files[i.filename]=z.read(i.filename)
-# CE overlay가 기존에 메인팩 위를 덮었으므로, 충돌하면 CE 바이트를 유지한다.
+base_meta=json.loads(files['pack.mcmeta'])
+# ★CE 팩은 assets/ 만이 아니다 — 오버레이 디렉터리(betterhud_*, bettermodel_modern, ce_overlay_*)에
+#   버전별 정본이 들어 있고 BetterHud 의 코어 셰이더는 «오버레이에만» 있다. assets/ 만 복사하면
+#   클라가 받는 팩에 셰이더가 0개가 되어 HUD 가 통째로 깨진다(2026-09-19 실측, 26.2 클라 제보).
 with zipfile.ZipFile(ce) as z:
+ ce_meta=json.loads(z.read('pack.mcmeta'))
  for i in z.infolist():
-  if safe(i.filename) and i.filename.startswith('assets/'): files[i.filename]=z.read(i.filename)
-assert 'pack.mcmeta' in files
+  if safe(i.filename) and i.filename!='pack.mcmeta' and i.filename!='pack.png':
+   files[i.filename]=z.read(i.filename)
+# CE 의 overlays 선언을 그대로 승계하고, 팩 적용범위 상한도 CE 쪽까지 넓힌다.
+ovs=ce_meta.get('overlays',{}).get('entries',[])
+def hi(v,d):
+ x=v.get(d)
+ return x[0] if isinstance(x,list) else (x if isinstance(x,int) else None)
+base_max=hi(base_meta['pack'],'max_format') or base_meta['pack'].get('pack_format')
+ce_max=hi(ce_meta['pack'],'max_format') or ce_meta['pack'].get('pack_format')
+# CE 가 선언한 상한(88)만 따르면 그보다 새 클라(26.2 등)가 «범위 밖» 이 된다.
+# 오버레이가 커버하는 상한까지 올리되, ce_overlay_* 의 1000 같은 «무한» 표기는 99 로 자른다.
+cand=[x for x in (base_max,ce_max) if x]+[hi(e,'max_format') or 0 for e in ce_meta.get('overlays',{}).get('entries',[])]
+newmax=max(x for x in cand if x and x<=99)
+base_meta['pack']['max_format']=newmax
+if isinstance(base_meta['pack'].get('min_format'),int):
+ pass
+if ovs:
+ base_meta['overlays']={'entries':ovs}
+# 선언한 오버레이 디렉터리가 실제로 들어갔는지 검산 (빈 선언은 클라가 팩 전체를 거부한다)
+dirs={n.split('/',1)[0] for n in files if '/' in n}
+missing=[e['directory'] for e in ovs if e['directory'] not in dirs]
+assert not missing, f"오버레이 디렉터리 누락: {missing}"
+shaders=[n for n in files if '/shaders/core/' in n]
+assert shaders, "코어 셰이더가 0개다 — BetterHud HUD 가 깨진다"
+files['pack.mcmeta']=json.dumps(base_meta,ensure_ascii=False).encode()
+print(f"  결합: 파일 {len(files)}개 · 오버레이 {len(ovs)}개 · 셰이더 {len(shaders)}개 · max_format={newmax}",file=sys.stderr)
 with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
  for n in sorted(files):
   i=zipfile.ZipInfo(n,date_time=(1980,1,1,0,0,0)); i.compress_type=zipfile.ZIP_DEFLATED; i.external_attr=0o644<<16
