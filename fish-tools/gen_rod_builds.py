@@ -673,6 +673,19 @@ def main():
     json.dump(E, open(enh_path, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     print(f"enhance.json: 강화표 {added}종 추가 (총 {len(tbl)}종)")
 
+    # ★표가 «없는» 낚싯대는 조용히 폴백(난이도:1,크기:2,크리확률:1 …)을 탄다 — 에러도 경고도
+    #   없이 라인과 무관한 스탯이 붙는다. 이 루프는 cat(격자) 만 돌기 때문에 KEEP_AS_IS·
+    #   재료확률 라인처럼 «격자 밖에서 보존되는» 낚싯대는 여기서 절대 안 채워진다.
+    #   2026-08-31 신설 왕도 B 6종이 그렇게 19일간 빠져 있었다(제보: 조병창 9강 → 난이도 -9).
+    #   채우는 건 fish-tools/patch_enhance_missing_tables.py 소관이고, 여기선 «빠졌다»고
+    #   반드시 소리를 낸다.
+    orphan = [n for n in parts["낚싯대"] if n not in tbl]
+    if orphan:
+        print("\n★★ 강화표 누락 — 이 낚싯대들은 EnhanceLoader 폴백을 타서 라인과 무관한")
+        print("   «난이도 -N» 을 받는다:", ", ".join(orphan))
+        print("   고치기: python3 fish-tools/patch_enhance_missing_tables.py "
+              f"{SRC} --apply")
+
     # ── NPC 상점 목록 (--shops) ──
     if WRITE_SHOPS:
         npc_path = os.path.join(SRC, "npc.json")
