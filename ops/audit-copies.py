@@ -20,6 +20,7 @@
 사용:  python3 ops/audit-copies.py          (검사, 어긋나면 exit 1)
        python3 ops/audit-copies.py --fix    (권위 → 사본으로 덮어 맞춤)
 """
+from __future__ import annotations  # 맥 시스템 python3.9 에서도 «str | None» 주석이 통하게
 import hashlib
 import os
 import pathlib
