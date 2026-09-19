@@ -10,8 +10,13 @@ BH="$MC/plugins/BetterHud/build.zip"
 # ★CE 는 remove_shulker_head 팩의 2개 파일을 generated 에 안 싣는다(보호팩에만 들어간다).
 #   가구가 셜커 머리를 숨기는 데 쓰는 파일이라 빠지면 머리가 보인다.
 CE_EXTRA="$MC/plugins/CraftEngine/resources/remove_shulker_head/resourcepack"
+# ★26.1+ 클라용 셰이더 덮어쓰기(betterhud-26-1-fix.sh 가 build.zip 에서 뽑아 둔 현재 세대).
+CE_FIX="$MC/plugins/CraftEngine/betterhud-26-1-fix"
 CE_CFG="$MC/plugins/CraftEngine/config.yml"
 WEB=${WEBROOT:-/var/www/barkan}
+# 공개 주소 접두와 설치 권한은 환경별로 다르다(prod=Caddy+sudo, dev=로컬 8801+권한 없음).
+PUBBASE=${PUBBASE:-https://barkan.kr}
+SUDO=${SUDO-sudo}
 BASE_DIR="$MC/resourcepack-base"
 BASE="$BASE_DIR/base.zip"
 BASE_META="$BASE_DIR/base.json"
@@ -66,12 +71,13 @@ if [[ "$combined" =~ ^[0-9a-f]{40}$ ]] && [ -f "$WEB/barkan-resourcepack-combine
 else
   t=$(mktemp "$BASE_DIR/combined.XXXXXX.zip")
   trap 'rm -f "$t"' EXIT
-  python3 - "$BASE" "$CE" "$t" "${BH:-}" "${CE_EXTRA:-}" <<'PY'
+  python3 - "$BASE" "$CE" "$t" "${BH:-}" "${CE_EXTRA:-}" "${CE_FIX:-}" <<'PY'
 import json,os,sys,zipfile
 from pathlib import PurePosixPath
 base,ce,out=sys.argv[1:4]
 bh=sys.argv[4] if len(sys.argv)>4 else ''
 extra=sys.argv[5] if len(sys.argv)>5 else ''
+fix=sys.argv[6] if len(sys.argv)>6 else ''
 def safe(n):
  p=PurePosixPath(n); return not p.is_absolute() and '..' not in p.parts and not n.endswith('/')
 # ★팩 «스택»에서는 안 덮이고 «합쳐지는» 파일들이 있다 — 폰트 정의·lang·sounds·atlases.
@@ -79,6 +85,9 @@ def safe(n):
 #   한 파일로 합치면서 그냥 덮어써서 메인팩의 provider 가 사라졌고, 그게 «폰트가 안 바뀌고
 #   메뉴(글리프 이미지)가 안 보이는» 증상이었다(2026-09-19). 그래서 여기서 직접 합친다.
 def stacking(n):
+ # ★betterhud 자산은 «합치면» 안 된다 — 세대마다 통째로 새로 생성되는 파일이라
+ #   옛 세대 provider 가 섞이면 없는 텍스처를 가리킨다. BetterHud 것으로 통째 교체한다.
+ if n.startswith('assets/betterhud/'): return False
  return (('/font/' in n and n.endswith('.json')) or ('/lang/' in n and n.endswith('.json'))
          or n.endswith('/sounds.json') or ('/atlases/' in n and n.endswith('.json')))
 def merge_json(old,new):
@@ -109,16 +118,24 @@ base_meta=json.loads(files['pack.mcmeta'])
 #   빠지는 1276개가 HUD·NPC 대화창 글리프라 폰트가 통째로 안 바뀐다. 그래서 build.zip 을
 #   직접 얹는다. 순서는 BH 먼저·CE 나중 — CE 의 betterhud-26-1-fix 가 BH 의 26_1 셰이더를
 #   덮어야 하기 때문(반대로 하면 26.1+ 클라 HUD 가 화면 밖으로 날아간다).
-if bh:
- with zipfile.ZipFile(bh) as z:
-  for i in z.infolist():
-   if safe(i.filename) and i.filename not in ('pack.mcmeta','pack.png'):
-    put(files,i.filename,z.read(i.filename))
 with zipfile.ZipFile(ce) as z:
  ce_meta=json.loads(z.read('pack.mcmeta'))
  for i in z.infolist():
   if safe(i.filename) and i.filename!='pack.mcmeta' and i.filename!='pack.png':
    put(files,i.filename,z.read(i.filename))
+# ★BH 는 CE «뒤»에 얹는다 — CE 안의 BetterHud 사본은 한 세대 뒤처진다(2026-09-19 실측:
+#   CE 것은 셰이더 좌표표 case 2개, build.zip 은 3개 → 오른쪽 위 HUD 가 화면 밖으로 날아갔다).
+if bh:
+ with zipfile.ZipFile(bh) as z:
+  for i in z.infolist():
+   if safe(i.filename) and i.filename not in ('pack.mcmeta','pack.png'):
+    put(files,i.filename,z.read(i.filename))
+# 26.1+ 전용 셰이더만 CE 의 fix 폴더가 최종 승자다(BH 가 26_1 자리에 주는 건 1.21.6 용이라 깨진다).
+if fix and os.path.isdir(fix):
+ for root,_,fns in os.walk(fix):
+  for fn in fns:
+   full=os.path.join(root,fn); rel=os.path.relpath(full,fix)
+   if safe(rel): files[rel]=open(full,'rb').read()
 # CE 가 generated 에서 빠뜨린 리소스팩 트리를 «없는 경로만» 채운다(덮어쓰지 않는다).
 if extra and os.path.isdir(extra):
  for root,_,fns in os.walk(extra):
@@ -153,6 +170,14 @@ for fn in ('assets/barkan/font/gui.json','assets/minecraft/font/default.json'):
    if fn in z.namelist():
     b0=len(json.loads(z.read(fn)).get('providers',[])); b1=len(json.loads(files[fn]).get('providers',[]))
     assert b1>=b0, f"{fn} provider 결손: {b1}<{b0} — 메뉴 글리프가 사라진다"
+if bh:
+ with zipfile.ZipFile(bh) as z:
+  ref=[n for n in z.namelist() if n.endswith('betterhud_1_21_6/assets/minecraft/shaders/core/rendertype_text.vsh')]
+  if ref:
+   want_cases=z.read(ref[0]).count(b'case ')
+   for n,v in files.items():
+    if n.endswith('/shaders/core/rendertype_text.vsh') and n.startswith('betterhud_'):
+     assert v.count(b'case ')==want_cases, f"{n}: HUD 좌표표 세대 불일치({v.count(b'case ')} vs {want_cases}) — HUD 가 화면 밖으로 날아간다"
 fonts=[n for n in files if 'betterhud/font/' in n]
 if bh:
  with zipfile.ZipFile(bh) as z: want=len([n for n in z.namelist() if 'betterhud/font/' in n])
@@ -166,9 +191,9 @@ with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
 PY
   unzip -tqq "$t" >/dev/null || die "결합팩 ZIP 검증 실패"
   combined=$(sha "$t"); target="$WEB/barkan-resourcepack-combined-$combined.zip"
-  sudo install -d -m 0755 "$WEB"
-  sudo install -m 0644 "$t" "$target.tmp"
-  sudo mv "$target.tmp" "$target"
+  $SUDO install -d -m 0755 "$WEB"
+  $SUDO install -m 0644 "$t" "$target.tmp"
+  $SUDO mv "$target.tmp" "$target"
   [ "$(sha "$target")" = "$combined" ] || die "공개 결합팩 SHA1 불일치"
   python3 - "$STATE" "$base_sha" "$ce_sha" "$combined" <<'PY'
 import json,os,sys
@@ -177,7 +202,7 @@ PY
   trap - EXIT
 fi
 
-public="https://barkan.kr/$(basename "$target")"
+public="$PUBBASE/$(basename "$target")"
 curl -fLsS --max-time 300 "$public" -o /tmp/combined-rp-check.zip || die "공개 결합팩 다운로드 실패"
 [ "$(sha /tmp/combined-rp-check.zip)" = "$combined" ] || die "공개 결합팩 SHA1 불일치"
 python3 - "$PROPS" "$public" "$combined" <<'PY'
