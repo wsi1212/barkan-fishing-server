@@ -19,9 +19,9 @@ prod 2026-09 실측이 그 영향을 보여준다 — S어종 도주율이 공4�
 ## 무엇을 하나
 
 ① 공격력 < BASE[등급] 인 작살의 공격력을 BASE 까지 올린다. **공격력만 건드린다.**
-② 그 상향분만큼 **다른 스탯을 비례 축소**해, 그 등급에서 하한을 지키고 있는 또래 작살의
-   회수시간 중앙값에 맞춘다. 총원가(가격+재료)는 안 건드리므로 회수시간 = 총원가 / eff 다.
-   ⇒ 목표 eff = 총원가 / 또래중앙값. 이미 목표보다 낮으면 **아무것도 깎지 않는다**(순상향).
+② 그 상향분만큼 **다른 스탯을 비례 축소**한다. 등급 중앙값을 기본으로 하되 같은 등급 안에서도
+   해금 레벨이 높을수록 최대 +12%, 히든 출처는 추가 +6%의 목표 성능을 허용한다. 총원가(가격+재료)는
+   안 건드리므로 회수시간 = 총원가 / eff 다. 이미 목표보다 낮으면 **아무것도 깎지 않는다**(순상향).
 
 원/h 판정은 `item_ledger.build` 와 **같은 식**을 쓴다(작살 67종 재현 오차 0.0000원/h 검산).
 창 전용 스탯은 `harpoon_value` 모델(사이클+등급천장), 보상 스탯은 `stat_value` 단가다.
@@ -65,6 +65,10 @@ DASH_MIN = 45
 #  총원가 267만~329만인데 하한을 지키는 S 4종은 641만~840만이다(2~3배). 레시피 쪽
 #  (`patch_cast_cost.py`)에서 올릴 일이지 여기서 스탯을 깎아 덮을 일이 아니다.
 IDENTITY_FLOOR = 0.40
+#: 같은 등급 안의 레벨 진행으로 허용할 최대 성능 차이. 등급은 사냥터, 레벨은 미세 성장이다.
+LEVEL_PERF_SPREAD = 0.12
+#: 히든은 발견·재료 관문을 더 통과한 보상으로, 같은 레벨 일반품보다 조금 강하게 남긴다.
+HIDDEN_PERF_BONUS = 0.06
 
 
 def stat_str(st, order):
@@ -95,6 +99,8 @@ def main():
           * (IL.SV.size_mult(hs.get("quality_mean") or IL.HARPOON_QUALITY)
              / IL.SV.size_mult(k["size_score"])))
     HM = IL.HV.Model()
+    P = json.load(open(os.path.join(src, "parts.json"), encoding="utf-8"))
+    origins = {name: raw.split("|")[6] for name, raw in P["parts"]["작살"].items()}
     rows = {r["name"]: r for r in IL.build(D, statvals, incomes, hr, HM) if r["cat"] == "작살"}
 
     _bc = {}
@@ -135,6 +141,19 @@ def main():
               and r["payback"] == r["payback"] and r["payback"] != float("inf")]
         if ok:
             target_h[g] = statistics.median(ok)
+    grade_levels = {
+        g: (min(r["lv"] for r in rows.values() if r["grade"] == g),
+            max(r["lv"] for r in rows.values() if r["grade"] == g))
+        for g in target_h
+    }
+
+    def target_eff(m, grade_payback):
+        lo, hi = grade_levels[m["grade"]]
+        level_progress = 0.0 if hi <= lo else (m["lv"] - lo) / (hi - lo)
+        bonus = LEVEL_PERF_SPREAD * level_progress
+        if origins.get(m["name"], "").startswith("히든"):
+            bonus += HIDDEN_PERF_BONUS
+        return m["total"] / grade_payback * (1.0 + bonus)
 
     viol = [n for n, r in rows.items() if r["stats"].get("공격력", 0) < BASE.get(r["grade"], 0)]
     viol.sort(key=lambda n: (list("EDCBASMLG").index(rows[n]["grade"]), rows[n]["lv"]))
@@ -160,7 +179,6 @@ def main():
         return out
 
     plan, held = {}, []
-    P = json.load(open(os.path.join(src, "parts.json"), encoding="utf-8"))
     print(f"{'등':>2} {'Lv':>4} {'작살':<16}{'공':>7} {'eff원/h 전→후':>26} {'회수h 전→후':>18}  비고")
     for g in ("B", "A", "S"):
         th = target_h.get(g)
@@ -171,7 +189,7 @@ def main():
             total, e0, h0 = m["total"], m["eff"], m["payback"]
             raised = scaled(n, 1.0)                      # 공격력만 올린 상태
             e_raise = eff_of(n, raised)
-            tgt = total / th if th and total == total else None
+            tgt = target_eff(m, th) if th and total == total else None
             note = ""
             if tgt is None or e_raise <= tgt:
                 final, s = raised, 1.0
