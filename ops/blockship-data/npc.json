@@ -200,8 +200,7 @@
     "명예의전당_tnry0315",
     "명예의전당_카랜",
     "명예의전당_wsi1212",
-    "명예의전당_all_ways_Incheon",
-    "BPS제출"
+    "명예의전당_all_ways_Incheon"
   ],
   "npcs": {
     "낚시꾼할아버지": {
@@ -8516,34 +8515,6 @@
       "villageQuest": false,
       "ranking": false,
       "bps": false,
-      "quests": [],
-      "shopItems": []
-    },
-    "BPS제출": {
-      "citizensId": "230",
-      "name": "&b[BPS 제출] 기록관",
-      "ferry": false,
-      "shop": false,
-      "inn": false,
-      "smithy": false,
-      "islandShop": false,
-      "scrollShop": false,
-      "guild": false,
-      "submit": false,
-      "cooking": false,
-      "drillShop": false,
-      "heal": false,
-      "horseRental": false,
-      "boatRental": false,
-      "shipShop": false,
-      "market": false,
-      "quest": false,
-      "casino": false,
-      "casinoRanking": false,
-      "appraisal": false,
-      "villageQuest": false,
-      "ranking": false,
-      "bps": true,
       "quests": [],
       "shopItems": []
     }

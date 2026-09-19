@@ -1,0 +1,3 @@
+BPS 제출관 NPC(「&b[BPS 제출] 기록관」, npc.json 키 BPS제출)를 폐지한 의도된 축소입니다 — 202 → 201.
+BPS 제출은 /bps 명령으로만 엽니다. 부팅 시 BpsManager#purgeSubmitNpc 가 Citizens 실물도 함께 정리합니다
+(dev 에 중복 36개가 쌓여 있었습니다 — getName() 이 색코드를 벗겨 «기존 것 없음»으로 오판해 매 부팅 새로 만들었음).
